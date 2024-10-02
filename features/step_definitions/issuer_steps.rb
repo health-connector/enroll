@@ -113,6 +113,10 @@ And(/^the user should see Plan PVP areas$/) do
   expect(page).to have_css(".pvp-areas", text: '1')
 end
 
+And(/^the user should see HIOS id$/) do
+  expect(page).to have_css(".plan_id", text: '41842DC0400010-01')
+end
+
 And(/^the user should see Availability table$/) do
   expect(page).to have_css('table.table.availability-table')
 

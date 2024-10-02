@@ -5,27 +5,30 @@
         li.breadcrumb-item= link_to l10n('marketplaces.breadcrumb.marketplace'), main_app.issuer_index_exchanges_hbx_profiles_path
         li.breadcrumb-item= link_to l10n('marketplaces.breadcrumb.plan_year'), marketplace_plan_years_exchanges_hbx_profiles_path(year: params[:year])
         li.breadcrumb-item= link_to l10n('marketplaces.breadcrumb.carrier'), marketplace_plan_year_exchanges_hbx_profiles_path(year: params[:year], market: 'shop')
-        li.breadcrumb-item= link_to l10n('marketplaces.breadcrumb.plan'), marketplace_plan_year_exchanges_hbx_profiles_path(year: params[:year], market: 'shop')
+        li.breadcrumb-item= link_to l10n('marketplaces.breadcrumb.plan'), carrier_exchanges_hbx_profiles_path(year: params[:year], market: 'shop', id: params[:id])
         li.breadcrumb-item.active[aria-current="page"]= l10n('marketplaces.breadcrumb.detail')
   .col-lg-12
     h1.mt-0.heading-text= l10n('marketplaces.plan.title')
   .container
     h4= @product.title
     .row
-      .col-md-2= l10n('marketplaces.plan.summary.benefit')
-      .col-md-9.benefit= @product.kind.capitalize
+      .col-xs-6.col-sm-6.col-md-2= l10n('marketplaces.plan.summary.benefit')
+      .col-xs-6.col-sm-6.col-md-9.benefit= @product.kind.capitalize
     .row
-      .col-md-2= l10n('marketplaces.plan.summary.market')
-      .col-md-9= l10n('marketplaces.plan.summary.market_type')
+      .col-xs-6.col-sm-6.col-md-2= l10n('marketplaces.plan.summary.market')
+      .col-xs-6.col-sm-6.col-md-9= l10n('marketplaces.plan.summary.market_type')
     .row
-      .col-md-2= l10n('marketplaces.plan.summary.metal_tier')
-      .col-md-9.metal-tier= @product.metal_level_kind.to_s.capitalize
+      .col-xs-6.col-sm-6.col-md-2= l10n('marketplaces.plan.summary.metal_tier')
+      .col-xs-6.col-sm-6.col-md-9.metal-tier= @product.metal_level_kind.to_s.capitalize
     .row
-      .col-md-2= l10n('marketplaces.plan.summary.rating_area')
-      .col-md-9= format_rating_area_codes(@product_rating_areas.keys)
+      .col-xs-6.col-sm-6.col-md-2= l10n('marketplaces.plan.summary.plan_id')
+      .col-xs-6.col-sm-6.col-md-9.plan_id= @product.hios_id
     .row
-      .col-md-2= l10n('marketplaces.plan.summary.pvp_area')
-      .col-md-9.pvp-areas= format_rating_area_codes(@product_pvp_eligible_ras.keys)
+      .col-xs-6.col-sm-6.col-md-2= l10n('marketplaces.plan.summary.rating_area')
+      .col-xs-6.col-sm-6.col-md-9= format_rating_area_codes(@product_rating_areas.keys)
+    .row
+      .col-xs-6.col-sm-6.col-md-2= l10n('marketplaces.plan.summary.pvp_area')
+      .col-xs-6.col-sm-6.col-md-9.pvp-areas= format_rating_area_codes(@product_pvp_eligible_ras.keys)
 
   .pvp-eligibility-form-container
     = render "pvp_eligibility_form"

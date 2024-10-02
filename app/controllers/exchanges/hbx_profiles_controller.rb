@@ -477,7 +477,7 @@ class Exchanges::HbxProfilesController < ApplicationController
   def marketplace_plan_year
     authorize HbxProfile, :view_admin_tabs?
     year = params[:year].to_i
-    carriers = BenefitSponsors::Organizations::ExemptOrganization.issuer_profiles.map do |org|
+    all_carriers = BenefitSponsors::Organizations::ExemptOrganization.issuer_profiles.map do |org|
       {
         legal_name: org[:legal_name],
         organization_id: org._id,
@@ -485,15 +485,7 @@ class Exchanges::HbxProfilesController < ApplicationController
       }
     end
 
-    @carriers = if year >= TimeKeeper.date_of_record.prev_year.year
-                  carriers.map { |carrier| carrier_data(carrier, year) }
-                else
-                  carriers.map do |carrier|
-                    Rails.cache.fetch("issuers-tab-carrier_info-#{carrier[:organization_id]}-by-year-#{year}", expires_in: 1.week) do
-                      carrier_data(carrier, year)
-                    end
-                  end
-                end.compact
+    @carriers = fetch_carriers_data(all_carriers, year)
 
     respond_to do |format|
       format.html { render "marketplace_plan_year", layout: 'exchanges_base' }
@@ -503,21 +495,8 @@ class Exchanges::HbxProfilesController < ApplicationController
 
   def marketplace_plan_years
     authorize HbxProfile, :view_admin_tabs?
-    years = BenefitMarkets::Products::Product.pluck(:application_period).flat_map do |application_period|
-      (application_period['min']&.year..application_period['max']&.year).to_a
-    end.uniq.sort.reverse
 
-    new_years, old_years = years.partition { |year| year >= TimeKeeper.date_of_record.prev_year.year }
-
-    new_years_data = new_years.map { |year| year_plan_data(year) }
-
-    old_years_data = old_years.map do |year|
-      Rails.cache.fetch("issuers-marketplace-plan-years-by-year-#{year}", expires_in: 1.week) do
-        year_plan_data(year)
-      end
-    end
-
-    @years_data = new_years_data + old_years_data
+    @years_data = fetch_products_data_by_years
 
     respond_to do |format|
       format.html { render "marketplace_plan_years", layout: 'exchanges_base' }
@@ -553,7 +532,7 @@ class Exchanges::HbxProfilesController < ApplicationController
     authorize HbxProfile, :view_admin_tabs?
     @product = BenefitMarkets::Products::Product.find(params[:product_id])
     @qhp = Products::QhpCostShareVariance.find_qhp_cost_share_variances([@product.hios_id], params[:year], @product.kind.to_s).first
-    @rating_areas = BenefitMarkets::Locations::RatingArea.by_year(@product.active_year).pluck(:exchange_provided_code, :id).uniq.to_h
+    @rating_areas = BenefitMarkets::Locations::RatingArea.by_year(@product.active_year).pluck(:exchange_provided_code, :id).uniq.sort.to_h
     @product_rating_areas = @product.premium_tables.map(&:rating_area).pluck(:exchange_provided_code, :id).uniq.to_h
     @product_pvp_eligible_ras = fetch_eligible_pvp_ras_for(@product)
 
@@ -577,9 +556,12 @@ class Exchanges::HbxProfilesController < ApplicationController
               else
                 { success: l10n('hbx_profiles.mark_pvp_success') }
               end
+    org = BenefitSponsors::Organizations::ExemptOrganization.by_profile(@product.issuer_profile.id).last
 
     redirect_to plan_details_exchanges_hbx_profiles_path(
-      year: @product.active_year, id: @product.issuer_profile.id, product_id: @product.id,
+      year: @product.active_year,
+      id: org.id,
+      product_id: @product.id,
       market: @product.benefit_market_kind.to_s.split('_').last
     ), flash: message
   end
@@ -842,49 +824,69 @@ class Exchanges::HbxProfilesController < ApplicationController
     eligible_pvp_ras.reduce({}) { |acc, hash| acc.merge(hash) }.sort
   end
 
-  def year_plan_data(year)
-    product_query = BenefitMarkets::Products::Product.where(
-      :"application_period.min".lte => Date.new(year, 12, 31),
-      :"application_period.max".gte => Date.new(year, 1, 1)
-    )
-    product_ids = product_query.pluck(:_id)
-    enrollments_count = Rails.cache.fetch("issuers-tab-enrollment-count-by-year-#{year}", expires_in: 12.hours) do
-      Family.actual_enrollments_number(product_ids: product_ids)
-    end
+  def fetch_products_data_by_years
+    product_ids_by_year = BenefitMarkets::Products::Product.pluck(:application_period, :id).each_with_object({ }) do |data, result|
+      (result[data[0]['min'].year] ||= []) << data[1]
+    end.sort.reverse.to_h
 
+    all_product_ids = BenefitMarkets::Products::Product.pluck(:id)
+    enrollments_data = Family.actual_enrollment_counts_by_products(all_product_ids)
+    enrollments_by_product = enrollments_data.index_by { |data| data["_id"] }
+
+    product_ids_by_year.map do |year, product_ids|
+      enrollments_count = product_ids.sum { |p_id| enrollments_by_product[p_id]&.dig("enrollment_count") || 0 }
+      products_query = BenefitMarkets::Products::Product.where(:id.in => product_ids)
+      {
+        year: year,
+        plans_number: product_ids.count,
+        pvp_numbers: eligible_pvps(product_ids).count,
+        enrollments_number: enrollments_count,
+        product_kinds: format_product_kinds(products_query.distinct(:kind))
+      }
+    end
+  end
+
+  def format_product_kinds(kinds)
+    kinds.uniq.map { |kind| kind.to_s.capitalize }.sort.reverse.join(", ")
+  end
+
+  def fetch_all_carriers_product_for(carriers, year)
+    all_profile_ids = carriers.flat_map { |carrier| carrier[:profile_ids] }
+    BenefitMarkets::Products::Product.where(
+      :"application_period.min".lte => Date.new(year, 12, 31),
+      :"application_period.max".gte => Date.new(year, 1, 1),
+      :issuer_profile_id.in => all_profile_ids
+    )
+  end
+
+  def products_data_by_carrier(carrier, products, enrollments_count)
     {
-      year: year,
-      plans_number: product_query.count,
-      pvp_numbers: eligible_pvps(product_query).count,
+      carrier: carrier[:legal_name],
+      organization_id: carrier[:organization_id],
+      plans_number: products.count,
       enrollments_number: enrollments_count,
-      products: product_query.distinct(:kind).map { |kind| kind.to_s.capitalize }.sort.reverse.join(", ")
+      pvp_numbers: eligible_pvps(products.map(&:_id)).count,
+      product_kinds: format_product_kinds(products.map(&:kind))
     }
   end
 
-  def carrier_data(carrier_data, year)
-    carrier_name = carrier_data[:legal_name]
-    profile_ids = carrier_data[:profile_ids]
-    organization_id = carrier_data[:organization_id]
-    product_query = BenefitMarkets::Products::Product.where(
-      :"application_period.min".lte => Date.new(year, 12, 31),
-      :"application_period.max".gte => Date.new(year, 1, 1),
-      :issuer_profile_id.in => profile_ids
-    )
-    return unless product_query.count > 0
+  def fetch_carriers_data(carriers, year)
+    product_query = fetch_all_carriers_product_for(carriers, year)
+    products_by_carrier = product_query.group_by(&:issuer_profile_id)
+    all_product_ids = product_query.pluck(:_id)
+    enrollments_data = Family.actual_enrollment_counts_by_products(all_product_ids)
 
-    product_ids = product_query.pluck(:_id)
-    enrollments_count = Rails.cache.fetch("issuers-tab-enrollment-count-by-carrier-#{organization_id}-by-year-#{year}", expires_in: 12.hours) do
-      Family.actual_enrollments_number(product_ids: product_ids)
-    end
+    enrollments_by_product = enrollments_data.index_by { |data| data["_id"] }
 
-    {
-      carrier: carrier_name,
-      organization_id: organization_id,
-      plans_number: product_query.count,
-      pvp_numbers: eligible_pvps(product_query).count,
-      enrollments_number: enrollments_count,
-      products: product_query.distinct(:kind).map { |kind| kind.to_s.capitalize }.sort.reverse.join(", ")
-    }
+    carriers.map do |carrier|
+      profile_ids = carrier[:profile_ids]
+      carrier_products = profile_ids.flat_map { |profile_id| products_by_carrier[profile_id] || [] }
+      product_ids = carrier_products.map(&:_id)
+      next if product_ids.empty?
+
+      enrollments_count = product_ids.sum { |p_id| enrollments_by_product[p_id]&.dig("enrollment_count") || 0 }
+      products_data_by_carrier(carrier, carrier_products, enrollments_count)
+    end.compact
   end
 
   def product_data(product)
@@ -907,8 +909,11 @@ class Exchanges::HbxProfilesController < ApplicationController
            .map { |pvp| [pvp.rating_area.exchange_provided_code, pvp.rating_area.id] }.uniq.to_h
   end
 
-  def eligible_pvps(products)
-    products.flat_map(&:premium_value_products).select { |pvp| pvp.latest_active_pvp_eligibility_on.present? }
+  def eligible_pvps(product_ids)
+    BenefitMarkets::Products::PremiumValueProduct.where(
+      :product_id.in => product_ids,
+      :eligibilities => {:$elemMatch => {key: :cca_shop_pvp_eligibility, current_state: :eligible}}
+    )
   end
 
   def uniq_terminate_params
