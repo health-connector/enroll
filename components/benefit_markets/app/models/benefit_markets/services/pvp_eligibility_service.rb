@@ -19,7 +19,7 @@ module BenefitMarkets
             current_eligibility = pvp.latest_active_pvp_eligibility_on(TimeKeeper.date_of_record)
             next if current_eligibility.present?.to_s == evidence_value.to_s
 
-            effective_date = get_effective_date(evidence_value)
+            effective_date = get_effective_date
             result = store_pvp_eligibility(pvp, evidence_value, effective_date)
             eligibility_result[result.success? ? "Success" : "Failure"] << rating_area_id
           else
@@ -37,7 +37,7 @@ module BenefitMarkets
         ).success
       end
 
-      def get_effective_date(evidence_value)
+      def get_effective_date
         return @args[:effective_date] if @args[:effective_date].present?
 
         @product.application_period.min.to_date
