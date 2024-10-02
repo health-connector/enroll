@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe "insured/families/_enrollment.html.erb" do
-  let(:sponsored_benefit_package) { double("SponsoredBenefitPakage") }
+  let(:sponsored_benefit_package) { double("SponsoredBenefitPakage", start_on: 2.month.ago) }
   let(:person) { double(id: '31111113') }
   let(:family) { double(is_eligible_to_enroll?: true, updateable?: true, list_enrollments?: true, id: 'familyid', :enrollment_is_not_most_recent_sep_enrollment? => false) }
 
