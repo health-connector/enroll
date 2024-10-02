@@ -16,9 +16,9 @@ module BenefitMarkets
 
         # Initializes the PVP Eligibility Configuration
         #
-        # @param [Hash] params Initialization parameters
-        # @option params [Object] :subject The subject (typically a PVP entity)
-        # @option params [Date] :effective_date The effective date for eligibility
+        # @param [Hash] opts Initialization parameters
+        # @option opts [Object] :subject The subject (typically a PVP entity)
+        # @option opts [Date] :effective_date The effective date for eligibility
         def initialize(params)
           @subject = params[:subject]
           @effective_date = params[:effective_date]

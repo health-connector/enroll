@@ -16,12 +16,12 @@ module BenefitMarkets
         send(:include, Dry::Monads[:result, :do])
         # Executes the operation
         #
-        # @param [Hash] params The parameters needed for the operation
-        # @option params [String] :hios_id The HIOS ID of the product
-        # @option params [Integer] :active_year The active year of the product
-        # @option params [String] :rating_area_code The code representing the Rating Area
-        # @option params [String] :evidence_value The PVP eligibility status
-        # @option params [String] :updated_by The email address of the user making the update
+        # @param [Hash] opts The parameters needed for the operation
+        # @option opts [String] :hios_id The HIOS ID of the product
+        # @option opts [Integer] :active_year The active year of the product
+        # @option opts [String] :rating_area_code The code representing the Rating Area
+        # @option opts [String] :evidence_value The PVP eligibility status
+        # @option opts [String] :updated_by The email address of the user making the update
         #
         # @return [Dry::Monads::Result::Success, Dry::Monads::Result::Failure] Result of the operation
         def call(params)
