@@ -285,6 +285,7 @@ RSpec.describe "employers/census_employees/show.html.erb", dbclean: :after_each 
           household: household,
           benefit_group: current_benefit_package,
           coverage_kind: 'dental',
+          sponsored_benefit_package_id: benefit_group_assignment.benefit_group.id,
           aasm_state: 'coverage_terminated',
           rating_area_id: rating_area.id
         )
