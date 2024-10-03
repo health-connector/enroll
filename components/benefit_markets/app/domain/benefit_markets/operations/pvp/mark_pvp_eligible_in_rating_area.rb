@@ -67,7 +67,7 @@ module BenefitMarkets
         end
 
         def create_or_update_pvp_eligibilities(pvp, values)
-          effective_date = values[:effective_date] || TimeKeeper.date_of_record
+          effective_date = values[:effective_date] || pvp.product.application_period.min.to_date
           current_eligibility = pvp.latest_active_pvp_eligibility_on(effective_date)
           return Success(current_eligibility) if current_eligibility.present?.to_s == values[:evidence_value].to_s
 

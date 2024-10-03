@@ -1,10 +1,10 @@
 <ul>
   <% search_options.each do |title, options| %>
     <% next if options.empty? %>
-    <li><span class="run-glossary"><%= search_titles[title] %></span>
+    <li><span class="run-glossary" data-cuke="bqt-plan-type-filter"><%= search_titles[title] %></span>
       <% options.each do |option| %>
-        <label for="<%= option %>" class="plan-search-option" data-search-type="<%= title.to_s %>" data-value="<%= option %>">
-          <%= check_box_tag "#{option}", option, false, class: 'checkbox plan-filter-checkbox', :'data-search-type' => title.to_s  %>
+        <label for='<%= "#{title}-#{option}" %>' class="plan-search-option" data-search-type="<%= title.to_s %>" data-value="<%= option %>">
+          <%= check_box_tag "#{title}-#{option}", option, false, class: 'checkbox plan-filter-checkbox', :'data-search-type' => title.to_s  %>
           <% if option.is_a? String %>
             <%= option.capitalize %>
           <% elsif option.is_a? MetalLevel %>

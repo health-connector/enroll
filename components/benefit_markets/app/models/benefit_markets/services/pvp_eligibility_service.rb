@@ -12,20 +12,22 @@ module BenefitMarkets
       end
 
       def create_or_update_pvp_eligibilities
-        eligibility_result = {}
+        eligibility_result = Hash.new { |h, k| h[k] = [] }
 
         @args[:rating_areas].each do |rating_area_id, evidence_value|
-          pvp = find_or_create_pvp(rating_area_id)
-          effective_date = @args[:effective_date] || TimeKeeper.date_of_record
-          current_eligibility = pvp.latest_active_pvp_eligibility_on(effective_date)
-          next if current_eligibility.present?.to_s == evidence_value.to_s
+          if (pvp = find_or_create_pvp(rating_area_id))
+            current_eligibility = pvp.latest_active_pvp_eligibility_on(TimeKeeper.date_of_record)
+            next if current_eligibility.present?.to_s == evidence_value.to_s
 
-          result = store_pvp_eligibility(pvp, evidence_value, effective_date)
-          eligibility_result[rating_area_id] = result.success? ? "Success" : "Failure"
+            effective_date = @args[:effective_date] || @product.application_period.min.to_date
+            result = store_pvp_eligibility(pvp, evidence_value, effective_date)
+            eligibility_result[result.success? ? "Success" : "Failure"] << rating_area_id
+          else
+            eligibility_result["Failure"] << rating_area_id
+          end
         end
 
-        grouped_eligibilities = eligibility_result.group_by { |_year, value| value }
-        grouped_eligibilities.transform_values { |items| items.map(&:first) }
+        eligibility_result
       end
 
       def find_or_create_pvp(rating_area_id)

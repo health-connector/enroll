@@ -55,6 +55,8 @@ module BenefitMarkets
     index({ hbx_id: 1 }, {name: "products_hbx_id_index"})
     index({ service_area_id: 1}, {name: "products_service_area_index"})
 
+    index({ "kind" => 1 }, {name: "products_kind_index"})
+
     index({ "application_period.min" => 1,
             "application_period.max" => 1,
             },
@@ -381,6 +383,21 @@ module BenefitMarkets
       return false unless pvp.present?
 
       pvp.latest_active_pvp_eligibility_on(date)&.eligible?
+    end
+
+    def plan_types
+      plan_types = []
+      plan_types << health_plan_kind if respond_to?(:health_plan_kind)
+      plan_types << dental_plan_kind if respond_to?(:dental_plan_kind)
+      plan_types << :pvp if premium_value_products.select { |pvp| pvp.latest_active_pvp_eligibility_on.present? }.present?
+      plan_types.compact
+    end
+
+    def self.types
+      values = EnrollRegistry[:product_type_values].settings
+      values.each_with_object({}) do |value, hash|
+        hash[value.key] = value.item
+      end
     end
 
     private

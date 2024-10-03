@@ -64,7 +64,7 @@ module BenefitSponsors
       return false unless ::EnrollRegistry.feature_enabled?(:premium_value_products)
       return false unless new_product.present?
 
-      new_product.is_pvp_in_rating_area(@rating_area, @coverage_start_on)
+      new_product.is_pvp_in_rating_area(@rating_area, @rate_schedule_date)
     end
 
     def employee_cost_total

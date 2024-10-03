@@ -113,6 +113,7 @@ FactoryBot.define do
       can_view_username_and_email { true }
       can_lock_unlock { true }
       can_reset_password { true }
+      can_update_pvp_eligibilities { true }
     end
 
     trait :super_admin do
@@ -129,6 +130,7 @@ FactoryBot.define do
       can_submit_time_travel_request { false }
       can_change_username_and_email { true }
       view_login_history { true }
+      can_update_pvp_eligibilities { true }
     end
   end
 end

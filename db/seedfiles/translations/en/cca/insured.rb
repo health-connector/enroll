@@ -348,7 +348,7 @@ How to find the SEVIS ID: On the DS-2019, the number is on the top right hand si
   :'en.standard_plan' => "Standard Plan",
   :'en.insured.plan_shoppings.standard_plan_title_info' => "Each health insurance company offers a standard plan at each metal level. Benefits and cost-sharing are the same among standard plans of the same metal level, but monthly premiums and provider network options may be different. This makes it easier for consumers to compare plans at the same metal level and choose what’s best for them.",
   :'en.premium_value_plan' => "Premium Value Plan",
-  :'en.insured.plan_shoppings.pvp_title_info' => "Exchange offers a Premium value plan at each rating area.",
+  :'en.insured.plan_shoppings.pvp_title_info' => "Premium Value Plans offer monthly premiums that are lower than the average premium of all the plans available in your area offering similar benefits within the same Metal Level.",
   :'en.your_current_plan' => "Your Current %{year} Plan",
   :'en.insured.plan_shoppings.eligible_cost_sharing' => "Eligible for Cost Sharing Reduction",
   :'en.type' => "Type",

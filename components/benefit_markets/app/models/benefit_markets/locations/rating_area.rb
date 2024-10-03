@@ -28,6 +28,8 @@ module BenefitMarkets
       {name: "rating_areas_exchange_provided_code_index"}
     )
 
+    scope :by_year, ->(year) { where(active_year: year) }
+
     def location_specified
       if county_zip_ids.blank? && covered_states.blank?
         errors.add(:base, "a location covered by the rating area must be specified")
