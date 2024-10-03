@@ -78,9 +78,15 @@ module CapybaraHelpers
   end
 
   def l10n(translation_key, interpolated_keys = {})
-    sanitize_html(I18n.t(translation_key, interpolated_keys.merge(raise: true)))
+    result = fetch_translation(translation_key.to_s, interpolated_keys)
+    sanitize_result(result, translation_key)
   rescue I18n::MissingTranslationData
     translation_key.gsub(/\W+/, '').titleize
+  end
+
+  def fetch_translation(translation_key, interpolated_keys)
+    options = interpolated_keys.present? ? interpolated_keys.merge(default: default_translation(translation_key)) : {}
+    I18n.t(translation_key, **options, raise: true)
   end
 
   # rubocop:disable Style/GlobalVars
