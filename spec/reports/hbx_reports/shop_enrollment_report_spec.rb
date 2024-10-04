@@ -23,9 +23,9 @@ describe ShopEnrollmentReport do
     ClimateControl.modify purchase_date_start: (0o6 / 0o1 / 2018).to_s, purchase_date_end: (0o6 / 10 / 2018).to_s do
 
       CSV.foreach(@file) do |csv|
-        expect(csv).to eq ['Employer ID', 'Employer FEIN', 'Employer Name', 'Employer Rating Area', 'Employer Plan Year Start Date', 'Plan Year State', 'Employer State', 'Enrollment Group ID',
+        expect(csv).to eq ['Employer ID', 'Employer FEIN', 'Employer Name', 'Employer Plan Year Start Date', 'Plan Year State', 'Employer State', 'Enrollment Group ID',
                            'Enrollment Purchase Date/Time', 'Coverage Start Date', 'Enrollment State', 'Subscriber HBX ID', 'Subscriber First Name','Subscriber Last Name', 'Subscriber SSN',
-                           'Plan HIOS Id', 'Is PVP Plan', 'Covered lives on the enrollment', 'Enrollment Reason', 'In Glue']
+                           'Plan HIOS Id', 'Employer Rating Area', 'Is PVP Plan', 'Covered lives on the enrollment', 'Enrollment Reason', 'In Glue']
       end
     end
   end

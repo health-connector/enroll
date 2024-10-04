@@ -25,9 +25,9 @@ class ShopEnrollmentReport < MongoidMigrationTask
       result
     end
 
-    field_names = ['Employer ID', 'Employer FEIN', 'Employer Name', 'Employer Rating Area', 'Employer Plan Year Start Date', 'Plan Year State', 'Employer State', 'Enrollment Group ID',
+    field_names = ['Employer ID', 'Employer FEIN', 'Employer Name', 'Employer Plan Year Start Date', 'Plan Year State', 'Employer State', 'Enrollment Group ID',
                    'Enrollment Purchase Date/Time', 'Coverage Start Date', 'Enrollment State', 'Subscriber HBX ID', 'Subscriber First Name','Subscriber Last Name', 'Subscriber SSN',
-                   'Plan HIOS Id', 'Is PVP Plan', 'Covered lives on the enrollment', 'Enrollment Reason', 'In Glue']
+                   'Plan HIOS Id', 'Employer Rating Area', 'Is PVP Plan', 'Covered lives on the enrollment', 'Enrollment Reason', 'In Glue']
 
     file_name = "#{Rails.root}/hbx_report/shop_enrollment_report.csv"
     CSV.open(file_name, "w", force_quotes: true) do |csv|
