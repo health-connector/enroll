@@ -903,7 +903,6 @@ class Person
   def attributes_changed?
     changes = changed_attributes.stringify_keys
     meaningful_changes = changes.except('updated_at', 'updated_by', 'updated_by_id')
-    Rails.logger.info "Meaningful changes: #{meaningful_changes}"
     meaningful_changes.present?
   end
 
