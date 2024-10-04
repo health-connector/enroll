@@ -58,5 +58,21 @@ RSpec.describe Users::PasswordsController, dbclean: :after_each do
         expect(flash[:notice]).to eq l10n('devise.passwords.new.generic_forgot_password_text')
       end
     end
+
+    context "employee user submits forgot password" do
+      let(:user) { FactoryBot.create(:user, person: person)}
+      let(:person) {FactoryBot.create(:person, :with_employee_role) }
+
+      before :each do
+        sign_in user
+      end
+
+      it "should not delete security question for employees" do
+        expect(user.security_question_responses.count).to eq(3)
+        post :create, params: { user: { email: user.email} }
+        user.reload
+        expect(user.security_question_responses.count).to eq(3)
+      end
+    end
   end
 end
