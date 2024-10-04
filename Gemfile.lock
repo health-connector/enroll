@@ -631,7 +631,7 @@ GEM
       net-ssh (>= 2.6.5)
     net-ssh (4.2.0)
     newrelic_rpm (9.7.1)
-    nio4r (2.7.0)
+    nio4r (2.7.3)
     nokogiri (1.13.10)
       mini_portile2 (~> 2.8.0)
       racc (~> 1.4)
@@ -666,7 +666,7 @@ GEM
     psych (5.1.2)
       stringio
     public_suffix (4.0.7)
-    puma (4.3.6)
+    puma (6.4.3)
       nio4r (~> 2.0)
     pundit (1.0.1)
       activesupport (>= 3.0.0)
@@ -1056,7 +1056,7 @@ DEPENDENCIES
   overcommit
   parallel_tests (= 2.26.2)
   prawn!
-  puma (= 4.3.6)
+  puma (= 6.4.3)
   pundit (~> 1.0.1)
   railroady (~> 1.5.2)
   rails (= 5.2.8.1)
