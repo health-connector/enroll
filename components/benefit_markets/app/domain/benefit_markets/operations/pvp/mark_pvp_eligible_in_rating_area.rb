@@ -6,9 +6,24 @@ require 'dry/monads/do'
 module BenefitMarkets
   module Operations
     module Pvp
+      # This operation marks a Product as PVP (Premium Value Product) eligible
+      # within a specific Rating Area based on the provided parameters.
+      #
+      # @example
+      #   BenefitMarkets::Operations::Pvp::MarkPvpEligibleInRatingArea.new.call(params)
+
       class MarkPvpEligibleInRatingArea
         send(:include, Dry::Monads[:result, :do])
-
+        # Executes the operation
+        #
+        # @param [Hash] opts The parameters needed for the operation
+        # @option opts [String] :hios_id The HIOS ID of the product
+        # @option opts [Integer] :active_year The active year of the product
+        # @option opts [String] :rating_area_code The code representing the Rating Area
+        # @option opts [String] :evidence_value The PVP eligibility status
+        # @option opts [String] :updated_by The email address of the user making the update
+        #
+        # @return [Dry::Monads::Result::Success, Dry::Monads::Result::Failure] Result of the operation
         def call(params)
           values = yield validate(params)
           product = yield get_product(values)

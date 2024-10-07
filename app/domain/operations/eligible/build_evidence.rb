@@ -5,21 +5,24 @@ require "dry/monads/do"
 
 module Operations
   module Eligible
-    # Operation to support eligibility creation
+    # Operation to build evidence for eligibility.
     class BuildEvidence
       include Dry::Monads[:do, :result]
       include ::Operations::Eligible::EligibilityImport[
                 configuration: "evidence_defaults"
               ]
 
-      # @param [Hash] opts Options to build eligibility
-      # @option opts [<GlobalId>] :subject required
-      # @option opts [<String>]   :evidence_key required
-      # @option opts [<String>]   :evidence_value required
-      # @option opts [Date]       :effective_date required
-      # @option opts [Hash]       :evidence_record optional
-      # @option opts [Hash]       :timestamps optional timestamps for data migrations purposes
-      # @return [Dry::Monad] Hash
+      # Builds evidence options for eligibility determination.
+      #
+      # @param [Hash] opts Options to build eligibility.
+      # @option opts [GlobalId] :subject (required) The subject for which the evidence is being created.
+      # @option opts [String] :evidence_key (required) The key of the evidence.
+      # @option opts [String] :evidence_value (required) The value of the evidence.
+      # @option opts [Date] :effective_date (required) The effective date of the evidence.
+      # @option opts [Hash] :evidence_record (optional) An existing evidence record, if available.
+      # @option opts [Hash] :timestamps (optional) Custom timestamps for data migrations.
+      #
+      # @return [Dry::Monads::Result] Success with evidence options if valid, or Failure with validation errors.
       def call(params)
         values = yield validate(params)
         evidence_options = yield build(values)

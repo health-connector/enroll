@@ -78,7 +78,7 @@ en:
       search_result: "Search result: "
       search_result_plans: "plans"
     plan:
-      title: "Plan Details"
+      title: "%{year} Plan Details"
       summary:
         benefit: "Benefit:"
         market: "Market:"

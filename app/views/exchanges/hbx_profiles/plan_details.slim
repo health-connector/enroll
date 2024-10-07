@@ -8,7 +8,7 @@
         li.breadcrumb-item= link_to l10n('marketplaces.breadcrumb.plan'), carrier_exchanges_hbx_profiles_path(year: params[:year], market: 'shop', id: params[:id])
         li.breadcrumb-item.active[aria-current="page"]= l10n('marketplaces.breadcrumb.detail')
   .col-lg-12
-    h1.mt-0.heading-text= l10n('marketplaces.plan.title')
+    h1.mt-0.heading-text= l10n('marketplaces.plan.title', year: params[:year])
   .container
     h4= @product.title
     .row

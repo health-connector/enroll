@@ -5,22 +5,25 @@ require "dry/monads/do"
 
 module Operations
   module Eligible
-    # Operation to support eligibility creation
+    # Operation to build eligibility records based on input parameters.
     class BuildEligibility
       include Dry::Monads[:do, :result]
       include ::Operations::Eligible::EligibilityImport[
                 configuration: "eligibility_defaults"
               ]
 
-      # @param [Hash] opts Options to build eligibility
-      # @option opts [<GlobalId>] :subject required
-      # @option opts [<String>]   :evidence_key required
-      # @option opts [<String>]   :evidence_value required
-      # @option opts [Date]       :effective_date required
-      # @option opts [ShopOsseEligibility]  :eligibility_record optional
-      # @option opts [EvidenceConfiguration]  :evidence_configuration optional
-      # @option opts [Hash]       :timestamps optional timestamps for data migrations purposes
-      # @return [Dry::Monad] result
+      # Builds eligibility options for a given subject and evidence.
+      #
+      # @param [Hash] opts Options to build eligibility.
+      # @option opts [GlobalId] :subject (required) The subject for which eligibility is being created.
+      # @option opts [String] :evidence_key (required) The key of the evidence.
+      # @option opts [String] :evidence_value (required) The value of the evidence.
+      # @option opts [Date] :effective_date (required) The date when the eligibility should take effect.
+      # @option opts [ShopOsseEligibility] :eligibility_record (optional) Existing eligibility record, if available.
+      # @option opts [EvidenceConfiguration] :evidence_configuration (optional) Configuration for evidence, if applicable.
+      # @option opts [Hash] :timestamps (optional) Custom timestamps for migrations.
+      #
+      # @return [Dry::Monads::Result] Returns a Success with eligibility options if valid, or a Failure with errors.
       def call(params)
         values = yield validate(params)
         evidence_record = yield find_evidence(values)
