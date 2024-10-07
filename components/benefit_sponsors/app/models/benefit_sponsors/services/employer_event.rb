@@ -18,13 +18,21 @@ module BenefitSponsors
 
       def render_payloads
         issuer_profiles = BenefitSponsors::Organizations::ExemptOrganization.issuer_profiles || []
+
         carrier_files = issuer_profiles.flat_map(&:issuer_profile).compact.map do |car|
           BenefitSponsors::EmployerEvents::CarrierFile.new(car)
         end
+
         event_renderer = BenefitSponsors::EmployerEvents::Renderer.new(self)
+        Rails.logger.debug "Initialized event renderer"
+
         carrier_files.each do |car|
+          Rails.logger.debug "Rendering event using CarrierFile: #{car&.carrier&.id}" unless Rails.env.test?
           car.render_event_using(event_renderer, self)
         end
+
+        Rails.logger.info "Finished rendering payloads"
+
         carrier_files
       end
     end

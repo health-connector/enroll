@@ -148,10 +148,15 @@ class Exchanges::EmployerApplicationsController < ApplicationController
     @application = @benefit_sponsorship.benefit_applications.find(params[:employer_application_id])
     employer_profile_hbx_id = @benefit_sponsorship.hbx_id
     employer = @benefit_sponsorship.profile
-    event_payload = render_to_string "events/v2/employers/updated", :formats => ["xml"], :locals => { employer: employer, manual_gen: false, benefit_application_id: @application.id }
+    event_payload = render_to_string "events/v2/employers/updated", formats: ["xml"], locals: { employer: employer, manual_gen: false, benefit_application_id: @application.id }
     employer_event = BenefitSponsors::Services::EmployerEvent.new(event_name, event_payload, employer_profile_hbx_id)
     group_xml_downloader = BenefitSponsors::Services::GroupXmlDownloader.new(employer_event)
-    group_xml_downloader.download(self)
+    download_status = group_xml_downloader.download(self)
+
+    return unless download_status == :empty_files
+
+    flash[:alert] = "All carrier files have no rendered employers."
+    redirect_to exchanges_hbx_profiles_root_path
   end
 
   def new_v2_xml

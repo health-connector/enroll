@@ -23,20 +23,20 @@ module BenefitSponsors
         found_plan_year = false
         carrier_plan_years(carrier).each do |node|
           node.xpath("cv:plan_year_start", {:cv => XML_NS}).each do |date_node|
-            date_value = begin
-              Date.strptime(date_node.content, "%Y%m%d")
-            rescue StandardError
-              puts "Could not find current or future plan year start date" unless Rails.env.test?
+            begin
+              date_value = Date.strptime(date_node.content.strip, "%Y%m%d")
+            rescue StandardError => e
+              puts "Error parsing start date: #{e.message}" unless Rails.env.test?
             end
             next unless date_value
 
             found_plan_year = true if date_value >= Date.today
           end
           node.xpath("cv:plan_year_end", {:cv => XML_NS}).each do |date_node|
-            date_value = begin
-              Date.strptime(date_node.content, "%Y%m%d")
-            rescue StandardError
-              puts "Could not find current or future plan year future end date" unless Rails.env.test?
+            begin
+              date_value = Date.strptime(date_node.content.strip, "%Y%m%d")
+            rescue StandardError => e
+              puts "Error parsing end date: #{e.message}" unless Rails.env.test?
             end
             next unless date_value
 
@@ -53,7 +53,7 @@ module BenefitSponsors
 
       def finding_sorted_plan_years(all_plan_years)
         all_plan_years.sort_by do |node|
-          Date.strptime(node.xpath("cv:plan_year_start", {:cv => XML_NS}).first.content,"%Y%m%d")
+          Date.strptime(node.xpath("cv:plan_year_start", {:cv => XML_NS}).first.content.strip,"%Y%m%d")
         rescue StandardError
           puts "Could not find sorted plan year start date" unless Rails.env.test?
         end
@@ -70,12 +70,12 @@ module BenefitSponsors
         last_plan_year = sorted_plan_years.last
         if last_plan_year.present? && last_plan_year.xpath("//cv:elected_plans/cv:elected_plan/cv:carrier/cv:id/cv:id[text() = '#{carrier.hbx_carrier_id}']", {:cv => XML_NS}).any?
           start_date = begin
-            Date.strptime(last_plan_year.xpath("cv:plan_year_start", {:cv => XML_NS}).first.content,"%Y%m%d")
+            Date.strptime(last_plan_year.xpath("cv:plan_year_start", {:cv => XML_NS}).first.content.strip,"%Y%m%d")
           rescue StandardError
             puts "Could not find retroactive plan year start date" unless Rails.env.test?
           end
           end_date = begin
-            Date.strptime(last_plan_year.xpath("cv:plan_year_end", {:cv => XML_NS}).first.content,"%Y%m%d")
+            Date.strptime(last_plan_year.xpath("cv:plan_year_end", {:cv => XML_NS}).first.content.strip,"%Y%m%d")
           rescue StandardError
             puts "Could not find retroactive plan year end date" unless Rails.env.test?
           end
@@ -90,6 +90,7 @@ module BenefitSponsors
           false
         end
       end
+      # rubocop:enable Metrics/PerceivedComplexity
 
       def renewal_and_no_future_plan_year?(carrier)
         return false if employer_event.event_name != BenefitSponsors::EmployerEvents::EventNames::RENEWAL_SUCCESSFUL_EVENT
@@ -97,15 +98,20 @@ module BenefitSponsors
         found_future_plan_year = false
         carrier_plan_years(carrier).each do |node|
           end_date = begin
-            Date.strptime(node.xpath("cv:plan_year_end", {:cv => XML_NS}).first.content,"%Y%m%d")
-          rescue StandardError
-            puts "Could not find renewal and no_future plan year end date" unless Rails.env.test?
+            raw_end_date = node.xpath("cv:plan_year_end", {:cv => XML_NS}).first.content.strip
+            Date.strptime(raw_end_date, "%Y%m%d")
+          rescue StandardError => e
+            puts "Could not find renewal and no_future plan year end date: #{e.message}" unless Rails.env.test?
+            nil
           end
+
           node.xpath("cv:plan_year_start", {:cv => XML_NS}).each do |date_node|
             date_value = begin
-              Date.strptime(date_node.content, "%Y%m%d")
-            rescue StandardError
-              puts "Could not find renewal and no_future plan year start date" unless Rails.env.test?
+              raw_start_date = date_node.content.strip
+              Date.strptime(raw_start_date, "%Y%m%d")
+            rescue StandardError => e
+              puts "Could not find renewal and no_future plan year start date: #{e.message}" unless Rails.env.test?
+              nil
             end
             next unless date_value
 
@@ -120,12 +126,12 @@ module BenefitSponsors
           start_date_node = node.at_xpath("cv:plan_year_start", {:cv => XML_NS})
           end_date_node = node.at_xpath("cv:plan_year_end", {:cv => XML_NS})
           start_date_value = begin
-            Date.strptime(start_date_node.content, "%Y%m%d")
+            Date.strptime(start_date_node.content.strip, "%Y%m%d")
           rescue StandardError
             puts "Could not find latest_carrier plan year start date" unless Rails.env.test?
           end
           end_date_value = begin
-            Date.strptime(end_date_node.content, "%Y%m%d")
+            Date.strptime(end_date_node.content.strip, "%Y%m%d")
           rescue StandardError
             puts "Could not find latest_carrier plan year end date" unless Rails.env.test?
           end
@@ -196,7 +202,7 @@ module BenefitSponsors
         carrier_plan_years(carrier).each do |node|
           node.xpath("cv:plan_year_start", {:cv => XML_NS}).each do |date_node|
             date_value = begin
-              Date.strptime(date_node.content, "%Y%m%d")
+              Date.strptime(date_node.content.strip, "%Y%m%d")
             rescue StandardError
               puts "Could not find drop_and_has_future plan year start date" unless Rails.env.test?
             end
@@ -209,48 +215,77 @@ module BenefitSponsors
       end
 
       def render_for(carrier, out)
-        employer_profile = BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(hbx_id: employer_event.employer_profile_id).first
-        return false unless ::BenefitSponsors::EmployerEvents::EventNames::EVENT_WHITELIST.include?(@employer_event.event_name)
-
-        doc = Nokogiri::XML(employer_event.resource_body)
-
-        return false unless carrier_plan_years(carrier).any?
-
-        return false unless has_current_or_future_plan_year?(carrier) || should_send_retroactive_term_or_cancel?(carrier)
+        return false unless event_whitelisted?(employer_event)
+        return false unless carrier_has_plan_years?(carrier)
+        return false unless valid_plan_year?(carrier)
         return false if drop_and_has_future_plan_year?(carrier)
         return false if renewal_and_no_future_plan_year?(carrier)
 
-        doc.xpath("//cv:elected_plans/cv:elected_plan", {:cv => XML_NS}).each do |node|
-          carrier_id = node.at_xpath("cv:carrier/cv:id/cv:id", {:cv => XML_NS}).content
-          node.remove if carrier_id != carrier.hbx_carrier_id
-        end
-        doc.xpath("//cv:employer_census_families", {:cv => XML_NS}).each(&:remove)
-        doc.xpath("//cv:benefit_group/cv:reference_plan", {:cv => XML_NS}).each(&:remove)
-        doc.xpath("//cv:benefit_group/cv:elected_plans[not(cv:elected_plan)]", {:cv => XML_NS}).each(&:remove)
-        doc.xpath("//cv:broker_agency_profile[not(cv:brokers)]", {:cv => XML_NS}).each(&:remove)
-        doc.xpath("//cv:employer_profile/cv:brokers[not(cv:broker_account)]", {:cv => XML_NS}).each(&:remove)
-        doc.xpath("//cv:benefit_group[not(cv:elected_plans)]", {:cv => XML_NS}).each(&:remove)
-        doc.xpath("//cv:plan_year/cv:benefit_groups[not(cv:benefit_group)]", {:cv => XML_NS}).each(&:remove)
-        doc.xpath("//cv:plan_year[not(cv:benefit_groups)]", {:cv => XML_NS}).each(&:remove)
-        event_header = <<-XMLHEADER
-                          <employer_event>
-                                  <event_name>urn:openhbx:events:v1:employer##{update_event_name(carrier, employer_event)}</event_name>
-                                  <resource_instance_uri>
-                                          <id>urn:openhbx:resource:organization:id##{employer_profile&.organization&.hbx_id}</id>
-                                  </resource_instance_uri>
-                                  <body>
-        XMLHEADER
-        event_trailer = <<-XMLTRAILER
-                                  </body>
-                          </employer_event>
-        XMLTRAILER
+        employer_profile = fetch_employer_profile(employer_event)
+        doc = Nokogiri::XML(employer_event.resource_body)
+
+        filter_xml(doc, carrier)
+
+        event_header = build_event_header(carrier, employer_event, employer_profile)
+        event_trailer = build_event_trailer
+
         out << event_header
-        out << doc.to_xml(:save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION, :indent => 2)
+        out << doc.to_xml(save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION, indent: 2).gsub(/^/, '  ')
         out << event_trailer
         true
       end
+
+      private
+
+      def event_whitelisted?(employer_event)
+        ::BenefitSponsors::EmployerEvents::EventNames::EVENT_WHITELIST.include?(employer_event.event_name)
+      end
+
+      def carrier_has_plan_years?(carrier)
+        carrier_plan_years(carrier).any?
+      end
+
+      def valid_plan_year?(carrier)
+        has_current_or_future_plan_year?(carrier) || should_send_retroactive_term_or_cancel?(carrier)
+      end
+
+      def fetch_employer_profile(employer_event)
+        BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(hbx_id: employer_event.employer_profile_id).first
+      end
+
+      def filter_xml(doc, carrier)
+        doc.xpath("//cv:elected_plans/cv:elected_plan", { cv: XML_NS }).each do |node|
+          carrier_id = node.at_xpath("cv:carrier/cv:id/cv:id", { cv: XML_NS }).content
+          node.remove if carrier_id != carrier.hbx_carrier_id
+        end
+        doc.xpath("//cv:employer_census_families", { cv: XML_NS }).each(&:remove)
+        doc.xpath("//cv:benefit_group/cv:reference_plan", { cv: XML_NS }).each(&:remove)
+        doc.xpath("//cv:benefit_group/cv:elected_plans[not(cv:elected_plan)]", { cv: XML_NS }).each(&:remove)
+        doc.xpath("//cv:broker_agency_profile[not(cv:brokers)]", { cv: XML_NS }).each(&:remove)
+        doc.xpath("//cv:employer_profile/cv:brokers[not(cv:broker_account)]", { cv: XML_NS }).each(&:remove)
+        doc.xpath("//cv:benefit_group[not(cv:elected_plans)]", { cv: XML_NS }).each(&:remove)
+        doc.xpath("//cv:plan_year/cv:benefit_groups[not(cv:benefit_group)]", { cv: XML_NS }).each(&:remove)
+        doc.xpath("//cv:plan_year[not(cv:benefit_groups)]", { cv: XML_NS }).each(&:remove)
+      end
       # rubocop:enable Metrics/CyclomaticComplexity
-      # rubocop:enable Metrics/PerceivedComplexity
+
+      def build_event_header(carrier, employer_event, employer_profile)
+        <<-XMLHEADER
+          <employer_event>
+            <event_name>urn:openhbx:events:v1:employer##{update_event_name(carrier, employer_event)}</event_name>
+            <resource_instance_uri>
+              <id>urn:openhbx:resource:organization:id##{employer_profile&.organization&.hbx_id}</id>
+            </resource_instance_uri>
+            <body>
+        XMLHEADER
+      end
+
+      def build_event_trailer
+        <<-XMLTRAILER
+            </body>
+          </employer_event>
+        XMLTRAILER
+      end
     end
   end
 end
