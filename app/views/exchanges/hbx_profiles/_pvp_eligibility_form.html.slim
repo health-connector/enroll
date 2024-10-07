@@ -32,7 +32,7 @@
       .modal-header
         h4.modal-title#pvpConfirmModalLabel= @product.title
       .modal-body
-        = l10n('hbx_profiles.pvp_confirmation_question')
+        = l10n('hbx_profiles.pvp_confirmation_question', year: params[:year])
       .modal-footer
         button.btn.btn-danger type="button" data-dismiss="modal" = l10n('hbx_profiles.cancel')
         button.btn.btn-primary type="submit" form="pvp_eligibility_form" = l10n('hbx_profiles.confirm')

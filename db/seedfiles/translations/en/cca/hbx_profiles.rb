@@ -35,5 +35,5 @@ HBX_PROFILES_TRANSLATIONS = {
   :'en.hbx_profiles.force_published_application_review' => 'Force Published Application Under Review',
   :'en.hbx_profiles.mark_pvp_failure' => 'Failed to mark premium value product(s)',
   :'en.hbx_profiles.mark_pvp_success' => 'Successfully marked premium value product(s)',
-  :'en.hbx_profiles.pvp_confirmation_question' => "Updating Premium Value Product Eligibilities, Are you sure?"
+  :'en.hbx_profiles.pvp_confirmation_question' => "Select Confirm to mark the product for the calendar year %{year} as a Premium Value Plan."
 }.freeze
