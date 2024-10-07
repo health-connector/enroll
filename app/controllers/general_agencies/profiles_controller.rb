@@ -128,6 +128,8 @@ class GeneralAgencies::ProfilesController < ApplicationController
   end
 
   def update_staff
+    authorize @staff.general_agency_profile, :update_staff?
+
     if params['approve']
       @staff.approve!
       flash[:notice] = "Staff approved successfully."
