@@ -274,6 +274,7 @@ if ExchangeTestingConfigurationHelper.general_agency_enabled?
     end
 
     describe "POST update_staff" do
+      let(:user) { FactoryBot.create(:user, person: person, roles: ["hbx_staff"]) }
       before(:each) do
         FactoryBot.create(:hbx_profile) if HbxProfile.count == 0
         sign_in(user)
