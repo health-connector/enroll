@@ -59,3 +59,37 @@
     </a>
   <% end %>
 </div>
+
+<!--This is a temporary fix due to Bootstrap version conflict.-->
+<!--TODO: Resolve Bootstrap 3/4 inconsistencies, upgrade to jQuery 3, and refactor carousel.-->
+<script>
+  $(function() {
+    var $carousel = $('#carousel-qles');
+    var $items = $carousel.find('.item');
+    var $indicators = $carousel.find('.carousel-indicators li');
+    var itemCount = $items.length;
+
+    function showItem(index) {
+        $items.removeClass('active').eq(index).addClass('active');
+        $indicators.removeClass('active').eq(index).addClass('active');
+    }
+
+    function changeSlide(direction) {
+        var index = ($indicators.filter('.active').index() + direction + itemCount) % itemCount;
+        showItem(index);
+    }
+
+    $('.carousel-control').click(function(e) {
+        e.preventDefault();
+        changeSlide($(this).hasClass('left') ? -1 : 1);
+    });
+
+    $indicators.click(function(e) {
+        e.preventDefault();
+        showItem($(this).index());
+    });
+
+    showItem(0);
+  });
+
+</script>
