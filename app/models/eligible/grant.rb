@@ -1,7 +1,14 @@
 # frozen_string_literal: true
 
 module Eligible
-  # Grant model
+  # The Grant class represents a specific grant associated with an eligibility record.
+  #
+  # Each grant has a unique key, title, description, and an embedded value.
+  # Grants are used to determine the conditions and entitlements associated with
+  # eligibility.
+  #
+  # @example
+  #   eligibility.grants.build(title: "Income Grant", key: :income_grant)
   class Grant
     include Mongoid::Document
     include Mongoid::Timestamps

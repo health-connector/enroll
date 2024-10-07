@@ -1,7 +1,21 @@
 # frozen_string_literal: true
 
 module Eligible
-  # State history model
+  # The StateHistory class tracks the transitions between states for an eligible record.
+  #
+  # Each state history records details such as the effective date, whether the state is eligible,
+  # the states being transitioned from and to, and the event that caused the transition. It also
+  # tracks the user who updated the state, along with optional comments and reasons for the transition.
+  #
+  # @example
+  #   eligibility.state_histories.build(
+  #     effective_on: Date.today,
+  #     from_state: :initial,
+  #     to_state: :eligible,
+  #     is_eligible: true,
+  #     transition_at: DateTime.now,
+  #     updated_by: "user@example.com"
+  #   )
   class StateHistory
     include Mongoid::Document
     include Mongoid::Timestamps

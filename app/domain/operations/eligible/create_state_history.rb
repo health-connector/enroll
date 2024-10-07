@@ -5,16 +5,19 @@ require 'dry/monads/do'
 
 module Operations
   module Eligible
-    # Create Eligibility
+    # Operation to create a state history for eligibility items.
     class CreateStateHistory
       include Dry::Monads[:do, :result]
 
-      # @param [Hash] opts Options to build evidence
-      # @option opts [GlobalID] :subject required
-      # @option opts [AcaEntities::Elgibilities::EligibilityItem] :eligibility_item required
-      # @option opts [AcaEntities::Elgibilities::EvidenceItem] :evidence_item required
-      # @option opts [Date] :effective_date required
-      # @return [Dry::Monad] result
+      # Creates a state history entry for a given eligibility and evidence item.
+      #
+      # @param [Hash] opts Options to create state history.
+      # @option opts [GlobalID] :subject (required) The subject for which state history is being created.
+      # @option opts [AcaEntities::Elgibilities::EligibilityItem] :eligibility_item (required) The associated eligibility item.
+      # @option opts [AcaEntities::Elgibilities::EvidenceItem] :evidence_item (required) The associated evidence item.
+      # @option opts [Date] :effective_date (required) The date the state history takes effect.
+      #
+      # @return [Dry::Monads::Result] Success with created eligibility state history or Failure with validation errors.
       def call(params)
         values = yield validate(params)
         eligibility = yield create(values)

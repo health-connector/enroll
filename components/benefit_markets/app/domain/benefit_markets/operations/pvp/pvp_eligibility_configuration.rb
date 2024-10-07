@@ -3,10 +3,22 @@
 module BenefitMarkets
   module Operations
     module Pvp
-      # Overrides top level eligibility_configuration for feature specific configurations
+      # PvpEligibilityConfiguration defines feature-specific configurations
+      # for PVP (Premium Value Product) eligibility in a CCA Shop Rating Area.
+      #
+      # This class overrides the top-level eligibility_configuration and
+      # provides specific grants and rules for determining PVP eligibility.
+      #
+      # @example
+      #   BenefitMarkets::Operations::Pvp::PvpEligibilityConfiguration.new(subject: subject, effective_date: date)
       class PvpEligibilityConfiguration < ::Operations::Eligible::EligibilityConfiguration
         attr_reader :subject, :effective_date
 
+        # Initializes the PVP Eligibility Configuration
+        #
+        # @param [Hash] opts Initialization parameters
+        # @option opts [Object] :subject The subject (typically a PVP entity)
+        # @option opts [Date] :effective_date The effective date for eligibility
         def initialize(params)
           @subject = params[:subject]
           @effective_date = params[:effective_date]
