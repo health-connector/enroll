@@ -108,7 +108,7 @@ PATH
     notifier (0.0.1)
       aasm (~> 4.8.0)
       acapi
-      ckeditor (= 5.0.0)
+      ckeditor (= 4.2.4)
       combine_pdf
       config
       curl
@@ -1897,7 +1897,7 @@ GEM
       coffee-rails (>= 3.2)
       railties (>= 3.0)
       sassc-rails (>= 2.1.2)
-    ckeditor (5.0.0)
+    ckeditor (4.2.4)
       cocaine
       orm_adapter (~> 0.5.0)
     climate_control (0.2.0)
@@ -2197,6 +2197,8 @@ GEM
     nio4r (2.7.3)
     nokogiri (1.16.7)
       mini_portile2 (~> 2.8.2)
+      racc (~> 1.4)
+    nokogiri (1.16.7-arm64-darwin)
       racc (~> 1.4)
     nokogiri-happymapper (0.8.1)
       nokogiri (~> 1.5)
@@ -2559,7 +2561,7 @@ DEPENDENCIES
   carrierwave-mongoid
   certified
   chosen-rails
-  ckeditor
+  ckeditor (= 4.2.4)
   climate_control (= 0.2.0)
   coffee-rails (~> 5.0.0)
   combine_pdf
