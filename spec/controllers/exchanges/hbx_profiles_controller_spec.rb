@@ -279,6 +279,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       allow(admin_permission).to receive(:name).and_return(admin_permission.name)
       allow(admin_permission).to receive(:can_submit_time_travel_request).and_return(false)
       allow(admin_permission).to receive(:view_the_configuration_tab).and_return(true)
+      allow(admin_permission).to receive(:modify_family).and_return(true)
       allow(user).to receive(:has_hbx_staff_role?).and_return(true)
       allow(user).to receive(:view_the_configuration_tab?).and_return(true)
       allow(user).to receive(:can_submit_time_travel_request?).and_return(false)
@@ -292,7 +293,9 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
 
     it "should not render the config index for a not super admin" do
       allow(admin_permission).to receive(:view_the_configuration_tab).and_return(false)
+      allow(admin_permission).to receive(:modify_family).and_return(true)
       allow(staff_permission).to receive(:view_the_configuration_tab).and_return(true)
+      allow(staff_permission).to receive(:modify_family).and_return(true)
       allow(hbx_staff_role).to receive(:view_the_configuration_tab).and_return(false)
       allow(hbx_staff_role).to receive(:permission).and_return(staff_permission)
       allow(hbx_staff_role).to receive(:subrole).and_return(staff_permission.name)
@@ -500,6 +503,8 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
     let(:hbx_staff_role) { double("hbx_staff_role")}
     let(:hbx_profile) { double("hbx_profile")}
     let(:csr_role) { double("csr_role", cac: false)}
+    let(:admin_permission) { double("permission", name: "super_admin", modify_family: true)}
+
     before :each do
       allow(person).to receive(:csr_role).and_return(double("csr_role", cac: false))
       allow(user).to receive(:person).and_return(person)
@@ -508,6 +513,8 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
 
     it "renders the 'families index' template for hbx_staff" do
       allow(user).to receive(:has_hbx_staff_role?).and_return(true)
+      allow(person).to receive(:hbx_staff_role).and_return(hbx_staff_role)
+      allow(hbx_staff_role).to receive(:permission).and_return(admin_permission)
       get :family_index
       expect(response).to have_http_status(:success)
       expect(response).to render_template("insured/families/index")
@@ -515,6 +522,8 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
 
     it "renders the 'families index' template for csr" do
       allow(user).to receive(:has_hbx_staff_role?).and_return(false)
+      allow(person).to receive(:hbx_staff_role).and_return(hbx_staff_role)
+      allow(hbx_staff_role).to receive(:permission).and_return(admin_permission)
       get :family_index
       expect(response).to have_http_status(:success)
       expect(response).to render_template("insured/families/index")
@@ -557,13 +566,14 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       allow(hbx_staff_role).to receive(:subrole).and_return(permission.name)
 
       allow(permission).to receive(:name).and_return(permission.name)
+      allow(permission).to receive(:modify_family).and_return(true)
       sign_in(user)
       get :configuration
     end
 
     it "should render the configuration partial" do
-      expect(response).to have_http_status(:redirect)
-      expect(response).to_not render_template(:partial => 'exchanges/hbx_profiles/_configuration_index')
+      expect(response).to have_http_status(:success)
+      expect(response).to render_template(:partial => 'exchanges/hbx_profiles/_configuration_index')
     end
   end
 
