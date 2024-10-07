@@ -1,42 +1,55 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'tempfile'
 require 'zip'
 
+RSpec.describe BenefitSponsors::Services::GroupXmlDownloader, type: :service do
+  let(:employer_event) { double('EmployerEvent') }
+  let(:controller) { double('Controller') }
+  let(:carrier_file) { double('CarrierFile') }
+  let(:empty_carrier_file) { double('EmptyCarrierFile') }
+  let(:zip_file) { Tempfile.new(['employer_events_digest', '.zip']) }
+  let(:zip_path) { zip_file.path }
 
-RSpec.describe BenefitSponsors::Services::GroupXmlDownloader, :dbclean => :after_each do
-  let(:employer_event) { instance_double(BenefitSponsors::Services::EmployerEvent) }
-  let(:controller) { instance_double(ActionController::Base) }
-  let(:downloader) { described_class.new(employer_event) }
+  subject { described_class.new(employer_event) }
+
+  before do
+    allow(employer_event).to receive(:render_payloads).and_return([carrier_file, empty_carrier_file])
+    allow(carrier_file).to receive(:instance_variable_get).with(:@rendered_employers).and_return(['employer1'])
+    allow(empty_carrier_file).to receive(:instance_variable_get).with(:@rendered_employers).and_return([])
+    allow(TimeKeeper).to receive(:local_time).and_return(Time.now)
+    allow(Rails.root).to receive(:join).and_return(zip_path)
+    allow(Rails.logger).to receive(:info)
+    allow(controller).to receive(:send_file)
+    allow(File).to receive(:delete)
+  end
+
+  describe '#initialize' do
+    it 'initializes with an employer_event' do
+      expect(subject.employer_event).to eq(employer_event)
+    end
+  end
 
   describe '#download' do
-    let(:carrier_file1) { instance_double(BenefitSponsors::EmployerEvents::CarrierFile) }
-    let(:carrier_file2) { instance_double(BenefitSponsors::EmployerEvents::CarrierFile) }
-    let(:tempfile) { Tempfile.new("employer_events_digest") }
-    let(:zip_path) { "#{tempfile.path}.zip" }
+    context 'when all carrier files are empty' do
+      before do
+        allow(employer_event).to receive(:render_payloads).and_return([empty_carrier_file])
+      end
 
-    before do
-      allow(employer_event).to receive(:render_payloads).and_return([carrier_file1, carrier_file2])
-
-      allow(Tempfile).to receive(:new).with("employer_events_digest").and_return(tempfile)
-      allow(tempfile).to receive(:close)
-      allow(tempfile).to receive(:unlink)
-
-      allow(::Zip::File).to receive(:open).with(zip_path, ::Zip::File::CREATE).and_yield(zip_path)
-      allow(carrier_file1).to receive(:write_to_zip)
-      allow(carrier_file2).to receive(:write_to_zip)
-
-      allow(controller).to receive(:send_file)
+      it 'returns :empty_files' do
+        expect(subject.download(controller)).to eq(:empty_files)
+      end
     end
 
-    it 'generates a ZIP file with carrier files and sends it to the controller' do
-      expect(::Zip::File).to receive(:open).with(zip_path, ::Zip::File::CREATE).and_yield(zip_path)
-      expect(carrier_file1).to receive(:write_to_zip)
-      expect(carrier_file2).to receive(:write_to_zip)
-      expect(controller).to receive(:send_file).with(zip_path)
+    context 'when there are non-empty carrier files' do
+      it 'creates a zip file and sends it' do
+        expect(::Zip::File).to receive(:open).with(zip_path, ::Zip::File::CREATE).and_yield(zip_file)
+        expect(carrier_file).to receive(:write_to_zip).with(zip_file)
+        expect(controller).to receive(:send_file).with(zip_path, filename: /employer_events_digest_\d{8}_\d{6}\.zip/, type: 'application/zip', disposition: 'attachment')
+        expect(File).to receive(:delete).with(zip_path)
 
-      downloader.download(controller)
+        expect(subject.download(controller)).to eq(:success)
+      end
     end
   end
 end
