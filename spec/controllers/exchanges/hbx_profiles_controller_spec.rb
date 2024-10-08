@@ -336,6 +336,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
     let(:person) { double("person")}
     let(:hbx_staff_role) { double("hbx_staff_role")}
     let(:hbx_profile) { double("hbx_profile", inbox: double("inbox", unread_messages: double("test")))}
+    let(:admin_permission) { double("permission", name: "super_admin", modify_family: true)}
 
     before :each do
       allow(user).to receive(:has_hbx_staff_role?).and_return(true)
@@ -345,6 +346,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       allow(user).to receive(:save)
       allow(person).to receive(:hbx_staff_role).and_return(hbx_staff_role)
       allow(hbx_staff_role).to receive(:hbx_profile).and_return(hbx_profile)
+      allow(hbx_staff_role).to receive(:permission).and_return(admin_permission)
       session[:dismiss_announcements] = 'hello'
       sign_in(user)
     end
