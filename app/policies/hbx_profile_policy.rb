@@ -111,7 +111,9 @@ class HbxProfilePolicy < ApplicationPolicy
   end
 
   def show?
-    index?
+    index? ||
+      @user.has_role?(:csr) ||
+      @user.has_role?(:assister)
   end
 
   def index?
