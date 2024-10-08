@@ -2,7 +2,7 @@ class UserPolicy < ApplicationPolicy
 
   def initialize(user, record)
     super
-    @family = user.person&.primary_family
+    @family = user&.person&.primary_family
   end
 
   def lockable?
