@@ -29,15 +29,20 @@
                 <% end %>
               </div>
             <% end %>
-            <div>
-              <span class="plan-label col-xs-5">Type: </span><span><%= plan.plan_type %></span><br>
-              <span class="plan-label col-xs-5">Carrier: </span><span><%= carriers_cache[plan.carrier_profile_id] %></span><br>
-              <span class="plan-label col-xs-5">Level: </span><span><%= plan.metal_level.titleize %></span><br>
-
-              <div>
+            <div class="ml-1">
+              <div class="row">
+                <span class="plan-label col-xs-4">Type: </span><span class="col-xs-6"><%= plan.plan_type.upcase %></span><br>
+              </div>
+              <div class="row">
+                <span class="plan-label col-xs-4">Carrier: </span><span class="col-xs-6"><%= carriers_cache[plan.carrier_profile_id] %></span><br>
+              </div>
+              <div class="row">
+                <span class="plan-label col-xs-4">Level: </span><span class="col-xs-6"><%= plan.metal_level.titleize %></span><br>
+              </div>
+              <div class="row">
                 <div class="plan-label rp-bqt-deductible-label run-glossary col-xs-4">Deductible: </div>
-                <div class="rp-bqt-deductible-info">
-                  <div class="rp-deductible-types ml-2">
+                <div class="rp-bqt-deductible-info col-xs-6">
+                  <div class="rp-deductible-types">
                     <span>Individual: </span><br>
                     <span>Family: </span>
                   </div>
@@ -64,7 +69,6 @@
                   <label for="reference_plan_<%= plan.id %>">Select</label>
                 </span>
               </div>
-              <br/>
             </div>
           </div>
         </div>
