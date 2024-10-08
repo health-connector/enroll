@@ -1,5 +1,43 @@
 class HbxProfilePolicy < ApplicationPolicy
 
+  def binder_paid?
+    staff_modify_admin_tabs?
+  end
+
+  def transmit_group_xml?
+    staff_modify_admin_tabs?
+  end
+
+  def update_cancel_enrollment?
+    staff_can_cancel_enrollment?
+  end
+
+  def update_terminate_enrollment?
+    staff_can_terminate_enrollment?
+  end
+
+  def configuration?
+    staff_view_the_configuration_tab?
+  end
+
+  # Determines if the current user has permission to access the assister index.
+  # The user can access the assister index if they are a primary family member,
+  # an admin, an active associated broker staff, or an active associated broker in the ACA Shop market.
+  #
+  # @return [Boolean] Returns true if the user has permission to access the assister index, false otherwise.
+  # @note This method checks for permissions across multiple roles.
+  def assister_index?
+    # Fall back on a family if it exists for the current user.
+    @family = account_holder_family
+
+    return true if shop_market_primary_family_member?
+    return true if shop_market_admin?
+    return true if active_associated_shop_market_family_broker?
+    return true if active_associated_shop_market_general_agency?
+
+    false
+  end
+
   def view_admin_tabs?
     role = user_hbx_staff_role
     return false unless role
@@ -73,7 +111,7 @@ class HbxProfilePolicy < ApplicationPolicy
   end
 
   def show?
-    @user.has_role?(:hbx_staff) ||
+    index? ||
       @user.has_role?(:csr) ||
       @user.has_role?(:assister)
   end
