@@ -2,8 +2,7 @@
 
 require 'html_scrubber_util'
 module L10nHelper
-  # TODO: had to comment this for translations to work
-  include ActionView::Helpers::TranslationHelper
+  prepend ActionView::Helpers::TranslationHelper
   include HtmlScrubberUtil
 
   # The `l10n` method is used for text localization. It returns a (sanitized) translation for the given key. Interpolation

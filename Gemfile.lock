@@ -2600,7 +2600,7 @@ DEPENDENCIES
   carrierwave-mongoid
   certified
   chosen-rails
-  ckeditor
+  ckeditor (= 4.2.4)
   climate_control (= 0.2.0)
   coffee-rails (~> 5.0.0)
   combine_pdf
