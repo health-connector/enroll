@@ -23,8 +23,8 @@ describe "shared/_#{Settings.aca.state_abbreviation.downcase}_carrier_contact_in
     it "should display the carrier name and number" do
       expect(rendered).to match issuer_profile.legal_name
       expect(rendered).to match("855-833-8120")
-      expect(rendered).to match("memberquestions@bmchp.org")
-      expect(rendered).to match("Monday through Friday from 8:00 a.m. to 6:00 p.m.")
+      expect(rendered).to match("MemberQuestions@wellsense.org")
+      expect(rendered).to match("Monday through Friday from 8:00 a.m. to 6:00 p.m. Closed Thursdays from 2:30 p.m. to 3:30 p.m. Formerly Boston Medical Center Healthnet Plan")
     end
   end
 
@@ -38,7 +38,7 @@ describe "shared/_#{Settings.aca.state_abbreviation.downcase}_carrier_contact_in
     it "should display the carrier name and number" do
       expect(rendered).to match issuer_profile.legal_name
       expect(rendered).to match("800-868-5200")
-      expect(rendered).to match("FCHPcustomerservice@fallonhealth.org")
+      expect(rendered).to match("cs@fallonhealth.org")
       expect(rendered).to match("Monday, Tuesday, Thursday, and Friday from 8:00 a.m. to 6:00 p.m., and Wednesday from 10:00 a.m. to 6:00 p.m.")
     end
   end
@@ -68,7 +68,7 @@ describe "shared/_#{Settings.aca.state_abbreviation.downcase}_carrier_contact_in
     it "should display the carrier name and number" do
       expect(rendered).to match issuer_profile.legal_name
       expect(rendered).to match("1-877-856-2429")
-      expect(rendered).to match("8 AM to 5 PM")
+      expect(rendered).to match("8 a.m. to 8 p.m. EST, M-F")
     end
   end
 
@@ -128,7 +128,7 @@ describe "shared/_#{Settings.aca.state_abbreviation.downcase}_carrier_contact_in
       expect(rendered).to match issuer_profile.legal_name
       expect(rendered).to match("800.872.0500")
       expect(rendered).to match("customer.care@deltadentalma.com")
-      expect(rendered).to match("Monday - Thursday, 8:30 a.m. to 8:00 p.m.; Friday, 8:30 a.m. to 4:30 p.m.")
+      expect(rendered).to match("Monday – Friday, 8:00 a.m. to 8:00 p.m")
     end
   end
 end
