@@ -6,7 +6,7 @@ class Exchanges::EmployerApplicationsController < ApplicationController
   before_action :can_modify_plan_year?, only: [:terminate, :cancel, :reinstate, :revise_end_date]
   before_action :check_hbx_staff_role, except: :get_term_reasons
   before_action :find_benefit_sponsorship, except: :get_term_reasons
-  before_action :can_generate_v2_xml?, only: [:download_v2_xml, :upload_v2_xml]
+  before_action :can_generate_v2_xml?, only: [:download_v2_xml, :upload_v2_xml, :new_v2_xml]
 
   def index
     @allow_mid_month_voluntary_terms = allow_mid_month_voluntary_terms?
