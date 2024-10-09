@@ -18,8 +18,12 @@ $(document).on('click', '#copyPlanDesignProposal', saveProposalAndCopy);
 $(document).on('click', '#publishPlanDesignProposal', saveProposalAndPublish);
 $(document).on('click', '#estimatedEmployerCostsPage', saveProposalAndNavigateToEstimatedEmployerCosts);
 
-$(document).on('click', '.downloadReferencePlanDetailsButton.plan-not-saved', checkIfSbcIncluded);
-$(document).on('click', '.downloadReferencePlanDetailsButton.plan-saved', sendPdf);
+$(document).on('click', '.downloadReferencePlanDetailsButton', function(event) {
+  console.log($(this).attr('class'));
+});
+
+$(document).on('click', '.plan-not-saved.downloadReferencePlanDetailsButton', checkIfSbcIncluded);
+$(document).on('click', '.plan-saved.downloadReferencePlanDetailsButton', sendPdf);
 
 
 $(document).on('ready', pageInit);
@@ -127,12 +131,13 @@ function url_redirect(options){
   var $form = $("<form />");
   $form.attr("action",options.url);
   $form.attr("method",options.method);
-            
-  for (var key in options.data)
+  for (var key in options.data) {
     buildChiderenElements($form, key, options.data[key]);
-            
-  $("body").append($form);
-  $form.submit();
+  }
+  var csrfToken = document.querySelector("meta[name=csrf-token]").content;
+  $form.append('<input type="hidden" name="authenticity_token" value="' + csrfToken + '">');
+  $("body").append($form);
+  $form.submit();
 }
 
 function buildChiderenElements(form, prefix, data) {
@@ -154,10 +159,12 @@ function downloadPdf(event, element) {
       kind: element.dataset.kind
     }
   }
-  url_redirect({url: element.href, method: "post", data: data});
+
+url_redirect({url: element.href, method: "post", data: data});
 }
 
 function sendPdf(event) {
+  console.log("pdf");
   $(this).addClass('plan-not-saved');
   $(this).removeClass('plan-saved');
   window.location.href = $(this).attr('href');
@@ -166,6 +173,8 @@ function sendPdf(event) {
 function checkIfSbcIncluded(event) {
   var elem_id = $(this).attr('id');
   var obj = $('#'+elem_id);
+  console.log("test");
+  debugger;
   if(obj.hasClass('plan-not-saved')) {
       //event.preventDefault();
       var data = buildBenefitGroupParams();
@@ -174,10 +183,14 @@ function checkIfSbcIncluded(event) {
         return;
       } else {
         url = $("#benefit_groups_url").val();
+        debugger;
         $.ajax({
           type: "POST",
           data: data,
-          url: url
+          url: url,
+          headers: {
+            'X-CSRF-Token': document.querySelector("meta[name=csrf-token]").content
+          }
         }).done(function(){
           obj.removeClass('plan-not-saved');
           obj.addClass('plan-saved');
