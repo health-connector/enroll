@@ -18,8 +18,8 @@ $(document).on('click', '#copyPlanDesignProposal', saveProposalAndCopy);
 $(document).on('click', '#publishPlanDesignProposal', saveProposalAndPublish);
 $(document).on('click', '#estimatedEmployerCostsPage', saveProposalAndNavigateToEstimatedEmployerCosts);
 
-$(document).on('click', 'downloadReferencePlanDetailsButton.plan-not-saved', checkIfSbcIncluded);
-$(document).on('click', 'downloadReferencePlanDetailsButton.plan-saved', sendPdf);
+$(document).on('click', '.downloadReferencePlanDetailsButton.plan-not-saved', checkIfSbcIncluded);
+$(document).on('click', '.downloadReferencePlanDetailsButton.plan-saved', sendPdf);
 
 
 $(document).on('ready', pageInit);
