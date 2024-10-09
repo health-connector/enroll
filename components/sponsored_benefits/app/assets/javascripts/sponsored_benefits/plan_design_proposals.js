@@ -160,7 +160,6 @@ url_redirect({url: element.href, method: "post", data: data});
 }
 
 function sendPdf(event) {
-  console.log("pdf");
   $(this).addClass('plan-not-saved');
   $(this).removeClass('plan-saved');
   window.location.href = $(this).attr('href');
@@ -169,8 +168,6 @@ function sendPdf(event) {
 function checkIfSbcIncluded(event) {
   var elem_id = $(this).attr('id');
   var obj = $('#'+elem_id);
-  console.log("test");
-  debugger;
   if(obj.hasClass('plan-not-saved')) {
       //event.preventDefault();
       var data = buildBenefitGroupParams();
@@ -179,14 +176,10 @@ function checkIfSbcIncluded(event) {
         return;
       } else {
         url = $("#benefit_groups_url").val();
-        debugger;
         $.ajax({
           type: "POST",
           data: data,
-          url: url,
-          headers: {
-            'X-CSRF-Token': document.querySelector("meta[name=csrf-token]").content
-          }
+          url: url
         }).done(function(){
           obj.removeClass('plan-not-saved');
           obj.addClass('plan-saved');
