@@ -287,10 +287,9 @@ $brand-primary: $mhc-dark-blue;
       border: 1px solid #ccc;
       border-radius: 8px;
       margin: 5px 2px 0 2px;
-      min-height: fit-content;
       display: flex;
-      flex: 0 0 100%;
       height: 100%;
+
       &:hover {
         border-bottom: solid 1px $primary-blue;
         .col-xs-10 .panel .panel-body .view-summary {
