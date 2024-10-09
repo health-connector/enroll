@@ -253,66 +253,76 @@ javascript:
     }
 
     // Build reference plans to be displayed in UI
-    for (plan of filteredProducts) {
+    for (let i = 0; i < filteredProducts.length; i++) {
+      const plan = filteredProducts[i];
       productsTotal = filteredProducts.length;
-      var div = document.createElement('div')
-      document.getElementById('yourPlanTotals').innerHTML = `<span class="pull-right mr-3">Displaying: <b>${filteredProducts.length} plans</b></span>`
-      div.setAttribute('id', 'yourAvailablePlans')
-        var network = "";
-        if (plan.network_information)
-          network = `NETWORK NOTES <a data-toggle="tooltip" data-placement="top" data-container="body" title="${plan.network_information}"><i class="fas fa-question-circle"></i></a>`
-          var innerHTML =
-          `<div class="col-xs-4 reference-plans plan-tile">
-            <div class="col-xs-12 p0 mb-1">
-              <label class="container">
-                <p class="heading-text plan-title mt-1"> ${plan.title}</p>
-                <div class="row">
-                  <div class="${(plan.is_pvp_eligible && isPvpFeatureEnabled) ? 'pvp-ref-plan-indicator' : 'hidden'}">
-                    <i class="fas fa-lg fa-square" data-toggle="tooltip" data-placement="top" data-container="body" title="${pvpTooltipValue}"></i> Premium Value Plan
-                  </div>
-                  <div class="${plan.is_standard_plan ? (isPvpFeatureEnabled ? 'standard-ref-plan-indicator' : 'text-uppercase') : 'hidden'} ml-1" style="${isPvpFeatureEnabled ? '' : 'color:green'}">
-                    <i class="fas fa-bookmark" data-toggle="tooltip" data-placement="top" data-container="body" title="${standardPlanTooltipValue}"></i> Standard Plan
-                  </div>
-                </div>
-                <span class="plan-label col-xs-4 pl-0">Type:</span> <span class="plan-label-value col-xs-8" id="plan-type-value">${plan.product_type}</span><br>
-                <span class="plan-label col-xs-4 pl-0">Carrier:</span> <span class="plan-label-value col-xs-8" id="plan-carrier-value">${plan.carrier_name}</span><br>
-                <span class="plan-label col-xs-4 pl-0">Level:</span> <span class="plan-label-value col-xs-8" id="plan-level-value">${plan.metal_level_kind}</span><br>`;
 
-          if ( #{EnrollRegistry[:add_deductible_display].feature.is_enabled} ) {
-            innerHTML +=
-            `<div>
-                <div class="plan-label rp-deductible-label run-glossary col-xs-4 pl-0">Deductible: </div>
-                <div class="rp-deductible-info col-xs-6 pl-0">
-                  <div class="rp-deductible-types col-xs-6">
-                    <span class="plan-label-value">Individual: </span>
-                    <span class="plan-label-value">Family: </span>
-                  </div>
-                  <div class="col-xs-6">
-                    <span class="plan-label-value" id="ded-ind-value">$${plan.deductible_value}</span>
-                    <span class="plan-label-value" id="ded-fam-value">$${plan.family_deductible_value}</span>
-                  </div>
-                </div>
-              </div>`
-          }
+      document.getElementById('yourPlanTotals').innerHTML = `<span class="pull-right mr-3">Displaying: <b>${filteredProducts.length} plans</b></span>`;
 
-          innerHTML +=
-                  `<div class="row pb-2">
-                    <span class="plan-label col-xs-4">Network:</span> <span class="plan-label-value col-xs-8 pl-2" id="plan-network-value">${network}</span>
-                  </div>
-                  <span class="plan-label rp-view-summary" onclick="viewSummary(this)" data-plan-title="${plan.title}" data-plan-id="${plan.id}" data-plan-type="${plan.product_type}" data-plan-carrier="${plan.carrier_name}" data-plan-level="${plan.metal_level_kind}" data-plan-ded-ind="${plan.deductible_value}" data-plan-ded-fam="${plan.family_deductible_value}" data-plan-ded-rx-ind="${plan.rx_deductible_value}" data-plan-ded-rx-fam="${plan.rx_family_deductible_value}">View Summary</span>
-                  <input type="radio" name="benefit_package[sponsored_benefits_attributes][0][reference_plan_id]" id="${plan.id}" onclick="newContributionAmounts()" value="${plan.id}" data-plan-title="${plan.title}" data-plan-carrier="${plan.carrier_name}" data-plan-id="${plan.id}" data-plan-metal-level="${plan.metal_level_kind}" data-plan-type="${plan.product_type}" data-is-standard-plan=${plan.is_standard_plan} data-is-pvp=${plan.is_pvp_eligible}>
-                  <div class="checkmark-container mt-1">
-                    <span class="checkmark"></span>
-                    <span class="checkmark-text">Select</span>
-                  </div>
-                </label>
+      if (i % 3 === 0) {
+        var rowDiv = document.createElement('div');
+        rowDiv.className = 'row';
+        document.getElementById('yourPlans').append(rowDiv);
+      }
+
+      var planDiv = document.createElement('div');
+      planDiv.className = 'col-xs-4 reference-plans plan-tile';
+
+      var network = plan.network_information
+        ? `NETWORK NOTES <a data-toggle="tooltip" data-placement="top" data-container="body" title="${plan.network_information}"><i class="fas fa-question-circle"></i></a>`
+        : "";
+
+      var innerHTML = `
+        <div class="col-xs-12 p0 mb-1">
+          <label class="container">
+            <p class="heading-text plan-title mt-1">${plan.title}</p>
+            <div class="row">
+              <div class="${(plan.is_pvp_eligible && isPvpFeatureEnabled) ? 'pvp-ref-plan-indicator' : 'hidden'}">
+                <i class="fas fa-lg fa-square" data-toggle="tooltip" data-placement="top" data-container="body" title="${pvpTooltipValue}"></i> Premium Value Plan
+              </div>
+              <div class="${plan.is_standard_plan ? (isPvpFeatureEnabled ? 'standard-ref-plan-indicator' : 'text-uppercase') : 'hidden'} ml-1" style="${isPvpFeatureEnabled ? '' : 'color:green'}">
+                <i class="fas fa-bookmark" data-toggle="tooltip" data-placement="top" data-container="body" title="${standardPlanTooltipValue}"></i> Standard Plan
+              </div>
+            </div>
+            <span class="plan-label col-xs-4 pl-0">Type:</span> <span class="plan-label-value col-xs-8" id="plan-type-value">${plan.product_type}</span><br>
+            <span class="plan-label col-xs-4 pl-0">Carrier:</span> <span class="plan-label-value col-xs-8" id="plan-carrier-value">${plan.carrier_name}</span><br>
+            <span class="plan-label col-xs-4 pl-0">Level:</span> <span class="plan-label-value col-xs-8" id="plan-level-value">${plan.metal_level_kind}</span><br>
+      `;
+
+      if ( #{EnrollRegistry[:add_deductible_display].feature.is_enabled} ) {
+        innerHTML += `
+          <div>
+            <div class="plan-label rp-deductible-label run-glossary col-xs-4 pl-0">Deductible: </div>
+            <div class="rp-deductible-info col-xs-6 pl-0">
+              <div class="rp-deductible-types col-xs-6">
+                <span class="plan-label-value">Individual: </span>
+                <span class="plan-label-value">Family: </span>
+              </div>
+              <div class="col-xs-6">
+                <span class="plan-label-value" id="ded-ind-value">$${plan.deductible_value}</span>
+                <span class="plan-label-value" id="ded-fam-value">$${plan.family_deductible_value}</span>
               </div>
             </div>
           </div>
-          `;
-        div.innerHTML = innerHTML;
+        `;
+      }
 
-        document.getElementById('yourPlans').append(div);
+      innerHTML += `
+            <div class="row pb-2">
+              <span class="plan-label col-xs-4">Network:</span> <span class="plan-label-value col-xs-8 pl-2" id="plan-network-value">${network}</span>
+            </div>
+            <span class="plan-label rp-view-summary" onclick="viewSummary(this)" data-plan-title="${plan.title}" data-plan-id="${plan.id}" data-plan-type="${plan.product_type}" data-plan-carrier="${plan.carrier_name}" data-plan-level="${plan.metal_level_kind}" data-plan-ded-ind="${plan.deductible_value}" data-plan-ded-fam="${plan.family_deductible_value}" data-plan-ded-rx-ind="${plan.rx_deductible_value}" data-plan-ded-rx-fam="${plan.rx_family_deductible_value}">View Summary</span>
+            <input type="radio" name="benefit_package[sponsored_benefits_attributes][0][reference_plan_id]" id="${plan.id}" onclick="newContributionAmounts()" value="${plan.id}" data-plan-title="${plan.title}" data-plan-carrier="${plan.carrier_name}" data-plan-id="${plan.id}" data-plan-metal-level="${plan.metal_level_kind}" data-plan-type="${plan.product_type}" data-is-standard-plan=${plan.is_standard_plan} data-is-pvp=${plan.is_pvp_eligible}>
+            <div class="checkmark-container mt-1">
+              <span class="checkmark"></span>
+              <span class="checkmark-text">Select</span>
+            </div>
+          </label>
+        </div>
+      `;
+
+      planDiv.innerHTML = innerHTML;
+      rowDiv.appendChild(planDiv);
     }
 
     setTimeout(function() {
