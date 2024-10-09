@@ -12,5 +12,6 @@ DEVISE_TRANSLATIONS = {
   "en.devise.shared.links.did_not_receive_confirmation_instructions" => "Didn't receive confirmation instructions",
   "en.devise.shared.links.sign_in_with_provider" => "Sign in with %{provider}",
   "en.devise.passwords.new.generic_forgot_password_text" => "You will receive an email with instructions on how to reset your password in a few minutes if an account associated to this email exists.",
-  "en.devise.sessions.signed_out_concurrent_session" => "New user login detected - you have been signed out of this session."
+  "en.devise.sessions.signed_out_concurrent_session" => "New user login detected - you have been signed out of this session.",
+  "en.devise.errors.message" => "You need to correct the following errors to create an account:"
 }

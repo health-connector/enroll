@@ -299,7 +299,10 @@ javascript:
         document.getElementById('yourPlans').append(div);
     }
 
-    runGlossary();
+    $(function() {
+      $('[data-toggle="tooltip"]').tooltip();
+      runGlossary();
+    });
 
     setTimeout(function() {
       buildSponsorContributions(sponsorContribution)

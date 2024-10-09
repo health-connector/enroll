@@ -49,8 +49,7 @@ When(/^user clicks submit button$/) do
 end
 
 And(/^employer clicks OK in warning modal$/) do
-  # find('.swal-button swal-button--confirm swal-button--danger', text: "OK").click
-  click_button 'OK'
+  find(:button, "OK", wait: 2).click
 end
 
 And(/^employer clicks Add Plan Year link$/) do

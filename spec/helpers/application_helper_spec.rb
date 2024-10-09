@@ -62,6 +62,37 @@ RSpec.describe ApplicationHelper, :type => :helper do
     end
   end
 
+  describe "#render_flash" do
+    it "should return flash messages" do
+      flash[:notice] = "This is a Notice"
+      flash[:error] = "This is an Error"
+      expect(helper.render_flash).to include("class=\"alert alert-notice\"")
+      expect(helper.render_flash).to include("class=\"alert alert-error\"")
+    end
+
+    it "should return empty string if invalid message" do
+      flash[:notice] = true
+      expect(helper.render_flash).to eq ""
+    end
+
+    it "should return empty string if invalid nested message" do
+      flash[:notice] = [true]
+      expect(helper.render_flash).to eq ""
+    end
+
+    it "should return empty string if invalid message" do
+      flash[:notice] = nil
+      expect(helper.render_flash).to eq ""
+    end
+
+    it "should ignore invalid messages" do
+      flash[:notice] = true
+      flash[:error] = ["This is an Error", true, "this is a second error"]
+      expect(helper.render_flash).not_to include("class=\"alert alert-notice\"")
+      expect(helper.render_flash).to include("this is a second error")
+    end
+  end
+
   describe "#deductible_display" do
     let(:hbx_enrollment) {double(hbx_enrollment_members: [double, double])}
     let(:plan) { double("Plan", deductible: "$500", family_deductible: "$500 per person | $1000 per group") }

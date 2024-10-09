@@ -1,7 +1,7 @@
-//= require jquery
+//= require jquery2
 //= require jquery_ujs
 //= require jquery-ui
-//= require bootstrap.min
+//= require bootstrap.bundle.min
 //= require bootstrap-treeview
 //= require jquery.selectric.min
 //= require bowser.min

@@ -11,6 +11,7 @@ PATH
       money-rails (~> 1.10.0)
       mongoid (~> 7.0.2)
       non-stupid-digest-assets
+      pundit
       rails (~> 5.2.8.1)
       redcarpet (~> 3.4.0)
       roo (~> 2.1.0)
@@ -205,6 +206,8 @@ GEM
       sprockets (>= 2.0)
     orm_adapter (0.5.0)
     public_suffix (4.0.6)
+    pundit (2.4.0)
+      activesupport (>= 3.0.0)
     racc (1.7.3)
     rack (2.2.8.1)
     rack-test (2.1.0)

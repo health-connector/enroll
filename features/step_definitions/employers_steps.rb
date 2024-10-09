@@ -495,7 +495,7 @@ Then(/^.+ should see the plan year$/) do
 end
 
 When(/^.+ clicks? on publish plan year$/) do
-  find('.interaction-click-control-publish-plan-year').click
+  find('.interaction-click-control-publish-plan-year', wait: 2).click
   sleep 2
 end
 
