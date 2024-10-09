@@ -37,7 +37,12 @@ module L10nHelper
     #   twice, where the value is returned back as a different object the second time. This issue might be fixed in Rails 7.0.4.
     #   Using `I18n.t` instead of `t` can lead to issues related to short naming of the translation key like l10n('.welcome_to_site_sub_header').
     #   Therefore, we are using `t` method with `raise: true` option to avoid the caching issue and returning the titleized translation key if the translation is missing.
-    t(translation_key, **options, raise: true)
+    if respond_to?(:t)
+      t(translation_key, **options, raise: true)
+    else
+      # Fallback to `I18n.t`
+      I18n.t(translation_key, **options)
+    end
   rescue I18n::MissingTranslationData
     default_translation(translation_key)
   end
