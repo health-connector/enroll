@@ -164,14 +164,14 @@
 
           .col-xs-8.deductible-divider
             table.table.compare-table#modalSummaryData style="font-size:11px"
-    					tr
-    						td.active
-    							strong PLAN BENEFITS
-    						td
-    							strong CO-PAY
-    						td
-    							strong COINSURANCE
-    					tbody#modalSummaryData
+              tr
+                td.active
+                  strong PLAN BENEFITS
+                td
+                  strong CO-PAY
+                td
+                  strong COINSURANCE
+              tbody#modalSummaryData
 
 
 
@@ -185,7 +185,7 @@ javascript:
   var applicationStartOn = #{@benefit_package_form.service.benefit_application.effective_period.min.strftime("%m-%d").to_json.html_safe};
   var sponsorContributions = #{@benefit_package_form.catalog.sponsor_contributions(@benefit_package_form.id).to_json.html_safe};
   var minContributions = #{f.object.sponsor_contribution.min_contributions_map.to_json.html_safe};
-	var productsTotal;
+  var productsTotal;
   const isPvpFeatureEnabled = #{::EnrollRegistry.feature_enabled?(:premium_value_products)};
   const pvpTooltipValue = "#{l10n('insured.plan_shoppings.pvp_title_info')}";
   const standardPlanTooltipValue = "#{l10n('insured.plan_shoppings.standard_plan_title_info')}";
@@ -199,17 +199,17 @@ javascript:
   }
 
   function setCircle(element) {
-		var items = document.querySelectorAll('#metal-level-select ul li')
+    var items = document.querySelectorAll('#metal-level-select ul li')
 
-		for (item of items) {
-			item.querySelector('i').classList.remove('fa-dot-circle');
-		}
-		// Sets radio icon to selected
-		setTimeout(function() {
-			if (element.closest('li').classList.contains('active')) {
-				element.querySelector('i').classList.add('fa-dot-circle')
-			}
-		},200)
+    for (item of items) {
+      item.querySelector('i').classList.remove('fa-dot-circle');
+    }
+    // Sets radio icon to selected
+    setTimeout(function() {
+      if (element.closest('li').classList.contains('active')) {
+        element.querySelector('i').classList.add('fa-dot-circle')
+      }
+    },200)
 
     // Gets product option info
     productOptionKind = element.querySelector('a').dataset.name;
@@ -349,29 +349,29 @@ javascript:
 
       div.setAttribute('id', 'yourAvailableContributions')
       div.innerHTML =
-			'<div class="row">\
-			  <input id="' + attrPrefix + '[id]" name="' + attrPrefix + '[id]" type="hidden" value="' + contribution['id'] + '" />\
+      '<div class="row">\
+        <input id="' + attrPrefix + '[id]" name="' + attrPrefix + '[id]" type="hidden" value="' + contribution['id'] + '" />\
         <input id="' + attrPrefix + '[contribution_unit_id]" name="' + attrPrefix + '[contribution_unit_id]" type="hidden" value="' + contribution['contribution_unit_id'] + '" />\
-			    <div class="col-xs-6 pr-3">\
-			      <div class="row sc-container">\
-			        <div class="col-xs-12 ml-2 mt-2">\
-			          <label class="container ml-1">' +contribution.display_name+'\
-			            <input type="checkbox" checked="checked" '+ (is_employee_cl ? "disabled" : "")+' id="' + attrPrefix + '[is_offered]" class="contribution_handler" name="' + attrPrefix +'[is_offered]" value="' + contribution["is_offered"] +'" data-displayname="'+contribution.display_name+'" onchange="newContributionAmounts(this)"/>\
-			            <span class="checkmark"></span>\
-			          </label>\
-			        </div>\
-			      </div>\
-			    </div>\
-			    <div class="col-xs-6">\
-			      <div class="col-xs-3">\
-			        <input id="' + attrPrefix + '[display_name]" name="' + attrPrefix + '[display_name]" type="hidden" value="' + contribution["display_name"] + '" />\
-			        <input type="number" id="'+contribution.id+'" name="'+ attrPrefix +'[contribution_factor]" value="' + (contribution["contribution_factor"] * 100) + '" onchange="setInputSliderValue(this)" data-displayname="'+contribution.display_name+'" data-contribution-input="true">\
-			      </div>\
-			      <div class="col-xs-9">\
-			        <input type="range" min="0" max="100" value="' + (contribution["contribution_factor"] * 100) + '" step="5" class="slider" id="'+contribution.id+'" onchange="setNumberInputValue(this)" data-id="'+contribution.id+'" data-displayname="'+contribution.display_name+'">\
-			      </div>\
-			    </div>\
-			</div>'
+          <div class="col-xs-6 pr-3">\
+            <div class="row sc-container">\
+              <div class="col-xs-12 ml-2 mt-2">\
+                <label class="container ml-1">' +contribution.display_name+'\
+                  <input type="checkbox" checked="checked" '+ (is_employee_cl ? "disabled" : "")+' id="' + attrPrefix + '[is_offered]" class="contribution_handler" name="' + attrPrefix +'[is_offered]" value="' + contribution["is_offered"] +'" data-displayname="'+contribution.display_name+'" onchange="newContributionAmounts(this)"/>\
+                  <span class="checkmark"></span>\
+                </label>\
+              </div>\
+            </div>\
+          </div>\
+          <div class="col-xs-6">\
+            <div class="col-xs-3">\
+              <input id="' + attrPrefix + '[display_name]" name="' + attrPrefix + '[display_name]" type="hidden" value="' + contribution["display_name"] + '" />\
+              <input type="number" id="'+contribution.id+'" name="'+ attrPrefix +'[contribution_factor]" value="' + (contribution["contribution_factor"] * 100) + '" onchange="setInputSliderValue(this)" data-displayname="'+contribution.display_name+'" data-contribution-input="true">\
+            </div>\
+            <div class="col-xs-9">\
+              <input type="range" min="0" max="100" value="' + (contribution["contribution_factor"] * 100) + '" step="5" class="slider" id="'+contribution.id+'" onchange="setNumberInputValue(this)" data-id="'+contribution.id+'" data-displayname="'+contribution.display_name+'">\
+            </div>\
+          </div>\
+      </div>'
       element.append(div)
     }
   }
@@ -449,16 +449,16 @@ javascript:
   }
 
   function disableNewPlanYearButton() {
-		var savePlanYearButton = document.getElementById('submitBenefitPackage');
+    var savePlanYearButton = document.getElementById('submitBenefitPackage');
     savePlanYearButton.classList.add('disabled');
     disableNewAddBenefitPackageButton()
     disableEmpDetailedCostsLink()
     disableDentalBenefitPackage()
-		preventSubmissionOnEnter()
+    preventSubmissionOnEnter()
   }
 
   function enableNewPlanYearButton() {
-		var savePlanYearButton = document.getElementById('submitBenefitPackage');
+    var savePlanYearButton = document.getElementById('submitBenefitPackage');
     savePlanYearButton.classList.remove('disabled');
     enableNewAddBenefitPackageButton()
     enableEmpDetailedCostsLink()
@@ -503,14 +503,14 @@ javascript:
     }
   }
 
-	function preventSubmissionOnEnter() {
-		document.getElementById('new_benefit_package').onkeypress = function(e) {
-			var key = e.charCode || e.keyCode || 0;
-			if (key == 13) {
-			    e.preventDefault();
-			  }
-		}
-	}
+  function preventSubmissionOnEnter() {
+    document.getElementById('new_benefit_package').onkeypress = function(e) {
+      var key = e.charCode || e.keyCode || 0;
+      if (key == 13) {
+          e.preventDefault();
+        }
+    }
+  }
 
   function disableEmployeeContributionLevel(){
     document.querySelectorAll(".contribution_handler").forEach(function(element) {
@@ -639,15 +639,15 @@ javascript:
     displayReferencePlanDetails(document.querySelector("input[name='benefit_package[sponsored_benefits_attributes][0][reference_plan_id]']:checked"));
   }
   var selectedReferencePlanId;
-	var selectedBenefitSponsorsID = "#{params[:benefit_sponsorship_id]}";
-	var selectedBenefitApplicationID = "#{params[:benefit_application_id]}";
-	var selectedSummaryTitle;
-	var refreshPage = false;
-	var showLess = false;
+  var selectedBenefitSponsorsID = "#{params[:benefit_sponsorship_id]}";
+  var selectedBenefitApplicationID = "#{params[:benefit_application_id]}";
+  var selectedSummaryTitle;
+  var refreshPage = false;
+  var showLess = false;
 
   function viewSummary(element) {
     selectedSummaryTitle = element.dataset.planTitle;
-		selectedReferencePlanID = element.dataset.planId;
+    selectedReferencePlanID = element.dataset.planId;
     document.getElementById('viewSummaryTitle').innerHTML = selectedSummaryTitle;
     //$('#viewSummaryModal').data('bs.modal').$backdrop.css('background-color','transparent');
 
@@ -664,58 +664,58 @@ javascript:
       document.getElementById('ded-rx-fam-detail').innerHTML = rxFam == "N/A" ? rxFam : "$" + rxFam;
     }
 
-		fetch('/benefit_sponsors/benefit_sponsorships/'+selectedBenefitSponsorsID+'/benefit_applications/'+selectedBenefitApplicationID+'/benefit_packages/reference_product_summary?reference_plan_id='+selectedReferencePlanID)
-			.then((res)=> res.json())
-			.then((data)=> {
-				data[1].map((s)=> {
+    fetch('/benefit_sponsors/benefit_sponsorships/'+selectedBenefitSponsorsID+'/benefit_applications/'+selectedBenefitApplicationID+'/benefit_packages/reference_product_summary?reference_plan_id='+selectedReferencePlanID)
+      .then((res)=> res.json())
+      .then((data)=> {
+        data[1].map((s)=> {
         document.getElementById('sbcLink').setAttribute('href', data[2])
-				var tr = document.createElement('tr');
-				var tbody = document.getElementById('modalSummaryData');
-				tr.innerHTML = `<td style="background-color:#f5f5f5">${s.visit_type}</td><td>${s.copay_in_network_tier_1}</td><td>${s.co_insurance_in_network_tier_1}</td>`;
-				tbody.appendChild(tr)
-				});
-			})
-			.then($('#viewSummaryModal').modal('show'))
-			showLess = false
+        var tr = document.createElement('tr');
+        var tbody = document.getElementById('modalSummaryData');
+        tr.innerHTML = `<td style="background-color:#f5f5f5">${s.visit_type}</td><td>${s.copay_in_network_tier_1}</td><td>${s.co_insurance_in_network_tier_1}</td>`;
+        tbody.appendChild(tr)
+        });
+      })
+      .then($('#viewSummaryModal').modal('show'))
+      showLess = false
   }
 
-	function showMoreDetails() {
-		if (showLess) {
-			document.getElementById('modalSummaryData').innerHTML = '';
-			fetch('/benefit_sponsors/benefit_sponsorships/'+selectedBenefitSponsorsID+'/benefit_applications/'+selectedBenefitApplicationID+'/benefit_packages/reference_product_summary?reference_plan_id='+selectedReferencePlanID)
-				.then((res)=> res.json())
-				.then((data)=> {
-					data[1].map((s)=> {
-	        document.getElementById('sbcLink').setAttribute('href', data[2])
-					var tr = document.createElement('tr');
-					var tbody = document.getElementById('modalSummaryData');
-					tr.innerHTML = `<td style="background-color:#f5f5f5">${s.visit_type}</td><td>${s.copay_in_network_tier_1}</td><td>${s.co_insurance_in_network_tier_1}</td>`;
-					tbody.appendChild(tr)
-					})
-				})
-				.then(document.getElementById('btnMoreDetails').innerHTML = "More Details")
-				showLess = false;
-		} else {
-			fetch('/benefit_sponsors/benefit_sponsorships/'+selectedBenefitSponsorsID+'/benefit_applications/'+selectedBenefitApplicationID+'/benefit_packages/reference_product_summary?reference_plan_id='+selectedReferencePlanID+'&details=details')
-				.then((res)=> res.json())
-				.then((data)=> {
-					data[1].map((s)=> {
-					var tr = document.createElement('tr');
-					var tbody = document.getElementById('modalSummaryData');
-					tr.innerHTML = `<td style="background-color:#f5f5f5">${s.visit_type}</td><td>${s.copay_in_network_tier_1}</td><td>${s.co_insurance_in_network_tier_1}</td>`;
-					tbody.appendChild(tr)
-					})
-				})
-				.then(document.getElementById('btnMoreDetails').innerHTML = "Fewer Details")
-				showLess = true;
-				}
-	}
+  function showMoreDetails() {
+    if (showLess) {
+      document.getElementById('modalSummaryData').innerHTML = '';
+      fetch('/benefit_sponsors/benefit_sponsorships/'+selectedBenefitSponsorsID+'/benefit_applications/'+selectedBenefitApplicationID+'/benefit_packages/reference_product_summary?reference_plan_id='+selectedReferencePlanID)
+        .then((res)=> res.json())
+        .then((data)=> {
+          data[1].map((s)=> {
+          document.getElementById('sbcLink').setAttribute('href', data[2])
+          var tr = document.createElement('tr');
+          var tbody = document.getElementById('modalSummaryData');
+          tr.innerHTML = `<td style="background-color:#f5f5f5">${s.visit_type}</td><td>${s.copay_in_network_tier_1}</td><td>${s.co_insurance_in_network_tier_1}</td>`;
+          tbody.appendChild(tr)
+          })
+        })
+        .then(document.getElementById('btnMoreDetails').innerHTML = "More Details")
+        showLess = false;
+    } else {
+      fetch('/benefit_sponsors/benefit_sponsorships/'+selectedBenefitSponsorsID+'/benefit_applications/'+selectedBenefitApplicationID+'/benefit_packages/reference_product_summary?reference_plan_id='+selectedReferencePlanID+'&details=details')
+        .then((res)=> res.json())
+        .then((data)=> {
+          data[1].map((s)=> {
+          var tr = document.createElement('tr');
+          var tbody = document.getElementById('modalSummaryData');
+          tr.innerHTML = `<td style="background-color:#f5f5f5">${s.visit_type}</td><td>${s.copay_in_network_tier_1}</td><td>${s.co_insurance_in_network_tier_1}</td>`;
+          tbody.appendChild(tr)
+          })
+        })
+        .then(document.getElementById('btnMoreDetails').innerHTML = "Fewer Details")
+        showLess = true;
+        }
+  }
 
-	$('#viewSummaryModal').on('hidden.bs.modal', function (e) {
-  	// Clears modal data on close
-		document.getElementById('modalSummaryData').innerHTML = '';
-		document.getElementById('btnMoreDetails').innerHTML = "More Details"
-	})
+  $('#viewSummaryModal').on('hidden.bs.modal', function (e) {
+    // Clears modal data on close
+    document.getElementById('modalSummaryData').innerHTML = '';
+    document.getElementById('btnMoreDetails').innerHTML = "More Details"
+  })
 
   function setTempCL() {
     var myLevels = localStorage.getItem("contributionLevels");
@@ -808,9 +808,9 @@ javascript:
     });
 
 - if show_benefit_application_tile == "true"
-	javascript:
-		(function() {
-		setTimeout(function() {
-			document.getElementById('submitBenefitPackage').innerHTML = "Save Plan Year";
-		},200)
-		})();
+  javascript:
+    (function() {
+    setTimeout(function() {
+      document.getElementById('submitBenefitPackage').innerHTML = "Save Plan Year";
+    },200)
+    })();
