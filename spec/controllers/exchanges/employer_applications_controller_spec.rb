@@ -278,4 +278,42 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
       end
     end
   end
+
+  describe 'get new_v2_xml', :dbclean => :after_each do
+    let(:user) { instance_double("User", :has_hbx_staff_role? => true, :person => person1) }
+    let(:hbx_staff_role) { FactoryBot.create(:hbx_staff_role, person: person1, subrole: "super_admin") }
+    let(:name) { can_generate_v2_xml }
+
+    context "when user has permissions" do
+      before :each do
+        allow(hbx_staff_role).to receive(:permission).and_return(double('Permission', can_generate_v2_xml: true, name: 'super_admin'))
+        sign_in(user)
+        get :new_v2_xml, params: { employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id.to_s }, format: :js
+      end
+
+      it "does respond with success" do
+        expect(response).to have_http_status(:success)
+      end
+
+      it "renders the new_v2_xml template" do
+        expect(response).to render_template(:new_v2_xml)
+      end
+    end
+
+    context "when user does not have permissions" do
+      before :each do
+        allow(hbx_staff_role).to receive(:permission).and_return(double('Permission', can_generate_v2_xml: false, name: 'staff'))
+        sign_in(user)
+        get :new_v2_xml, params: { employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id.to_s }, format: :js
+      end
+
+      it "does not respond with success" do
+        expect(response).to have_http_status(403)
+      end
+
+      it "does not render the new_v2_xml template" do
+        expect(response).not_to render_template(:new_v2_xml)
+      end
+    end
+  end
 end
