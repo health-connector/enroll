@@ -23,11 +23,13 @@ RSpec.describe BrokerAgencies::ProfilesController, dbclean: :around_each do
     end
   end
 
-  describe "GET edit",dbclean: :around_each do
-    let(:user) { FactoryBot.create(:user, person: person, roles: ['broker']) }
-    let(:person) { FactoryBot.create(:person) }
+  describe "GET edit", dbclean: :around_each do
+    let(:user) { create(:user, person: person, roles: ['broker']) }
+    let(:person) { create(:person) }
+    let(:org) { create(:organization)}
+    let(:broker_agency_profile) { create(:broker_agency_profile, organization: org) }
     before :each do
-      FactoryBot.create(:broker_agency_staff_role, broker_agency_profile_id: broker_agency_profile.id, broker_agency_profile: broker_agency_profile, person: person)
+      create(:broker_agency_staff_role, broker_agency_profile_id: broker_agency_profile.id, broker_agency_profile: broker_agency_profile, person: person)
       sign_in user
       get :edit, params: { id: broker_agency_profile.id }
     end
