@@ -126,6 +126,10 @@ class Family
   index({"households.tax_households.eligibility_determinations.determined_on" => 1})
   index({"households.tax_households.eligibility_determinations.determined_at" => 1})
   index({"households.tax_households.eligibility_determinations.max_aptc.cents" => 1})
+  index({
+          "households.hbx_enrollments.aasm_state" => 1,
+          "households.hbx_enrollments.product_id" => 1
+        }, {name: "hbx_enrollment_state_and_product"})
 
   index({"irs_groups.hbx_assigned_id" => 1})
 
@@ -917,6 +921,49 @@ class Family
     def find_by_case_id(id)
       where({"e_case_id" => id}).to_a
     end
+
+    def actual_enrollments_number(product_ids: nil)
+      match_criteria = {
+        "households.hbx_enrollments.aasm_state" => {
+          "$nin" => HbxEnrollment::SHOPPING_WAVED_AND_CANCELED
+        }
+      }
+
+      if product_ids
+        match_criteria["$and"] ||= []
+        match_criteria["$and"] << {
+          "households.hbx_enrollments.product_id" => { "$in" => product_ids }
+        }
+      end
+
+      collection.aggregate([
+                             { "$unwind" => "$households" },
+                             { "$unwind" => "$households.hbx_enrollments" },
+                             { "$match" => match_criteria },
+                             { "$count" => "hbx_enrollments" }
+                           ]).first.try(:[], "hbx_enrollments") || 0
+    end
+
+    def actual_enrollment_counts_by_products(product_ids)
+      collection.aggregate([
+        { "$unwind" => "$households" },
+        { "$unwind" => "$households.hbx_enrollments" },
+        {
+          "$match" => {
+            "households.hbx_enrollments.aasm_state" => {
+              "$nin" => HbxEnrollment::WAIVED_STATUSES + HbxEnrollment::CANCELED_STATUSES + ['shopping']
+            },
+            "households.hbx_enrollments.product_id" => { "$in" => product_ids }
+          }
+        },
+        {
+          "$group" => {
+            "_id" => "$households.hbx_enrollments.product_id",
+            "enrollment_count" => { "$sum" => 1 }
+          }
+        }
+      ]).to_a
+    end
   end
 
   def build_consumer_role(family_member, opts = {})
@@ -1097,9 +1144,9 @@ class Family
   def self.min_verification_due_date_range(start_date,end_date)
     timekeeper_date = TimeKeeper.date_of_record + 95.days
     if timekeeper_date >= start_date.to_date && timekeeper_date <= end_date.to_date
-      self.or(:"min_verification_due_date" => { :"$gte" => start_date, :"$lte" => end_date}).or(:"min_verification_due_date" => nil)
+      self.or(:min_verification_due_date => { :"$gte" => start_date, :"$lte" => end_date}).or(:min_verification_due_date => nil)
     else
-     self.or(:"min_verification_due_date" => { :"$gte" => start_date, :"$lte" => end_date})
+      self.or(:min_verification_due_date => { :"$gte" => start_date, :"$lte" => end_date})
     end
   end
 

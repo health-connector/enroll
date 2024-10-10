@@ -9,6 +9,7 @@ gem "notifier",           path: "components/notifier"
 gem "sponsored_benefits", path: "components/sponsored_benefits"
 gem "transport_gateway",  path: "components/transport_gateway"
 gem "transport_profiles", path: "components/transport_profiles"
+gem 'aca_entities',       git: 'https://github.com/ideacrew/aca_entities.git', branch: 'trunk'
 
 gem 'aasm', '~> 4.8.0'
 gem 'acapi', git: "https://github.com/ideacrew/acapi.git", branch: 'trunk'
@@ -85,7 +86,7 @@ gem 'rubyXL'
 gem 'holidays', '~> 8.6'
 
 #arm64 mac support
-gem 'ffi', '1.14.0'
+gem 'ffi', '1.15.5'
 gem 'kostya-sigar', '2.0.10'
 gem 'mini_racer', '0.6.4'
 gem 'bigdecimal', '1.3.5'
@@ -140,6 +141,7 @@ group :development, :test do
   gem 'yard', '~> 0.9.5', require: false
   gem 'yard-mongoid', '~> 0.1.0', require: false
   gem 'sdoc',  '~> 1.0'
+  gem 'pry-byebug'
 end
 
 group :test do

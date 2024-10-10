@@ -6,11 +6,21 @@
 .module.plan-row.panel.panel-default
   .panel-body
     .row
-      - if product.try(:is_standard_plan)
-        .col-md-12
-          span style="color:green"
-            i.fas.fa-bookmark.mr-1 data-toggle="tooltip" data-placement="top" data-container="body" title="#{l10n('insured.plan_shoppings.standard_plan_title_info')}"
-            = l10n("standard_plan").to_s.upcase
+      .col-md-12
+        - if ::EnrollRegistry.feature_enabled?(:premium_value_products)
+          - if member_enrollment.is_pvp_eligible
+            span.pvp-plan-indicator.mr-1
+              i.fas.fa-lg.fa-square.mr-1 data-toggle="tooltip" data-placement="top" data-container="body" title="#{l10n('insured.plan_shoppings.pvp_title_info')}"
+              = l10n("premium_value_plan").to_s.upcase
+          - if product.try(:is_standard_plan)
+            span.standard-plan-indicator
+              i.fas.fa-lg.fa-bookmark.mr-1 data-toggle="tooltip" data-placement="top" data-container="body" title="#{l10n('insured.plan_shoppings.standard_plan_title_info')}"
+              = l10n("standard_plan").to_s.upcase
+        - else
+          - if product.try(:is_standard_plan)
+            span style="color:green"
+              i.fas.fa-bookmark.mr-1 data-toggle="tooltip" data-placement="top" data-container="body" title="#{l10n('insured.plan_shoppings.standard_plan_title_info')}"
+              = l10n("standard_plan").to_s.upcase
     .row.mt-1
       - if @context.enrolled_hbx_enrollment_plan_ids.include?(product.id)
         link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous"

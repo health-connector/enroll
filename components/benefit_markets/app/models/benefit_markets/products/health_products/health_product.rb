@@ -17,7 +17,6 @@ module BenefitMarkets
                                                   #   must pay out-of-pocket for doctors outside network
       }
 
-
       field :hios_id,                     type: String
       field :hios_base_id,                type: String
       field :csr_variant_id,              type: String

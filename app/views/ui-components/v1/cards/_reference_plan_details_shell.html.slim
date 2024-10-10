@@ -7,29 +7,38 @@
 
 
 .panel.panel-default
-  .panel-body    
-    .col-xs-8
-        h5.heading-text
-          strong#referencePlanTitle
-    .col-xs-4
-      .row#changeReferencePlan.hidden 
-        a onclick="showPlanSelection()" Change reference Plan?      
-    table.table
-      tbody
-        tr
-          th
-            strong Type
-          th
-            strong Carrier
-          th
-            strong Metal Level
-          th
-            strong Network
-        tr
-          td.text-capitalize#rpType
-          td.text-capitalize#rpCarrier
-          td.text-capitalize#rpMetalLevel
-          td.text-capitalize#rpNetwork
+  .panel-body
+    .row
+    .col-md-12.pl-0
+      span.pvp-plan-indicator.mr-1.hidden#rpPvpIndicator
+        i.fas.fa-lg.fa-square.mr-1 data-toggle="tooltip" data-placement="top" data-container="body" title="#{l10n('insured.plan_shoppings.pvp_title_info')}"
+        = l10n("premium_value_plan").to_s.upcase
+      span.standard-plan-indicator.hidden#rpStandardPlanIndicator
+        i.fas.fa-lg.fa-bookmark.mr-1 data-toggle="tooltip" data-placement="top" data-container="body" title="#{l10n('insured.plan_shoppings.standard_plan_title_info')}"
+        = l10n("standard_plan").to_s.upcase
+    .row
+      .col-xs-8
+          h5.heading-text
+            strong#referencePlanTitle
+      .col-xs-4
+        .row#changeReferencePlan.hidden
+          a onclick="showPlanSelection()" Change reference Plan?
+      table.table
+        tbody
+          tr
+            th
+              strong Type
+            th
+              strong Carrier
+            th
+              strong Metal Level
+            th
+              strong Network
+          tr
+            td.text-capitalize#rpType
+            td.text-capitalize#rpCarrier
+            td.text-capitalize#rpMetalLevel
+            td.text-capitalize#rpNetwork
     .row
       strong.pl-2
         = l10n("employers.plan_years.estimated_monthly_cost_title")

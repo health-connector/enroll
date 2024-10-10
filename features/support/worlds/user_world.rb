@@ -78,6 +78,11 @@ And(/^the user is on the Employees Index of the Admin Dashboard$/) do
   find('.interaction-click-control-employees').click
 end
 
+And(/^the user is on the Issuers Index of the Admin Dashboard$/) do
+  visit exchanges_hbx_profiles_path
+  find('.interaction-click-control-issuers').click
+end
+
 When(/^the user clicks Action for that Employer$/) do
   find('.dropdown.pull-right', text: 'Actions').click
 end

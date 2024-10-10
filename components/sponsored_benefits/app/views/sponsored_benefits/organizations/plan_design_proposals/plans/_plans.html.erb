@@ -1,58 +1,83 @@
 <% @plans.each do |plan| %>
-<div class="col-xs-4">
-  <label for="reference_plan_<%= plan.id %>">
-  <div class="col-xs-12 reference-plan"
-    data-plan-type="<%= plan.plan_type %>"
-    data-plan-hsa="<%= plan.plan_hsa %>"
-    data-metal-level="<%= plan.metal_level %>"
-    data-plan-deductible="<%= plan.plan_deductible %>"
-    data-family-deductible="<%= plan.family_deductible %>"
-  >
-    <div class="col-xs-2">
-      <%= radio_button_tag :reference_plan, "#{plan.id}", false, onclick:"setMyPlans(this)", data:{planId:plan.id} %>
-    </div>
-
-    <div class="col-xs-10">
-
-      <div class="panel row reference-plan-info">
-
-        <div class="panel-heading">
-           <h3 class="pdp-titles-class"><b><%= plan.name %></b></h3>
-        </div>
-
-        <div class="panel-body">
-          <span class="plan-label">Type: </span><span><%= plan.plan_type %></span><br>
-          <span class="plan-label">Carrier: </span><span><%= carriers_cache[plan.carrier_profile_id] %></span><br>
+  <%is_pvp = plan.is_pvp_in_rating_area(rating_area, quote_effective_date.to_date)%>
+  <div class="reference-plan-container">
+    <label for="reference_plan_<%= plan.id %>">
+      <div class="reference-plan"
+        data-plan-type="<%= plan.plan_type %>"
+        data-plan-hsa="<%= plan.plan_hsa %>"
+        data-metal-level="<%= plan.metal_level %>"
+        data-plan-deductible="<%= plan.plan_deductible %>"
+        data-family-deductible="<%= plan.family_deductible %>"
+        data-is-pvp="<%= is_pvp ? 'Yes' : 'No' %>"
+      >
+        <div class="reference-plan-info d-flex">
           <div>
-            <div class="plan-label rp-deductible-label run-glossary">Deductible: </div>
-            <div class="rp-bqt-deductible-info">
-              <div class="rp-deductible-types">
-                <span>Individual: </span><br>
-                <span>Family: </span>
+            <div class="reference-plan-title pdp-titles-class ml-1"><%= plan.name %></div>
+            <% if ::EnrollRegistry.feature_enabled?(:premium_value_products) %>
+              <div>
+                <% if is_pvp %>
+                  <div class='pvp-ref-plan-indicator ml-1'>
+                    <i class="fas fa-lg fa-square" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= l10n('insured.plan_shoppings.pvp_title_info') %>"></i>
+                    <%= l10n('premium_value_plan') %>
+                  </div>
+                <% end %>
+                <% if plan.is_standard_plan  %>
+                  <div class="standard-ref-plan-indicator ml-1">
+                    <i class="fas fa-bookmark" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= l10n('insured.plan_shoppings.standard_plan_title_info') %>"></i>
+                    <%= l10n('standard_plan') %>
+                  </div>
+                <% end %>
               </div>
-              <div class="pull-right">
-                <span id="ded-ind-value"><%= @plan_deductibles[plan.id][:deductible] %></span><br>
-                <span id="ded-fam-value"><%= @plan_deductibles[plan.id][:family_deductible] %></span>
+            <% end %>
+            <div class="ml-1">
+              <div class="row">
+                <span class="plan-label col-xs-4">Type: </span>
+                <span class="col-xs-6"><%= plan.plan_type.upcase %></span>
+              </div>
+              <div class="row">
+                <span class="plan-label col-xs-4">Carrier: </span>
+                <span class="col-xs-6"><%= carriers_cache[plan.carrier_profile_id] %></span>
+              </div>
+              <div class="row">
+                <span class="plan-label col-xs-4">Level: </span>
+                <span class="col-xs-6"><%= plan.metal_level.titleize %></span>
+              </div>
+              <div class="row">
+                <div class="plan-label rp-bqt-deductible-label run-glossary col-xs-4">Deductible: </div>
+                <div class="rp-bqt-deductible-info col-xs-6">
+                  <div class="rp-deductible-types">
+                    <span>Individual: </span><br>
+                    <span>Family: </span>
+                  </div>
+                  <div class="pull-right">
+                    <span id="ded-ind-value"><%= @plan_deductibles[plan.id][:deductible] %></span><br>
+                    <span id="ded-fam-value"><%= @plan_deductibles[plan.id][:family_deductible] %></span>
+                  </div>
+                </div>
               </div>
             </div>
+            <% if plan.network_information.present? || offers_nationwide_plans? %>
+              <span class="plan-label col-xs-12 mb-1 mt-1">
+                <%= render partial: "shared/network_data", locals: {plan: plan} %>
+              </span>
+            <% end %>
           </div>
-          <span class="plan-label">Level: </span><span><%= plan.metal_level.titleize %></span><br>
-          <span>
-            <%= render partial: "shared/network_data", locals: {plan: plan} %>
-          </span>
-          <br />
-          <% if !(kind == "dental") %>
-            <span><%= check_box_tag "#{@location_id}", plan.id, false, id:'plan-comparison' %> </span><span>Include in comparison</span>
-          <% end %>
-          <br/>
+          <div class="row plan-actions">
+            <span class="col-xs-6 plan-compare">
+              <% if !(kind == "dental") %>
+                <%= check_box_tag "#{@location_id}", plan.id, false, id: "plan-comparison-#{plan.id}" %>
+                <label for="plan-comparison-<%= plan.id %>">Compare</label>
+              <% end %>
+            </span>
+            <span class="col-xs-6 plan-select">
+                <%= radio_button_tag :reference_plan, "#{plan.id}", false, onclick: "setMyPlans(this)", data: { planId: plan.id } %>
+              <label for="reference_plan_<%= plan.id %>">Select</label>
+            </span>
+          </div>
         </div>
-
       </div>
-
-    </div>
+    </label>
   </div>
-  </label>
-</div>
 <% end %>
 
 <script>
