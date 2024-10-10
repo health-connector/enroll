@@ -129,12 +129,13 @@ function url_redirect(options){
   var $form = $("<form />");
   $form.attr("action",options.url);
   $form.attr("method",options.method);
-            
-  for (var key in options.data)
+  for (var key in options.data) {
     buildChiderenElements($form, key, options.data[key]);
-            
-  $("body").append($form);
-  $form.submit();
+  }
+  var csrfToken = document.querySelector("meta[name=csrf-token]").content;
+  $form.append('<input type="hidden" name="authenticity_token" value="' + csrfToken + '">');
+  $("body").append($form);
+  $form.submit();
 }
 
 function buildChiderenElements(form, prefix, data) {
@@ -156,7 +157,8 @@ function downloadPdf(event, element) {
       kind: element.dataset.kind
     }
   }
-  url_redirect({url: element.href, method: "post", data: data});
+
+url_redirect({url: element.href, method: "post", data: data});
 }
 
 function sendPdf(event) {
