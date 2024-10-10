@@ -39,7 +39,10 @@ class PersonPolicy < ApplicationPolicy
   end
 
   def resume_enrollment?
-    user&.person&.has_active_consumer_role?
+    person = user&.person
+    return false unless person
+
+    person.has_active_consumer_role?
   end
 
   private
