@@ -10,8 +10,8 @@
         data-family-deductible="<%= plan.family_deductible %>"
         data-is-pvp="<%= is_pvp ? 'Yes' : 'No' %>"
       >
-        <div class="col-xs-12">
-          <div class="row reference-plan-info">
+        <div class="reference-plan-info d-flex">
+          <div>
             <div class="reference-plan-title pdp-titles-class ml-1"><%= plan.name %></div>
             <% if ::EnrollRegistry.feature_enabled?(:premium_value_products) %>
               <div>
@@ -29,15 +29,23 @@
                 <% end %>
               </div>
             <% end %>
-            <div>
-              <span class="plan-label col-xs-5">Type: </span><span><%= plan.plan_type %></span><br>
-              <span class="plan-label col-xs-5">Carrier: </span><span><%= carriers_cache[plan.carrier_profile_id] %></span><br>
-              <span class="plan-label col-xs-5">Level: </span><span><%= plan.metal_level.titleize %></span><br>
-
-              <div>
+            <div class="ml-1">
+              <div class="row">
+                <span class="plan-label col-xs-4">Type: </span>
+                <span class="col-xs-6"><%= plan.plan_type.upcase %></span>
+              </div>
+              <div class="row">
+                <span class="plan-label col-xs-4">Carrier: </span>
+                <span class="col-xs-6"><%= carriers_cache[plan.carrier_profile_id] %></span>
+              </div>
+              <div class="row">
+                <span class="plan-label col-xs-4">Level: </span>
+                <span class="col-xs-6"><%= plan.metal_level.titleize %></span>
+              </div>
+              <div class="row">
                 <div class="plan-label rp-bqt-deductible-label run-glossary col-xs-4">Deductible: </div>
-                <div class="rp-bqt-deductible-info">
-                  <div class="rp-deductible-types ml-2">
+                <div class="rp-bqt-deductible-info col-xs-6">
+                  <div class="rp-deductible-types">
                     <span>Individual: </span><br>
                     <span>Family: </span>
                   </div>
@@ -47,25 +55,24 @@
                   </div>
                 </div>
               </div>
-              <% if plan.network_information.present? || offers_nationwide_plans? %>
-                <span class="plan-label col-xs-12 mb-1 mt-1">
-                  <%= render partial: "shared/network_data", locals: {plan: plan} %>
-                </span>
-              <% end %>
-              <div class="row plan-actions">
-                <span class="col-xs-6 plan-compare">
-                  <% if !(kind == "dental") %>
-                    <%= check_box_tag "#{@location_id}", plan.id, false, id: "plan-comparison-#{plan.id}" %>
-                    <label for="plan-comparison-<%= plan.id %>">Compare</label>
-                  <% end %>
-                </span>
-                <span class="col-xs-6 plan-select">
-                  <%= radio_button_tag :reference_plan, "#{plan.id}", false, onclick: "setMyPlans(this)", data: { planId: plan.id } %>
-                  <label for="reference_plan_<%= plan.id %>">Select</label>
-                </span>
-              </div>
-              <br/>
             </div>
+            <% if plan.network_information.present? || offers_nationwide_plans? %>
+              <span class="plan-label col-xs-12 mb-1 mt-1">
+                <%= render partial: "shared/network_data", locals: {plan: plan} %>
+              </span>
+            <% end %>
+          </div>
+          <div class="row plan-actions">
+            <span class="col-xs-6 plan-compare">
+              <% if !(kind == "dental") %>
+                <%= check_box_tag "#{@location_id}", plan.id, false, id: "plan-comparison-#{plan.id}" %>
+                <label for="plan-comparison-<%= plan.id %>">Compare</label>
+              <% end %>
+            </span>
+            <span class="col-xs-6 plan-select">
+                <%= radio_button_tag :reference_plan, "#{plan.id}", false, onclick: "setMyPlans(this)", data: { planId: plan.id } %>
+              <label for="reference_plan_<%= plan.id %>">Select</label>
+            </span>
           </div>
         </div>
       </div>

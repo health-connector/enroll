@@ -321,9 +321,7 @@ class Plan
         :active_year => active_year,
         :coverage_kind => coverage_kind
       }
-      if metal_level.present?
-        criteria.merge(metal_level: metal_level)
-      end
+      criteria.merge(metal_level: metal_level) if metal_level.present?
       criteria
     end
     self.where("$or" => plan_criteria_set)
@@ -497,7 +495,7 @@ class Plan
   def plan_hsa
     name = self.name
     regex = name.match("HSA")
-    regex.present? ? 'Yes': 'No'
+    regex.present? ? 'Yes' : 'No'
   end
 
   def renewal_plan_type
@@ -601,13 +599,13 @@ class Plan
     end
 
     def search_options(plans)
-      options ={
+      options = {
         'plan_type': [],
         'plan_hsa': [],
         'metal_level': [],
         'plan_deductible': []
       }
-      options.each do |option, value|
+      options.each_key do |option|
         collected = plans.collect { |plan|
           if option == :metal_level
             MetalLevel.new(plan.send(option))
@@ -615,11 +613,9 @@ class Plan
             plan.send(option)
           end
         }.uniq.sort
-        unless collected.none?
-          options[option] = collected
-        end
+        options[option] = collected unless collected.none?
       end
-      options.merge!({is_pvp: ["Yes", "No"]}) if ::EnrollRegistry.feature_enabled?(:premium_value_products)
+      options = options.to_a.insert(1, [:is_pvp, %w[Yes No]]).to_h if ::EnrollRegistry.feature_enabled?(:premium_value_products)
       options
     end
 
@@ -651,9 +647,9 @@ class Plan
         carrier_profile = CarrierProfile.find(id)
         [ carrier_profile.legal_name, carrier_profile.abbrev, carrier_profile.id ]
         }.uniq.unshift(['any','any'])
-      selectors[:plan_types] =  plans.map{|p| p.plan_type}.uniq.unshift('any')
-      selectors[:dc_network] =  ['any', 'true', 'false']
-      selectors[:nationwide] =  ['any', 'true', 'false']
+      selectors[:plan_types] = plans.map(&:plan_type).uniq.unshift('any')
+      selectors[:dc_network] = ['any', 'true', 'false']
+      selectors[:nationwide] = ['any', 'true', 'false']
       selectors
     end
 
@@ -708,7 +704,7 @@ class MetalLevel
 
   def eql?(metal_level)
     metal_level = safe_assign(metal_level)
-    METAL_LEVEL_ORDER.index(self.name) ==  METAL_LEVEL_ORDER.index(metal_level.name)
+    METAL_LEVEL_ORDER.index(name) == METAL_LEVEL_ORDER.index(metal_level.name)
   end
 
   def hash
@@ -718,9 +714,7 @@ class MetalLevel
   private
 
   def safe_assign(metal_level)
-    if metal_level.is_a? String
-      metal_level = MetalLevel.new(metal_level)
-    end
+    metal_level = MetalLevel.new(metal_level) if metal_level.is_a? String
     metal_level
   end
 end

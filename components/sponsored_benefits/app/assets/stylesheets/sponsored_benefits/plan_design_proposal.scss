@@ -257,7 +257,9 @@ $brand-primary: $mhc-dark-blue;
     border: solid 1px #d7d7d7;
     padding-bottom: 25px;
     overflow-y: scroll;
-    display: none;
+    overflow-x: hidden;
+    display: flex;
+    flex-flow: row wrap;
 
     .loading {
       position: relative;
@@ -266,24 +268,27 @@ $brand-primary: $mhc-dark-blue;
       text-align: center;
     }
     .reference-plan-info {
-      margin-top:-12px;
+      margin-top: -12px;
+      justify-content: space-between;
+      display: flex;
+      flex-direction: column;
     }
 
     .reference-plan-container {
-      display: inline-flex;
-      width: 33%;
+      flex: 0 0 33.333%;
+      display: flex;
       padding: 1px 1px 1px 1px;
     }
 
     .reference-plan, .dental-reference-plan {
-      height: 250px;
       padding: 0;
       cursor: pointer;
       padding-top: 20px;
       border: 1px solid #ccc;
       border-radius: 8px;
       margin: 5px 2px 0 2px;
-      overflow-y: scroll;
+      display: flex;
+      height: 100%;
 
       &:hover {
         border-bottom: solid 1px $primary-blue;
@@ -303,7 +308,7 @@ $brand-primary: $mhc-dark-blue;
       }
 
       .reference-plan-title {
-        font-size:16px;
+        font-size: 16px;
         font-weight: bold;
       }
 
