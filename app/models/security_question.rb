@@ -3,7 +3,7 @@ class SecurityQuestion
   include Mongoid::Timestamps
 
   field :title, type: String
-  field :visible, type: Boolean, default: true
+  field :visible, type: Mongoid::Boolean, default: true
 
   validates_presence_of :title
   scope :visible, -> { where(visible: true) }

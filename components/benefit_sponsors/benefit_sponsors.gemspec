@@ -17,16 +17,16 @@ Gem::Specification.new do |s|
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]
   s.test_files = Dir["test/**/*"]
 
-  s.add_dependency "rails", "~> 5.2.8.1"
+  s.add_dependency "rails", "~> 6.1.7.8"
   s.add_dependency "slim", "~> 3.0.8"
-  s.add_dependency "mongoid", "~> 7.0.2"
+  s.add_dependency "mongoid", '~> 7.5.4'
   # s.add_dependency 'mongoid-multitenancy', '~> 1.2'
   s.add_dependency "aasm", "~> 4.8.0"
   s.add_dependency 'config'
   s.add_dependency 'symmetric-encryption', '~> 3.6.0'
   s.add_dependency 'pundit', '~> 1.0.1'
-  s.add_dependency 'roo', '~> 2.1.0'
-  s.add_dependency 'money-rails', '~> 1.10.0'
+  s.add_dependency 'roo', '~> 2.10'
+  s.add_dependency 'money-rails', '~> 1.13'
   s.add_dependency 'virtus', '~> 1.0.5'
   s.add_dependency 'active_model_serializers'
   # s.add_dependency 'devise', '~> 3.5.4'
@@ -50,12 +50,13 @@ Gem::Specification.new do |s|
   s.add_development_dependency "mongoid-rspec"
   s.add_development_dependency 'shoulda-matchers'
   s.add_development_dependency 'rubocop-rspec',             '~> 1.31'
-  s.add_development_dependency 'database_cleaner'
+  s.add_development_dependency 'database_cleaner-mongoid'
   s.add_development_dependency 'capybara', '2.6.2'
   s.add_development_dependency 'factory_bot_rails',         '~> 4'
-  s.add_development_dependency 'test-prof', '0.5.0'
+  s.add_development_dependency 'test-prof', '~> 1.3'
   s.add_development_dependency 'forgery'
   s.add_development_dependency 'mongoid_rails_migrations'
   s.add_development_dependency 'rails-perftest'
   s.add_development_dependency 'climate_control',           '~> 0.2.0'
 end
+

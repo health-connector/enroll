@@ -35,7 +35,7 @@ RSpec.describe BenefitSponsors::Operations::EnrollmentEligibility::Determine, db
       }
     end
 
-    let(:result) { subject.call(params) }
+    let(:result) { subject.call(**params) }
 
     it 'should be success' do
       expect(result.success?).to be_truthy
@@ -60,7 +60,7 @@ RSpec.describe BenefitSponsors::Operations::EnrollmentEligibility::Determine, db
       }
     end
 
-    let(:result) { subject.call(params) }
+    let(:result) { subject.call(**params) }
 
     it 'should be success' do
       expect(result.success?).to be_truthy

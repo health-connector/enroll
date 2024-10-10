@@ -5,6 +5,10 @@ require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
 
 describe SelectMarketKind, :dbclean => :after_each do
+  before :each do
+    DatabaseCleaner.clean
+  end
+
   context "when a person with employee_role exist" do
     include_context "setup benefit market with market catalogs and product packages"
     include_context "setup initial benefit application"

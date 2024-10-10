@@ -11,12 +11,12 @@ module BenefitSponsors
       field :title, type: String, default: ""
       field :description, type: String, default: ""
       field :probation_period_kind, type: Symbol
-      field :is_default, type: Boolean, default: false
-      field :is_active, type: Boolean, default: true
+      field :is_default, type: Mongoid::Boolean, default: false
+      field :is_active, type: Mongoid::Boolean, default: true
       field :predecessor_id, type: BSON::ObjectId  # Deprecated
 
       # Deprecated: replaced by FEHB profile and FEHB market
-      # field :is_congress, type: Boolean, default: false
+      # field :is_congress, type: Mongoid::Boolean, default: false
 
       embeds_many :sponsored_benefits,
                   class_name: "BenefitSponsors::SponsoredBenefits::SponsoredBenefit",

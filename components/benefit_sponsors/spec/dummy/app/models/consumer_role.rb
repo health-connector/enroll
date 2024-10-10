@@ -50,18 +50,18 @@ class ConsumerRole
   )
 
   # FiveYearBarApplicabilityIndicator ??
-  field :five_year_bar, type: Boolean, default: false
+  field :five_year_bar, type: Mongoid::Boolean, default: false
   field :requested_coverage_start_date, type: Date, default: TimeKeeper.date_of_record
   field :aasm_state
 
   delegate :citizen_status, :citizenship_result,:vlp_verified_date, :vlp_authority, :vlp_document_id, to: :lawful_presence_determination_instance
   delegate :citizen_status=, :citizenship_result=,:vlp_verified_date=, :vlp_authority=, :vlp_document_id=, to: :lawful_presence_determination_instance
 
-  field :is_applicant, type: Boolean  # Consumer is applying for benefits coverage
+  field :is_applicant, type: Mongoid::Boolean  # Consumer is applying for benefits coverage
   field :birth_location, type: String
   field :marital_status, type: String
-  field :is_active, type: Boolean, default: true
-  field :is_applying_coverage, type: Boolean, default: true
+  field :is_active, type: Mongoid::Boolean, default: true
+  field :is_applying_coverage, type: Mongoid::Boolean, default: true
 
   field :raw_event_responses, type: Array, default: [] #e.g. [{:lawful_presence_response => payload}]
   field :bookmark_url, type: String, default: nil
@@ -75,7 +75,7 @@ class ConsumerRole
   validates_inclusion_of :native_validation, :in => NATIVE_VALIDATION_STATES, :allow_blank => false
 
   # DC residency
-  field :is_state_resident, type: Boolean, default: nil
+  field :is_state_resident, type: Mongoid::Boolean, default: nil
   field :residency_determined_at, type: DateTime
   field :local_residency_validation, type: String, default: nil
   validates_inclusion_of :local_residency_validation, :in => LOCAL_RESIDENCY_VALIDATION_STATES, :allow_blank => true
@@ -86,10 +86,10 @@ class ConsumerRole
   field :residency_update_reason, type: String
 
   #rejection flags for verification types
-  field :ssn_rejected, type: Boolean, default: false
-  field :native_rejected, type: Boolean, default: false
-  field :lawful_presence_rejected, type: Boolean, default: false
-  field :residency_rejected, type: Boolean, default: false
+  field :ssn_rejected, type: Mongoid::Boolean, default: false
+  field :native_rejected, type: Mongoid::Boolean, default: false
+  field :lawful_presence_rejected, type: Mongoid::Boolean, default: false
+  field :residency_rejected, type: Mongoid::Boolean, default: false
 
   delegate :hbx_id, :hbx_id=, to: :person, allow_nil: true
   delegate :ssn,    :ssn=,    to: :person, allow_nil: true

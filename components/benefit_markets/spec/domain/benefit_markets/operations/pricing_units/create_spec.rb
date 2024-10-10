@@ -29,14 +29,14 @@ RSpec.describe BenefitMarkets::Operations::PricingUnits::Create, dbclean: :after
       end
 
       it "should be successful for #{package_kind} package_kind" do
-        expect(subject.call(params).success?).to be_truthy
+        expect(subject.call(**params).success?).to be_truthy
       end
 
       it "should create appropriate pricing unit entity for #{package_kind} package_kind" do
         if package_kind == 'single_product' && Settings.site.key == :cca && params[:product_kind] == :health
-          expect(subject.call(params).success).to be_a BenefitMarkets::Entities::TieredPricingUnit
+          expect(subject.call(**params).success).to be_a BenefitMarkets::Entities::TieredPricingUnit
         else
-          expect(subject.call(params).success).to be_a BenefitMarkets::Entities::RelationshipPricingUnit
+          expect(subject.call(**params).success).to be_a BenefitMarkets::Entities::RelationshipPricingUnit
         end
       end
     end

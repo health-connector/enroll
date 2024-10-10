@@ -7,16 +7,16 @@ class FinancialStatement
   TAX_FILING_STATUS_TYPES = %W(tax_filer tax_dependent non_filer)
 
   field :tax_filing_status, type: String
-  field :is_tax_filing_together, type: Boolean
+  field :is_tax_filing_together, type: Mongoid::Boolean
 
   field :eligibility_determination_id, type: BSON::ObjectId
 
   # Has access to employer-sponsored coverage that meets ACA minimum standard value and
   #   employee responsible premium amount is <= 9.5% of Household income
-  field :is_enrolled_for_es_coverage, type: Boolean, default: false
-  field :is_without_assistance, type: Boolean, default: true
+  field :is_enrolled_for_es_coverage, type: Mongoid::Boolean, default: false
+  field :is_without_assistance, type: Mongoid::Boolean, default: true
   field :submitted_date, type: DateTime
-  field :is_active, type: Boolean, default: true
+  field :is_active, type: Mongoid::Boolean, default: true
 
   embedded_in :tax_household_member
 

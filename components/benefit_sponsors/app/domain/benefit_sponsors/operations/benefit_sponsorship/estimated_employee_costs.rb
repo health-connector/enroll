@@ -8,7 +8,7 @@ module BenefitSponsors
     module BenefitSponsorship
       # This operation is to find Estimatd Employee Costs
       class EstimatedEmployeeCosts
-        include Dry::Monads[:result, :do]
+        include Dry::Monads[:do, :result]
 
         def call(params)
           values = yield validate(params)

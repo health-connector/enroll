@@ -13,7 +13,7 @@ RSpec.describe "insured/families/personal.html.erb" do
     sign_in(current_user)
     allow(person).to receive(:employee_roles).and_return([employee_role])
     allow(view).to receive(:policy_helper).and_return(double("Policy", updateable?: true))
-    render file: "insured/families/personal.html.erb"
+    render template: "insured/families/personal.html.erb"
   end
 
   shared_examples_for "display_heading" do

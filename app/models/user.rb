@@ -59,13 +59,13 @@ class User
     end
   end
 
-  field :hints, type: Boolean, default: true
+  field :hints, type: Mongoid::Boolean, default: true
   # for i18L
   field :preferred_language, type: String, default: "en"
 
   ## Enable Admin approval
   ## Seed: https://github.com/plataformatec/devise/wiki/How-To%3a-Require-admin-to-activate-account-before-sign_in
-  field :approved, type: Boolean, default: true
+  field :approved, type: Mongoid::Boolean, default: true
 
   # Session token for Devise to prevent concurrent user sessions
   field :current_login_token
@@ -86,7 +86,7 @@ class User
   field :oim_id, type: String, default: ""
 
   field :last_portal_visited, type: String
-  field :idp_verified, type: Boolean, default: false
+  field :idp_verified, type: Mongoid::Boolean, default: false
 
   index({preferred_language: 1})
   index({approved: 1})

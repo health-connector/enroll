@@ -14,12 +14,12 @@ RSpec.describe BenefitMarkets::Operations::BenefitMarketCatalogs::FindModel, dbc
   context 'sending required parameters' do
 
     it 'should find BenefitMarketCatalog instance' do
-      expect(subject.call(params).success?).to be_truthy
-      expect(subject.call(params).success).to be_a BenefitMarkets::BenefitMarketCatalog
+      expect(subject.call(**params).success?).to be_truthy
+      expect(subject.call(**params).success).to be_a BenefitMarkets::BenefitMarketCatalog
     end
 
     it 'should return object' do
-      expect(subject.call(params).success).to eq instance
+      expect(subject.call(**params).success).to eq instance
     end
   end
 end
