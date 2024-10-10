@@ -10,7 +10,7 @@ namespace :sbc do
       )
 
     file_name = "sbc_export.csv"
-    years = args[:year].present? ? [args[:year].to_i] : [2020, 2021]
+    years = ENV["year"].present? ? [ENV["year"].to_i] : [2020, 2021]
 
     CSV.open(file_name, "w", force_quotes: true) do |csv|
       csv << field_names
