@@ -3,8 +3,6 @@
 require 'rails_helper'
 
 describe BenefitGroupAssignment, type: :model, dbclean: :around_each do
-  it { should validate_presence_of :benefit_package_id }
-  it { should validate_presence_of :start_on }
   let(:site)                  { build(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
   let(:benefit_sponsor)        { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
   let(:employer_profile)    { benefit_sponsor.employer_profile }
@@ -53,6 +51,29 @@ describe BenefitGroupAssignment, type: :model, dbclean: :around_each do
   end
   let(:start_on)          { benefit_package.start_on }
   let(:hbx_enrollment)  { HbxEnrollment.new(sponsored_benefit_package: benefit_package, employee_role: census_employee.employee_role) }
+
+  describe 'validations' do
+    context 'when benefit_group_id is blank' do
+      before { subject.benefit_group_id = nil }
+
+      it 'validates presence of benefit_package_id' do
+        subject.benefit_package_id = nil
+        expect(subject).not_to be_valid
+        expect(subject.errors[:benefit_package_id]).to include("can't be blank")
+      end
+    end
+
+    context 'when benefit_group_id is present' do
+      before { subject.benefit_group_id = 1 }
+
+      it 'does not validate presence of benefit_package_id' do
+        subject.benefit_package_id = nil
+        expect(subject.errors[:benefit_package_id]).to be_empty
+      end
+    end
+
+    it { should validate_presence_of :start_on }
+  end
 
   describe ".new" do
     let(:valid_params) do

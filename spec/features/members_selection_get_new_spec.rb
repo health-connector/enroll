@@ -26,6 +26,7 @@ feature "Insured::MembersSelectionController GET new", :type => :feature, dbclea
 
   given!(:one_issuer_product_package) {initial_application.benefit_sponsor_catalog.product_packages.select {|pp| pp.package_kind == :single_issuer}}
   given!(:all_products) do
+    one_issuer_product_package.map(&:save!)
     products = one_issuer_product_package.map(&:products).flatten
     products[2].update_attributes!(hios_id: '52842DC0400016-01')
     BenefitMarkets::Products::Product.all.where(id: products[2].id).first.update_attributes!(hios_id: '52842DC0400016-01')

@@ -8,9 +8,9 @@ class TaxHouseholdMember
   embeds_many :financial_statements
 
   field :applicant_id, type: BSON::ObjectId
-  field :is_ia_eligible, type: Boolean, default: false
-  field :is_medicaid_chip_eligible, type: Boolean, default: false
-  field :is_subscriber, type: Boolean, default: false
+  field :is_ia_eligible, type: Mongoid::Boolean, default: false
+  field :is_medicaid_chip_eligible, type: Mongoid::Boolean, default: false
+  field :is_subscriber, type: Mongoid::Boolean, default: false
 
   validate :strictly_boolean
 

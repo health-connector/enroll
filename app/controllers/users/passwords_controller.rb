@@ -1,5 +1,5 @@
 class Users::PasswordsController < Devise::PasswordsController
-  include ActionView::Helpers::TranslationHelper
+  # include ActionView::Helpers::TranslationHelper
   include L10nHelper
 
   before_action :confirm_identity, only: [:create]

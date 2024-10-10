@@ -29,11 +29,9 @@ FactoryBot.define do
     end
 
     trait :with_benefit_catalog_and_product_packages do
-
       after :build do |benefit_market, _evaluator|
         benefit_market.add_benefit_market_catalog(build(:benefit_markets_benefit_market_catalog, :with_product_packages))
       end
     end
-
   end
 end

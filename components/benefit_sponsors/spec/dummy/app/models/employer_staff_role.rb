@@ -5,10 +5,10 @@ class EmployerStaffRole
 
   embedded_in :person
 
-  field :is_owner, type: Boolean, default: true
+  field :is_owner, type: Mongoid::Boolean, default: true
   field :benefit_sponsor_employer_profile_id, type: BSON::ObjectId
   field :bookmark_url, type: String
-  field :is_active, type: Boolean, default: true
+  field :is_active, type: Mongoid::Boolean, default: true
   field :aasm_state, type: String, default: 'is_active'
   field :benefit_sponsor_employer_profile_id, type: BSON::ObjectId
 

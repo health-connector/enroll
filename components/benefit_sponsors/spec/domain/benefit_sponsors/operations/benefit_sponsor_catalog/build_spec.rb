@@ -35,7 +35,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitSponsorCatalog::Build, dbclea
       }
     end
 
-    let(:result) { subject.call(params) }
+    let(:result) { subject.call(**params) }
 
     it 'should be success' do
       expect(result.success?).to be_truthy

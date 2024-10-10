@@ -9,6 +9,6 @@ class CsrRole
   accepts_nested_attributes_for :person
   field :organization, type: String
   field :shift, type: String
-  field :cac, type: Boolean, default: false
+  field :cac, type: Mongoid::Boolean, default: false
 
 end

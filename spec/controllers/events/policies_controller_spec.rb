@@ -17,7 +17,7 @@ describe Events::PoliciesController do
     before :each do
       allow(HbxEnrollment).to receive(:by_hbx_id).with(policy_id).and_return(found_policys)
       allow(controller).to receive(:render_to_string).with(
-        "events/enrollment_event", {:formats => ["xml"], :locals => {
+        "events/enrollment_event", {:formats => [:xml], :locals => {
           :hbx_enrollment => policy
         }}
       ).and_return(rendered_template)
@@ -51,7 +51,7 @@ describe Events::PoliciesController do
 
       before :each do
         allow(controller).to receive(:render_to_string).with(
-          "events/enrollment_event", {:formats => ["xml"], :locals => {
+          "events/enrollment_event", {:formats => [:xml], :locals => {
             :hbx_enrollment => policy
           }}
         ).and_raise(exception)

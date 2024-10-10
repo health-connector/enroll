@@ -7,7 +7,7 @@ module Operations
   module CensusMembers
     # Updates CensusMember Records
     class Update
-      send(:include, Dry::Monads[:result, :do])
+      include Dry::Monads[:do, :result]
 
       VALID_RELATIONSHIP_KINDS = ["spouse", "domestic_partner", "child", "child_under_26", "child_26_and_over", "disabled_child_26_and_over"].freeze
 

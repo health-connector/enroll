@@ -7,7 +7,7 @@ module BenefitMarkets
   module Operations
     module Products
       class Find
-        send(:include, Dry::Monads[:result, :do])
+        include Dry::Monads[:do, :result]
 
         # @param [ Date ] effective_date Effective date of the benefit application in rfc3339 date format
         # @param [ Array<BenefitMarkets::Entities::ServiceArea> ] service_areas Service Areas
@@ -32,7 +32,7 @@ module BenefitMarkets
           product_params = ::BenefitMarkets::Products::Product.by_product_package(product_package)
                                                               .by_service_areas(service_areas.map(&:_id))
                                                               .effective_with_premiums_on(effective_date)
-                                                              .collect{|product| product.create_copy_for_embedding.as_json.deep_symbolize_keys}
+                                                              .collect{|product| product.create_copy_for_embedding.serializable_hash.deep_symbolize_keys}
 
           Success(product_params)
         end

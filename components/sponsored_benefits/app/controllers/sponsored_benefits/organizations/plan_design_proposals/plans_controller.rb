@@ -23,18 +23,32 @@ module SponsoredBenefits
                 'plan_deductible': 'Individual deductible (in network)'
               }
 
+        @search_option_titles.merge!({is_pvp: "Premium Value Plan"}) if ::EnrollRegistry.feature_enabled?(:premium_value_products)
         @plan_deductibles = plan_deductible_values(@plans)
       end
 
       private
-      helper_method :selected_carrier_level, :plan_design_organization, :carrier_profile, :carriers_cache, :kind, :plan_deductible_values
+      helper_method :selected_carrier_level, :plan_design_organization, :carrier_profile, :carriers_cache,
+                    :kind, :plan_deductible_values, :plan_design_proposal, :rating_area, :quote_effective_date
 
       def selected_carrier_level
         @selected_carrier_level ||= params[:selected_carrier_level]
       end
 
+      def quote_effective_date
+        @quote_effective_date ||= params[:quote_effective_date]
+      end
+
       def plan_design_organization
         @plan_design_organization ||= PlanDesignOrganization.find(params[:plan_design_organization_id])
+      end
+
+      def plan_design_proposal
+        @plan_design_proposal ||= SponsoredBenefits::Organizations::PlanDesignProposal.find(params[:plan_design_proposal_id])
+      end
+
+      def rating_area
+        @rating_area ||= plan_design_proposal.profile.rating_area
       end
 
       def carrier_profile

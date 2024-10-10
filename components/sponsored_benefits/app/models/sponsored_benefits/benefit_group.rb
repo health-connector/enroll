@@ -26,7 +26,7 @@ module SponsoredBenefits
     field :effective_on_kind, type: String, default: "first_of_month"
     field :terminate_on_kind, type: String, default: "end_of_month"
     field :plan_option_kind, type: String
-    field :default, type: Boolean, default: true  # is default benefit group
+    field :default, type: Mongoid::Boolean, default: true  # is default benefit group
 
     field :contribution_pct_as_int, type: Integer, default: 0
     field :employee_max_amt, type: Money, default: 0
@@ -48,7 +48,7 @@ module SponsoredBenefits
 
     # Array of plan_ids
     field :elected_plan_ids, type: Array, default: []
-    field :is_congress, type: Boolean, default: false
+    field :is_congress, type: Mongoid::Boolean, default: false
     field :_type, type: String, default: self.name
 
 

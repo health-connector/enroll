@@ -15,7 +15,9 @@ module BenefitSponsors
         :deductible_value,
         :family_deductible_value,
         :rx_deductible_value,
-        :rx_family_deductible_value
+        :rx_family_deductible_value,
+        :is_standard_plan,
+        :is_pvp_eligible
       )
 
       ContributionLevel = Struct.new(:id, :display_name, :contribution_factor, :is_offered, :contribution_unit_id)
@@ -102,7 +104,9 @@ module BenefitSponsors
                         product.medical_individual_deductible,
                         product.medical_family_deductible,
                         product.rx_individual_deductible,
-                        product.rx_family_deductible
+                        product.rx_family_deductible,
+                        product.is_standard_plan,
+                        product_is_pvp_eligible?(product)
             )
           end
           @products[product_package.package_kind] = case product_package.package_kind
@@ -137,6 +141,13 @@ module BenefitSponsors
 
       def single_plan_options
         plan_options
+      end
+
+      def product_is_pvp_eligible?(product)
+        return false unless ::EnrollRegistry.feature_enabled?(:premium_value_products)
+
+        rating_area_code = benefit_application.recorded_rating_area.exchange_provided_code
+        product.is_pvp_in_rating_area(rating_area_code, benefit_application.start_on)
       end
     end
   end

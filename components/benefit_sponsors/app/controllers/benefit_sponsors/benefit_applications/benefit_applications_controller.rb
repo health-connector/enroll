@@ -2,7 +2,6 @@ module BenefitSponsors
   module BenefitApplications
     class BenefitApplicationsController < ApplicationController
       layout "two_column"
-      include Pundit
 
       def new
         @benefit_application_form = BenefitSponsors::Forms::BenefitApplicationForm.for_new(params.permit(:benefit_sponsorship_id))

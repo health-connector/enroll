@@ -72,9 +72,18 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
     end
 
     context "Validations" do
+      subject { described_class.new }
       it {is_expected.to validate_presence_of(:ssn)}
-      it {is_expected.to validate_presence_of(:benefit_sponsors_employer_profile_id)}
-      it {is_expected.to validate_presence_of(:employer_profile_id)}
+
+      it "validates presence of benefit_sponsors_employer_profile_id when employer_profile_id is blank" do
+        allow(subject).to receive(:employer_profile_id).and_return(nil)
+        is_expected.to validate_presence_of(:benefit_sponsors_employer_profile_id)
+      end
+
+      it "validates presence of employer_profile_id when benefit_sponsors_employer_profile_id is blank" do
+        allow(subject).to receive(:benefit_sponsors_employer_profile_id).and_return(nil)
+        is_expected.to validate_presence_of(:employer_profile_id)
+      end
     end
 
     context "index" do

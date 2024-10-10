@@ -16,7 +16,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Revise, dbclean
       end
 
       it 'returns failure' do
-        expect(subject.call(params).failure).to eq 'Missing application key(s).'
+        expect(subject.call(**params).failure).to eq 'Missing application key(s).'
       end
     end
 
@@ -26,7 +26,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Revise, dbclean
       end
 
       it 'returns failure' do
-        expect(subject.call(params).failure).to eq 'Missing application key(s).'
+        expect(subject.call(**params).failure).to eq 'Missing application key(s).'
       end
     end
 
@@ -36,7 +36,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Revise, dbclean
       end
 
       it 'returns failure' do
-        expect(subject.call(params).failure).to eq 'Missing reinstate on date.'
+        expect(subject.call(**params).failure).to eq 'Missing reinstate on date.'
       end
     end
 
@@ -47,7 +47,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Revise, dbclean
       end
 
       it 'returns failure' do
-        expect(subject.call(params).failure).to eq 'Missing terminate key(s).'
+        expect(subject.call(**params).failure).to eq 'Missing terminate key(s).'
       end
     end
 
@@ -58,7 +58,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Revise, dbclean
       end
 
       it 'returns failure' do
-        expect(subject.call(params).failure).to eq 'Missing terminate key(s).'
+        expect(subject.call(**params).failure).to eq 'Missing terminate key(s).'
       end
     end
 
@@ -69,7 +69,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Revise, dbclean
       end
 
       it 'returns failure' do
-        expect(subject.call(params).failure).to eq 'Missing terminate key(s).'
+        expect(subject.call(**params).failure).to eq 'Missing terminate key(s).'
       end
     end
 
@@ -80,7 +80,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Revise, dbclean
       end
 
       it 'returns failure' do
-        expect(subject.call(params).failure).to eq 'Not a valid Benefit Application'
+        expect(subject.call(**params).failure).to eq 'Not a valid Benefit Application'
       end
     end
   end
@@ -113,7 +113,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Revise, dbclean
     context 'revise benefit application' do
       it 'should reinstate and terminate benefit application' do
         sequence_id = benefit_application.latest_benefit_application_item.sequence_id
-        subject.call(params)
+        subject.call(**params)
         items = benefit_application.reload.benefit_application_items.select { |item| item.sequence_id > sequence_id }
         expect(items.size).to eq 2
         reinstate_item, term_item = items
@@ -129,7 +129,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Revise, dbclean
       it 'should reinstate and term benefit group assignments' do
         bga = census_employees.first.benefit_group_assignments[0]
         # expect(bga.end_on).to eq initial_term_date
-        subject.call(params)
+        subject.call(**params)
 
         expect(benefit_application.aasm_state).to eq :terminated
         expect(bga.reload.end_on).to eq term_date
@@ -147,7 +147,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Revise, dbclean
           "acapi.info.events.employer.benefit_coverage_period_terminated_voluntary",
           {:employer_id => benefit_application.sponsor_profile.hbx_id, :is_trading_partner_publishable => true, :event_name => "benefit_coverage_period_terminated_voluntary"}
         )
-        subject.call(params)
+        subject.call(**params)
       end
     end
 
@@ -200,7 +200,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Revise, dbclean
       it 'should reinstate and terminate enrollment' do
         enrollments = family.active_household.hbx_enrollments
         expect(enrollments.size).to eq 1
-        subject.call(params).value!
+        subject.call(**params).value!
 
         enrollments = family.reload.active_household.hbx_enrollments
         expect(benefit_application.aasm_state).to eq :terminated
