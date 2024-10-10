@@ -38,6 +38,10 @@ class PersonPolicy < ApplicationPolicy
     false
   end
 
+  def resume_enrollment?
+    user&.person.has_active_consumer_role?
+  end
+
   private
 
   def allowed_to_download?

@@ -44,6 +44,8 @@ module Exchanges
     end
 
     def resume_enrollment
+      authorize @person, :resume_enrollment?
+
       if @person.resident_role&.bookmark_url
         redirect_to bookmark_url_path(@person.resident_role.bookmark_url)
       elsif @person.consumer_role&.bookmark_url
