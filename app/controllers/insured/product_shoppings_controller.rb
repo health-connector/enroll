@@ -8,6 +8,7 @@ module Insured
 
     # rubocop:disable Metrics/CyclomaticComplexity
     def continuous_show
+      authorize @hbx_enrollment
       # TODO: Use permit params
       attr = strong_params.to_h.deep_symbolize_keys
       @context = Organizers::FetchProductsForShoppingEnrollment.call(health: attr[:health], dental: attr[:dental], cart: attr[:cart],
@@ -45,6 +46,8 @@ module Insured
     # rubocop:enable Metrics/CyclomaticComplexity
 
     def thankyou
+      authorize @hbx_enrollment
+
       @context = {}
       params[:cart].each do |k, v|
         context = Organizers::PrepareForCheckout.call(params: v, person: @person, event: params[:event])
@@ -69,6 +72,8 @@ module Insured
     end
 
     def checkout
+      authorize @hbx_enrollment
+
       @context = {}
       params.except("_method", "authenticity_token", "controller", "action", "waiver_context").each do |key, value|
         context = Organizers::Checkout.call(params: value, previous_enrollment_id: session[:pre_hbx_enrollment_id])
@@ -103,6 +108,8 @@ module Insured
     end
 
     def receipt
+      authorize @hbx_enrollment
+
       @context = {}
       params.except("_method", "authenticity_token", "controller", "action", "waiver_context").each do |key, value|
         context = Organizers::Receipt.call(params: value, previous_enrollment_id: session[:pre_hbx_enrollment_id])
@@ -124,6 +131,8 @@ module Insured
     end
 
     def waiver_thankyou
+      authorize @hbx_enrollment
+
       # TODO: Use permit params
       attrs = params.permit!.to_h.deep_symbolize_keys
       enr_details = attrs.slice(:health, :dental)
@@ -150,6 +159,8 @@ module Insured
     end
 
     def waiver_checkout
+      authorize @hbx_enrollment
+
       @context = {}
       params.except("_method", "authenticity_token", "controller", "action").each do |key, value|
         context = Organizers::WaiveEnrollment.call(hbx_enrollment_id: value[:enrollment_id], waiver_reason: value[:waiver_reason])
@@ -201,8 +212,6 @@ module Insured
       @hbx_enrollment = HbxEnrollment.find(params[:cart][:health][:id]) if params[:cart] && params[:cart][:health]
       @hbx_enrollment = HbxEnrollment.find(params[:dental][:enrollment_id]) if params[:dental]
       @hbx_enrollment = HbxEnrollment.find(params[:cart][:dental][:id]) if params[:cart] && params[:cart][:dental]
-
-      authorize @hbx_enrollment, :complete_plan_shopping?
     end
 
     def sanatize_params(param)
