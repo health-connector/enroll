@@ -647,7 +647,7 @@ class Plan
         carrier_profile = CarrierProfile.find(id)
         [ carrier_profile.legal_name, carrier_profile.abbrev, carrier_profile.id ]
         }.uniq.unshift(['any','any'])
-      selectors[:plan_types] = plans.map{|p| p.plan_type}.uniq.unshift('any')
+      selectors[:plan_types] = plans.map(&:plan_type).uniq.unshift('any')
       selectors[:dc_network] = ['any', 'true', 'false']
       selectors[:nationwide] = ['any', 'true', 'false']
       selectors
@@ -704,7 +704,7 @@ class MetalLevel
 
   def eql?(metal_level)
     metal_level = safe_assign(metal_level)
-    METAL_LEVEL_ORDER.index(self.name) == METAL_LEVEL_ORDER.index(metal_level.name)
+    METAL_LEVEL_ORDER.index(name) == METAL_LEVEL_ORDER.index(metal_level.name)
   end
 
   def hash
