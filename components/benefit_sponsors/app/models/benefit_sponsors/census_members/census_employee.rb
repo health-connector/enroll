@@ -2,7 +2,7 @@ module BenefitSponsors::CensusMembers
   class CensusEmployee < CensusMember
 
     field :hired_on, type: Date
-    field :is_business_owner, type: Boolean, default: false
+    field :is_business_owner, type: Mongoid::Boolean, default: false
 
     belongs_to :benefit_sponsorship, class_name: "BenefitSponsors::BenefitSponsorships::BenefitSponsorship", optional: true
 

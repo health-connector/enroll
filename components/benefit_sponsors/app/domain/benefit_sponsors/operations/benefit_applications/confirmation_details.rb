@@ -8,7 +8,7 @@ module BenefitSponsors
     module BenefitApplications
       # This class is to get Confirmation Details of Admin action on a benefit application
       class ConfirmationDetails
-        include Dry::Monads[:result, :do]
+        include Dry::Monads[:do, :result]
 
         def call(params)
           yield validate(params)

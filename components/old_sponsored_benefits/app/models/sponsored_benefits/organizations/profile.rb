@@ -10,7 +10,7 @@ module SponsoredBenefits
       field :profile_source, type: String
 
       # Terminated twice for non-payment?
-      field :eligible_for_benefit_sponsorship, type: Boolean
+      field :eligible_for_benefit_sponsorship, type: Mongoid::Boolean
 
       # Share common attributes across all Profile kinds
       delegate :hbx_id, to: :organization, allow_nil: true

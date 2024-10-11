@@ -83,6 +83,17 @@ And(/^the broker clicks Actions dropdown and clicks Create Quote from dropdown m
   wait_for_ajax(3, 2)
 end
 
+And(/^the broker clicks Actions dropdown and click Edit Employer Details dropdown menu$/) do
+  path = SponsoredBenefits::Organizations::PlanDesignOrganization.all.first.id.to_s
+  find("#dropdown_for_plan_design_#{path}", :text => "Actions").click
+  find("#plan_design_#{path}> ul > li:nth-child(3) > a", :text => "Edit Employer Details").click
+  wait_for_ajax(3, 2)
+end
+
+Then("renders Edit Employer Information page") do
+  expect(page).to have_content("Edit Employer Information")
+end
+
 Then(/^Primary Broker should be on the Roster page of a Create quote$/) do
   expect(page).to have_content("Quote for #{SponsoredBenefits::Organizations::PlanDesignOrganization.all.first.legal_name}")
 end
@@ -139,6 +150,7 @@ Given(/^.+ clicks on Employers tab$/) do
 end
 
 Then(/^the broker selects plan offerings by metal level and enters (.*) for employee and deps$/) do |int|
+  find('.interaction-click-control-select-health-benefits').click if page.has_css?('.interaction-click-control-select-health-benefits')
   sleep(10)
   find(:xpath, "//*[@id='pdp-bms']/div/ul/li[3]/label/div").click
   expect(page).to have_content("Gold")

@@ -50,7 +50,7 @@ RSpec.configure do |config|
   # The different available types are documented in the features, such as in
   # https://relishapp.com/rspec/rspec-rails/docs
   load "#{Rails.root}/db/seedfiles/english_translations_seed.rb"
-  DatabaseCleaner.strategy = :truncation, {:except => %w[translations]}
+  DatabaseCleaner.strategy = DatabaseCleaner::Mongoid::Deletion.new(except: %w[translations])
 
   config.after(:example, :dbclean => :after_each) do
     DatabaseCleaner.clean
@@ -73,6 +73,7 @@ RSpec.configure do |config|
   config.include FactoryBot::Syntax::Methods
   config.include FederalHolidaysHelper
   config.include Config::AcaModelConcern
+  config.include ActionView::Helpers::TranslationHelper
   config.include ActionDispatch::TestProcess
 
   config.infer_spec_type_from_file_location!

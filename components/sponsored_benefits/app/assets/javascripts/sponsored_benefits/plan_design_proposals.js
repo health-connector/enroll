@@ -127,12 +127,13 @@ function url_redirect(options){
   var $form = $("<form />");
   $form.attr("action",options.url);
   $form.attr("method",options.method);
-            
-  for (var key in options.data)
+  for (var key in options.data) {
     buildChiderenElements($form, key, options.data[key]);
-            
-  $("body").append($form);
-  $form.submit();
+  }
+  var csrfToken = document.querySelector("meta[name=csrf-token]").content;
+  $form.append('<input type="hidden" name="authenticity_token" value="' + csrfToken + '">');
+  $("body").append($form);
+  $form.submit();
 }
 
 function buildChiderenElements(form, prefix, data) {
@@ -154,7 +155,8 @@ function downloadPdf(event, element) {
       kind: element.dataset.kind
     }
   }
-  url_redirect({url: element.href, method: "post", data: data});
+
+url_redirect({url: element.href, method: "post", data: data});
 }
 
 function sendPdf(event) {
@@ -288,6 +290,26 @@ function setSliderDisplayVal(slideEvt) {
   $(this).closest('.form-group').find('.hidden-param').val(slideEvt.value).attr('value', slideEvt.value);
   $(this).closest('.form-group').find('.slide-label').text(slideEvt.value + "%");
   calcPlanDesignContributions();
+}
+
+function updateSlider(element) {
+  var value = element.value;
+  var inputBox = $(element).closest('.row').find('input.contribution_handler').val(element.value);
+  var slideLabel = $(element).closest('.row').find('.slide-label').text(element.value + "%");
+  var slideLabel = $(element).closest('.row').find('.slide-label').text(element.value + "%");
+  updateTooltip(element);
+}
+
+function updateSliderValue(element) {
+  var value = element.value;
+  var slider = $(element).closest('.row').find('.contribution_slide_handler').val(element.value);
+  var slideLabel = $(element).closest('.row').find('.slide-label').text(element.value + "%");
+}
+
+function updateTooltip(element) {
+  setTimeout(function() {
+    $(element).attr('data-original-title','Contribution Percentage: '+element.value+'%').tooltip('show');
+  },400);
 }
 
 function toggleSliders(plan_kind) {

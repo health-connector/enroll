@@ -13,7 +13,7 @@
 
   field :start_on, type: Date
   field :end_on, type: Date
-  field :is_active, type: Boolean, default: true
+  field :is_active, type: Mongoid::Boolean, default: true
 
   field :activated_at, type: DateTime
 

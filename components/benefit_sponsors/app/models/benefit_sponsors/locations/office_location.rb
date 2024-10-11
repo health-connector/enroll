@@ -6,7 +6,7 @@ module BenefitSponsors
       embedded_in :profile, class_name: "BenefitSponsors::Organizations::Profile"
       #embedded_in :plan_design_employer_profile, class_name: "BenefitSponsors::BenefitSponsorships::PlanDesignEmployerProfile"
 
-      field :is_primary, type: Boolean, default: true
+      field :is_primary, type: Mongoid::Boolean, default: true
 
       embeds_one :address, class_name:"BenefitSponsors::Locations::Address", cascade_callbacks: true, validate: true
       accepts_nested_attributes_for :address, reject_if: :all_blank, allow_destroy: true
