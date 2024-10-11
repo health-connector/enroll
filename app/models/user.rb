@@ -5,7 +5,7 @@ class User
   MIN_USERNAME_LENGTH = 8
   MAX_USERNAME_LENGTH = 60
   HEX_ESCAPE_REGEX = /\\x([0-9A-Fa-f]{2})/.freeze
-  EMAIL_REGEX = /\A[^@\s]+@([^@\s]+\.)+[^@\s]+\z/.freeze
+  EMAIL_REGEX = /\A[^@\s]+@(?>[^@\s]+\.)+[^@\s]+\z/.freeze
 
   include Mongoid::Document
   include Mongoid::Timestamps
