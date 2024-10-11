@@ -67,7 +67,7 @@ RSpec.describe User, :type => :model, dbclean: :after_each do
       let(:params){valid_params.deep_merge!({email: "test@@test"})}
       it 'does not match' do
         expect(User.create(**params).errors[:email].any?).to be_truthy
-        expect(User.create(**params).errors[:email]).to eq ["is invalid"]
+        expect(User.create(**params).errors[:email]).to eq ["is invalid", "is invalid"]
       end
     end
 
@@ -81,6 +81,19 @@ RSpec.describe User, :type => :model, dbclean: :after_each do
     context 'email validation' do
       let(:params){valid_params}
       it {should validate_uniqueness_of(:email).case_insensitive }
+    end
+
+    context 'when email has invalid characters' do
+      let(:params) do
+        valid_params.merge({
+                             email: '\xE2\x81\xA0test.test@test.gov'
+                           })
+      end
+
+      it 'returns contains invalid chars error' do
+        expect(User.create(**params).errors[:email].any?).to be_truthy
+        expect(User.create(**params).errors[:email]).to eq ['contains invalid characters']
+      end
     end
 
     context 'when password' do
