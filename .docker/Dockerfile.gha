@@ -43,7 +43,7 @@ RUN apt-get update \
 # Add NodeJS to sources list
 RUN curl -fsSL https://deb.nodesource.com/setup_$NODE_MAJOR.x | bash -
 
-# Install Nodejs & Yarn
+# Install Nodejs
 RUN apt-get update -qq \
   && apt-get install -yq --no-install-recommends \
     nodejs \
@@ -85,7 +85,7 @@ ENV RAILS_ENV=production
 ENV NODE_ENV=production
 
 ################################################################################
-### Builder. Adds node and Yarn. Not necessary in production. ###
+### Builder. Adds Yarn. Not necessary in production. ###
 ###############################################################################
 FROM base AS builder
 
@@ -112,7 +112,8 @@ FROM builder AS prod_gems_and_assets
 
 RUN apt-get update -qq \
     && apt-get install -yq --no-install-recommends \
-      shared-mime-info python \
+      shared-mime-info \
+      python \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
     && truncate -s 0 /var/log/*log
