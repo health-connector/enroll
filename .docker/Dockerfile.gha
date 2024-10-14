@@ -2,7 +2,7 @@
 ### Base image ###
 ############################################
 
-ARG RUBY_VERSION=2.7.6
+ARG RUBY_VERSION=3.0.6
 FROM ruby:$RUBY_VERSION-slim-bullseye AS base
 LABEL author="MHC"
 
@@ -15,8 +15,8 @@ ENV BUNDLER_VERSION=$BUNDLER_VERSION
 ARG NODE_MAJOR=12
 ENV NODE_MAJOR=$NODE_MAJOR
 
-# Only add packages that aren't alread in the base image
-# https://github.com/docker-library/ruby/blob/57fbb486ad5a793c83a47a4c1ef36160f7abd28e/2.5/stretch/slim/Dockerfile
+# Only add packages that aren't already in the base image
+# https://github.com/docker-library/ruby/blob/cdac1ffbc959768a5b82014dbb8c8006fe6f7880/3.0/slim-bullseye/Dockerfile
 RUN apt-get update \
     && apt-get -yq dist-upgrade \
     && apt-get install -y \
