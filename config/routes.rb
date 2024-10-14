@@ -448,16 +448,6 @@ Rails.application.routes.draw do
   end
   resources :translations
 
-  namespace :api, :defaults => {:format => 'xml'} do
-    namespace :v1 do
-      resources :slcsp, :only => []  do
-        collection do
-          post :plan
-        end
-      end
-    end
-  end
-
   ############################# TO DELETE BELOW ##############################
 
   # FIXME: Do this properly later
@@ -615,4 +605,16 @@ Rails.application.routes.draw do
   end
 
   root 'welcome#index'
+
+############################# UNMOUNTED BELOW ##############################
+
+# namespace :api, :defaults => {:format => 'xml'} do
+#   namespace :v1 do
+#     resources :slcsp, :only => []  do
+#       collection do
+#         post :plan
+#       end
+#     end
+#   end
+# end
 end
