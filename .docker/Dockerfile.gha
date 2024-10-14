@@ -2,17 +2,17 @@
 ### Base image ###
 ############################################
 
-ARG RUBY_VERSION=3.0.6
+ARG RUBY_VERSION=2.7.6
 FROM ruby:$RUBY_VERSION-slim-bullseye AS base
 LABEL author="MHC"
 
 ARG DEBIAN_FRONTEND=noninteractive
-ARG BUNDLER_VERSION=2.3.16
+ARG BUNDLER_VERSION=2.4.22
 
 # Must be set as ENV variable to overrride the default
 ENV BUNDLER_VERSION=$BUNDLER_VERSION
 
-ARG NODE_MAJOR=14
+ARG NODE_MAJOR=12
 ENV NODE_MAJOR=$NODE_MAJOR
 
 # Only add packages that aren't alread in the base image
@@ -63,7 +63,7 @@ ENV LANG=C.UTF-8
 
 ENV PATH=$HOME/bin:$BUNDLE_BIN:$GEM_HOME/gems/bin:$PATH
 
-RUN gem update --system 3.3.26
+RUN gem update --system 3.4.22
 RUN rm -f /usr/local/bin/ruby/gems/*/specifications/default/bundler-*.gemspec
 RUN gem install bundler -v $BUNDLER_VERSION
 
