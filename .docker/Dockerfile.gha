@@ -61,7 +61,7 @@ ENV BUNDLE_RETRY=3
 
 ENV LANG=C.UTF-8
 
-ENV PATH=$HOME/bin:$BUNDLE_BIN:$GEM_HOME/gems/bin:$PATH
+ENV PATH=$BUNDLE_BIN:$GEM_HOME/gems/bin:$PATH
 
 RUN gem update --system 3.4.22
 RUN rm -f /usr/local/bin/ruby/gems/*/specifications/default/bundler-*.gemspec
