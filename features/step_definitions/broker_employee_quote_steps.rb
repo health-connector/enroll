@@ -83,6 +83,17 @@ And(/^the broker clicks Actions dropdown and clicks Create Quote from dropdown m
   wait_for_ajax(3, 2)
 end
 
+And(/^the broker clicks Actions dropdown and click Edit Employer Details dropdown menu$/) do
+  path = SponsoredBenefits::Organizations::PlanDesignOrganization.all.first.id.to_s
+  find("#dropdown_for_plan_design_#{path}", :text => "Actions").click
+  find("#plan_design_#{path}> ul > li:nth-child(3) > a", :text => "Edit Employer Details").click
+  wait_for_ajax(3, 2)
+end
+
+Then("renders Edit Employer Information page") do
+  expect(page).to have_content("Edit Employer Information")
+end
+
 Then(/^Primary Broker should be on the Roster page of a Create quote$/) do
   expect(page).to have_content("Quote for #{SponsoredBenefits::Organizations::PlanDesignOrganization.all.first.legal_name}")
 end
@@ -90,6 +101,7 @@ end
 And(/^Primary Broker enters quote name$/) do
   find('#forms_plan_design_proposal_title').click
   fill_in 'forms_plan_design_proposal[title]', :with => "Test Quote"
+  find('body').click
   expect(page).to have_content((TimeKeeper.date_of_record + 2.months).strftime("%B %Y"))
   wait_for_ajax(3, 2)
   sleep(2)
@@ -110,8 +122,7 @@ And(/^.+ sees quote for (.*) employer$/) do |employer_name|
 end
 
 And(/^the broker clicks on Select Health Benefits button$/) do
-  find('.interaction-click-control-select-health-benefits').click
-  find('.interaction-click-control-select-health-benefits').click
+  find('.interaction-click-control-select-health-benefits', wait: 10).click
 end
 
 When(/^.+ clicks Actions for that Employer$/) do
@@ -139,11 +150,11 @@ Given(/^.+ clicks on Employers tab$/) do
 end
 
 Then(/^the broker selects plan offerings by metal level and enters (.*) for employee and deps$/) do |int|
+  find('.interaction-click-control-select-health-benefits').click if page.has_css?('.interaction-click-control-select-health-benefits')
   sleep(10)
-  find(:xpath, "//*[@id='pdp-bms']/div/ul/li[3]/label/div").click
+  find('label[for="forms_plan_design_proposal_plan_option_kind_metal_level"]', wait: 10).click
   expect(page).to have_content("Gold")
   find('#metal_level_for_elected_plan_gold').click
-  # find(:xpath, "//*[@id='metalLevelCarrierList']/div[3]/div[2]/label/h3").click
   wait_for_ajax(3, 2)
   fill_in "forms_plan_design_proposal[profile][benefit_sponsorship][benefit_application][benefit_group][relationship_benefits_attributes][0][premium_pct]", with: int.to_i
   fill_in "forms_plan_design_proposal[profile][benefit_sponsorship][benefit_application][benefit_group][relationship_benefits_attributes][1][premium_pct]", with: int.to_i
@@ -260,11 +271,11 @@ end
 Given(/^the Plans exist$/) do
   open_enrollment_start_on = TimeKeeper.date_of_record.end_of_month + 1.day
   start_on = open_enrollment_start_on + 2.months
-  FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', metal_level: 'silver', active_year: start_on.year, deductible: 5000, csr_variant_id: "01", coverage_kind: 'health')
-  FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', metal_level: 'bronze', active_year: start_on.year, deductible: 3000, csr_variant_id: "01", coverage_kind: 'health')
-  FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', dental_level: 'high', active_year: start_on.year, deductible: 4000, coverage_kind: 'dental')
-  FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', dental_level: 'low', active_year: start_on.year, deductible: 4000, coverage_kind: 'dental')
-  FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', metal_level: 'silver', active_year: start_on.year - 1, deductible: 5000, csr_variant_id: "01", coverage_kind: 'health')
+  FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', is_standard_plan: true, metal_level: 'gold', active_year: start_on.year, deductible: 5000, csr_variant_id: "01", coverage_kind: 'health')
+  FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', is_standard_plan: true, metal_level: 'gold', active_year: start_on.year, deductible: 3000, csr_variant_id: "01", coverage_kind: 'health')
+  FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', is_standard_plan: true, dental_level: 'high', active_year: start_on.year, deductible: 4000, coverage_kind: 'dental')
+  FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', is_standard_plan: true, dental_level: 'low', active_year: start_on.year, deductible: 4000, coverage_kind: 'dental')
+  FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', is_standard_plan: true, metal_level: 'gold', active_year: start_on.year - 1, deductible: 5000, csr_variant_id: "01", coverage_kind: 'health')
   Caches::PlanDetails.load_record_cache!
 end
 
@@ -327,4 +338,22 @@ end
 
 When(/^the broker clicks Dental Features$/) do
   find('.interaction-click-control-dental-features-and-cost-criteria').click
+end
+
+Then(/^broker should see standard plan indicator$/) do
+  expect(page).to have_content(/STANDARD PLAN/)
+end
+
+Then(/^broker should not see standard plan indicator$/) do
+  expect(page).not_to have_content(/STANDARD PLAN/)
+end
+
+Then(/^broker should see pvp filter$/) do
+  type_filters = find_all(BrokerQuotingTool.plan_type_filters).map(&:text)
+  expect(type_filters).to include("Premium Value Plan")
+end
+
+Then(/^broker should not see pvp filter$/) do
+  type_filters = find_all(BrokerQuotingTool.plan_type_filters).map(&:text)
+  expect(type_filters).not_to include("Premium Value Plan")
 end

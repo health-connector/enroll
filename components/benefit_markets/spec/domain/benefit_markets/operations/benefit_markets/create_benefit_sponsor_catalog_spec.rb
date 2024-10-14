@@ -14,8 +14,8 @@ RSpec.describe BenefitMarkets::Operations::BenefitMarkets::CreateBenefitSponsorC
   context 'sending required parameters' do
 
     it 'should create BenefitSponsorCatalog' do
-      expect(subject.call(params).success?).to be_truthy
-      expect(subject.call(params).success).to be_a BenefitMarkets::Entities::BenefitSponsorCatalog
+      expect(subject.call(**params).success?).to be_truthy
+      expect(subject.call(**params).success).to be_a BenefitMarkets::Entities::BenefitSponsorCatalog
     end
   end
 end

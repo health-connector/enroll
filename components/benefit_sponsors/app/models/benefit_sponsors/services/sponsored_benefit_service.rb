@@ -153,11 +153,15 @@ module BenefitSponsors
       end
 
       def reference_product_attributes_to_form_params(reference_product)
+        rating_area_code = package.benefit_application.recorded_rating_area.exchange_provided_code
+
         attributes = {
           title: reference_product.title,
           issuer_name: reference_product.issuer_profile.legal_name,
           metal_level_kind: reference_product.metal_level,
-          network_information: reference_product.network_information
+          network_information: reference_product.network_information,
+          is_standard_plan: reference_product.is_standard_plan,
+          is_pvp_eligible: reference_product.is_pvp_in_rating_area(rating_area_code, package.start_on)
         }
         case reference_product.kind
         when :health
@@ -169,6 +173,8 @@ module BenefitSponsors
             plan_kind: reference_product.dental_plan_kind
           })
         end
+
+
         attributes
       end
 

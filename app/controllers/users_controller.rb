@@ -25,7 +25,7 @@ class UsersController < ApplicationController
       User.send_reset_password_instructions(email: @user.email)
       redirect_to user_account_index_exchanges_hbx_profiles_url, notice: "Reset password instruction sent to user email."
     else
-      render file: 'users/reset_password.js.erb'
+      render template: 'users/reset_password.js.erb'
     end
   end
 

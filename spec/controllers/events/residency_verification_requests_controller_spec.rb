@@ -20,7 +20,7 @@ describe Events::ResidencyVerificationRequestsController do
       end
       allow(Time).to receive(:now).and_return(mock_now)
       expect(controller).to receive(:render_to_string).with(
-        "events/residency/verification_request", {:formats => ["xml"], :locals => {
+        "events/residency/verification_request", {:formats => [:xml], :locals => {
           :individual => person
         }}
       ).and_return(rendered_template)

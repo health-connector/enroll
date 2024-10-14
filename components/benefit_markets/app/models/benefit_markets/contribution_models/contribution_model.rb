@@ -18,7 +18,7 @@ module BenefitMarkets
       field :contribution_calculator_kind, type: String
 
       # Will an enrollment map to multiple possible contribution units?
-      field :many_simultaneous_contribution_units, type: Boolean, default: false
+      field :many_simultaneous_contribution_units, type: Mongoid::Boolean, default: false
 
       # Indicates the set of product multiplicities that are compatible
       # with this contribution model.  Should be some subset of 
@@ -37,7 +37,7 @@ module BenefitMarkets
 
       index({"key" => 1})
 
-      scope :options_for_select,  ->{ unscoped.distinct(:key).as_json } #.reduce([]) { |list, cm| list << [cm.title, cm.key] } }
+      scope :options_for_select,  ->{ unscoped.distinct(:key).serializable_hash } #.reduce([]) { |list, cm| list << [cm.title, cm.key] } }
 
       def contribution_calculator
         @contribution_calculator ||= contribution_calculator_kind.constantize.new

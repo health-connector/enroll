@@ -32,10 +32,10 @@ class PlanYear
 
   field :terminated_on, type: Date
 
-  field :imported_plan_year, type: Boolean, default: false
+  field :imported_plan_year, type: Mongoid::Boolean, default: false
 
   # Plan year created to support Employer converted into system. May not be complaint with Hbx Business Rules
-  field :is_conversion, type: Boolean, default: false
+  field :is_conversion, type: Mongoid::Boolean, default: false
 
   # Number of full-time employees
   field :fte_count, type: Integer, default: 0

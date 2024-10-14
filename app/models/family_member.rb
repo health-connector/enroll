@@ -7,15 +7,15 @@ class FamilyMember
   embedded_in :family
 
   # Person responsible for this family
-  field :is_primary_applicant, type: Boolean, default: false
+  field :is_primary_applicant, type: Mongoid::Boolean, default: false
 
   # Person is applying for coverage
-  field :is_coverage_applicant, type: Boolean, default: true
+  field :is_coverage_applicant, type: Mongoid::Boolean, default: true
 
   # Person who authorizes auto-renewal eligibility check
-  field :is_consent_applicant, type: Boolean, default: false
+  field :is_consent_applicant, type: Mongoid::Boolean, default: false
 
-  field :is_active, type: Boolean, default: true
+  field :is_active, type: Mongoid::Boolean, default: true
 
   field :person_id, type: BSON::ObjectId
   field :broker_role_id, type: BSON::ObjectId

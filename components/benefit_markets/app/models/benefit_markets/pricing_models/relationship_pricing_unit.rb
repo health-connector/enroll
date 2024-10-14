@@ -2,7 +2,7 @@ module BenefitMarkets
   module PricingModels
     class RelationshipPricingUnit < PricingUnit
       field :discounted_above_threshold, type: Integer
-      field :eligible_for_threshold_discount, type: Boolean, default: false
+      field :eligible_for_threshold_discount, type: Mongoid::Boolean, default: false
 
       validates_numericality_of :discounted_above_threshold, greater_than_or_equal_to: 0, allow_nil: true
 

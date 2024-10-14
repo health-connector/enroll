@@ -7,7 +7,7 @@ class HbxEnrollmentMember
 
   field :applicant_id, type: BSON::ObjectId
   field :carrier_member_id, type: String
-  field :is_subscriber, type: Boolean, default: false
+  field :is_subscriber, type: Mongoid::Boolean, default: false
 
   field :premium_amount, type: Money
   field :applied_aptc_amount, type: Money, default: 0.0

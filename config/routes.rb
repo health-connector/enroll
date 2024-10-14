@@ -84,6 +84,11 @@ Rails.application.routes.draw do
         get :broker_agency_index
         get :general_agency_index if Settings.aca.general_agency_enabled
         get :issuer_index
+        match "marketplace_plan_years/:market" => "hbx_profiles#marketplace_plan_years", as: :marketplace_plan_years, via: :get
+        match "marketplace_plan_years/:market/:year" => "hbx_profiles#marketplace_plan_year", as: :marketplace_plan_year, via: :get
+        match "marketplace_plan_years/:market/:year/:id" => "hbx_profiles#carrier", as: :carrier, via: :get
+        match "marketplace_plan_years/:market/:year/:id/:product_id" => "hbx_profiles#plan_details", as: :plan_details, via: :get
+        put :mark_pvp_eligibilities
         get :product_index
         get :configuration
         post :set_date

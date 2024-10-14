@@ -30,7 +30,7 @@ RSpec.describe "insured/families/home.html.erb" do
     assign(:person, person)
     sign_in current_user
     assign(:family, family)
-    render file: "insured/families/home.html.erb"
+    render template: "insured/families/home.html.erb"
   end
 
   it "should display the title" do
@@ -45,13 +45,13 @@ RSpec.describe "insured/families/home.html.erb" do
 
   it "should display 'existing SEP - Eligible to enroll' partial if there is an active admin SEP" do
     assign(:active_sep, sep)
-    render file: "insured/families/home.html.erb"
+    render template: "insured/families/home.html.erb"
     expect(rendered).to have_selector('div#qle-details-for-existing-sep')
   end
 
   it "should not display 'existing SEP - Eligible to enroll' partial if there is no active admin SEP" do
     assign(:active_sep, [])
-    render file: "insured/families/home.html.erb"
+    render template: "insured/families/home.html.erb"
     expect(rendered).to_not have_selector('div#qle-details-for-existing-sep')
   end
 

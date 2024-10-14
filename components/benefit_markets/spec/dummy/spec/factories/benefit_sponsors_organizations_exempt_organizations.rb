@@ -16,7 +16,7 @@ FactoryBot.define do
     # profiles { [ build(:benefit_sponsors_organizations_hbx_profile, ) ] }
 
     trait :with_hbx_profile do
-      after :build do |organization, evaluator|
+      after :build do |organization, _evaluator|
         build(:benefit_sponsors_organizations_hbx_profile, organization: organization)
       end
     end
@@ -33,8 +33,5 @@ FactoryBot.define do
         organization.site = new_site
       end
     end
-
   end
-
-
 end
