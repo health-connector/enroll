@@ -3,7 +3,7 @@
 ############################################
 
 ARG RUBY_VERSION=3.0.6
-FROM ruby:$RUBY_VERSION-slim-bullseye as base
+FROM ruby:$RUBY_VERSION-slim-bullseye AS base
 LABEL author="MHC"
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -87,7 +87,7 @@ ENV NODE_ENV=production
 ################################################################################
 ### Builder. Adds node and Yarn. Not necessary in production. ###
 ###############################################################################
-FROM base as builder
+FROM base AS builder
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -115,7 +115,7 @@ RUN apt-get update -qq \
 ########################################################
 # Node and Bundle for production
 ########################################################
-FROM builder as prod_gems_and_assets
+FROM builder AS prod_gems_and_assets
 
 RUN apt-get update -qq \
     && apt-get install -yq --no-install-recommends \
