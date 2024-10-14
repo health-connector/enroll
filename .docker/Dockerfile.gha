@@ -169,7 +169,7 @@ RUN bundle config set --local without 'development test' \
 
 COPY --chown=nonroot:nonroot . $HOME
 
-COPY --chown=nonroot:nonroot ./.docker/config/mongoid.yml $HOME/config
+#COPY --chown=nonroot:nonroot ./.docker/config/mongoid.yml $HOME/config
 
 ARG HOSTNAME=localhost
 
