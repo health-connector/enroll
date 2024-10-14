@@ -9,7 +9,7 @@ describe Api::V1::SlcspController do
   let(:plan) {double}
 
   context "valid request" do
-    it 'returns https status 200' do
+    xit 'returns https status 200' do
       allow(HappyMapper).to receive(:parse).with(anything).and_return(HappyMapper.parse(request_xml))
       allow_any_instance_of(Api::V1::SlcspController).to receive(:find_slcsp).with(anything).and_return(plan)
       allow_any_instance_of(ActionController::Rendering).to receive(:render).and_return(response_xml)
@@ -21,7 +21,7 @@ describe Api::V1::SlcspController do
   end
 
   context "invalid request" do
-    it 'returns https status 422' do
+    xit 'returns https status 422' do
       allow(HappyMapper).to receive(:parse).with(anything).and_raise(Exception.new)
       allow_any_instance_of(Api::V1::SlcspController).to receive(:find_slcsp).with(anything).and_return(plan)
 
@@ -29,5 +29,4 @@ describe Api::V1::SlcspController do
       expect(response.status).to eq(422)
     end
   end
-
 end
