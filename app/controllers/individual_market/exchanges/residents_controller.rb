@@ -12,8 +12,7 @@ module IndividualMarket
       before_action :authorize_user
 
       def index
-        @resident_enrollments = Person.where(:resident_enrollment_id.nin =>  ['', nil]).map(&:resident_enrollment)
-
+        @resident_enrollments = Person.where(:resident_enrollment_id.nin => ['', nil]).map(&:resident_enrollment)
         respond_to do |format|
           format.html
           format.js
@@ -31,8 +30,7 @@ module IndividualMarket
         session[:original_application_type] = params['original_application_type']
         person = Person.find(params[:person_id])
         resident_role = person.resident_role
-
-        if resident_role && resident_role.bookmark_url
+        if resident_role&.bookmark_url
           redirect_to bookmark_url_path(resident_role.bookmark_url)
         else
           redirect_to family_account_path
@@ -49,11 +47,9 @@ module IndividualMarket
         end
         if params.permit(:build_resident_role)[:build_resident_role].present? && session[:person_id]
           person = Person.find(session[:person_id])
-
           @person_params = person.attributes.extract!("first_name", "middle_name", "last_name", "gender")
           @person_params[:ssn] = Person.decrypt_ssn(person.encrypted_ssn)
           @person_params[:dob] = person.dob.strftime("%Y-%m-%d")
-
           @person = Forms::ResidentCandidate.new(@person_params)
         else
           @person = Forms::ResidentCandidate.new
@@ -69,7 +65,7 @@ module IndividualMarket
         @resident_candidate = Forms::ResidentCandidate.new(@person_params)
         @person = @resident_candidate
         respond_to do |format|
-          if found_person = @resident_candidate.match_person
+          if (found_person = @resident_candidate.match_person)
             session[:person_id] = found_person.id
             format.html { render 'match' }
           else
@@ -78,16 +74,13 @@ module IndividualMarket
         end
       end
 
-      def show
-      end
+      def show; end
 
       def build
         set_current_person(required: false)
         build_person_params
         render 'match'
       end
-
-
 
       def create
         begin
@@ -96,20 +89,19 @@ module IndividualMarket
             @person = @resident_role.person
             session[:person_id] = @person.id
           else
-          # not logging error because error was logged in construct_consumer_role
+            # not logging error because error was logged in construct_consumer_role
             render file: 'public/500.html', status: 500
             return
           end
-        rescue Exception => e
-          flash[:error] = set_error_message(e.message)
+        rescue StandardError => e
+          flash[:error] = error_message(e.message)
           redirect_to search_exchanges_residents_path
           return
         end
-        
         respond_to do |format|
-          format.html {
+          format.html do
             redirect_to :action => "edit", :id => @resident_role.id
-          }
+          end
         end
       end
 
@@ -119,10 +111,10 @@ module IndividualMarket
       end
 
       def update
-        save_and_exit =  params['exit_after_method'] == 'true'
+        save_and_exit = params['exit_after_method'] == 'true'
         if save_and_exit
           respond_to do |format|
-            format.html {redirect_to destroy_user_session_path}
+            format.html { redirect_to destroy_user_session_path }
           end
         else
           @resident_role.build_nested_models_for_person
@@ -135,7 +127,7 @@ module IndividualMarket
         set_current_person
         if session[:original_application_type] == 'paper'
           redirect_to insured_family_members_path(:resident_role_id => @person.resident_role.id)
-          return
+          nil
         else
           set_resident_bookmark_url
           redirect_to insured_family_members_path(:resident_role_id => @person.resident_role.id)
@@ -146,12 +138,8 @@ module IndividualMarket
         @hbx_enrollment_id = params[:hbx_enrollment_id]
         @change_plan = params[:change_plan]
         @employee_role_id = params[:employee_role_id]
-
-
         @next_ivl_open_enrollment_date = HbxProfile.current_hbx.try(:benefit_sponsorship).try(:renewal_benefit_coverage_period).try(:open_enrollment_start_on)
-
-        @market_kind = (params[:resident_role_id].present? && params[:resident_role_id] != 'None') ? 'coverall' : 'individual'
-
+        @market_kind = params[:resident_role_id].present? && params[:resident_role_id] != 'None' ? 'coverall' : 'individual'
         render :layout => 'application'
       end
 
@@ -159,9 +147,8 @@ module IndividualMarket
 
       def user_not_authorized(exception)
         policy_name = exception.policy.class.to_s.underscore
-
         flash[:error] = "Access not allowed for #{policy_name}.#{exception.query}, (Pundit policy)"
-          respond_to do |format|
+        respond_to do |format|
           format.json { redirect_to destroy_user_session_path }
           format.html { redirect_to destroy_user_session_path }
           format.js   { redirect_to destroy_user_session_path }
@@ -169,7 +156,7 @@ module IndividualMarket
       end
 
       def authorize_user
-        authorize ResidentRole 
+        authorize ResidentRole
       end
 
       def person_parameters_list
@@ -204,22 +191,19 @@ module IndividualMarket
         ]
       end
 
-
-      def set_error_message(message)
+      def error_message(message)
         if message.include? "year too big to marshal"
-          return "Date of birth cannot be more than 110 years ago"
+          "Date of birth cannot be more than 110 years ago"
         else
-          return message
+          message
         end
       end
 
       def build_person_params
-       @person_params = {:ssn =>  Person.decrypt_ssn(@person.encrypted_ssn)}
-
-        %w(first_name middle_name last_name gender).each do |field|
+        @person_params = {:ssn => Person.decrypt_ssn(@person.encrypted_ssn)}
+        %w[first_name middle_name last_name gender].each do |field|
           @person_params[field] = @person.attributes[field]
         end
-
         @person_params[:dob] = @person.dob.strftime("%Y-%m-%d")
         @person_params.merge!({user_id: current_user.id})
       end
