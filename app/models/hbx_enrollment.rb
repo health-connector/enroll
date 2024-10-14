@@ -39,6 +39,8 @@ class HbxEnrollment
 
   ENROLLED_AND_RENEWAL_STATUSES = ENROLLED_STATUSES + RENEWAL_STATUSES
 
+  SHOPPING_WAVED_AND_CANCELED = WAIVED_STATUSES + CANCELED_STATUSES + ['shopping']
+
   OUTSIDE_SERVICE_AREA_WAIVER_REASON = "I am outside of the plan service area".freeze
   WAIVER_REASONS = [
       "I have coverage through spouse’s employer health plan",

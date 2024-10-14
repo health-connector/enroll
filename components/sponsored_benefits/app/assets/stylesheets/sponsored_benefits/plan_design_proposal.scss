@@ -257,7 +257,9 @@ $brand-primary: $mhc-dark-blue;
     border: solid 1px #d7d7d7;
     padding-bottom: 25px;
     overflow-y: scroll;
-    display: none;
+    overflow-x: hidden;
+    display: flex;
+    flex-flow: row wrap;
 
     .loading {
       position: relative;
@@ -266,14 +268,27 @@ $brand-primary: $mhc-dark-blue;
       text-align: center;
     }
     .reference-plan-info {
-      margin-top:-12px;
+      margin-top: -12px;
+      justify-content: space-between;
+      display: flex;
+      flex-direction: column;
     }
+
+    .reference-plan-container {
+      flex: 0 0 33.333%;
+      display: flex;
+      padding: 1px 1px 1px 1px;
+    }
+
     .reference-plan, .dental-reference-plan {
-      height: 235px;
       padding: 0;
       cursor: pointer;
       padding-top: 20px;
-      border-bottom: solid 1px #d7d7d7;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin: 5px 2px 0 2px;
+      display: flex;
+      height: 100%;
 
       &:hover {
         border-bottom: solid 1px $primary-blue;
@@ -287,6 +302,48 @@ $brand-primary: $mhc-dark-blue;
       .col-xs-2:first-of-type {
         padding-left: 0;
       }
+
+      .rp-bqt-deductible-label {
+        display: inline-block;
+      }
+
+      .reference-plan-title {
+        font-size: 16px;
+        font-weight: bold;
+      }
+
+      .plan-label {
+        font-size: 12px;
+        text-transform: uppercase;
+        font-weight:bold;
+      }
+
+      .plan-label-value {
+        font-size:12px;
+        text-transform: uppercase;
+        font-weight: normal;
+      }
+
+      .plan-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .plan-compare {
+          text-align: left;
+          margin: 0 0 10px 20px;
+        }
+
+        .plan-select {
+          text-align: right;
+          margin: 0 20px 0 20px;
+        }
+      }
+
+      .plan-actions .col-xs-6 {
+        padding: 5px;
+      }
+
       .panel {
         -webkit-box-shadow: none;
         box-shadow: none;

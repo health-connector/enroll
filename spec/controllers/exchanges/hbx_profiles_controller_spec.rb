@@ -10,7 +10,8 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
   describe "various index" do
     let(:user) { double("user", :has_hbx_staff_role? => true, :has_employer_staff_role? => false)}
     let(:person) { double("person")}
-    let(:hbx_staff_role) { double("hbx_staff_role")}
+    let(:permission) { double(view_admin_tabs: true) }
+    let(:hbx_staff_role) { double("hbx_staff_role", permission: permission)}
     let(:hbx_profile) { double("HbxProfile")}
 
     before :each do
@@ -18,6 +19,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       allow(user).to receive(:person).and_return(person)
       allow(person).to receive(:hbx_staff_role).and_return(hbx_staff_role)
       allow(hbx_staff_role).to receive(:hbx_profile).and_return(hbx_profile)
+
       sign_in(user)
     end
 
@@ -39,7 +41,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       expect(response).to render_template("exchanges/hbx_profiles/issuer_index")
     end
 
-    it "renders issuer_index" do
+    it "renders product_index" do
       get :product_index, xhr: true
       expect(response).to have_http_status(:success)
       expect(response).to render_template("exchanges/hbx_profiles/product_index")
@@ -1027,7 +1029,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       allow(user).to receive(:person).and_return(person)
       allow(person).to receive(:hbx_staff_role).and_return(hbx_staff_role)
       allow(hbx_staff_role).to receive(:hbx_profile).and_return(hbx_profile)
-      allow(::BenefitSponsors::BenefitSponsorships::BenefitSponsorship).to receive(:find).and_return(benefit_sponsorship)
+      allow(BenefitSponsors::BenefitSponsorships::BenefitSponsorship).to receive(:find).and_return(benefit_sponsorship)
       sign_in(user)
     end
 
@@ -1081,7 +1083,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
 
       before do
         allow(benefit_applications).to receive(:find).and_return(benefit_application)
-        allow(::BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService).to receive_message_chain(:new,:extend_open_enrollment).and_return(true)
+        allow(BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService).to receive_message_chain(:new,:extend_open_enrollment).and_return(true)
       end
 
       it "renders index" do
@@ -1108,7 +1110,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       allow(user).to receive(:person).and_return(person)
       allow(person).to receive(:hbx_staff_role).and_return(hbx_staff_role)
       allow(hbx_staff_role).to receive(:hbx_profile).and_return(hbx_profile)
-      allow(::BenefitSponsors::BenefitSponsorships::BenefitSponsorship).to receive(:find).and_return(benefit_sponsorship)
+      allow(BenefitSponsors::BenefitSponsorships::BenefitSponsorship).to receive(:find).and_return(benefit_sponsorship)
       sign_in(user)
     end
 
@@ -1117,7 +1119,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
 
       before do
         allow(benefit_applications).to receive(:find).and_return(benefit_application)
-        allow(::BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService).to receive_message_chain(:new,:end_open_enrollment).and_return(true)
+        allow(BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService).to receive_message_chain(:new,:end_open_enrollment).and_return(true)
       end
 
       it "renders index" do
@@ -1335,6 +1337,92 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
         # TODO: - benefit_sponsorship and benefit_market relationships are failing
         expect(response).to render_template('update_fein')
         expect(response).to have_http_status(:success)
+      end
+    end
+  end
+
+  describe "put mark_pvp_eligibilities" do
+    let!(:site)          { FactoryBot.create(:benefit_sponsors_site, :with_benefit_market, :with_benefit_market_catalog_and_product_packages, :as_hbx_profile, Settings.site.key) }
+    let(:catalog)        { site.benefit_markets[0].benefit_market_catalogs[0] }
+    let(:product)        { catalog.product_packages[0].products.first }
+    let(:rating_area)    { product.premium_tables.first.rating_area }
+
+    let(:person) do
+      FactoryBot.create(:person, :with_hbx_staff_role).tap do |person|
+        FactoryBot.create(:permission, :super_admin).tap do |permission|
+          person.hbx_staff_role.update_attributes(permission_id: permission.id)
+        end
+      end
+    end
+
+    let(:user) { FactoryBot.create(:user, person: person) }
+
+    let(:pvp_active_areas) { { rating_area.id => "true" } }
+    let(:valid_params) do
+      { product_id: product.id, pvp_active_areas: pvp_active_areas }
+    end
+
+    context "when authorized user sign in" do
+      before do
+        sign_in user
+        put :mark_pvp_eligibilities, params: valid_params
+      end
+
+      it "assigns the product" do
+        expect(assigns(:product)).to eq(product)
+      end
+
+      it "redirects to the plan detailed page with success message" do
+        expect(response).to redirect_to(plan_details_exchanges_hbx_profiles_path(year: product.active_year,
+                                                                                 id: product.issuer_profile.organization.id,
+                                                                                 product_id: product.id,
+                                                                                 market: product.benefit_market_kind.to_s.split('_').last))
+        expect(flash[:success]).to eq("Successfully marked premium value product(s)")
+      end
+    end
+
+    context "premium value products got created with eligibility" do
+      it "active eligibility is satisfied" do
+        expect(product.premium_value_products.count).to eq 0
+        sign_in user
+        put :mark_pvp_eligibilities, params: valid_params
+        expect(product.reload.premium_value_products.count).to eq 1
+        pvp = product.premium_value_products.first
+        expect(pvp.pvp_eligibilities.first.eligible?).to eq true
+      end
+    end
+
+    context "when unauthorized user sign in" do
+      before do
+        person = FactoryBot.create(:person, :with_family)
+        unauthorized_user = FactoryBot.create(:user, :person => person)
+        sign_in(unauthorized_user)
+      end
+
+      it "should not allowed user to mark_pvp_eligibilities" do
+        put :mark_pvp_eligibilities, params: valid_params
+        expect(flash[:error]).to eq("You must be an HBX staff member")
+      end
+    end
+
+    context "when marking eligibilities fails" do
+      let(:invalid_params) do
+        { product_id: product.id, pvp_active_areas: { BSON::ObjectId.new => "true" } }
+      end
+
+      before do
+        sign_in user
+        post :mark_pvp_eligibilities, params: invalid_params
+      end
+
+      it "redirects to the plan detailed page with failure message" do
+        expect(response).to redirect_to(plan_details_exchanges_hbx_profiles_path(
+                                          year: product.active_year,
+                                          id: product.issuer_profile.organization.id,
+                                          product_id: product.id,
+                                          market: product.benefit_market_kind.to_s.split('_').last
+                                        ))
+        expect(flash[:failure]).to eq("Failed to mark premium value product(s)")
       end
     end
   end
