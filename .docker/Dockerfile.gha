@@ -82,6 +82,7 @@ ENV SECRET_KEY_BASE=$SECRET_KEY_BASE_DEFAULT
 ENV RAILS_ENV=production
 ENV NODE_ENV=production
 
+
 ################################################################################
 ### Builder. Adds Yarn. Not necessary in production. ###
 ###############################################################################
@@ -104,7 +105,7 @@ RUN apt-get update -qq \
   && truncate -s 0 /var/log/*log
 
 ########################################################
-# Node and Bundle for production
+# Bundle, precompile for production
 ########################################################
 FROM builder AS prod_gems_and_assets
 
@@ -168,13 +169,14 @@ COPY --chown=nonroot:nonroot . $HOME
 
 ARG HOSTNAME=localhost
 
-# Needed to run client swap script
 ENV ENROLL_DB_HOST=${HOSTNAME}
 ENV ENROLL_DB_PORT=27017
-ENV ENROLL_DB_NAME=enroll_production
+ENV ENROLL_DB_NAME=mhc_enroll_production
 ENV RABBITMQ_URL=amqp://${HOSTNAME}:5672
 ENV RABBITMQ_HOST=amqp://${HOSTNAME}
 
+# Asset precompilation requires many seemingly un-asset-related configurations, as it starts a rails process (e.g., an
+# available mongo, symmetric key config, an available rabbit, etc. This explains some preceding dependencies/steps.)
 RUN bundle exec rails assets:precompile \
   && yarn cache clean \
   && (rm -rf /tmp/* || true) \

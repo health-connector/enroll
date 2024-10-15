@@ -75,9 +75,9 @@ test:
 production:
   clients:
     default:
-      database: mhc_enroll_production
+      database: <%= ENV['ENROLL_DB_NAME'] || 'mhc_enroll_production' %>>
       hosts:
-        - localhost:27017
+        - <%= ENV['ENROLL_DB_HOST'] || 'localhost' %>:<%= ENV['ENROLL_DB_PORT'] || '27017' %>>
       options:
         # In the test environment we lower the retries and retry interval to
         # low amounts for fast failures.
