@@ -75,8 +75,8 @@ RUN mkdir $HOME \
 # Configure app home directory
 WORKDIR $HOME
 
-# TODO this is a fresh value, but eval removing entirely
-ARG SECRET_KEY_BASE_DEFAULT=50a9bdef0c9578868e9cd6ddbe3170647b5e5bb0705eb4141d780da2692a3909447bd8fdafbb3eeac9f24f966294f4c49774cc3eac810a777effaf09dfc544db
+# Non-empty value for secret_key_base needed for build. But below is overridden at runtime by real environment variables.
+ARG SECRET_KEY_BASE_DEFAULT=dummy_val_50a9bdef0c9578868e9cd6ddbe3170647b5e5bb0705eb414
 ENV SECRET_KEY_BASE=$SECRET_KEY_BASE_DEFAULT
 
 ENV RAILS_ENV=production
