@@ -159,9 +159,6 @@ COPY --chown=nonroot:nonroot ./components/benefit_sponsors/benefit_sponsors.gems
 COPY --chown=nonroot:nonroot ./Gemfile $HOME/Gemfile
 COPY --chown=nonroot:nonroot ./Gemfile.lock $HOME/Gemfile.lock
 
-ARG GEM_OAUTH_TOKEN
-ARG BUNDLE_GITHUB__COM=$GEM_OAUTH_TOKEN
-
 RUN bundle config set --local without 'development test' \
   && bundle install
 
