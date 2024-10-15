@@ -23,32 +23,42 @@ RSpec.describe Users::SecurityQuestionResponsesController do
   end
 
   describe 'POST create' do
-    before :each do
-      sign_in user
+    context 'with user' do
+      before :each do
+        allow(person).to receive(:primary_family).and_return nil
+        sign_in user
+      end
+
+      context "with a successful save" do
+        before do
+          allow(user).to receive(:save!).and_return(true)
+          post :create, params: { user_id: user.id, security_question_responses: security_question_responses }, xhr: true
+        end
+        it { expect(assigns(:user)).to eq(user) }
+        it { expect(response).to have_http_status(:success) }
+        it { expect(response).to render_template('users/security_question_responses/create') }
+      end
+
+      context "with an error on save" do
+        before do
+          allow(user).to receive(:save!).and_return(false)
+          post :create, params: { user_id: user.id, security_question_responses: security_question_responses, headers: { 'HTTP_REFERER' => 'http://example.com' } }, xhr: true
+          allow(controller.request).to receive(:referrer).and_return('http://example.com')
+        end
+        it 'ss' do
+          request.headers.merge!('HTTP_REFERER' => 'http://example.com')
+          expect(request.referer).to eq('http://example.com')
+        end
+        it { expect(response).to have_http_status(:success) }
+        it { expect(response).to render_template('users/security_question_responses/error_response') }
+      end
     end
 
-    context "with a successful save" do
-      before do
-        allow(user).to receive(:save!).and_return(true)
-        post :create, params: { user_id: user.id, security_question_responses: security_question_responses }, xhr: true
+    context 'without user' do
+      it 'return error' do
+        post :create, params: { user_id: BSON::ObjectId.new, security_question_responses: security_question_responses }, xhr: true
+        expect(flash[:error]).to eq 'Access not allowed for user_policy.create?, (Pundit policy)'
       end
-      it { expect(assigns(:user)).to eq(user) }
-      it { expect(response).to have_http_status(:success) }
-      it { expect(response).to render_template('users/security_question_responses/create') }
-    end
-
-    context "with an error on save" do
-      before do
-        allow(user).to receive(:save!).and_return(false)
-        post :create, params: { user_id: user.id, security_question_responses: security_question_responses, headers: { 'HTTP_REFERER' => 'http://example.com' } }, xhr: true
-        allow(controller.request).to receive(:referrer).and_return('http://example.com')
-      end
-      it 'ss' do
-        request.headers.merge!('HTTP_REFERER' => 'http://example.com')
-        expect(request.referer).to eq('http://example.com')
-      end
-      it { expect(response).to have_http_status(:success) }
-      it { expect(response).to render_template('users/security_question_responses/error_response') }
     end
   end
 

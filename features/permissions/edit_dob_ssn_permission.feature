@@ -39,13 +39,7 @@ Feature: Only Super Admin HBX Staff HBX Tier3 will be able to see & access the E
 
     Examples:
       | subrole       | action  |
-      | Super Admin   | see     |	
+      | Super Admin   | see     |
       | HBX Tier3     | see     |
       | HBX Staff     | see     |
       | HBX Read Only | not see |
-      | Developer     | not see |
-
-
-
-
-

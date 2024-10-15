@@ -1,18 +1,24 @@
-class Exchanges::InboxesController < InboxesController
-  def find_inbox_provider
-    authorize HbxProfile, :inbox?
+# frozen_string_literal: true
 
-    @inbox_provider = HbxProfile.find(params["id"])
-    @inbox_provider_name = "System Admin"
-  end
+module Exchanges
+  class InboxesController < InboxesController
+    def destroy
+      @sent_box = true
+      super
+    end
 
-  def destroy
-    @sent_box = true
-    super
-  end
+    def show
+      @sent_box = true
+      super
+    end
 
-  def show
-    @sent_box = true
-    super
+    private
+
+    def find_inbox_provider
+      authorize HbxProfile, :inbox?
+
+      @inbox_provider = HbxProfile.find(params["id"])
+      @inbox_provider_name = "System Admin"
+    end
   end
 end
