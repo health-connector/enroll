@@ -165,7 +165,7 @@ class Exchanges::ResidentsController < ApplicationController
   end
 
   def authorize_user
-    authorize ResidentRole 
+    authorize ResidentRole
   end
 
   def person_parameters_list
