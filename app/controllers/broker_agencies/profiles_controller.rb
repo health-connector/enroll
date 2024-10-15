@@ -30,13 +30,6 @@ class BrokerAgencies::ProfilesController < ApplicationController
     end
   end
 
-  def edit
-    authorize @broker_agency_profile.organization.broker_agency_profile, :edit?
-
-    @organization = Forms::BrokerAgencyProfile.find(@broker_agency_profile.id)
-    @id = params[:id]
-  end
-
   def update
     sanitize_broker_profile_params
 

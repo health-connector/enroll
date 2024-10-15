@@ -378,7 +378,7 @@ Rails.application.routes.draw do
   end
 
   namespace :broker_agencies do
-    resources :profiles, only: [:new, :create, :edit, :update] do
+    resources :profiles, only: [:create, :update] do
       collection do
         get :employers
         get :agency_messages
