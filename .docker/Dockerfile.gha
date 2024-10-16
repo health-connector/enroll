@@ -38,6 +38,17 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
     && truncate -s 0 /var/log/*log
 
+# Add Nodejs sources and dependencies
+RUN curl -fsSL https://deb.nodesource.com/setup_$NODE_MAJOR.x | bash -
+
+# Install Nodejs
+RUN apt-get update -qq \
+  && apt-get install -yq --no-install-recommends \
+    nodejs \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+  && truncate -s 0 /var/log/*log
+
 # Configure bundler and PATH, install bundler version
 ENV GEM_HOME=/usr/local/bundle
 ENV BUNDLE_PATH=$GEM_HOME
@@ -73,14 +84,11 @@ ENV NODE_ENV=production
 
 
 ################################################################################
-### Builder. Adds Yarn, Nodejs. Not necessary in production. ###
+### Builder. Adds Yarn. Not necessary in production. ###
 ###############################################################################
 FROM base AS builder
 
 ARG DEBIAN_FRONTEND=noninteractive
-
-# Add Nodejs sources and dependencies
-RUN curl -fsSL https://deb.nodesource.com/setup_$NODE_MAJOR.x | bash -
 
 # Add Yarn to the sources list
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
@@ -88,7 +96,6 @@ RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
 
 RUN apt-get update -qq \
   && apt-get install -yq --no-install-recommends \
-    nodejs \
     build-essential \
     git \
     libpq-dev \
