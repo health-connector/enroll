@@ -18,18 +18,6 @@ class BrokerAgencies::ProfilesController < ApplicationController
     "5"     => "employer_profile.plan_years.start_on"
   }
 
-  def create
-    @organization = ::Forms::BrokerAgencyProfile.new(params[:organization])
-
-    if @organization.save(current_user)
-      flash[:notice] = "Successfully created Broker Agency Profile"
-      redirect_to broker_agencies_profile_path(@organization.broker_agency_profile)
-    else
-      flash[:error] = "Failed to create Broker Agency Profile"
-      render "new"
-    end
-  end
-
   def update
     sanitize_broker_profile_params
 
