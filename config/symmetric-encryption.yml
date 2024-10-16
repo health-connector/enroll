@@ -13,3 +13,12 @@ development:   &development_defaults
 
 test:
   <<: *development_defaults
+
+# dummy values to enable assets precompilation in CI build - in deployed images, a different config file comes from a
+# store accessed by k8s and overrides this one.
+production:
+  ciphers:
+    - key: 1234567890ABCDEF
+      iv: 1234567890ABCDEF
+      cipher_name: aes-128-cbc
+      version: 1
