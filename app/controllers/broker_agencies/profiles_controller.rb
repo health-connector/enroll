@@ -15,11 +15,6 @@ class BrokerAgencies::ProfilesController < ApplicationController
     "5"     => "employer_profile.plan_years.start_on"
   }
 
-  def general_agency_index
-    @broker_role = current_user.person.broker_role || nil
-    @general_agency_profiles = GeneralAgencyProfile.all_by_broker_role(@broker_role, approved_only: true)
-  end
-
   def set_default_ga
     authorize @broker_agency_profile, :set_default_ga?
     @general_agency_profile = GeneralAgencyProfile.find(params[:general_agency_profile_id]) rescue nil
