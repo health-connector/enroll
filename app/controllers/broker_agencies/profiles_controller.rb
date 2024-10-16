@@ -15,23 +15,6 @@ class BrokerAgencies::ProfilesController < ApplicationController
     "5"     => "employer_profile.plan_years.start_on"
   }
 
-  def assign
-
-    page_string = params.permit(:employers_page)[:employers_page]
-    page_no = page_string.blank? ? nil : page_string.to_i
-    if current_user.has_broker_agency_staff_role? || current_user.has_hbx_staff_role?
-      @orgs = Organization.by_broker_agency_profile(@broker_agency_profile._id)
-    else
-      broker_role_id = current_user.person.broker_role.id
-      @orgs = Organization.by_broker_role(broker_role_id)
-    end
-    @broker_role = current_user.person.broker_role || nil
-    @general_agency_profiles = GeneralAgencyProfile.all_by_broker_role(@broker_role, approved_only: true)
-
-    @employers = @orgs.map(&:employer_profile)
-    @employers = Kaminari.paginate_array(@employers).page page_no
-  end
-
   def update_assign
     params[:general_agency_id] = params[:employers_general_agency_id] if params[:employers_general_agency_id]
     authorize @broker_agency_profile, :set_default_ga?

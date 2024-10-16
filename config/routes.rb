@@ -387,7 +387,6 @@ Rails.application.routes.draw do
           get :general_agency_index
         end
         post :clear_assign_for_employer
-        get :assign
         post :update_assign
       end
 
