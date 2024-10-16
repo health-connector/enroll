@@ -256,7 +256,7 @@ module BenefitSponsors
       def filter_xml(doc, carrier)
         doc.xpath("//cv:elected_plans/cv:elected_plan", { cv: XML_NS }).each do |node|
           carrier_id = node.at_xpath("cv:carrier/cv:id/cv:id", { cv: XML_NS }).content
-          node.remove if carrier_id != carrier.hbx_carrier_id
+          node.remove if carrier_id != carrier.hbx_carrier_id.to_s
         end
         doc.xpath("//cv:employer_census_families", { cv: XML_NS }).each(&:remove)
         doc.xpath("//cv:benefit_group/cv:reference_plan", { cv: XML_NS }).each(&:remove)
