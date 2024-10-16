@@ -389,7 +389,6 @@ Rails.application.routes.draw do
         post :clear_assign_for_employer
         get :assign
         post :update_assign
-        post :set_default_ga
       end
 
       resources :applicants
