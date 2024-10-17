@@ -10,8 +10,4 @@ class BrokerAgencies::ProfilesController < ApplicationController
     "4"     => "employer_profile.aasm_state",
     "5"     => "employer_profile.plan_years.start_on"
   }
-
-  def redirect_to_show(broker_agency_profile_id)
-    redirect_to broker_agencies_profile_path(id: broker_agency_profile_id)
-  end
 end
