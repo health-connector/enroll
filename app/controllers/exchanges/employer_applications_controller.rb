@@ -155,7 +155,7 @@ class Exchanges::EmployerApplicationsController < ApplicationController
 
     return unless download_status == :empty_files
 
-    flash[:alert] = "All carrier files have no rendered employers."
+    flash[:alert] = flash[:alert] || "All carrier files have no rendered employers."
     redirect_to exchanges_hbx_profiles_root_path
   end
 
@@ -173,14 +173,18 @@ class Exchanges::EmployerApplicationsController < ApplicationController
       xml_file_path = file.tempfile.path
       v2_xml_uploader = ::BenefitSponsors::Services::V2XmlUploader.new(xml_file_path)
       result, errors = v2_xml_uploader.upload
+
       if result
-        redirect_to exchanges_hbx_profiles_root_path, :flash => { :success => "Successfully uploaded V2 digest XML for employer_fein: #{@benefit_sponsorship.organization.fein}" }
+        flash[:success] = "Successfully uploaded V2 digest XML for employer_fein: #{@benefit_sponsorship.organization.fein}"
       else
-        redirect_to exchanges_hbx_profiles_root_path, :flash => { :error => errors }
+        error_messages = errors.map { |e| "Error: #{e.message}" }.join(", ")
+        flash[:error] = "Failed to upload XML. #{error_messages}"
       end
     else
-      redirect_to exchanges_hbx_profiles_root_path, :flash => { :error => "Invalid file upload" }
+      flash[:error] = "Invalid file upload."
     end
+
+    redirect_to exchanges_hbx_profiles_root_path
   end
 
   private
