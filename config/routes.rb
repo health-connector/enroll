@@ -379,9 +379,6 @@ Rails.application.routes.draw do
 
   namespace :broker_agencies do
     resources :profiles, only: :update do
-      collection do
-        get :agency_messages
-      end
       member do
         if Settings.aca.general_agency_enabled
           get :general_agency_index
