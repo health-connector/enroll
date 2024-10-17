@@ -6,7 +6,7 @@ require 'zip'
 module BenefitSponsors
   module EmployerEvents
     class CarrierFile
-      attr_accessor :carrier, :buffer, :begin_timestamp, :end_timestamp, :rendered_employers
+      attr_accessor :carrier, :buffer, :begin_timestamp, :end_timestamp, :rendered_employers, :render_reason
 
       def initialize(carrier)
         @carrier = carrier
@@ -15,6 +15,7 @@ module BenefitSponsors
         @begin_timestamp = nil
         @end_timestamp = nil
         @rendered_employers = Set.new
+        @render_reason = nil
       end
 
       def empty?
@@ -31,14 +32,19 @@ module BenefitSponsors
       end
 
       def render_event_using(renderer, event)
-        if renderer.render_for(carrier, @buffer)
+        result = renderer.render_for(carrier, @buffer)
+        if result == true
           employer_profile = BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(hbx_id: event.employer_profile_id).first
           @rendered_employers << employer_profile.organization.hbx_id
           @empty = false
           update_timestamps(renderer.timestamp)
+          @render_reason = :success
+        else
+          @render_reason = result
         end
       rescue StandardError => e
         Rails.logger.error "[#{e.class.name}] #{e.message}"
+        @render_reason = e.message
       end
 
       def update_timestamps(timestamp)
@@ -61,11 +67,11 @@ module BenefitSponsors
                   <id>urn:openhbx:resources:v1:carrier:abbreviation##{carrier_abbrev}</id>
           </resource_instance_uri>
           <body>
-                  <employer_events>
-                          <coverage_period>
-                                  <begin_datetime>#{@begin_timestamp.iso8601}</begin_datetime>
-                                  <end_datetime>#{@end_timestamp.iso8601}</end_datetime>
-                          </coverage_period>
+            <employer_events>
+              <coverage_period>
+                <begin_datetime>#{@begin_timestamp.iso8601}</begin_datetime>
+                <end_datetime>#{@end_timestamp.iso8601}</end_datetime>
+              </coverage_period>
         XMLHEADER
         trailer = <<-XMLTRAILER
         </employer_events>

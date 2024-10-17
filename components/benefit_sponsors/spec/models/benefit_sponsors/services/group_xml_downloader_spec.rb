@@ -5,18 +5,15 @@ require 'zip'
 
 RSpec.describe BenefitSponsors::Services::GroupXmlDownloader, type: :service do
   let(:employer_event) { double('EmployerEvent') }
-  let(:controller) { double('Controller') }
-  let(:carrier_file) { double('CarrierFile') }
-  let(:empty_carrier_file) { double('EmptyCarrierFile') }
+  let(:controller) { double('Controller', flash: {}) }
+  let(:carrier_file) { double('CarrierFile', rendered_employers: ['employer1'], render_reason: :success) }
+  let(:empty_carrier_file) { double('EmptyCarrierFile', rendered_employers: [], render_reason: :no_carrier_plan_years) }
   let(:zip_file) { Tempfile.new(['employer_events_digest', '.zip']) }
   let(:zip_path) { zip_file.path }
-
   subject { described_class.new(employer_event) }
 
   before do
     allow(employer_event).to receive(:render_payloads).and_return([carrier_file, empty_carrier_file])
-    allow(carrier_file).to receive(:instance_variable_get).with(:@rendered_employers).and_return(['employer1'])
-    allow(empty_carrier_file).to receive(:instance_variable_get).with(:@rendered_employers).and_return([])
     allow(Rails.logger).to receive(:info)
     allow(controller).to receive(:send_file)
   end
