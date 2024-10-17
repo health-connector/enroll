@@ -15,17 +15,6 @@ class BrokerAgencies::ProfilesController < ApplicationController
     "5"     => "employer_profile.plan_years.start_on"
   }
 
-  def clear_assign_for_employer
-    @broker_role = current_user.person.broker_role || nil
-    @general_agency_profiles = GeneralAgencyProfile.all_by_broker_role(@broker_role, approved_only: true)
-    @employer_profile = EmployerProfile.find(params[:employer_id]) rescue nil
-    authorize @employer_profile, :fire_general_agency?
-    if @employer_profile.present?
-      send_general_agency_assign_msg(@employer_profile.general_agency_profile, @employer_profile, 'Terminate')
-      @employer_profile.fire_general_agency!
-    end
-  end
-
   def agency_messages
     @sent_box = true
     @broker_agency_profile = current_user.person.broker_agency_staff_roles.first.broker_agency_profile
