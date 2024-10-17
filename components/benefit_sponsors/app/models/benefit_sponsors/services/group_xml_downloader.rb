@@ -1,0 +1,85 @@
+# frozen_string_literal: true
+
+require 'zip'
+require 'tempfile'
+
+module BenefitSponsors
+  module Services
+    class GroupXmlDownloader
+      attr_accessor :employer_event
+
+      def initialize(employer_event)
+        @employer_event = employer_event
+      end
+
+      def download(controller)
+        carrier_files = employer_event.render_payloads
+        empty_files = carrier_files.select { |car| car.rendered_employers.empty? }
+
+        if all_files_empty?(carrier_files, empty_files)
+          controller.flash[:alert] = failure_reason_message(empty_files)
+          return :empty_files
+        end
+
+        zip_path = create_tempfile
+        log_tempfile_path(zip_path)
+        write_to_zip(carrier_files, zip_path)
+        send_zip_file(controller, zip_path)
+      end
+
+      private
+
+      def all_files_empty?(carrier_files, empty_files)
+        empty_files.size == carrier_files.size
+      end
+
+      def failure_reason_message(empty_files)
+        unique_reasons = empty_files.map(&:render_reason).uniq
+        reason_messages = unique_reasons.map { |reason| map_reason_to_message(reason) }
+        "All carrier files have no rendered employers. Reasons: #{reason_messages.join(', ')}"
+      end
+
+      def map_reason_to_message(reason)
+        case reason
+        when :event_not_whitelisted
+          "Event not whitelisted"
+        when :no_carrier_plan_years
+          "No carrier plan years available"
+        when :invalid_plan_year
+          "Invalid plan year"
+        when :drop_and_has_future_plan_year
+          "Drop and has future plan year"
+        when :renewal_and_no_future_plan_year
+          "Renewal and no future plan year"
+        else
+          reason.to_s
+        end
+      end
+
+      def create_tempfile
+        z_file = Tempfile.new("employer_events_digest")
+        zip_path = "#{z_file.path}.zip"
+        z_file.close
+        z_file.unlink
+        zip_path
+      end
+
+      def log_tempfile_path(zip_path)
+        Rails.logger.info "Temporary zip file created at path: #{zip_path}"
+      end
+
+      def write_to_zip(carrier_files, zip_path)
+        ::Zip::File.open(zip_path, ::Zip::File::CREATE) do |zip|
+          carrier_files.each do |car|
+            car.write_to_zip(zip) unless car.rendered_employers.empty?
+          end
+        end
+      end
+
+      def send_zip_file(controller, zip_path)
+        controller.send_file(zip_path)
+        :success
+      end
+    end
+  end
+end
