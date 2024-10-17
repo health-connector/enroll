@@ -6,7 +6,6 @@ module BenefitSponsors
   module Services
     class V2XmlUploader
       include Acapi::Notifiers
-
       attr_reader :errors
 
       XSD_PATH = "#{Rails.root}/components/benefit_sponsors/cv/vocabulary.xsd"
@@ -17,11 +16,15 @@ module BenefitSponsors
 
       def upload
         doc = Nokogiri::XML(@xml_string)
+
+        # Strip trailing spaces for all text nodes
+        doc.traverse { |node| node.content = node.content.strip if node.text? }
+
         xsd = Nokogiri::XML::Schema(File.open(XSD_PATH))
         @errors = xsd.validate(doc)
         return [false, @errors] unless @errors.blank?
 
-        notify("acapi.info.events.trading_partner.employer_digest.published", { :body => @xml_string })
+        notify("acapi.info.events.trading_partner.employer_digest.published", { body: @xml_string })
         [true, @errors]
       end
     end
