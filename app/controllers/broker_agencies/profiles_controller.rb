@@ -15,68 +15,6 @@ class BrokerAgencies::ProfilesController < ApplicationController
     "5"     => "employer_profile.plan_years.start_on"
   }
 
-  def update_assign
-    params[:general_agency_id] = params[:employers_general_agency_id] if params[:employers_general_agency_id]
-    authorize @broker_agency_profile, :set_default_ga?
-    if params[:general_agency_id].present? || params[:employer_ids].present? && params[:bulk_actions_resources].present?
-      general_agency_profile = GeneralAgencyProfile.find(params[:general_agency_id])
-      case params[:type]
-      when 'fire'
-        params[:employer_ids].each do |employer_id|
-          employer_profile = EmployerProfile.find(employer_id) rescue next
-
-          employer_profile.fire_general_agency!
-          send_general_agency_assign_msg(general_agency_profile, employer_profile, 'Terminate')
-        end
-        notice = "Fire these employers successful."
-      else
-        employer_ids = if params.key? :bulk_actions_resources
-        params[:bulk_actions_resources].map do |pdo_id|
-          SponsoredBenefits::Organizations::PlanDesignOrganization.find(pdo_id).employer_profile.id
-        end
-        else
-          params[:employer_ids]
-        end
-        employer_ids.each do |employer_id|
-          employer_profile = EmployerProfile.find(employer_id) rescue nil
-          if employer_profile.present? #FIXME : Please move me to model
-            broker_role_id = current_user.person.broker_role.id rescue nil
-            broker_role_id ||= @broker_agency_profile.primary_broker_role_id
-            employer_profile.hire_general_agency(general_agency_profile, broker_role_id)
-            employer_profile.save
-            send_general_agency_assign_msg(general_agency_profile, employer_profile, 'Hire')
-            general_agency_profile.general_agency_hired_notice(employer_profile) #GA notice when broker Assign a GA to employers
-          end
-        end
-        flash.now[:notice] ="Assign successful."
-        if params["from_assign"] == "true"
-          assign # calling this method as the latest copy of objects are needed.
-          render "assign" and return
-        else
-          employers # calling this method as the latest copy of objects are needed.
-          render "update_assign" and return
-        end
-      end
-    elsif params["commit"].try(:downcase) == "clear assignment"
-      employer_ids = if params.key? :bulk_actions_resources
-      params[:bulk_actions_resources].map do |pdo_id|
-        SponsoredBenefits::Organizations::PlanDesignOrganization.find(pdo_id).employer_profile.id
-      end
-      else
-        params[:employer_ids]
-      end
-      employer_ids.each do |employer_id|
-        employer_profile = EmployerProfile.find(employer_id) rescue next
-        if employer_profile.general_agency_profile.present?
-          send_general_agency_assign_msg(employer_profile.general_agency_profile, employer_profile, 'Terminate')
-          employer_profile.fire_general_agency!
-        end
-      end
-      notice = "Unassign successful."
-    end
-    redirect_to broker_agencies_profile_path(@broker_agency_profile), flash: {notice: notice}
-  end
-
   def clear_assign_for_employer
     @broker_role = current_user.person.broker_role || nil
     @general_agency_profiles = GeneralAgencyProfile.all_by_broker_role(@broker_role, approved_only: true)
