@@ -571,12 +571,13 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
 
       allow(permission).to receive(:name).and_return(permission.name)
       allow(permission).to receive(:modify_family).and_return(true)
+      allow(permission).to receive(:view_the_configuration_tab).and_return(true)
       sign_in(user)
       get :configuration
     end
 
     it "should render the configuration partial" do
-      expect(response).to have_http_status(:success)
+g      expect(response).to have_http_status(:success)
       expect(response).to render_template(:partial => 'exchanges/hbx_profiles/_configuration_index')
     end
   end
