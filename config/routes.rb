@@ -601,20 +601,18 @@ Rails.application.routes.draw do
           get :find_sep, on: :collection
         end
       end
+
+      namespace :api, :defaults => {:format => 'xml'} do
+        namespace :v1 do
+          resources :slcsp, :only => []  do
+            collection do
+              post :plan
+            end
+          end
+        end
+      end
     end
   end
 
   root 'welcome#index'
-
-############################# UNMOUNTED BELOW ##############################
-
-# namespace :api, :defaults => {:format => 'xml'} do
-#   namespace :v1 do
-#     resources :slcsp, :only => []  do
-#       collection do
-#         post :plan
-#       end
-#     end
-#   end
-# end
 end
