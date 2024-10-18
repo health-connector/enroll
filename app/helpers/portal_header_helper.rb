@@ -8,11 +8,7 @@ module PortalHeaderHelper
     elsif current_user.try(:has_hbx_staff_role?)
       link_to "#{image_tag 'icons/icon-exchange-admin.png'} &nbsp; I'm an Admin".html_safe, main_app.exchanges_hbx_profiles_root_path, class: "portal"
     elsif current_user.person.try(:broker_role)
-      if current_user.person.broker_role.broker_agency_profile.is_a? BrokerAgencyProfile
-        link_to "#{image_tag 'icons/icon-expert.png'} &nbsp; I'm a Broker".html_safe, main_app.broker_agencies_profile_path(id: current_user.person.broker_role.broker_agency_profile_id), class: "portal"
-      else
-        link_to "#{image_tag 'icons/icon-expert.png'} &nbsp; I'm a Broker".html_safe, benefit_sponsors.profiles_broker_agencies_broker_agency_profile_path(id: current_user.person.broker_role.benefit_sponsors_broker_agency_profile_id), class: "portal"
-      end
+      link_to "#{image_tag 'icons/icon-expert.png'} &nbsp; I'm a Broker".html_safe, benefit_sponsors.profiles_broker_agencies_broker_agency_profile_path(id: current_user.person.broker_role.benefit_sponsors_broker_agency_profile_id), class: "portal"
     elsif current_user.try(:person).try(:csr_role) || current_user.try(:person).try(:assister_role)
       link_to "#{image_tag 'icons/icon-expert.png'} &nbsp; I'm a Trained Expert".html_safe, home_exchanges_agents_path, class: "portal"
     elsif current_user.person && current_user.person.active_employee_roles.any?
@@ -35,18 +31,11 @@ module PortalHeaderHelper
   end
 
   def get_broker_profile_path
-
     broker_agency_profile = current_user.person.broker_role.broker_agency_profile
 
-    #if class is from benefit sponsor
-    model = broker_agency_profile.class.to_s.demodulize
-    klass_name = ["BrokerAgencyProfile"].include?(model) ? model.constantize : nil
+    return unless broker_agency_profile.is_a?(BenefitSponsors::Organizations::BrokerAgencyProfile)
 
-    if broker_agency_profile.is_a? BrokerAgencyProfile
-      main_app.broker_agencies_profile_path(id: current_user.person.broker_role.broker_agency_profile_id)
-    elsif klass_name == BrokerAgencyProfile
-      benefit_sponsors.profiles_broker_agencies_broker_agency_profile_path(id: current_user.person.broker_role.benefit_sponsors_broker_agency_profile_id)
-    end
+    benefit_sponsors.profiles_broker_agencies_broker_agency_profile_path(id: current_user.person.broker_role.benefit_sponsors_broker_agency_profile_id)
   end
 
   # def enrollment_name
