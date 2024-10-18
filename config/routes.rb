@@ -379,9 +379,6 @@ Rails.application.routes.draw do
 
   namespace :broker_agencies do
     resources :profiles, only: :update do
-      member do
-        post :update_assign
-      end
 
       resources :applicants
     end
