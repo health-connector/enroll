@@ -24,10 +24,6 @@ class BrokerAgencyProfilePolicy < ApplicationPolicy
     staff_roles.any?{|r| r.broker_agency_profile_id == bap_id && r.active?}
   end
 
-  def edit?
-    update?
-  end
-
   def set_default_ga?
     return false unless user.person
     return true if user.person.hbx_staff_role
