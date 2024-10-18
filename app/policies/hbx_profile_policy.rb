@@ -37,6 +37,7 @@ class HbxProfilePolicy < ApplicationPolicy
   def can_update_ssn?
     role = user_hbx_staff_role
     return false unless role
+
     role.permission.can_update_ssn
   end
 
