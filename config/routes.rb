@@ -305,11 +305,9 @@ Rails.application.routes.draw do
 
     resources :employer_profiles do
       get 'new'
-      get 'my_account'
       get 'show_profile'
       get 'link_from_quote'
       get 'consumer_override'
-      get 'bulk_employee_upload_form'
       post 'bulk_employee_upload'
 
       member do
@@ -324,10 +322,8 @@ Rails.application.routes.draw do
 
       collection do
         get 'welcome'
-        get 'search'
         post 'match'
         get 'inbox'
-        get 'counties_for_zip_code'
         get 'generate_sic_tree'
       end
       resources :plan_years do

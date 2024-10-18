@@ -771,7 +771,7 @@ describe Person, :dbclean => :after_each do
         expect(person).not_to have_received(:notify_updated)
       end
 
-      it "does not call notify_updated when no attributes are changed" do
+      it "does not call notify_updated when record is not changed" do
         person = FactoryBot.create(:person)
         allow(person).to receive(:notify_updated)
 
