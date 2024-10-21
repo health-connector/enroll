@@ -211,7 +211,6 @@ COPY --chown=nonroot:nonroot --from=prod_gems_and_assets $HOME/public $HOME/publ
 
 # Copy environment-based config files (for transition to container-base k8s workflow)
 COPY --chown=nonroot:nonroot ./.docker/config/production.rb $HOME/config/environments
-COPY --chown=nonroot:nonroot ./.docker/config/devise.rb $HOME/config/initializers
 
 USER nonroot
 
