@@ -161,8 +161,12 @@ Devise.setup do |config|
   # ==> Configuration for :timeoutable
   # The time you want to timeout the user session without activity. After this
   # time the user will be asked for credentials again. Default is 30 minutes.
-  config.timeout_in = 15.minutes
-
+  if Rails.env.development? && ENV['DEVISE_TIMEOUT_MINS']
+    puts "DEV MODE - setting devise timeout to #{ENV['DEVISE_TIMEOUT_MINS']} minutes"
+    config.timeout_in = ENV['DEVISE_TIMEOUT_MINS'].to_i.minutes
+  else
+    config.timeout_in = 15.minutes
+  end
   # If true, expires auth token on session timeout.
   # config.expire_auth_token_on_timeout = false
 
@@ -184,7 +188,12 @@ Devise.setup do |config|
 
   # Number of authentication tries before locking an account if lock_strategy
   # is failed attempts.
-  config.maximum_attempts = 7
+  if Rails.env.development? && ENV['DEVISE_MAX_ATTEMPTS']
+    puts "DEV MODE - setting devise maximum_attempts to #{ENV['DEVISE_MAX_ATTEMPTS']}"
+    config.maximum_attempts = ENV['DEVISE_MAX_ATTEMPTS'].to_i
+  else
+    config.maximum_attempts = 7
+  end
 
   # Time interval to unlock the account if :time is enabled as unlock_strategy.
   # config.unlock_in = 1.hour
