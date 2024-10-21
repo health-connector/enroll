@@ -15,6 +15,7 @@ module IndividualMarket
         # rubocop:disable Lint/RescueException
         rescue Exception => e
           render :xml => "<errors><error>#{e.message}</error></errors>", status: :unprocessable_entity
+        # rubocop:enable Lint/RescueException
         end
 
         private
