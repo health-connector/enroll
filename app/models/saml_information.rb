@@ -32,7 +32,7 @@ class SamlInformation
   # TODO: I have a feeling we may be using this pattern
   #       A LOT.  Look into extracting it if we repeat.
   def initialize
-    @config = YAML.safe_load(ERB.new(File.read(File.join(Rails.root,'config', 'saml.yml'))).result)
+    @config = YAML.safe_load(ERB.new(File.read(File.join(Rails.root,'config', 'saml.yml'))).result(binding))
     ensure_configuration_values(@config)
   end
 
@@ -59,4 +59,14 @@ class SamlInformation
     define_key k
   end
 
+  private
+
+  # Method for use in consumed ERB
+  # Returns val unless blank, otherwise for non-prod envs, returns default. Else, nil.
+  # In prod mode, we want to validate the required keys are present and not accidentally fallback to junk values. In
+  # development, this is less important.
+  def val_or_nonprod_default(val, nonprod_default)
+    return val if val.present?
+    nonprod_default unless Rails.env.production
+  end
 end
