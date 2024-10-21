@@ -209,8 +209,5 @@ COPY --chown=nonroot:nonroot . $HOME
 # Copy prebuilt assets
 COPY --chown=nonroot:nonroot --from=prod_gems_and_assets $HOME/public $HOME/public
 
-# Copy environment-based config files (for transition to container-base k8s workflow)
-COPY --chown=nonroot:nonroot ./.docker/config/production.rb $HOME/config/environments
-
 USER nonroot
 
