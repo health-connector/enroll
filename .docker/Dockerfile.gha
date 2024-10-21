@@ -166,8 +166,6 @@ RUN bundle config set --local without 'development test' \
 
 COPY --chown=nonroot:nonroot . $HOME
 
-#COPY --chown=nonroot:nonroot ./.docker/config/mongoid.yml $HOME/config
-
 ARG HOSTNAME=localhost
 
 ENV ENROLL_DB_HOST=${HOSTNAME}
@@ -231,17 +229,11 @@ COPY --chown=nonroot:nonroot . $HOME
 # Copy prebuilt assets
 COPY --chown=nonroot:nonroot --from=prod_gems_and_assets $HOME/public $HOME/public
 
-# Copy environment-based config files
-COPY --chown=nonroot:nonroot ./.docker/config/mongoid.yml $HOME/config
-COPY --chown=nonroot:nonroot ./.docker/config/puma.rb $HOME/config
-COPY --chown=nonroot:nonroot ./.docker/config/cable.yml $HOME/config
+# Copy environment-based config files (for transition to container-base k8s workflow)
 COPY --chown=nonroot:nonroot ./.docker/config/mongoid.yml $HOME/config
 COPY --chown=nonroot:nonroot ./.docker/config/saml.yml $HOME/config
-COPY --chown=nonroot:nonroot ./.docker/config/saml_information.rb $HOME/app/models
 COPY --chown=nonroot:nonroot ./.docker/config/production.rb $HOME/config/environments
 COPY --chown=nonroot:nonroot ./.docker/config/devise.rb $HOME/config/initializers
-COPY --chown=nonroot:nonroot ./.docker/config/redis.rb $HOME/config/initializers
-COPY --chown=nonroot:nonroot ./.docker/config/sidekiq.rb $HOME/config/initializers
 
 USER nonroot
 
