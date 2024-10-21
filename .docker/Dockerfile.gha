@@ -166,16 +166,10 @@ RUN bundle config set --local without 'development test' \
 
 COPY --chown=nonroot:nonroot . $HOME
 
-ARG HOSTNAME=localhost
 
-#TODO we don't run swap script - establish need, fix comment
-ENV ENROLL_DB_HOST=${HOSTNAME}
-ENV ENROLL_DB_PORT=27017
-ENV ENROLL_DB_NAME=mhc_enroll_production
-ENV RABBITMQ_URL=amqp://${HOSTNAME}:5672
 
 # Asset precompilation requires many seemingly un-asset-related configurations, as it starts a rails process (e.g., an
-# available mongo, symmetric key config, an available rabbit, etc. This explains some preceding dependencies/steps.)
+# available mongo, symmetric key config, an available rabbit, etc. This may explain some preceding dependencies/steps.)
 RUN bundle exec rails assets:precompile \
   && yarn cache clean \
   && (rm -rf /tmp/* || true) \
@@ -193,19 +187,7 @@ RUN rm -rf $GEM_HOME/bundle/ruby/*/cache
 # Deployable image
 ################################################################
 
-FROM base as deploy
-
-ARG HOSTNAME=localhost
-
-ENV ENROLL_DB_HOST=${HOSTNAME}
-ENV ENROLL_DB_NAME=enroll_production
-ENV ENROLL_DB_PORT=27017
-ENV REDIS_HOST_ENROLL=${HOSTNAME}
-
-ENV RABBITMQ_URL=amqp://${HOSTNAME}:5672
-
-ARG COMMIT_SHA
-ENV COMMIT_SHA=$COMMIT_SHA
+FROM base AS deploy
 
 # Copy prebuilt gems
 COPY --chown=nonroot:nonroot --from=prod_gems_and_assets $BUNDLE_PATH $BUNDLE_PATH
