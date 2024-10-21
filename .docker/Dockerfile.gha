@@ -230,7 +230,6 @@ COPY --chown=nonroot:nonroot . $HOME
 COPY --chown=nonroot:nonroot --from=prod_gems_and_assets $HOME/public $HOME/public
 
 # Copy environment-based config files (for transition to container-base k8s workflow)
-COPY --chown=nonroot:nonroot ./.docker/config/mongoid.yml $HOME/config
 COPY --chown=nonroot:nonroot ./.docker/config/saml.yml $HOME/config
 COPY --chown=nonroot:nonroot ./.docker/config/production.rb $HOME/config/environments
 COPY --chown=nonroot:nonroot ./.docker/config/devise.rb $HOME/config/initializers
