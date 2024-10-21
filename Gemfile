@@ -96,6 +96,7 @@ gem 'sassc',                    '~> 2.0'
 gem 'sass-rails',               '~> 5'
 gem 'config',                   '~> 2.0'
 gem 'rack-cors'
+gem 'puma', '~> 5.6', '>= 5.6.8'
 
 #######################################################
 # Removed gems
@@ -131,7 +132,6 @@ group :development, :test do
   gem 'forgery'
   gem 'parallel_tests', '2.26.2'
   gem 'rails-controller-testing'
-  gem 'puma', '~> 5.6', '>= 5.6.8'
   gem 'railroady', '~> 1.5.2'
   gem 'rspec-rails', '~> 5.1.2'
   gem 'rspec_junit_formatter', '0.2.3'
