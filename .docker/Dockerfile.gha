@@ -76,8 +76,8 @@ RUN mkdir $HOME \
 WORKDIR $HOME
 
 # Non-empty value for secret_key_base needed for build. But below is overridden at runtime by real environment variables.
-ARG SECRET_KEY_BASE_DEFAULT=dummy_val_50a9bdef0c9578868e9cd6ddbe3170647b5e5bb0705eb414
-ENV SECRET_KEY_BASE=$SECRET_KEY_BASE_DEFAULT
+ARG SECRET_KEY_BASE_DUMMY=dummy_val_50a9bdef0c9578868e9cd6ddbe3170647b5e5bb0705eb414
+ENV SECRET_KEY_BASE=$SECRET_KEY_BASE_DUMMY
 
 ENV RAILS_ENV=production
 ENV NODE_ENV=production
@@ -103,6 +103,7 @@ RUN apt-get update -qq \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
   && truncate -s 0 /var/log/*log
+
 
 ########################################################
 # Bundle, precompile for production
@@ -188,6 +189,7 @@ RUN bundle exec rails assets:precompile \
 
 # https://github.com/rubygems/rubygems/issues/3225
 RUN rm -rf $GEM_HOME/bundle/ruby/*/cache
+
 
 ################################################################
 # Deployable image
