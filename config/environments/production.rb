@@ -93,9 +93,9 @@ Rails.application.configure do
   config.acapi.remote_broker_uri = ENV.fetch('RABBITMQ_URL', nil)
   config.acapi.remote_request_exchange = "#{ENV.fetch('HBX_ID', nil)}.#{ENV.fetch('ENV_NAME', nil)}.e.fanout.requests"
   config.acapi.remote_event_queue = "#{ENV.fetch('HBX_ID', nil)}.#{ENV.fetch('ENV_NAME', nil)}.q.application.enroll.inbound_events"
-  config.action_mailer.default_url_options = { :host => (ENV.fetch('ENROLL_FQDN', nil)).to_s }
-  config.acapi.hbx_id = (ENV.fetch('HBX_ID', nil)).to_s
-  config.acapi.environment_name = (ENV.fetch('ENV_NAME', nil)).to_s
+  config.action_mailer.default_url_options = { :host => ENV.fetch('ENROLL_FQDN', nil).to_s }
+  config.acapi.hbx_id = ENV.fetch('HBX_ID', nil).to_s
+  config.acapi.environment_name = ENV.fetch('ENV_NAME', nil).to_s
 
   # Add Google Analytics tracking ID
   config.ga_tracking_id = ENV.fetch('GA_TRACKING_ID', 'dummy')
@@ -119,7 +119,7 @@ Rails.application.configure do
   Mongoid.logger.level = Logger::ERROR
   Mongo::Logger.logger.level = Logger::ERROR
 
-  ::IdentityVerification::InteractiveVerificationService.slug!
+  IdentityVerification::InteractiveVerificationService.slug!
 
   unless ENV.fetch("CLOUDFLARE_PROXY_IPS", nil).blank?
     proxy_ip_env = ENV.fetch("CLOUDFLARE_PROXY_IPS", nil)
