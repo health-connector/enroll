@@ -21,7 +21,7 @@ port ENV.fetch("PORT", 3000)
 environment ENV.fetch("RAILS_ENV", "development")
 
 on_worker_boot do
-  Mongoid::Clients.clients.each do |_name, client|
+  Mongoid::Clients.clients.each_value do |client|
     client.close
     client.reconnect
   end
