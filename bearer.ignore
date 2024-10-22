@@ -1,0 +1,14 @@
+{
+  "a72d6259a351af1475d6417040c397ed_0": {
+    "author": "Brian Henry",
+    "comment": "hardcoded dummy 3rd party api key",
+    "false_positive": true,
+    "ignored_at": "2024-10-22T16:52:17Z"
+  },
+  "a72d6259a351af1475d6417040c397ed_1": {
+    "author": "Brian Henry",
+    "comment": "hardcoded dummy 3rd party api key",
+    "false_positive": true,
+    "ignored_at": "2024-10-22T16:51:38Z"
+  }
+}
