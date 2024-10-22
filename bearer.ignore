@@ -1,4 +1,16 @@
 {
+  "6a6e4231291f9374155ff1b4d23a2a7b_1": {
+    "author": "Brian Henry",
+    "comment": "data output is core to functionaliy of report",
+    "false_positive": false,
+    "ignored_at": "2024-10-22T17:33:07Z"
+  },
+  "8c1064bf3b5d29050cb41fd1f936d4c5_1": {
+    "author": "Brian Henry",
+    "comment": "data output is core to functionaliy of report",
+    "false_positive": false,
+    "ignored_at": "2024-10-22T17:34:05Z"
+  },
   "a72d6259a351af1475d6417040c397ed_0": {
     "author": "Brian Henry",
     "comment": "hardcoded dummy 3rd party api key",
