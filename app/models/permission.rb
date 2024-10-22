@@ -18,7 +18,7 @@ class Permission
   field :view_admin_tabs, type: Mongoid::Boolean, default: false
   field :can_update_ssn, type: Mongoid::Boolean, default: false
   field :can_complete_resident_application, type: Mongoid::Boolean, default: false
-  field :can_add_sep, default: false
+  field :can_add_sep, type: Mongoid::Boolean, default: false
   field :can_lock_unlock, type: Mongoid::Boolean, default: false
   field :can_view_username_and_email, type: Mongoid::Boolean, default: false
   field :can_reset_password, type: Mongoid::Boolean, default: false
@@ -36,6 +36,7 @@ class Permission
   field :can_change_username_and_email, type: Mongoid::Boolean, default: false
   field :can_view_notice_templates, type: Mongoid::Boolean, default: false
   field :can_edit_notice_templates, type: Mongoid::Boolean, default: false
+  field :can_update_pvp_eligibilities, type: Mongoid::Boolean, default: false
 
   class << self
     def hbx_staff

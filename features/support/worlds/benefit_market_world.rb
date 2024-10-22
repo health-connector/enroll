@@ -164,6 +164,25 @@ module BenefitMarketWorld
     reset_product_cache
   end
 
+  def update_product_qhps
+    BenefitMarkets::Products::HealthProducts::HealthProduct.each do |hp|
+      qhp = Products::Qhp.by_hios_ids_and_active_year([hp.hios_id], hp.active_year).first
+      next unless qhp
+
+      qhp.update!(standard_component_id: hp.hios_id[0..13])
+    end
+  end
+
+  def mark_premium_value_products_in_rating_areas
+    user = User.all.last
+    BenefitMarkets::Products::Product.each do |product|
+      r_ids = product.premium_tables.map(&:rating_area).pluck(:id)
+      args = { rating_areas: r_ids.to_h { |r| [r.to_s, "true"] } }
+      service = BenefitMarkets::Services::PvpEligibilityService.new(product, user, args)
+      service.create_or_update_pvp_eligibilities
+    end
+  end
+
   def renewal_health_products(effective_date = current_effective_date)
     create_list(:benefit_markets_products_health_products_health_product,
                 5,
@@ -231,6 +250,16 @@ Given(/^benefit market catalog exists for (.*) initial employer with (.*) benefi
   end
 end
 
+Given(/^products have PVP$/) do
+  year = Date.today.year
+  rating_area =  FactoryBot.create(:benefit_markets_locations_rating_area, exchange_provided_code: 'R-MA001', active_year: year)
+  product_number = BenefitMarkets::Products::HealthProducts::HealthProduct.count / 2
+  BenefitMarkets::Products::HealthProducts::HealthProduct.limit(product_number).each do |hp|
+    hp.premium_value_products << FactoryBot.create(:benefit_markets_products_premium_value_product, product: hp, rating_area: rating_area)
+    hp.save!
+  end
+end
+
 # Addresses certain cucumbers failing in Nov/Dec
 Given(/^SAFE benefit market catalog exists for (.*) initial employer with health benefits$/) do |status|
   safe_initial_application_dates(status.to_sym)
@@ -264,6 +293,14 @@ Given(/^benefit market catalog exists for (.*) initial employer that has both he
   set_initial_application_dates(status.to_sym)
   generate_initial_catalog_products_for(coverage_kinds)
   create_benefit_market_catalog_for(current_effective_date)
+end
+
+Given(/^products marked as premium value products$/) do
+  mark_premium_value_products_in_rating_areas
+end
+
+Given(/^all products has correct qhps$/) do
+  update_product_qhps
 end
 
 # Addresses certain cucumbers failing in Nov/Dec
