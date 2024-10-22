@@ -67,6 +67,7 @@ class SamlInformation
   # development, better that we allow less config setup work.
   def val_or_nonprod_default(val, nonprod_default)
     return val if val.present?
+
     nonprod_default unless Rails.env.production?
   end
 end
