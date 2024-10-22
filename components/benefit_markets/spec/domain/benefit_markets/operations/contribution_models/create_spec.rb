@@ -11,7 +11,7 @@ RSpec.describe BenefitMarkets::Operations::ContributionModels::Create, dbclean: 
   let(:many_simultaneous_contribution_units)  { true }
   let(:product_multiplicities)                { [:product_multiplicities1, :product_multiplicities2] }
   let(:member_relationship_map_params)        { {_id: BSON::ObjectId.new, relationship_name: 'Employee', count: 1} }
-  let(:member_relationship_map)               { ::BenefitMarkets::ContributionModels::MemberRelationshipMap.new(member_relationship_map_params).serializable_hash }
+  let(:member_relationship_map)               { BenefitMarkets::ContributionModels::MemberRelationshipMap.new(member_relationship_map_params).serializable_hash }
   let(:member_relationship_maps)              { [member_relationship_map] }
   let(:contribution_unit) do
     ::BenefitMarkets::ContributionModels::ContributionUnit.new(
