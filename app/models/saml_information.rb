@@ -64,7 +64,7 @@ class SamlInformation
   # Method for use in consumed ERB
   # Returns val unless blank, otherwise for non-prod envs, returns default. Else, nil.
   # In prod mode, we want to validate the required keys are present and not accidentally fallback to junk values. In
-  # development, this is less important.
+  # development, better that we allow less config setup work.
   def val_or_nonprod_default(val, nonprod_default)
     return val if val.present?
     nonprod_default unless Rails.env.production
