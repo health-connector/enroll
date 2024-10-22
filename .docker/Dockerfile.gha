@@ -38,7 +38,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
     && truncate -s 0 /var/log/*log
 
-# Add Nodejs sources and dependencies
+# Add Nodejs sources and dependencies - used both during build and at runtime (e.g,. dependency for coffeescript)
 RUN curl -fsSL https://deb.nodesource.com/setup_$NODE_MAJOR.x | bash -
 
 # Install Nodejs
@@ -165,8 +165,6 @@ RUN bundle config set --local without 'development test' \
   && bundle install
 
 COPY --chown=nonroot:nonroot . $HOME
-
-
 
 # Asset precompilation requires many seemingly un-asset-related configurations, as it starts a rails process (e.g., an
 # available mongo, symmetric key config, an available rabbit, etc. This may explain some preceding dependencies/steps.)
