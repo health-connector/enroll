@@ -53,6 +53,7 @@ class ReportForBadEligibileFamilies < MongoidMigrationTask
                 csv << [
                   tax_household.effective_starting_on.year,
                   family.e_case_id,
+                  primary_person.ssn,
                   primary_person.first_name,
                   primary_person.last_name,
                   primary_person.hbx_id,
