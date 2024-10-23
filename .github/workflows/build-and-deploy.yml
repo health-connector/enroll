@@ -12,6 +12,7 @@ on:
       #      - 'master'
       - 'rail_6_with_pvp' #TEMP
       - rc-release-5.8.16 #TEMP
+      - pv188414342-add-dockerfile #TEMP
 
 concurrency:
   group: docker-${{ github.ref }}
