@@ -1,0 +1,55 @@
+name: Build Image and Deploy to Container Registries
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+#      - 'master'
+      - 'rail_6_with_pvp' #TEMP
+      - 'pv188414567_add_gha_workflow' #TEMP
+  pull_request:
+    branches:
+#      - 'master'
+      - 'rail_6_with_pvp' #TEMP
+
+concurrency:
+  group: docker-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  RABBITMQ_DEFAULT_USER: 'guest'
+  RABBITMQ_DEFAULT_PASS: 'guest'
+
+jobs:
+  prep:
+    if: >-
+      github.repository_owner == 'health-connector' && 
+        (github.event_name == 'push' || 
+        github.event_name == 'workflow_dispatch' || 
+        github.event.pull_request.head.repo.owner.login == 'health-connector')
+    runs-on: ubuntu-latest
+    outputs:
+      taggedImage: ${{ steps.prep.outputs.tagged_image }}
+      shortSha: ${{ steps.prep.outputs.short_sha}}
+      branchName: ${{ steps.prep.outputs.branch_name }}
+      repositoryName: ${{ steps.prep.outputs.repository_name }}
+      latestTag: ${{ steps.prep.outputs.latest_tag }}
+      registryGhcr: ${{ steps.prep.outputs.registry_ghcr }}
+    steps:
+      - name: Prepare info
+        id: prep
+        run: |
+          # PR will use head_ref, push will fallback to ref_name
+          BRANCH_NAME=${{ github.head_ref || github.ref_name }}
+          SHORT_SHA=$(echo $GITHUB_SHA | head -c7)
+          REPO=$(echo '${{ github.repository }}' | awk -F '/' '{print $2}')
+          TAGSAFE_BRANCH_NAME=$(echo $BRANCH_NAME | sed -e 's/[^a-zA-Z0-9_.]/-/g' -e 's/^[-.]//g')
+          IMAGE_TAG=$TAGSAFE_BRANCH_NAME-$SHORT_SHA
+          IMAGE=health-connector/$REPO
+          echo "tagged_image=${IMAGE}:${IMAGE_TAG}" >> $GITHUB_OUTPUT
+          echo "short_sha=$SHORT_SHA" >> $GITHUB_OUTPUT
+          echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
+          echo "repository_name=$REPO" >> $GITHUB_OUTPUT
+          echo "latest_tag=${IMAGE}:latest" >> $GITHUB_OUTPUT
+          echo "registry_ghcr=ghcr.io" >> $GITHUB_OUTPUT
+          cat "$GITHUB_OUTPUT" #TEMP
