@@ -99,6 +99,17 @@ jobs:
         with:
           install: true
           version: v0.17.1
+
+      # Cache layers specific to current sha, but allow rummaging through older caches if none for current
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          # Key is named differently to avoid collision
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx
+
       # Add vhosts to RabbitMQ
       - run: |
           docker exec rabbitmq rabbitmqctl add_vhost /
@@ -129,6 +140,25 @@ jobs:
           tags: |
             ${{ format('{0}/{1}-{2}', needs.prep.outputs.registryGhcr, needs.prep.outputs.taggedImage, 'cca') }}
             ${{ format('{0}/{1}-{2}', needs.prep.outputs.registryGhcr, needs.prep.outputs.latestTag, 'cca') }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          # Note the mode=max here, for caching intermediates in multi-stage build
+          # More: https://github.com/moby/buildkit?tab=readme-ov-file#local-directory-1
+          # And: https://github.com/docker/buildx/blob/master/docs/reference/buildx_build.md#-export-build-cache-to-an-external-cache-destination---cache-to
+          cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new
           build-args: |
             HOSTNAME=172.17.0.1
 
+      # See https://docs.docker.com/build/ci/github-actions/cache/#local-cache OR https://github.com/moby/buildkit/issues/1896
+      # need for this two-step w/r/t cache-to above and cache movement here.
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+      - name: Scan Docker image
+        if: github.event_name != 'pull_request'
+        uses: anchore/scan-action@v5
+        with:
+          image: ${{ format('{0}/{1}-{2}', needs.prep.outputs.registryGhcr, needs.prep.outputs.taggedImage, 'cca') }}
+          fail-build: false
+          severity-cutoff: critical
