@@ -75,10 +75,6 @@ RUN mkdir $HOME \
 # Configure app home directory
 WORKDIR $HOME
 
-# Non-empty value for secret_key_base needed for build. But below is overridden at runtime by real environment variables.
-ARG SECRET_KEY_BASE_DUMMY=dummy_val_50a9bdef0c9578868e9cd6ddbe3170647b5e5bb0705eb414
-ENV SECRET_KEY_BASE=$SECRET_KEY_BASE_DUMMY
-
 ENV RAILS_ENV=production
 ENV NODE_ENV=production
 
@@ -171,15 +167,18 @@ ENV ENROLL_DB_HOST=${HOSTNAME}
 ENV RABBITMQ_URL=amqp://${HOSTNAME}:5672
 
 # Asset precompilation requires many seemingly un-asset-related configurations, as it starts a rails process (e.g., an
-# available mongo, symmetric key config, an available rabbit, etc. This may explain some preceding dependencies/steps.)
-RUN bundle exec rails assets:precompile \
-  && yarn cache clean \
-  && (rm -rf /tmp/* || true) \
-  # Cleanup
-  && rm -rf $BUNDLE_PATH/*.gem \
-  && find $BUNDLE_PATH/ruby -name "*.c" -delete \
-  && find $BUNDLE_PATH/ruby -name "*.o" -delete \
-  && find $BUNDLE_PATH/ruby -name ".git"  -type d -prune -execdir rm -rf {} +
+# available mongo, symmetric key config, an available rabbit, etc. This may explains some preceding dependencies/steps.)
+# Note: Non-empty value for SECRET_KEY_BASE needed for build. But this value is set anew to actual secure value at
+# runtime by environment variables.
+RUN SECRET_KEY_BASE=dummy_val_50a9bdef0c9578868e9cd6ddbe3170647b5e5bb0705eb414 \
+    bundle exec rails assets:precompile \
+    && yarn cache clean \
+    && (rm -rf /tmp/* || true) \
+    # Cleanup
+    && rm -rf $BUNDLE_PATH/*.gem \
+    && find $BUNDLE_PATH/ruby -name "*.c" -delete \
+    && find $BUNDLE_PATH/ruby -name "*.o" -delete \
+    && find $BUNDLE_PATH/ruby -name ".git"  -type d -prune -execdir rm -rf {} +
 
 # https://github.com/rubygems/rubygems/issues/3225
 RUN rm -rf $GEM_HOME/bundle/ruby/*/cache
