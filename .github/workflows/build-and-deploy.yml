@@ -131,7 +131,7 @@ jobs:
           # Set the desired build target stage here
           target: deploy
           # needed to access mongo and rabbit on GHA machine
-          network: host
+#          network: host
           # create local image (for scanning) if it is a pull request
 #          load: ${{ github.event_name == 'pull_request' }}
           # pushes to public.ecr.aws
