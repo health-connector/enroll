@@ -117,8 +117,8 @@ jobs:
         uses: docker/login-action@v2
         with:
           registry: ${{ needs.prep.outputs.registryGhcr }}
-          #username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }} BREAK ME
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}ME
 
       - name: Build Image
         uses: docker/build-push-action@v3
