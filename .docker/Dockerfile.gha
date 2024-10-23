@@ -166,6 +166,7 @@ RUN bundle config set --local without 'development test' \
 COPY --chown=nonroot:nonroot . $HOME
 
 # Need resolvable mongo & rabbit for asset precompilation
+#ARG HOSTNAME=localhost
 ARG ENROLL_DB_HOST
 ARG RABBITMQ_URL
 
