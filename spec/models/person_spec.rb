@@ -744,7 +744,6 @@ describe Person, :dbclean => :after_each do
       it "calls notify_updated when existing record is changed" do
         person.save
         allow(person).to receive(:notify_updated)
-
         person.first_name = "Test"
         person.save
 
