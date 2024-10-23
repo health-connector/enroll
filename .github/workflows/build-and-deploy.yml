@@ -138,3 +138,7 @@ jobs:
           tags: |
             ${{ format('{0}/{1}-{2}', needs.prep.outputs.registryGhcr, needs.prep.outputs.taggedImage, 'cca') }}
             ${{ format('{0}/{1}-{2}', needs.prep.outputs.registryGhcr, needs.prep.outputs.latestTag, 'cca') }}
+          build-args: |
+            ENROLL_DB_HOST=mongo
+            RABBITMQ_URL=amqp://rabbitmq
+
