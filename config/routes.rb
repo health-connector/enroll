@@ -480,16 +480,6 @@ Rails.application.routes.draw do
   end
   resources :translations
 
-  namespace :api, :defaults => {:format => 'xml'} do
-    namespace :v1 do
-      resources :slcsp, :only => []  do
-        collection do
-          post :plan
-        end
-      end
-    end
-  end
-
   ############################# TO DELETE BELOW ##############################
 
   # FIXME: Do this properly later
@@ -633,6 +623,16 @@ Rails.application.routes.draw do
         resources :agents do
           collection do
             get :begin_consumer_enrollment
+          end
+        end
+      end
+
+      namespace :api, :defaults => {:format => 'xml'} do
+        namespace :v1 do
+          resources :slcsp, :only => []  do
+            collection do
+              post :plan
+            end
           end
         end
       end
