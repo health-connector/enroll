@@ -1,6 +1,8 @@
 name: Full suite check
 on:
   push:
+    branches:
+      - DISABLEMETEMP
   schedule:
     - cron: "0 6 * * *"
 
