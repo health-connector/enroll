@@ -165,6 +165,10 @@ RUN bundle config set --local without 'development test' \
 
 COPY --chown=nonroot:nonroot . $HOME
 
+# Need resolvable mongo & rabbit for asset precompilation
+ARG ENROLL_DB_HOST
+ARG RABBITMQ_URL
+
 # Asset precompilation requires many seemingly un-asset-related configurations, as it starts a rails process (e.g., an
 # available mongo, symmetric key config, an available rabbit, etc. This may explain some preceding dependencies/steps.)
 RUN bundle exec rails assets:precompile \
