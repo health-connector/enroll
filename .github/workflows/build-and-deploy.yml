@@ -8,11 +8,11 @@ on:
       - 'rail_6_with_pvp' #TEMP
       - 'pv188414567_add_gha_workflow' #TEMP
   pull_request:
-    branches:
-      #      - 'master'
-      - 'rail_6_with_pvp' #TEMP
-      - rc-release-5.8.16 #TEMP
-      - pv188414342-add-dockerfile #TEMP
+#    branches:
+#      #      - 'master'
+#      - 'rail_6_with_pvp' #TEMP
+#      - rc-release-5.8.16 #TEMP
+#      - pv188414342-add-dockerfile #TEMP
 
 concurrency:
   group: docker-${{ github.ref }}
