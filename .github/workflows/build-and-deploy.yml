@@ -119,7 +119,7 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: ${{ needs.prep.outputs.registryGhcr }}
-          #username: ${{ github.actor }}
+          username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build Image
