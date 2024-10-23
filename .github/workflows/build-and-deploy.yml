@@ -38,8 +38,8 @@ jobs:
     steps:
       - name: Prepare info
         id: prep
-        run: |
-          # PR will use head_ref, push will fallback to ref_name
+        # for BRANCH_NAME, PR will use head_ref (source branch), push will fallback to ref_name (current branch)
+        run: |   
           BRANCH_NAME=${{ github.head_ref || github.ref_name }}
           SHORT_SHA=$(echo $GITHUB_SHA | head -c7)
           REPO=$(echo '${{ github.repository }}' | awk -F '/' '{print $2}')
@@ -52,4 +52,87 @@ jobs:
           echo "repository_name=$REPO" >> $GITHUB_OUTPUT
           echo "latest_tag=${IMAGE}:latest" >> $GITHUB_OUTPUT
           echo "registry_ghcr=ghcr.io" >> $GITHUB_OUTPUT
-          cat "$GITHUB_OUTPUT" #TEMP
+
+  # Uses buildx to build and push the image
+  build-and-upload-image:
+    if: >-
+      github.repository_owner == 'health-connector' && 
+        (github.event_name == 'push' || 
+        github.event_name == 'workflow_dispatch' || 
+        github.event.pull_request.head.repo.owner.login == 'health-connector')
+    needs: [prep]
+    runs-on: ubuntu-latest
+    services:
+      rabbitmq:
+        image: rabbitmq:latest
+        ports:
+          - 5672:5672
+          - 15672:15672
+        options: >-
+          --name "rabbitmq"
+          --health-cmd "rabbitmqctl node_health_check"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      mongo:
+        image: mongo:5.0
+        ports:
+          - 27017:27017
+        options: >-
+          --name "mongo"
+          --health-cmd mongo
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:3.2-alpine
+        ports:
+          - 6379
+        options: >-
+          --name "redis"
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Add git HEAD info to docker image
+        run: |
+          git show --quiet HEAD > release.txt
+          git show --quiet HEAD > public/release.txt
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3.7.1
+        with:
+          install: true
+          version: v0.17.1
+      # Add vhosts to RabbitMQ
+      - run: |
+          docker exec rabbitmq rabbitmqctl add_vhost /
+          docker exec rabbitmq rabbitmqctl add_vhost event_source
+          docker exec rabbitmq rabbitmqctl set_permissions -p event_source guest ".*" ".*" ".*"
+
+      - name: Login to GHCR
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ needs.prep.outputs.registryGhcr }}
+          #username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }} BREAK ME
+
+      - name: Build Image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          builder: ${{ steps.buildx.outputs.name }}
+          file: .docker/production/Dockerfile.gha
+          # Set the desired build target stage here
+          target: deploy
+          # needed to access mongo and rabbit on GHA machine
+          network: host
+          # create local image (for scanning) if it is a pull request
+#          load: ${{ github.event_name == 'pull_request' }}
+          # pushes to public.ecr.aws
+          tags: |
+            ${{ format('{0}/{1}-{2}', needs.prep.outputs.registryGhcr, needs.prep.outputs.taggedImage, 'cca') }}
+            ${{ format('{0}/{1}-{2}', needs.prep.outputs.registryGhcr, needs.prep.outputs.latestTag, 'cca') }}
