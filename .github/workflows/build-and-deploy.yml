@@ -4,13 +4,14 @@ on:
   workflow_dispatch:
   push:
     branches:
-#      - 'master'
+      #      - 'master'
       - 'rail_6_with_pvp' #TEMP
       - 'pv188414567_add_gha_workflow' #TEMP
   pull_request:
     branches:
-#      - 'master'
+      #      - 'master'
       - 'rail_6_with_pvp' #TEMP
+      - rc-release-5.8.16 #TEMP
 
 concurrency:
   group: docker-${{ github.ref }}
@@ -114,10 +115,10 @@ jobs:
           docker exec rabbitmq rabbitmqctl set_permissions -p event_source guest ".*" ".*" ".*"
 
       - name: Login to GHCR
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ${{ needs.prep.outputs.registryGhcr }}
-          username: ${{ github.actor }}
+          #username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}ME
 
       - name: Build Image
