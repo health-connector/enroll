@@ -132,8 +132,10 @@ jobs:
           target: deploy
           # needed to access mongo and rabbit on GHA machine at build time
           network: host
+          # send to public registry if not a pull request
+          push: ${{ github.event_name != 'pull_request' }}
           # create local image (for scanning) if it is a pull request
-#          load: ${{ github.event_name == 'pull_request' }}
+          load: ${{ github.event_name == 'pull_request' }}
           tags: |
             ${{ format('{0}/{1}-{2}', needs.prep.outputs.registryGhcr, needs.prep.outputs.taggedImage, 'cca') }}
             ${{ format('{0}/{1}-{2}', needs.prep.outputs.registryGhcr, needs.prep.outputs.latestTag, 'cca') }}
