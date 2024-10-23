@@ -1,24 +1,27 @@
 # Use this hook to configure devise mailer, warden hooks and so forth.
 # Many of these configuration options can be set straight in your model.
 Devise.setup do |config|
+  unless Rails.env.production?
+    # custom path for expired warden sessions
+    require "custom_failure_app"
 
-  # custom path for expired warden sessions
-  require "custom_failure_app"
-
-  config.warden do |manager|
-    manager.failure_app = CustomFailureApp
+    config.warden do |manager|
+      manager.failure_app = CustomFailureApp
+    end
   end
 
   # The secret key used by Devise. Devise uses this key to generate
   # random tokens. Changing this key will render invalid all existing
   # confirmation, reset password and unlock tokens in the database.
-  # config.secret_key = 'aa728e38014e042d54f284468eda981aaaac091cdc6b0f2ac58a4e71ed35f56649fc78c505207a691061da1fb13f8b930d2cea2724116c5fadd1d117e1bc1d8b'
+  # Devise will use the rails `secret_key_base` as its `secret_key`
+  # by default. You can change it below and use your own secret key.
+  config.secret_key = ENV['ENROLL_DEVISE_SECRET_KEY'] if ENV['ENROLL_DEVISE_SECRET_KEY'].present?
 
   # ==> Mailer Configuration
   # Configure the e-mail address which will be shown in Devise::Mailer,
   # note that it will be overwritten if you use your own mailer class
   # with default "from" parameter.
-  config.mailer_sender = 'please-change-me-at-config-initializers-devise@example.com'
+  config.mailer_sender = ENV['EMAIL_FROM_ADDRESS'].to_s
 
   # Configure the class responsible to send e-mails.
   config.mailer = 'DeviseCustomMailer'
@@ -158,10 +161,12 @@ Devise.setup do |config|
   # ==> Configuration for :timeoutable
   # The time you want to timeout the user session without activity. After this
   # time the user will be asked for credentials again. Default is 30 minutes.
-
-  config.timeout_in = 15.minutes
-  config.timeout_in = 480.minutes if Rails.env.development? && (ENV['timeout'] != 'true')
-
+  if Rails.env.development? && ENV['DEVISE_TIMEOUT_MINS']
+    puts "DEV MODE - setting devise timeout to #{ENV['DEVISE_TIMEOUT_MINS']} minutes"
+    config.timeout_in = ENV['DEVISE_TIMEOUT_MINS'].to_i.minutes
+  else
+    config.timeout_in = 15.minutes
+  end
   # If true, expires auth token on session timeout.
   # config.expire_auth_token_on_timeout = false
 
@@ -183,7 +188,12 @@ Devise.setup do |config|
 
   # Number of authentication tries before locking an account if lock_strategy
   # is failed attempts.
-  config.maximum_attempts = 7
+  if Rails.env.development? && ENV['DEVISE_MAX_ATTEMPTS']
+    puts "DEV MODE - setting devise maximum_attempts to #{ENV['DEVISE_MAX_ATTEMPTS']}"
+    config.maximum_attempts = ENV['DEVISE_MAX_ATTEMPTS'].to_i
+  else
+    config.maximum_attempts = 7
+  end
 
   # Time interval to unlock the account if :time is enabled as unlock_strategy.
   # config.unlock_in = 1.hour
