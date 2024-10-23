@@ -130,15 +130,13 @@ jobs:
           file: .docker/Dockerfile.gha
           # Set the desired build target stage here
           target: deploy
-          # needed to access mongo and rabbit on GHA machine
-#          network: host
+          # needed to access mongo and rabbit on GHA machine at build time
+          network: host
           # create local image (for scanning) if it is a pull request
 #          load: ${{ github.event_name == 'pull_request' }}
-          # pushes to public.ecr.aws
           tags: |
             ${{ format('{0}/{1}-{2}', needs.prep.outputs.registryGhcr, needs.prep.outputs.taggedImage, 'cca') }}
             ${{ format('{0}/{1}-{2}', needs.prep.outputs.registryGhcr, needs.prep.outputs.latestTag, 'cca') }}
           build-args: |
-            ENROLL_DB_HOST=mongo
-            RABBITMQ_URL=amqp://rabbitmq
+            HOSTNAME=172.17.0.1
 
