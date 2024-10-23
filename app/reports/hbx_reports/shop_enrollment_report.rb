@@ -67,7 +67,7 @@ class ShopEnrollmentReport < MongoidMigrationTask
           end
           in_glue = glue_list.include?(id) if glue_list.present?
           csv << [employer_id,subscriber_ssn,fein,legal_name,plan_year_start,plan_year_state,employer_profile_aasm,eg_id,purchase_time,coverage_start,enrollment_state,subscriber_hbx_id,first_name,last_name,subscriber_ssn,plan_hios_id,rating_area,is_pvp,
-                  covered_lives,enrollment_reason,in_glue]
+                  covered_lives,enrollment_reason,in_glue] && logger.warn("Searching for #{person.ssn}")
           csv << [employer_id,subscriber_ssn,fein,legal_name,plan_year_start,plan_year_state,employer_profile_aasm,eg_id,purchase_time,coverage_start,enrollment_state,subscriber_hbx_id,first_name,last_name,subscriber_ssn,plan_hios_id,rating_area,is_pvp,
             covered_lives,enrollment_reason,in_glue]
 
