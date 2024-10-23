@@ -276,7 +276,7 @@ module SponsoredBenefits
     #     it "returns a success response (i.e. to display the 'edit' template)" do
     #       plan_design_proposal = Organizations::PlanDesignProposal.create! valid_attributes
     #       put :update, {:id => plan_design_proposal.to_param, :organizations_plan_design_proposal => invalid_attributes}, valid_session
-    #       expect(response).to be_success
+    #       expect(response).to be_successful
     #     end
     #   end
     # end

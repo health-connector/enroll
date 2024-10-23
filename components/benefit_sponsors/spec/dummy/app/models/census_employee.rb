@@ -15,7 +15,7 @@ class CensusEmployee < CensusMember
   PENDING_STATES = %w(employee_termination_pending cobra_termination_pending)
   EMPLOYMENT_ACTIVE_ONLY = %w(eligible employee_role_linked employee_termination_pending newly_designated_eligible newly_designated_linked)
 
-  field :is_business_owner, type: Boolean, default: false
+  field :is_business_owner, type: Mongoid::Boolean, default: false
   field :hired_on, type: Date
   field :employment_terminated_on, type: Date
   field :coverage_terminated_on, type: Date

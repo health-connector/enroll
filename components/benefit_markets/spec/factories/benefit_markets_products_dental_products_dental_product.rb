@@ -16,7 +16,7 @@ FactoryBot.define do
     metal_level_kind     { :dental }
 
     product_package_kinds { [:single_product] }
-    sequence(:hios_id, (10..99).cycle)  { |n| "41842DC04000#{n}-01" }
+    sequence(:hios_id, (10..99).cycle)  { |n| "41842DC04001#{n}-01" }
     hios_base_id          { hios_id.split('-')[0] }
     dental_plan_kind { [:ppo, :hmo, :epo].sample }
 

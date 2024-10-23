@@ -16,6 +16,16 @@ Feature: Broker creates a quote for a prospect employer
     And the broker Max Planck is primary broker for District Brokers Inc
     And employer ABC Widgets hired broker Max Planck from District Brokers Inc
 
+  Scenario Outline: Broker should be able to edit employer
+    Given Max Planck logs on to the Broker Agency Portal
+    When the broker clicks on Employers tab
+    When the broker clicks Actions for that Employer
+    Then the broker clicks Actions dropdown and click Edit Employer Details dropdown menu
+    And the broker clicks on Select Health Benefits button
+    Then renders Edit Employer Information page
+    Examples:
+      |
+
   Scenario Outline: Broker should be not able to create a quote with flexible rules for a renewing employer
     Given Max Planck logs on to the Broker Agency Portal
     When the broker clicks on Employers tab

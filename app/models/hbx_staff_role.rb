@@ -9,7 +9,7 @@ class HbxStaffRole
   field :benefit_sponsor_hbx_profile_id, type: BSON::ObjectId
   field :job_title, type: String, default: ""
   field :department, type: String, default: ""
-  field :is_active, type: Boolean, default: true
+  field :is_active, type: Mongoid::Boolean, default: true
 
   delegate :hbx_id, to: :person, allow_nil: true
   delegate :dob, :dob=, to: :person, allow_nil: true

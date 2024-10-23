@@ -361,7 +361,7 @@ module BenefitSponsors
     def profile
       return @profile if defined?(@profile)
 
-      @profile = BenefitSponsors::Organizations::Organization.by_employer_profile(profile_id).first.employer_profile unless profile_id.blank?
+      @profile = BenefitSponsors::Organizations::Organization.by_profile(profile_id).first.employer_profile unless profile_id.blank?
     end
 
     def profile=(new_profile)

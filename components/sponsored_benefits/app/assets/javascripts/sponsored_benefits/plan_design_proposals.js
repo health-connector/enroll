@@ -70,6 +70,7 @@ function fetchCarriers() {
   var quote_effective_date = $("#forms_plan_design_proposal_effective_date").val();
   var selected_carrier_level = $(this).siblings('input').val();
   var plan_design_organization_id = $('#plan_design_organization_id').val();
+  var plan_design_proposal_id = $('#plan_design_proposal_id').val();
   var kind = $("#benefits_kind").val();
   $(this).closest('.plan-design').find('.nav-tabs li').removeClass('active');
   $(this).closest('li').addClass('active');
@@ -80,7 +81,8 @@ function fetchCarriers() {
       active_year: active_year,
       quote_effective_date: quote_effective_date,
       selected_carrier_level: selected_carrier_level,
-      kind: kind
+      kind: kind,
+      plan_design_proposal_id: plan_design_proposal_id
     },
     success: function() {
       //Do something
@@ -127,12 +129,13 @@ function url_redirect(options){
   var $form = $("<form />");
   $form.attr("action",options.url);
   $form.attr("method",options.method);
-            
-  for (var key in options.data)
+  for (var key in options.data) {
     buildChiderenElements($form, key, options.data[key]);
-            
-  $("body").append($form);
-  $form.submit();
+  }
+  var csrfToken = document.querySelector("meta[name=csrf-token]").content;
+  $form.append('<input type="hidden" name="authenticity_token" value="' + csrfToken + '">');
+  $("body").append($form);
+  $form.submit();
 }
 
 function buildChiderenElements(form, prefix, data) {
@@ -154,7 +157,8 @@ function downloadPdf(event, element) {
       kind: element.dataset.kind
     }
   }
-  url_redirect({url: element.href, method: "post", data: data});
+
+url_redirect({url: element.href, method: "post", data: data});
 }
 
 function sendPdf(event) {
@@ -288,6 +292,26 @@ function setSliderDisplayVal(slideEvt) {
   $(this).closest('.form-group').find('.hidden-param').val(slideEvt.value).attr('value', slideEvt.value);
   $(this).closest('.form-group').find('.slide-label').text(slideEvt.value + "%");
   calcPlanDesignContributions();
+}
+
+function updateSlider(element) {
+  var value = element.value;
+  var inputBox = $(element).closest('.row').find('input.contribution_handler').val(element.value);
+  var slideLabel = $(element).closest('.row').find('.slide-label').text(element.value + "%");
+  var slideLabel = $(element).closest('.row').find('.slide-label').text(element.value + "%");
+  updateTooltip(element);
+}
+
+function updateSliderValue(element) {
+  var value = element.value;
+  var slider = $(element).closest('.row').find('.contribution_slide_handler').val(element.value);
+  var slideLabel = $(element).closest('.row').find('.slide-label').text(element.value + "%");
+}
+
+function updateTooltip(element) {
+  setTimeout(function() {
+    $(element).attr('data-original-title','Contribution Percentage: '+element.value+'%').tooltip('show');
+  },400);
 }
 
 function toggleSliders(plan_kind) {
@@ -688,7 +712,7 @@ function viewComparisons() {
 function clearComparisons() {
   $('.reference-plan').each(function() {
     var checkboxes = $(this).find('input[type=checkbox]');
-    //checkboxes.attr('checked', false);
+    checkboxes.attr('checked', false);
     removeA($.unique(selected_rpids), checkboxes.val());
     disableCompareButton();
   });
@@ -747,6 +771,7 @@ function sortPlans() {
     }
   });
   plans.parent().removeClass('hidden');
+  plans.parent().parent().removeClass('hidden');
   plans.each(function(index) {
     var plan = $(this);
     var plan_matches = [];
@@ -757,6 +782,7 @@ function sortPlans() {
     if(plan_matches.every(function(option){ return option; })) {
     } else {
       plan.parent().addClass('hidden');
+      plan.parent().parent().addClass('hidden');
     }
   });
 }

@@ -5,6 +5,8 @@ class Exchanges::HbxProfilesController < ApplicationController
   include ::Pundit
   include ::SepAll
   include ::Config::AcaHelper
+  include HtmlScrubberUtil
+  include StringScrubberUtil
 
   before_action :modify_admin_tabs?, only: [:binder_paid, :transmit_group_xml]
   before_action :check_hbx_staff_role, except: [:request_help, :configuration, :show, :assister_index, :family_index, :update_cancel_enrollment, :update_terminate_enrollment]
@@ -361,7 +363,7 @@ class Exchanges::HbxProfilesController < ApplicationController
     @element_to_replace_id = params[:family_actions_id]
     createSep
     respond_to do |format|
-      format.js { render :file => "sep/approval/add_sep_result.js.erb", name: @name }
+      format.js { render "sep/approval/add_sep_result.js.erb", name: @name }
     end
   end
 
@@ -380,7 +382,7 @@ class Exchanges::HbxProfilesController < ApplicationController
     @family_id = params_parser.family_id
     params_parser.cancel_enrollments
     respond_to do |format|
-      format.js { render :file => "datatables/cancel_enrollment_result.js.erb"}
+      format.js { render "datatables/cancel_enrollment_result.js.erb"}
     end
   end
 
@@ -399,7 +401,7 @@ class Exchanges::HbxProfilesController < ApplicationController
     @family_id = params_parser.family_id
     params_parser.terminate_enrollments
     respond_to do |format|
-      format.js { render :file => "datatables/terminate_enrollment_result.js.erb"}
+      format.js { render "datatables/terminate_enrollment_result.js.erb"}
     end
   end
 
@@ -455,12 +457,114 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   def issuer_index
-    @issuers = CarrierProfile.all
+    authorize HbxProfile, :view_admin_tabs?
+    @marketplaces = [{
+      name: l10n("marketplaces.shop_type"),
+      plans_number: BenefitMarkets::Products::Product.count,
+      enrollments_number: Family.actual_enrollments_number,
+      products: BenefitMarkets::Products::Product
+        .distinct(:kind)
+        .map { |kind| kind.to_s.capitalize }
+        .sort
+        .reverse
+        .join(", ")
+    }]
 
     respond_to do |format|
-      format.html { render "issuer_index" }
-      format.js {}
+      format.html { render "issuer_index", layout: 'exchanges_base' }
+      format.js
     end
+  end
+
+  def marketplace_plan_year
+    authorize HbxProfile, :view_admin_tabs?
+    year = params[:year].to_i
+    all_carriers = BenefitSponsors::Organizations::ExemptOrganization.issuer_profiles.map do |org|
+      {
+        legal_name: org[:legal_name],
+        organization_id: org._id,
+        profile_ids: org.profiles.map(&:_id)
+      }
+    end
+
+    @carriers = fetch_carriers_data(all_carriers, year)
+
+    respond_to do |format|
+      format.html { render "marketplace_plan_year", layout: 'exchanges_base' }
+      format.js
+    end
+  end
+
+  def marketplace_plan_years
+    authorize HbxProfile, :view_admin_tabs?
+
+    @years_data = fetch_products_data_by_years
+
+    respond_to do |format|
+      format.html { render "marketplace_plan_years", layout: 'exchanges_base' }
+      format.js
+    end
+  end
+
+  def carrier
+    authorize HbxProfile, :view_admin_tabs?
+    year = params[:year].to_i
+    @carrier = BenefitSponsors::Organizations::ExemptOrganization.issuer_profiles.find(params[:id])
+    products = BenefitMarkets::Products::Product.where(
+      :"application_period.min".lte => Date.new(year, 12, 31),
+      :"application_period.max".gte => Date.new(year, 1, 1),
+      :issuer_profile_id.in => @carrier.profiles.map(&:_id)
+    )
+
+    @products_data = products.map { |product| product_data(product) }
+    products_types = products.map(&:plan_types).flatten.uniq
+    @filter_options = {
+      plan_types: BenefitMarkets::Products::Product.types.slice(*products_types),
+      rating_areas: pvp_rating_area_options(products),
+      metal_levels: products.map { |p| [p.metal_level, p.metal_level.to_s.capitalize] }.uniq.to_h
+    }
+
+    respond_to do |format|
+      format.html { render "carrier", layout: 'exchanges_base' }
+      format.js
+    end
+  end
+
+  def plan_details
+    authorize HbxProfile, :view_admin_tabs?
+    @product = BenefitMarkets::Products::Product.find(params[:product_id])
+    @qhp = Products::QhpCostShareVariance.find_qhp_cost_share_variances([@product.hios_id], params[:year], @product.kind.to_s).first
+    @rating_areas = BenefitMarkets::Locations::RatingArea.by_year(@product.active_year).pluck(:exchange_provided_code, :id).uniq.sort.to_h
+    @product_rating_areas = @product.premium_tables.map(&:rating_area).pluck(:exchange_provided_code, :id).uniq.to_h
+    @product_pvp_eligible_ras = fetch_eligible_pvp_ras_for(@product)
+
+    respond_to do |format|
+      format.html { render "plan_details", layout: 'exchanges_base' }
+      format.js
+    end
+  end
+
+  def mark_pvp_eligibilities
+    authorize HbxProfile, :can_mark_pvp_eligibilities?
+
+    permitted_params = params.permit(:product_id, :pvp_active_areas => {})
+    @product = BenefitMarkets::Products::Product.find(permitted_params[:product_id])
+    args = {rating_areas: permitted_params[:pvp_active_areas].to_h}
+    service = BenefitMarkets::Services::PvpEligibilityService.new(@product, current_user, args)
+    result = service.create_or_update_pvp_eligibilities
+
+    message = if result["Failure"].present?
+                { failure: l10n('hbx_profiles.mark_pvp_failure') }
+              else
+                { success: l10n('hbx_profiles.mark_pvp_success') }
+              end
+
+    redirect_to plan_details_exchanges_hbx_profiles_path(
+      year: @product.active_year,
+      id: @product.issuer_profile.organization.id,
+      product_id: @product.id,
+      market: @product.benefit_market_kind.to_s.split('_').last
+    ), flash: message
   end
 
   def verification_index
@@ -714,6 +818,105 @@ class Exchanges::HbxProfilesController < ApplicationController
 
   private
 
+  def pvp_rating_area_options(products)
+    eligible_pvp_ras = products.map do |product|
+      fetch_eligible_pvp_ras_for(product)
+    end
+    eligible_pvp_ras.reduce({}) { |acc, hash| acc.merge(hash) }.sort
+  end
+
+  def fetch_products_data_by_years
+    product_ids_by_year = BenefitMarkets::Products::Product.pluck(:application_period, :id).each_with_object({ }) do |data, result|
+      (result[data[0]['min'].year] ||= []) << data[1]
+    end.sort.reverse.to_h
+
+    all_product_ids = BenefitMarkets::Products::Product.pluck(:id)
+    enrollments_data = Family.actual_enrollment_counts_by_products(all_product_ids)
+    enrollments_by_product = enrollments_data.index_by { |data| data["_id"] }
+
+    product_ids_by_year.map do |year, product_ids|
+      enrollments_count = product_ids.sum { |p_id| enrollments_by_product[p_id]&.dig("enrollment_count") || 0 }
+      products_query = BenefitMarkets::Products::Product.where(:id.in => product_ids)
+      {
+        year: year,
+        plans_number: product_ids.count,
+        pvp_numbers: eligible_pvps(product_ids).count,
+        enrollments_number: enrollments_count,
+        product_kinds: format_product_kinds(products_query.distinct(:kind))
+      }
+    end
+  end
+
+  def format_product_kinds(kinds)
+    kinds.uniq.map { |kind| kind.to_s.capitalize }.sort.reverse.join(", ")
+  end
+
+  def fetch_all_carriers_product_for(carriers, year)
+    all_profile_ids = carriers.flat_map { |carrier| carrier[:profile_ids] }
+    BenefitMarkets::Products::Product.where(
+      :"application_period.min".lte => Date.new(year, 12, 31),
+      :"application_period.max".gte => Date.new(year, 1, 1),
+      :issuer_profile_id.in => all_profile_ids
+    )
+  end
+
+  def products_data_by_carrier(carrier, products, enrollments_count)
+    {
+      carrier: carrier[:legal_name],
+      organization_id: carrier[:organization_id],
+      plans_number: products.count,
+      enrollments_number: enrollments_count,
+      pvp_numbers: eligible_pvps(products.map(&:_id)).count,
+      product_kinds: format_product_kinds(products.map(&:kind))
+    }
+  end
+
+  def fetch_carriers_data(carriers, year)
+    product_query = fetch_all_carriers_product_for(carriers, year)
+    products_by_carrier = product_query.group_by(&:issuer_profile_id)
+    all_product_ids = product_query.pluck(:_id)
+    enrollments_data = Family.actual_enrollment_counts_by_products(all_product_ids)
+
+    enrollments_by_product = enrollments_data.index_by { |data| data["_id"] }
+
+    carriers.map do |carrier|
+      profile_ids = carrier[:profile_ids]
+      carrier_products = profile_ids.flat_map { |profile_id| products_by_carrier[profile_id] || [] }
+      product_ids = carrier_products.map(&:_id)
+      next if product_ids.empty?
+
+      enrollments_count = product_ids.sum { |p_id| enrollments_by_product[p_id]&.dig("enrollment_count") || 0 }
+      products_data_by_carrier(carrier, carrier_products, enrollments_count)
+    end.compact
+  end
+
+  def product_data(product)
+    {
+      product_id: product.id,
+      plan_name: product.title,
+      plan_type: capitalize_value(product.plan_types).join(', '),
+      pvp_areas: fetch_eligible_pvp_ras_for(product),
+      plan_id: product.hios_id,
+      metal_level_kind: product.metal_level.to_s.capitalize
+    }
+  end
+
+  def capitalize_value(symbols)
+    symbols.map { |s| s.to_s.length <= 3 ? s.to_s.upcase : s.to_s.capitalize }
+  end
+
+  def fetch_eligible_pvp_ras_for(product)
+    product.premium_value_products.select { |pvp| pvp.latest_active_pvp_eligibility_on.present? }
+           .map { |pvp| [pvp.rating_area.exchange_provided_code, pvp.rating_area.id] }.uniq.to_h
+  end
+
+  def eligible_pvps(product_ids)
+    BenefitMarkets::Products::PremiumValueProduct.where(
+      :product_id.in => product_ids,
+      :eligibilities => {:$elemMatch => {key: :cca_shop_pvp_eligibility, current_state: :eligible}}
+    )
+  end
+
   def uniq_terminate_params
     params.keys.map { |key| key.match(/terminate_hbx_.*/) || key.match(/termination_date_.*/) || key.match(/transmit_hbx_.*/) || key.match(/family_.*/) }.compact.map(&:to_s)
   end
@@ -789,11 +992,11 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   def benefit_application_error_messages(obj)
-    obj.errors.full_messages.collect { |error| "<li>#{error}</li>".html_safe }
+    obj.errors.full_messages.collect { |error| sanitize_html("<li>#{error}</li>") }
   end
 
   def new_ba_params
-    params.merge!({ admin_datatable_action: true }).permit(:benefit_sponsorship_id, :admin_datatable_action)
+    { benefit_sponsorship_id: sanitize_to_hex(params[:benefit_sponsorship_id]), admin_datatable_action: true }
   end
 
   def create_ba_params

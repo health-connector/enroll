@@ -96,7 +96,7 @@ module SponsoredBenefits
 
           it "returns a success response" do
             get :new, { plan_design_organization_id: prospect_plan_design_organization.id }, valid_session
-            expect(response).to be_success
+            expect(response).to be_successful
           end
         end
       end
@@ -112,7 +112,7 @@ module SponsoredBenefits
 
           it "returns a success response" do
             get :edit, { id: prospect_plan_design_organization.to_param }, valid_session
-            expect(response).to be_success
+            expect(response).to be_successful
           end
         end
       end

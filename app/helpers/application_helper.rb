@@ -839,4 +839,8 @@ module ApplicationHelper
   def benefit_application_external_link_enabled?
     add_external_links_enabled? && EnrollRegistry[:add_external_links].setting(:benefit_application_display).item
   end
+
+  def format_rating_area_codes(codes)
+    codes.map {|c| c.match(/(\d+)/)[1].to_i}.join(', ')
+  end
 end

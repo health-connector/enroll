@@ -3,7 +3,7 @@
 require "rails_helper"
 require './spec/shared_context/setup_shop_families_enrollments'
 
-describe HireAndAssignCurrentUserBrokerAgency, :dbclean => :after_each do
+describe HireAndAssignCurrentUserBrokerAgency, :dbclean => :around_each do
   include_context "setup shop families enrollments"
   let(:broker_agency_profile) { FactoryBot.create(:broker_agency_profile) }
   let(:broker_role) { FactoryBot.create(:broker_role, :aasm_state => 'active', broker_agency_profile: broker_agency_profile) }

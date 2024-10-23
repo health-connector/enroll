@@ -52,5 +52,10 @@ describe FetchShoppingProducts, :dbclean => :after_each do
       context = described_class.call(action: "continuous_show", shop_for: "health", hbx_enrollment: hbx_enrollment, coverage_kind: "health", enrolled_hbx_enrollment_plan_ids: [])
       expect(context.products.present?).to be_truthy
     end
+
+    it "should include pvp and standard in plan types" do
+      context = described_class.call(action: "continuous_show", shop_for: "health", hbx_enrollment: hbx_enrollment, coverage_kind: "health", enrolled_hbx_enrollment_plan_ids: [])
+      expect(context.plan_types).to include("premium_value_plan", "standard_plan")
+    end
   end
 end

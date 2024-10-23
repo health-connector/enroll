@@ -31,8 +31,8 @@ class BrokerRole
 
   field :market_kind, type: String
   field :languages_spoken, type: Array, default: ["en"]
-  field :working_hours, type: Boolean, default: false
-  field :accept_new_clients, type: Boolean
+  field :working_hours, type: Mongoid::Boolean, default: false
+  field :accept_new_clients, type: Mongoid::Boolean
 
   field :aasm_state, type: String
 

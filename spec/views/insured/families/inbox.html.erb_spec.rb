@@ -131,7 +131,7 @@ describe "insured/families/inbox.html.erb", dbclean: :after_each do
     end
 
     it "should display not the upload notices button" do
-      render template: "insured/families/inbox.html.erb"
+      render template: "insured/families/inbox"
       expect(rendered).to_not match(/upload notices/i)
     end
 

@@ -105,8 +105,8 @@ RSpec.describe Products::QhpController, :type => :controller, dbclean: :after_ea
   end
 
   before do
-    ::BenefitMarkets::Products::ProductRateCache.initialize_rate_cache!
-    ::BenefitMarkets::Products::ProductFactorCache.initialize_factor_cache!
+    BenefitMarkets::Products::ProductRateCache.initialize_rate_cache!
+    BenefitMarkets::Products::ProductFactorCache.initialize_factor_cache!
   end
 
   context "GET comparison", :dbclean => :around_each do
@@ -128,7 +128,13 @@ RSpec.describe Products::QhpController, :type => :controller, dbclean: :after_ea
   context "GET summary" do
 
     let(:qhp_cost_share_variance) do
-      double("QhpCostShareVariance", product: double("Product", medical_individual_deductible: 200, medical_family_deductible: 400, rx_individual_deductible: 100, rx_family_deductible: 300), :hios_plan_and_variant_id => "id")
+      double(
+        "QhpCostShareVariance", :hios_plan_and_variant_id => "id",
+                                product: double(
+                                  "Product", medical_individual_deductible: 200, medical_family_deductible: 400,
+                                             rx_individual_deductible: 100, rx_family_deductible: 300, is_pvp_in_rating_area: false
+                                )
+      )
     end
     let(:qhp_cost_share_variances) { [qhp_cost_share_variance] }
 
@@ -255,13 +261,13 @@ RSpec.describe Products::QhpController, :type => :controller, dbclean: :after_ea
 
         it "should return uniq plans when same plan" do
           get :comparison, params: {standard_component_ids: ["11111100001111-01", "11111100001111-01"], hbx_enrollment_id: hbx_enrollment.id, market_kind: 'individual'}
-          expect(response).to be_success
+          expect(response).to be_successful
           expect(assigns(:qhps).count).to eq 2
         end
 
         it "should return uniq plans when 2" do
           get :comparison, params: {standard_component_ids: ["11111100001111-01", "11111100001111-02"], hbx_enrollment_id: hbx_enrollment.id, market_kind: 'individual'}
-          expect(response).to be_success
+          expect(response).to be_successful
           expect(assigns(:qhps).count).to eq 2
         end
       end

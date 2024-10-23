@@ -631,7 +631,7 @@ Then(/^employer should see continue button disabled$/) do
 end
 
 And(/^employer filled all the fields on benefit application form$/) do
-  find(:xpath, "//p[@class='label'][contains(., 'SELECT START ON')]", :wait => 3).click
+  find(:xpath, "//p[@class='label'][contains(., 'SELECT START ON')]", :wait => 10).click
   if TimeKeeper.date_of_record.day > 5 && TimeKeeper.date_of_record.day < 16
     find('.selectric-scroll ul li:nth-child(3)', wait: 3).click
   else

@@ -27,7 +27,7 @@ class BenefitGroup
   field :terminate_on_kind, type: String, default: "end_of_month"
   field :dental_plan_option_kind, type: String
   field :plan_option_kind, type: String
-  field :default, type: Boolean, default: false
+  field :default, type: Mongoid::Boolean, default: false
 
   field :contribution_pct_as_int, type: Integer, default: 0
   field :employee_max_amt, type: Money, default: 0
@@ -53,10 +53,10 @@ class BenefitGroup
 
   # Array of plan_ids
   field :elected_plan_ids, type: Array, default: []
-  field :is_congress, type: Boolean, default: false
+  field :is_congress, type: Mongoid::Boolean, default: false
   field :_type, type: String, default: self.name
 
-  field :is_active, type: Boolean, default: true
+  field :is_active, type: Mongoid::Boolean, default: true
 
   default_scope ->{ where(is_active: true) }
 
