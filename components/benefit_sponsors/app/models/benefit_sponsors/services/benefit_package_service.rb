@@ -275,12 +275,16 @@ module BenefitSponsors
       end
 
       def reference_product_attributes_to_form_params(reference_product)
+        rating_area_code = benefit_application.recorded_rating_area.exchange_provided_code
+
         Forms::Product.new({
           title: reference_product.title,
           issuer_name: reference_product.issuer_profile.legal_name,
           plan_kind: reference_product.health_plan_kind,
           metal_level_kind: reference_product.metal_level,
           network_information: reference_product.network_information,
+          is_standard_plan: reference_product.is_standard_plan,
+          is_pvp_eligible: reference_product.is_pvp_in_rating_area(rating_area_code, benefit_application.start_on)
         })
       end
 

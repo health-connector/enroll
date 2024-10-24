@@ -8,7 +8,7 @@ module BenefitMarkets
     module ContributionUnits
       class Create
         # include Dry::Monads::Do.for(:call)
-        include Dry::Monads[:result, :do]
+        include Dry::Monads[:do, :result]
 
         # @param [ contribution_unit_params ] params Contribution Unit attributes
         # @param [ sponsor_contribution_kind ] Type of sponsor contribution - fixed percent, fixed dollar, percent with cap

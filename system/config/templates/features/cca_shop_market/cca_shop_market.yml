@@ -12,3 +12,20 @@ registry:
         is_enabled: <%= ENV['BENEFIT_APPLICATION_HISTORY'] || true %>
       - key: :restrict_benefit_application_admin_actions_24_hours
         is_enabled: <%= ENV['RESTRICT_APPLICATION_ADMIN_ACTIONS_24_HOURS'] || true %>
+      - key: :premium_value_products
+        is_enabled: <%= ENV['PREMIUM_VALUE_PRODUCTS_IS_ENABLED'] || true %>
+      - key: :product_type_values
+        is_enabled: true
+        settings:
+          - key: :hmo
+            item: 'HMO'
+          - key: :ppo
+            item: 'PPO'
+          - key: :epo
+            item: 'EPO'
+          - key: :pos
+            item: 'POS'
+          - key: :pvp
+            item: 'PVP'
+          - key: :standard
+            item: 'Standard'
