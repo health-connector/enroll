@@ -154,6 +154,10 @@ jobs:
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
+      - name: Add packages link
+        run: |
+          echo 'New image can be found on GHCR here: https://github.com/health-connector/enroll/pkgs/container/enroll' >> $GITHUB_STEP_SUMMARY
+
       # scan either the pushed image (for non-pr) or the local-only image (for pr)
       - name: Scan Docker image
         uses: anchore/scan-action@v5
