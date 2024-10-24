@@ -4,15 +4,13 @@ on:
   workflow_dispatch:
   push:
     branches:
-      #      - 'master'
-      - 'rail_6_with_pvp' #TEMP
-      - 'pv188414567_add_gha_workflow' #TEMP
+      - master
+      - pv188414567_add_gha_workflow #temp
   pull_request:
-#    branches:
-#      #      - 'master'
-#      - 'rail_6_with_pvp' #TEMP
-#      - rc-release-5.8.16 #TEMP
-#      - pv188414342-add-dockerfile #TEMP
+    branches:
+      - master
+      - rc-release-5.8.16 #TEMP
+      - pv188414342-add-dockerfile #TEMP
 
 concurrency:
   group: docker-${{ github.ref }}
