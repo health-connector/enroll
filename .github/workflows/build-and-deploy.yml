@@ -129,7 +129,7 @@ jobs:
           target: deploy
           # needed to access mongo and rabbit on GHA machine at build time
           network: host
-          # send to public registry if not a pull request
+          # send to container registry if not a pull request (e.g., merge to master or forced run)
           push: ${{ github.event_name != 'pull_request' }}
           # create local image (for scanning) if it is a pull request
           load: ${{ github.event_name == 'pull_request' }}
@@ -154,8 +154,8 @@ jobs:
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
+      # scan either the pushed image (for non-pr) or the local-only image (for pr)
       - name: Scan Docker image
-        if: github.event_name != 'pull_request'
         uses: anchore/scan-action@v5
         with:
           image: ${{ format('{0}/{1}-{2}', needs.prep.outputs.registryGhcr, needs.prep.outputs.taggedImage, 'cca') }}
