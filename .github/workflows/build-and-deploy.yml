@@ -142,6 +142,9 @@ jobs:
           # More: https://github.com/moby/buildkit?tab=readme-ov-file#local-directory-1
           # And: https://github.com/docker/buildx/blob/master/docs/reference/buildx_build.md#-export-build-cache-to-an-external-cache-destination---cache-to
           cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new
+          # Bump provenance as needed, but keep it minimal until then to minimize risk of leaking secure info
+          # https://docs.docker.com/build/ci/github-actions/attestations/#default-provenance
+          provenance: mode=min
           build-args: |
             HOSTNAME=172.17.0.1
 
