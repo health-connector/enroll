@@ -398,7 +398,7 @@ module ApplicationHelper
   end
 
   def get_header_text(controller_name)
-      portal_display_name(controller_name)
+    portal_display_name(controller_name)
   end
 
   def can_register_new_account
