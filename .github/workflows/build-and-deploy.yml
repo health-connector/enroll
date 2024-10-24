@@ -102,7 +102,6 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/.buildx-cache
-          # Key is named differently to avoid collision
           key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-buildx
@@ -144,7 +143,7 @@ jobs:
           cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new
           # Bump provenance as needed, but keep it minimal until then to minimize risk of leaking secure info
           # https://docs.docker.com/build/ci/github-actions/attestations/#default-provenance
-          provenance: mode=min
+          provenance: ${{ github.event_name != 'pull_request' && 'mode=min' }}
           build-args: |
             HOSTNAME=172.17.0.1
 
