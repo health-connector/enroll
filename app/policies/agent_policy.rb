@@ -26,6 +26,10 @@ class AgentPolicy < ApplicationPolicy
     agent?
   end
 
+  def resume_enrollment?
+    agent?
+  end
+
   private
 
   # Checks if the current user has any agent-related role.
