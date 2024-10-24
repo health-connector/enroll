@@ -161,8 +161,14 @@ jobs:
 
       # scan either the pushed image (for non-pr) or the local-only image (for pr)
       - name: Scan Docker image
+        id: scan
         uses: anchore/scan-action@v5
         with:
           image: ${{ format('{0}/{1}-{2}', needs.prep.outputs.registryGhcr, needs.prep.outputs.taggedImage, 'cca') }}
           fail-build: false
           severity-cutoff: critical
+
+      - name: upload Anchore scan SARIF report
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: ${{ steps.scan.outputs.sarif }}
