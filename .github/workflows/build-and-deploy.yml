@@ -1,0 +1,174 @@
+name: Build Image and Deploy to Container Registries
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+      - pv188414567_add_gha_workflow #temp
+  pull_request:
+    branches:
+      - master
+      - rc-release-5.8.16 #TEMP
+      - pv188414342-add-dockerfile #TEMP
+
+concurrency:
+  group: docker-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  prep:
+    if: >-
+      github.repository_owner == 'health-connector' && 
+        (github.event_name == 'push' || 
+        github.event_name == 'workflow_dispatch' || 
+        github.event.pull_request.head.repo.owner.login == 'health-connector')
+    runs-on: ubuntu-latest
+    outputs:
+      taggedImage: ${{ steps.prep.outputs.tagged_image }}
+      shortSha: ${{ steps.prep.outputs.short_sha}}
+      branchName: ${{ steps.prep.outputs.branch_name }}
+      repositoryName: ${{ steps.prep.outputs.repository_name }}
+      latestTag: ${{ steps.prep.outputs.latest_tag }}
+      registryGhcr: ${{ steps.prep.outputs.registry_ghcr }}
+    steps:
+      - name: Prepare info
+        id: prep
+        # for BRANCH_NAME, PR will use head_ref (source branch), push will fallback to ref_name (current branch)
+        run: |   
+          BRANCH_NAME=${{ github.head_ref || github.ref_name }}
+          SHORT_SHA=$(echo $GITHUB_SHA | head -c7)
+          REPO=$(echo '${{ github.repository }}' | awk -F '/' '{print $2}')
+          TAGSAFE_BRANCH_NAME=$(echo $BRANCH_NAME | sed -e 's/[^a-zA-Z0-9_.]/-/g' -e 's/^[-.]//g')
+          IMAGE_TAG=$TAGSAFE_BRANCH_NAME-$SHORT_SHA
+          IMAGE=health-connector/$REPO
+          echo "tagged_image=${IMAGE}:${IMAGE_TAG}" >> $GITHUB_OUTPUT
+          echo "short_sha=$SHORT_SHA" >> $GITHUB_OUTPUT
+          echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
+          echo "repository_name=$REPO" >> $GITHUB_OUTPUT
+          echo "latest_tag=${IMAGE}:latest" >> $GITHUB_OUTPUT
+          echo "registry_ghcr=ghcr.io" >> $GITHUB_OUTPUT
+
+  # Uses buildx to build and push the image
+  build-and-upload-image:
+    if: >-
+      github.repository_owner == 'health-connector' && 
+        (github.event_name == 'push' || 
+        github.event_name == 'workflow_dispatch' || 
+        github.event.pull_request.head.repo.owner.login == 'health-connector')
+    needs: [prep]
+    runs-on: ubuntu-latest
+    services:
+      rabbitmq:
+        image: rabbitmq:latest
+        ports:
+          - 5672:5672
+          - 15672:15672
+        options: >-
+          --name "rabbitmq"
+          --health-cmd "rabbitmqctl node_health_check"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        env:
+          RABBITMQ_DEFAULT_USER: 'guest'
+          RABBITMQ_DEFAULT_PASS: 'guest'
+      mongo:
+        image: mongo:5.0
+        ports:
+          - 27017:27017
+        options: >-
+          --name "mongo"
+          --health-cmd mongo
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Add git HEAD info to docker image
+        run: |
+          git show --quiet HEAD > release.txt
+          git show --quiet HEAD > public/release.txt
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          install: true
+          version: v0.17.1
+
+      # Cache layers specific to current sha, but allow rummaging through older caches if none for current
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx
+
+      # Add vhosts to RabbitMQ
+      - run: |
+          docker exec rabbitmq rabbitmqctl add_vhost /
+          docker exec rabbitmq rabbitmqctl add_vhost event_source
+          docker exec rabbitmq rabbitmqctl set_permissions -p event_source guest ".*" ".*" ".*"
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ needs.prep.outputs.registryGhcr }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push Image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          builder: ${{ steps.buildx.outputs.name }}
+          file: .docker/Dockerfile.gha
+          # Set the desired build target stage here
+          target: deploy
+          # needed to access mongo and rabbit on GHA machine at build time
+          network: host
+          # send to container registry if not a pull request (e.g., merge to master or forced run)
+          push: ${{ github.event_name != 'pull_request' }}
+          # create local image (for scanning) if it is a pull request
+          load: ${{ github.event_name == 'pull_request' }}
+          tags: |
+            ${{ format('{0}/{1}-{2}', needs.prep.outputs.registryGhcr, needs.prep.outputs.taggedImage, 'cca') }}
+            ${{ format('{0}/{1}-{2}', needs.prep.outputs.registryGhcr, needs.prep.outputs.latestTag, 'cca') }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          # Note the mode=max here, for caching intermediates in multi-stage build
+          # More: https://github.com/moby/buildkit?tab=readme-ov-file#local-directory-1
+          # And: https://github.com/docker/buildx/blob/master/docs/reference/buildx_build.md#-export-build-cache-to-an-external-cache-destination---cache-to
+          cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new
+          # Bump provenance as needed, but keep it minimal until then to minimize risk of leaking secure info
+          # https://docs.docker.com/build/ci/github-actions/attestations/#default-provenance
+          provenance: ${{ github.event_name != 'pull_request' && 'mode=min' }}
+          build-args: |
+            HOSTNAME=172.17.0.1
+
+      # See https://docs.docker.com/build/ci/github-actions/cache/#local-cache OR https://github.com/moby/buildkit/issues/1896
+      # need for this two-step w/r/t cache-to above and cache movement here.
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+      - name: Add packages link
+        if: ${{ github.event_name != 'pull_request' }}
+        run: |
+          echo 'New images can be found on GHCR <a href="https://github.com/health-connector/enroll/pkgs/container/enroll" target="_blank">here</a>.' >> $GITHUB_STEP_SUMMARY
+
+      # scan either the pushed image (for non-pr) or the local-only image (for pr)
+      - name: Scan Docker image
+        id: scan
+        uses: anchore/scan-action@v5
+        with:
+          image: ${{ format('{0}/{1}-{2}', needs.prep.outputs.registryGhcr, needs.prep.outputs.taggedImage, 'cca') }}
+          fail-build: false
+          severity-cutoff: critical
+
+      - name: upload Anchore scan SARIF report
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: ${{ steps.scan.outputs.sarif }}

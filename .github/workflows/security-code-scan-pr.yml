@@ -2,6 +2,8 @@ name: Security Checks (pr)
 on:
   workflow_dispatch:
   push:
+    branches:
+      - DISABLEMETEMP
   schedule:
     - cron: '0 5 * * *'
 
