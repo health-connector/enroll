@@ -155,8 +155,9 @@ jobs:
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
       - name: Add packages link
+        if: ${{ github.event_name != 'pull_request' }}
         run: |
-          echo 'New image can be found on GHCR here: https://github.com/health-connector/enroll/pkgs/container/enroll' >> $GITHUB_STEP_SUMMARY
+          echo 'New images can be found on GHCR <a href="https://github.com/health-connector/enroll/pkgs/container/enroll" target="_blank">here</a>.' >> $GITHUB_STEP_SUMMARY
 
       # scan either the pushed image (for non-pr) or the local-only image (for pr)
       - name: Scan Docker image
