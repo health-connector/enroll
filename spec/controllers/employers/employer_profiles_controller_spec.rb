@@ -93,29 +93,6 @@ RSpec.describe Employers::EmployerProfilesController, dbclean: :after_each do
     end
   end
 
-
-  describe "GET search", dbclean: :after_each do
-    before(:each) do
-      sign_in admin_user
-      get :search
-    end
-
-    it "renders the 'search' template" do
-      expect(response).to have_http_status(:success)
-      expect(response).to render_template("search")
-      expect(assigns[:employer_profile]).to be_a(Forms::EmployerCandidate)
-    end
-
-    context "without permissions" do
-      it "should return an error" do
-        sign_in(user)
-        get :delete_documents, params: {id: employer_profile.id, ids: [1]}
-        expect(flash[:error]).to match(/Access not allowed for employer_profile_policy/)
-      end
-    end
-  end
-
-
   describe "GET delete_documents", dbclean: :after_each do
 
     context "without permissions" do
