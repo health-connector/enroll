@@ -17,7 +17,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  PUSH_IMAGE: ${{ github.event_name != 'pull_request' }}
+  CLIENT: cca
 
 jobs:
   prep:
@@ -90,6 +90,11 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+    env:
+      PUSH_IMAGE: ${{ github.event_name != 'pull_request' }}
+    outputs:
+      didPush: ${{ steps.job_results.outputs.did_push == 'true' }}
+
     steps:
       - uses: actions/checkout@v4
 
@@ -142,8 +147,8 @@ jobs:
           # create local image (for scanning) if it is a pull request
           load: ${{ env.PUSH_IMAGE == 'false' }}
           tags: |
-            ${{ format('{0}/{1}-{2}', needs.prep.outputs.registryGhcr, needs.prep.outputs.taggedImage, 'cca') }}
-            ${{ format('{0}/{1}-{2}', needs.prep.outputs.registryGhcr, needs.prep.outputs.latestTag, 'cca') }}
+            ${{ format('{0}/{1}-{2}', needs.prep.outputs.registryGhcr, needs.prep.outputs.taggedImage, env.CLIENT) }}
+            ${{ format('{0}/{1}-{2}', needs.prep.outputs.registryGhcr, needs.prep.outputs.latestTag, env.CLIENT) }}
           cache-from: type=local,src=/tmp/.buildx-cache
           # Note the mode=max here, for caching intermediates in multi-stage build
           # More: https://github.com/moby/buildkit?tab=readme-ov-file#local-directory-1
@@ -176,7 +181,7 @@ jobs:
         id: scan
         uses: anchore/scan-action@v5
         with:
-          image: ${{ format('{0}/{1}-{2}', needs.prep.outputs.registryGhcr, needs.prep.outputs.taggedImage, 'cca') }}
+          image: ${{ format('{0}/{1}-{2}', needs.prep.outputs.registryGhcr, needs.prep.outputs.taggedImage, env.CLIENT) }}
           fail-build: false
           severity-cutoff: critical
 
@@ -185,9 +190,16 @@ jobs:
         with:
           sarif_file: ${{ steps.scan.outputs.sarif }}
 
+      # Even workflow-level env vars are not available to if conditions on jobs (like the slack jobs that follow). So,
+      # pass results on this way. didPush is true if we intended to push and the job didn't die from failure before this.
+      - name: Set job results outputs
+        id: job_results
+        run: |
+          echo "did_push=${{ env.PUSH_IMAGE == 'true' }}" >> $GITHUB_OUTPUT      
+
 #  # notify that a new build is available in registry, with source ref
 #  new-image-notification:
-#    if: github.repository_owner == 'health-connector' && env.PUSH_IMAGE == 'true'
+#    if: ${{ github.repository_owner == 'health-connector' && needs.build-and-upload-image.outputs.didPush }}
 #    needs: [prep, build-and-upload-image]
 #    runs-on: ubuntu-latest
 #    steps:
@@ -211,15 +223,17 @@ jobs:
 #          SLACK_BOT_TOKEN: ${{ secrets.CCA_DEPLOY_SLACK_BOT_TOKEN }}
 #
 #  # notify of registry locations of images
-#  notify-slack:
-#    if: github.repository_owner == 'health-connector' && env.PUSH_IMAGE == 'true'
+#  image-location-notification:
+#    if: ${{ github.repository_owner == 'health-connector' && needs.build-and-upload-image.outputs.didPush }}
 #    needs: [ new-image-notification, prep, build-and-upload-image ]
 #    runs-on: ubuntu-latest
 #    steps:
-#      - run: |
-#          CLIENT=cca
+#      - name: Setup variables
+#        run: |
+#          TAGGED_IMAGE_LOC="${{ format('{0}/{1}-{2}', needs.prep.outputs.registryGhcr, needs.prep.outputs.taggedImage, env.CLIENT) }}"
 #          echo "CLIENT_DISPLAY=$(echo $CLIENT | tr '[:lower:]' '[:upper:]')" >> $GITHUB_ENV
-#          echo "CLIENT=$CLIENT" >> $GITHUB_ENV
+#          echo "TAGGED_IMAGE_LOC=$TAGGED_IMAGE_LOC" >> $GITHUB_ENV
+#
 #      - name: Post to appropriate client slack workspace
 #        uses: slackapi/slack-github-action@v1
 #        with:
@@ -231,11 +245,8 @@ jobs:
 #                  "type": "section",
 #                  "text": {
 #                    "type": "mrkdwn",
-#                    "text": "*${{ format('{0} {1} image*:\n`{2}/{3}-{4}`', env.CLIENT_DISPLAY, needs.prep.outputs.registryGhcr, needs.prep.outputs.registryGhcr, needs.prep.outputs.taggedImage, env.CLIENT) }}"
+#                    "text": "*${{ format('{0} {1} image*:\n`{2}`', env.CLIENT_DISPLAY, needs.prep.outputs.registryGhcr, env.TAGGED_IMAGE_LOC) }}"
 #                  }
-#                },
-#                {
-#                  "type": "divider"
 #                }
 #              ]
 #            }
