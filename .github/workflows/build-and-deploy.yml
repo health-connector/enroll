@@ -166,7 +166,7 @@ jobs:
           fi
 
       # scan either the pushed image (for non-pr) or the local-only image (for pr)
-      - name: Scan Docker image
+      - name: Scan Docker image for security issues
         id: scan
         uses: anchore/scan-action@v5
         with:
@@ -174,7 +174,7 @@ jobs:
           fail-build: false
           severity-cutoff: critical
 
-      - name: upload Anchore scan SARIF report
+      - name: Upload security scan SARIF report
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: ${{ steps.scan.outputs.sarif }}
