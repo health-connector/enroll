@@ -16,6 +16,9 @@ concurrency:
   group: docker-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  PUSH_IMAGE: ${{ github.event_name != 'pull_request' }}
+
 jobs:
   prep:
     if: >-
@@ -130,9 +133,9 @@ jobs:
           # needed to access mongo and rabbit on GHA machine at build time
           network: host
           # send to container registry if not a pull request (e.g., merge to master or forced run)
-          push: ${{ github.event_name != 'pull_request' }}
+          push: ${{ env.PUSH_IMAGE == 'true' }}
           # create local image (for scanning) if it is a pull request
-          load: ${{ github.event_name == 'pull_request' }}
+          load: ${{ env.PUSH_IMAGE == 'false' }}
           tags: |
             ${{ format('{0}/{1}-{2}', needs.prep.outputs.registryGhcr, needs.prep.outputs.taggedImage, 'cca') }}
             ${{ format('{0}/{1}-{2}', needs.prep.outputs.registryGhcr, needs.prep.outputs.latestTag, 'cca') }}
@@ -155,7 +158,7 @@ jobs:
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
       - name: Add packages link
-        if: ${{ github.event_name != 'pull_request' }}
+        if: ${{ env.PUSH_IMAGE == 'true' }}
         run: |
           echo 'New images can be found on GHCR <a href="https://github.com/health-connector/enroll/pkgs/container/enroll" target="_blank">here</a>.' >> $GITHUB_STEP_SUMMARY
 
