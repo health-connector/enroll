@@ -171,7 +171,7 @@ jobs:
       - name: Add package push info to summary
         run: |
           if [[ ${{ env.PUSH_IMAGE }} == 'true' ]]; then
-            echo 'New images can be found on GHCR <a href="https://github.com/health-connector/enroll/pkgs/container/enroll" target="_blank">here</a>.' >> $GITHUB_STEP_SUMMARY
+            echo 'New images can be found on GHCR here: https://github.com/health-connector/enroll/pkgs/container/enroll.' >> $GITHUB_STEP_SUMMARY
           else
             echo 'Image build triggered as local-only - no image pushed to registry.' >> $GITHUB_STEP_SUMMARY
           fi
