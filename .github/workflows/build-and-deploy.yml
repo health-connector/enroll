@@ -157,10 +157,13 @@ jobs:
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
-      - name: Add packages link
-        if: ${{ env.PUSH_IMAGE == 'true' }}
+      - name: Add package push info to summary
         run: |
-          echo 'New images can be found on GHCR <a href="https://github.com/health-connector/enroll/pkgs/container/enroll" target="_blank">here</a>.' >> $GITHUB_STEP_SUMMARY
+          if [[ ${{ env.PUSH_IMAGE }} == 'true' ]]; then
+            echo 'New images can be found on GHCR <a href="https://github.com/health-connector/enroll/pkgs/container/enroll" target="_blank">here</a>.' >> $GITHUB_STEP_SUMMARY
+          else
+            echo 'Image build triggered as local-only - no image pushed to registry.' >> $GITHUB_STEP_SUMMARY
+          fi
 
       # scan either the pushed image (for non-pr) or the local-only image (for pr)
       - name: Scan Docker image
