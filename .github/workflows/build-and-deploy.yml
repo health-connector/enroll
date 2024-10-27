@@ -158,8 +158,9 @@ jobs:
           # https://docs.docker.com/build/ci/github-actions/attestations/#default-provenance
           # Note only supported for image push, not load
           provenance: ${{ env.PUSH_IMAGE == 'true' && 'mode=min' }}
-          # multiplatform is not supported for local docker load, only push.
-          platforms: ${{ env.PUSH_IMAGE == 'true' && 'linux/amd64,linux/arm64' }}
+          # Multiplatform is not supported for local docker load, only image push. When this key is specified, must have
+          # usable non-boolean value, so we use amd.
+          platforms: ${{ (env.PUSH_IMAGE == 'true' && 'linux/amd64,linux/arm64') || 'linux/amd64' }}
           build-args: |
             HOSTNAME=172.17.0.1
 
