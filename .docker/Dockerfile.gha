@@ -34,6 +34,7 @@ RUN apt-get update \
       vim \
       zip \
       file \
+      libjemalloc2 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
     && truncate -s 0 /var/log/*log
@@ -206,4 +207,6 @@ COPY --chown=nonroot:nonroot --from=prod_gems_and_assets $HOME/public $HOME/publ
 COPY --chown=nonroot:nonroot --from=prod_gems_and_assets $HOME/tmp/cache/bootsnap $HOME/tmp/cache/bootsnap
 
 USER nonroot
+
+ENTRYPOINT ["bin/docker-entrypoint"]
 
