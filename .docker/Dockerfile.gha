@@ -166,6 +166,9 @@ ARG HOSTNAME=localhost
 ENV ENROLL_DB_HOST=${HOSTNAME}
 ENV RABBITMQ_URL=amqp://${HOSTNAME}:5672
 
+# Precompile bootsnap code for faster boot times
+RUN bundle exec bootsnap precompile --gemfile app/ lib/
+
 # Asset precompilation requires many seemingly un-asset-related configurations, as it starts a rails process (e.g., an
 # available mongo, symmetric key config, an available rabbit, etc. This may explains some preceding dependencies/steps.)
 # Note: Non-empty value for SECRET_KEY_BASE needed for build. But this value is set anew to actual secure value at
@@ -198,6 +201,9 @@ COPY --chown=nonroot:nonroot . $HOME
 
 # Copy prebuilt assets
 COPY --chown=nonroot:nonroot --from=prod_gems_and_assets $HOME/public $HOME/public
+
+# Copy bootsnap compiled cache
+COPY --chown=nonroot:nonroot --from=prod_gems_and_assets $HOME/tmp/cache/bootsnap $HOME/tmp/cache/bootsnap
 
 USER nonroot
 
