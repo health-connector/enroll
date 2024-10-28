@@ -234,6 +234,10 @@ class HbxProfilePolicy < ApplicationPolicy
     staff_view_login_history?
   end
 
+  def can_mark_pvp_eligibilities?
+    user_hbx_staff_role&.permission&.can_update_pvp_eligibilities?
+  end
+
   private
 
   def user_hbx_staff_role

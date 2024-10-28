@@ -10,6 +10,8 @@ module BenefitSponsors
       attribute :plan_kind, String
       attribute :metal_level_kind, String
       attribute :network_information, String
+      attribute :is_pvp_eligible, Boolean
+      attribute :is_standard_plan, Boolean
 
     end
   end
