@@ -12,7 +12,7 @@ module Config::AcaConcern
   end
 
   def individual_market_is_enabled?
-    return if Settings.aca.market_kinds.include? 'individual'
+    return false if Settings.aca.market_kinds.include? 'individual'
 
     flash[:error] = "This Exchange does not support an individual marketplace"
     redirect_to root_path
