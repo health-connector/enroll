@@ -65,6 +65,12 @@ jobs:
         github.event.pull_request.head.repo.owner.login == 'health-connector')
     needs: [prep]
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - linux/amd64
+          - linux/arm64
     services:
       rabbitmq:
         image: rabbitmq:latest
@@ -160,7 +166,7 @@ jobs:
           provenance: ${{ env.PUSH_IMAGE == 'true' && 'mode=min' }}
           # Multiplatform is not supported for local docker load, only image push. When this key is specified, must have
           # usable non-boolean value, so we use amd when not pushing image.
-          platforms: ${{ (env.PUSH_IMAGE == 'true' && 'linux/amd64,linux/arm64') || 'linux/amd64' }}
+          platforms: ${{ matrix.platform }}
           build-args: |
             HOSTNAME=172.17.0.1
 
