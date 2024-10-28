@@ -65,12 +65,6 @@ jobs:
         github.event.pull_request.head.repo.owner.login == 'health-connector')
     needs: [prep]
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        platform:
-          - linux/amd64
-          - linux/arm64
     services:
       rabbitmq:
         image: rabbitmq:latest
@@ -120,9 +114,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ matrix.platform }}-${{ github.sha }}
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-buildx-${{ matrix.platform }}
+            ${{ runner.os }}-buildx
 
       # Add vhosts to RabbitMQ
       - run: |
@@ -164,9 +158,6 @@ jobs:
           # https://docs.docker.com/build/ci/github-actions/attestations/#default-provenance
           # Note only supported for image push, not load
           provenance: ${{ env.PUSH_IMAGE == 'true' && 'mode=min' }}
-          # Multiplatform is not supported for local docker load, only image push. When this key is specified, must have
-          # usable non-boolean value, so we use amd when not pushing image.
-          platforms: ${{ matrix.platform }}
           build-args: |
             HOSTNAME=172.17.0.1
 
