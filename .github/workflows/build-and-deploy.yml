@@ -159,7 +159,7 @@ jobs:
           # Note only supported for image push, not load
           provenance: ${{ env.PUSH_IMAGE == 'true' && 'mode=min' }}
           # Multiplatform is not supported for local docker load, only image push. When this key is specified, must have
-          # usable non-boolean value, so we use amd.
+          # usable non-boolean value, so we use amd when not pushing image.
           platforms: ${{ (env.PUSH_IMAGE == 'true' && 'linux/amd64,linux/arm64') || 'linux/amd64' }}
           build-args: |
             HOSTNAME=172.17.0.1
@@ -187,6 +187,7 @@ jobs:
           image: ${{ format('{0}/{1}-{2}', needs.prep.outputs.registryGhcr, needs.prep.outputs.taggedImage, env.CLIENT) }}
           fail-build: false
           severity-cutoff: critical
+          cache-db: true
 
       - name: Upload security scan SARIF report
         uses: github/codeql-action/upload-sarif@v3
