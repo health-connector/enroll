@@ -13,7 +13,7 @@ module SponsoredBenefits
       end
 
       private
-      helper_method :selected_carrier_level, :plan_design_organization, :active_year, :kind, :quote_effective_date
+      helper_method :selected_carrier_level, :plan_design_organization, :active_year, :kind, :quote_effective_date, :plan_design_proposal
 
       def selected_carrier_level
         @selected_carrier_level ||= params[:selected_carrier_level]
@@ -21,6 +21,10 @@ module SponsoredBenefits
 
       def plan_design_organization
         @plan_design_organization ||= PlanDesignOrganization.find(params[:plan_design_organization_id])
+      end
+
+      def plan_design_proposal
+        @plan_design_proposal ||= SponsoredBenefits::Organizations::PlanDesignProposal.find(params[:plan_design_proposal_id])
       end
 
       def active_year

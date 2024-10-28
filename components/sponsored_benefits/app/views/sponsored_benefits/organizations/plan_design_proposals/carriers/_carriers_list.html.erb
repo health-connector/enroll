@@ -1,58 +1,57 @@
 <% if selected_carrier_level == 'sole_source' %>
   <% carrier_names.each_pair do |ck, cv| %>
-  <div class="col-xs-4 carriers">
-    <div class="col-xs-3">
-      <%= radio_button_tag "sole_source", "#{ck}", false,  :onclick => "$('#sole_source_#{ck}_link').click()" %>
-    </div>
-    <%= link_to organizations_plan_design_organization_plans_path(plan_design_organization,
-    carrier_id: "#{ck}",
-    selected_carrier_level: selected_carrier_level,
-    quote_effective_date: quote_effective_date,
-    active_year: active_year), remote: true, :id => "sole_source_#{ck}_link" do %><% end %>
-    <div class="col-xs-9">
+    <div class="col-xs-4 carriers">
+      <div class="col-xs-3">
+        <%= radio_button_tag "sole_source", "#{ck}", false,  :onclick => "$('#sole_source_#{ck}_link').click()" %>
+      </div>
+      <%= link_to organizations_plan_design_organization_plans_path(plan_design_organization,
+      carrier_id: "#{ck}",
+      selected_carrier_level: selected_carrier_level,
+      quote_effective_date: quote_effective_date,
+      active_year: active_year,
+      plan_design_proposal_id: plan_design_proposal.id), remote: true, :id => "sole_source_#{ck}_link" do %><% end %>
+      <div class="col-xs-9">
         <label for="sole_source_<%= ck %>"><h3 class="pdp-titles-class"><%= cv %></h3></label>
+      </div>
     </div>
-
-  </div>
   <% end %>
 <% elsif selected_carrier_level == 'single_carrier'  %>
   <% carrier_names.each_pair do |ck, cv| %>
-  <div class="col-xs-4 carriers">
+    <div class="col-xs-4 carriers">
+      <div class="col-xs-3">
+        <%= radio_button_tag "single_carrier", "#{ck}", false, :onclick => "$('#single_carrier_#{ck}_link').click()" %>
+      </div>
 
-    <div class="col-xs-3">
-      <%= radio_button_tag "single_carrier", "#{ck}", false, :onclick => "$('#single_carrier_#{ck}_link').click()" %>
-    </div>
-
-    <%= link_to organizations_plan_design_organization_plans_path(plan_design_organization,
-    carrier_id: "#{ck}",
-    selected_carrier_level: selected_carrier_level,
-    quote_effective_date: quote_effective_date,
-    active_year: active_year), remote: true, :id => "single_carrier_#{ck}_link" do %><% end %>
-    <div class="col-xs-9">
+      <%= link_to organizations_plan_design_organization_plans_path(plan_design_organization,
+      carrier_id: "#{ck}",
+      selected_carrier_level: selected_carrier_level,
+      quote_effective_date: quote_effective_date,
+      active_year: active_year,
+      plan_design_proposal_id: plan_design_proposal.id), remote: true, :id => "single_carrier_#{ck}_link" do %><% end %>
+      <div class="col-xs-9">
         <label for="single_carrier_<%= ck %>"><h3 class="pdp-titles-class"><%= cv %></h3></label>
+      </div>
     </div>
-
-
-  </div>
-<% end %>
+  <% end %>
 <% elsif selected_carrier_level == 'single_plan'  %>
   <% carrier_names.each_pair do |ck, cv| %>
-  <div class="col-xs-4 carriers">
-    <div class="col-xs-3">
-      <%= radio_button_tag "single_plan", "#{ck}", false, :onclick => "$('#single_plan_#{ck}_link').click()" %>
-    </div>
+    <div class="col-xs-4 carriers">
+      <div class="col-xs-3">
+        <%= radio_button_tag "single_plan", "#{ck}", false, :onclick => "$('#single_plan_#{ck}_link').click()" %>
+      </div>
 
-    <%= link_to organizations_plan_design_organization_plans_path(plan_design_organization,
-    carrier_id: "#{ck}",
-    selected_carrier_level: selected_carrier_level,
-    quote_effective_date: quote_effective_date,
-    kind: kind,
-    active_year: active_year), remote: true, :id => "single_plan_#{ck}_link" do %><% end %>
-    <div class="col-xs-9">
+      <%= link_to organizations_plan_design_organization_plans_path(plan_design_organization,
+      carrier_id: "#{ck}",
+      selected_carrier_level: selected_carrier_level,
+      quote_effective_date: quote_effective_date,
+      kind: kind,
+      active_year: active_year,
+      plan_design_proposal_id: plan_design_proposal.id), remote: true, :id => "single_plan_#{ck}_link" do %><% end %>
+      <div class="col-xs-9">
         <label for="single_plan_<%= ck %>"><h3 class="pdp-titles-class"><%= cv %></h3></label>
+      </div>
     </div>
-  </div>
-<% end %>
+  <% end %>
 <% else %>
   <% metal_levels = ::Plan::REFERENCE_PLAN_METAL_LEVELS %>
   <% if check_plan_options_title %>
@@ -66,16 +65,16 @@
         <%= radio_button_tag :metal_level_for_elected_plan, kind, false, :onclick => "$('##{kind}_link').click()" %>
       </div>
 
-        <%= link_to organizations_plan_design_organization_plans_path(plan_design_organization,
-          selected_carrier_level: 'metal_level',
-          metal_level: kind,
-          quote_effective_date: quote_effective_date,
-          active_year: active_year), remote: true, :id => "#{kind}_link" do %><% end %>
+      <%= link_to organizations_plan_design_organization_plans_path(plan_design_organization,
+        selected_carrier_level: 'metal_level',
+        metal_level: kind,
+        quote_effective_date: quote_effective_date,
+        active_year: active_year,
+        plan_design_proposal_id: plan_design_proposal.id), remote: true, :id => "#{kind}_link" do %><% end %>
 
-            <div class="col-xs-9">
-               <label for="metal_level_for_elected_plan_<%= kind %>"><h3 class="pdp-titles-class"><%= kind.titleize %></h3></label>
-            </div>
-
+      <div class="col-xs-9">
+         <label for="metal_level_for_elected_plan_<%= kind %>"><h3 class="pdp-titles-class"><%= kind.titleize %></h3></label>
+      </div>
     </div>
   <% end %>
 </form>

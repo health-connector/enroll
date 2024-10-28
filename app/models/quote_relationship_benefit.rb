@@ -6,7 +6,7 @@ class QuoteRelationshipBenefit
   field :relationship, type: String
   field :premium_pct, type: Float, default: 0.0
   field :employer_max_amt, type: Money
-  field :offered, type: Boolean, default: true
+  field :offered, type: Mongoid::Boolean, default: true
 
   validates_numericality_of :premium_pct, greater_than_or_equal_to: 0.0, less_than_or_equal_to: 100.0
 
