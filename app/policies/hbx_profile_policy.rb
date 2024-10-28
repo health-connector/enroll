@@ -9,15 +9,11 @@ class HbxProfilePolicy < ApplicationPolicy
   end
 
   def update_cancel_enrollment?
-    staff_can_cancel_enrollment?
+    can_update_ssn?
   end
 
   def update_terminate_enrollment?
-    staff_can_terminate_enrollment?
-  end
-
-  def configuration?
-    staff_view_the_configuration_tab?
+    can_update_ssn?
   end
 
   # Determines if the current user has permission to access the assister index.
@@ -36,6 +32,13 @@ class HbxProfilePolicy < ApplicationPolicy
     return true if active_associated_shop_market_general_agency?
 
     false
+  end
+
+  def can_update_ssn?
+    role = user_hbx_staff_role
+    return false unless role
+
+    role.permission.can_update_ssn
   end
 
   def view_admin_tabs?
@@ -147,7 +150,7 @@ class HbxProfilePolicy < ApplicationPolicy
   end
 
   def configuration?
-    index?
+    view_the_configuration_tab?
   end
 
   def new?

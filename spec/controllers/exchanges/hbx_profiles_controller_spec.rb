@@ -571,6 +571,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
 
       allow(permission).to receive(:name).and_return(permission.name)
       allow(permission).to receive(:modify_family).and_return(true)
+      allow(permission).to receive(:view_the_configuration_tab).and_return(true)
       sign_in(user)
       get :configuration
     end
