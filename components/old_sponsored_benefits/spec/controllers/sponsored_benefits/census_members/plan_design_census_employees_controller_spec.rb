@@ -67,14 +67,14 @@ module SponsoredBenefits
     describe "GET #index" do
       it "returns a success response" do
         get :index, { plan_design_proposal_id: plan_design_proposal.id }, valid_session
-        expect(response).to be_success
+        expect(response).to be_successful
       end
     end
 
     describe "GET #show" do
       it "returns a success response" do
         get :show, { plan_design_proposal_id: plan_design_proposal.id, :id => plan_design_census_employee.to_param }, valid_session
-        expect(response).to be_success
+        expect(response).to be_successful
       end
     end
 
@@ -82,7 +82,7 @@ module SponsoredBenefits
       it "returns a success response" do
         xhr :get, :new, plan_design_proposal_id: plan_design_proposal.id, format: :js
         expect(assigns(:census_employee)).to be_a(SponsoredBenefits::CensusMembers::PlanDesignCensusEmployee)
-        expect(response).to be_success
+        expect(response).to be_successful
         expect(response).to render_template('new')
       end
 
@@ -90,7 +90,7 @@ module SponsoredBenefits
         it "returns a success response" do
           xhr :get, :new, plan_design_proposal_id: plan_design_proposal.id, modal: "upload", format: :js
           expect(assigns(:census_employee)).to be_a(SponsoredBenefits::CensusMembers::PlanDesignCensusEmployee)
-          expect(response).to be_success
+          expect(response).to be_successful
           expect(response).to render_template('upload_employees')
         end
       end
@@ -101,7 +101,7 @@ module SponsoredBenefits
       it "returns a success response" do
         xhr :get, :edit, plan_design_proposal_id: plan_design_proposal.id, :id => plan_design_census_employee.to_param, format: :js
         expect(assigns(:census_employee)).to eq plan_design_census_employee
-        expect(response).to be_success
+        expect(response).to be_successful
         expect(response).to render_template('edit')
       end
     end
@@ -202,7 +202,7 @@ module SponsoredBenefits
             xhr :put, :update, plan_design_proposal_id: plan_design_proposal.id, :id => census_employee.to_param, :census_members_plan_design_census_employee => new_attributes.merge(census_dependents_attributes: census_dependents_attributes), format: :js
             census_employee.reload
             expect(census_employee.census_dependents.size).to eq 2
-            expect(response).to be_success
+            expect(response).to be_successful
             expect(response).to render_template('update')
           end
         end

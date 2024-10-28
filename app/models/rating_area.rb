@@ -5,7 +5,7 @@ class RatingArea
   field :zip_code, type: String
   field :county_name, type: String
   field :rating_area, type: String
-  field :zip_code_in_multiple_counties, type: Boolean, default: false
+  field :zip_code_in_multiple_counties, type: Mongoid::Boolean, default: false
   field :active_years, type: Array
 
   validates_presence_of :zip_code, :county_name, :rating_area, :zip_code_in_multiple_counties

@@ -22,8 +22,8 @@ class BrokerAgencyProfile
   field :default_general_agency_profile_id, type: BSON::ObjectId
 
   field :languages_spoken, type: Array, default: ["en"] # TODO
-  field :working_hours, type: Boolean, default: false
-  field :accept_new_clients, type: Boolean
+  field :working_hours, type: Mongoid::Boolean, default: false
+  field :accept_new_clients, type: Mongoid::Boolean
 
   field :aasm_state, type: String
   field :aasm_state_set_on, type: Date

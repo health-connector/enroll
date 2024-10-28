@@ -592,6 +592,7 @@ When(/^(.*) logs? out$/) do |_someone|
 end
 
 When(/^.+ go(?:es)? to register as an employee$/) do
+  sleep 1
   find('.interaction-click-control-continue').click
 end
 
@@ -758,8 +759,7 @@ And(/^.+ selects the first plan available$/) do
 end
 
 Then(/^.+ should see the dependents page$/) do
-  expect(page).to have_content('Add Member')
-  screenshot("dependents_page")
+  expect(page).to have_content('Add New Member')
 end
 
 When(/^.+ clicks? edit on baby Soren$/) do
@@ -818,7 +818,7 @@ When(/^.+ enters? the dependent info of Patrick wife$/) do
 end
 
 When(/^.+ clicks? confirm member$/) do
-  all(:css, ".mz").last.click
+  find('span[class="btn btn-primary btn-br pull-right mz"]').click
   expect(page).to have_link('Add New Member to Family')
 end
 
@@ -828,6 +828,7 @@ When(/^.+ clicks? continue on the dependents page$/) do
 end
 
 Then(/^.+ should see the group selection page$/) do
+  find('#group-selection-form', :wait => 10)
   expect(page).to have_css('form')
 end
 

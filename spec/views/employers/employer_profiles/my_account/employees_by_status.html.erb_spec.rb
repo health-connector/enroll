@@ -68,7 +68,7 @@ RSpec.describe "employers/employer_profiles/my_account/_employees_by_status.html
 
   context 'when employee has active coverage' do
     it "should displays enrollment state when coverage selected" do
-    #  assign(:census_employees, [census_employee1])
+      #  assign(:census_employees, [census_employee1])
       render "employers/employer_profiles/my_account/employees_by_status", :status => "all"
       expect(rendered).to match(/Enrolled/)
     end

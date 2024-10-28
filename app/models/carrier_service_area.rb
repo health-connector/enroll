@@ -14,8 +14,9 @@ class CarrierServiceArea
   field :partial_county_justification, type: String
   validates_presence_of :service_area_id, :service_area_name, :serves_entire_state, :issuer_hios_id
 
-  validates :county_name, :county_code, :state_code, :service_area_zipcode, presence: true,
-    unless: Proc.new { |a| a.serves_entire_state? }
+  validates :county_name, :county_code, :state_code, :service_area_zipcode,
+            presence: true,
+            unless: -> { serves_entire_state }
 
   scope :serving_entire_state, -> { where(serves_entire_state: true) }
   scope :for_issuer, -> (hios_ids) { where(issuer_hios_id: { "$in" => hios_ids }) }

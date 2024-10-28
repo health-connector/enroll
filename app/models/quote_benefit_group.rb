@@ -13,7 +13,7 @@ class QuoteBenefitGroup
   embedded_in :quote
 
   field :title, type: String
-  field :default, type: Boolean, default: false
+  field :default, type: Mongoid::Boolean, default: false
 
   field :plan_option_kind, type: String, default: "single_carrier"
   field :dental_plan_option_kind, type: String, default: "single_carrier"
