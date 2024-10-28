@@ -4,6 +4,8 @@ class User
   INTERACTIVE_IDENTITY_VERIFICATION_SUCCESS_CODE = "acc"
   MIN_USERNAME_LENGTH = 8
   MAX_USERNAME_LENGTH = 60
+  HEX_ESCAPE_REGEX = /\\x([0-9A-Fa-f]{2})/.freeze
+  EMAIL_REGEX = /\A[^@\s]+@(?>[^@\s]+\.)+[^@\s]+\z/.freeze
 
   include Mongoid::Document
   include Mongoid::Timestamps
@@ -19,6 +21,7 @@ class User
   validates_uniqueness_of :oim_id, :case_sensitive => false
   validate :oim_id_rules
   validates_uniqueness_of :email,:case_sensitive => false
+  validate :validate_email_format
 
   scope :datatable_search, lambda { |query|
     search_regex = ::Regexp.compile(/.*#{query}.*/i)
@@ -296,6 +299,13 @@ class User
   def strip_empty_fields
     unset("email") if email.blank?
     unset("oim_id") if oim_id.blank?
+  end
+
+  def validate_email_format
+    return unless email.present?
+
+    errors.add(:email, "is invalid") unless email.match?(EMAIL_REGEX)
+    errors.add(:email, "contains invalid characters") if email.match?(HEX_ESCAPE_REGEX)
   end
 
 end
