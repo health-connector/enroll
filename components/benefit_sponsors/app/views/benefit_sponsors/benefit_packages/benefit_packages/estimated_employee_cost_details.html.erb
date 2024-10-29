@@ -3,7 +3,7 @@
 <% plan_kind = reference_product._type == "BenefitMarkets::Products::HealthProducts::HealthProduct" ?
                  reference_product.health_plan_kind :  reference_product.dental_plan_kind %>
 
-<% products = @employee_costs.first[:products] %>
+<% products = @employee_costs.present? ? @employee_costs.first[:products] : [] %>
 <div class="container">
   <h2><b>Benefit Package Set Up</b></h2>
   <h3><b>Selected Reference Plan</b></h3>
