@@ -2,6 +2,8 @@ class Users::SecurityQuestionResponsesController < ApplicationController
   include Config::ContactCenterConcern
 
   def create
+    authorize User
+
     responses = params[:security_question_responses]
     responses.each do |response|
       user.security_question_responses << SecurityQuestionResponse.new(security_question_id: response[:security_question_id], question_answer: response[:question_answer].downcase)
