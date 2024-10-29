@@ -78,7 +78,6 @@ jobs:
         with:
           context: .
           push: true
-          builder: ${{ steps.buildx.outputs.name }}
           file: .docker/Dockerfile.gha-reports
           # Example tags:
           # ghcr.io/health-connector/enroll:cca-reports tag for easier compat with existing Devops flows,
