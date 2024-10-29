@@ -5,12 +5,9 @@ on:
   push:
     branches:
       - master
-      - pv188414567_add_gha_workflow #temp
   pull_request:
     branches:
       - master
-      - rc-release-5.8.16 #TEMP
-      - pv188414342-add-dockerfile #TEMP
 
 concurrency:
   group: docker-${{ github.ref }}
@@ -37,7 +34,7 @@ jobs:
     steps:
       - name: Prepare info
         id: prep
-        # for BRANCH_NAME, PR will use head_ref (source branch), push will fallback to ref_name (current branch)
+        # For BRANCH_NAME, PR will use head_ref (source branch), push will fallback to ref_name (current branch).
         run: |   
           BRANCH_NAME=${{ github.head_ref || github.ref_name }}
           SHORT_SHA=$(echo $GITHUB_SHA | head -c7)
@@ -146,6 +143,7 @@ jobs:
           push: ${{ env.PUSH_IMAGE == 'true' }}
           # create local image (for scanning) if it is a pull request
           load: ${{ env.PUSH_IMAGE == 'false' }}
+          # For non-"latest" tag, example of format is "ghcr.io/health-connector/enroll:pv188414567_add_gha_workflow-40df5b1-cca"
           tags: |
             ${{ format('{0}/{1}-{2}', needs.prep.outputs.registryGhcr, needs.prep.outputs.taggedImage, env.CLIENT) }}
             ${{ format('{0}/{1}-{2}', needs.prep.outputs.registryGhcr, needs.prep.outputs.latestTag, env.CLIENT) }}
