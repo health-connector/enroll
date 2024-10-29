@@ -134,11 +134,29 @@ module BenefitMarkets
           expect(subject).to be_valid
         end
       end
-
     end
 
+    describe '#plan_types' do
+      before do
+        allow(subject).to receive(:health_plan_kind).and_return(health_plan_kind)
+      end
 
+      context 'when premium value products are present' do
+        before do
+          pvp_mock = double(:latest_active_pvp_eligibility_on => Date.today)
+          allow(subject).to receive(:premium_value_products).and_return([pvp_mock])
+        end
 
+        it 'includes :pvp in the plan types' do
+          expect(subject.plan_types).to include(:pvp)
+        end
+      end
 
+      context 'when only health plan are present' do
+        it 'includes :pos in the plan types' do
+          expect(subject.plan_types).to include(:pos)
+        end
+      end
+    end
   end
 end

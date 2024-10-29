@@ -18,7 +18,7 @@ module BenefitSponsors
       field :amount, type: Money
       field :coverage_month, type: Date
       field :payment_method, type: String
-      field :is_passive_renewal, type: Boolean, default: false
+      field :is_passive_renewal, type: Mongoid::Boolean, default: false
 
     end
   end

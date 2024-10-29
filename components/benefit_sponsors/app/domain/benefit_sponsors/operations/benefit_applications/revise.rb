@@ -8,7 +8,7 @@ module BenefitSponsors
     module BenefitApplications
       # This class revise end date of a benefit application
       class Revise
-        include Dry::Monads[:result, :do]
+        include Dry::Monads[:do, :result]
 
         def call(params)
           yield validate(params)

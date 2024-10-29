@@ -9,8 +9,8 @@ You're successfully enrolled in <%= @plan.title %>.
 
 <% if @market_kind != 'individual' %>
 <p>
-  Your monthly premium contribution is <b><%= ActionView::Base.new.number_to_currency @member_group.group_enrollment.employee_cost_total %>.</b><br>
-  Your employer contributes <b><%= ActionView::Base.new.number_to_currency @member_group.group_enrollment.sponsor_contribution_total %></b> towards your monthly premium.<br>
+  Your monthly premium contribution is <b><%= number_to_currency(@member_group.group_enrollment.employee_cost_total) %>.</b><br>
+  Your employer contributes <b><%= number_to_currency(@member_group.group_enrollment.sponsor_contribution_total) %></b> towards your monthly premium.<br>
   Your coverage start date is <b><%= @enrollment.effective_on.strftime("%m/%d/%Y") %>.</b>
 </p>
 <p>
@@ -19,10 +19,10 @@ You're successfully enrolled in <%= @plan.title %>.
 <% else %>
 <p>
   <% if @enrollment.applied_aptc_amount.to_f > 0 %>
-  Your monthly total family premium is <b><%= ActionView::Base.new.number_to_currency(@plan.total_premium.to_f) %>.</b><br>
-  Your Advanced Premium Tax Credit is <b><%= ActionView::Base.new.number_to_currency(@enrollment.applied_aptc_amount.to_f) %>.</b><br>
+  Your monthly total family premium is <b><%= number_to_currency(@plan.total_premium.to_f) %>.</b><br>
+  Your Advanced Premium Tax Credit is <b><%= number_to_currency(@enrollment.applied_aptc_amount.to_f) %>.</b><br>
   <% end %>
-  Your monthly cost is <b><%= ActionView::Base.new.number_to_currency(@plan.total_premium.to_f - @enrollment.applied_aptc_amount.to_f) %>.</b><br>
+  Your monthly cost is <b><%= number_to_currency(@plan.total_premium.to_f - @enrollment.applied_aptc_amount.to_f) %>.</b><br>
 </p>
 <p> Your coverage start date is:
   <b><%= @enrollment.effective_on.strftime("%m/%d/%Y") %></b>

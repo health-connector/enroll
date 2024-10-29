@@ -4,10 +4,10 @@ module BenefitSponsors
 
 
     # Person is applying for coverage
-    field :is_coverage_applicant, type: Boolean, default: true
+    field :is_coverage_applicant, type: Mongoid::Boolean, default: true
 
     # Person who authorizes auto-renewal eligibility check
-    field :is_consent_applicant, type: Boolean, default: false
+    field :is_consent_applicant, type: Mongoid::Boolean, default: false
 
     after_initialize :set_self_relationship
 

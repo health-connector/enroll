@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-RSpec.describe "/hbx_profiles/_edit_force_publish", :dbclean => :around_each do
+
+RSpec.describe "exchanges/hbx_profiles/_edit_force_publish", :dbclean => :around_each do
   let(:site) do
     FactoryBot.create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca)
   end

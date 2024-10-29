@@ -2,7 +2,7 @@ class OfficeLocation
   include Mongoid::Document
 
   embedded_in :organization
-  field :is_primary, type: Boolean, default: true
+  field :is_primary, type: Mongoid::Boolean, default: true
 
   embeds_one :address, cascade_callbacks: true, validate: true
   accepts_nested_attributes_for :address, reject_if: :all_blank, allow_destroy: true

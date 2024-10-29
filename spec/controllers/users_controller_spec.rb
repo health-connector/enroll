@@ -211,7 +211,7 @@ describe UsersController do
   describe '#unsupportive_browser' do
     it 'should be succesful' do
       get :unsupportive_browser
-      expect(response).to be_success
+      expect(response).to be_successful
     end
   end
 
