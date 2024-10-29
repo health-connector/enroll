@@ -9,7 +9,7 @@ class BenefitGroupCongress < BenefitGroup
 
   field :effective_on_kind, type: String, default: "first_of_month"
   field :plan_option_kind, type: String, default: "metal_level"
-  field :default, type: Boolean, default: true
+  field :default, type: Mongoid::Boolean, default: true
 
 
   ## Must prevent newly_designated from obtaining SEP before initial enrollment

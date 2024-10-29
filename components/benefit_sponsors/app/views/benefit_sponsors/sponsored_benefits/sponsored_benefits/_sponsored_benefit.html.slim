@@ -148,6 +148,8 @@ javascript:
     planType = options.planType || element.dataset.planType;
     referencePlanID = options.referencePlanID || element.value;
     sponsoredBenefitId = options.sponsoredBenefitId;
+    isStandardPlan = options.hasOwnProperty('isStandardPlan') ? options.isStandardPlan : (element.dataset.isStandardPlan === 'true');
+    isPvpEligible = options.hasOwnProperty('isPvpEligible') ? options.isPvpEligible : (element.dataset.isPvp === 'true');
     // showFormButtons();
 
     if (productsTotal === undefined){
@@ -163,6 +165,18 @@ javascript:
 
       if (element.parentElement.classList.contains('edit_flow')) {
       document.getElementById('changeReferencePlan').classList.remove('hidden');
+    }
+
+    if(isStandardPlan) {
+      document.getElementById('rpStandardPlanIndicator').classList.remove('hidden')
+    } else {
+      document.getElementById('rpStandardPlanIndicator').classList.add('hidden')
+    }
+
+    if(isPvpEligible) {
+      document.getElementById('rpPvpIndicator').classList.remove('hidden')
+    } else {
+      document.getElementById('rpPvpIndicator').classList.add('hidden')
     }
 
     document.getElementById('referencePlanTitle').append(planTitle);

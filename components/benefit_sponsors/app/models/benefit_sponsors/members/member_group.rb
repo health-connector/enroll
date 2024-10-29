@@ -65,18 +65,16 @@ module BenefitSponsors
     def clone_for_coverage(new_product)
       self.class.new(
         members,
-        {
-          group_id: @group_id,
-          group_enrollment: group_enrollment.clone_for_coverage(new_product)
-        }
+        group_id: @group_id,
+        group_enrollment: group_enrollment.clone_for_coverage(new_product)
       )
     end
 
     def as_json(params = {})
       {
-        members: members.as_json,
+        members: members.serializable_hash,
         group_id: group_id,
-        group_enrollment: group_enrollment.as_json,
+        group_enrollment: group_enrollment.serializable_hash
       }
     end
 

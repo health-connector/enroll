@@ -102,6 +102,14 @@ RSpec.describe Employers::EmployerProfilesController, dbclean: :after_each do
         expect(flash[:error]).to match(/Access not allowed for employer_profile_policy/)
       end
     end
+
+    context "without permissions" do
+      it "should return an error" do
+        sign_in(user)
+        get :delete_documents, params: {id: employer_profile.id, ids: [1]}
+        expect(flash[:error]).to match(/Access not allowed for employer_profile_policy/)
+      end
+    end
   end
 
   describe "GET new Document", dbclean: :after_each do

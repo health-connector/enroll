@@ -97,6 +97,10 @@ Then(/^the text in the username and email address fields will be cleared$/) do
   expect(find_field('new_email').value).to eq ""
 end
 
+Then(/^the page should display user account updated message$/) do
+  expect(page).to have_content('User Account Updated Successfully')
+end
+
 When(/^the HBX admin searches for the given user by first name$/) do
   user = User.where(:roles.in => ["employee"], locked_at: nil).first
   person = FactoryBot.create(:person, user: user)

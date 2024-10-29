@@ -5,7 +5,7 @@ class CoverageHouseholdMember
   embedded_in :coverage_household
 
   field :family_member_id, type: BSON::ObjectId
-  field :is_subscriber, type: Boolean, default: false
+  field :is_subscriber, type: Mongoid::Boolean, default: false
 
   # def save_parent
   #   coverage_household.save
