@@ -12,7 +12,7 @@ module SponsoredBenefits
       EMPLOYMENT_ACTIVE_ONLY = %w(eligible employee_role_linked employee_termination_pending newly_designated_eligible newly_designated_linked)
       COBRA_STATES = %w(cobra_eligible cobra_linked cobra_terminated cobra_termination_pending)
 
-      field :is_business_owner, type: Boolean, default: false
+      field :is_business_owner, type: Mongoid::Boolean, default: false
       field :hired_on, type: Date
       field :aasm_state, type: String
       field :expected_selection, type: String, default: "enroll"

@@ -20,8 +20,8 @@ class GeneralAgencyProfile
   field :market_kind, type: String
   field :corporate_npn, type: String
   field :languages_spoken, type: Array, default: ["en"] # TODO
-  field :working_hours, type: Boolean, default: false
-  field :accept_new_clients, type: Boolean
+  field :working_hours, type: Mongoid::Boolean, default: false
+  field :accept_new_clients, type: Mongoid::Boolean
   field :aasm_state, type: String, default: 'is_applicant'
   field :aasm_state_set_on, type: Date
 

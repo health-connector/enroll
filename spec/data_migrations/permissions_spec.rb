@@ -71,6 +71,36 @@ describe DefinePermissions, dbclean: :after_each do
       end
     end
 
+    context 'update can_update_pvp_eligibilities for super admin and hbx_tier3', dbclean: :before_each do
+      before do
+        subject.hbx_admin_can_update_pvp_eligibilities
+      end
+
+      context "of an hbx super admin" do
+        let(:hbx_super_admin) do
+          FactoryBot.create(:person).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "super_admin", permission_id: Permission.super_admin.id)
+          end
+        end
+
+        it 'returns true' do
+          expect(hbx_super_admin.hbx_staff_role.permission.can_update_pvp_eligibilities).to be true
+        end
+      end
+
+      context "of an hbx tier3" do
+        let(:hbx_tier3) do
+          FactoryBot.create(:person).tap do |person|
+            FactoryBot.create(:hbx_staff_role, person: person, subrole: "hbx_tier3", permission_id: Permission.hbx_tier3.id)
+          end
+        end
+
+        it 'returns true' do
+          expect(hbx_tier3.hbx_staff_role.permission.can_update_pvp_eligibilities).to be true
+        end
+      end
+    end
+
     context 'update can view login history for super admin hbx staff role', dbclean: :before_each do
       let(:given_task_name) {':hbx_admin_view_login_history'}
       let(:person) { FactoryBot.create(:person) }

@@ -30,12 +30,12 @@ class Plan
 
   field :renewal_plan_id, type: BSON::ObjectId
   field :cat_age_off_renewal_plan_id, type: BSON::ObjectId
-  field :is_standard_plan, type: Boolean, default: false
+  field :is_standard_plan, type: Mongoid::Boolean, default: false
 
   field :minimum_age, type: Integer, default: 0
   field :maximum_age, type: Integer, default: 120
 
-  field :is_active, type: Boolean, default: true
+  field :is_active, type: Mongoid::Boolean, default: true
   field :updated_by, type: String
 
   # TODO deprecate after migrating SBCs for years prior to 2016
@@ -55,8 +55,8 @@ class Plan
 
   field :network_information, type: String
 
-  field :nationwide, type: Boolean # Nationwide
-  field :dc_in_network, type: Boolean # DC In-Network or not
+  field :nationwide, type: Mongoid::Boolean # Nationwide
+  field :dc_in_network, type: Mongoid::Boolean # DC In-Network or not
 
   # Fields for provider direcotry and rx formulary url
   field :provider_directory_url, type: String
@@ -67,12 +67,12 @@ class Plan
   field :carrier_special_plan_identifier, type: String
 
   #field can be used for filtering
-  field :frozen_plan_year, type: Boolean
+  field :frozen_plan_year, type: Mongoid::Boolean
 
   # Fields for checking respective carrier is offering or not
-  field :is_horizontal, type: Boolean, default: -> { true }
-  field :is_vertical, type: Boolean, default: -> { true }
-  field :is_sole_source, type: Boolean, default: -> { true }
+  field :is_horizontal, type: Mongoid::Boolean, default: -> { true }
+  field :is_vertical, type: Mongoid::Boolean, default: -> { true }
+  field :is_sole_source, type: Mongoid::Boolean, default: -> { true }
 
   # In MongoDB, the order of fields in an index should be:
   #   First: fields queried for exact values, in an order that most quickly reduces set
@@ -321,9 +321,7 @@ class Plan
         :active_year => active_year,
         :coverage_kind => coverage_kind
       }
-      if metal_level.present?
-        criteria.merge(metal_level: metal_level)
-      end
+      criteria.merge(metal_level: metal_level) if metal_level.present?
       criteria
     end
     self.where("$or" => plan_criteria_set)
@@ -443,20 +441,28 @@ class Plan
                                                     .first
   end
 
+  def is_pvp_in_rating_area(code, date = TimeKeeper.date_of_record)
+    return false unless ::EnrollRegistry.feature_enabled?(:premium_value_products)
+    return false unless product
+
+    product.is_pvp_in_rating_area(code, date)
+  end
+
+
   def medical_individual_deductible
-    product.medical_individual_deductible
+    product&.medical_individual_deductible
   end
 
   def medical_family_deductible
-    product.medical_family_deductible
+    product&.medical_family_deductible
   end
 
   def rx_individual_deductible
-    product.rx_individual_deductible
+    product&.rx_individual_deductible
   end
 
   def rx_family_deductible
-    product.rx_family_deductible
+    product&.rx_family_deductible
   end
 
   def ehb
@@ -489,7 +495,7 @@ class Plan
   def plan_hsa
     name = self.name
     regex = name.match("HSA")
-    regex.present? ? 'Yes': 'No'
+    regex.present? ? 'Yes' : 'No'
   end
 
   def renewal_plan_type
@@ -593,13 +599,13 @@ class Plan
     end
 
     def search_options(plans)
-      options ={
+      options = {
         'plan_type': [],
         'plan_hsa': [],
         'metal_level': [],
         'plan_deductible': []
       }
-      options.each do |option, value|
+      options.each_key do |option|
         collected = plans.collect { |plan|
           if option == :metal_level
             MetalLevel.new(plan.send(option))
@@ -607,10 +613,9 @@ class Plan
             plan.send(option)
           end
         }.uniq.sort
-        unless collected.none?
-          options[option] = collected
-        end
+        options[option] = collected unless collected.none?
       end
+      options = options.to_a.insert(1, [:is_pvp, %w[Yes No]]).to_h if ::EnrollRegistry.feature_enabled?(:premium_value_products)
       options
     end
 
@@ -642,9 +647,9 @@ class Plan
         carrier_profile = CarrierProfile.find(id)
         [ carrier_profile.legal_name, carrier_profile.abbrev, carrier_profile.id ]
         }.uniq.unshift(['any','any'])
-      selectors[:plan_types] =  plans.map{|p| p.plan_type}.uniq.unshift('any')
-      selectors[:dc_network] =  ['any', 'true', 'false']
-      selectors[:nationwide] =  ['any', 'true', 'false']
+      selectors[:plan_types] = plans.map(&:plan_type).uniq.unshift('any')
+      selectors[:dc_network] = ['any', 'true', 'false']
+      selectors[:nationwide] = ['any', 'true', 'false']
       selectors
     end
 
@@ -699,7 +704,7 @@ class MetalLevel
 
   def eql?(metal_level)
     metal_level = safe_assign(metal_level)
-    METAL_LEVEL_ORDER.index(self.name) ==  METAL_LEVEL_ORDER.index(metal_level.name)
+    METAL_LEVEL_ORDER.index(name) == METAL_LEVEL_ORDER.index(metal_level.name)
   end
 
   def hash
@@ -709,9 +714,7 @@ class MetalLevel
   private
 
   def safe_assign(metal_level)
-    if metal_level.is_a? String
-      metal_level = MetalLevel.new(metal_level)
-    end
+    metal_level = MetalLevel.new(metal_level) if metal_level.is_a? String
     metal_level
   end
 end

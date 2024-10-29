@@ -661,5 +661,61 @@ RSpec.describe Plan, dbclean: :after_each do
         expect(plan.can_use_aptc?).to eq true
       end
     end
+
+    describe '#is_pvp_in_rating_area' do
+      let(:plan) { FactoryBot.create(:plan) }
+      let(:product) { instance_double(BenefitMarkets::Products::Product) }
+      let(:code) { "R-MA001" }
+
+      before do
+        allow(plan).to receive(:product).and_return(product)
+      end
+
+      context 'when premium_value_products feature is disabled' do
+        before do
+          allow(EnrollRegistry).to receive(:feature_enabled?).with(:premium_value_products).and_return(false)
+        end
+
+        it 'returns false' do
+          expect(plan.is_pvp_in_rating_area(code)).to eq(false)
+        end
+      end
+
+      context 'when premium_value_products feature is enabled' do
+        before do
+          allow(EnrollRegistry).to receive(:feature_enabled?).with(:premium_value_products).and_return(true)
+        end
+
+        context 'when product exists' do
+          before do
+            allow(product).to receive(:is_pvp_in_rating_area).with(code, TimeKeeper.date_of_record).and_return(true)
+          end
+
+          it 'calls product.is_pvp_in_rating_area and returns true' do
+            expect(plan.is_pvp_in_rating_area(code)).to eq(true)
+          end
+        end
+
+        context 'when product does not exist' do
+          before do
+            allow(plan).to receive(:product).and_return nil
+          end
+
+          it 'returns false' do
+            expect(plan.is_pvp_in_rating_area(code)).to eq(false)
+          end
+        end
+
+        context 'when product#is_pvp_in_rating_area returns false' do
+          before do
+            allow(product).to receive(:is_pvp_in_rating_area).with(code, TimeKeeper.date_of_record).and_return(false)
+          end
+
+          it 'returns false' do
+            expect(plan.is_pvp_in_rating_area(code)).to eq(false)
+          end
+        end
+      end
+    end
   end
 end
