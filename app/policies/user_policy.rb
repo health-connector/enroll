@@ -48,6 +48,10 @@ class UserPolicy < ApplicationPolicy
     user.present?
   end
 
+  def show_hints?
+    view?
+  end
+
   def new?
     view?
   end

@@ -3,7 +3,7 @@ class WelcomeController < ApplicationController
   before_action :set_cookie_attributes, only: [:index]
 
   def show_hints
-    authorize current_user, :view?
+    authorize current_user
 
     current_user.hints = !current_user.hints
     current_user.save
