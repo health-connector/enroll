@@ -2,7 +2,7 @@ module BenefitSponsors
   module Employers
     module EmployerHelper
       def find_employer_profile
-        @organization ||= BenefitSponsors::Organizations::Organization.by_employer_profile(params[:id]).first
+        @organization ||= BenefitSponsors::Organizations::Organization.by_profile(params[:id]).first
         @employer_profile ||= @organization.employer_profile
       end
 

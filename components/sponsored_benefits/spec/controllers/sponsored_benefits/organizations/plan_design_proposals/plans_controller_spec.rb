@@ -99,7 +99,7 @@ module SponsoredBenefits
         end
 
         it "should not appear in the list of plans during that effective on" do
-          get :index, params: valid_params, format: 'text/html'
+          get :index, params: valid_params, xhr: true
           expect(assigns[:plans].count).to eq 1
         end
       end

@@ -5,6 +5,6 @@ class DentalRelationshipBenefit
 
   field :relationship, type: String
   field :premium_pct, type: Float, default: 0.0
-  field :offered, type: Boolean, default: true
+  field :offered, type: Mongoid::Boolean, default: true
 
 end
