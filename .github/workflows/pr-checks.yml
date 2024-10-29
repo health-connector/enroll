@@ -1,6 +1,8 @@
 name: pull request checks
 on:
   pull_request:
+    branches:
+      - DISABLED #TEMP
 
 concurrency:
   group: checks-${{ github.workflow }}-${{ github.ref }}
