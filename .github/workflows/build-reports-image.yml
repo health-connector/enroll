@@ -78,6 +78,12 @@ jobs:
                     
           SHORT_SHA=${{ steps.prep-defaultable-vars.outputs.commit_sha || steps.default-sha-set.outputs.commit_sha}}
 
+          # base images always use 7 char SHA, so enforce that to avoid confusion
+          if (( ${#SHORT_SHA} != 7 )); then
+            echo "::error ::SHA of 7 characters expected; received: $SHORT_SHA"
+            exit 1;
+          fi
+
           GH_REPO=$(echo '${{ github.repository }}' | awk -F '/' '{print $2}')
           REGISTRY_GHCR='ghcr.io'
           TAGSAFE_BRANCH_NAME=$(echo $BRANCH_NAME | sed -e 's/[^a-zA-Z0-9_.]/-/g' -e 's/^[-.]//g')
