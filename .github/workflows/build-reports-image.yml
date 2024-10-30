@@ -32,25 +32,52 @@ jobs:
   prep:
     runs-on: ubuntu-latest
     outputs:
-      branch: ${{ steps.prep-simple-vars.outputs.branch}}
-      commitShortSha: ${{ steps.prep-simple-vars.outputs.commit_sha || steps.default-sha-set.outputs.commit_sha}}
-      registryGhcr: ${{ steps.prep-simple-vars.outputs.registry_ghcr }}
-      taggedImage: ${{ steps.prep-simple-vars.outputs.tagged_image }}
-      baseImage: ${{ steps.prep-simple-vars.outputs.base_image }}
-      ghRepositoryName: ${{ steps.prep-simple-vars.outputs.gh_repository_name }}
+      branch: ${{ steps.final-prep-vars.outputs.branch}}
+      commitShortSha: ${{ steps.final-prep-vars.outputs.short_sha}}
+      registryGhcr: ${{ steps.final-prep-vars.outputs.registry_ghcr }}
+      taggedImage: ${{ steps.final-prep-vars.outputs.tagged_image }}
+      baseImage: ${{ steps.final-prep-vars.outputs.base_image }}
+      ghRepositoryName: ${{ steps.final-prep-vars.outputs.gh_repository_name }}
 
     steps:
-      - name: Set variables from workflow dispatch
-        id: prep-simple-vars
+      # Grab defaultable inputs, to see if we need to source defaults for them
+      - name: Set defaultable inputs
+        id: prep-defaultable-vars
+        run: |
+          if [[ "${{github.event_name}}" == "repository_dispatch" ]]; then
+            SHORT_SHA=${{ github.event.client_payload.commit_sha }}
+          else
+            SHORT_SHA=${{ github.event.inputs.commit_sha }}
+          fi
+          echo "commit_sha=$SHORT_SHA" >> $GITHUB_OUTPUT
+
+      # Quick minimal pull, based on requested branch, to fill in latest commit sha IF none was provided by user
+      - name: Pull branch for default SHA determination
+        id: default-sha-pull
+        if: ${{ !steps.prep-defaultable-vars.outputs.commit_sha }}
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github
+          fetch-depth: 1
+          ref: ${{ needs.prep.outputs.branch }}
+
+      - name: Set SHA from latest commit on branch
+        id: default-sha-set
+        if: ${{ steps.default-sha-pull.conclusion == 'success' }}
+        run: |
+          echo "commit_sha=$(git log --pretty=format:'%H' -1 | head -c7)" >> $GITHUB_OUTPUT
+
+      - name: Set other vars from inputs, and build compound vars
+        id: final-prep-vars
         run: |
           if [[ "${{github.event_name}}" == "repository_dispatch" ]]; then
             BRANCH_NAME=${{ github.event.client_payload.branch }}
-            SHORT_SHA=${{ github.event.client_payload.commit_sha }}
           else
             BRANCH_NAME=${{ github.event.inputs.branch }}
-            SHORT_SHA=${{ github.event.inputs.commit_sha }}
           fi
-          
+                    
+          SHORT_SHA=${{ steps.prep-defaultable-vars.outputs.commit_sha || steps.default-sha-set.outputs.commit_sha}}
+
           GH_REPO=$(echo '${{ github.repository }}' | awk -F '/' '{print $2}')
           REGISTRY_GHCR='ghcr.io'
           TAGSAFE_BRANCH_NAME=$(echo $BRANCH_NAME | sed -e 's/[^a-zA-Z0-9_.]/-/g' -e 's/^[-.]//g')
@@ -66,21 +93,7 @@ jobs:
           echo "branch=$BRANCH_NAME" >> $GITHUB_OUTPUT
           echo "commit_sha=$SHORT_SHA" >> $GITHUB_OUTPUT
           echo "registry_ghcr=$REGISTRY_GHCR" >> $GITHUB_OUTPUT
-
-      - name: Pull branch for default SHA determination
-        id: default-sha-pull
-        if: ${{ !steps.prep-simple-vars.outputs.commit_sha }}
-        uses: actions/checkout@v4
-        with:
-          sparse-checkout: .github
-          fetch-depth: 1
-          ref: ${{ needs.prep.outputs.branch }}
-
-      - name: Set SHA from latest commit on branch
-        id: default-sha-set
-        if: ${{ steps.default-sha-pull.conclusion == 'success' }}
-        run: |
-          echo "commit_sha=$(git log --pretty=format:'%H' -1 | head -c7)" >> $GITHUB_OUTPUT
+          
 
   build-and-upload-image:
     runs-on: ubuntu-latest
