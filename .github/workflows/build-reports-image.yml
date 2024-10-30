@@ -12,6 +12,8 @@ on:
         default: 'master'
         description: 'Branch to build'
         required: true
+      # This commit sha needs to string match on an existing tag, so requires 7 chars, as that is impl in normal
+      # build-and-deploy workflow.
       commit_sha:
         description: 'Commit short SHA to build - omit to use HEAD of "Branch to build"'
         required: false
@@ -60,59 +62,56 @@ jobs:
         if: ${{ steps.default-sha-pull.conclusion == 'success' }}
         run: |
           echo "commit_sha=$(git log --pretty=format:'%H' -1 | head -c7)" >> $GITHUB_OUTPUT
-  
 
-  test:
+  build-and-upload-image:
     runs-on: ubuntu-latest
     needs: [prep]
     steps:
-      - name: Dump
-        run: |
-          echo '${{ toJSON(needs.prep.outputs) }}'
+      - uses: actions/checkout@v4
+        with:
+          # Try to be consistent with other impls, though the effect _may_ be surprising (determines
+          # version of Dockerfile to use, not just the base build to grab; but does NOT respect the SHA from input for
+          # the Dockerfile). If Dockerfile is later corrected in a different branch, it is not accessible to this
+          # workflow. Future improvement might be an arg to optionally align with same workflow branch chosen instead.
+          ref: ${{ needs.prep.outputs.branch }}
 
-#
-#  build-and-upload-image:
-#    runs-on: ubuntu-latest
-#    needs: [prep]
-#    steps:
-#
-#      - name: Set up Docker Buildx
-#        uses: docker/setup-buildx-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          install: true
+          version: v0.17.1
+
+      # Cache layers specific to current sha, but allow rummaging through older caches if none for current
+# TODO determine if this would need to be fixed to actually cache seomthing (and what key should be, w/r/t not
+#  destructively colliding with normal build cache, and meaningful sha (presumably sha from inputs?) or whatnot.
+#      - name: Cache Docker layers
+#        uses: actions/cache@v4
 #        with:
-#          install: true
-#          version: v0.17.1
-#
-#      # Cache layers specific to current sha, but allow rummaging through older caches if none for current
-## TODO determine if this would need to be fixed to actually cache seomthing (and what key should be, w/r/t not
-##  destructively colliding with normal build cache, and meaningful sha (presumably sha from inputs?) or whatnot.
-##      - name: Cache Docker layers
-##        uses: actions/cache@v4
-##        with:
-##          path: /tmp/.buildx-cache
-##          key: ${{ runner.os }}-buildx-${{ github.sha }}
-##          restore-keys: |
-##            ${{ runner.os }}-buildx
-#
-#      - name: Login to GHCR
-#        uses: docker/login-action@v3
-#        with:
-#          registry: ${{ needs.prep.outputs.registryGhcr }}
-#          username: ${{ github.actor }}
-#          password: ${{ secrets.GITHUB_TOKEN }}
-#
-#      - name: Build reports Image
-#        uses: docker/build-push-action@v6
-#        with:
-#          context: .
-#          push: true
-#          file: .docker/Dockerfile.gha-reports
-#          # Example tags:
-#          # ghcr.io/health-connector/enroll:cca-reports tag for easier compat with existing Devops flows,
-#          # ghcr.io/health-connector/enroll:pv188414567_add_gha_workflow-40df5b1-cca tag for better traceability
-#          tags: |
-#            ghcr.io/health-connector/enroll:${{ env.CLIENT }}-reports
-#            ${{ format('{0}/{1}-{2}-reports', needs.prep.outputs.registryGhcr, needs.prep.outputs.commitShortSha, env.CLIENT) }}
-#          build-args: |
-#            CLIENT=${{ env.CLIENT }}
-#            COMMIT_SHORT_SHA=${{ needs.prep.outputs.commitShortSha }}
-#            BRANCH=${{ needs.prep.outputs.branch }}
+#          path: /tmp/.buildx-cache
+#          key: ${{ runner.os }}-buildx-${{ github.sha }}
+#          restore-keys: |
+#            ${{ runner.os }}-buildx
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ needs.prep.outputs.registryGhcr }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build reports Image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          file: .docker/Dockerfile.gha-reports
+          # Example tags:
+          # ghcr.io/health-connector/enroll:cca-reports tag for easier compat with existing Devops flows,
+          # ghcr.io/health-connector/enroll:pv188414567_add_gha_workflow-40df5b1-cca tag for better traceability
+          tags: |
+            ghcr.io/health-connector/enroll:${{ env.CLIENT }}-reports
+            ${{ format('{0}/{1}-{2}-reports', needs.prep.outputs.registryGhcr, needs.prep.outputs.commitShortSha, env.CLIENT) }}
+          build-args: |
+            CLIENT=${{ env.CLIENT }}
+            COMMIT_SHORT_SHA=${{ needs.prep.outputs.commitShortSha }}
+            BRANCH=${{ needs.prep.outputs.branch }}
