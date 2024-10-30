@@ -48,7 +48,7 @@ class BrokerAgencies::ApplicantsController < ApplicationController
       flash[:notice] = "Applicant accepted successfully."
     end
 
-    redirect_to edit_broker_agencies_profile_applicant(@broker_agency_profile, @broker_applicant)
+    redirect_to edit_broker_agencies_profile_applicant_path(@broker_agency_profile, @broker_applicant)
   end
 
   private
