@@ -77,7 +77,7 @@ jobs:
           fi
                     
           SHORT_SHA=${{ steps.prep-defaultable-vars.outputs.commit_sha || steps.default-sha-set.outputs.commit_sha}}
-          echo "::notice ::Resolved to short SHA: $SHORT_SHA"
+          echo "Resolved to short SHA for base image: $SHORT_SHA"
 
           # base images always use 7 char SHA, so enforce that to avoid confusion
           if (( ${#SHORT_SHA} != 7 )); then
@@ -89,6 +89,8 @@ jobs:
           REGISTRY_GHCR='ghcr.io'
           TAGSAFE_BRANCH_NAME=$(echo $BRANCH_NAME | sed -e 's/[^a-zA-Z0-9_.]/-/g' -e 's/^[-.]//g')
           IMAGE=health-connector/$GH_REPO
+          
+          # tag for base image to use
           TAG=$TAGSAFE_BRANCH_NAME-$SHORT_SHA
           TAGGED_IMAGE=${IMAGE}:${TAG}
           
@@ -100,7 +102,6 @@ jobs:
           echo "branch=$BRANCH_NAME" >> $GITHUB_OUTPUT
           echo "commit_sha=$SHORT_SHA" >> $GITHUB_OUTPUT
           echo "registry_ghcr=$REGISTRY_GHCR" >> $GITHUB_OUTPUT
-          
 
   build-and-upload-image:
     runs-on: ubuntu-latest
@@ -138,7 +139,8 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build reports Image
+      - name: Build and push reports Image
+        id: build-push
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -159,5 +161,8 @@ jobs:
             BRANCH=${{ needs.prep.outputs.branch }}
 
       - name: Add package push info to summary
+        continue-on-error: true
         run: |
+          TAGS=$(echo "${{ fromJSON(steps.build-push.outputs.metadata)['image.name'] }}" | tr ',' '\n' | sed 's/^/- /')
+          echo -e "The following images were pushed:\n$TAGS\n" >> $GITHUB_STEP_SUMMARY
           echo 'New images can be found on GHCR here: https://github.com/health-connector/enroll/pkgs/container/enroll.' >> $GITHUB_STEP_SUMMARY
