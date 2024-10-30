@@ -68,9 +68,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: [prep]
     steps:
-      - name: dump outputs
+      - name: Dump
         run: |
-          echo '${{ fromJSON(needs.prep.outputs) }}'
+          echo '${{ toJSON(needs.prep.outputs) }}'
 
 #
 #  build-and-upload-image:
