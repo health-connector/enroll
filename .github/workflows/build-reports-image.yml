@@ -6,6 +6,7 @@
 name: Build reports image
 
 on:
+  push: #fake push to make workflow available _ TODO REMOVE when can hit workflow dispatch via cli...
   workflow_dispatch:
     inputs:
       branch:
