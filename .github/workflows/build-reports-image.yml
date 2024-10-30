@@ -121,17 +121,6 @@ jobs:
           install: true
           version: v0.17.1
 
-      # Cache layers specific to current sha, but allow rummaging through older caches if none for current
-# TODO determine if this would need to be fixed to actually cache seomthing (and what key should be, w/r/t not
-#  destructively colliding with normal build cache, and meaningful sha (presumably sha from inputs?) or whatnot.
-#      - name: Cache Docker layers
-#        uses: actions/cache@v4
-#        with:
-#          path: /tmp/.buildx-cache
-#          key: ${{ runner.os }}-buildx-${{ github.sha }}
-#          restore-keys: |
-#            ${{ runner.os }}-buildx
-
       - name: Login to GHCR
         uses: docker/login-action@v3
         with:

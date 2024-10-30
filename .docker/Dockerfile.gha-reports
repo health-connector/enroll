@@ -17,7 +17,7 @@ RUN apt-get update \
 RUN touch ~/.bashrc
 ENV BASH_ENV=~/.bashrc
 
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh  | bash
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh  | bash
 RUN nvm install 20 && \
     nvm use 20 && nvm alias default 20 && \
     npm install -g npm@10.9.0 && \
