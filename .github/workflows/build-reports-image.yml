@@ -32,17 +32,17 @@ jobs:
   prep:
     runs-on: ubuntu-latest
     outputs:
-      branch: ${{ steps.final-prep-vars.outputs.branch}}
-      commitShortSha: ${{ steps.final-prep-vars.outputs.short_sha}}
-      registryGhcr: ${{ steps.final-prep-vars.outputs.registry_ghcr }}
-      taggedImage: ${{ steps.final-prep-vars.outputs.tagged_image }}
-      baseImage: ${{ steps.final-prep-vars.outputs.base_image }}
-      ghRepositoryName: ${{ steps.final-prep-vars.outputs.gh_repository_name }}
+      branch: ${{ steps.final_prep_vars.outputs.branch}}
+      commitShortSha: ${{ steps.final_prep_vars.outputs.short_sha}}
+      registryGhcr: ${{ steps.final_prep_vars.outputs.registry_ghcr }}
+      taggedImage: ${{ steps.final_prep_vars.outputs.tagged_image }}
+      baseImage: ${{ steps.final_prep_vars.outputs.base_image }}
+      ghRepositoryName: ${{ steps.final_prep_vars.outputs.gh_repository_name }}
 
     steps:
       # Grab defaultable inputs, to see if we need to source defaults for them
       - name: Set defaultable inputs
-        id: prep-defaultable-vars
+        id: prep_defaultable_vars
         run: |
           if [[ "${{github.event_name}}" == "repository_dispatch" ]]; then
             SHORT_SHA=${{ github.event.client_payload.commit_sha }}
@@ -53,8 +53,8 @@ jobs:
 
       # Quick minimal pull, based on requested branch, to fill in latest commit sha IF none was provided by user
       - name: Pull branch for default SHA determination
-        id: default-sha-pull
-        if: ${{ !steps.prep-defaultable-vars.outputs.commit_sha }}
+        id: default_sha_pull
+        if: ${{ !steps.prep_defaultable_vars.outputs.commit_sha }}
         uses: actions/checkout@v4
         with:
           sparse-checkout: .github
@@ -62,13 +62,13 @@ jobs:
           ref: ${{ needs.prep.outputs.branch }}
 
       - name: Set SHA from latest commit on branch
-        id: default-sha-set
-        if: ${{ steps.default-sha-pull.conclusion == 'success' }}
+        id: default_sha_set
+        if: ${{ steps.default_sha_pull.conclusion == 'success' }}
         run: |
           echo "commit_sha=$(git log --pretty=format:'%H' -1 | head -c7)" >> $GITHUB_OUTPUT
 
       - name: Set other vars from inputs, and build compound vars
-        id: final-prep-vars
+        id: final_prep_vars
         run: |
           if [[ "${{github.event_name}}" == "repository_dispatch" ]]; then
             BRANCH_NAME=${{ github.event.client_payload.branch }}
@@ -76,7 +76,7 @@ jobs:
             BRANCH_NAME=${{ github.event.inputs.branch }}
           fi
                     
-          SHORT_SHA=${{ steps.prep-defaultable-vars.outputs.commit_sha || steps.default-sha-set.outputs.commit_sha}}
+          SHORT_SHA=${{ steps.prep_defaultable_vars.outputs.commit_sha || steps.default_sha_set.outputs.commit_sha}}
           echo "Resolved to short SHA for base image: $SHORT_SHA"
 
           # base images always use 7 char SHA, so enforce that to avoid confusion
@@ -139,8 +139,8 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push reports Image
-        id: build-push
+      - name: Build and push reports image
+        id: build_push
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -152,7 +152,7 @@ jobs:
           tags: |
             ${{ format('{0}/{1}:{2}-reports', needs.prep.outputs.registryGhcr, needs.prep.outputs.baseImage, env.CLIENT) }}
             ${{ format('{0}/{1}-{2}-reports', needs.prep.outputs.registryGhcr, needs.prep.outputs.taggedImage, env.CLIENT) }}
-          # Bump provenance as needed, but keep it minimal until then to minimize risk of leaking secure info
+          # Can bump provenance as needed, but for now, keep it minimal to minimize risk of leaking secure info
           # https://docs.docker.com/build/ci/github-actions/attestations/#default-provenance
           provenance: mode=min
           build-args: |
@@ -163,6 +163,6 @@ jobs:
       - name: Add package push info to summary
         continue-on-error: true
         run: |
-          TAGS=$(echo "${{ fromJSON(steps.build-push.outputs.metadata)['image.name'] }}" | tr ',' '\n' | sed 's/^/- /')
-          echo -e "The following images were pushed:\n$TAGS\n" >> $GITHUB_STEP_SUMMARY
+          TAGS=$(echo "${{ fromJSON(steps.build_push.outputs.metadata)['image.name'] }}" | tr ',' '\n' | sed 's/^/- /')
+          echo -e "The following image tags were pushed:\n$TAGS\n" >> $GITHUB_STEP_SUMMARY
           echo 'New images can be found on GHCR here: https://github.com/health-connector/enroll/pkgs/container/enroll.' >> $GITHUB_STEP_SUMMARY
