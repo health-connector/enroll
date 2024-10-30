@@ -150,6 +150,9 @@ jobs:
           tags: |
             ${{ format('{0}/{1}:{2}-reports', needs.prep.outputs.registryGhcr, needs.prep.outputs.baseImage, env.CLIENT) }}
             ${{ format('{0}/{1}-{2}-reports', needs.prep.outputs.registryGhcr, needs.prep.outputs.taggedImage, env.CLIENT) }}
+          # Bump provenance as needed, but keep it minimal until then to minimize risk of leaking secure info
+          # https://docs.docker.com/build/ci/github-actions/attestations/#default-provenance
+          provenance: mode=min
           build-args: |
             CLIENT=${{ env.CLIENT }}
             COMMIT_SHORT_SHA=${{ needs.prep.outputs.commitShortSha }}
