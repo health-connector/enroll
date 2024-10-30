@@ -12,7 +12,7 @@ on:
         default: 'master'
         description: 'Branch to build'
         required: true
-      # This commit sha needs to string match on an existing tag, so requires 7 chars, as that is impl in normal
+      # This commit sha needs to string match on an existing tag, so requires 7 chars, per the tag impl in the
       # build-and-deploy workflow.
       commit_sha:
         description: 'Commit short SHA to build - omit to use HEAD of "Branch to build"'
@@ -77,6 +77,7 @@ jobs:
           fi
                     
           SHORT_SHA=${{ steps.prep-defaultable-vars.outputs.commit_sha || steps.default-sha-set.outputs.commit_sha}}
+          echo "::notice ::Resolved to short SHA: $SHORT_SHA"
 
           # base images always use 7 char SHA, so enforce that to avoid confusion
           if (( ${#SHORT_SHA} != 7 )); then
@@ -145,7 +146,7 @@ jobs:
           file: .docker/Dockerfile.gha-reports
           # Example tags:
           # ghcr.io/health-connector/enroll:cca-reports tag for easier compat with existing Devops flows,
-          # ghcr.io/ health-connector/enroll:pv188414567_add_gha_workflow-40df5b1 -cca-reports tag for better traceability
+          # ghcr.io/health-connector/enroll:pv188414567_add_gha_workflow-40df5b1-cca-reports tag for better traceability
           tags: |
             ${{ format('{0}/{1}:{2}-reports', needs.prep.outputs.registryGhcr, needs.prep.outputs.baseImage, env.CLIENT) }}
             ${{ format('{0}/{1}-{2}-reports', needs.prep.outputs.registryGhcr, needs.prep.outputs.taggedImage, env.CLIENT) }}
