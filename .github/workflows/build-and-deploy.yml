@@ -152,7 +152,7 @@ jobs:
           # More: https://github.com/moby/buildkit?tab=readme-ov-file#local-directory-1
           # And: https://github.com/docker/buildx/blob/master/docs/reference/buildx_build.md#-export-build-cache-to-an-external-cache-destination---cache-to
           cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new
-          # Bump provenance as needed, but keep it minimal until then to minimize risk of leaking secure info
+          # Can bump provenance as needed, but for now, keep it minimal to minimize risk of leaking secure info
           # https://docs.docker.com/build/ci/github-actions/attestations/#default-provenance
           # Note only supported for image push, not load
           provenance: ${{ env.PUSH_IMAGE == 'true' && 'mode=min' }}
@@ -167,8 +167,11 @@ jobs:
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
       - name: Add package push info to summary
+        continue-on-error: true
         run: |
           if [[ ${{ env.PUSH_IMAGE }} == 'true' ]]; then
+            TAGS=$(echo "${{ fromJSON(steps.build_push.outputs.metadata)['image.name'] }}" | tr ',' '\n' | sed 's/^/- /')
+            echo -e "The following image tags were pushed:\n$TAGS\n" >> $GITHUB_STEP_SUMMARY
             echo 'New images can be found on GHCR here: https://github.com/health-connector/enroll/pkgs/container/enroll.' >> $GITHUB_STEP_SUMMARY
           else
             echo 'Image build triggered as local-only - no image pushed to registry.' >> $GITHUB_STEP_SUMMARY
