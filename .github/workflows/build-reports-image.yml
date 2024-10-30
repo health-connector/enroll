@@ -35,18 +35,37 @@ jobs:
       branch: ${{ steps.prep-simple-vars.outputs.branch}}
       commitShortSha: ${{ steps.prep-simple-vars.outputs.commit_sha || steps.default-sha-set.outputs.commit_sha}}
       registryGhcr: ${{ steps.prep-simple-vars.outputs.registry_ghcr }}
+      taggedImage: ${{ steps.prep-simple-vars.outputs.tagged_image }}
+      baseImage: ${{ steps.prep-simple-vars.outputs.base_image }}
+      ghRepositoryName: ${{ steps.prep-simple-vars.outputs.gh_repository_name }}
+
     steps:
       - name: Set variables from workflow dispatch
         id: prep-simple-vars
         run: |
           if [[ "${{github.event_name}}" == "repository_dispatch" ]]; then
-            echo "branch=${{ github.event.client_payload.branch }}" >> $GITHUB_OUTPUT
-            echo "commit_sha=${{ github.event.client_payload.commit_sha }}" >> $GITHUB_OUTPUT
+            BRANCH_NAME=${{ github.event.client_payload.branch }}
+            SHORT_SHA=${{ github.event.client_payload.commit_sha }}
           else
-            echo "branch=${{ github.event.inputs.branch }}" >> $GITHUB_OUTPUT
-            echo "commit_sha=${{ github.event.inputs.commit_sha }}" >> $GITHUB_OUTPUT
+            BRANCH_NAME=${{ github.event.inputs.branch }}
+            SHORT_SHA=${{ github.event.inputs.commit_sha }}
           fi
+          
+          GH_REPO=$(echo '${{ github.repository }}' | awk -F '/' '{print $2}')
+          REGISTRY_GHCR='ghcr.io'
+          TAGSAFE_BRANCH_NAME=$(echo $BRANCH_NAME | sed -e 's/[^a-zA-Z0-9_.]/-/g' -e 's/^[-.]//g')
+          IMAGE=health-connector/$GH_REPO
+          TAG=$TAGSAFE_BRANCH_NAME-$SHORT_SHA
+          TAGGED_IMAGE=${IMAGE}:${TAG}
+          
+          echo "tagged_image=$TAGGED_IMAGE" >> $GITHUB_OUTPUT
+          echo "base_image=$IMAGE" >> $GITHUB_OUTPUT
+          echo "short_sha=$SHORT_SHA" >> $GITHUB_OUTPUT
+          echo "gh_repository_name=$GH_REPO" >> $GITHUB_OUTPUT
           echo "registry_ghcr=ghcr.io" >> $GITHUB_OUTPUT
+          echo "branch=$BRANCH_NAME" >> $GITHUB_OUTPUT
+          echo "commit_sha=$SHORT_SHA" >> $GITHUB_OUTPUT
+          echo "registry_ghcr=$REGISTRY_GHCR" >> $GITHUB_OUTPUT
 
       - name: Pull branch for default SHA determination
         id: default-sha-pull
@@ -107,10 +126,10 @@ jobs:
           file: .docker/Dockerfile.gha-reports
           # Example tags:
           # ghcr.io/health-connector/enroll:cca-reports tag for easier compat with existing Devops flows,
-          # ghcr.io/health-connector/enroll:pv188414567_add_gha_workflow-40df5b1-cca tag for better traceability
+          # ghcr.io/ health-connector/enroll:pv188414567_add_gha_workflow-40df5b1 -cca-reports tag for better traceability
           tags: |
-            ghcr.io/health-connector/enroll:${{ env.CLIENT }}-reports
-            ${{ format('{0}/{1}-{2}-reports', needs.prep.outputs.registryGhcr, needs.prep.outputs.commitShortSha, env.CLIENT) }}
+            ${{ format('{0}/{1}:{2}-reports', needs.prep.outputs.registryGhcr, needs.prep.outputs.baseImage, env.CLIENT) }}
+            ${{ format('{0}/{1}-{2}-reports', needs.prep.outputs.registryGhcr, needs.prep.outputs.taggedImage, env.CLIENT) }}
           build-args: |
             CLIENT=${{ env.CLIENT }}
             COMMIT_SHORT_SHA=${{ needs.prep.outputs.commitShortSha }}
