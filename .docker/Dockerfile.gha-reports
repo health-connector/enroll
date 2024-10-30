@@ -1,6 +1,9 @@
 #################################################
 # Rails existing prod image, to be supplemented #
 #################################################
+# Suppress warning about no default arg for FROM. Better to fail outright if workflow is misconfigured, than build
+# something unexpected.
+# check=skip=InvalidDefaultArgInFrom
 ARG SOURCE_IMAGE
 FROM ${SOURCE_IMAGE}
 
