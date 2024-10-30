@@ -6,8 +6,6 @@
 name: Build reports image
 
 on:
-  push: #fake push to make workflow available _ TODO REMOVE when can hit workflow dispatch via cli...
-#  gh -R https://github.com/health-connector/enroll/ workflow run build-reports-image.yml --ref pv188427863_add_reports_dockerfile -f branch=pv188427863_add_reports_dockerfile
   workflow_dispatch:
     inputs:
       branch:
