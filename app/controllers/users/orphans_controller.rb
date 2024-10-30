@@ -8,6 +8,7 @@ class Users::OrphansController < ApplicationController
   end
 
   def show
+    authorize User, :staff_can_access_user_account_tab?
   end
 
   def destroy
