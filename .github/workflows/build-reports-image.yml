@@ -7,6 +7,7 @@ name: Build reports image
 
 on:
   push: #fake push to make workflow available _ TODO REMOVE when can hit workflow dispatch via cli...
+#  gh -R https://github.com/health-connector/enroll/ workflow run build-reports-image.yml --ref pv188427863_add_reports_dockerfile -f branch=pv188427863_add_reports_dockerfile
   workflow_dispatch:
     inputs:
       branch:
@@ -58,7 +59,7 @@ jobs:
 
       - name: Set SHA from latest commit on branch
         id: default-sha-set
-        if: ${{ steps.default-sha.conclusion == 'success' }}
+        if: ${{ steps.default-sha-pull.conclusion == 'success' }}
         run: |
           echo "commit_sha=$(git log --pretty=format:'%H' -1 | head -c7)" >> $GITHUB_OUTPUT
   
