@@ -156,9 +156,7 @@ jobs:
           # https://docs.docker.com/build/ci/github-actions/attestations/#default-provenance
           provenance: mode=min
           build-args: |
-            CLIENT=${{ env.CLIENT }}
-            COMMIT_SHORT_SHA=${{ needs.prep.outputs.commitShortSha }}
-            BRANCH=${{ needs.prep.outputs.branch }}
+            SOURCE_IMAGE=${{ format('{0}/{1}-{2}', needs.prep.outputs.registryGhcr, needs.prep.outputs.taggedImage, env.CLIENT) }}
 
       - name: Add package push info to summary
         continue-on-error: true

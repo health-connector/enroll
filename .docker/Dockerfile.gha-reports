@@ -1,12 +1,10 @@
-####################
-# Rails prod image #
-####################
+#################################################
+# Rails existing prod image, to be supplemented #
+#################################################
 
-ARG COMMIT_SHORT_SHA
-ARG CLIENT=cca
-ARG BRANCH=master
+ARG SOURCE_IMAGE
 
-FROM ghcr.io/health-connector/enroll:${BRANCH}-${COMMIT_SHORT_SHA}-${CLIENT}
+FROM ${SOURCE_IMAGE}
 
 # Switch back to root to install system libraries
 USER root
