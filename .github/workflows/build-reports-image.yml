@@ -157,3 +157,7 @@ jobs:
             CLIENT=${{ env.CLIENT }}
             COMMIT_SHORT_SHA=${{ needs.prep.outputs.commitShortSha }}
             BRANCH=${{ needs.prep.outputs.branch }}
+
+      - name: Add package push info to summary
+        run: |
+          echo 'New images can be found on GHCR here: https://github.com/health-connector/enroll/pkgs/container/enroll.' >> $GITHUB_STEP_SUMMARY
