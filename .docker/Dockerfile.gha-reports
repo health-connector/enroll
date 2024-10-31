@@ -31,7 +31,6 @@ RUN curl https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o "awscliv2.z
     && ./aws/install \
     && rm awscliv2.zip
 
-# TODO - confirm correct version to use - 1.30.0 matches other existing servers and is on aws eks supported list?
-RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.22.10/bin/linux/amd64/kubectl
+RUN curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.30.4/2024-09-11/bin/linux/amd64/kubectl
 RUN chmod 744 ./kubectl
 RUN mv ./kubectl /usr/local/bin/kubectl
