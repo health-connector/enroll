@@ -4,6 +4,7 @@ module IndividualMarket
   module Api
     module V1
       class SlcspController < ActionController::Base
+        protect_from_forgery with: :exception, prepend: true
 
         def plan
           request_xml = request.body.read
