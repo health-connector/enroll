@@ -5,7 +5,6 @@ on:
   push:
     branches:
       - master
-      - pv188427863_add_reports_dockerfile
   pull_request:
     branches:
       - master
