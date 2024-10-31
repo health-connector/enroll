@@ -9,7 +9,7 @@ module BenefitMarkets
       field :relationship_kinds, type: Array
       field :age_threshold, type: Integer, default: nil
       field :age_comparison, type: Symbol, default: nil
-      field :disability_qualifier, type: Boolean, default: nil
+      field :disability_qualifier, type: Mongoid::Boolean, default: nil
 
       validates_presence_of :relationship_name, :allow_blank => false
       validates_presence_of :relationship_kinds, :allow_blank => false
