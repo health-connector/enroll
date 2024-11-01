@@ -6,7 +6,7 @@ module Notifier
       [/acapi\.info\.events\..*/]
     end
 
-    def perform(event_name, _e_start, _e_end, _msg_id, payload)
+    def call(event_name, _e_start, _e_end, _msg_id, payload)
       log("NOTICE EVENT: #{event_name} #{payload}", {:severity => 'info'})
 
       NoticeKind.where(event_name: event_name.split(".")[4]).each do |notice_kind|
