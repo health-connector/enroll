@@ -120,7 +120,7 @@ module SponsoredBenefits
 
           it "returns a success response" do
             get :new, params: { plan_design_organization_id: prospect_plan_design_organization.id, broker_agency_id:  broker_agency_profile.id}
-            expect(response).to be_success
+            expect(response).to be_successful
           end
         end
       end
@@ -136,7 +136,7 @@ module SponsoredBenefits
 
           it "returns a success response" do
             get :edit, params: { id: prospect_plan_design_organization.to_param }
-            expect(response).to be_success
+            expect(response).to be_successful
           end
         end
       end

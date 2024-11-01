@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Used to load conversion employer through script
 #
 # @return nil if data imported and put the results in conversion_employer_results file
@@ -31,7 +32,7 @@ end
 
 dir_glob = File.join(Rails.root, "conversion_employers", "*.{xlsx,csv}")
 
-Dir.glob(dir_glob).sort.each do |file|
+Dir.glob(dir_glob).each do |file|
   puts "started processing the file : #{file}"
   conversion_object = BenefitSponsors::ConversionEmployers.new
   conversion_object.import_employer(file)

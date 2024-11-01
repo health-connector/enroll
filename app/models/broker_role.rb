@@ -42,10 +42,10 @@ class BrokerRole
 
   field :market_kind, type: String
   field :languages_spoken, type: Array, default: ["en"]
-  field :working_hours, type: Boolean, default: false
-  field :accept_new_clients, type: Boolean
-  field :license, type: Boolean
-  field :training, type: Boolean
+  field :working_hours, type: Mongoid::Boolean, default: false
+  field :accept_new_clients, type: Mongoid::Boolean
+  field :license, type: Mongoid::Boolean
+  field :training, type: Mongoid::Boolean
   field :carrier_appointments, type: Hash , default: BROKER_CARRIER_APPOINTMENTS
 
   embeds_many :workflow_state_transitions, as: :transitional

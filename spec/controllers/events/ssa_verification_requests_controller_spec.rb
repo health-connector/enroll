@@ -19,7 +19,7 @@ describe Events::SsaVerificationRequestsController do
       end
       allow(Time).to receive(:now).and_return(mock_now)
       expect(controller).to receive(:render_to_string).with(
-        "events/lawful_presence/ssa_verification_request", {:formats => ["xml"], :locals => {
+        "events/lawful_presence/ssa_verification_request", {:formats => [:xml], :locals => {
           :individual => person
         }}
       ).and_return(rendered_template)
