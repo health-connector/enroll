@@ -1256,7 +1256,7 @@ And(/(.*) should have a ER sponsored enrollment/) do |named_person|
     year = TimeKeeper.date_of_record.year
     new_end = Time.new(year, 12,31,0,0,0,0).utc
     assignment = BenefitGroupAssignment.on_date(ce, TimeKeeper.date_of_record - 2.months)
-    assignment.benefit_group.plan_year.update_attributes!(effective_period: Time.new(year - 1,11,1,0,0,0,0).utc..Time.new(year,12,31,0,0,0,0).utc)
+    assignment.benefit_group.plan_year.benefit_application_items.first.update_attributes(effective_period: Date.new(year - 1, 1, 1)..Date.new(year, 12, 31))
     assignment.update_attributes!(end_on: new_end)
   end
 end
