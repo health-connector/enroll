@@ -369,25 +369,7 @@ Rails.application.routes.draw do
   end
 
   namespace :broker_agencies do
-    root 'profiles#new'
-
-    resources :profiles, only: [:new, :create, :edit, :update] do
-      collection do
-        get :employers
-        get :agency_messages
-        get :assign_history
-      end
-      member do
-        if Settings.aca.general_agency_enabled
-          get :general_agency_index
-        end
-        get :manage_employers
-        post :clear_assign_for_employer
-        get :assign
-        post :update_assign
-        post :employer_datatable
-        post :set_default_ga
-      end
+    resources :profiles, only: [] do
 
       resources :applicants
     end
@@ -528,9 +510,6 @@ Rails.application.routes.draw do
       get :show_docs
     end
   end
-
-  # Temporary for Generic Form Template
-  match 'templates/form-template', to: 'welcome#form_template', via: [:get, :post]
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
