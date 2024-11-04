@@ -51,6 +51,18 @@ class HbxEnrollmentPolicy < ApplicationPolicy
     create?
   end
 
+  def continuous_show?
+    create?
+  end
+
+  def waiver_thankyou?
+    create?
+  end
+
+  def waiver_checkout?
+    create?
+  end
+
   private
 
   # # Returns the family associated with the current enrollment.
