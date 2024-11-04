@@ -71,10 +71,11 @@ RSpec.describe Exchanges::AgentsController do
   describe "resume enrollment method behavior", dbclean: :after_each do
     let!(:consumer_role) { FactoryBot.create(:consumer_role, bookmark_url: nil, person: person_user) }
 
-    before(:each) do
-      allow(current_user).to receive(:roles).and_return ['consumer']
-      controller.class.skip_before_action :check_agent_role, raise: false
+    before :each do
+      allow(person_user).to receive(:csr_role).and_return true
+      allow(current_user).to receive(:person).and_return(person_user)
     end
+
     context "actions when not passed Ridp" do
       it 'should redirect to family account path' do
         sign_in current_user
@@ -91,7 +92,6 @@ RSpec.describe Exchanges::AgentsController do
     end
 
     context "when admin submitted paper application" do
-
       before do
         consumer_role.update_attributes(bookmark_url: '/')
         sign_in current_user
@@ -103,7 +103,7 @@ RSpec.describe Exchanges::AgentsController do
       end
 
       it "should redirect to family account path if admin submitted paper application" do
-        get :resume_enrollment, params: {   person_id: person_user.id, original_application_type: "paper" }
+        get :resume_enrollment, params: { person_id: person_user.id, original_application_type: "paper" }
         expect(response).to redirect_to family_account_path
       end
     end
