@@ -8,9 +8,9 @@ module Employers
     before_action :redirect_new_model, only: [:show, :welcome, :index, :new, :show_profile, :edit, :generate_sic_tree, :create]
 
     before_action :find_employer, only: [:show, :show_profile, :destroy, :inbox,
-                                         :bulk_employee_upload, :bulk_employee_upload_form, :download_invoice, :export_census_employees, :link_from_quote, :new_document, :upload_document, :generate_checkbook_urls, :consumer_override]
+                                         :bulk_employee_upload, :download_invoice, :export_census_employees, :link_from_quote, :new_document, :upload_document, :generate_checkbook_urls, :consumer_override]
 
-    before_action :check_show_permissions, only: [:show, :show_profile, :destroy, :inbox, :bulk_employee_upload, :bulk_employee_upload_form]
+    before_action :check_show_permissions, only: [:show, :show_profile, :destroy, :inbox, :bulk_employee_upload]
     before_action :check_index_permissions, only: [:index]
     before_action :check_employer_staff_role, only: [:new]
     before_action :check_access_to_organization, only: [:edit]
@@ -53,14 +53,6 @@ module Employers
     #Deprecated. Use new model version instead.
     def welcome; end
 
-    def search
-      @employer_profile = Forms::EmployerCandidate.new
-      respond_to do |format|
-        format.html
-        format.js
-      end
-    end
-
     def match
       authorize @employer_profile
       @employer_candidate = Forms::EmployerCandidate.new(params.require(:employer_profile))
@@ -95,9 +87,6 @@ module Employers
         end
       end
     end
-
-    #Deprecated. Use new model version instead.
-    def my_account; end
 
     #Deprecated. Use new model version instead.
     def show; end
@@ -172,8 +161,6 @@ module Employers
       redirect_to family_account_path
     end
 
-    def bulk_employee_upload_form; end
-
     def generate_checkbook_urls
       authorize @employer_profile
       @employer_profile.generate_checkbook_notices
@@ -238,7 +225,7 @@ module Employers
       doc = @employer_profile.documents.find(params[:ids][0])
       send_file doc.identifier, file_name: doc.title,content_type: doc.format
 
-        #render json: { status: 200, message: 'Successfully submitted the selected employer(s) for binder paid.' }
+      #render json: { status: 200, message: 'Successfully submitted the selected employer(s) for binder paid.' }
       #rescue => e
       #  render json: { status: 500, message: 'An error occured while submitting employer(s) for binder paid.' }
       #end
@@ -256,9 +243,6 @@ module Employers
         render json: { status: 500, message: "An error occurred while submitting employer(s) for binder paid: #{e.message}" }
       end
     end
-
-    #Deprecated. Use new model version instead.
-    def counties_for_zip_code; end
 
     # def employer_account_creation_notice
     #   begin
@@ -436,13 +420,13 @@ module Employers
     end
 
     def wrap_in_benefit_group_cache
-  #    prof_result = RubyProf.profile do
+      #    prof_result = RubyProf.profile do
       Caches::RequestScopedCache.allocate(:employer_calculation_cache_for_benefit_groups)
       yield
       Caches::RequestScopedCache.release(:employer_calculation_cache_for_benefit_groups)
-  #    end
-  #    printer = RubyProf::MultiPrinter.new(prof_result)
-  #    printer.print(:path => File.join(Rails.root, "rprof"), :profile => "profile")
+      #    end
+      #    printer = RubyProf::MultiPrinter.new(prof_result)
+      #    printer.print(:path => File.join(Rails.root, "rprof"), :profile => "profile")
     end
 
     def employer_params

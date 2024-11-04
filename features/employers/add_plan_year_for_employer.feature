@@ -1,7 +1,7 @@
 Feature: Add Plan Year For Employer
   Background: Setup site, employer, and benefit market
     Given a CCA site exists with a benefit market
-    Given benefit market catalog exists for enrollment_open initial employer with health benefits
+    Given SAFE benefit market catalog exists for enrollment_open initial employer with health benefits
     And there is an employer ABC Widgets
     And ABC Widgets employer has a staff role
     And staff role person logged in
@@ -55,3 +55,36 @@ Feature: Add Plan Year For Employer
       | 100                  | true                  |
       | 60                   | true                  |
       | 20                   | true                  |
+
+  Scenario: should see pvp indicators when feature is enabled
+    Given products marked as premium value products
+    When ABC Widgets is logged in and on the home page
+    And staff role person clicked on benefits tab
+    Then employer should see add plan year button
+    And employer clicked on add plan year button
+    Then employer should see continue button disabled
+    And employer filled all the fields on benefit application form
+    And employer clicked on continue button
+    Then employer should see form for benefit package
+    And employer filled all the fields on benefit package form for initial application
+    And employer selected by metal level plan offerings
+    Then employer should see gold metal level type
+    And employer clicked on gold metal level
+    Then employer should see pvp indicator
+
+  Scenario: should not see pvp indicators when feature is disabled
+    Given products marked as premium value products
+    Given premium value plans feature is disabled
+    When ABC Widgets is logged in and on the home page
+    And staff role person clicked on benefits tab
+    Then employer should see add plan year button
+    And employer clicked on add plan year button
+    Then employer should see continue button disabled
+    And employer filled all the fields on benefit application form
+    And employer clicked on continue button
+    Then employer should see form for benefit package
+    And employer filled all the fields on benefit package form for initial application
+    And employer selected by metal level plan offerings
+    Then employer should see gold metal level type
+    And employer clicked on gold metal level
+    Then employer should not see pvp indicator

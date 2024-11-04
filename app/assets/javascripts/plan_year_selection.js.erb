@@ -271,16 +271,6 @@ ready = function() {
     $(this).closest('.form-group').find('.slide-label').html($(this).val()+"%");
   });
 
-  // init slider
-  $('.benefits-fields .slider, .dental-benefits-fields .slider').bootstrapSlider({
-    formatter: function(value) {
-      return 'Contribution Percentage: ' + value + '%';
-    }
-
-
-
-  });
-
   $(".plan-year-setup .benefits-fields .slider").on("slideStop", function(slideEvt) {
 
     $(this).closest('.form-group').find('.hidden-param').val(slideEvt.value).attr('value', slideEvt.value);
