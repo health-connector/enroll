@@ -1,4 +1,5 @@
 class TranslationsController < ApplicationController
+  before_action :translations_authorized?
   before_action :set_translation, only: [:show, :edit, :update, :destroy]
 
   def index
@@ -55,8 +56,13 @@ class TranslationsController < ApplicationController
     @translation = Translation.find(params[:id])
   end
 
+  def translations_authorized?
+    return false if authorize HbxProfile, :can_view_or_change_translations?
+
+    redirect_to root_path, :flash => { :error => "Access not allowed" }
+  end
+
   def translation_params
     params.require(:translation).permit(:key, :value)
   end
 end
-
