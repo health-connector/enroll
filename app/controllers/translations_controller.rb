@@ -57,7 +57,7 @@ class TranslationsController < ApplicationController
   end
 
   def translations_authorized?
-    return if authorize HbxProfile, :can_view_or_change_translations?
+    return false if authorize HbxProfile, :can_view_or_change_translations?
 
     redirect_to root_path, :flash => { :error => "Access not allowed" }
   end
@@ -66,4 +66,3 @@ class TranslationsController < ApplicationController
     params.require(:translation).permit(:key, :value)
   end
 end
-
