@@ -8,9 +8,15 @@ module BenefitSponsors
     module BenefitApplications
       # This class reinstates a benefit application
       class Reinstate
-        include Dry::Monads[:result, :do]
+        include Dry::Monads[:do, :result]
 
-        # @param [ BenefitSponsors::BenefitApplications::BenefitApplication ] benefit_application
+        # Reinstates a benefit application.
+        #
+        # @param params [Hash] A hash containing :benefit_application key.
+        #   - :benefit_application [BenefitSponsors::BenefitApplications::BenefitApplication] The benefit application to reinstate.
+        #   - :options [Hash] (optional) Additional options. For example, :transmit_to_carrier to indicate whether to transmit the reinstatement to the carrier.
+        #
+        # @return [BenefitSponsors::BenefitApplications::BenefitApplication] The reinstated benefit application.
         def call(params)
           yield validate(params)
           yield reinstate_benefit_application

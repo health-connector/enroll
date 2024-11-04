@@ -309,7 +309,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
               "is_business_owner" => true,
               "hired_on" => "05/02/2019",
               "census_dependents_attributes" => {"0" =>
-                {"first_name" => "test", "middle_name" => "", "last_name" => "test", "ssn" => "", "_destroy" => "false", "dob" => "2023-06-01", "gender" => "female", "employee_relationship" => "child_under_26"}}
+                                                   {"first_name" => "test", "middle_name" => "", "last_name" => "test", "ssn" => "", "_destroy" => "false", "dob" => "2023-06-01", "gender" => "female", "employee_relationship" => "child_under_26"}}
             }
 
             post :update, params: { id: census_employee.id, employer_profile_id: census_employee.employer_profile.id, census_employee: census_employee_update_benefit_package_params }

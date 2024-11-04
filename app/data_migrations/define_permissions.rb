@@ -41,13 +41,15 @@ class DefinePermissions < MigrationTask
       .update_attributes!(modify_family: true, modify_employer: true, revert_application: true, list_enrollments: true,
                           send_broker_agency_message: true, approve_broker: true, approve_ga: true, can_update_ssn: false, can_complete_resident_application: false,
                           can_add_sep: false, can_lock_unlock: true, can_view_username_and_email: true, can_reset_password: false, modify_admin_tabs: true,
-                          view_admin_tabs: true,  view_the_configuration_tab: true, can_submit_time_travel_request: false, can_change_username_and_email: true)
+                          view_admin_tabs: true,  view_the_configuration_tab: true, can_submit_time_travel_request: false, can_change_username_and_email: true,
+                          can_update_pvp_eligibilities: true)
     Permission
       .find_or_initialize_by(name: 'super_admin')
       .update_attributes!(modify_family: true, modify_employer: true, revert_application: true, list_enrollments: true,
                           send_broker_agency_message: true, approve_broker: true, approve_ga: true, can_update_ssn: false, can_complete_resident_application: false,
                           can_add_sep: false, can_lock_unlock: true, can_view_username_and_email: true, can_reset_password: false, modify_admin_tabs: true,
-                          view_admin_tabs: true, can_extend_open_enrollment: true, view_the_configuration_tab: true, can_submit_time_travel_request: false, can_change_username_and_email: true, view_login_history: true)
+                          view_admin_tabs: true, can_extend_open_enrollment: true, view_the_configuration_tab: true, can_submit_time_travel_request: false,
+                          can_change_username_and_email: true, view_login_history: true, can_update_pvp_eligibilities: true)
       #puts 'Permissions Updated!'
   end
 
@@ -194,5 +196,10 @@ class DefinePermissions < MigrationTask
     Permission.super_admin.update_attributes!(can_edit_notice_templates: true)
     Permission.hbx_staff.update_attributes!(can_edit_notice_templates: true)
     Permission.hbx_tier3.update_attributes!(can_edit_notice_templates: true)
+  end
+
+  def hbx_admin_can_update_pvp_eligibilities
+    Permission.super_admin.update_attributes!(can_update_pvp_eligibilities: true)
+    Permission.hbx_tier3.update_attributes!(can_update_pvp_eligibilities: true)
   end
 end
