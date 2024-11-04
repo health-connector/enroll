@@ -20,6 +20,6 @@ class ApplicationMailer < ActionMailer::Base
 
   def mail(headers = {}, &block)
     headers[:to] = sanitize_email(headers[:to]) if headers[:to].present?
-    super(headers, &block)
+    super
   end
 end
