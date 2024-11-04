@@ -10,9 +10,33 @@ end
 
 Then(/^the user will see correct content in table$/) do
   expect(find('.table-responsive .table tbody')).to have_text('SHOP')
-  expect(find('.table-responsive .table tbody')).to have_text('17')
-  expect(find('.table-responsive .table tbody')).to have_text('0')
+  expect(find('.table-responsive .table tbody')).to have_text(BenefitMarkets::Products::Product.count)
+  expect(find('.table-responsive .table tbody')).to have_text(Family.actual_enrollments_number)
   expect(find('.table-responsive .table tbody')).to have_text('Health, Dental')
+end
+
+Then(/^the table should show correct plans, pvp markings, and enrollments counts$/) do
+  current_year = TimeKeeper.date_of_record.year
+  product_ids = BenefitMarkets::Products::Product.by_year(current_year).pluck(:id)
+  eligibile_pvps = BenefitMarkets::Products::PremiumValueProduct.where(
+    :product_id.in => product_ids,
+    :eligibilities => {:$elemMatch => {key: :cca_shop_pvp_eligibility, current_state: :eligible}}
+  )
+
+  enrollments_data = Family.actual_enrollment_counts_by_products(product_ids)
+  enrollments_by_product = enrollments_data.index_by { |data| data["_id"] }
+  enrollments_count = product_ids.sum { |p_id| enrollments_by_product[p_id]&.dig("enrollment_count") || 0 }
+
+  expected_values = { Year: current_year,
+                      Plans: product_ids.count,
+                      PVP: eligibile_pvps.count,
+                      Enrollments: enrollments_count }
+
+  table = find('.table-responsive table.table-wrapper')
+  expected_values.each do |key, value|
+    column_index = table.find('thead tr th', text: key).path.split('/')[-1][/\d+/].to_i
+    expect(table).to have_xpath(".//tbody/tr/td[#{column_index}]", text: value)
+  end
 end
 
 When(/^the user will see Marketplace Plan Year Index table$/) do
