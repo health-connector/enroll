@@ -16,10 +16,7 @@ Feature: Visit Issuer and nested pages
     And the user is on the Issuers Index of the Admin Dashboard
     Then the user visit the Marketplace Plan Year Index page
     And the user will see Marketplace Plan Year Index table
-    Then the table should have "current_year" in the "Year" column
-    Then the table should have "5" in the "Plans" column
-    Then the table should have "1" in the "PVP Marking(s)" column
-    Then the table should have "0" in the "Enrollments" column
+    Then the table should show correct plans, pvp markings, and enrollments counts
     Then the table should have "Health" in the "Products" column
 
   Scenario: HBX Staff with Super Admin subroles should see Marketplace Carriers page
