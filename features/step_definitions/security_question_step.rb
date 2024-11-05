@@ -138,7 +138,7 @@ When(/^.+ submits termination reason$/) do
 end
 
 When(/I have submitted the security questions$/) do
-  screenshot("group_selection")
+  sleep 1
   find('.interaction-click-control-save-responses').click
 end
 

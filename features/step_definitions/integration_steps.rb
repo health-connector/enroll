@@ -592,6 +592,7 @@ When(/^(.*) logs? out$/) do |_someone|
 end
 
 When(/^.+ go(?:es)? to register as an employee$/) do
+  sleep 1
   find('.interaction-click-control-continue').click
 end
 
@@ -758,8 +759,7 @@ And(/^.+ selects the first plan available$/) do
 end
 
 Then(/^.+ should see the dependents page$/) do
-  expect(page).to have_content('Add Member')
-  screenshot("dependents_page")
+  expect(page).to have_content('Add New Member')
 end
 
 When(/^.+ clicks? edit on baby Soren$/) do
@@ -818,7 +818,7 @@ When(/^.+ enters? the dependent info of Patrick wife$/) do
 end
 
 When(/^.+ clicks? confirm member$/) do
-  all(:css, ".mz").last.click
+  find('span[class="btn btn-primary btn-br pull-right mz"]').click
   expect(page).to have_link('Add New Member to Family')
 end
 
@@ -828,6 +828,7 @@ When(/^.+ clicks? continue on the dependents page$/) do
 end
 
 Then(/^.+ should see the group selection page$/) do
+  find('#group-selection-form', :wait => 10)
   expect(page).to have_css('form')
 end
 
@@ -1255,7 +1256,7 @@ And(/(.*) should have a ER sponsored enrollment/) do |named_person|
     year = TimeKeeper.date_of_record.year
     new_end = Time.new(year, 12,31,0,0,0,0).utc
     assignment = BenefitGroupAssignment.on_date(ce, TimeKeeper.date_of_record - 2.months)
-    assignment.benefit_group.plan_year.update_attributes!(effective_period: Time.new(year - 1,11,1,0,0,0,0).utc..Time.new(year,12,31,0,0,0,0).utc)
+    assignment.benefit_group.plan_year.benefit_application_items.first.update_attributes(effective_period: Date.new(year - 1, 1, 1)..Date.new(year, 12, 31))
     assignment.update_attributes!(end_on: new_end)
   end
 end

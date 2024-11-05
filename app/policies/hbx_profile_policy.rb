@@ -25,6 +25,10 @@ class HbxProfilePolicy < ApplicationPolicy
     role.permission.can_submit_time_travel_request
   end
 
+  def can_view_or_change_translations?
+    user_hbx_staff_role&.permission&.name == "super_admin"
+  end
+
   def send_broker_agency_message?
     role = user_hbx_staff_role
     return false unless role
@@ -190,6 +194,10 @@ class HbxProfilePolicy < ApplicationPolicy
 
   def login_history?
     staff_view_login_history?
+  end
+
+  def can_mark_pvp_eligibilities?
+    user_hbx_staff_role&.permission&.can_update_pvp_eligibilities?
   end
 
   private

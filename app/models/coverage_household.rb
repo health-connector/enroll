@@ -10,10 +10,10 @@ class CoverageHousehold
   embedded_in :household
 
   # all coverage_household members are immediate relations
-  field :is_immediate_family, type: Boolean
+  field :is_immediate_family, type: Mongoid::Boolean
 
   # coverage household includes immediate relations with non-QHP eligibility determination 
-  field :is_determination_split_household, type: Boolean, default: false
+  field :is_determination_split_household, type: Mongoid::Boolean, default: false
 
   # Agency representing this coverage household
   field :broker_agency_id, type: BSON::ObjectId

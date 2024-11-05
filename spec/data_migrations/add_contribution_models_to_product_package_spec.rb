@@ -4,7 +4,7 @@ require 'rails_helper'
 require File.join(Rails.root, 'app', 'data_migrations', 'add_contribution_models_to_product_package')
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 
-describe AddContributionModelsToProductPackage do
+describe AddContributionModelsToProductPackage, :dbclean => :after_each do
 
   let(:given_task_name) { "add_contribution_models_to_product_package" }
   subject { AddContributionModelsToProductPackage.new(given_task_name, double(:current_scope => nil)) }

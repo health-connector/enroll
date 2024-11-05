@@ -74,6 +74,11 @@ Rails.application.routes.draw do
         get :broker_agency_index
         get :general_agency_index if Settings.aca.general_agency_enabled
         get :issuer_index
+        match "marketplace_plan_years/:market" => "hbx_profiles#marketplace_plan_years", as: :marketplace_plan_years, via: :get
+        match "marketplace_plan_years/:market/:year" => "hbx_profiles#marketplace_plan_year", as: :marketplace_plan_year, via: :get
+        match "marketplace_plan_years/:market/:year/:id" => "hbx_profiles#carrier", as: :carrier, via: :get
+        match "marketplace_plan_years/:market/:year/:id/:product_id" => "hbx_profiles#plan_details", as: :plan_details, via: :get
+        put :mark_pvp_eligibilities
         get :product_index
         get :configuration
         post :set_date
@@ -295,11 +300,9 @@ Rails.application.routes.draw do
 
     resources :employer_profiles do
       get 'new'
-      get 'my_account'
       get 'show_profile'
       get 'link_from_quote'
       get 'consumer_override'
-      get 'bulk_employee_upload_form'
       post 'bulk_employee_upload'
 
       member do
@@ -314,10 +317,8 @@ Rails.application.routes.draw do
 
       collection do
         get 'welcome'
-        get 'search'
         post 'match'
         get 'inbox'
-        get 'counties_for_zip_code'
         get 'generate_sic_tree'
       end
       resources :plan_years do
@@ -368,25 +369,7 @@ Rails.application.routes.draw do
   end
 
   namespace :broker_agencies do
-    root 'profiles#new'
-
-    resources :profiles, only: [:new, :create, :edit, :update] do
-      collection do
-        get :employers
-        get :agency_messages
-        get :assign_history
-      end
-      member do
-        if Settings.aca.general_agency_enabled
-          get :general_agency_index
-        end
-        get :manage_employers
-        post :clear_assign_for_employer
-        get :assign
-        post :update_assign
-        post :employer_datatable
-        post :set_default_ga
-      end
+    resources :profiles, only: [] do
 
       resources :applicants
     end

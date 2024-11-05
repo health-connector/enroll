@@ -27,7 +27,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitSponsorship::EstimatedEmploye
     before :each do
       allow(reference_product).to receive(:carrier_profile_hios_ids).and_return([reference_product.hios_id.slice(0..4)])
       ::BenefitMarkets::Products::ProductRateCache.initialize_rate_cache!
-      @result = subject.call(params)
+      @result = subject.call(**params)
     end
 
     it 'should return success' do

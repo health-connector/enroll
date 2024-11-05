@@ -199,7 +199,7 @@ RSpec.describe BenefitMarkets::Operations::ContributionModels::Assign, dbclean: 
 
   context 'sending required parameters' do
     it 'should assign ContributionModel for initial' do
-      result = subject.call(params)
+      result = subject.call(**params)
       expect(result.success?).to be_truthy
       key = result.success[:product_package_values][:assigned_contribution_model].key
       if effective_date.month == 1
@@ -215,7 +215,7 @@ RSpec.describe BenefitMarkets::Operations::ContributionModels::Assign, dbclean: 
     let(:params)                          {{ product_package_values: product_package_params, enrollment_eligibility: enrollment_eligibility_renewal }}
 
     it 'should assign ContributionModel for renewal' do
-      result = subject.call(params)
+      result = subject.call(**params)
       expect(result.success?).to be_truthy
       key = result.success[:product_package_values][:assigned_contribution_model].key
 
