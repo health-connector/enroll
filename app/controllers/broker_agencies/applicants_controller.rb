@@ -48,7 +48,7 @@ class BrokerAgencies::ApplicantsController < ApplicationController
       flash[:notice] = "Applicant accepted successfully."
     end
 
-    redirect_to broker_agencies_profile_path(@broker_agency_profile)
+    redirect_to edit_broker_agencies_profile_applicant_path(@broker_agency_profile, @broker_applicant)
   end
 
   private
@@ -56,7 +56,7 @@ class BrokerAgencies::ApplicantsController < ApplicationController
   def find_broker_agency_profile
     @broker_agency_profile = BrokerAgencyProfile.find(params[:profile_id])
     if @broker_agency_profile.nil?
-      redirect_to broker_agencies_profiles_path(@broker_agency_profile), :flash => { :error => "Something went wrong!!" }
+      redirect_to root_path, :flash => { :error => "Something went wrong!!" }
     end
   end
 
@@ -70,6 +70,6 @@ class BrokerAgencies::ApplicantsController < ApplicationController
     person = current_user.person
     return true if person.broker_role && person.broker_role.is_primary_broker?
 
-    redirect_to broker_agencies_profiles_path(@broker_agency_profile), :flash => { :error => "You must be a Primary broker" }
+    redirect_to root_path, :flash => { :error => "You must be a Primary broker" }
   end
 end
