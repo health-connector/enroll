@@ -8,10 +8,9 @@ class Exchanges::HbxProfilesController < ApplicationController
   include HtmlScrubberUtil
   include StringScrubberUtil
 
-  before_action :modify_admin_tabs?, only: [:binder_paid, :transmit_group_xml]
   before_action :check_hbx_staff_role, except: [:request_help, :configuration, :show, :assister_index, :family_index, :update_cancel_enrollment, :update_terminate_enrollment]
   before_action :set_hbx_profile, only: [:edit, :update, :destroy]
-  before_action :view_the_configuration_tab?, only: [:configuration, :set_date]
+  before_action :view_the_configuration_tab?, only: [:set_date]
   before_action :can_submit_time_travel_request?, only: [:set_date]
   before_action :find_hbx_profile, only: [:employer_index, :configuration, :broker_agency_index, :inbox, :show, :binder_index]
   #before_action :authorize_for, except: [:edit, :update, :destroy, :request_help, :staff_index, :assister_index]
@@ -90,6 +89,8 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   def binder_paid
+    authorize HbxProfile, :binder_paid?
+
     return unless params[:ids]
 
     begin
@@ -106,6 +107,8 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   def transmit_group_xml
+    authorize HbxProfile, :transmit_group_xml?
+
     HbxProfile.transmit_group_xml(params[:id].split)
     @employer_profile = EmployerProfile.find(params[:id])
     @fein = @employer_profile.fein
@@ -219,6 +222,8 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   def assister_index
+    authorize HbxProfile, :assister_index?
+
     @q = params.permit(:q)[:q]
     @staff = Person.where(assister_role: {:$exists => true})
     @page_alphabets = page_alphabets(@staff, "last_name")
@@ -239,6 +244,9 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   def request_help
+    @person = Person.find(params[:person])
+    authorize @person.primary_family, :request_help?
+
     role = nil
     if params[:type]
       cac_flag = params[:type] == 'CAC'
@@ -269,12 +277,13 @@ class Exchanges::HbxProfilesController < ApplicationController
     else
       status_text = call_customer_service params[:firstname].strip, params[:lastname].strip
     end
-    @person = Person.find(params[:person])
     broker_view = render_to_string 'insured/families/_consumer_brokers_widget', :layout => false
     render :text => {broker: broker_view, status: status_text}.to_json, layout: false
   end
 
   def family_index
+    authorize HbxProfile, :family_index?
+
     @q = params.permit(:q)[:q]
     page_string = params.permit(:families_page)[:families_page]
     page_no = page_string.blank? ? nil : page_string.to_i
@@ -376,6 +385,8 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   def update_cancel_enrollment
+    authorize HbxProfile, :update_cancel_enrollment?
+
     params_parser = ::Forms::BulkActionsForAdmin.new(params.permit(uniq_cancel_params).to_h)
     @result = params_parser.result
     @row = params_parser.row
@@ -395,6 +406,8 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   def update_terminate_enrollment
+    authorize HbxProfile, :update_terminate_enrollment?
+
     params_parser = ::Forms::BulkActionsForAdmin.new(params.permit(uniq_terminate_params).to_h)
     @result = params_parser.result
     @row = params_parser.row
@@ -617,6 +630,8 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   def configuration
+    authorize HbxProfile, :configuration?
+
     @time_keeper = Forms::TimeKeeper.new
     respond_to do |format|
       format.html { render partial: "configuration_index" }
@@ -703,6 +718,9 @@ class Exchanges::HbxProfilesController < ApplicationController
         return
       end
     end
+
+    authorize HbxProfile, :show?
+
     session[:person_id] = nil
     session[:dismiss_announcements] = nil
     @unread_messages = @profile.inbox.unread_messages.try(:count) || 0
