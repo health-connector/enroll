@@ -53,16 +53,6 @@ Rails.application.routes.draw do
     end
     resources :agents_inboxes, only: [:show, :destroy]
 
-    resources :residents, only: [:create, :edit, :update] do
-      get :search, on: :collection
-      post :match, on: :collection
-      post :build, on: :collection
-      get :begin_resident_enrollment, on: :collection
-      get :resume_resident_enrollment, on: :collection
-      get :ridp_bypass, on: :collection
-      get :find_sep, on: :collection
-    end
-
     resources :hbx_profiles do
       root 'hbx_profiles#show'
 
@@ -612,6 +602,16 @@ Rails.application.routes.draw do
           collection do
             get :begin_consumer_enrollment
           end
+        end
+
+        resources :residents, only: [:create, :edit, :update] do
+          get :search, on: :collection
+          post :match, on: :collection
+          post :build, on: :collection
+          get :begin_resident_enrollment, on: :collection
+          get :resume_resident_enrollment, on: :collection
+          get :ridp_bypass, on: :collection
+          get :find_sep, on: :collection
         end
       end
     end
