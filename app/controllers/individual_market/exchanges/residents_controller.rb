@@ -54,8 +54,7 @@ module IndividualMarket
         else
           @person = Forms::ResidentCandidate.new
         end
-        respond_to do |format|
-          format.html
+        respond_to :html
         end
       end
 
