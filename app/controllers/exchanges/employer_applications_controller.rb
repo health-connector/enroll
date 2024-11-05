@@ -170,12 +170,13 @@ class Exchanges::EmployerApplicationsController < ApplicationController
     file = params[:file]
 
     if file.is_a?(ActionDispatch::Http::UploadedFile)
+      fein = @benefit_sponsorship&.fein
       xml_file_path = file.tempfile.path
-      v2_xml_uploader = ::BenefitSponsors::Services::V2XmlUploader.new(xml_file_path)
+      v2_xml_uploader = ::BenefitSponsors::Services::V2XmlUploader.new(xml_file_path, fein)
       result, errors = v2_xml_uploader.upload
 
       if result
-        flash[:success] = "Successfully uploaded V2 digest XML for employer_fein: #{@benefit_sponsorship.organization.fein}"
+        flash[:success] = "Successfully uploaded V2 digest XML for employer_fein: #{fein}"
       else
         error_messages = errors.map { |e| "Error: #{e.message}" }.join(", ")
         flash[:error] = "Failed to upload XML. #{error_messages}"
