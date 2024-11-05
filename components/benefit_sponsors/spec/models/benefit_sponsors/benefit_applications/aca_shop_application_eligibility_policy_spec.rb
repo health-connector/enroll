@@ -138,9 +138,8 @@ RSpec.describe BenefitSponsors::BenefitApplications::AcaShopApplicationEligibili
           :open_enrollment_period => Range.new(Date.today, Date.today + BenefitSponsors::BenefitApplications::AcaShopApplicationEligibilityPolicy::OPEN_ENROLLMENT_DAYS_MIN)
         )
 
-        initial_application.benefit_application_items.create(
-          effective_period: Date.new(2021, 2, 1)..Date.new(2021, 1, 1).end_of_year + 1.month,
-          sequence_id: 1,
+        initial_application.benefit_application_items.first.update_attributes(
+          effective_period: Date.new(Date.today.year, 2, 1)..Date.new(Date.today.year, 1, 1).end_of_year + 1.month,
           state: initial_application.aasm_state
         )
 
