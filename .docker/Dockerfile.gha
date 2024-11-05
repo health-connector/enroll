@@ -1,0 +1,212 @@
+############################################
+### Base image ###
+############################################
+
+ARG RUBY_VERSION=3.0.6
+FROM ruby:$RUBY_VERSION-slim-bullseye AS base
+LABEL author="MHC"
+
+ARG DEBIAN_FRONTEND=noninteractive
+ARG BUNDLER_VERSION=2.5.21
+
+# Must be set as ENV variable to overrride the default
+ENV BUNDLER_VERSION=$BUNDLER_VERSION
+
+ARG NODE_MAJOR=12
+ENV NODE_MAJOR=$NODE_MAJOR
+
+# Only add packages that aren't already in the base image
+# https://github.com/docker-library/ruby/blob/cdac1ffbc959768a5b82014dbb8c8006fe6f7880/3.0/slim-bullseye/Dockerfile
+RUN apt-get update \
+    && apt-get -yq dist-upgrade \
+    && apt-get install -y \
+      curl \
+      fontconfig \
+      libcurl4-openssl-dev \
+      libffi7 \
+      libsodium23 \
+      libxext6 \
+      libxrender1 \
+      nano \
+      openssl \
+      sshpass \
+      unzip \
+      vim \
+      zip \
+      file \
+      libjemalloc2 \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+    && truncate -s 0 /var/log/*log
+
+# Add Nodejs sources and dependencies - used both during build and at runtime (e.g,. dependency for coffeescript)
+RUN curl -fsSL https://deb.nodesource.com/setup_$NODE_MAJOR.x | bash -
+
+# Install Nodejs
+RUN apt-get update -qq \
+  && apt-get install -yq --no-install-recommends \
+    nodejs \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+  && truncate -s 0 /var/log/*log
+
+# Configure bundler and PATH, install bundler version
+ENV GEM_HOME=/usr/local/bundle
+ENV BUNDLE_PATH=$GEM_HOME
+ENV BUNDLE_APP_CONFIG=$BUNDLE_PATH
+ENV BUNDLE_BIN=/usr/local/bin
+ENV BUNDLE_JOBS=4
+ENV BUNDLE_RETRY=3
+
+ENV LANG=C.UTF-8
+
+ENV PATH=$BUNDLE_BIN:$GEM_HOME/gems/bin:$PATH
+
+RUN gem update --system 3.5.21
+RUN rm -f /usr/local/bin/ruby/gems/*/specifications/default/bundler-*.gemspec
+RUN gem install bundler -v $BUNDLER_VERSION
+
+RUN groupadd --gid 1001 nonroot \
+  && useradd --uid 1001 --gid nonroot --shell /bin/bash --create-home nonroot
+
+ENV HOME=/enroll
+RUN mkdir $HOME \
+  && chown -R nonroot:nonroot $HOME
+
+# Configure app home directory
+WORKDIR $HOME
+
+ENV RAILS_ENV=production
+ENV NODE_ENV=production
+
+
+################################################################################
+### Builder. Adds Yarn. Not necessary in production. ###
+###############################################################################
+FROM base AS builder
+
+ARG DEBIAN_FRONTEND=noninteractive
+
+# Add Yarn to the sources list
+RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
+  && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+
+RUN apt-get update -qq \
+  && apt-get install -yq --no-install-recommends \
+    build-essential \
+    git \
+    libpq-dev \
+    yarn \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+  && truncate -s 0 /var/log/*log
+
+
+########################################################
+# Bundle, precompile for production
+########################################################
+FROM builder AS prod_gems_and_assets
+
+RUN apt-get update -qq \
+    && apt-get install -yq --no-install-recommends \
+      python \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+    && truncate -s 0 /var/log/*log
+
+# Need all gemfiles and lockfiles
+COPY --chown=nonroot:nonroot package.json $HOME/
+COPY --chown=nonroot:nonroot yarn.lock $HOME/
+RUN yarn install \
+  && (rm -rf /tmp/* || true)
+
+COPY --chown=nonroot:nonroot ./project_gems/effective_datatables-2.6.14/effective_datatables-2.6.14.gemspec $HOME/project_gems/effective_datatables-2.6.14/effective_datatables-2.6.14.gemspec
+COPY --chown=nonroot:nonroot ./project_gems/mongoid_userstamp-0.4.0/mongoid_userstamp.gemspec $HOME/project_gems/mongoid_userstamp-0.4.0/mongoid_userstamp.gemspec
+COPY --chown=nonroot:nonroot ./project_gems/mongoid_userstamp-0.4.0/lib/mongoid/userstamp/version.rb $HOME/project_gems/mongoid_userstamp-0.4.0/lib/mongoid/userstamp/version.rb
+
+COPY --chown=nonroot:nonroot ./components/transport_profiles/Gemfile $HOME/components/transport_profiles/Gemfile
+COPY --chown=nonroot:nonroot ./components/transport_profiles/Gemfile.lock $HOME/components/transport_profiles/Gemfile.lock
+COPY --chown=nonroot:nonroot ./components/transport_profiles/lib/transport_profiles/version.rb $HOME/components/transport_profiles/lib/transport_profiles/version.rb
+COPY --chown=nonroot:nonroot ./components/transport_profiles/transport_profiles.gemspec $HOME/components/transport_profiles/transport_profiles.gemspec
+
+COPY --chown=nonroot:nonroot ./components/transport_gateway/Gemfile $HOME/components/transport_gateway/Gemfile
+COPY --chown=nonroot:nonroot ./components/transport_gateway/Gemfile.lock $HOME/components/transport_gateway/Gemfile.lock
+COPY --chown=nonroot:nonroot ./components/transport_gateway/lib/transport_gateway/version.rb $HOME/components/transport_gateway/lib/transport_gateway/version.rb
+COPY --chown=nonroot:nonroot ./components/transport_gateway/transport_gateway.gemspec $HOME/components/transport_gateway/transport_gateway.gemspec
+
+COPY --chown=nonroot:nonroot ./components/sponsored_benefits/Gemfile $HOME/components/sponsored_benefits/Gemfile
+COPY --chown=nonroot:nonroot ./components/sponsored_benefits/Gemfile.lock $HOME/components/sponsored_benefits/Gemfile.lock
+COPY --chown=nonroot:nonroot ./components/sponsored_benefits/lib/sponsored_benefits/version.rb $HOME/components/sponsored_benefits/lib/sponsored_benefits/version.rb
+COPY --chown=nonroot:nonroot ./components/sponsored_benefits/sponsored_benefits.gemspec $HOME/components/sponsored_benefits/sponsored_benefits.gemspec
+
+COPY --chown=nonroot:nonroot ./components/notifier/Gemfile $HOME/components/notifier/Gemfile
+COPY --chown=nonroot:nonroot ./components/notifier/Gemfile.lock $HOME/components/notifier/Gemfile.lock
+COPY --chown=nonroot:nonroot ./components/notifier/lib/notifier/version.rb $HOME/components/notifier/lib/notifier/version.rb
+COPY --chown=nonroot:nonroot ./components/notifier/notifier.gemspec $HOME/components/notifier/notifier.gemspec
+
+COPY --chown=nonroot:nonroot ./components/benefit_markets/Gemfile $HOME/components/benefit_markets/Gemfile
+COPY --chown=nonroot:nonroot ./components/benefit_markets/Gemfile.lock $HOME/components/benefit_markets/Gemfile.lock
+COPY --chown=nonroot:nonroot ./components/benefit_markets/lib/benefit_markets/version.rb $HOME/components/benefit_markets/lib/benefit_markets/version.rb
+COPY --chown=nonroot:nonroot ./components/benefit_markets/benefit_markets.gemspec $HOME/components/benefit_markets/benefit_markets.gemspec
+
+COPY --chown=nonroot:nonroot ./components/benefit_sponsors/Gemfile $HOME/components/benefit_sponsors/Gemfile
+COPY --chown=nonroot:nonroot ./components/benefit_sponsors/Gemfile.lock $HOME/components/benefit_sponsors/Gemfile.lock
+COPY --chown=nonroot:nonroot ./components/benefit_sponsors/lib/benefit_sponsors/version.rb $HOME/components/benefit_sponsors/lib/benefit_sponsors/version.rb
+COPY --chown=nonroot:nonroot ./components/benefit_sponsors/benefit_sponsors.gemspec $HOME/components/benefit_sponsors/benefit_sponsors.gemspec
+
+COPY --chown=nonroot:nonroot ./Gemfile $HOME/Gemfile
+COPY --chown=nonroot:nonroot ./Gemfile.lock $HOME/Gemfile.lock
+
+RUN bundle config set --local without 'development test' \
+  && bundle install
+
+COPY --chown=nonroot:nonroot . $HOME
+
+# Need resolvable mongo & rabbit for asset precompilation
+ARG HOSTNAME=localhost
+ENV ENROLL_DB_HOST=${HOSTNAME}
+ENV RABBITMQ_URL=amqp://${HOSTNAME}:5672
+
+# Precompile bootsnap code for faster boot times
+RUN bundle exec bootsnap precompile --gemfile app/ lib/
+
+# Asset precompilation requires many seemingly un-asset-related configurations, as it starts a rails process (e.g., an
+# available mongo, symmetric key config, an available rabbit, etc. This may explains some preceding dependencies/steps.)
+# Note: Non-empty value for SECRET_KEY_BASE needed for build. But this value is set anew to actual secure value at
+# runtime by environment variables.
+RUN SECRET_KEY_BASE=dummy_val_50a9bdef0c9578868e9cd6ddbe3170647b5e5bb0705eb414 \
+    bundle exec rails assets:precompile \
+    && yarn cache clean \
+    && (rm -rf /tmp/* || true) \
+    # Cleanup
+    && rm -rf $BUNDLE_PATH/*.gem \
+    && find $BUNDLE_PATH/ruby -name "*.c" -delete \
+    && find $BUNDLE_PATH/ruby -name "*.o" -delete \
+    && find $BUNDLE_PATH/ruby -name ".git"  -type d -prune -execdir rm -rf {} +
+
+# https://github.com/rubygems/rubygems/issues/3225
+RUN rm -rf $GEM_HOME/bundle/ruby/*/cache
+
+
+################################################################
+# Deployable image
+################################################################
+
+FROM base AS deploy
+
+# Copy prebuilt gems
+COPY --chown=nonroot:nonroot --from=prod_gems_and_assets $BUNDLE_PATH $BUNDLE_PATH
+
+# Copy all app code again (sans gems, node_modules, assets)
+COPY --chown=nonroot:nonroot . $HOME
+
+# Copy prebuilt assets
+COPY --chown=nonroot:nonroot --from=prod_gems_and_assets $HOME/public $HOME/public
+
+# Copy bootsnap compiled cache
+COPY --chown=nonroot:nonroot --from=prod_gems_and_assets $HOME/tmp/cache/bootsnap $HOME/tmp/cache/bootsnap
+
+USER nonroot
+
+ENTRYPOINT ["bin/docker-entrypoint"]
+

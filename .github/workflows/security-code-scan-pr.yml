@@ -24,7 +24,7 @@ jobs:
             sudo apt-get install bearer
         - name: run bearer
           run: |
-            BEARER_DIFF_BASE_BRANCH=master bearer scan --quiet --config-file ./bearer.yml --diff . 
+            BEARER_DIFF_BASE_BRANCH=master bearer scan --quiet --config-file ./bearer.yml --diff .
         - name: build bearer report
           if: failure() 
           run: |
