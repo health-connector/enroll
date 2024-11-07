@@ -75,9 +75,9 @@ test:
 production:
   clients:
     default:
-      database: <%= ENV['ENROLL_DB_NAME'] || 'mhc_enroll_production' %>>
+      database: <%= ENV['ENROLL_DB_NAME'] || 'mhc_enroll_production' %>
       hosts:
-        - <%= ENV['ENROLL_DB_HOST'] || 'localhost' %>:<%= ENV['ENROLL_DB_PORT'] || '27017' %>>
+        - <%= ENV['ENROLL_DB_HOST'] || 'localhost' %>:<%= ENV['ENROLL_DB_PORT'] || '27017' %>
       options:
       <% if ENV['ENROLL_DB_AUTH'] %>
         replica_set: <%= ENV['ENROLL_DB_REPLICA_SET_NAME'] %>
