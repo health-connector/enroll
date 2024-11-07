@@ -51,6 +51,7 @@ function populateDropDown(status, actionTakenUnder24Hours) {
   var term_states = ["active", "suspended", "expired"];
   var reinstate_states = ["terminated", "termination_pending", "retroactive_canceled"];
   var revise_end_date_states = ["terminated", "termination_pending"];
+  var unwanted_v2_xml_states = cancel_states.filter(state => state !== "active").concat(["suspended", "retroactive_canceled", "canceled"]);
 
   if (actionTakenUnder24Hours === 'true') {
     $('li.cancel-py, li.terminate-py, li.reinstate-py, li.revise-end-date-py').addClass('blocking');
@@ -59,6 +60,12 @@ function populateDropDown(status, actionTakenUnder24Hours) {
     updateBlockingState(status, 'terminate-py', term_states);
     updateBlockingState(status, 'reinstate-py', reinstate_states);
     updateBlockingState(status, 'revise-end-date-py', revise_end_date_states);
+  }
+
+  if (unwanted_v2_xml_states.indexOf(status) > -1) {
+    $('li.generate-v2-xml-py').addClass('blocking');
+  } else {
+    $('li.generate-v2-xml-py').removeClass('blocking');
   }
 }
 

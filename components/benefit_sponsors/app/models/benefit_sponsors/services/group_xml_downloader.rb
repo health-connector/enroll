@@ -45,12 +45,7 @@ module BenefitSponsors
           "Event not whitelisted"
         when :no_carrier_plan_years
           "No carrier plan years available"
-        when :invalid_plan_year
-          "Invalid plan year"
-        when :drop_and_has_future_plan_year
-          "Drop and has future plan year"
-        when :renewal_and_no_future_plan_year
-          "Renewal and no future plan year"
+        # Removed cases for invalid plan year, drop and has future plan year, and renewal and no future plan year
         else
           reason.to_s
         end

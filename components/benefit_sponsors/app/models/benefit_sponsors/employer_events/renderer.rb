@@ -217,9 +217,11 @@ module BenefitSponsors
       def render_for(carrier, out)
         return :event_not_whitelisted unless event_whitelisted?(employer_event)
         return :no_carrier_plan_years unless carrier_has_plan_years?(carrier)
-        return :invalid_plan_year unless valid_plan_year?(carrier)
-        return :drop_and_has_future_plan_year if drop_and_has_future_plan_year?(carrier)
-        return :renewal_and_no_future_plan_year if renewal_and_no_future_plan_year?(carrier)
+
+        # Commented out plan year validations as requested
+        # return :invalid_plan_year unless valid_plan_year?(carrier)
+        # return :drop_and_has_future_plan_year if drop_and_has_future_plan_year?(carrier)
+        # return :renewal_and_no_future_plan_year if renewal_and_no_future_plan_year?(carrier)
 
         employer_profile = fetch_employer_profile(employer_event)
         doc = Nokogiri::XML(employer_event.resource_body)
