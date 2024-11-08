@@ -343,7 +343,6 @@ function calcPlanDesignContributions() {
   }
 
   var url = $("#contribution_url").val();
-  console.log(url);
 
   $.ajax({
     type: "GET",
