@@ -1,0 +1,36 @@
+#################################################
+# Rails existing prod image, to be supplemented #
+#################################################
+# Suppress warning about no default arg for FROM. Better to fail outright if workflow is misconfigured, than build
+# something unexpected.
+# check=skip=InvalidDefaultArgInFrom
+ARG SOURCE_IMAGE
+FROM ${SOURCE_IMAGE}
+
+# Switch back to root to install system libraries
+USER root
+
+SHELL ["/bin/bash", "-c"]
+RUN apt-get update \
+    && apt-get -yq dist-upgrade \
+    && apt-get install -y \
+      openssh-client \
+      lftp
+
+RUN touch ~/.bashrc
+ENV BASH_ENV=~/.bashrc
+
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh  | bash
+RUN nvm install 20 \
+    && nvm use 20 && nvm alias default 20  \
+    && npm install -g npm@10.9.0 \
+    && npm install -g secure-spreadsheet
+
+RUN curl https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o "awscliv2.zip" \
+    && unzip awscliv2.zip \
+    && ./aws/install \
+    && rm awscliv2.zip
+
+RUN curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.30.4/2024-09-11/bin/linux/amd64/kubectl
+RUN chmod 744 ./kubectl
+RUN mv ./kubectl /usr/local/bin/kubectl

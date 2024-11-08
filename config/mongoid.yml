@@ -75,20 +75,20 @@ test:
 production:
   clients:
     default:
-      database: <%= ENV['ENROLL_DB_NAME'] || 'mhc_enroll_production' %>>
+      database: <%= ENV['ENROLL_DB_NAME'] || 'mhc_enroll_production' %>
       hosts:
-        - <%= ENV['ENROLL_DB_HOST'] || 'localhost' %>:<%= ENV['ENROLL_DB_PORT'] || '27017' %>>
+        - <%= ENV['ENROLL_DB_HOST'] || 'localhost' %>:<%= ENV['ENROLL_DB_PORT'] || '27017' %>
       options:
       <% if ENV['ENROLL_DB_AUTH'] %>
-      replica_set: <%= ENV['ENROLL_DB_REPLICA_SET_NAME'] %>
+        replica_set: <%= ENV['ENROLL_DB_REPLICA_SET_NAME'] %>
 
-      user: <%= ENV['ENROLL_DB_USERNAME'] %>
-      password: <%= ENV['ENROLL_DB_PASSWORD'] %>
-      auth_source: admin
+        user: <%= ENV['ENROLL_DB_USERNAME'] %>
+        password: <%= ENV['ENROLL_DB_PASSWORD'] %>
+        auth_source: admin
 
-      write:
-        w: 1
-        j: true
+        write:
+          w: 1
+          j: true
       <% end %>
       # Change whether the session persists in safe mode by default.
       # (default: false)

@@ -1,0 +1,155 @@
+# NOTE - For consistency with other same-function workflows elsewhere, this uses the version of the Dockerfile.gha-reports
+#  specified by the `branch` input.
+# The version of this workflow used is either changeable with built-in "Use workflow from" dropdown for workflow_dispatch UI
+# or unspecifiable (always master) for repository_dispatch calls.
+
+name: Build reports image
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        default: 'master'
+        description: 'Branch to build'
+        required: true
+      # This commit sha needs to string match on an existing tag, so requires 7 chars, per the tag impl in the
+      # build-and-deploy workflow.
+      commit_sha:
+        description: 'Commit short SHA to build - omit to use HEAD of "Branch to build"'
+        required: false
+  repository_dispatch:
+    types:
+      - build-reports-image
+
+concurrency:
+  group: reports-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CLIENT: cca
+
+jobs:
+  prep:
+    runs-on: ubuntu-latest
+    outputs:
+      branch: ${{ steps.final_prep_vars.outputs.branch}}
+      commitShortSha: ${{ steps.final_prep_vars.outputs.short_sha}}
+      registryGhcr: ${{ steps.final_prep_vars.outputs.registry_ghcr }}
+      taggedImage: ${{ steps.final_prep_vars.outputs.tagged_image }}
+      baseImage: ${{ steps.final_prep_vars.outputs.base_image }}
+      ghRepositoryName: ${{ steps.final_prep_vars.outputs.gh_repository_name }}
+
+    steps:
+      # Grab defaultable inputs, to see if we need to source defaults for them
+      - name: Set defaultable inputs
+        id: prep_defaultable_vars
+        run: |
+          if [[ "${{github.event_name}}" == "repository_dispatch" ]]; then
+            SHORT_SHA=${{ github.event.client_payload.commit_sha }}
+          else
+            SHORT_SHA=${{ github.event.inputs.commit_sha }}
+          fi
+          echo "commit_sha=$SHORT_SHA" >> $GITHUB_OUTPUT
+
+      # Quick minimal pull, based on requested branch, to fill in latest commit sha IF none was provided by user
+      - name: Pull branch for default SHA determination
+        id: default_sha_pull
+        if: ${{ !steps.prep_defaultable_vars.outputs.commit_sha }}
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github
+          fetch-depth: 1
+          ref: ${{ needs.prep.outputs.branch }}
+
+      - name: Set SHA from latest commit on branch
+        id: default_sha_set
+        if: ${{ steps.default_sha_pull.conclusion == 'success' }}
+        run: |
+          echo "commit_sha=$(git log --pretty=format:'%H' -1 | head -c7)" >> $GITHUB_OUTPUT
+
+      - name: Set other vars from inputs, and build compound vars
+        id: final_prep_vars
+        run: |
+          if [[ "${{github.event_name}}" == "repository_dispatch" ]]; then
+            BRANCH_NAME=${{ github.event.client_payload.branch }}
+          else
+            BRANCH_NAME=${{ github.event.inputs.branch }}
+          fi
+                    
+          SHORT_SHA=${{ steps.prep_defaultable_vars.outputs.commit_sha || steps.default_sha_set.outputs.commit_sha}}
+          echo "Resolved to short SHA for base image: $SHORT_SHA"
+
+          # base images always use 7 char SHA, so enforce that to avoid confusion
+          if (( ${#SHORT_SHA} != 7 )); then
+            echo "::error ::SHA of 7 characters expected; received: $SHORT_SHA"
+            exit 1;
+          fi
+
+          GH_REPO=$(echo '${{ github.repository }}' | awk -F '/' '{print $2}')
+          REGISTRY_GHCR='ghcr.io'
+          TAGSAFE_BRANCH_NAME=$(echo $BRANCH_NAME | sed -e 's/[^a-zA-Z0-9_.]/-/g' -e 's/^[-.]//g')
+          IMAGE=health-connector/$GH_REPO
+          
+          # tag for base image to use
+          TAG=$TAGSAFE_BRANCH_NAME-$SHORT_SHA
+          TAGGED_IMAGE=${IMAGE}:${TAG}
+          
+          echo "tagged_image=$TAGGED_IMAGE" >> $GITHUB_OUTPUT
+          echo "base_image=$IMAGE" >> $GITHUB_OUTPUT
+          echo "short_sha=$SHORT_SHA" >> $GITHUB_OUTPUT
+          echo "gh_repository_name=$GH_REPO" >> $GITHUB_OUTPUT
+          echo "registry_ghcr=ghcr.io" >> $GITHUB_OUTPUT
+          echo "branch=$BRANCH_NAME" >> $GITHUB_OUTPUT
+          echo "commit_sha=$SHORT_SHA" >> $GITHUB_OUTPUT
+          echo "registry_ghcr=$REGISTRY_GHCR" >> $GITHUB_OUTPUT
+
+  build-and-upload-image:
+    runs-on: ubuntu-latest
+    needs: [prep]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Try to be consistent with other impls, though the effect _may_ be surprising (determines
+          # version of Dockerfile to use, not just the base build to grab; but does NOT respect the SHA from input for
+          # the Dockerfile). If Dockerfile is later corrected in a different branch, it is not accessible to this
+          # workflow. Future improvement might be an arg to optionally align with same workflow branch chosen instead.
+          ref: ${{ needs.prep.outputs.branch }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          install: true
+          version: v0.17.1
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ needs.prep.outputs.registryGhcr }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push reports image
+        id: build_push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          file: .docker/Dockerfile.gha-reports
+          # Example tags:
+          # ghcr.io/health-connector/enroll:cca-reports tag for easier compat with existing Devops flows,
+          # ghcr.io/health-connector/enroll:pv188414567_add_gha_workflow-40df5b1-cca-reports tag for better traceability
+          tags: |
+            ${{ format('{0}/{1}:{2}-reports', needs.prep.outputs.registryGhcr, needs.prep.outputs.baseImage, env.CLIENT) }}
+            ${{ format('{0}/{1}-{2}-reports', needs.prep.outputs.registryGhcr, needs.prep.outputs.taggedImage, env.CLIENT) }}
+          # Can bump provenance as needed, but for now, keep it minimal to minimize risk of leaking secure info
+          # https://docs.docker.com/build/ci/github-actions/attestations/#default-provenance
+          provenance: mode=min
+          build-args: |
+            SOURCE_IMAGE=${{ format('{0}/{1}-{2}', needs.prep.outputs.registryGhcr, needs.prep.outputs.taggedImage, env.CLIENT) }}
+
+      - name: Add package push info to summary
+        continue-on-error: true
+        run: |
+          TAGS=$(echo "${{ fromJSON(steps.build_push.outputs.metadata)['image.name'] }}" | tr ',' '\n' | sed 's/^/- /')
+          echo -e "The following image tags were pushed:\n$TAGS\n" >> $GITHUB_STEP_SUMMARY
+          echo 'New images can be found on GHCR here: https://github.com/health-connector/enroll/pkgs/container/enroll.' >> $GITHUB_STEP_SUMMARY
