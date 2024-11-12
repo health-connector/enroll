@@ -161,9 +161,7 @@ class Exchanges::EmployerApplicationsController < ApplicationController
 
   def new_v2_xml
     @application = @benefit_sponsorship.benefit_applications.find(params[:employer_application_id])
-    respond_to do |format|
-      format.js
-    end
+    respond_to(&:js)
   end
 
   def upload_v2_xml
@@ -178,7 +176,7 @@ class Exchanges::EmployerApplicationsController < ApplicationController
       if result
         flash[:success] = "Successfully uploaded V2 digest XML for employer_fein: #{fein}"
       else
-        error_messages = errors.map { |e| "Error: #{e.message}" }.join(", ")
+        error_messages = errors.map { |e| "Error: #{e}" }.join(", ")
         flash[:error] = "Failed to upload XML. #{error_messages}"
       end
     else
