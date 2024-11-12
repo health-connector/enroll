@@ -145,18 +145,17 @@ class Exchanges::EmployerApplicationsController < ApplicationController
 
   def download_v2_xml
     event_name = params[:selected_event]
+    @employer_actions_id = params[:employer_actions_id]
     @application = @benefit_sponsorship.benefit_applications.find(params[:employer_application_id])
     employer_profile_hbx_id = @benefit_sponsorship.hbx_id
     employer = @benefit_sponsorship.profile
-    event_payload = render_to_string "events/v2/employers/updated", formats: ["xml"], locals: { employer: employer, manual_gen: false, benefit_application_id: @application.id }
+    event_payload = render_to_string "events/v2/employers/updated", formats: [:xml], locals: { employer: employer, manual_gen: false, benefit_application_id: @application.id }
     employer_event = BenefitSponsors::Services::EmployerEvent.new(event_name, event_payload, employer_profile_hbx_id)
     group_xml_downloader = BenefitSponsors::Services::GroupXmlDownloader.new(employer_event)
     download_status = group_xml_downloader.download(self)
 
-    return unless download_status == :empty_files
-
-    flash[:alert] = flash[:alert] || "All carrier files have no rendered employers."
-    redirect_to exchanges_hbx_profiles_root_path
+    @error_message = download_status[1] if download_status[0] == :empty_files
+    respond_to(&:js)
   end
 
   def new_v2_xml
@@ -166,6 +165,7 @@ class Exchanges::EmployerApplicationsController < ApplicationController
 
   def upload_v2_xml
     file = params[:file]
+    @employer_actions_id = params[:employer_actions_id]
 
     if file.is_a?(ActionDispatch::Http::UploadedFile)
       fein = @benefit_sponsorship&.fein
@@ -174,16 +174,17 @@ class Exchanges::EmployerApplicationsController < ApplicationController
       result, errors = v2_xml_uploader.upload
 
       if result
-        flash[:success] = "Successfully uploaded V2 digest XML for employer_fein: #{fein}"
+        @success_message = "Successfully uploaded V2 digest XML for employer_fein: #{fein}"
+        render json: { success_message: @success_message }, status: :ok
       else
         error_messages = errors.map { |e| "Error: #{e}" }.join(", ")
-        flash[:error] = "Failed to upload XML. #{error_messages}"
+        @error_message = "Failed to upload XML. #{error_messages}"
+        render json: { error_message: @error_message }, status: :ok
       end
     else
-      flash[:error] = "Invalid file upload."
+      @error_message = "Invalid file upload."
+      render json: { error_message: @error_message }, status: :ok
     end
-
-    redirect_to exchanges_hbx_profiles_root_path
   end
 
   private

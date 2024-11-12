@@ -16,10 +16,7 @@ module BenefitSponsors
         carrier_files = employer_event.render_payloads
         empty_files = carrier_files.select { |car| car.rendered_employers.empty? }
 
-        if all_files_empty?(carrier_files, empty_files)
-          controller.flash[:alert] = failure_reason_message(empty_files)
-          return :empty_files
-        end
+        return :empty_files, failure_reason_message(empty_files) if all_files_empty?(carrier_files, empty_files)
 
         zip_path = create_tempfile
         log_tempfile_path(zip_path)
@@ -36,7 +33,7 @@ module BenefitSponsors
       def failure_reason_message(empty_files)
         unique_reasons = empty_files.map(&:render_reason).uniq
         reason_messages = unique_reasons.map { |reason| map_reason_to_message(reason) }
-        "All carrier files have no rendered employers. Reasons: #{reason_messages.join(', ')}"
+        "Reasons: #{reason_messages.join(', ')}"
       end
 
       def map_reason_to_message(reason)

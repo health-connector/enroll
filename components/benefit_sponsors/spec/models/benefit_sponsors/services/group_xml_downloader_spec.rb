@@ -31,7 +31,7 @@ RSpec.describe BenefitSponsors::Services::GroupXmlDownloader, type: :service do
       end
 
       it 'returns :empty_files' do
-        expect(subject.download(controller)).to eq(:empty_files)
+        expect(subject.download(controller)).to eq([:empty_files, "Reasons: No carrier plan years available"])
       end
     end
 

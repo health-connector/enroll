@@ -268,13 +268,21 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
     context "when user has permissions" do
       before :each do
         allow(hbx_staff_role).to receive(:permission).and_return(double('Permission', can_modify_plan_year: true, can_generate_v2_xml: true, name: 'super_admin'))
+        allow_any_instance_of(BenefitSponsors::Services::V2XmlUploader).to receive(:upload).and_return([true, []])
         sign_in(user)
         post :upload_v2_xml, params: { employer_application_id: initial_application.id, id: initial_application.id, employer_id: benefit_sponsorship.id, file: file }
       end
 
-      it "does redirect and be success" do
-        expect(response).to have_http_status(:redirect)
-        expect(flash[:success]).to match "Successfully uploaded V2 digest XML for employer_fein: #{benefit_sponsorship.fein}"
+      it "returns a success message" do
+        expect(response).to have_http_status(:ok)
+        expect(JSON.parse(response.body)['success_message']).to eq("Successfully uploaded V2 digest XML for employer_fein: #{benefit_sponsorship.fein}")
+      end
+
+      it "returns an error message when upload fails" do
+        allow_any_instance_of(BenefitSponsors::Services::V2XmlUploader).to receive(:upload).and_return([false, ["FEIN mismatch"]])
+        post :upload_v2_xml, params: { employer_application_id: initial_application.id, id: initial_application.id, employer_id: benefit_sponsorship.id, file: file }
+        expect(response).to have_http_status(:ok)
+        expect(JSON.parse(response.body)['error_message']).to eq("Failed to upload XML. Error: FEIN mismatch")
       end
     end
   end
