@@ -1,3 +1,56 @@
-$('body').before('<div id="modal-wrapper"></div>')
-$('#modal-wrapper').html("<%= escape_javascript(render "new_v2_xml") %>");
-$('#modal-wrapper').fadeIn();
+$(document).ready(function() {
+    // Ensure the modal wrapper is present
+    $('body').before('<div id="modal-wrapper"></div>');
+    $('#modal-wrapper').html("<%= escape_javascript(render 'new_v2_xml') %>");
+    $('#modal-wrapper').fadeIn();
+
+    // Handle form submission
+    $('#upload-form').on('submit', function(event) {
+        event.preventDefault(); // Prevent default form submission
+
+        // Create FormData object from the form
+        var formData = new FormData(this);
+
+        $.ajax({
+            url: $(this).attr('action'),
+            type: $(this).attr('method'),
+            data: formData,
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content') // CSRF token for Rails
+            },
+            success: function(response) {
+                $('#modal-wrapper').fadeOut();
+
+                var successMessage = response.success_message;
+                var errorMessage = response.error_message;
+                var formContainer = $("#<%= params[:employers_action_id] %>");
+                var containingRow = formContainer.closest('tr');
+                var $parentRow = containingRow;
+
+                if ($('tr.child-row:visible').length > 0) {
+                    $('tr.child-row:visible').remove();
+                }
+
+                if (!$parentRow.next().hasClass('child-row')) {
+                    $parentRow.after('<tr class="child-row"><td colspan="100"><%= j render 'v2_xml_result' %></td></tr>');
+                    $("li>a:contains('Collapse Form')").eq(containingRow.index()).removeClass('disabled');
+                    $('.dropdown.pull-right').removeClass('open');
+
+                    if (successMessage) {
+                        $('#success_message').text(successMessage).show();
+                    }
+
+                    if (errorMessage) {
+                        $('#error_message').text(errorMessage).show();
+                    }
+                }
+            },
+            error: function(xhr) {
+              var errorMessage = response ? response.error_message : 'File upload failed.';
+              $('#error_message').text(errorMessage).show();
+            }
+        });
+    });
+});

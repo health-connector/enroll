@@ -126,7 +126,7 @@
             </td>
             <td colspan="5">
               <div class="upload-v2-xml-location v2_xml_inputs hidden">
-                <%= link_to "<i class='fas fa-cloud-upload-alt' aria-hidden='true'></i> Upload V2 XML".html_safe, new_v2_xml_exchanges_employer_applications_path(employer_id: @benefit_sponsorship.id, employer_application_id: application.id), remote: 'true', class: "btn btn-default" %>
+                <%= link_to "<i class='fas fa-cloud-upload-alt' aria-hidden='true'></i> Upload V2 XML".html_safe, new_v2_xml_exchanges_employer_applications_path(employer_id: @benefit_sponsorship.id, employer_application_id: application.id, employers_action_id: params[:employers_action_id]), remote: 'true', class: "btn btn-default" %>
               </div>
             </td>
           </tr>
