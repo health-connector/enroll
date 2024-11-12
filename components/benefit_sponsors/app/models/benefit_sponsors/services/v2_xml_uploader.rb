@@ -8,7 +8,7 @@ module BenefitSponsors
       include Acapi::Notifiers
       attr_reader :errors
 
-      XSD_PATH = "#{Rails.root}/components/benefit_sponsors/cv/vocabulary.xsd"
+      XSD_PATH = "#{Rails.root}/components/benefit_sponsors/cv/vocabulary.xsd".freeze
 
       def initialize(xml_file_path, expected_fein)
         @xml_string = File.read(xml_file_path)
