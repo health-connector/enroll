@@ -27,5 +27,13 @@ RSpec.describe UserMailer do
       expect(email.attachments.size).to eq 1
     end
 
+    context 'with invalid email' do
+      let(:email){UserMailer.generic_notice_alert('john', hbx_id, '\xE2\x81\xA0test.test@test.gov', {"file_name" => file})}
+
+      it 'sanitizes the email address before sending' do
+        expect(email.to).to eq(['test.test@test.gov'])
+      end
+    end
+
   end
 end

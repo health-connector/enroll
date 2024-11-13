@@ -2,7 +2,7 @@ class UserPolicy < ApplicationPolicy
 
   def initialize(user, record)
     super
-    @family = user.person&.primary_family
+    @family = user&.person&.primary_family
   end
 
   def lockable?
@@ -46,6 +46,10 @@ class UserPolicy < ApplicationPolicy
 
   def view?
     user.present?
+  end
+
+  def show_hints?
+    view?
   end
 
   def new?

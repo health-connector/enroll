@@ -53,16 +53,6 @@ Rails.application.routes.draw do
     end
     resources :agents_inboxes, only: [:show, :destroy]
 
-    resources :residents, only: [:create, :edit, :update] do
-      get :search, on: :collection
-      post :match, on: :collection
-      post :build, on: :collection
-      get :begin_resident_enrollment, on: :collection
-      get :resume_resident_enrollment, on: :collection
-      get :ridp_bypass, on: :collection
-      get :find_sep, on: :collection
-    end
-
     resources :hbx_profiles do
       root 'hbx_profiles#show'
 
@@ -310,11 +300,9 @@ Rails.application.routes.draw do
 
     resources :employer_profiles do
       get 'new'
-      get 'my_account'
       get 'show_profile'
       get 'link_from_quote'
       get 'consumer_override'
-      get 'bulk_employee_upload_form'
       post 'bulk_employee_upload'
 
       member do
@@ -329,10 +317,8 @@ Rails.application.routes.draw do
 
       collection do
         get 'welcome'
-        get 'search'
         post 'match'
         get 'inbox'
-        get 'counties_for_zip_code'
         get 'generate_sic_tree'
       end
       resources :plan_years do
@@ -383,25 +369,7 @@ Rails.application.routes.draw do
   end
 
   namespace :broker_agencies do
-    root 'profiles#new'
-
-    resources :profiles, only: [:new, :create, :edit, :update] do
-      collection do
-        get :employers
-        get :agency_messages
-        get :assign_history
-      end
-      member do
-        if Settings.aca.general_agency_enabled
-          get :general_agency_index
-        end
-        get :manage_employers
-        post :clear_assign_for_employer
-        get :assign
-        post :update_assign
-        post :employer_datatable
-        post :set_default_ga
-      end
+    resources :profiles, only: [] do
 
       resources :applicants
     end
@@ -543,9 +511,6 @@ Rails.application.routes.draw do
     end
   end
 
-  # Temporary for Generic Form Template
-  match 'templates/form-template', to: 'welcome#form_template', via: [:get, :post]
-
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
@@ -634,6 +599,16 @@ Rails.application.routes.draw do
           collection do
             get :begin_consumer_enrollment
           end
+        end
+
+        resources :residents, only: [:create, :edit, :update] do
+          get :search, on: :collection
+          post :match, on: :collection
+          post :build, on: :collection
+          get :begin_resident_enrollment, on: :collection
+          get :resume_resident_enrollment, on: :collection
+          get :ridp_bypass, on: :collection
+          get :find_sep, on: :collection
         end
       end
     end
