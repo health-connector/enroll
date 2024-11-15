@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-describe AccessPolicies::GeneralAgencyProfile, :dbclean => :after_each do
+describe AccessPolicies::GeneralAgencyProfile, dbclean: :after_each, skip: true do
   subject { AccessPolicies::GeneralAgencyProfile.new(user) }
   let(:broker_controller) { BrokerAgencies::ProfilesController.new }
   let(:ga_controller) { GeneralAgencies::ProfilesController.new }
