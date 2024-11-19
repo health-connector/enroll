@@ -98,7 +98,6 @@ jobs:
           echo "base_image=$IMAGE" >> $GITHUB_OUTPUT
           echo "short_sha=$SHORT_SHA" >> $GITHUB_OUTPUT
           echo "gh_repository_name=$GH_REPO" >> $GITHUB_OUTPUT
-          echo "registry_ghcr=ghcr.io" >> $GITHUB_OUTPUT
           echo "branch=$BRANCH_NAME" >> $GITHUB_OUTPUT
           echo "commit_sha=$SHORT_SHA" >> $GITHUB_OUTPUT
           echo "registry_ghcr=$REGISTRY_GHCR" >> $GITHUB_OUTPUT
