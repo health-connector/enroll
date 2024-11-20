@@ -22,8 +22,9 @@ $(document).on('click', '.downloadReferencePlanDetailsButton.plan-not-saved', ch
 $(document).on('click', '.downloadReferencePlanDetailsButton.plan-saved', sendPdf);
 
 
-$(document).on('ready', pageInit);
-$(document).on('page:load', pageInit);
+document.addEventListener("DOMContentLoaded", pageInit);
+document.addEventListener("turbolinks:load", pageInit);
+document.addEventListener("page:load", pageInit);
 
 function pageInit() {
   var kind = fetchBenefitKind();
@@ -262,7 +263,7 @@ function planSelected() {
 }*/
 function setMyPlans(element) {
   // Need to remove jQuery Selectors
-  
+
   var reference_plan_id = element.dataset.planid.replace(/['"]+/g, '');
   var kind = fetchBenefitKind();
 
@@ -450,11 +451,11 @@ function setRadioBtn(element) {
   dotIcons = document.querySelectorAll('.fa-dot-circle');
   icons = document.querySelectorAll('.fa-circle');
   iconId = element.target.dataset.tempId;
-  
+
   dotIcons.forEach(function(icon) {
     icon.classList.add('fa-circle')
   });
-  
+
   icons.forEach(function(icon) {
     if (icon.dataset.tempId == iconId) {
       icon.classList.add('fa-dot-circle')
