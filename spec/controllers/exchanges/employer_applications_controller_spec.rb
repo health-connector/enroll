@@ -275,7 +275,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
 
       it "returns a success message" do
         expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body)['success_message']).to eq("Successfully uploaded V2 digest XML for employer_fein: #{benefit_sponsorship.fein}")
+        expect(JSON.parse(response.body)['success_message']).to eq("Successfully uploaded V2 digest XML for employer FEIN: #{benefit_sponsorship.fein}.")
       end
 
       it "returns an error message when upload fails" do
