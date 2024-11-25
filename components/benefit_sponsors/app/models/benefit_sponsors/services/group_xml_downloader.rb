@@ -12,16 +12,16 @@ module BenefitSponsors
         @employer_event = employer_event
       end
 
-      def download(controller)
+      def download
         carrier_files = employer_event.render_payloads
         empty_files = carrier_files.select { |car| car.rendered_employers.empty? }
 
-        return :empty_files, failure_reason_message(empty_files) if all_files_empty?(carrier_files, empty_files)
+        return [:empty_files, failure_reason_message(empty_files)] if all_files_empty?(carrier_files, empty_files)
 
         zip_path = create_tempfile
         log_tempfile_path(zip_path)
         write_to_zip(carrier_files, zip_path)
-        send_zip_file(controller, zip_path)
+        send_zip_file(zip_path)
       end
 
       private
@@ -68,9 +68,8 @@ module BenefitSponsors
         end
       end
 
-      def send_zip_file(controller, zip_path)
-        controller.send_file(zip_path)
-        :success
+      def send_zip_file(zip_path)
+        [:success, zip_path]
       end
     end
   end

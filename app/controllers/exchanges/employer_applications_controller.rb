@@ -152,10 +152,15 @@ class Exchanges::EmployerApplicationsController < ApplicationController
     event_payload = render_to_string "events/v2/employers/updated", formats: [:xml], locals: { employer: employer, manual_gen: false, benefit_application_id: @application.id }
     employer_event = BenefitSponsors::Services::EmployerEvent.new(event_name, event_payload, employer_profile_hbx_id)
     group_xml_downloader = BenefitSponsors::Services::GroupXmlDownloader.new(employer_event)
-    download_status = group_xml_downloader.download(self)
-
-    @error_message = download_status[1] if download_status[0] == :empty_files
-    respond_to(&:js)
+    download_status = group_xml_downloader.download
+    if download_status[0] == :empty_files
+      @error_message = download_status[1]
+      @file_path = nil
+      respond_to(&:js)
+    elsif download_status[0] == :success
+      @success_message = l10n('exchange.employer_applications.download_v2_xml.success_message')
+      @file_path = download_status[1]
+    end
   end
 
   def new_v2_xml
@@ -174,15 +179,15 @@ class Exchanges::EmployerApplicationsController < ApplicationController
       result, errors = v2_xml_uploader.upload
 
       if result
-        @success_message = "Successfully uploaded V2 digest XML for employer_fein: #{fein}"
+        @success_message = l10n('exchange.employer_applications.upload_v2_xml.success_message', fein: fein)
         render json: { success_message: @success_message }, status: :ok
       else
         error_messages = errors.map { |e| "Error: #{e}" }.join(", ")
-        @error_message = "Failed to upload XML. #{error_messages}"
+        @error_message = l10n('exchange.employer_applications.upload_v2_xml.failure_message', errors: error_messages)
         render json: { error_message: @error_message }, status: :ok
       end
     else
-      @error_message = "Invalid file upload."
+      @error_message = l10n('exchange.employer_applications.upload_v2_xml.invalid_file_error')
       render json: { error_message: @error_message }, status: :ok
     end
   end
