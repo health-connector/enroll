@@ -216,7 +216,7 @@ javascript:
       dataArray.forEach(function (enrollment) {
         var planLower = plan.toLowerCase();
 
-        if (enrollment.product.dental_plan_kind.toLowerCase() === planLower) {
+        if (enrollment.product.kind == 'dental' && enrollment.product.dental_plan_kind.toLowerCase() === planLower) {
           resultsData.add(enrollment);
         }
         else if (planLower === 'premium_value_plan' && enrollment.is_pvp_eligible) {
