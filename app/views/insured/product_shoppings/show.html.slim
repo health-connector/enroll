@@ -82,7 +82,7 @@ javascript:
   var filterType = String;
   var selectedPlans = document.getElementsByClassName("myfilteredPlans");
   var carrierLogos = JSON.parse('#{raw(digest_logos.to_json)}');
-  const isPvpFeatureEnabled = "#{::EnrollRegistry.feature_enabled?(:premium_value_products)}";
+  var isPvpFeatureEnabled = "#{::EnrollRegistry.feature_enabled?(:premium_value_products)}";
 
   // Grabs available products as JSON for filtering onload
   (function() {
@@ -216,7 +216,10 @@ javascript:
       dataArray.forEach(function (enrollment) {
         var planLower = plan.toLowerCase();
 
-        if (planLower === 'premium_value_plan' && enrollment.is_pvp_eligible) {
+        if (enrollment.product.dental_plan_kind.toLowerCase() === planLower) {
+          resultsData.add(enrollment);
+        }
+        else if (planLower === 'premium_value_plan' && enrollment.is_pvp_eligible) {
           resultsData.add(enrollment);
         }
         else if (planLower === 'standard_plan' && enrollment.product.is_standard_plan) {
@@ -366,10 +369,17 @@ javascript:
         var deductibeType = "DEDUCTIBLE"
       }
       if (result.product.sbc_document) {
-        var sbc_url = '/document/download/' + result.product.sbc_document.identifier.split("#")[0].split(":").pop() + '/' + result.product.sbc_document.identifier.split("#")[1] + '?content_type=application/pdf&amp;filename=' + result.product.title.replace(/[^0-9a-z]/gi,'') + '.pdf&amp;disposition=inline';
+        var sbc_url = "/documents/" + result.product.sbc_document['_id'] + "/product_sbc_download?product_id=" + result.product['_id'] + "&content_type=application/pdf&filename=" + result.product.title.replace(/[^0-9a-z]/gi, '') + ".pdf&disposition=inline";
       }
       else {
         var sbc_url = "";
+      }
+
+      if (result.product.dental_plan_kind) {
+        var sbc_text= "Plan Summary"
+      }
+      else {
+        var sbc_text = "Summary of Benefits and Coverage"
       }
 
       var div = document.createElement('div')
@@ -457,9 +467,10 @@ javascript:
                   </label>
                 </div>
               </div>
-              <div class="col-xs-4">
+              <div class="col-xs-4" style="padding-left: 2px; padding-right: 2px;">
                 <a class="sbc_link health vertically-aligned-row interaction-click-control-summary-of-benefits-and-coverage" target="_blank" href= '${sbc_url}'>
-                  <div class='sbc-text'>Summary of <span>Benefits and Coverage</span></div>
+                  <i class="far fa-file-pdf fa-2x pull-left mr-1" ></i>
+                  <div class="Summary-of-Benefits-and-Coverage sbc-text" style="padding-left: 0px">${sbc_text}</div>
                 </a>
               </div>
               <div class="col-md-5 col-sm-5 col-xs-5 pl-0 pr-0">
@@ -481,6 +492,10 @@ javascript:
       }
       else {
         document.getElementById('deductible_display_'+result.product._id).append(deductible)
+      }
+
+      if (result.product.network_information == null) {
+        $('.network-notes').hide();
       }
 
       $(function() {
