@@ -5,12 +5,12 @@ module Effective
       datatable do
 
         bulk_actions_column(partial: 'datatables/employers/bulk_actions_column') do
-           bulk_action 'Generate Invoice', generate_invoice_exchanges_hbx_profiles_path, data: { confirm: 'Generate Invoices?', no_turbolink: true }
+          bulk_action 'Generate Invoice', generate_invoice_exchanges_hbx_profiles_path, data: { confirm: 'Generate Invoices?', no_turbolink: true }
            bulk_action 'Mark Binder Paid', binder_paid_exchanges_hbx_profiles_path, data: {  confirm: 'Mark Binder Paid?', no_turbolink: true }
         end
 
         table_column :legal_name, :proc => Proc.new { |row|
-          @employer_profile = row.employer_profile
+            @employer_profile = row.employer_profile
           (link_to row.legal_name.titleize, employers_employer_profile_path(@employer_profile, :tab=>'home'))
 
           }, :sortable => false, :filter => false
@@ -32,7 +32,7 @@ module Effective
             @latest_plan_year.aasm_state.titleize if @latest_plan_year.present?
           end }, :filter => false
         table_column :effective_date, :proc => Proc.new { |row|
-          @latest_plan_year.try(:start_on)
+            @latest_plan_year.try(:start_on)
           }, :filter => false, :sortable => true
         table_column :invoiced?, :proc => Proc.new { |row| boolean_to_glyph(row.current_month_invoice.present?)}, :filter => false
         # table_column :participation, :proc => Proc.new { |row| @latest_plan_year.try(:employee_participation_percent)}, :filter => false
@@ -72,26 +72,37 @@ module Effective
 
       def collection
         return @employer_collection if defined? @employer_collection
-        employers = Organization.all_employer_profiles
-        if attributes[:employers].present? && !['all'].include?(attributes[:employers])
-          employers = employers.send(attributes[:employers]) if ['employer_profiles_applicants','employer_profiles_enrolling','employer_profiles_enrolled', 'employer_attestations'].include?(attributes[:employers])
-          employers = employers.send(attributes[:enrolling]) if attributes[:enrolling].present?
-          employers = employers.send(attributes[:enrolling_initial]) if attributes[:enrolling_initial].present?
-          employers = employers.send(attributes[:enrolling_renewing]) if attributes[:enrolling_renewing].present?
-          employers = employers.send(attributes[:enrolled]) if attributes[:enrolled].present?
-          employers = employers.send(attributes[:attestations]) if attributes[:attestations].present?
 
-          if attributes[:upcoming_dates].present?
-              if date = Date.strptime(attributes[:upcoming_dates], "%m/%d/%Y")
-                employers = employers.employer_profile_plan_year_start_on(date)
-              end
+        employers = Organization.all_employer_profiles
+
+        if attributes[:employers].present? && !['all'].include?(attributes[:employers])
+          valid_methods = {
+            employers: %w[employer_profiles_applicants employer_profiles_enrolling employer_profiles_enrolled employer_attestations],
+            enrolling: %w[enrolling enrolling_initial enrolling_renewing enrolled],
+            attestations: %w[attestations]
+          }
+
+          # Safely invoke methods only if present in the whitelist
+          if valid_methods[:employers].include?(attributes[:employers])
+            employers = employers.send(attributes[:employers])
           end
 
+          %i[enrolling enrolling_initial enrolling_renewing enrolled].each do |key|
+            employers = employers.send(key) if valid_methods[:enrolling].include?(key.to_s) && attributes[key].present?
+          end
+
+          if valid_methods[:attestations].include?(attributes[:attestations]) && attributes[:attestations].present?
+            employers = employers.send(attributes[:attestations])
+          end
+
+          if attributes[:upcoming_dates].present?
+            if (date = Date.strptime(attributes[:upcoming_dates], "%m/%d/%Y") rescue nil)
+              employers = employers.employer_profile_plan_year_start_on(date)
+            end
+          end
         end
 
-
         @employer_collection = employers
-
       end
 
       def global_search?
