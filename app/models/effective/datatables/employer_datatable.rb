@@ -57,9 +57,7 @@ module Effective
               ), !people_id.empty? && pundit_allow(Family, :can_view_username_and_email?) ? 'ajax' : 'disabled'])
           end
 
-          if employer_attestation_is_enabled?
-            dropdown.insert(2,['Attestation', edit_employers_employer_attestation_path(id: row.employer_profile.id, employer_actions_id: "employer_actions_#{@employer_profile.id}"), 'ajax'])
-          end
+          dropdown.insert(2,['Attestation', edit_employers_employer_attestation_path(id: row.employer_profile.id, employer_actions_id: "employer_actions_#{@employer_profile.id}"), 'ajax']) if employer_attestation_is_enabled?
 
           render partial: 'datatables/shared/dropdown', locals: {dropdowns: dropdown, row_actions_id: "employer_actions_#{@employer_profile.id}"}, formats: :html
         }, :filter => false, :sortable => false
@@ -87,10 +85,30 @@ module Effective
             employers = employers.employer_attestations
           end
 
-          employers = employers.send(attributes[:enrolling]) if attributes[:enrolling].present?
-          employers = employers.send(attributes[:enrolling_initial]) if attributes[:enrolling_initial].present?
-          employers = employers.send(attributes[:enrolling_renewing]) if attributes[:enrolling_renewing].present?
-          employers = employers.send(attributes[:enrolled]) if attributes[:enrolled].present?
+          employers = employers.employer_profiles_enrolling if attributes[:enrolling].present?
+          employers = employers.employer_profiles_initial_eligible if attributes[:enrolling_initial].present?
+          employers = employers.employer_profiles_renewing if attributes[:enrolling_renewing].present?
+
+          case attributes[:enrolled]
+          when 'employer_profiles_enrolled'
+            employers = employers.employer_profiles_enrolled
+          when 'employer_profiles_suspended'
+            employers = employers.employer_profiles_suspended
+          end
+
+          case attributes[:attestations]
+          when 'employer_attestations'
+            employers = employers.employer_attestations
+          when 'employer_attestations_submitted'
+            employers = employers.employer_attestations_submitted
+          when 'employer_attestations_pending'
+            employers = employers.employer_attestations_pending
+          when 'employer_attestations_approved'
+            employers = employers.employer_attestations_approved
+          when 'employer_attestations_denied'
+            employers = employers.employer_attestations_denied
+          end
+
           employers = employers.send(attributes[:attestations]) if attributes[:attestations].present?
 
           if attributes[:upcoming_dates].present?
@@ -184,9 +202,7 @@ module Effective
          ],
         top_scope: :employers
         }
-        if employer_attestation_is_enabled?
-          filters[:employers] << {scope:'employer_attestations', label: 'Employer Attestations', subfilter: :attestations}
-        end
+        filters[:employers] << {scope:'employer_attestations', label: 'Employer Attestations', subfilter: :attestations} if employer_attestation_is_enabled?
         filters
       end
 
