@@ -76,23 +76,22 @@ module Effective
         employers = Organization.all_employer_profiles
 
         if attributes[:employers].present? && !['all'].include?(attributes[:employers])
-          valid_methods = {
-            employers: %w[employer_profiles_applicants employer_profiles_enrolling employer_profiles_enrolled employer_attestations],
-            enrolling: %w[enrolling enrolling_initial enrolling_renewing enrolled],
-            attestations: %w[attestations]
-          }
-
-          if valid_methods[:employers].include?(attributes[:employers])
-            employers = employers.send(attributes[:employers])
+          case attributes[:employers]
+          when 'employer_profiles_applicants'
+            employers = employers.employer_profiles_applicants
+          when 'employer_profiles_enrolling'
+            employers = employers.employer_profiles_enrolling
+          when 'employer_profiles_enrolled'
+            employers = employers.employer_profiles_enrolled
+          when 'employer_attestations'
+            employers = employers.employer_attestations
           end
 
-          %i[enrolling enrolling_initial enrolling_renewing enrolled].each do |key|
-            employers = employers.send(key) if valid_methods[:enrolling].include?(key.to_s) && attributes[key].present?
-          end
-
-          if valid_methods[:attestations].include?(attributes[:attestations]) && attributes[:attestations].present?
-            employers = employers.send(attributes[:attestations])
-          end
+          employers = employers.send(attributes[:enrolling]) if attributes[:enrolling].present?
+          employers = employers.send(attributes[:enrolling_initial]) if attributes[:enrolling_initial].present?
+          employers = employers.send(attributes[:enrolling_renewing]) if attributes[:enrolling_renewing].present?
+          employers = employers.send(attributes[:enrolled]) if attributes[:enrolled].present?
+          employers = employers.send(attributes[:attestations]) if attributes[:attestations].present?
 
           if attributes[:upcoming_dates].present?
             if (date = Date.strptime(attributes[:upcoming_dates], "%m/%d/%Y") rescue nil)
