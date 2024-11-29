@@ -82,7 +82,6 @@ module Effective
             attestations: %w[attestations]
           }
 
-          # Safely invoke methods only if present in the whitelist
           if valid_methods[:employers].include?(attributes[:employers])
             employers = employers.send(attributes[:employers])
           end
