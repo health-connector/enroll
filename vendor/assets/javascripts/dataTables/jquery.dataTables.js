@@ -15137,11 +15137,15 @@
   
     // html
     "html-pre": function ( a ) {
-      return _empty(a) ?
-        '' :
-        a.replace ?
-          a.replace( /<.*?>/g, "" ).toLowerCase() :
-          a+'';
+      if (_empty(a)) {
+        return '';
+      }
+
+      let tempDiv = document.createElement("div");
+      tempDiv.innerHTML = a;
+      let textContent = tempDiv.textContent || tempDiv.innerText || "";
+
+      return textContent.toLowerCase();
     },
   
     // string
