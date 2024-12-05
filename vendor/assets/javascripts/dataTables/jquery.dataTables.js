@@ -15142,6 +15142,7 @@
       }
 
       let tempDiv = document.createElement("div");
+
       tempDiv.innerHTML = a;
       let textContent = tempDiv.textContent || tempDiv.innerText || "";
 
