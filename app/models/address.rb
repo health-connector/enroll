@@ -268,6 +268,13 @@ class Address
     attrs_to_match.all? { |attr| attribute_matches?(attr, another_address) }
   end
 
+  # Check if this address has any changes
+  #
+  # @return [ true, false ] true if there are changes, false if there are no changes
+  def address_changed?
+    changed_attributes.present?
+  end
+
   private
 
   def attribute_matches?(attribute, other)

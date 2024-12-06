@@ -898,12 +898,22 @@ class Person
     user.ridp_by_paper_application
   end
 
+  def attributes_changed?
+    person_changes = meaningful_changes(changed_attributes)
+    embedded_changes = embedded_attributes_changed?
+
+    person_changes || embedded_changes
+  end
+
   private
 
-  def attributes_changed?
-    changes = changed_attributes.stringify_keys
+  def meaningful_changes(changes)
     meaningful_changes = changes.except('updated_at', 'updated_by', 'updated_by_id')
     meaningful_changes.present?
+  end
+
+  def embedded_attributes_changed?
+    addresses.any?(&:address_changed?) || phones.any?(&:phone_changed?) || emails.any?(&:email_changed?)
   end
 
   def update_census_dependent_relationship(existing_relationship)
