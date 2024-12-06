@@ -5,6 +5,7 @@ module SponsoredBenefits
 
     include Config::BrokerAgencyHelper
     include DataTablesAdapter
+    skip_before_action :set_broker_agency_profile_from_user, only: [:claim]
     before_action :load_plan_design_organization, except: [:destroy, :publish, :claim, :show]
     before_action :load_plan_design_proposal, only: [:edit, :update, :destroy, :publish, :show]
     before_action :published_plans_are_view_only, only: [:edit]
