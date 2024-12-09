@@ -5944,9 +5944,8 @@
     var s, max=-1, maxIdx = -1;
   
     for ( var i=0, ien=settings.aoData.length ; i<ien ; i++ ) {
-      s = _fnGetCellData( settings, i, colIdx, 'display' )+'';
-      s = s.replace( __re_html_remove, '' );
-      s = s.replace( /&nbsp;/g, ' ' );
+      s = _fnGetCellData(settings, i, colIdx, 'display') + '';
+      s = stripHtml(s).replace(/&nbsp;/g, ' ');
   
       if ( s.length > max ) {
         max = s.length;
@@ -6180,8 +6179,14 @@
     /* Tell the draw function that we have sorted the data */
     oSettings.bSorted = true;
   }
-  
-  
+
+
+  function stripHtml(html) {
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = html;
+    return tempDiv.textContent || tempDiv.innerText || "";
+  }
+
   function _fnSortAria ( settings )
   {
     var label;
@@ -6189,12 +6194,6 @@
     var columns = settings.aoColumns;
     var aSort = _fnSortFlatten( settings );
     var oAria = settings.oLanguage.oAria;
-
-    function stripHtml(html) {
-      const tempDiv = document.createElement("div");
-      tempDiv.innerHTML = html;
-      return tempDiv.textContent || tempDiv.innerText || "";
-    }
 
     // ARIA attributes - need to loop all columns, to update all (removing old
     // attributes as needed)
