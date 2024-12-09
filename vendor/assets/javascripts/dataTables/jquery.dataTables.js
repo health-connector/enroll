@@ -15032,27 +15032,38 @@
   // Note that additional search methods are added for the html numbers and
   // html formatted numbers by `_addNumericSort()` when we know what the decimal
   // place is
-  
-  
-  $.extend( DataTable.ext.type.search, {
-    html: function ( data ) {
-      return _empty(data) ?
-        data :
-        typeof data === 'string' ?
-          data
-            .replace( _re_new_lines, " " )
-            .replace( _re_html, "" ) :
-          '';
+
+
+  $.extend(DataTable.ext.type.search, {
+    html: function (data) {
+      if (_empty(data)) {
+        return data;
+      }
+
+      if (typeof data === 'string') {
+        let tempDiv = document.createElement("div");
+        tempDiv.innerHTML = data;
+
+        let sanitizedData = tempDiv.textContent || tempDiv.innerText || "";
+
+        return sanitizedData.replace(_re_new_lines, " ");
+      }
+
+      return '';
     },
-  
-    string: function ( data ) {
-      return _empty(data) ?
-        data :
-        typeof data === 'string' ?
-          data.replace( _re_new_lines, " " ) :
-          data;
+
+    string: function (data) {
+      if (_empty(data)) {
+        return data;
+      }
+
+      if (typeof data === 'string') {
+        return data.replace(_re_new_lines, " ");
+      }
+
+      return data;
     }
-  } );
+  });
   
   
   
