@@ -899,19 +899,24 @@ class Person
   end
 
   def attributes_changed?
-    person_changes = meaningful_changes(changed_attributes)
-    embedded_changes = embedded_attributes_changed?
-
-    person_changes || embedded_changes
+    # Check if there are meaningful changes in the person attributes or embedded documents
+    meaningful_changes?(changed_attributes) || embedded_attributes_changed?
   end
 
   private
 
-  def meaningful_changes(changes)
+  # Determine if there are meaningful changes, excluding specific attributes
+  #
+  # @param changes [Hash] The changed attributes
+  # @return [Boolean] true if there are meaningful changes, false otherwise
+  def meaningful_changes?(changes)
     meaningful_changes = changes.except('updated_at', 'updated_by', 'updated_by_id')
     meaningful_changes.present?
   end
 
+  # Check if there are changes in the embedded addresses, phones, or emails
+  #
+  # @return [Boolean] true if there are changes in embedded documents, false otherwise
   def embedded_attributes_changed?
     addresses.any?(&:address_changed?) || phones.any?(&:phone_changed?) || emails.any?(&:email_changed?)
   end

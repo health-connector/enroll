@@ -781,6 +781,30 @@ describe Person, :dbclean => :after_each do
     end
   end
 
+  describe "#attributes_changed?" do
+    let(:person) { FactoryBot.create(:person) }
+
+    context "when there are meaningful changes" do
+      it "returns true" do
+        person.first_name = "UpdatedName"
+        expect(person.attributes_changed?).to be true
+      end
+    end
+
+    context "when there are changes in embedded documents" do
+      it "returns true" do
+        person.addresses.build(address_1: "123 Main St", city: "Springfield", state: "IL", zip: "62701")
+        expect(person.attributes_changed?).to be true
+      end
+    end
+
+    context "when there are no meaningful changes" do
+      it "returns false" do
+        expect(person.attributes_changed?).to be false
+      end
+    end
+  end
+
   describe "does not allow two people with the same user ID to be saved", dbclean: :around_each do
     let(:person1){FactoryBot.build(:person)}
     let(:person2){FactoryBot.build(:person)}
