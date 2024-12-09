@@ -1527,12 +1527,17 @@
   
     return out;
   };
-  
-  
-  var _stripHtml = function ( d ) {
-    return d
-      .replace( _re_html, '' ) // Complete tags
-      .replace(/<script/i, ''); // Safety for incomplete script tag
+
+
+  var _stripHtml = function (d) {
+    if (typeof d !== "string") {
+      return d;
+    }
+
+    let tempDiv = document.createElement("div");
+    tempDiv.innerHTML = d;
+
+    return tempDiv.textContent || tempDiv.innerText || "";
   };
   
   
@@ -5944,9 +5949,8 @@
     var s, max=-1, maxIdx = -1;
   
     for ( var i=0, ien=settings.aoData.length ; i<ien ; i++ ) {
-      s = _fnGetCellData( settings, i, colIdx, 'display' )+'';
-      s = s.replace( __re_html_remove, '' );
-      s = s.replace( /&nbsp;/g, ' ' );
+      s = _fnGetCellData(settings, i, colIdx, 'display') + '';
+      s = stripHtml(s).replace(/&nbsp;/g, ' ');
   
       if ( s.length > max ) {
         max = s.length;
@@ -6180,8 +6184,14 @@
     /* Tell the draw function that we have sorted the data */
     oSettings.bSorted = true;
   }
-  
-  
+
+
+  function stripHtml(html) {
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = html;
+    return tempDiv.textContent || tempDiv.innerText || "";
+  }
+
   function _fnSortAria ( settings )
   {
     var label;
@@ -6189,14 +6199,15 @@
     var columns = settings.aoColumns;
     var aSort = _fnSortFlatten( settings );
     var oAria = settings.oLanguage.oAria;
-  
+
     // ARIA attributes - need to loop all columns, to update all (removing old
     // attributes as needed)
     for ( var i=0, iLen=columns.length ; i<iLen ; i++ )
     {
       var col = columns[i];
       var asSorting = col.asSorting;
-      var sTitle = col.ariaTitle || col.sTitle.replace( /<.*?>/g, "" );
+      var sTitle = col.ariaTitle || stripHtml(col.sTitle);
+
       var th = col.nTh;
   
       // IE7 is throwing an error when setting these properties with jQuery's
@@ -15032,27 +15043,38 @@
   // Note that additional search methods are added for the html numbers and
   // html formatted numbers by `_addNumericSort()` when we know what the decimal
   // place is
-  
-  
-  $.extend( DataTable.ext.type.search, {
-    html: function ( data ) {
-      return _empty(data) ?
-        data :
-        typeof data === 'string' ?
-          data
-            .replace( _re_new_lines, " " )
-            .replace( _re_html, "" ) :
-          '';
+
+
+  $.extend(DataTable.ext.type.search, {
+    html: function (data) {
+      if (_empty(data)) {
+        return data;
+      }
+
+      if (typeof data === 'string') {
+        let tempDiv = document.createElement("div");
+        tempDiv.innerHTML = data;
+
+        let sanitizedData = tempDiv.textContent || tempDiv.innerText || "";
+
+        return sanitizedData.replace(_re_new_lines, " ");
+      }
+
+      return '';
     },
-  
-    string: function ( data ) {
-      return _empty(data) ?
-        data :
-        typeof data === 'string' ?
-          data.replace( _re_new_lines, " " ) :
-          data;
+
+    string: function (data) {
+      if (_empty(data)) {
+        return data;
+      }
+
+      if (typeof data === 'string') {
+        return data.replace(_re_new_lines, " ");
+      }
+
+      return data;
     }
-  } );
+  });
   
   
   
@@ -15137,11 +15159,16 @@
   
     // html
     "html-pre": function ( a ) {
-      return _empty(a) ?
-        '' :
-        a.replace ?
-          a.replace( /<.*?>/g, "" ).toLowerCase() :
-          a+'';
+      if (_empty(a)) {
+        return '';
+      }
+
+      let tempDiv = document.createElement("div");
+
+      tempDiv.innerHTML = a;
+      let textContent = tempDiv.textContent || tempDiv.innerText || "";
+
+      return textContent.toLowerCase();
     },
   
     // string
