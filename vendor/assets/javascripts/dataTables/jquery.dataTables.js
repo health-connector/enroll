@@ -1527,12 +1527,17 @@
   
     return out;
   };
-  
-  
-  var _stripHtml = function ( d ) {
-    return d
-      .replace( _re_html, '' ) // Complete tags
-      .replace(/<script/i, ''); // Safety for incomplete script tag
+
+
+  var _stripHtml = function (d) {
+    if (typeof d !== "string") {
+      return d;
+    }
+
+    let tempDiv = document.createElement("div");
+    tempDiv.innerHTML = d;
+
+    return tempDiv.textContent || tempDiv.innerText || "";
   };
   
   
