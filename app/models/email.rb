@@ -34,4 +34,10 @@ class Email
     self[attribute] == other[attribute]
   end
 
+  # Check if this email has any changes
+  #
+  # @return [ true, false ] true if there are changes, false if there are no changes
+  def email_changed?
+    changed_attributes.present?
+  end
 end

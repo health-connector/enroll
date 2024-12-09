@@ -74,6 +74,20 @@ describe Email, :dbclean => :after_each do
           expect(Email.create(**params).valid?).to be_truthy
         end
       end
+
+      context "#email_changed?" do
+        let(:person) { FactoryBot.create(:person) }
+        let(:email) { person.emails.create(valid_params) }
+
+        it "returns true if email has changes" do
+          email.address = "new@test.com"
+          expect(email.email_changed?).to be true
+        end
+
+        it "returns false if email has no changes" do
+          expect(email.email_changed?).to be false
+        end
+      end
     end
 
     describe 'presence' do
