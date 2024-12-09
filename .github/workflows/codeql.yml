@@ -13,7 +13,7 @@ name: "CodeQL"
 
 on:
   push:
-    branches: [ "master", "enroll_uat", "rc-release-* ", "support_dataTables" ]
+    branches: [ "master", "enroll_uat", "rc-release-* " ]
   pull_request:
     branches: [ "master", "enroll_uat", "rc-release-* " ]
   schedule:
