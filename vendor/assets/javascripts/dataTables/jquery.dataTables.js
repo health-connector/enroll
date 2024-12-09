@@ -6189,14 +6189,21 @@
     var columns = settings.aoColumns;
     var aSort = _fnSortFlatten( settings );
     var oAria = settings.oLanguage.oAria;
-  
+
+    function stripHtml(html) {
+      const tempDiv = document.createElement("div");
+      tempDiv.innerHTML = html;
+      return tempDiv.textContent || tempDiv.innerText || "";
+    }
+
     // ARIA attributes - need to loop all columns, to update all (removing old
     // attributes as needed)
     for ( var i=0, iLen=columns.length ; i<iLen ; i++ )
     {
       var col = columns[i];
       var asSorting = col.asSorting;
-      var sTitle = col.ariaTitle || col.sTitle.replace( /<.*?>/g, "" );
+      var sTitle = col.ariaTitle || stripHtml(col.sTitle);
+
       var th = col.nTh;
   
       // IE7 is throwing an error when setting these properties with jQuery's
