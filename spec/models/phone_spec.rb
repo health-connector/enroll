@@ -126,4 +126,19 @@ describe Phone, type: :model do
       expect(phone.to_s).to eq "(222) 111-3333"
     end
   end
+
+  describe "#phone_changed?" do
+    let(:person) {FactoryBot.create(:person)}
+    let(:params) {{kind: "home", full_phone_number: "(222)-111-3333", person: person}}
+    let(:phone) {Phone.create(**params)}
+
+    it "returns true if phone has changes" do
+      phone.full_phone_number = "098-765-4321"
+      expect(phone.phone_changed?).to be true
+    end
+
+    it "returns false if phone has no changes" do
+      expect(phone.phone_changed?).to be false
+    end
+  end
 end
