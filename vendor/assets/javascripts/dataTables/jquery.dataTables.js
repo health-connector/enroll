@@ -1530,14 +1530,13 @@
 
 
   var _stripHtml = function (d) {
-    if (typeof d !== "string") {
-      return d;
-    }
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = d.replace(/<|>/g, "");
 
-    let tempDiv = document.createElement("div");
-    tempDiv.innerHTML = d;
+    const scripts = tempDiv.querySelectorAll('script');
+    scripts.forEach(script => script.remove());
 
-    return tempDiv.textContent || tempDiv.innerText || "";
+    return tempDiv.textContent || '';
   };
   
   
