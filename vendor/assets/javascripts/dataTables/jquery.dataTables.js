@@ -1529,12 +1529,9 @@
   };
 
 
-  var _stripHtml = function (d) {
+  const _stripHtml = function (d) {
     const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = d.replace(/<|>/g, "");
-
-    const scripts = tempDiv.querySelectorAll('script');
-    scripts.forEach(script => script.remove());
+    tempDiv.innerHTML = d.replaceAll(/<|>/g, "");
 
     return tempDiv.textContent || '';
   };
