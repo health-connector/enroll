@@ -135,67 +135,6 @@ module Effective
         (1..fte_max_count).include?(benefit_application.fte_count) && benefit_application.sponsor_profile.is_primary_office_local?
       end
 
-      def collection
-        return @employer_collection if defined? @employer_collection
-
-        benefit_sponsorships ||= BenefitSponsors::BenefitSponsorships::BenefitSponsorship.unscoped
-
-        safe_employer_methods = [
-          'benefit_sponsorship_applicant', 'benefit_application_enrolling',
-          'benefit_application_enrolled', 'employer_attestations'
-        ]
-        safe_enrolling_methods = [
-          'all', 'benefit_application_enrolling_initial', 'benefit_application_pending',
-          'benefit_application_enrolling_initial_oe', 'benefit_application_initial_binder_paid',
-          'benefit_application_initial_binder_pending', 'benefit_application_enrolling_renewing'
-        ]
-        safe_enrolled_methods = ['benefit_application_enrolled', 'benefit_application_suspended']
-        safe_attestation_methods = ['submitted', 'pending', 'approved', 'denied', 'employer_attestations']
-
-        if attributes[:employers].present? && !['all'].include?(attributes[:employers])
-          if safe_employer_methods.include?(attributes[:employers])
-            benefit_sponsorships = benefit_sponsorships.public_send(attributes[:employers])
-          end
-
-          if attributes[:enrolling].present?
-            if attributes[:enrolling_initial].present? || attributes[:enrolling_renewing].present?
-              if attributes[:enrolling_initial].present? && attributes[:enrolling_initial] != 'all'
-                benefit_sponsorships = benefit_sponsorships.public_send(attributes[:enrolling_initial]) if safe_enrolling_methods.include?(attributes[:enrolling_initial])
-              end
-              if attributes[:enrolling_renewing].present? && attributes[:enrolling_renewing] != 'all'
-                benefit_sponsorships = benefit_sponsorships.public_send(attributes[:enrolling_renewing]) if safe_enrolling_methods.include?(attributes[:enrolling_renewing])
-              end
-              if attributes[:enrolling_initial] == 'all' || attributes[:enrolling_renewing] == 'all'
-                benefit_sponsorships = benefit_sponsorships.public_send(attributes[:enrolling]) if safe_enrolling_methods.include?(attributes[:enrolling])
-              end
-            else
-              benefit_sponsorships = benefit_sponsorships.public_send(attributes[:enrolling]) if safe_enrolling_methods.include?(attributes[:enrolling])
-            end
-          end
-
-          if attributes[:enrolled].present?
-            benefit_sponsorships = benefit_sponsorships.public_send(attributes[:enrolled]) if safe_enrolled_methods.include?(attributes[:enrolled])
-          end
-
-          if attributes[:employer_attestations].present?
-            benefit_sponsorships = benefit_sponsorships.public_send(attributes[:employer_attestations]) if safe_attestation_methods.include?(attributes[:employer_attestations])
-          end
-
-          if attributes[:upcoming_dates].present?
-            if date = Date.strptime(attributes[:upcoming_dates], "%m/%d/%Y")
-              benefit_sponsorships = benefit_sponsorships.effective_date_begin_on(date)
-            end
-          end
-
-          if attributes[:attestations].present? && attributes[:attestations] != "employer_attestations"
-            benefit_sponsorships = benefit_sponsorships.attestations_by_kind(attributes[:attestations]) if safe_attestation_methods.include?(attributes[:attestations])
-          end
-        end
-
-        @employer_collection = benefit_sponsorships
-      end
-
-
       def global_search?
         true
       end
@@ -295,6 +234,96 @@ module Effective
       def authorized?(current_user, _controller, _action, _resource)
         current_user.present? && current_user.has_hbx_staff_role?
       end
+
+      def collection
+        return @collection if defined? @collection
+
+        benefit_sponsorships ||= BenefitSponsors::BenefitSponsorships::BenefitSponsorship.unscoped
+
+        safe_employer_methods = %w[
+          benefit_sponsorship_applicant benefit_application_enrolling
+          benefit_application_enrolled employer_attestations
+        ]
+        safe_enrolling_methods = %w[
+          all benefit_application_enrolling_initial benefit_application_pending
+          benefit_application_enrolling_initial_oe benefit_application_initial_binder_paid
+          benefit_application_initial_binder_pending benefit_application_enrolling_renewing
+        ]
+        safe_enrolled_methods = %w[benefit_application_enrolled benefit_application_suspended]
+        safe_attestation_methods = %w[submitted pending approved denied employer_attestations]
+
+        benefit_sponsorships = filter_by_employers(benefit_sponsorships, attributes[:employers], safe_employer_methods)
+        benefit_sponsorships = filter_by_enrolling(benefit_sponsorships, attributes, safe_enrolling_methods)
+        benefit_sponsorships = filter_by_enrolled(benefit_sponsorships, attributes[:enrolled], safe_enrolled_methods)
+        benefit_sponsorships = filter_by_employer_attestations(benefit_sponsorships, attributes[:employer_attestations], safe_attestation_methods)
+        benefit_sponsorships = filter_by_upcoming_dates(benefit_sponsorships, attributes[:upcoming_dates])
+        benefit_sponsorships = filter_by_attestations(benefit_sponsorships, attributes[:attestations], safe_attestation_methods)
+
+        @collection = benefit_sponsorships
+      end
+
+      private
+
+      def filter_by_employers(benefit_sponsorships, employers, safe_methods)
+        return benefit_sponsorships unless employers.present? && !['all'].include?(employers)
+
+        safe_methods.include?(employers) ? benefit_sponsorships.public_send(employers) : benefit_sponsorships
+      end
+
+      def filter_by_enrolling(benefit_sponsorships, attributes, safe_methods)
+        enrolling = attributes[:enrolling]
+        enrolling_initial = attributes[:enrolling_initial]
+        enrolling_renewing = attributes[:enrolling_renewing]
+
+        return benefit_sponsorships unless enrolling.present?
+
+        benefit_sponsorships = handle_enrolling_initial(benefit_sponsorships, enrolling_initial, safe_methods) if enrolling_initial.present? && enrolling_initial != 'all'
+        benefit_sponsorships = handle_enrolling_renewing(benefit_sponsorships, enrolling_renewing, safe_methods) if enrolling_renewing.present? && enrolling_renewing != 'all'
+        benefit_sponsorships = benefit_sponsorships.public_send(enrolling) if safe_methods.include?(enrolling)
+
+        benefit_sponsorships
+      end
+
+      def handle_enrolling_initial(benefit_sponsorships, enrolling_initial, safe_methods)
+        return benefit_sponsorships unless safe_methods.include?(enrolling_initial)
+
+        benefit_sponsorships.public_send(enrolling_initial)
+      end
+
+      def handle_enrolling_renewing(benefit_sponsorships, enrolling_renewing, safe_methods)
+        return benefit_sponsorships unless safe_methods.include?(enrolling_renewing)
+
+        benefit_sponsorships.public_send(enrolling_renewing)
+      end
+
+      def filter_by_enrolled(benefit_sponsorships, enrolled, safe_methods)
+        enrolled.present? && safe_methods.include?(enrolled) ? benefit_sponsorships.public_send(enrolled) : benefit_sponsorships
+      end
+
+      def filter_by_employer_attestations(benefit_sponsorships, employer_attestations, safe_methods)
+        employer_attestations.present? && safe_methods.include?(employer_attestations) ? benefit_sponsorships.public_send(employer_attestations) : benefit_sponsorships
+      end
+
+      def filter_by_upcoming_dates(benefit_sponsorships, upcoming_dates)
+        return benefit_sponsorships unless upcoming_dates.present?
+
+        date = parse_date(upcoming_dates)
+        date ? benefit_sponsorships.effective_date_begin_on(date) : benefit_sponsorships
+      end
+
+      def filter_by_attestations(benefit_sponsorships, attestations, safe_methods)
+        return benefit_sponsorships unless attestations.present? && attestations != 'employer_attestations'
+
+        safe_methods.include?(attestations) ? benefit_sponsorships.attestations_by_kind(attestations) : benefit_sponsorships
+      end
+
+      def parse_date(date_str)
+        Date.strptime(date_str, "%m/%d/%Y")
+      rescue StandardError => e
+        puts "Date parsing error: #{e.message}"
+        nil
+      end
+
     end
   end
 end
