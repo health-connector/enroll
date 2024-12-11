@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://openhbx.org/api/terms/1.0" targetNamespace="http://openhbx.org/api/terms/1.0" elementFormDefault="qualified">
+    <xs:include schemaLocation="common.xsd"/>
+    
+    <xs:simpleType name="PremiumCreditKindType">
+        <xs:annotation>
+            <xs:documentation>Acceptable values for kinds of premium credit.</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:anyURI">
+            <xs:enumeration value="urn:openhbx:terms:v1:premium_credit_kind#aptc">
+                <xs:annotation>
+                    <xs:documentation>Advance Premium Tax Credit</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="urn:openhbx:terms:v1:premium_credit_kind#shop_contribution">
+                <xs:annotation>
+                    <xs:documentation>SHOP Employer Contribution</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="urn:dc0:terms:v1:premium_credit_kind#osse">
+                <xs:annotation>
+                    <xs:documentation>OSSE Program Premium Credit</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:complexType name="PremiumCreditType">
+        <xs:annotation>
+            <xs:documentation>Describes a credit applied to a product premium.</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="kind" type="PremiumCreditKindType"/>
+            <xs:element name="value" type="CurrencyType"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="PremiumCreditsListType">
+        <xs:annotation>
+            <xs:documentation>A list of premium credits provided for a product premium.</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="premium_credit" type="PremiumCreditType" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>

@@ -6,6 +6,7 @@ class Exchanges::EmployerApplicationsController < ApplicationController
   before_action :can_modify_plan_year?, only: [:terminate, :cancel, :reinstate, :revise_end_date]
   before_action :check_hbx_staff_role, except: :get_term_reasons
   before_action :find_benefit_sponsorship, except: :get_term_reasons
+  before_action :can_generate_v2_xml?, only: [:download_v2_xml, :upload_v2_xml, :new_v2_xml]
 
   def index
     @allow_mid_month_voluntary_terms = allow_mid_month_voluntary_terms?
@@ -142,10 +143,63 @@ class Exchanges::EmployerApplicationsController < ApplicationController
     redirect_to exchanges_hbx_profiles_root_path, flash[:error] => "#{application.benefit_sponsorship.legal_name} - #{l10n('exchange.employer_applications.unable_to_change_end_date')}"
   end
 
+  def download_v2_xml
+    event_name = params[:selected_event]
+    @employer_actions_id = params[:employer_actions_id]
+    @application = @benefit_sponsorship.benefit_applications.find(params[:employer_application_id])
+    employer_profile_hbx_id = @benefit_sponsorship.hbx_id
+    employer = @benefit_sponsorship.profile
+    event_payload = render_to_string "events/v2/employers/updated", formats: [:xml], locals: { employer: employer, manual_gen: false, benefit_application_id: @application.id }
+    employer_event = BenefitSponsors::Services::EmployerEvent.new(event_name, event_payload, employer_profile_hbx_id)
+    group_xml_downloader = BenefitSponsors::Services::GroupXmlDownloader.new(employer_event)
+    download_status = group_xml_downloader.download
+    if download_status[0] == :empty_files
+      @error_message = download_status[1]
+      @file_path = nil
+      respond_to(&:js)
+    elsif download_status[0] == :success
+      @success_message = l10n('exchange.employer_applications.download_v2_xml.success_message')
+      @file_path = download_status[1]
+    end
+  end
+
+  def new_v2_xml
+    @application = @benefit_sponsorship.benefit_applications.find(params[:employer_application_id])
+    respond_to(&:js)
+  end
+
+  def upload_v2_xml
+    file = params[:file]
+    @employer_actions_id = params[:employer_actions_id]
+
+    if file.is_a?(ActionDispatch::Http::UploadedFile)
+      fein = @benefit_sponsorship&.fein
+      xml_file_path = file.tempfile.path
+      v2_xml_uploader = ::BenefitSponsors::Services::V2XmlUploader.new(xml_file_path, fein)
+      result, errors = v2_xml_uploader.upload
+
+      if result
+        @success_message = l10n('exchange.employer_applications.upload_v2_xml.success_message', fein: fein)
+        render json: { success_message: @success_message }, status: :ok
+      else
+        error_messages = errors.map { |e| "Error: #{e}" }.join(", ")
+        @error_message = l10n('exchange.employer_applications.upload_v2_xml.failure_message', errors: error_messages)
+        render json: { error_message: @error_message }, status: :ok
+      end
+    else
+      @error_message = l10n('exchange.employer_applications.upload_v2_xml.invalid_file_error')
+      render json: { error_message: @error_message }, status: :ok
+    end
+  end
+
   private
 
   def can_modify_plan_year?
     authorize HbxProfile, :can_modify_plan_year?
+  end
+
+  def can_generate_v2_xml?
+    authorize HbxProfile, :can_generate_v2_xml?
   end
 
   def check_hbx_staff_role
