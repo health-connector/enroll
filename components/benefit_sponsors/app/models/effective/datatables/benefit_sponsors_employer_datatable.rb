@@ -13,6 +13,7 @@ module Effective
         all benefit_application_enrolling_initial benefit_application_pending
         benefit_application_enrolling_initial_oe benefit_application_initial_binder_paid
         benefit_application_initial_binder_pending benefit_application_enrolling_renewing
+        benefit_application_renewal_pending benefit_application_enrolling_renewing_oe
         benefit_application_enrolled benefit_application_suspended
         submitted pending approved denied
       ].freeze
@@ -249,68 +250,20 @@ module Effective
         return @collection if defined? @collection
 
         benefit_sponsorships ||= BenefitSponsors::BenefitSponsorships::BenefitSponsorship.unscoped
-        benefit_sponsorships = filter_by_employers(benefit_sponsorships)
-        benefit_sponsorships = filter_by_enrolling(benefit_sponsorships)
-        benefit_sponsorships = filter_by_enrolled(benefit_sponsorships)
-        benefit_sponsorships = filter_by_employer_attestations(benefit_sponsorships)
-        benefit_sponsorships = filter_by_upcoming_dates(benefit_sponsorships)
-        benefit_sponsorships = filter_by_attestations(benefit_sponsorships)
+
+        if attributes[:employers].present? && !['all'].include?(attributes[:employers])
+          benefit_sponsorships = filter_by_employers(benefit_sponsorships)
+          benefit_sponsorships = filter_by_enrolling(benefit_sponsorships)
+          benefit_sponsorships = filter_by_enrolled(benefit_sponsorships)
+          benefit_sponsorships = filter_by_employer_attestations(benefit_sponsorships)
+          benefit_sponsorships = filter_by_upcoming_dates(benefit_sponsorships)
+          benefit_sponsorships = filter_by_attestations(benefit_sponsorships)
+        end
 
         @collection = benefit_sponsorships
       end
 
       private
-
-      def filter_by_employers(benefit_sponsorships)
-        return benefit_sponsorships unless attributes[:employers].present? && !['all'].include?(attributes[:employers])
-
-        call_safe_method(benefit_sponsorships, attributes[:employers]) if ALLOWED_METHODS.include?(attributes[:employers])
-      end
-
-      def filter_by_enrolling(benefit_sponsorships)
-        return benefit_sponsorships unless attributes[:enrolling].present?
-
-        if attributes[:enrolling_initial].present? || attributes[:enrolling_renewing].present?
-          benefit_sponsorships = call_safe_method(benefit_sponsorships, attributes[:enrolling_initial]) if attributes[:enrolling_initial].present? && attributes[:enrolling_initial] != 'all'
-          benefit_sponsorships = call_safe_method(benefit_sponsorships, attributes[:enrolling_renewing]) if attributes[:enrolling_renewing].present? && attributes[:enrolling_renewing] != 'all'
-          call_safe_method(benefit_sponsorships, attributes[:enrolling]) if attributes[:enrolling_initial] == 'all' || attributes[:enrolling_renewing] == 'all'
-        else
-          call_safe_method(benefit_sponsorships, attributes[:enrolling])
-        end
-      end
-
-      def filter_by_enrolled(benefit_sponsorships)
-        attributes[:enrolled].present? ? call_safe_method(benefit_sponsorships, attributes[:enrolled]) : benefit_sponsorships
-      end
-
-      def filter_by_employer_attestations(benefit_sponsorships)
-        return benefit_sponsorships unless attributes[:employer_attestations].present?
-
-        benefit_sponsorships = call_safe_method(benefit_sponsorships, attributes[:employer_attestations])
-        case attributes[:attestation_status]
-        when 'submitted'
-          benefit_sponsorships.submitted if benefit_sponsorships.respond_to?(:submitted)
-        when 'pending'
-          benefit_sponsorships.pending if benefit_sponsorships.respond_to?(:pending)
-        when 'approved'
-          benefit_sponsorships.approved if benefit_sponsorships.respond_to?(:approved)
-        when 'denied'
-          benefit_sponsorships.denied if benefit_sponsorships.respond_to?(:denied)
-        else
-          Rails.logger.warn("Attempted to call unsafe or undefined attestation status: #{attributes[:attestation_status]}")
-        end
-      end
-
-      def filter_by_upcoming_dates(benefit_sponsorships)
-        return benefit_sponsorships unless attributes[:upcoming_dates].present?
-
-        date = parse_date(attributes[:upcoming_dates])
-        date ? benefit_sponsorships.effective_date_begin_on(date) : benefit_sponsorships
-      end
-
-      def filter_by_attestations(benefit_sponsorships)
-        attributes[:attestations].present? && attributes[:attestations] != "employer_attestations" ? benefit_sponsorships.attestations_by_kind(attributes[:attestations]) : benefit_sponsorships
-      end
 
       def call_safe_method(object, method)
         unless method.present? && ALLOWED_METHODS.include?(method)
@@ -323,6 +276,65 @@ module Effective
         else
           Rails.logger.warn("Attempted to call method that does not respond: #{method}")
           object
+        end
+      end
+
+      def filter_by_employers(benefit_sponsorships)
+        return benefit_sponsorships unless attributes[:employers].present? && !['all'].include?(attributes[:employers])
+
+        call_safe_method(benefit_sponsorships, attributes[:employers])
+      end
+
+      def filter_by_enrolling(benefit_sponsorships)
+        return benefit_sponsorships unless attributes[:enrolling].present?
+
+        if attributes[:enrolling_initial].present? && attributes[:enrolling_initial] != 'all'
+          call_safe_method(benefit_sponsorships, attributes[:enrolling_initial])
+        elsif attributes[:enrolling_renewing].present? && attributes[:enrolling_renewing] != 'all'
+          call_safe_method(benefit_sponsorships, attributes[:enrolling_renewing])
+        else
+          call_safe_method(benefit_sponsorships, attributes[:enrolling])
+        end
+
+        benefit_sponsorships
+      end
+
+      def filter_by_enrolled(benefit_sponsorships)
+        attributes[:enrolled].present? ? call_safe_method(benefit_sponsorships, attributes[:enrolled]) : benefit_sponsorships
+      end
+
+      def filter_by_employer_attestations(benefit_sponsorships)
+        return benefit_sponsorships unless attributes[:employer_attestations].present?
+
+        benefit_sponsorships = call_safe_method(benefit_sponsorships, attributes[:employer_attestations])
+        case attributes[:attestation_status]
+        when 'submitted'
+          benefit_sponsorships = benefit_sponsorships.submitted if benefit_sponsorships.respond_to?(:submitted)
+        when 'pending'
+          benefit_sponsorships = benefit_sponsorships.pending if benefit_sponsorships.respond_to?(:pending)
+        when 'approved'
+          benefit_sponsorships = benefit_sponsorships.approved if benefit_sponsorships.respond_to?(:approved)
+        when 'denied'
+          benefit_sponsorships = benefit_sponsorships.denied if benefit_sponsorships.respond_to?(:denied)
+        else
+          Rails.logger.warn("Attempted to call unsafe or undefined attestation status: #{attributes[:attestation_status]}")
+        end
+
+        benefit_sponsorships
+      end
+
+      def filter_by_upcoming_dates(benefit_sponsorships)
+        return benefit_sponsorships unless attributes[:upcoming_dates].present?
+
+        date = parse_date(attributes[:upcoming_dates])
+        date ? benefit_sponsorships.effective_date_begin_on(date) : benefit_sponsorships
+      end
+
+      def filter_by_attestations(benefit_sponsorships)
+        if attributes[:attestations].present? && attributes[:attestations] != "employer_attestations"
+          benefit_sponsorships.attestations_by_kind(attributes[:attestations])
+        else
+          benefit_sponsorships
         end
       end
 
