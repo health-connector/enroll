@@ -140,36 +140,61 @@ module Effective
 
         benefit_sponsorships ||= BenefitSponsors::BenefitSponsorships::BenefitSponsorship.unscoped
 
+        safe_employer_methods = [
+          'benefit_sponsorship_applicant', 'benefit_application_enrolling',
+          'benefit_application_enrolled', 'employer_attestations'
+        ]
+        safe_enrolling_methods = [
+          'all', 'benefit_application_enrolling_initial', 'benefit_application_pending',
+          'benefit_application_enrolling_initial_oe', 'benefit_application_initial_binder_paid',
+          'benefit_application_initial_binder_pending', 'benefit_application_enrolling_renewing'
+        ]
+        safe_enrolled_methods = ['benefit_application_enrolled', 'benefit_application_suspended']
+        safe_attestation_methods = ['submitted', 'pending', 'approved', 'denied', 'employer_attestations']
+
         if attributes[:employers].present? && !['all'].include?(attributes[:employers])
-          benefit_sponsorships = benefit_sponsorships.send(attributes[:employers]) if employer_kinds.include?(attributes[:employers])
+          if safe_employer_methods.include?(attributes[:employers])
+            benefit_sponsorships = benefit_sponsorships.public_send(attributes[:employers])
+          end
 
           if attributes[:enrolling].present?
             if attributes[:enrolling_initial].present? || attributes[:enrolling_renewing].present?
-              benefit_sponsorships = benefit_sponsorships.send(attributes[:enrolling_initial]) if attributes[:enrolling_initial].present? && attributes[:enrolling_initial] != 'all'
-              benefit_sponsorships = benefit_sponsorships.send(attributes[:enrolling_renewing]) if attributes[:enrolling_renewing].present? && attributes[:enrolling_renewing] != 'all'
-              benefit_sponsorships = benefit_sponsorships.send(attributes[:enrolling]) if attributes[:enrolling_initial].present? && attributes[:enrolling_initial] == 'all' || attributes[:enrolling_renewing].present? && attributes[:enrolling_renewing] == 'all'
+              if attributes[:enrolling_initial].present? && attributes[:enrolling_initial] != 'all'
+                benefit_sponsorships = benefit_sponsorships.public_send(attributes[:enrolling_initial]) if safe_enrolling_methods.include?(attributes[:enrolling_initial])
+              end
+              if attributes[:enrolling_renewing].present? && attributes[:enrolling_renewing] != 'all'
+                benefit_sponsorships = benefit_sponsorships.public_send(attributes[:enrolling_renewing]) if safe_enrolling_methods.include?(attributes[:enrolling_renewing])
+              end
+              if attributes[:enrolling_initial] == 'all' || attributes[:enrolling_renewing] == 'all'
+                benefit_sponsorships = benefit_sponsorships.public_send(attributes[:enrolling]) if safe_enrolling_methods.include?(attributes[:enrolling])
+              end
             else
-              benefit_sponsorships = benefit_sponsorships.send(attributes[:enrolling])
+              benefit_sponsorships = benefit_sponsorships.public_send(attributes[:enrolling]) if safe_enrolling_methods.include?(attributes[:enrolling])
             end
           end
 
-          benefit_sponsorships = benefit_sponsorships.send(attributes[:enrolled]) if attributes[:enrolled].present?
-          benefit_sponsorships = benefit_sponsorships.send(attributes[:employer_attestations]) if attributes[:employer_attestations].present?
+          if attributes[:enrolled].present?
+            benefit_sponsorships = benefit_sponsorships.public_send(attributes[:enrolled]) if safe_enrolled_methods.include?(attributes[:enrolled])
+          end
 
+          if attributes[:employer_attestations].present?
+            benefit_sponsorships = benefit_sponsorships.public_send(attributes[:employer_attestations]) if safe_attestation_methods.include?(attributes[:employer_attestations])
+          end
 
           if attributes[:upcoming_dates].present?
-              if date = Date.strptime(attributes[:upcoming_dates], "%m/%d/%Y")
-                benefit_sponsorships = benefit_sponsorships.effective_date_begin_on(date)
-              end
+            if date = Date.strptime(attributes[:upcoming_dates], "%m/%d/%Y")
+              benefit_sponsorships = benefit_sponsorships.effective_date_begin_on(date)
+            end
           end
 
           if attributes[:attestations].present? && attributes[:attestations] != "employer_attestations"
-            benefit_sponsorships = benefit_sponsorships.attestations_by_kind(attributes[:attestations])
+            benefit_sponsorships = benefit_sponsorships.attestations_by_kind(attributes[:attestations]) if safe_attestation_methods.include?(attributes[:attestations])
           end
         end
 
-          @employer_collection = benefit_sponsorships
+        @employer_collection = benefit_sponsorships
       end
+
 
       def global_search?
         true
