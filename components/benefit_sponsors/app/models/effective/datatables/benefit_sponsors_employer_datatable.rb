@@ -235,37 +235,35 @@ module Effective
         current_user.present? && current_user.has_hbx_staff_role?
       end
 
+      ALLOWED_METHODS = %w[
+        benefit_sponsorship_applicant benefit_application_enrolling
+        benefit_application_enrolled employer_attestations
+        all benefit_application_enrolling_initial benefit_application_pending
+        benefit_application_enrolling_initial_oe benefit_application_initial_binder_paid
+        benefit_application_initial_binder_pending benefit_application_enrolling_renewing
+        benefit_application_enrolled benefit_application_suspended
+        submitted pending approved denied employer_attestations
+      ].freeze
+
       def collection
         return @collection if defined? @collection
 
         benefit_sponsorships = BenefitSponsors::BenefitSponsorships::BenefitSponsorship.unscoped
 
-        safe_employer_methods = %w[
-          benefit_sponsorship_applicant benefit_application_enrolling
-          benefit_application_enrolled employer_attestations
-        ]
-        safe_enrolling_methods = %w[
-          all benefit_application_enrolling_initial benefit_application_pending
-          benefit_application_enrolling_initial_oe benefit_application_initial_binder_paid
-          benefit_application_initial_binder_pending benefit_application_enrolling_renewing
-        ]
-        safe_enrolled_methods = %w[benefit_application_enrolled benefit_application_suspended]
-        safe_attestation_methods = %w[submitted pending approved denied employer_attestations]
-
-        benefit_sponsorships = call_safe_method(benefit_sponsorships, attributes[:employers], safe_employer_methods)
-        benefit_sponsorships = filter_by_enrolling(benefit_sponsorships, attributes, safe_enrolling_methods)
-        benefit_sponsorships = call_safe_method(benefit_sponsorships, attributes[:enrolled], safe_enrolled_methods)
-        benefit_sponsorships = call_safe_method(benefit_sponsorships, attributes[:employer_attestations], safe_attestation_methods)
+        benefit_sponsorships = call_safe_method(benefit_sponsorships, attributes[:employers])
+        benefit_sponsorships = filter_by_enrolling(benefit_sponsorships, attributes)
+        benefit_sponsorships = call_safe_method(benefit_sponsorships, attributes[:enrolled])
+        benefit_sponsorships = call_safe_method(benefit_sponsorships, attributes[:employer_attestations])
         benefit_sponsorships = filter_by_upcoming_dates(benefit_sponsorships, attributes[:upcoming_dates])
-        benefit_sponsorships = call_safe_method(benefit_sponsorships, attributes[:attestations], safe_attestation_methods)
+        benefit_sponsorships = call_safe_method(benefit_sponsorships, attributes[:attestations])
 
         @collection = benefit_sponsorships
       end
 
       private
 
-      def call_safe_method(object, method, safe_methods)
-        unless method.present? && safe_methods.include?(method)
+      def call_safe_method(object, method)
+        unless method.present? && ALLOWED_METHODS.include?(method)
           Rails.logger.warn("Attempted to call unsafe or undefined method: #{method}")
           return object
         end
@@ -278,7 +276,7 @@ module Effective
         end
       end
 
-      def filter_by_enrolling(benefit_sponsorships, attributes, safe_methods)
+      def filter_by_enrolling(benefit_sponsorships, attributes)
         enrolling = attributes[:enrolling]
         enrolling_initial = attributes[:enrolling_initial]
         enrolling_renewing = attributes[:enrolling_renewing]
@@ -286,13 +284,13 @@ module Effective
         return benefit_sponsorships unless enrolling.present?
 
         if enrolling_initial.present? && enrolling_initial != 'all'
-          call_safe_method(benefit_sponsorships, enrolling_initial, safe_methods)
+          call_safe_method(benefit_sponsorships, enrolling_initial)
         elsif enrolling_renewing.present? && enrolling_renewing != 'all'
-          call_safe_method(benefit_sponsorships, enrolling_renewing, safe_methods)
+          call_safe_method(benefit_sponsorships, enrolling_renewing)
         else
-          return call_safe_method(benefit_sponsorships, enrolling, safe_methods) if (enrolling_initial == 'all' || enrolling_renewing == 'all') && safe_methods.include?(enrolling)
+          return call_safe_method(benefit_sponsorships, enrolling) if enrolling_initial == 'all' || enrolling_renewing == 'all'
 
-          call_safe_method(benefit_sponsorships, enrolling, safe_methods)
+          call_safe_method(benefit_sponsorships, enrolling)
         end
       end
 
