@@ -252,7 +252,7 @@ module Effective
         safe_enrolled_methods = %w[benefit_application_enrolled benefit_application_suspended]
         safe_attestation_methods = %w[submitted pending approved denied employer_attestations]
 
-        benefit_sponsorships = filter_by_employers(benefit_sponsorships, attributes[:employers], safe_employer_methods)
+        benefit_sponsorships = filter_by_safe_methods(benefit_sponsorships, attributes[:employers], safe_employer_methods)
         benefit_sponsorships = filter_by_enrolling(benefit_sponsorships, attributes, safe_enrolling_methods)
         benefit_sponsorships = filter_by_enrolled(benefit_sponsorships, attributes[:enrolled], safe_enrolled_methods)
         benefit_sponsorships = filter_by_employer_attestations(benefit_sponsorships, attributes[:employer_attestations], safe_attestation_methods)
@@ -264,10 +264,15 @@ module Effective
 
       private
 
-      def filter_by_employers(benefit_sponsorships, employers, safe_methods)
-        return benefit_sponsorships unless employers.present? && !['all'].include?(employers)
+      def filter_by_safe_methods(benefit_sponsorships, method, safe_methods)
+        return benefit_sponsorships unless method.present? && safe_methods.include?(method)
 
-        safe_methods.include?(employers) ? benefit_sponsorships.public_send(employers) : benefit_sponsorships
+        if benefit_sponsorships.respond_to?(method)
+          benefit_sponsorships.public_send(method)
+        else
+          Rails.logger.warn("Attempt to call unsafe method: #{method}")
+          benefit_sponsorships
+        end
       end
 
       def filter_by_enrolling(benefit_sponsorships, attributes, safe_methods)
@@ -277,31 +282,42 @@ module Effective
 
         return benefit_sponsorships unless enrolling.present?
 
-        benefit_sponsorships = handle_enrolling_initial(benefit_sponsorships, enrolling_initial, safe_methods) if enrolling_initial.present? && enrolling_initial != 'all'
-        benefit_sponsorships = handle_enrolling_renewing(benefit_sponsorships, enrolling_renewing, safe_methods) if enrolling_renewing.present? && enrolling_renewing != 'all'
-        benefit_sponsorships = benefit_sponsorships.public_send(enrolling) if safe_methods.include?(enrolling)
+        benefit_sponsorships = filter_by_safe_methods(benefit_sponsorships, enrolling_initial, safe_methods) if enrolling_initial.present? && enrolling_initial != 'all'
+        benefit_sponsorships = filter_by_safe_methods(benefit_sponsorships, enrolling_renewing, safe_methods) if enrolling_renewing.present? && enrolling_renewing != 'all'
+        if (enrolling_initial == 'all' || enrolling_renewing == 'all') && safe_methods.include?(enrolling)
+          benefit_sponsorships = filter_by_safe_methods(benefit_sponsorships, enrolling, safe_methods)
+        else
+          benefit_sponsorships = filter_by_safe_methods(benefit_sponsorships, enrolling, safe_methods)
+        end
 
         benefit_sponsorships
       end
 
-      def handle_enrolling_initial(benefit_sponsorships, enrolling_initial, safe_methods)
-        return benefit_sponsorships unless safe_methods.include?(enrolling_initial)
-
-        benefit_sponsorships.public_send(enrolling_initial)
-      end
-
-      def handle_enrolling_renewing(benefit_sponsorships, enrolling_renewing, safe_methods)
-        return benefit_sponsorships unless safe_methods.include?(enrolling_renewing)
-
-        benefit_sponsorships.public_send(enrolling_renewing)
-      end
-
       def filter_by_enrolled(benefit_sponsorships, enrolled, safe_methods)
-        enrolled.present? && safe_methods.include?(enrolled) ? benefit_sponsorships.public_send(enrolled) : benefit_sponsorships
+        return benefit_sponsorships unless enrolled.present?
+
+        if safe_methods.include?(enrolled)
+          if benefit_sponsorships.respond_to?(enrolled)
+            benefit_sponsorships.public_send(enrolled)
+          else
+            Rails.logger.warn("Attempt to call unsafe method: #{enrolled}")
+            benefit_sponsorships
+          end
+        else
+          Rails.logger.warn("Attempt to call unsafe method: #{enrolled}")
+          benefit_sponsorships
+        end
       end
 
       def filter_by_employer_attestations(benefit_sponsorships, employer_attestations, safe_methods)
-        employer_attestations.present? && safe_methods.include?(employer_attestations) ? benefit_sponsorships.public_send(employer_attestations) : benefit_sponsorships
+        return benefit_sponsorships unless employer_attestations.present? && safe_methods.include?(employer_attestations)
+
+        if benefit_sponsorships.respond_to?(employer_attestations)
+          benefit_sponsorships.public_send(employer_attestations)
+        else
+          Rails.logger.warn("Attempt to call unsafe method: #{employer_attestations}")
+          benefit_sponsorships
+        end
       end
 
       def filter_by_upcoming_dates(benefit_sponsorships, upcoming_dates)
@@ -314,16 +330,20 @@ module Effective
       def filter_by_attestations(benefit_sponsorships, attestations, safe_methods)
         return benefit_sponsorships unless attestations.present? && attestations != 'employer_attestations'
 
-        safe_methods.include?(attestations) ? benefit_sponsorships.attestations_by_kind(attestations) : benefit_sponsorships
+        if safe_methods.include?(attestations) && benefit_sponsorships.respond_to?(:attestations_by_kind)
+          benefit_sponsorships.attestations_by_kind(attestations)
+        else
+          Rails.logger.warn("Attempt to call unsafe method: #{attestations}")
+          benefit_sponsorships
+        end
       end
 
       def parse_date(date_str)
         Date.strptime(date_str, "%m/%d/%Y")
       rescue StandardError => e
-        puts "Date parsing error: #{e.message}"
+        Rails.logger.warn("Date parsing error: #{e.message}")
         nil
       end
-
     end
   end
 end
