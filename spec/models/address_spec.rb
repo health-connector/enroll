@@ -84,6 +84,20 @@ describe Address, "with proper validations" do
     end
   end
 
+  context "#address_changed?" do
+    let(:person) { FactoryBot.create(:person) }
+    let(:address) { person.addresses.create(address_params) }
+
+    it "returns true if address has changes" do
+      address.address_1 = "456 Elm St"
+      expect(address.address_changed?).to be true
+    end
+
+    it "returns false if address has no changes" do
+      expect(address.address_changed?).to be false
+    end
+  end
+
   context "embedded in another object", type: :model do
     it { should validate_presence_of :address_1 }
     it { should validate_presence_of :city }
