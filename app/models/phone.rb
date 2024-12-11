@@ -87,6 +87,13 @@ class Phone
     self.full_phone_number = to_s
   end
 
+  # Check if this phone has any changes
+  #
+  # @return [ true, false ] true if there are changes, false if there are no changes
+  def phone_changed?
+    changed_attributes.present?
+  end
+
 private
   def filter_non_numeric(str)
     str.present? ? str.to_s.gsub(/\D/,'') : ""

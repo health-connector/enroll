@@ -898,12 +898,27 @@ class Person
     user.ridp_by_paper_application
   end
 
+  def attributes_changed?
+    # Check if there are meaningful changes in the person attributes or embedded documents
+    meaningful_changes?(changed_attributes) || embedded_attributes_changed?
+  end
+
   private
 
-  def attributes_changed?
-    changes = changed_attributes.stringify_keys
+  # Determine if there are meaningful changes, excluding specific attributes
+  #
+  # @param changes [Hash] The changed attributes
+  # @return [Boolean] true if there are meaningful changes, false otherwise
+  def meaningful_changes?(changes)
     meaningful_changes = changes.except('updated_at', 'updated_by', 'updated_by_id')
     meaningful_changes.present?
+  end
+
+  # Check if there are changes in the embedded addresses, phones, or emails
+  #
+  # @return [Boolean] true if there are changes in embedded documents, false otherwise
+  def embedded_attributes_changed?
+    addresses.any?(&:address_changed?) || phones.any?(&:phone_changed?) || emails.any?(&:email_changed?)
   end
 
   def update_census_dependent_relationship(existing_relationship)
