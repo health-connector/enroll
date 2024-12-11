@@ -5945,8 +5945,8 @@
     var s, max=-1, maxIdx = -1;
   
     for ( var i=0, ien=settings.aoData.length ; i<ien ; i++ ) {
-      s = _fnGetCellData(settings, i, colIdx, 'display') + '';
-      s = stripHtml(s).replace(/&nbsp;/g, ' ');
+      s = _fnGetCellData( settings, i, colIdx, 'display' )+'';
+      s = _stripHtml(s).replace( /&nbsp;/g, ' ' );
   
       if ( s.length > max ) {
         max = s.length;
@@ -6182,12 +6182,6 @@
   }
 
 
-  function stripHtml(html) {
-    const tempDiv = document.createElement("div");
-    tempDiv.innerHTML = html;
-    return tempDiv.textContent || tempDiv.innerText || "";
-  }
-
   function _fnSortAria ( settings )
   {
     var label;
@@ -6202,7 +6196,7 @@
     {
       var col = columns[i];
       var asSorting = col.asSorting;
-      var sTitle = col.ariaTitle || stripHtml(col.sTitle);
+      var sTitle = col.ariaTitle || _stripHtml(col.sTitle);
 
       var th = col.nTh;
   
@@ -15042,35 +15036,21 @@
 
 
   $.extend(DataTable.ext.type.search, {
-    html: function (data) {
-      if (_empty(data)) {
-        return data;
+    html: function ( data ) {
+      return _empty(data) ?
+          data :
+          typeof data === 'string' ?
+              _stripHtml(data.replace(_re_new_lines, " ")) :
+              '';
+      },
+      string: function ( data ) {
+        return _empty(data) ?
+            data :
+            typeof data === 'string' ?
+                data.replace( _re_new_lines, " " ) :
+                data;
       }
-
-      if (typeof data === 'string') {
-        let tempDiv = document.createElement("div");
-        tempDiv.innerHTML = data;
-
-        let sanitizedData = tempDiv.textContent || tempDiv.innerText || "";
-
-        return sanitizedData.replace(_re_new_lines, " ");
-      }
-
-      return '';
-    },
-
-    string: function (data) {
-      if (_empty(data)) {
-        return data;
-      }
-
-      if (typeof data === 'string') {
-        return data.replace(_re_new_lines, " ");
-      }
-
-      return data;
-    }
-  });
+    } );
   
   
   
@@ -15155,16 +15135,11 @@
   
     // html
     "html-pre": function ( a ) {
-      if (_empty(a)) {
-        return '';
-      }
-
-      let tempDiv = document.createElement("div");
-
-      tempDiv.innerHTML = a;
-      let textContent = tempDiv.textContent || tempDiv.innerText || "";
-
-      return textContent.toLowerCase();
+      return _empty(a) ?
+          '' :
+          a.replace ?
+              _stripHtml(a).toLowerCase() :
+              a+'';
     },
   
     // string
