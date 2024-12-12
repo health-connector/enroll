@@ -4597,8 +4597,8 @@
           var m = word.match( /^\u201C(.*)\u201D$/ );
           word = m ? m[1] : word;
         }
-  
-        return word.replace('"', '');
+
+        return word.replace(/"/g, '');
       } );
   
       search = '^(?=.*?'+a.join( ')(?=.*?' )+').*$';
