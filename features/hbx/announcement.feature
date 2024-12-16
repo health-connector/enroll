@@ -1,4 +1,4 @@
-Feature: Hbx staff create announcements for consumer role & employee
+Feature: Hbx staff create announcements for different roles
 
   Scenario: Hbx staff create announcements for employee
     Given Hbx Admin exists
