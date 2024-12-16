@@ -295,8 +295,6 @@ module Effective
         else
           call_safe_method(benefit_sponsorships, attributes[:enrolling])
         end
-
-        benefit_sponsorships
       end
 
       def filter_by_enrolled(benefit_sponsorships)
