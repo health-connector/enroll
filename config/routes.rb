@@ -63,7 +63,6 @@ Rails.application.routes.draw do
         get :outstanding_verification_dt
         post :families_index_datatable
         get :employer_index
-        get :employer_poc
         post :employer_poc_datatable
         get :employer_invoice
         get :employer_datatable
