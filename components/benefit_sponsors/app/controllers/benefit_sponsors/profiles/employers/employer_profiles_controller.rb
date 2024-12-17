@@ -9,6 +9,8 @@ module BenefitSponsors
         before_action :wells_fargo_sso, only: [:show]
         layout "two_column", except: [:new]
 
+        before_action :set_flash_by_announcement, only: :show
+
         #New profile registration with existing organization and approval request submitted to employer
         def show_pending
           authorize BenefitSponsors::Organizations::AcaShopCcaEmployerProfile.new

@@ -73,6 +73,10 @@ And(/^the user is on the Employer Index of the Admin Dashboard$/) do
   find('.interaction-click-control-employers').click
 end
 
+Then(/should see Employer and click on (.*?)$/) do |legal_name|
+  find_link(legal_name).click
+end
+
 And(/^the user is on the Employees Index of the Admin Dashboard$/) do
   visit exchanges_hbx_profiles_path
   find('.interaction-click-control-employees').click
