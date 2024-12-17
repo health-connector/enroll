@@ -51,3 +51,12 @@ Feature: Hbx staff create announcements for different roles
 #    Given Employer role exists
 #    When Employer login
 #    Then Employer should not see announcement
+
+  Scenario: Employer see announcement for Employer role
+    Given a CCA site exists with a benefit market
+    Given Announcement prepared for Employer role
+    And there is an employer ABC Widgets
+    Given that a user with a HBX staff role with HBX staff subrole exists and is logged in
+    And the user is on the Employer Index of the Admin Dashboard
+    Then should see Employer and click on Abc Widgets
+    Then Employer should see announcement
