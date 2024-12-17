@@ -115,7 +115,7 @@ Given(/^Announcement prepared for Consumer role$/) do
 end
 
 When(/^Announcement prepared for (.*?) role$/) do |role|
-  valid_role = role === 'Consumer' ? "IVL" : role.capitalize
+  valid_role = role == 'Consumer' ? "IVL" : role.capitalize
   FactoryBot.create :announcement, audiences: [valid_role], content: 'msg content'
 end
 
