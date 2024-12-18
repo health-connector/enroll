@@ -96,6 +96,28 @@ RSpec.describe User, :type => :model, dbclean: :after_each do
       end
     end
 
+    context 'when email has invalid characters like back quote symbol' do
+      let(:params) do
+        valid_params.merge({ email: 'test!test@test.com'})
+      end
+
+      it 'returns contains invalid chars error' do
+        expect(User.create(**params).errors[:email].any?).to be_truthy
+        expect(User.create(**params).errors[:email]).to eq ['contains invalid characters']
+      end
+    end
+
+    context 'when email has invalid characters like back quote symbol' do
+      let(:params) do
+        valid_params.merge({ email: 'test`test@test.com' })
+      end
+
+      it 'returns contains invalid chars error' do
+        expect(User.create(**params).errors[:email].any?).to be_truthy
+        expect(User.create(**params).errors[:email]).to eq ['contains invalid characters']
+      end
+    end
+
     context 'when password' do
       let(:params){valid_params.deep_merge!({password: ""})}
       it 'is empty' do
