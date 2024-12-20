@@ -339,7 +339,7 @@ var _filename = function ( config, incExtension )
 	}
 
 	if ( filename.indexOf( '*' ) !== -1 ) {
-		filename = $.trim( filename.replace( '*', $('title').text() ) );
+		filename = $.trim( filename.replaceAll( '*', $('title').text() ) );
 	}
 
 	// Strip characters which the OS will object to
@@ -380,7 +380,7 @@ var _title = function ( config )
 	}
 
 	return title.indexOf( '*' ) !== -1 ?
-		title.replace( '*', $('title').text() || 'Exported data' ) :
+		title.replaceAll( '*', $('title').text() || 'Exported data' ) :
 		title;
 };
 
