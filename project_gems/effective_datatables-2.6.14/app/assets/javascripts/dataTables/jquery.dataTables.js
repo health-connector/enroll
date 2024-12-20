@@ -4598,7 +4598,7 @@
           word = m ? m[1] : word;
         }
   
-        return word.replace('"', '');
+        return word.replaceAll('"', '');
       } );
   
       search = '^(?=.*?'+a.join( ')(?=.*?' )+').*$';
@@ -8390,8 +8390,7 @@
     // Return an Api.rows() extended instance, with the newly added row selected
     return this.row( rows[0] );
   } );
-  
-  
+
   $(document).on('plugin-init.dt', function (e, context) {
     var api = new _Api( context );
     var namespace = 'on-plugin-init';
@@ -8423,7 +8422,7 @@
     if ( loaded && loaded.childRows ) {
       api
         .rows( $.map(loaded.childRows, function (id){
-          return id.replace(/:/g, '\\:')
+          return id.replace(/([^\w-])/g, '\\$1')
         }) )
         .every( function () {
           _fnCallbackFire( context, null, 'requestChild', [ this ] )

@@ -8423,7 +8423,7 @@
     if ( loaded && loaded.childRows ) {
       api
         .rows( $.map(loaded.childRows, function (id){
-          return id.replace(/:/g, '\\:')
+          return id.replace(/([^\w-])/g, '\\$1')
         }) )
         .every( function () {
           _fnCallbackFire( context, null, 'requestChild', [ this ] )
