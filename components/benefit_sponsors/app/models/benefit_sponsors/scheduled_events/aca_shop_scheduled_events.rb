@@ -15,21 +15,21 @@ module BenefitSponsors
         @new_date = new_date
         initialize_logger
         shop_daily_events
-        auto_submit_renewal_applications
-        # process_applications_missing_binder_payment #refs 39124 - Had to comment out as we got rid of states on BS.
-        auto_transmit_monthly_ineligible_benefit_sponsors
-        auto_cancel_ineligible_applications
-        auto_transmit_monthly_benefit_sponsors
-        close_enrollment_quiet_period
+        process_events_for('auto_submit_renewal_applications') { auto_submit_renewal_applications }
+        # process_events_for('process_applications_missing_binder_payment') { process_applications_missing_binder_payment } #refs 39124 - Had to comment out as we got rid of states on BS.
+        process_events_for('auto_transmit_monthly_ineligible_benefit_sponsors') { auto_transmit_monthly_ineligible_benefit_sponsors }
+        process_events_for('auto_cancel_ineligible_applications') { auto_cancel_ineligible_applications }
+        process_events_for('auto_transmit_monthly_benefit_sponsors') { auto_transmit_monthly_benefit_sponsors }
+        process_events_for('close_enrollment_quiet_period') { close_enrollment_quiet_period }
       end
 
       def shop_daily_events
-        process_events_for { open_enrollment_begin }
-        process_events_for { open_enrollment_end }
-        process_events_for { benefit_begin }
-        process_events_for { benefit_end }
-        process_events_for { benefit_termination_pending }
-        process_events_for { benefit_renewal }
+        process_events_for('open_enrollment_begin') { open_enrollment_begin }
+        process_events_for('open_enrollment_end') { open_enrollment_end }
+        process_events_for('benefit_begin') { benefit_begin }
+        process_events_for('benefit_end') { benefit_end }
+        process_events_for('benefit_termination_pending') { benefit_termination_pending }
+        process_events_for('benefit_renewal') { benefit_renewal }
       end
 
       def open_enrollment_begin
@@ -149,12 +149,15 @@ module BenefitSponsors
         notify_logger("Event: #{event}. Process ended at #{Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%m-%d-%Y %H:%M:%S')}")
       end
 
-      def process_events_for(&block)
+      def process_events_for(event)
         begin
-          block.call
+          yield
         rescue Exception => e
-          @logger.error e.message
+          @logger.error("Error in Event: #{event}. Message: #{e.message}")
           @logger.error e.backtrace.join("\n")
+          notify_logger("Error in Event: #{event}. Message: #{e.message}")
+          notify_logger(e.backtrace.join("\n"))
+          notify_logger("Event: #{event}. Process ended at #{Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%m-%d-%Y %H:%M:%S')}")
         end
       end
 
