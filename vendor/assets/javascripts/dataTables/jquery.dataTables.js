@@ -1527,12 +1527,13 @@
   
     return out;
   };
-  
-  
-  var _stripHtml = function ( d ) {
-    return d
-      .replace( _re_html, '' ) // Complete tags
-      .replace(/<script/i, ''); // Safety for incomplete script tag
+
+
+  const _stripHtml = function (d) {
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = d.replaceAll(/<|>/g, "");
+
+    return tempDiv.textContent || '';
   };
   
   
@@ -5945,8 +5946,7 @@
   
     for ( var i=0, ien=settings.aoData.length ; i<ien ; i++ ) {
       s = _fnGetCellData( settings, i, colIdx, 'display' )+'';
-      s = s.replace( __re_html_remove, '' );
-      s = s.replace( /&nbsp;/g, ' ' );
+      s = _stripHtml(s).replace( /&nbsp;/g, ' ' );
   
       if ( s.length > max ) {
         max = s.length;
@@ -6180,8 +6180,8 @@
     /* Tell the draw function that we have sorted the data */
     oSettings.bSorted = true;
   }
-  
-  
+
+
   function _fnSortAria ( settings )
   {
     var label;
@@ -6189,14 +6189,15 @@
     var columns = settings.aoColumns;
     var aSort = _fnSortFlatten( settings );
     var oAria = settings.oLanguage.oAria;
-  
+
     // ARIA attributes - need to loop all columns, to update all (removing old
     // attributes as needed)
     for ( var i=0, iLen=columns.length ; i<iLen ; i++ )
     {
       var col = columns[i];
       var asSorting = col.asSorting;
-      var sTitle = col.ariaTitle || col.sTitle.replace( /<.*?>/g, "" );
+      var sTitle = col.ariaTitle || _stripHtml(col.sTitle);
+
       var th = col.nTh;
   
       // IE7 is throwing an error when setting these properties with jQuery's
@@ -15032,27 +15033,24 @@
   // Note that additional search methods are added for the html numbers and
   // html formatted numbers by `_addNumericSort()` when we know what the decimal
   // place is
-  
-  
-  $.extend( DataTable.ext.type.search, {
+
+
+  $.extend(DataTable.ext.type.search, {
     html: function ( data ) {
       return _empty(data) ?
-        data :
-        typeof data === 'string' ?
-          data
-            .replace( _re_new_lines, " " )
-            .replace( _re_html, "" ) :
-          '';
-    },
-  
-    string: function ( data ) {
-      return _empty(data) ?
-        data :
-        typeof data === 'string' ?
-          data.replace( _re_new_lines, " " ) :
-          data;
-    }
-  } );
+          data :
+          typeof data === 'string' ?
+              _stripHtml(data.replace(_re_new_lines, " ")) :
+              '';
+      },
+      string: function ( data ) {
+        return _empty(data) ?
+            data :
+            typeof data === 'string' ?
+                data.replace( _re_new_lines, " " ) :
+                data;
+      }
+    } );
   
   
   
@@ -15138,10 +15136,10 @@
     // html
     "html-pre": function ( a ) {
       return _empty(a) ?
-        '' :
-        a.replace ?
-          a.replace( /<.*?>/g, "" ).toLowerCase() :
-          a+'';
+          '' :
+          a.replace ?
+              _stripHtml(a).toLowerCase() :
+              a+'';
     },
   
     // string
