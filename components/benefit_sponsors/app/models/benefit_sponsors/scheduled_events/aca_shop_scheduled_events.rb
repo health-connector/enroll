@@ -157,7 +157,7 @@ module BenefitSponsors
           @logger.error e.backtrace.join("\n")
           notify_logger("Error in Event: #{event}. Message: #{e.message}")
           notify_logger(e.backtrace.join("\n"))
-          notify_logger("Event: #{event}. Process ended at #{Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%m-%d-%Y %H:%M:%S')}")
+          notify_logger("Error in Event: #{event}. Process ended at #{Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%m-%d-%Y %H:%M:%S')}")
         end
       end
 
