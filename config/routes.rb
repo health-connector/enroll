@@ -63,7 +63,6 @@ Rails.application.routes.draw do
         get :outstanding_verification_dt
         post :families_index_datatable
         get :employer_index
-        get :employer_poc
         post :employer_poc_datatable
         get :employer_invoice
         get :employer_datatable
@@ -448,16 +447,6 @@ Rails.application.routes.draw do
   end
   resources :translations
 
-  namespace :api, :defaults => {:format => 'xml'} do
-    namespace :v1 do
-      resources :slcsp, :only => []  do
-        collection do
-          post :plan
-        end
-      end
-    end
-  end
-
   ############################# TO DELETE BELOW ##############################
 
   # FIXME: Do this properly later
@@ -609,6 +598,16 @@ Rails.application.routes.draw do
           get :resume_resident_enrollment, on: :collection
           get :ridp_bypass, on: :collection
           get :find_sep, on: :collection
+        end
+      end
+
+      namespace :api, :defaults => {:format => 'xml'} do
+        namespace :v1 do
+          resources :slcsp, :only => []  do
+            collection do
+              post :plan
+            end
+          end
         end
       end
     end
