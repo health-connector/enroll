@@ -4,7 +4,7 @@ class User
   INTERACTIVE_IDENTITY_VERIFICATION_SUCCESS_CODE = "acc"
   MIN_USERNAME_LENGTH = 8
   MAX_USERNAME_LENGTH = 60
-  HEX_ESCAPE_REGEX = %r{\\x([0-9A-Fa-f]{2})|[`!'"\\,;:<>\[\]/\(\)\{\}^~ ]}
+  HEX_ESCAPE_REGEX = /[^A-Za-z0-9._\-@+]|\\x[0-9A-Fa-f]{2}/
   EMAIL_REGEX = /\A[^@\s]+@(?>[^@\s]+\.)+[^@\s]+\z/
 
   include Mongoid::Document
