@@ -215,7 +215,6 @@ javascript:
 
     planTypes.forEach(function (plan) {
       dataArray.forEach(function (enrollment) {
-        console.log(enrollment);
         const planLower = plan.toLowerCase();
 
         if (enrollment.product.kind == 'dental' && enrollment.product.dental_plan_kind.toLowerCase() === planLower) {
