@@ -83,7 +83,7 @@ javascript:
   var selectedPlans = document.getElementsByClassName("myfilteredPlans");
   var carrierLogos = JSON.parse('#{raw(digest_logos.to_json)}');
   var isPvpFeatureEnabled = "#{::EnrollRegistry.feature_enabled?(:premium_value_products)}";
-  let offers_nationwide_plans = "#{offers_nationwide_plans?}";
+  var offers_nationwide_plans = "#{offers_nationwide_plans?}";
 
   // Grabs available products as JSON for filtering onload
   (function() {
@@ -404,6 +404,13 @@ javascript:
 
         const pvpTooltipValue = "#{l10n('insured.plan_shoppings.pvp_title_info')}";
         const standardPlanTooltipValue = "#{l10n('insured.plan_shoppings.standard_plan_title_info')}";
+        var cart_url_data = ""
+        var context_cart = #{raw @context.cart.to_json};
+
+        if(Object.keys(context_cart).length !== 0){
+            var plan_type= Object.keys(context_cart)
+            cart_url_data += `&cart%5B${plan_type}%5D%5Bid%5D=${context_cart[plan_type]["id"]}&cart%5B${plan_type}%5D%5Bproduct_id%5D=${context_cart[plan_type]["product_id"]}`
+        }
 
         div.innerHTML =
             `
@@ -477,7 +484,7 @@ javascript:
                 </a>
               </div>
               <div class="col-md-5 col-sm-5 col-xs-5 pl-0 pr-0">
-                <a class="btn btn-default btn-right plan-select select" href="/insured/product_shoppings/continuous_show?cart%5B${result.product.kind}%5D%5Bid%5D=#{@context.hbx_enrollment.id.to_s}&cart%5B${result.product.kind}%5D%5Bproduct_id%5D=${result.product._id}&dental_offering=#{@context.dental_offering}&event=#{@context.event}&health_offering=#{@context.health_offering}${context_health}${context_dental}" data-cuke="cps-select-plan">Select Plan</a>
+                <a class="btn btn-default btn-right plan-select select" href="/insured/product_shoppings/continuous_show?cart%5B${result.product.kind}%5D%5Bid%5D=#{@context.hbx_enrollment.id.to_s}&cart%5B${result.product.kind}%5D%5Bproduct_id%5D=${result.product._id}&dental_offering=#{@context.dental_offering}&event=#{@context.event}&health_offering=#{@context.health_offering}${context_health}${context_dental}${cart_url_data}" data-cuke="cps-select-plan">Select Plan</a>
                 <a class="btn btn-default ml-1" data-remote="true" href="/products/plans/summary?active_year=${result.rate_schedule_date.split('-')[0]}&coverage_kind=${result.product.kind}&enrollment_kind=&hbx_enrollment_id=#{@context.hbx_enrollment.id.to_s}&market_kind=${result.product.benefit_market_kind.replace('aca_', '')}&standard_component_id=${result.product.hios_id}">See Details</a>
               </div>
             </div>
