@@ -4598,8 +4598,8 @@
           var m = word.match( /^\u201C(.*)\u201D$/ );
           word = m ? m[1] : word;
         }
-  
-        return word.replace('"', '');
+
+        return word.replace(/"/g, '');
       } );
   
       search = '^(?=.*?'+a.join( ')(?=.*?' )+').*$';
@@ -8424,7 +8424,7 @@
     if ( loaded && loaded.childRows ) {
       api
         .rows( $.map(loaded.childRows, function (id){
-          return id.replace(/:/g, '\\:')
+          return id.replace(/\\/g, '\\\\').replace(/:/g, '\\:');
         }) )
         .every( function () {
           _fnCallbackFire( context, null, 'requestChild', [ this ] )
