@@ -121,16 +121,23 @@ DataTable.ext.buttons.print = {
 		// document so the table can retain its base styling. Note that we have
 		// to use string manipulation as IE won't allow elements to be created
 		// in the host document and then appended to the new window.
-		var head = '<title>'+title+'</title>';
-		$('style, link').each( function () {
-			head += _relToAbs( this );
-		} );
+		var head = document.createElement('head');
+
+		var titleElement = document.createElement('title');
+		titleElement.textContent = title;
+		head.appendChild(titleElement);
+
+		$('style, link').each(function () {
+			var elementCopy = this.cloneNode(true);
+			head.appendChild(elementCopy);
+		});
 
 		try {
-			win.document.head.innerHTML = head; // Work around for Edge
+			win.document.head.innerHTML = '';
+			$(win.document.head).append($(head).html());
 		}
 		catch (e) {
-			$(win.document.head).html( head ); // Old IE
+			$(win.document.head).html($(head).html());
 		}
 
 		// Inject the table and other surrounding information
