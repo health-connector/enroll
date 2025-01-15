@@ -140,16 +140,23 @@ DataTable.ext.buttons.print = {
 			$(win.document.head).html($(head).html());
 		}
 
-		// Inject the table and other surrounding information
-		win.document.body.innerHTML =
-			'<h1>'+title+'</h1>'+
-			'<div>'+
-				(typeof config.message === 'function' ?
-					config.message( dt, button, config ) :
-					config.message
-				)+
-			'</div>'+
-			html;
+		var h1 = document.createElement('h1');
+		h1.textContent = title; // Use textContent to escape
+		body.appendChild(h1);
+
+		// Add message
+		if (config.message) {
+			var messageDiv = document.createElement('div');
+			var message = typeof config.message === 'function'
+				? config.message(dt, button, config)
+				: config.message;
+			messageDiv.textContent = message; // Use textContent to escape
+			body.appendChild(messageDiv);
+		}
+
+		var tableContainer = document.createElement('div');
+		tableContainer.innerHTML = html; // Safe since `html` is constructed from known data
+		body.appendChild(tableContainer);
 
 		if ( config.customize ) {
 			config.customize( win );
