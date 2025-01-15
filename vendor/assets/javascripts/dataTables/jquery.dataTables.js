@@ -4599,7 +4599,7 @@
           word = m ? m[1] : word;
         }
   
-        return word.replace('"', '');
+        return word.replaceAll('"', '');
       } );
   
       search = '^(?=.*?'+a.join( ')(?=.*?' )+').*$';
@@ -8424,7 +8424,7 @@
     if ( loaded && loaded.childRows ) {
       api
         .rows( $.map(loaded.childRows, function (id){
-          return id.replace(/([^\w-])/g, '\\$1')
+          return id.replace(/:/g, '\\:')
         }) )
         .every( function () {
           _fnCallbackFire( context, null, 'requestChild', [ this ] )
