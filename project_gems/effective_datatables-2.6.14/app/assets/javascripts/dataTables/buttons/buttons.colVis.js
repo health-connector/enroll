@@ -137,15 +137,18 @@ $.extend( DataTable.ext.buttons, {
 		},
 
 		_columnText: function ( dt, col ) {
-			// Use DataTables' internal data structure until this is presented
-			// is a public API. The other option is to use
-			// `$( column(col).node() ).text()` but the node might not have been
-			// populated when Buttons is constructed.
-			var idx = dt.column( col ).index();
-			return dt.settings()[0].aoColumns[ idx ].sTitle
-				.replace(/\n/g," ")        // remove new lines
-				.replace( /<.*?>/g, "" )   // strip HTML
-				.replace(/^\s+|\s+$/g,""); // trim
+			var idx = dt.column(col).index();
+			var rawTitle = dt.settings()[0].aoColumns[idx].sTitle;
+
+			var stripHtml = function (html) {
+				var parser = new DOMParser();
+				var doc = parser.parseFromString(html, 'text/html');
+				return doc.body.textContent || '';
+			};
+
+			return stripHtml(rawTitle)
+				.replace(/\n/g, " ")
+				.trim();
 		}
 	},
 
