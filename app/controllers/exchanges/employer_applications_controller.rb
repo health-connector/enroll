@@ -144,23 +144,20 @@ class Exchanges::EmployerApplicationsController < ApplicationController
   end
 
   def download_v2_xml
-    event_name = params[:selected_event]
-    @employer_actions_id = params[:employer_actions_id]
-    @application = @benefit_sponsorship.benefit_applications.find(params[:employer_application_id])
-    employer_profile_hbx_id = @benefit_sponsorship.hbx_id
-    employer = @benefit_sponsorship.profile
-    event_payload = render_to_string "events/v2/employers/updated", formats: [:xml], locals: { employer: employer, manual_gen: false, benefit_application_id: @application.id }
-    employer_event = BenefitSponsors::Services::EmployerEvent.new(event_name, event_payload, employer_profile_hbx_id)
-    group_xml_downloader = BenefitSponsors::Services::GroupXmlDownloader.new(employer_event)
-    download_status = group_xml_downloader.download
-    if download_status[0] == :empty_files
-      @error_message = download_status[1]
-      @file_path = nil
-      respond_to(&:js)
-    elsif download_status[0] == :success
-      @success_message = l10n('exchange.employer_applications.download_v2_xml.success_message')
-      @file_path = download_status[1]
+    result = BenefitSponsors::Operations::BenefitApplications::DownloadV2Xml.new.call(
+      selected_event: params[:selected_event],
+      employer_application_id: params[:employer_application_id],
+      employer_actions_id: params[:employer_actions_id],
+      benefit_sponsorship: @benefit_sponsorship
+    )
+
+    if result.success?
+      handle_success(result)
+    else
+      handle_failure(result)
     end
+
+    respond_to(&:js) unless result.success?
   end
 
   def new_v2_xml
@@ -169,27 +166,27 @@ class Exchanges::EmployerApplicationsController < ApplicationController
   end
 
   def upload_v2_xml
-    file = params[:file]
-    @employer_actions_id = params[:employer_actions_id]
+    result = BenefitSponsors::Operations::BenefitApplications::UploadV2Xml.new.call(
+      file: params[:file],
+      employer_actions_id: params[:employer_actions_id],
+      benefit_sponsorship: @benefit_sponsorship
+    )
 
-    if file.is_a?(ActionDispatch::Http::UploadedFile)
-      fein = @benefit_sponsorship&.fein
-      xml_file_path = file.tempfile.path
-      v2_xml_uploader = ::BenefitSponsors::Services::V2XmlUploader.new(xml_file_path, fein)
-      result, errors = v2_xml_uploader.upload
-
-      if result
-        @success_message = l10n('exchange.employer_applications.upload_v2_xml.success_message', fein: fein)
-        render json: { success_message: @success_message }, status: :ok
-      else
-        error_messages = errors.map { |e| "Error: #{e}" }.join(", ")
-        @error_message = l10n('exchange.employer_applications.upload_v2_xml.failure_message', errors: error_messages)
-        render json: { error_message: @error_message }, status: :ok
-      end
+    if result.success?
+      @result = result.value!
+      render json: { success_message: @result }, status: :ok
     else
-      @error_message = l10n('exchange.employer_applications.upload_v2_xml.invalid_file_error')
-      render json: { error_message: @error_message }, status: :ok
+      @failures = result.failure
+      error_message = if @failures.is_a?(Hash)
+                        @failures.values.flatten.join(', ')
+                      else
+                        @failures.to_s
+                      end
+      render json: { error_message: error_message }, status: :ok
     end
+  rescue => e
+    @error_message = l10n('exchange.employer_applications.upload_v2_xml.invalid_file_error')
+    render json: { error_message: @error_message }, status: :ok
   end
 
   private
@@ -208,5 +205,24 @@ class Exchanges::EmployerApplicationsController < ApplicationController
 
   def find_benefit_sponsorship
     @benefit_sponsorship = BenefitSponsors::BenefitSponsorships::BenefitSponsorship.find(params[:employer_id])
+  end
+
+  def handle_success(result)
+    @success_message = l10n('exchange.employer_applications.download_v2_xml.success_message')
+    @file_path = result.value!
+  end
+
+  def handle_failure(result)
+    download_status = result.failure
+
+    if download_status.first == :empty_files
+      @error_message = download_status[1]
+    elsif download_status.is_a?(Hash)
+      @error_message = download_status.values.flatten.join(', ')
+    else
+      @error_message = l10n('exchange.employer_applications.download_v2_xml.failure_message')
+    end
+
+    @file_path = nil
   end
 end
