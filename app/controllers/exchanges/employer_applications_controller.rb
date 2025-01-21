@@ -190,7 +190,7 @@ module Exchanges
                         end
         render json: { error_message: error_message }, status: :ok
       end
-    rescue => e
+    rescue StandardError
       @error_message = l10n('exchange.employer_applications.upload_v2_xml.invalid_file_error')
       render json: { error_message: @error_message }, status: :ok
     end
@@ -221,13 +221,13 @@ module Exchanges
     def handle_failure(result)
       download_status = result.failure
 
-      if download_status.first == :empty_files
-        @error_message = download_status[1]
-      elsif download_status.is_a?(Hash)
-        @error_message = download_status.values.flatten.join(', ')
-      else
-        @error_message = l10n('exchange.employer_applications.download_v2_xml.failure_message')
-      end
+      @error_message = if download_status.first == :empty_files
+                         download_status[1]
+                       elsif download_status.is_a?(Hash)
+                         download_status.values.flatten.join(', ')
+                       else
+                         l10n('exchange.employer_applications.download_v2_xml.failure_message')
+                       end
 
       @file_path = nil
     end
