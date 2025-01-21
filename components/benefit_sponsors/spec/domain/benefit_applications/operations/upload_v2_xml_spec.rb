@@ -29,7 +29,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::UploadV2Xml, db
       it 'returns success with correct message' do
         result = subject.call(**params)
         expect(result).to be_success
-        expect(result.value![:success_message]).to eq("Successfully uploaded V2 digest XML for employer FEIN: #{benefit_sponsorship.fein}.")
+        expect(result.value!).to eq("Successfully uploaded V2 digest XML for employer FEIN: #{benefit_sponsorship.fein}.")
       end
     end
 
@@ -41,7 +41,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::UploadV2Xml, db
       it 'returns failure with error message' do
         result = subject.call(**params)
         expect(result).to be_failure
-        expect(result.failure).to eq('Error: FEIN mismatch')
+        expect(result.failure).to eq('Failed to upload XML. Error: FEIN mismatch')
       end
     end
   end
