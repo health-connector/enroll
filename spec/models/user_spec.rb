@@ -96,6 +96,106 @@ RSpec.describe User, :type => :model, dbclean: :after_each do
       end
     end
 
+    context 'when email has invalid characters like back quote symbol' do
+      let(:params) do
+        valid_params.merge({ email: 'test!test@test.com'})
+      end
+
+      it 'returns contains invalid chars error' do
+        expect(User.create(**params).errors[:email].any?).to be_truthy
+        expect(User.create(**params).errors[:email]).to eq ['contains invalid characters']
+      end
+    end
+
+    context 'when email has invalid characters like back quote symbol' do
+      let(:params) do
+        valid_params.merge({ email: 'test`test@test.com' })
+      end
+
+      it 'returns contains invalid chars error' do
+        expect(User.create(**params).errors[:email].any?).to be_truthy
+        expect(User.create(**params).errors[:email]).to eq ['contains invalid characters']
+      end
+    end
+
+    context 'when email has invalid characters like back quote symbol' do
+      let(:params) { valid_params.merge({ email: 'test`test@test.com' }) }
+
+      it 'returns contains invalid chars error' do
+        expect(User.create(**params).errors[:email].any?).to be_truthy
+        expect(User.create(**params).errors[:email]).to eq ['contains invalid characters']
+      end
+    end
+
+    context 'when email contains invalid symbols like "<" and ">"' do
+      let(:params) { valid_params.merge({ email: 'test<test>@test.com' }) }
+
+      it 'returns contains invalid chars error' do
+        expect(User.create(**params).errors[:email].any?).to be_truthy
+        expect(User.create(**params).errors[:email]).to eq ['contains invalid characters']
+      end
+    end
+
+    context 'when email contains an escaped hex sequence' do
+      let(:params) { valid_params.merge({ email: 'test\\x20test@test.com' }) }
+
+      it 'returns contains invalid chars error' do
+        expect(User.create(**params).errors[:email].any?).to be_truthy
+        expect(User.create(**params).errors[:email]).to eq ['contains invalid characters']
+      end
+    end
+
+    context 'when email contains valid characters' do
+      let(:params) { valid_params.merge({ email: 'test_email+123@test.com' }) }
+
+      it 'does not return any error' do
+        expect(User.create(**params).errors[:email].any?).to be_falsey
+      end
+    end
+
+    context 'when email contains invalid characters like "{", "}" or "\\"' do
+      let(:params) { valid_params.merge({ email: 'test{test}@test.com' }) }
+
+      it 'returns contains invalid chars error' do
+        expect(User.create(**params).errors[:email].any?).to be_truthy
+        expect(User.create(**params).errors[:email]).to eq ['contains invalid characters']
+      end
+    end
+
+    context 'when email contains a semicolon ";"' do
+      let(:params) { valid_params.merge({ email: 'test;test@test.com' }) }
+
+      it 'returns contains invalid chars error' do
+        expect(User.create(**params).errors[:email].any?).to be_truthy
+        expect(User.create(**params).errors[:email]).to eq ['contains invalid characters']
+      end
+    end
+
+    context 'when email contains invalid character "^"' do
+      let(:params) { valid_params.merge({ email: 'test^test@test.com' }) }
+
+      it 'returns contains invalid chars error' do
+        expect(User.create(**params).errors[:email].any?).to be_truthy
+        expect(User.create(**params).errors[:email]).to eq ['contains invalid characters']
+      end
+    end
+
+    context 'when email contains valid but uncommon characters like "-" and "_"' do
+      let(:params) { valid_params.merge({ email: 'valid-email_test@test.com' }) }
+
+      it 'does not return any error' do
+        expect(User.create(**params).errors[:email].any?).to be_falsey
+      end
+    end
+
+    context 'when email contains valid but uncommon characters like "-" and "_"' do
+      let(:params) { valid_params.merge({ email: 'test@test.com' }) }
+
+      it 'does not return any error' do
+        expect(User.create(**params).errors[:email].any?).to be_falsey
+      end
+    end
+
     context 'when password' do
       let(:params){valid_params.deep_merge!({password: ""})}
       it 'is empty' do
