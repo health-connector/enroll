@@ -13,18 +13,16 @@ module BenefitSponsors
 
         rule(:file) do
           # First, validate file upload object
-          unless value.is_a?(ActionDispatch::Http::UploadedFile) || 
-                 value.is_a?(Rack::Test::UploadedFile) && 
-                 value.tempfile.present? && 
-                 File.exist?(value.tempfile.path)
+          unless value.is_a?(ActionDispatch::Http::UploadedFile) ||
+                 (value.is_a?(Rack::Test::UploadedFile) &&
+                 value.tempfile.present? &&
+                 File.exist?(value.tempfile.path))
             key.failure('must be a valid uploaded file')
             next
           end
 
           # If first validation passes, check file extension
-          unless File.extname(value.original_filename).downcase == '.xml'
-            key.failure('must be an XML file')
-          end
+          key.failure('must be an XML file') unless File.extname(value.original_filename).downcase == '.xml'
         end
 
         rule(:benefit_sponsorship) do

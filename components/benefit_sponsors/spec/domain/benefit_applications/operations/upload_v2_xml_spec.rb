@@ -14,16 +14,16 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::UploadV2Xml, db
 
   context 'with valid params' do
     let(:params) do
-      { 
-        file: uploaded_file, 
-        employer_actions_id: employer_actions_id, 
-        benefit_sponsorship: benefit_sponsorship 
+      {
+        file: uploaded_file,
+        employer_actions_id: employer_actions_id,
+        benefit_sponsorship: benefit_sponsorship
       }
     end
 
     context 'successful upload' do
       before do
-        allow_any_instance_of(::BenefitSponsors::Services::V2XmlUploader).to receive(:upload).and_return([true, []])
+        allow_any_instance_of(BenefitSponsors::Services::V2XmlUploader).to receive(:upload).and_return([true, []])
       end
 
       it 'returns success with correct message' do
@@ -35,7 +35,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::UploadV2Xml, db
 
     context 'failed upload' do
       before do
-        allow_any_instance_of(::BenefitSponsors::Services::V2XmlUploader).to receive(:upload).and_return([false, ['FEIN mismatch']])
+        allow_any_instance_of(BenefitSponsors::Services::V2XmlUploader).to receive(:upload).and_return([false, ['FEIN mismatch']])
       end
 
       it 'returns failure with error message' do
@@ -49,9 +49,9 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::UploadV2Xml, db
   context 'with invalid params' do
     context 'missing file' do
       let(:params) do
-        { 
-          employer_actions_id: employer_actions_id, 
-          benefit_sponsorship: benefit_sponsorship 
+        {
+          employer_actions_id: employer_actions_id,
+          benefit_sponsorship: benefit_sponsorship
         }
       end
 
@@ -63,10 +63,10 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::UploadV2Xml, db
     context 'invalid file type' do
       let(:invalid_file) { fixture_file_upload("#{Rails.root}/spec/test_data/sample.txt", 'text/plain') }
       let(:params) do
-        { 
-          file: invalid_file, 
-          employer_actions_id: employer_actions_id, 
-          benefit_sponsorship: benefit_sponsorship 
+        {
+          file: invalid_file,
+          employer_actions_id: employer_actions_id,
+          benefit_sponsorship: benefit_sponsorship
         }
       end
 
