@@ -72,7 +72,7 @@ module Effective
         # table_column :xml_submitted, :label => 'XML Submitted', :proc => Proc.new {|row| format_time_display(@employer_profile.xml_transmitted_timestamp)}, :filter => false, :sortable => false
 
         if employer_attestation_is_enabled?
-          table_column :attestation_status, :label => 'Attestation Status', :proc => Proc.new { |row|
+          table_column :attestation_status, :label => 'Attestation Status', :proc => proc { |_row|
             @employer_profile.attestation_status
           }, :filter => false, :sortable => false
         end
