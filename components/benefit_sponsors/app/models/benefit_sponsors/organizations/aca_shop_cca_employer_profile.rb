@@ -31,6 +31,10 @@ module BenefitSponsors
         REFERRED_KINDS
       end
 
+      def attestation_status
+        employer_attestation&.aasm_state&.titleize || 'N/A'
+      end
+
       private
 
       def initialize_profile

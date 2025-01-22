@@ -18,6 +18,15 @@ module Effective
         submitted pending approved denied
       ].freeze
 
+      FILTER_MAPPINGS = {
+        employers: :filter_by_employers,
+        enrolling: :filter_by_enrolling,
+        enrolled: :filter_by_enrolled,
+        employer_attestations: :filter_by_employer_attestations,
+        upcoming_dates: :filter_by_upcoming_dates,
+        attestations: :filter_by_attestations
+      }.freeze
+
       datatable do
 
         table_column :created_at, visible: false, filter: false
@@ -63,14 +72,8 @@ module Effective
         # table_column :xml_submitted, :label => 'XML Submitted', :proc => Proc.new {|row| format_time_display(@employer_profile.xml_transmitted_timestamp)}, :filter => false, :sortable => false
 
         if employer_attestation_is_enabled?
-          table_column :attestation_status, :label => 'Attestation Status', :proc => Proc.new {|row|
-            #TODO fix this after employer attestation is fixed, this is only temporary fix
-            #used below condition, as employer_attestation is embedded from both employer profile and benefit sponsorship
-            if row.employer_attestation.present?
-              row.employer_attestation.aasm_state.titleize
-            elsif @employer_profile.employer_attestation.present?
-              @employer_profile.employer_attestation.aasm_state.titleize
-            end
+          table_column :attestation_status, :label => 'Attestation Status', :proc => Proc.new { |row|
+            @employer_profile.attestation_status
           }, :filter => false, :sortable => false
         end
 
@@ -247,29 +250,19 @@ module Effective
       end
 
       def collection
-        return @collection if defined? @collection
+        benefit_sponsorships = BenefitSponsors::BenefitSponsorships::BenefitSponsorship.unscoped
 
-        benefit_sponsorships ||= BenefitSponsors::BenefitSponsorships::BenefitSponsorship.unscoped
-
-        if attributes[:employers].present? && !['all'].include?(attributes[:employers])
-          benefit_sponsorships = filter_by_employers(benefit_sponsorships)
-          benefit_sponsorships = filter_by_enrolling(benefit_sponsorships)
-          benefit_sponsorships = filter_by_enrolled(benefit_sponsorships)
-          benefit_sponsorships = filter_by_employer_attestations(benefit_sponsorships)
-          benefit_sponsorships = filter_by_upcoming_dates(benefit_sponsorships)
-          benefit_sponsorships = filter_by_attestations(benefit_sponsorships)
+        FILTER_MAPPINGS.each do |attribute, method|
+          benefit_sponsorships = send(method, benefit_sponsorships) if attributes[attribute].present?
         end
 
-        @collection = benefit_sponsorships
+        benefit_sponsorships
       end
 
       private
 
       def call_safe_method(object, method)
-        unless method.present? && ALLOWED_METHODS.include?(method)
-          Rails.logger.warn("Attempted to call unsafe or undefined method: #{method}")
-          return object
-        end
+        return object unless method.present? && ALLOWED_METHODS.include?(method)
 
         if object.respond_to?(method)
           object.public_send(method)
@@ -286,15 +279,23 @@ module Effective
       end
 
       def filter_by_enrolling(benefit_sponsorships)
-        return benefit_sponsorships unless attributes[:enrolling].present?
+        return benefit_sponsorships unless attributes[:enrolling_status].present?
 
-        if attributes[:enrolling_initial].present? && attributes[:enrolling_initial] != 'all'
-          call_safe_method(benefit_sponsorships, attributes[:enrolling_initial])
-        elsif attributes[:enrolling_renewing].present? && attributes[:enrolling_renewing] != 'all'
-          call_safe_method(benefit_sponsorships, attributes[:enrolling_renewing])
+        # Map enrolling_status to corresponding scopes or methods
+        enrolling_scope_map = {
+          'active' => :active_enrolling,
+          'renewing' => :renewing_enrolling,
+          'terminated' => :terminated_enrolling
+        }
+
+        scope = enrolling_scope_map[attributes[:enrolling_status]]
+        if scope && benefit_sponsorships.respond_to?(scope)
+          benefit_sponsorships = benefit_sponsorships.send(scope)
         else
-          call_safe_method(benefit_sponsorships, attributes[:enrolling])
+          Rails.logger.warn("Invalid enrolling status: #{attributes[:enrolling_status]}")
         end
+
+        benefit_sponsorships
       end
 
       def filter_by_enrolled(benefit_sponsorships)
@@ -305,17 +306,17 @@ module Effective
         return benefit_sponsorships unless attributes[:employer_attestations].present?
 
         benefit_sponsorships = call_safe_method(benefit_sponsorships, attributes[:employer_attestations])
-        case attributes[:attestation_status]
-        when 'submitted'
-          benefit_sponsorships = benefit_sponsorships.submitted if benefit_sponsorships.respond_to?(:submitted)
-        when 'pending'
-          benefit_sponsorships = benefit_sponsorships.pending if benefit_sponsorships.respond_to?(:pending)
-        when 'approved'
-          benefit_sponsorships = benefit_sponsorships.approved if benefit_sponsorships.respond_to?(:approved)
-        when 'denied'
-          benefit_sponsorships = benefit_sponsorships.denied if benefit_sponsorships.respond_to?(:denied)
-        else
-          Rails.logger.warn("Attempted to call unsafe or undefined attestation status: #{attributes[:attestation_status]}")
+
+        status_scope_map = {
+          'submitted' => :submitted,
+          'pending' => :pending,
+          'approved' => :approved,
+          'denied' => :denied
+        }
+
+        if attributes[:attestation_status].present?
+          scope = status_scope_map[attributes[:attestation_status]]
+          benefit_sponsorships = benefit_sponsorships.send(scope) if scope && benefit_sponsorships.respond_to?(scope)
         end
 
         benefit_sponsorships
@@ -329,11 +330,9 @@ module Effective
       end
 
       def filter_by_attestations(benefit_sponsorships)
-        if attributes[:attestations].present? && attributes[:attestations] != "employer_attestations"
-          benefit_sponsorships.attestations_by_kind(attributes[:attestations])
-        else
-          benefit_sponsorships
-        end
+        return benefit_sponsorships unless attributes[:attestations].present? && attributes[:attestations] != "employer_attestations"
+
+        benefit_sponsorships.attestations_by_kind(attributes[:attestations])
       end
 
       def parse_date(date_str)
