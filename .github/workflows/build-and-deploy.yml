@@ -5,9 +5,11 @@ on:
   push:
     branches:
       - master
+      - performance-improvements
   pull_request:
     branches:
       - master
+      - performance-improvements
 
 concurrency:
   group: docker-${{ github.ref }}
