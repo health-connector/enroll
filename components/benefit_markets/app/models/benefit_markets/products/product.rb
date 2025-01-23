@@ -56,9 +56,15 @@ module BenefitMarkets
     index({ service_area_id: 1}, {name: "products_service_area_index"})
 
     index({ "kind" => 1 }, {name: "products_kind_index"})
+    index({ "product_package_kinds" => 1 }, {name: "products_product_package_kinds_index"})
+    index({ "benefit_market_kind" => 1,
+            "kind" => 1
+            },
+            {name: "product_market_kind_index"}
+          )
 
     index({ "application_period.min" => 1,
-            "application_period.max" => 1,
+            "application_period.max" => 1
             },
             {name: "products_application_period_index"}
           )
@@ -96,6 +102,11 @@ module BenefitMarkets
                 :"product_package_kinds".in     => [product_package.package_kind]
               )
             }
+
+    scope :by_product_package_kinds,    ->(product_package) { where(
+        :"product_package_kinds".in     => [product_package.package_kind]
+      )
+    }
 
     scope :aca_shop_market,             ->{ where(benefit_market_kind: :aca_shop) }
     scope :aca_individual_market,       ->{ where(benefit_market_kind: :aca_individual) }
