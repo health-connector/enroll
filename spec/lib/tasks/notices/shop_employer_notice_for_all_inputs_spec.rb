@@ -4,13 +4,16 @@ require 'rails_helper'
 Rake.application.rake_require "tasks/notices/shop_employer_notice_for_all_inputs"
 Rake::Task.define_task(:environment)
 
+require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
+require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
+
 RSpec.describe 'Generate notices to employer by taking hbx_ids, feins, employer_ids and event name', :type => :task, dbclean: :after_each do
+  include_context "setup benefit market with market catalogs and product packages"
+  include_context "setup initial benefit application"
 
   let(:event_name)       { 'rspec-event' }
-  let(:employer_profile) { FactoryBot.create(:employer_with_planyear) }
-  let(:organization)     { FactoryBot.create(:organization, employer_profile: employer_profile) }
-  let(:plan_year)        { employer_profile.plan_years.first }
-  let(:params)           { {recipient: employer_profile, event_object: plan_year, notice_event: event_name} }
+  let(:employer_profile) {benefit_sponsorship.profile}
+  let(:params)           { {recipient: employer_profile, event_object: initial_application, notice_event: event_name} }
 
   after :each do
     ['event', 'hbx_ids', 'feins', 'employer_ids'].each do |env_key|
