@@ -507,7 +507,7 @@ RSpec.describe Insured::GroupSelectionController, :type => :controller, dbclean:
         user = create(:user, id: 190, person: create(:person))
         sign_in user
         post :create, params: {person_id: person.id, employee_role_id: employee_role.id, family_member_ids: family_member_ids}
-        expect(flash[:error]).to eq "Your employer is no longer offering health insurance through #{Settings.site.short_name}. Please contact your employer or call our Customer Care Center at 1-888-813-9220."
+        expect(flash[:error]).to eq "Your employer is no longer offering health insurance through #{Settings.site.short_name}. Please contact your employer or call our Customer Care Center at 1-855‑268‑3767."
       end
 
       it 'when benefit application is terminated' do

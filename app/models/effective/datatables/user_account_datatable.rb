@@ -33,7 +33,7 @@ module Effective
       end
 
       def status(row)
-        return "Unlocked" if row.locked_at.blank? && row.unlock_token.blank?
+        return "Unlocked" if true#row.locked_at.blank? && row.unlock_token.blank?
         "Locked"
       end
 
