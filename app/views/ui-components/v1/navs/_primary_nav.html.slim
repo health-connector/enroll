@@ -23,7 +23,7 @@
           li role="presentation"
             a.dropdown-toggle data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"
             = render partial: 'exchanges/hbx_profiles/shared/nav_link', locals: { tab_name: 'user-account', link_path: main_app.user_account_index_exchanges_hbx_profiles_path, display_name: 'User Accounts',active_tab: "user-account" }
-          - if EnrollRegistry[:admin_issuers_tab_display].feature.is_enabled
+          - if true#EnrollRegistry[:admin_issuers_tab_display].feature.is_enabled
             li role="presentation"
               a.dropdown-toggle data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"
               = render partial: 'exchanges/hbx_profiles/shared/nav_link', locals: { tab_name: 'issuers', link_path: main_app.issuer_index_exchanges_hbx_profiles_path, display_name: 'Issuers', active_tab: "issuers" }

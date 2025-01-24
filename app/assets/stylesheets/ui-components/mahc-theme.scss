@@ -56,7 +56,7 @@ h1,h2,h3,h4,h5,h6 {
   .navbar {
     margin-bottom: 0;
     background-color: $primary-button-text;
-    border-bottom: solid 3px var(#96E6EB, #293352);
+    border-bottom: solid 3px #96E6EB;
     .navbar-header {
       .navbar-brand {
         border-right: solid 1px #d7d7d7;
@@ -170,7 +170,6 @@ h1,h2,h3,h4,h5,h6 {
 
   .badge {
     background-color: $primary-orange;
-    color: black;
   }
 }
 
@@ -312,7 +311,7 @@ fieldset[disabled] .btn-default.active {
   border-color: $secondary-button-border;
 }
 .btn-default .badge {
-  color: #337ab7;
+  color: #005595;
   background-color: $secondary-button-background;
 }
 .fa-trash {
