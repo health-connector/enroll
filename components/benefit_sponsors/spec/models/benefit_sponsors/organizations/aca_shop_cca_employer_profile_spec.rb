@@ -94,6 +94,23 @@ module BenefitSponsors
           end
         end
       end
+
+      context "with attestation" do
+        # let!(:employer_attestation) { FactoryBot.create(:employer_attestation, employer_profile: subject) }
+        let!(:employer_attestation) { FactoryBot.build(:employer_attestation, aasm_state: 'unsubmitted') }
+        let!(:status) { employer_attestation.aasm_state.titleize }
+
+
+        before do
+          subject.employer_attestation = employer_attestation
+          subject.save
+        end
+
+        it "should not be valid" do
+          expect(subject.attestation_status).to eq status
+        end
+      end
+
     end
 
     context "A BenefitSponsorship association", dbclean: :after_each do
