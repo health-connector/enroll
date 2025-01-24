@@ -328,6 +328,8 @@ module BenefitSponsors
 
       def sponsor_contribution_attributes(sponsored_benefit)
         contribution = sponsored_benefit.sponsor_contribution
+        return {contribution_levels_attributes: []} unless contribution
+
         contribution_levels = contribution.contribution_levels.inject([]) do |contribution_levels, contribution_level|
           contribution_levels << {
             id: contribution_level.id,
