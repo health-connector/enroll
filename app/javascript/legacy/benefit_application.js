@@ -114,7 +114,8 @@ function calculateEmployerContributionsImmediate(productOptionKind,referencePlan
   });
 }
 
-const calculateEmployerContributions = debounceRequest(calculateEmployerContributionsImmediate, 1000);
+const timeoutDuration = String(window.isTestEnvironment) === "true" ? 1000 : 10;
+const calculateEmployerContributions = debounceRequest(calculateEmployerContributionsImmediate, timeoutDuration);
 
 module.exports = {
   calculateEmployerContributions : calculateEmployerContributions,
