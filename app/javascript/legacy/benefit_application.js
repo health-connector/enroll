@@ -114,15 +114,7 @@ function calculateEmployerContributionsImmediate(productOptionKind,referencePlan
   });
 }
 
-let timeoutDuration = 10;
-const testEnvironmentElement = document.getElementById('test-environment');
-
-if (testEnvironmentElement) {
-  const isTestEnvironment = testEnvironmentElement.dataset.isTestEnvironment === 'true';
-  timeoutDuration = isTestEnvironment ? 1000 : timeoutDuration;
-}
-
-const calculateEmployerContributions = debounceRequest(calculateEmployerContributionsImmediate, timeoutDuration);
+const calculateEmployerContributions = debounceRequest(calculateEmployerContributionsImmediate, 10);
 
 module.exports = {
   calculateEmployerContributions : calculateEmployerContributions,
