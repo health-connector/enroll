@@ -605,6 +605,57 @@ RSpec.describe ApplicationHelper, :type => :helper do
     end
   end
 
+  describe 'bulk_action_eligible_plan_years', :dbclean => :after_each do
+    include_context 'setup benefit market with market catalogs and product packages'
+    include_context 'setup initial benefit application'
+
+    let!(:employer) {abc_profile}
+
+    context 'for terminated state' do
+      before do
+        initial_application.aasm_state = :terminated
+        initial_application.save
+      end
+
+      it 'should return Ineligible' do
+        expect(helper.bulk_action_eligible_plan_years(employer)).to eq "Ineligible"
+      end
+    end
+
+    context 'for canceled state' do
+      before do
+        initial_application.aasm_state = :canceled
+        initial_application.save
+      end
+
+      it 'should return Ineligible' do
+        expect(helper.bulk_action_eligible_plan_years(employer)).to eq "Ineligible"
+      end
+    end
+
+    context 'for expired state' do
+      before do
+        initial_application.aasm_state = :expired
+        initial_application.save
+      end
+
+      it 'should return Ineligible' do
+        expect(helper.bulk_action_eligible_plan_years(employer)).to eq "Ineligible"
+      end
+    end
+
+    context 'for active state' do
+      before do
+        initial_application.aasm_state = :active
+        initial_application.save
+      end
+
+      it 'should return Eligible' do
+        expect(helper.bulk_action_eligible_plan_years(employer)).to eq "Eligible"
+      end
+    end
+  end
+
   describe "#is_new_paper_application?" do
     let(:person_id) { double }
     let(:admin_user) { FactoryBot.create(:user, :hbx_staff)}
