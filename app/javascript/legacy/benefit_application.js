@@ -114,7 +114,7 @@ function calculateEmployerContributionsImmediate(productOptionKind,referencePlan
   });
 }
 
-const calculateEmployerContributions = debounceRequest(calculateEmployerContributionsImmediate, 1000);
+const calculateEmployerContributions = debounceRequest(calculateEmployerContributionsImmediate, 100);
 
 module.exports = {
   calculateEmployerContributions : calculateEmployerContributions,
