@@ -53,10 +53,30 @@ function showEmployeeCostDetails(employees_cost) {
   }
 }
 
+// Function to toggle spinner visibility using the estimated-costs-shell class
+function toggleSpinner(show) {
+  const $shell = $('.estimated-costs-shell');
+  if (!$shell.length) return;
+
+  const $spinnerRow = $shell.find('.spinner-overlay'); // Find the spinner row within the shell
+  if (!$spinnerRow.length) return;
+
+  if (show) {
+    $spinnerRow.removeClass('hidden');
+  } else {
+    $spinnerRow.addClass('hidden');
+  }
+}
+
 function debounceRequest(func, wait, immediate) {
 	var timeout;
 	return function() {
 		var context = this, args = arguments;
+
+    if (func === calculateEmployerContributionsImmediate) {
+      toggleSpinner(true);
+    }
+
 		clearTimeout(timeout);
 		timeout = setTimeout(function() {
 			timeout = null;
@@ -110,11 +130,12 @@ function calculateEmployerContributionsImmediate(productOptionKind,referencePlan
       var eeCost = parseFloat(d["estimated_sponsor_exposure"]).toFixed(2);
       var eeMax = parseFloat(d["estimated_enrollee_maximum"]).toFixed(2);
       showCostDetails(eeCost,eeMin,eeMax)
+      toggleSpinner(false);
     }
   });
 }
 
-const calculateEmployerContributions = debounceRequest(calculateEmployerContributionsImmediate, 10);
+const calculateEmployerContributions = debounceRequest(calculateEmployerContributionsImmediate, 1000);
 
 module.exports = {
   calculateEmployerContributions : calculateEmployerContributions,
