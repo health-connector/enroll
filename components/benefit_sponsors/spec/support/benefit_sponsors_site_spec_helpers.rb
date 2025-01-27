@@ -92,7 +92,7 @@ module BenefitSponsors
         byline: "The Right Place for the Right Plan",
         short_name: "Health Connector",
         domain_name: "hbxshop.org",
-        long_name: "Massachusetts Health Connector",
+        long_name: "OregonHealthCare.gov",
         copyright_period_start: '2018'
       }
       org_props = {

@@ -18,7 +18,7 @@ site:
   health_care_website_url: "https://www.healthcare.gov"
   short_name: "Health Connector"
   byline: "The Right Place for the Right Plan"
-  long_name: "Massachusetts Health Connector"
+  long_name: "OregonHealthCare.gov"
   copyright_period_start: "2017"
   header_message: "The Right Place for the Right Plan"
   logo_file_name: "mhc_logo.svg"
@@ -48,23 +48,23 @@ site:
   privacy_policy: "https://www.mahealthconnector.org/site-policies/privacy-policy"
   late_rates_message: "Premiums for some coverage effective dates are not yet available. Premiums are typically ready for employers at least 30 days before your coverage starts, and often sooner than that. Please check back again soon to see if premium rates are available, or call customer service if you need more additional assistance."
 
-  exchange_name: "Massachusetts Health Connector"
+  exchange_name: "OregonHealthCare.gov"
   social_media:
     facebook_url: ""
 
 contact_center:
   name: "Health Connector's Customer Care Center"
   alt_name: "Health Connector Customer Service"
-  phone_number: "1-888-813-9220"
+  phone_number: "1-855‑268‑3767"
   fax: "1-617-933-3099"
   alt_fax: "617-722-4033"
   tty_number: "711"
-  alt_phone_number: "1-888-813-9220"
-  payment_phone_number: "1-888-813-9220"
+  alt_phone_number: "1-855‑268‑3767"
+  payment_phone_number: "1-855‑268‑3767"
   ivl_number: "1-877-623-6765"
   ivl_phone_number: "1-877-623-6765"
-  email_address: "smallbusiness@mahealthconnector.org"
-  small_business_email: "smallbusiness@MAhealthconnector.org"
+  email_address: "info.marketplace@odhsoha.oregon.gov"
+  small_business_email: "info.marketplace@odhsoha.oregon.gov"
   non_discrimination_email: "Nondiscrimination@state.ma.us"
 
   appeals: "connector-appeals@state.ma.us"
@@ -297,16 +297,16 @@ aptc_errors:
 #   ShopPlanYearPublishedDueDayOfMonth = ShopOpenEnrollmentBeginDueDayOfMonth
 
 style:
-  primary_orange: '#c56c24'
-  brand_primary: '#005e81'
-  primary_color: '#005e81'
-  primary_notification: '#c56c24'
-  primary_panel: '#c56c24'
-  primary_button: '#337ab7'
+  primary_orange: '#c60778'
+  brand_primary: '#293352'
+  primary_color: '#293352'
+  primary_notification: '#c60778'
+  primary_panel: '#c60778'
+  primary_button: '#005595'
   primary_button_color: '#286090'
-  primary_button_disabled: '#337ab7'
+  primary_button_disabled: '#005595'
   primary_button_border_disabled: '#2e6da4'
-  alternate_header_color: '#c56c24'
-  primary_icon_color: '#c56c24'
-  qle_header_color: '#c56c24'
-  primary_header_font: "'Roboto Slab', serif"
+  alternate_header_color: '#c60778'
+  primary_icon_color: '#c60778'
+  qle_header_color: '#c60778'
+  primary_header_font: "'Helvetica Neue', Helvetica, Arial, sans-serif, serif"

@@ -2,7 +2,7 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto+Slab:300,400,700');
 
 * {
-    font-family: 'Roboto Slab', sans-serif;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif, sans-serif;
 }
 
 a {
@@ -56,7 +56,7 @@ h1,h2,h3,h4,h5,h6 {
   .navbar {
     margin-bottom: 0;
     background-color: $primary-button-text;
-    border-bottom: solid 3px $brand-primary;
+    border-bottom: solid 3px #96E6EB;
     .navbar-header {
       .navbar-brand {
         border-right: solid 1px #d7d7d7;
@@ -211,7 +211,7 @@ h1,h2,h3,h4,h5,h6 {
 #footer-uic {
   font-size: 14px;
   color: #ffffff;
-  background-color: #005e81;
+  background-color: #293352;
   padding: 15px;
   position: absolute;
   bottom: 0;
@@ -311,7 +311,7 @@ fieldset[disabled] .btn-default.active {
   border-color: $secondary-button-border;
 }
 .btn-default .badge {
-  color: #337ab7;
+  color: #005595;
   background-color: $secondary-button-background;
 }
 .fa-trash {
