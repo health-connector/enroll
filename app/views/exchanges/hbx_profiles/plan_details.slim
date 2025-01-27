@@ -30,6 +30,16 @@
       .col-xs-6.col-sm-6.col-md-2= l10n('marketplaces.plan.summary.pvp_area')
       .col-xs-6.col-sm-6.col-md-9.pvp-areas= format_rating_area_codes(@product_pvp_eligible_ras.keys)
 
+    .button-container[style="display: flex; gap: 8px; align-items: center; margin-top: 16px;"]
+      button.btn.btn-primary
+        i.fa.fa-upload[style="margin-right: 8px;"]
+        = 'Upload SBC'
+      button.btn.btn-primary
+        i.fa.fa-upload[style="margin-right: 8px;"]
+        = 'Upload PBT'
+      button.btn.btn-outline-primary
+        = l10n('View Version History')
+
   .pvp-eligibility-form-container
     = render "pvp_eligibility_form"
 
