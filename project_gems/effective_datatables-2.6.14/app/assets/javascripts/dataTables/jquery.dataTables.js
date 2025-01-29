@@ -1528,7 +1528,6 @@
     return out;
   };
 
-
   const _stripHtml = function (d) {
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = d.replaceAll(/<|>/g, "");
@@ -4599,7 +4598,7 @@
           word = m ? m[1] : word;
         }
   
-        return word.replace('"', '');
+        return word.replaceAll('"', '');
       } );
   
       search = '^(?=.*?'+a.join( ')(?=.*?' )+').*$';
@@ -8390,8 +8389,7 @@
     // Return an Api.rows() extended instance, with the newly added row selected
     return this.row( rows[0] );
   } );
-  
-  
+
   $(document).on('plugin-init.dt', function (e, context) {
     var api = new _Api( context );
     var namespace = 'on-plugin-init';
