@@ -6,14 +6,10 @@
     <div class="row row-form-wrapper no-buffer heading">
       <div class="col-xs-12" id="offering_slider_header">
         <div class="col-xs-6">Offered
-          <% if kind != 'dental' %>
             <i class="fa fa-question-circle" data-toggle="tooltip" title="<%=l10n("employers.plan_years.benefit_package.contributions.offered")%>"></i>
-          <% end %>
         </div>
         <div class="col-xs-6">Employer Contribution
-          <% if kind != 'dental' %>
             <i class="fa fa-question-circle" data-toggle="tooltip" title="<%=l10n("employers.plan_years.benefit_package.contributions.employer_contribution", aca_shop_market_employer_contribution_percent_minimum: employer_contribution_percent_minimum_for_application_start_on(f.object.start_on.to_date, plan_design_organization.is_renewing_employer?), aca_shop_market_employer_family_contribution_percent_minimum: family_contribution_percent_minimum_for_application_start_on(f.object.start_on.to_date, plan_design_organization.is_renewing_employer?))%>"></i>
-          <% end %>
         </div>
       </div>
     </div>

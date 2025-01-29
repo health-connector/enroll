@@ -1556,7 +1556,9 @@ var _exportData = function ( dt, inOpts )
 		}
 
 		if ( config.stripHtml ) {
-			str = str.replace( /<[^>]*>/g, '' );
+			var parser = new DOMParser();
+			var doc = parser.parseFromString(str, 'text/html');
+			str = doc.body.textContent || '';
 		}
 
 		if ( config.trim ) {
