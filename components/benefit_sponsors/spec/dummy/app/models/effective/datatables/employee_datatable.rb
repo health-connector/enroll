@@ -95,19 +95,20 @@ module Effective
         @employer_collection = @benefit_sponsorships unless employer_kinds.include?(attributes[:employers])
 
         if employer_attestation_kinds.include?(attributes[:attestations])
-          benefit_sponsorships =  @benefit_sponsorships.attestations_by_kind(attributes[:attestations])
+          benefit_sponsorships = @benefit_sponsorships.attestations_by_kind(attributes[:attestations])
         elsif enrolling_kinds.include?(attributes[:enrolling])
-          #TODO for employer enrolling kinds
+          #TODO: for employer enrolling kinds
         elsif enrolled_kinds.include?(attributes[:enrolled])
-          #TODO for employer enrolled kinds
+          #TODO: for employer enrolled kinds
         else
           method_name = attributes[:employers].to_sym
 
-          if employer_kinds.include?(method_name)
-            benefit_sponsorships = @benefit_sponsorships.public_send(method_name)
-          else
-            raise ArgumentError, "Invalid method: #{attributes[:employers]}"
-          end
+          raise ArgumentError, "Invalid method: #{attributes[:employers]}" unless employer_kinds.include?(method_name)
+
+          benefit_sponsorships = @benefit_sponsorships.public_send(method_name)
+
+
+
         end
 
           # employers = @employers.send(attributes[:enrolling]) if attributes[:enrolling].present?
@@ -121,7 +122,9 @@ module Effective
           #       employers = employers.employer_profile_plan_year_start_on(date)
           #     end
           # end
+        # rubocop:disable Naming/MemoizedInstanceVariableName
         @employer_collection = benefit_sponsorships
+        # rubocop:enable Naming/MemoizedInstanceVariableName
       end
 
       def global_search?
