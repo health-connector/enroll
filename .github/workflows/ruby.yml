@@ -94,7 +94,14 @@ jobs:
       - name: Install node dependencies
         if: steps.npm-cache.outputs.cache-hit != 'true'
         run: yarn install
+      - name: Install Legacy Chrome
+        run: |
+          wget https://storage.googleapis.com/chrome-for-testing-public/131.0.6778.264/linux64/chrome-linux64.zip
+          unzip chrome-linux64.zip
       - name: Install Test boosters gem
         run: gem install treye-semaphore_test_boosters --version '2.5.2'
       - name: Run tests
+        env:
+          WD_VERSION: "131.0.6778.264"
+          WD_CHROME_PATH: ${{ github.workspace }}/chrome-linux64/chrome
         run: cucumber_booster --job ${{ matrix.group }}/${{ strategy.job-total }}
