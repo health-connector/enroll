@@ -72,6 +72,10 @@ Capybara::Screenshot.webkit_options = { width: 2280, height: 1800 }
 Capybara::Screenshot.prune_strategy = :keep_last_run
 Webdrivers.cache_time = 86_400
 
+Webdrivers::Chromedriver.required_version = ENV['WD_VERSION'] if ENV['WD_VERSION']
+Selenium::WebDriver::Chrome.path = ENV['WD_CHROME_PATH'] if ENV['WD_CHROME_PATH']
+
+
 Capybara::Screenshot.register_driver(:selenium_chrome_custom) do |driver, path|
   driver.browser.save_screenshot(path)
 end
