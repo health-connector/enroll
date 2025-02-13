@@ -167,7 +167,7 @@ CKEDITOR.DIALOG_STATE_BUSY = 2;
 			editorId: editor.id,
 			langDir: editor.lang.dir,
 			langCode: editor.langCode,
-			editorDialogClass: 'cke_editor_' + editor.name.replace( /\./g, '\\.' ) + '_dialog',
+			editorDialogClass: 'cke_editor_' + editor.name.replaceAll(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&') + '_dialog',
 			closeTitle: editor.lang.common.close,
 			hidpi: CKEDITOR.env.hidpi ? 'cke_hidpi' : ''
 		} ) );
