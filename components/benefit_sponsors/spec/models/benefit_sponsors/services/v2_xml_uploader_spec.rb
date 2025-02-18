@@ -11,7 +11,7 @@ RSpec.describe BenefitSponsors::Services::V2XmlUploader do
     context "when given valid XML with matching FEIN" do
       it "uploads the XML successfully and notifies Acapi::Notifier" do
         uploader = described_class.new(valid_xml_path, expected_fein)
-        expect(uploader).to receive(:notify).with("acapi.info.events.trading_partner.employer_digest.published", { body: anything })
+        expect(uploader).to receive(:notify).with("acapi.info.events.trading_partner.employer_digest.published", { body: anything, enable_customized_v1: true })
 
         result, errors = uploader.upload
 

@@ -35,7 +35,7 @@ module BenefitSponsors
         @errors += xsd.validate(doc)
         return [false, @errors] unless @errors.blank?
 
-        notify("acapi.info.events.trading_partner.employer_digest.published", { body: @xml_string })
+        notify("acapi.info.events.trading_partner.employer_digest.published", { body: @xml_string, enable_customized_v1: true })
         [true, @errors]
       end
     end
