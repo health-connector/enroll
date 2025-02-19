@@ -1527,9 +1527,8 @@
   
     return out;
   };
-  
-  
-  const _stripHtml = function ( d ) {
+
+  const _stripHtml = function (d) {
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = d.replaceAll(/<|>/g, "");
 
@@ -8422,7 +8421,7 @@
     if ( loaded && loaded.childRows ) {
       api
         .rows( $.map(loaded.childRows, function (id){
-          return id.replace(/([^\w-])/g, '\\$1')
+          return id.replace(/\\/g, '\\\\').replace(/:/g, '\\:');
         }) )
         .every( function () {
           _fnCallbackFire( context, null, 'requestChild', [ this ] )
@@ -15038,7 +15037,7 @@
       return _empty(data) ?
         data :
         typeof data === 'string' ?
-          _stripHtml(data.replace(_re_new_lines, " ")) :
+            _stripHtml(data.replace(_re_new_lines, " ")) :
           '';
     },
   
@@ -15135,10 +15134,10 @@
     // html
     "html-pre": function ( a ) {
       return _empty(a) ?
-          '' :
-          a.replace ?
-              _stripHtml(a).toLowerCase() :
-              a+'';
+        '' :
+        a.replace ?
+          _stripHtml(a).toLowerCase() :
+          a+'';
     },
   
     // string
