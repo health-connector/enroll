@@ -15,7 +15,15 @@ module BenefitMarkets
 
         class << self
           attr_accessor :products_for_date, :serialized_product_hash
+
+          def reset_data
+            @products_for_date = {}
+            @serialized_product_hash = {}
+          end
         end
+
+        # Ensure class variables are initialized
+        reset_data
 
         # @param [ Date ] effective_date Effective date of the benefit application in rfc3339 date format
         # @param [ Array<BenefitMarkets::Entities::ServiceArea> ] service_areas Service Areas
@@ -87,11 +95,6 @@ module BenefitMarkets
           serialized_product = product.create_copy_for_embedding.serializable_hash.deep_symbolize_keys
           self.class.serialized_product_hash[product._id] = serialized_product
           serialized_product
-        end
-
-        def self.reset_data
-          @products_for_date = {}
-          @serialized_product_hash = {}
         end
       end
     end
