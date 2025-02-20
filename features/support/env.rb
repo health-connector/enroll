@@ -72,6 +72,10 @@ Capybara::Screenshot.webkit_options = { width: 2280, height: 1800 }
 Capybara::Screenshot.prune_strategy = :keep_last_run
 Webdrivers.cache_time = 86_400
 
+Webdrivers::Chromedriver.required_version = ENV['WD_VERSION'] if ENV['WD_VERSION']
+Selenium::WebDriver::Chrome.path = ENV['WD_CHROME_PATH'] if ENV['WD_CHROME_PATH']
+
+
 Capybara::Screenshot.register_driver(:selenium_chrome_custom) do |driver, path|
   driver.browser.save_screenshot(path)
 end
@@ -79,6 +83,7 @@ end
 Capybara.register_driver :selenium_chrome_custom do |app|
   options = Selenium::WebDriver::Chrome::Options.new
   options.add_argument("headless")
+  options.add_argument("--no-sandbox")
   options.add_argument("--window-size=1920,1080")
 
   if RUBY_PLATFORM =~ /darwin/
