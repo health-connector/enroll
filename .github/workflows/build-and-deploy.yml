@@ -64,7 +64,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       rabbitmq:
-        image: rabbitmq:latest
+        image: public.ecr.aws/docker/library/rabbitmq:latest
         ports:
           - 5672:5672
           - 15672:15672
