@@ -250,13 +250,15 @@ module Effective
       end
 
       def collection
+        return @collection if defined? @collection
+
         benefit_sponsorships = BenefitSponsors::BenefitSponsorships::BenefitSponsorship.unscoped
 
         FILTER_MAPPINGS.each do |attribute, method|
           benefit_sponsorships = send(method, benefit_sponsorships) if attributes[attribute].present?
         end
 
-        benefit_sponsorships
+        @collection = benefit_sponsorships
       end
 
       private
