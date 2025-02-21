@@ -6,16 +6,16 @@
       .btn.btn-default.pull-right.mt-3 data-toggle="modal" data-target="#eeCostModal" =l10n("employers.plan_years.benefit_package.employee_cost_button")
 
 
-.panel.panel-default
+.panel.panel-default.estimated-costs-shell
   .panel-body
     .row
-    .col-md-12.pl-0
-      span.pvp-plan-indicator.mr-1.hidden#rpPvpIndicator
-        i.fas.fa-lg.fa-square.mr-1 data-toggle="tooltip" data-placement="top" data-container="body" title="#{l10n('insured.plan_shoppings.pvp_title_info')}"
-        = l10n("premium_value_plan").to_s.upcase
-      span.standard-plan-indicator.hidden#rpStandardPlanIndicator
-        i.fas.fa-lg.fa-bookmark.mr-1 data-toggle="tooltip" data-placement="top" data-container="body" title="#{l10n('insured.plan_shoppings.standard_plan_title_info')}"
-        = l10n("standard_plan").to_s.upcase
+      .col-md-12.pl-0
+        span.pvp-plan-indicator.mr-1.hidden#rpPvpIndicator
+          i.fas.fa-lg.fa-square.mr-1 data-toggle="tooltip" data-placement="top" data-container="body" title="#{l10n('insured.plan_shoppings.pvp_title_info')}"
+          = l10n("premium_value_plan").to_s.upcase
+        span.standard-plan-indicator.hidden#rpStandardPlanIndicator
+          i.fas.fa-lg.fa-bookmark.mr-1 data-toggle="tooltip" data-placement="top" data-container="body" title="#{l10n('insured.plan_shoppings.standard_plan_title_info')}"
+          = l10n("standard_plan").to_s.upcase
     .row
       .col-xs-8
           h5.heading-text
@@ -56,3 +56,6 @@
         strong.mb-1 Max
         br
         #rpMax
+    .row.spinner-overlay.hidden#spinnerOverlay
+      .spinner-container
+        i.fas.fa-spinner.fa-spin.fa-2x.text-primary#loadingSpinner
