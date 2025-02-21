@@ -78,7 +78,7 @@ jobs:
           RABBITMQ_DEFAULT_USER: 'guest'
           RABBITMQ_DEFAULT_PASS: 'guest'
       mongo:
-        image: mongo:5.0
+        image: public.ecr.aws/docker/library/mongo:5.0
         ports:
           - 27017:27017
         options: >-
