@@ -1228,6 +1228,13 @@ module BenefitSponsors
       [:canceled, :retroactive_canceled].include?(aasm_state)
     end
 
+    def bulk_action_exclude_states?
+      return true if [:terminated, :canceled, :expired].include?(aasm_state)
+      return true if draft? && assigned_census_employees_without_owner.blank?
+
+      false
+    end
+
     private
 
     def set_expiration_date

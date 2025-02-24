@@ -214,3 +214,22 @@
 
   </style>
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const editUrl = "<%= edit_benefit_sponsorship_benefit_application_benefit_package_path(@benefit_sponsorship, @benefit_application, @benefit_package, :show_benefit_application_tile => true) %>";
+
+    // Replace the current history state to avoid duplicate entries
+    history.replaceState({ page: "edit" }, null, editUrl);
+
+    // Add a new history entry for back button functionality
+    history.pushState({ page: "edit" }, null, editUrl);
+
+    // Listen for the popstate event (triggered when back/forward buttons are clicked)
+    window.addEventListener('popstate', function (event) {
+
+      // Ensure a server request is made for the edit page
+      window.location.href = editUrl;
+    });
+  });
+</script>

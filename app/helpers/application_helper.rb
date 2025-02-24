@@ -693,6 +693,14 @@ module ApplicationHelper
     end
   end
 
+  def bulk_action_eligible_plan_years(employer)
+    benefit_application = employer&.show_plan_year
+    return unless benefit_application.present?
+    return "Ineligible" if benefit_application.bulk_action_exclude_states?
+
+    "Eligible"
+  end
+
   def eligibility_criteria_for_export(employer)
     if employer.show_plan_year.present?
       @participation_count == 0 && @non_owner_participation_rule == true ? "Eligible" : "Ineligible"
