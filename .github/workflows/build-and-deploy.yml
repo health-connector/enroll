@@ -5,6 +5,8 @@ on:
   push:
     branches:
       - master
+      - enroll_uat
+      - rc-release-*
   pull_request:
     branches:
       - master
@@ -192,58 +194,58 @@ jobs:
         run: |
           echo "did_push=${{ env.PUSH_IMAGE == 'true' }}" >> $GITHUB_OUTPUT      
 
-#  # notify that a new build is available in registry, with source ref
-#  new-image-notification:
-#    if: ${{ github.repository_owner == 'health-connector' && needs.build-and-upload-image.outputs.didPush }}
-#    needs: [prep, build-and-upload-image]
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Post to a Slack channel
-#        uses: slackapi/slack-github-action@v1
-#        with:
-#          channel-id: 'docker-images-${{ needs.prep.outputs.ghRepositoryName }}'
-#          payload: |
-#            {
-#              "blocks": [
-#                {
-#                  "type": "section",
-#                  "text": {
-#                    "type": "mrkdwn",
-#                    "text": "New image built from <https://github.com/health-connector/${{ needs.prep.outputs.ghRepositoryName }}/commit/${{ needs.prep.outputs.shortSha }}|${{ needs.prep.outputs.shortSha }}> on `${{ needs.prep.outputs.branchName }}`"
-#                  }
-#                }
-#              ]
-#            }
-#        env:
-#          SLACK_BOT_TOKEN: ${{ secrets.CCA_DEPLOY_SLACK_BOT_TOKEN }}
-#
-#  # notify of registry locations of images
-#  image-location-notification:
-#    if: ${{ github.repository_owner == 'health-connector' && needs.build-and-upload-image.outputs.didPush }}
-#    needs: [ new-image-notification, prep, build-and-upload-image ]
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Setup variables
-#        run: |
-#          TAGGED_IMAGE_LOC="${{ format('{0}/{1}-{2}', needs.prep.outputs.registryGhcr, needs.prep.outputs.taggedImage, env.CLIENT) }}"
-#          echo "CLIENT_DISPLAY=$(echo $CLIENT | tr '[:lower:]' '[:upper:]')" >> $GITHUB_ENV
-#          echo "TAGGED_IMAGE_LOC=$TAGGED_IMAGE_LOC" >> $GITHUB_ENV
-#
-#      - name: Post to appropriate client slack workspace
-#        uses: slackapi/slack-github-action@v1
-#        with:
-#          channel-id: 'docker-images-${{ needs.prep.outputs.ghRepositoryName }}'
-#          payload: |
-#            {
-#              "blocks": [
-#                {
-#                  "type": "section",
-#                  "text": {
-#                    "type": "mrkdwn",
-#                    "text": "*${{ format('{0} {1} image*:\n`{2}`', env.CLIENT_DISPLAY, needs.prep.outputs.registryGhcr, env.TAGGED_IMAGE_LOC) }}"
-#                  }
-#                }
-#              ]
-#            }
-#        env:
-#          SLACK_BOT_TOKEN: ${{ secrets.CCA_DEPLOY_SLACK_BOT_TOKEN }}
+ # notify that a new build is available in registry, with source ref
+ new-image-notification:
+   if: ${{ github.repository_owner == 'health-connector' && needs.build-and-upload-image.outputs.didPush }}
+   needs: [prep, build-and-upload-image]
+   runs-on: ubuntu-latest
+   steps:
+     - name: Post to a Slack channel
+       uses: slackapi/slack-github-action@v1
+       with:
+         channel-id: 'docker-images-${{ needs.prep.outputs.ghRepositoryName }}'
+         payload: |
+           {
+             "blocks": [
+               {
+                 "type": "section",
+                 "text": {
+                   "type": "mrkdwn",
+                   "text": "New image built from <https://github.com/health-connector/${{ needs.prep.outputs.ghRepositoryName }}/commit/${{ needs.prep.outputs.shortSha }}|${{ needs.prep.outputs.shortSha }}> on `${{ needs.prep.outputs.branchName }}`"
+                 }
+               }
+             ]
+           }
+       env:
+         SLACK_BOT_TOKEN: ${{ secrets.CCA_DEPLOY_SLACK_BOT_TOKEN }}
+
+ # notify of registry locations of images
+ image-location-notification:
+   if: ${{ github.repository_owner == 'health-connector' && needs.build-and-upload-image.outputs.didPush }}
+   needs: [ new-image-notification, prep, build-and-upload-image ]
+   runs-on: ubuntu-latest
+   steps:
+     - name: Setup variables
+       run: |
+         TAGGED_IMAGE_LOC="${{ format('{0}/{1}-{2}', needs.prep.outputs.registryGhcr, needs.prep.outputs.taggedImage, env.CLIENT) }}"
+         echo "CLIENT_DISPLAY=$(echo $CLIENT | tr '[:lower:]' '[:upper:]')" >> $GITHUB_ENV
+         echo "TAGGED_IMAGE_LOC=$TAGGED_IMAGE_LOC" >> $GITHUB_ENV
+
+     - name: Post to appropriate client slack workspace
+       uses: slackapi/slack-github-action@v1
+       with:
+         channel-id: 'docker-images-${{ needs.prep.outputs.ghRepositoryName }}'
+         payload: |
+           {
+             "blocks": [
+               {
+                 "type": "section",
+                 "text": {
+                   "type": "mrkdwn",
+                   "text": "*${{ format('{0} {1} image*:\n`{2}`', env.CLIENT_DISPLAY, needs.prep.outputs.registryGhcr, env.TAGGED_IMAGE_LOC) }}"
+                 }
+               }
+             ]
+           }
+       env:
+         SLACK_BOT_TOKEN: ${{ secrets.CCA_DEPLOY_SLACK_BOT_TOKEN }}
