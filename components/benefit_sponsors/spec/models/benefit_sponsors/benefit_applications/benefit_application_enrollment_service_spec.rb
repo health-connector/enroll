@@ -1019,6 +1019,7 @@ module BenefitSponsors
 
     describe '.extend_open_enrollment' do
       include_context "setup initial benefit application"
+      include_context "setup employees with benefits"
       let(:current_effective_date) { Date.new(Date.today.year, 8, 1) }
       let(:today) { current_effective_date - 7.days }
 
@@ -1037,12 +1038,16 @@ module BenefitSponsors
         let(:benefit_sponsorship_state) { :applicant }
         let(:today) { current_effective_date - 7.days }
         let(:oe_end_date) { current_effective_date - 5.days }
+        let(:new_end_on) { initial_application.benefit_application_items.last.effective_period.max }
 
         it 'should extend open enrollment' do
           expect(initial_application.aasm_state).to eq :enrollment_ineligible
           expect(initial_application.benefit_sponsorship.aasm_state).to eq :applicant
           subject.extend_open_enrollment(oe_end_date)
           initial_application.reload
+          initial_application.benefit_sponsorship.census_employees.each do |ce|
+            expect(ce.benefit_group_assignments.last.end_on).to eq new_end_on
+          end
           expect(initial_application.aasm_state).to eq :enrollment_extended
           expect(initial_application.benefit_sponsorship.aasm_state).to eq :applicant
           expect(initial_application.open_enrollment_period.max).to eq oe_end_date
