@@ -196,7 +196,7 @@ jobs:
 
  # notify that a new build is available in registry, with source ref
  new-image-notification:
-   if: ${{ github.repository_owner == 'health-connector' && needs.build-and-upload-image.outputs.didPush }}
+   if: github.repository_owner == 'health-connector' && needs.build-and-upload-image.outputs.didPush
    needs: [prep, build-and-upload-image]
    runs-on: ubuntu-latest
    steps:
