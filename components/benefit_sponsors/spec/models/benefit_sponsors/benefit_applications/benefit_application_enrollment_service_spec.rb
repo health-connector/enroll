@@ -1038,7 +1038,7 @@ module BenefitSponsors
         let(:benefit_sponsorship_state) { :applicant }
         let(:today) { current_effective_date - 7.days }
         let(:oe_end_date) { current_effective_date - 5.days }
-        let(:new_end_on) { initial_application.benefit_application_items.last.effective_period.max }
+        let(:new_end_on) { initial_application.benefit_packages.detect(&:is_active).effective_period.max }
 
         it 'should extend open enrollment' do
           expect(initial_application.aasm_state).to eq :enrollment_ineligible
