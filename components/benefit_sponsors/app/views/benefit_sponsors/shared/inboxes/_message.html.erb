@@ -10,7 +10,7 @@
           <%= sanitize(message.try(:subject)) %>
           <br></li>
         <li class="list-group-item">
-          <%= sanitize(message.try(:body)) %>
+          <%= sanitize(message.try(:body), tags: %w[a br], attributes: %w[href target]) %>
           <br></li>
       </ul>
       <br class="clear"/>
