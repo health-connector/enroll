@@ -304,9 +304,10 @@ module BenefitSponsors
     end
 
     def actualize_benefit_group_assignments(benefit_application)
-      new_end_on = benefit_application.benefit_application_items.last.effective_period.max
+      benefit_package = benefit_application.benefit_packages.detect(&:is_active)
+      new_end_on = benefit_package.effective_period.max
       benefit_application.benefit_sponsorship.census_employees.each do |ce|
-        ce.benefit_group_assignments.last.update_attributes!(end_on: new_end_on)
+        ce.benefit_group_assignments.order_by(:'created_at'.desc).first.update_attributes!(end_on: new_end_on)
       end
     end
 
