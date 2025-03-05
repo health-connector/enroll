@@ -86,7 +86,7 @@ PATH
       mini_portile2 (~> 2.8.0)
       mongoid (~> 7.5.4)
       pundit (~> 1.0.1)
-      rails (~> 6.1.7.8)
+      rails (~> 6.1.7.10)
       slim (~> 3.0.9)
       symmetric-encryption (~> 3.6.0)
       virtus (= 1.0.5)
@@ -134,7 +134,7 @@ PATH
       mongoid (~> 7.5.4)
       non-stupid-digest-assets
       pundit
-      rails (~> 6.1.7.8)
+      rails (~> 6.1.7.10)
       roo (~> 2.10)
       slim (= 3.0.9)
       virtus (~> 1.0.5)
@@ -156,7 +156,7 @@ PATH
       dry-types
       dry-validation (~> 1.0)
       mongoid (~> 7.5.4)
-      rails (~> 6.1.7.8)
+      rails (~> 6.1.7.10)
       roo (~> 2.10)
       slim (~> 3.0.8)
       symmetric-encryption (~> 3.6.0)
