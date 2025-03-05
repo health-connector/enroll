@@ -7,7 +7,6 @@ PATH
       ckeditor (= 4.2.4)
       combine_pdf
       config
-      curl
       money-rails (~> 1.13)
       mongoid (~> 7.5.4)
       non-stupid-digest-assets
@@ -86,7 +85,6 @@ GEM
       zeitwerk (~> 2.3)
     addressable (2.8.7)
       public_suffix (>= 2.0.2, < 7.0)
-    awesome_print (1.9.2)
     axiom-types (0.1.1)
       descendants_tracker (~> 0.0.4)
       ice_nine (~> 0.11.0)
@@ -119,9 +117,6 @@ GEM
       deep_merge (~> 1.2, >= 1.2.1)
       ostruct
     crass (1.0.6)
-    curl (0.0.9)
-      awesome_print (>= 0.2.1)
-      unidecoder (>= 1.1.1)
     database_cleaner-core (2.0.1)
     database_cleaner-mongoid (2.0.1)
       database_cleaner-core (~> 2.0.0)
@@ -287,7 +282,6 @@ GEM
     timeout (0.4.3)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
-    unidecoder (1.1.2)
     virtus (1.0.5)
       axiom-types (~> 0.1)
       coercible (~> 1.0)
