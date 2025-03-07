@@ -1226,5 +1226,32 @@ module BenefitSponsors
         expect(initial_application.aasm_state).to eq :retroactive_canceled
       end
     end
+
+    describe '#active_benefit_package' do
+      let(:initial_application) do
+        create(:benefit_sponsors_benefit_application,
+               benefit_sponsor_catalog: benefit_sponsor_catalog,
+               benefit_sponsorship: benefit_sponsorship,
+               aasm_state: :active,
+               default_effective_period: effective_period)
+      end
+
+      let(:active_benefit_package) { initial_application.benefit_packages.where(is_active: true).first }
+
+      context "active benefit package present" do
+        before do
+          create(:benefit_sponsors_benefit_packages_benefit_package, benefit_application: initial_application, is_active: true)
+          create(:benefit_sponsors_benefit_packages_benefit_package, benefit_application: initial_application, is_active: false)
+        end
+
+        it 'returns the first active benefit package' do
+          expect(initial_application.active_benefit_package).to eq(active_benefit_package)
+        end
+      end
+
+      it 'returns nil if no active benefit package is found' do
+        expect(initial_application.active_benefit_package).to be_nil
+      end
+    end
   end
 end
