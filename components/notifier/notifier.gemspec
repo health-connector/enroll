@@ -17,14 +17,13 @@ Gem::Specification.new do |s|
 
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]
 
-  s.add_dependency "rails", "~> 6.1.7.8"
+  s.add_dependency "rails", "~> 6.1.7.10"
   s.add_dependency "slim", "3.0.9"
   s.add_dependency "mongoid", '~> 7.5.4'
   s.add_dependency "virtus", "~> 1.0.5"
   s.add_dependency "wkhtmltopdf-binary-edge", "~> 0.12.3.0"
   s.add_dependency "wicked_pdf", "2.1.0"
   s.add_dependency "combine_pdf"
-  s.add_dependency "curl"
   s.add_dependency "ckeditor", '4.2.4'
   s.add_dependency "non-stupid-digest-assets"
   s.add_dependency "roo", '~> 2.10'
