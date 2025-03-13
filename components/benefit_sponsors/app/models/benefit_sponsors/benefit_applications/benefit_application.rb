@@ -819,6 +819,10 @@ module BenefitSponsors
       save
     end
 
+    def active_benefit_package
+      benefit_packages.detect(&:is_active)
+    end
+
     class << self
 
       def find(id)

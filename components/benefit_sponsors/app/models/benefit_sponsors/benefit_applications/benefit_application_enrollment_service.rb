@@ -293,12 +293,24 @@ module BenefitSponsors
       if business_policy_satisfied_for?(:extend_open_enrollment)
         if benefit_application.may_extend_open_enrollment?
           benefit_application.update(:open_enrollment_period => benefit_application.open_enrollment_period.min..new_end_date)
+          update_benefit_group_assignments_end_date(benefit_application) if benefit_application.aasm_state == :enrollment_ineligible
           benefit_application.extend_open_enrollment!
         end
 
         [true, benefit_application, business_policy.success_results]
       else
         [false, benefit_application, business_policy.fail_results]
+      end
+    end
+
+    def update_benefit_group_assignments_end_date(benefit_application)
+      benefit_package = benefit_application.active_benefit_package
+      return unless benefit_package
+
+      new_end_on = benefit_package.effective_period.max
+      benefit_application.benefit_sponsorship.census_employees.active.each do |ce|
+        assignment = ce.benefit_group_assignments.where(benefit_package_id: benefit_package.id).last
+        assignment&.update_attributes!(end_on: new_end_on)
       end
     end
 

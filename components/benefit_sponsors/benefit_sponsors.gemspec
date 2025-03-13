@@ -17,7 +17,7 @@ Gem::Specification.new do |s|
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]
   s.test_files = Dir["test/**/*"]
 
-  s.add_dependency "rails", "~> 6.1.7.8"
+  s.add_dependency "rails", "~> 6.1.7.10"
   s.add_dependency "slim", "~> 3.0.8"
   s.add_dependency "mongoid", '~> 7.5.4'
   # s.add_dependency 'mongoid-multitenancy', '~> 1.2'
@@ -59,4 +59,3 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rails-perftest'
   s.add_development_dependency 'climate_control',           '~> 0.2.0'
 end
-
