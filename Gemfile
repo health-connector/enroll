@@ -3,7 +3,7 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby '3.0.6'
+ruby '3.2.5'
 
 gem "benefit_markets",    path: "components/benefit_markets"
 gem "benefit_sponsors",   path: "components/benefit_sponsors"
@@ -63,7 +63,7 @@ gem 'openhbx_cv2', git: 'https://github.com/ideacrew/openhbx_cv2.git', branch: '
 gem 'resource_registry',  git:  'https://github.com/ideacrew/resource_registry.git', branch: 'trunk'
 gem 'prawn', :git => 'https://github.com/prawnpdf/prawn.git', :ref => '8028ca0cd2'
 gem 'pundit', '~> 1.0.1'
-gem 'rails', '~> 6.1.7.10'
+gem 'rails', '~> 7.0.2'
 gem 'rails-i18n', '7.0.9'
 gem 'recurring_select', '~> 3.0'
 gem "recaptcha", '4.3.1', require: 'recaptcha/rails'
@@ -89,7 +89,7 @@ gem 'rubyXL'
 gem 'holidays', '~> 8.6'
 
 #arm64 mac support
-gem 'ffi', '1.15.5'
+# gem 'ffi', '1.15.5'
 gem 'kostya-sigar', '2.0.10'
 # gem 'mini_racer', '0.6.4'
 gem 'bigdecimal', '~> 3.0'
@@ -146,6 +146,7 @@ group :development, :test do
   gem 'yard-mongoid', '~> 0.1.0', require: false
   gem 'sdoc',  '~> 1.0'
   gem 'pry-byebug'
+  gem 'next_rails'
 end
 
 group :test do
