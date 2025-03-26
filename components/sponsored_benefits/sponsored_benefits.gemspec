@@ -21,7 +21,7 @@ Gem::Specification.new do |s|
   s.add_dependency "mongoid", '~> 8.1.5'
   s.add_dependency "aasm", "~> 4.8.0"
   s.add_dependency 'config'
-  s.add_dependency 'symmetric-encryption', '~> 3.6.0'
+  s.add_dependency 'symmetric-encryption', '3.9.1'
   s.add_dependency 'roo', '~> 2.10'
   s.add_dependency 'dry-types'
   s.add_dependency 'dry-schema', '~> 1.0'

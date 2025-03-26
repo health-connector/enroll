@@ -20,7 +20,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'mongoid', '~> 8.1.5'
   s.add_dependency 'transport_gateway'
   s.add_dependency 'acapi'
-  s.add_dependency 'symmetric-encryption', '~> 3.6.0'
+  s.add_dependency 'symmetric-encryption', '3.9.1'
   s.add_dependency 'rubyzip', '>=1.3.0'
 
   s.add_development_dependency 'rspec-rails', '~> 5.0.1'

@@ -44,7 +44,7 @@ PATH
       pundit (~> 2.0)
       rails (~> 7.2.2)
       slim (~> 5.2)
-      symmetric-encryption (~> 3.6.0)
+      symmetric-encryption (= 3.9.1)
       virtus (= 1.0.5)
 
 PATH
@@ -85,7 +85,7 @@ PATH
       rails (~> 7.2.2)
       roo (~> 2.10)
       slim (~> 5.2)
-      symmetric-encryption (~> 3.6.0)
+      symmetric-encryption (= 3.9.1)
 
 PATH
   remote: .
@@ -113,7 +113,7 @@ PATH
       rails (~> 7.2.2)
       roo (~> 2.10)
       slim (~> 5.2)
-      symmetric-encryption (~> 3.6.0)
+      symmetric-encryption (= 3.9.1)
       virtus (~> 1.0.5)
 
 GEM
@@ -570,8 +570,8 @@ GEM
       activesupport (>= 6.1)
       sprockets (>= 3.0.0)
     stringio (3.1.6)
-    symmetric-encryption (3.6.0)
-      coercible (>= 1.0.0)
+    symmetric-encryption (3.9.1)
+      coercible (~> 1.0)
     temple (0.10.3)
     terrapin (0.6.0)
       climate_control (>= 0.0.3, < 1.0)
@@ -604,6 +604,7 @@ GEM
 
 PLATFORMS
   arm64-darwin-23
+  arm64-darwin-24
 
 DEPENDENCIES
   benefit_markets!

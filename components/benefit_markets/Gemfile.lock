@@ -33,7 +33,7 @@ PATH
       pundit (~> 2.0)
       rails (~> 7.2.2)
       slim (~> 5.2)
-      symmetric-encryption (~> 3.6.0)
+      symmetric-encryption (= 3.9.1)
       virtus (= 1.0.5)
 
 GEM
@@ -377,8 +377,8 @@ GEM
       temple (~> 0.10.0)
       tilt (>= 2.1.0)
     stringio (3.1.6)
-    symmetric-encryption (3.6.0)
-      coercible (>= 1.0.0)
+    symmetric-encryption (3.9.1)
+      coercible (~> 1.0)
     temple (0.10.3)
     thor (1.3.2)
     thread_safe (0.3.6)
@@ -403,6 +403,7 @@ GEM
 
 PLATFORMS
   arm64-darwin-23
+  arm64-darwin-24
 
 DEPENDENCIES
   benefit_markets!
