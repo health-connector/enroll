@@ -1,6 +1,7 @@
 module BenefitSponsors
   module ModelEvents
     module Document
+      include DefineVariableHelper
 
       REGISTERED_EVENTS = [
         :initial_employer_invoice_available,
@@ -17,11 +18,9 @@ module BenefitSponsors
         end
 
         REGISTERED_EVENTS.each do |event|
-          if event_fired = instance_eval("is_" + event.to_s)
-            # event_name = ("on_" + event.to_s).to_sym
-            event_options = {} # instance_eval(event.to_s + "_options") || {}
-            notify_observers(ModelEvent.new(event, self, event_options))
-          end
+          next unless check_local_variable("is_#{event}", binding)
+          event_options = {}
+          notify_observers(ModelEvent.new(event, self, event_options))
         end
       end
 

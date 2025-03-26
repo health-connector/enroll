@@ -3,7 +3,7 @@ class BenefitApplicationMigration < Mongoid::Migration
   def self.up
     if Settings.site.key.to_s == "cca"
 
-      Dir.mkdir("hbx_report") unless File.exists?("hbx_report")
+      Dir.mkdir("hbx_report") unless File.exist?("hbx_report")
       file_name = "#{Rails.root}/hbx_report/benefit_application_status_#{TimeKeeper.datetime_of_record.strftime("%m_%d_%Y_%H_%M_%S")}.csv"
       field_names = %w(organization_name organization_fein plan_year_id plan_year_start_on status)
 

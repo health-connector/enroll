@@ -1,5 +1,6 @@
 module ModelEvents
   module PlanYear
+    include ModelEvents::DefineVariableHelper
 
     REGISTERED_EVENTS = [
       :renewal_application_created,
@@ -92,11 +93,10 @@ module ModelEvents
 
         # TODO -- encapsulated notify_observers to recover from errors raised by any of the observers
         REGISTERED_EVENTS.each do |event|
-          if event_fired = instance_eval("is_" + event.to_s)
-            # event_name = ("on_" + event.to_s).to_sym
-            event_options = {} # instance_eval(event.to_s + "_options") || {}
-            notify_observers(ModelEvent.new(event, self, event_options))
-          end
+          next unless check_local_variable("is_#{event}", binding)
+          # event_name = ("on_" + event.to_s).to_sym
+          event_options = {} # instance_eval(event.to_s + "_options") || {}
+          notify_observers(ModelEvent.new(event, self, event_options))
         end
       end
     end
@@ -106,6 +106,7 @@ module ModelEvents
     end
 
     module ClassMethods
+      include ModelEvents::DefineVariableHelper
       def date_change_event(new_date)
         # renewal employer publish plan_year reminder a day after advertised soft deadline i.e 11th of the month
         if new_date.day == Settings.aca.shop_market.renewal_application.application_submission_soft_deadline + 1
@@ -147,10 +148,9 @@ module ModelEvents
         end
 
         DATA_CHANGE_EVENTS.each do |event|
-          if event_fired = instance_eval("is_" + event.to_s)
-            event_options = {}
-            notify_observers(ModelEvent.new(event, self, event_options))
-          end
+          next unless check_local_variable("is_#{event}", binding)
+          event_options = {}
+          notify_observers(ModelEvent.new(event, self, event_options))
         end
       end
     end

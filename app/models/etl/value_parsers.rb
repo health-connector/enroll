@@ -40,12 +40,11 @@ module Etl
         elsif CONVERTER_PARSER_LIST.include?(as)
           converter_method = CONVERTER_PARSER_LIST[as]
           names.each do |attribute_name|
-            self.class_eval(<<-RUBY_CODE)
-              def #{attribute_name}=(val)
-                @#{attribute_name} = #{converter_method}(val)
-              end
-              attr_reader :#{attribute_name}
-            RUBY_CODE
+            define_method("#{attribute_name}=") do |val|
+              instance_variable_set("@#{attribute_name}", send(converter_method, val))
+            end
+
+            attr_reader attribute_name
           end
         else
           raise ::Etl::ValueParsers::UnknownParserTypeError, "#{as} is not a recognized parser"

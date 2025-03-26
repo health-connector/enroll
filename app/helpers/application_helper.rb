@@ -748,8 +748,17 @@ module ApplicationHelper
   end
 
   def convert_to_bool(val)
-    return true if val == true || val == 1  || val =~ (/^(true|t|yes|y|1)$/i)
-    return false if val == false || val == 0 || val =~ (/^(false|f|no|n|0)$/i)
+    return true if [true, 1].include?(val)
+    return false if [false, 0].include?(val)
+
+    # As of Ruby 3.2.5, the =~ operator does not automatically converts strings to integers and boolean values
+    # convert val to string and strip any leading/trailing whitespace
+    if val.respond_to?(:to_s)
+      str_val = val.to_s.strip.downcase
+      return true if str_val =~ (/^(true|t|yes|y|1)$/i)
+      return false if str_val =~ (/^(false|f|no|n|0)$/i)
+    end
+
     raise(ArgumentError, "invalid value for Boolean: \"#{val}\"")
   end
 

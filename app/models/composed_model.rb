@@ -21,43 +21,36 @@ module ComposedModel
 
   module ComposedModelClassMethods
     def composed_of_many(name, klass_name, do_validation_on_collection = false)
-      class_eval(<<-RUBYCODE)
-        def #{name}=(vals)
-          @#{name} ||= []
-          if !vals.nil?
-             @#{name} = vals
-          end
-          @#{name}
+      define_method("#{name}=") do |vals|
+        instance_variable_set("@#{name}", []) unless instance_variable_defined?("@#{name}")
+        instance_variable_set("@#{name}", vals) unless vals.nil?
+        instance_variable_get("@#{name}")
         end
 
-        def #{name}
-          @#{name} ||= []
+      define_method(name) do
+        instance_variable_set("@#{name}", []) unless instance_variable_defined?("@#{name}")
+        instance_variable_get("@#{name}")
+      end
+
+      define_method("#{name}_attributes=") do |vals|
+        if vals.nil?
+          instance_variable_set("@#{name}", [])
+          return []
         end
 
-        def #{name}_attributes
-          #{name}.map(&:attributes)
-        end
+        klass = Object.const_get(klass_name)
+        instance_variable_set("@#{name}", vals.map { |v_attrs| klass.new(v_attrs) })
+        send("#{name}_attributes")
+      end
 
-        def #{name}_attributes=(vals)
-          if vals.nil?
-            @#{name} = []
-            return []
-          end
-          @#{name} = vals.map { |v_attrs| #{klass_name}.new(v_attrs) }
-          #{name}_attributes
-        end
-        RUBYCODE
-        if do_validation_on_collection
-          class_eval(<<-RUBYCODE) 
-          validate :#{name}_validation_steps
+      return unless do_validation_on_collection
 
-          def #{name}_validation_steps
-            objs_to_validate = #{name}
-            validate_collection_and_propagate_errors("#{name}",objs_to_validate)
-          end
-            RUBYCODE
-        end
+      define_method("#{name}_validation_steps") do
+        objs_to_validate = send(name)
+        validate_collection_and_propagate_errors(name.to_s, objs_to_validate)
+      end
+
+      validate "#{name}_validation_steps"
     end
-
   end
 end

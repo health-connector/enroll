@@ -1,5 +1,8 @@
+# frozen_string_literal: true
+
 module ModelEvents
   module SpecialEnrollmentPeriod
+    include ModelEvents::DefineVariableHelper
 
     REGISTERED_EVENTS = [
       :employee_sep_request_accepted
@@ -12,10 +15,9 @@ module ModelEvents
       end
 
       REGISTERED_EVENTS.each do |event|
-        if event_fired = instance_eval("is_" + event.to_s)
-          event_options = {}
-          notify_observers(ModelEvent.new(event, self, event_options))
-        end
+        next unless check_local_variable("is_#{event}", binding)
+        event_options = {}
+        notify_observers(ModelEvent.new(event, self, event_options))
       end
     end
   end

@@ -1143,7 +1143,7 @@ class EmployerProfile
 
     tmp_file = "#{Rails.root}/tmp/#{file_name}"
     id = 0
-    while File.exists?(tmp_file) do
+    while File.exist?(tmp_file)
       tmp_file = "#{Rails.root}/tmp/#{id}_#{file_name}"
       id += 1
     end

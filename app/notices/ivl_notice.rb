@@ -123,7 +123,7 @@ class IvlNotice < Notice
   end
 
   def join_pdfs_with_path(pdfs, path = nil)
-    pdf = File.exists?(pdfs[0]) ? CombinePDF.load(pdfs[0]) : CombinePDF.new
+    pdf = File.exist?(pdfs[0]) ? CombinePDF.load(pdfs[0]) : CombinePDF.new
     pdf << CombinePDF.load(pdfs[1])
     path_to_save = path.nil? ? notice_path : path
     pdf.save path_to_save
@@ -165,7 +165,7 @@ class IvlNotice < Notice
   # def join_pdfs(pdfs)
   #   Prawn::Document.generate(notice_path, {:page_size => 'LETTER', :skip_page_creation => true}) do |pdf|
   #     pdfs.each do |pdf_file|
-  #       if File.exists?(pdf_file)
+  #       if File.exist?(pdf_file)
   #         pdf_temp_nb_pages = Prawn::Document.new(:template => pdf_file).page_count
 
   #         (1..pdf_temp_nb_pages).each do |i|

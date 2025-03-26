@@ -3,7 +3,7 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby '3.0.6'
+ruby '3.2.5'
 
 gem "benefit_markets",    path: "components/benefit_markets"
 gem "benefit_sponsors",   path: "components/benefit_sponsors"
@@ -47,6 +47,7 @@ gem 'kaminari-actionview'
 gem 'language_list', '~> 1.1.0'
 gem 'mail', '~> 2.7'
 gem 'maskedinput-rails'
+gem 'matrix'
 gem 'money-rails', '~> 1.13'
 gem 'mongo_session_store', '~> 3.1'
 gem 'mongoid', '~> 7.5.4'
@@ -54,7 +55,7 @@ gem 'mongoid-autoinc', '~> 6.0'
 gem 'mongoid-history', '~> 0.8'
 # gem 'mongoid-versioning'
 gem 'mongoid_rails_migrations', '1.2.1'
-gem 'nokogiri'
+gem 'nokogiri', '>= 1.18.4'
 gem 'nokogiri-happymapper', '~> 0.8.0', :require => 'happymapper'
 gem 'mongoid_userstamp', '~> 0.4', :path => "./project_gems/mongoid_userstamp-0.4.0"
 
@@ -68,7 +69,7 @@ gem 'rails-i18n', '7.0.9'
 gem 'recurring_select', '~> 3.0'
 gem "recaptcha", '4.3.1', require: 'recaptcha/rails'
 gem 'redis-rails'
-gem 'rack', '>= 2.2.13'
+gem 'rack', '~> 2.2.4'
 gem 'resque'
 gem 'net-imap', '>= 0.4.19'
 gem 'rexml',  '>= 3.3.9'

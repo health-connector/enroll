@@ -4,7 +4,7 @@ require 'csv'
 class ReportForBadEligibileFamilies < MongoidMigrationTask
   def migrate
 
-    Dir.mkdir("hbx_report") unless File.exists?("hbx_report")
+    Dir.mkdir("hbx_report") unless File.exist?("hbx_report")
     file_name = "#{Rails.root}/hbx_report/report_for_bad_eligibile_families.csv"
 
     field_names  = %w(

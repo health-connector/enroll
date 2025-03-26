@@ -61,7 +61,7 @@ module BenefitSponsors
         contribution_level_names.inject([]) do |contributions, sponsor_level_name|
           contributions << {
               relationship: sponsor_level_name,
-              premium_pct: eval("#{sponsor_level_name}_rt_contribution"),
+              premium_pct: instance_variable_get("#{sponsor_level_name}_rt_contribution")
           }
         end
       end
