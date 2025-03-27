@@ -32,6 +32,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'config'
   s.add_dependency 'money-rails', '~> 1.13'
   s.add_dependency 'pundit'
+  s.add_dependency 'rack', '>= 2.2.13'
 
   s.add_development_dependency 'rspec-rails', '~> 5.0.1'
   s.add_development_dependency 'shoulda-matchers'
