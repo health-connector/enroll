@@ -208,7 +208,7 @@ GEM
   specs:
     Ascii85 (1.0.3)
     aasm (4.8.0)
-    action_mailer_cache_delivery (0.3.7)
+    action_mailer_cache_delivery (0.4.0)
       actionmailer (>= 3.0)
     actioncable (6.1.7.10)
       actionpack (= 6.1.7.10)
@@ -2580,7 +2580,7 @@ DEPENDENCIES
   aasm (~> 4.8.0)
   aca_entities!
   acapi!
-  action_mailer_cache_delivery (~> 0.3.7)
+  action_mailer_cache_delivery (= 0.4)
   addressable (= 2.8.0)
   animate-rails (~> 1.0.10)
   aws-sdk (~> 3.2)
