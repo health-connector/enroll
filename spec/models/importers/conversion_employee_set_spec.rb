@@ -7,7 +7,7 @@ describe ::Importers::ConversionEmployeeSet do
   let(:employee_record) { instance_double("::Importers::ConversionEmployeeCreate", :save => record_save_result, :errors => record_errors, :warnings => record_warnings) }
   let(:record_errors) { { } }
   let(:record_warnings) { { } }
-  let(:config) { YAML.load_file("#{Rails.root}/conversions.yml") }
+  let(:config) { YAML.unsafe_load(File.read("#{Rails.root}/conversions.yml")) }
 
   subject { ::Importers::ConversionEmployeeSet.new(file_name, out_stream, config["conversions"]["employee_date"], config["conversions"]["number_of_dependents"]) }
   before :each do

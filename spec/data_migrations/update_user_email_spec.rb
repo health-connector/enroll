@@ -25,7 +25,7 @@ describe UpdateUserEmail, dbclean: :after_each do
     context "user oim_id found" do
       let(:user) { FactoryBot.create(:user, oim_id: 'username1', email: '') }
       before :each do
-        allow(File).to receive(:exists?).and_return(true)
+        allow(File).to receive(:exist?).and_return(true)
         allow(Roo::Spreadsheet).to receive(:open).and_return(@result)
         user.reload
         subject.migrate
@@ -39,7 +39,7 @@ describe UpdateUserEmail, dbclean: :after_each do
     context "user oim_id not found " do
       let(:user1) { FactoryBot.create(:user, oim_id: 'username10',email: 'test@gmail.com') }
       before :each do
-        allow(File).to receive(:exists?).and_return(true)
+        allow(File).to receive(:exist?).and_return(true)
         allow(Roo::Spreadsheet).to receive(:open).and_return(@result)
         subject.migrate
       end

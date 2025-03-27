@@ -7,7 +7,7 @@ def load_cca_factors_seed
     loaded_class_3 = ::BenefitMarkets::Products::ActuarialFactors::ParticipationRateActuarialFactor
     loaded_class_4 = ::BenefitMarkets::Products::ActuarialFactors::SicActuarialFactor
     yaml_str = File.read(f_name)
-    data = YAML.load(yaml_str)
+    data = YAML.unsafe_load(yaml_str)
     data.new_record = true
     data.save!
   end

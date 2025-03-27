@@ -78,7 +78,7 @@ PATH
     benefit_markets (0.0.1)
       aasm (~> 4.8.0)
       active_model_serializers
-      config
+      config (~> 4.2.1)
       dry-monads
       dry-struct
       dry-types
@@ -89,7 +89,7 @@ PATH
       rack (>= 2.2.13)
       rails (~> 6.1.7.10)
       slim (~> 3.0.9)
-      symmetric-encryption (~> 3.6.0)
+      symmetric-encryption (~> 4.6.0)
       virtus (= 1.0.5)
 
 PATH
@@ -99,7 +99,7 @@ PATH
       aasm (~> 4.8.0)
       active_model_serializers
       browser (= 2.7.0)
-      config
+      config (~> 4.2.1)
       devise (~> 4.5)
       dry-auto_inject (= 0.6.1)
       dry-container
@@ -119,7 +119,7 @@ PATH
       rails (~> 6.1.7.10)
       roo (~> 2.10)
       slim (~> 3.0.8)
-      symmetric-encryption (~> 3.6.0)
+      symmetric-encryption (~> 4.6.0)
       virtus (~> 1.0.5)
 
 PATH
@@ -130,7 +130,7 @@ PATH
       acapi
       ckeditor (= 4.2.4)
       combine_pdf
-      config
+      config (~> 4.2.1)
       money-rails (~> 1.13)
       mongoid (~> 7.5.4)
       non-stupid-digest-assets
@@ -148,7 +148,7 @@ PATH
   specs:
     sponsored_benefits (0.0.1)
       aasm (~> 4.8.0)
-      config
+      config (~> 4.2.1)
       dry-auto_inject (= 0.6.1)
       dry-container
       dry-initializer
@@ -162,7 +162,7 @@ PATH
       rails (~> 6.1.7.10)
       roo (~> 2.10)
       slim (~> 3.0.8)
-      symmetric-encryption (~> 3.6.0)
+      symmetric-encryption (~> 4.6.0)
 
 PATH
   remote: components/transport_gateway
@@ -183,7 +183,7 @@ PATH
       rack (>= 2.2.13)
       rails (~> 6.1.7.8)
       rubyzip (>= 1.3.0)
-      symmetric-encryption (~> 3.6.0)
+      symmetric-encryption (~> 4.6.0)
       transport_gateway
 
 PATH
@@ -1940,7 +1940,7 @@ GEM
       matrix
       ruby-rc4 (>= 0.1.5)
     concurrent-ruby (1.3.3)
-    config (2.2.3)
+    config (4.2.1)
       deep_merge (~> 1.2, >= 1.2.1)
       dry-validation (~> 1.0, >= 1.0.0)
     crack (1.0.0)
@@ -2504,8 +2504,8 @@ GEM
     ssrf_filter (1.1.2)
     state_machines (0.6.0)
     stringio (3.1.1)
-    symmetric-encryption (3.6.0)
-      coercible (>= 1.0.0)
+    symmetric-encryption (4.6.0)
+      coercible (~> 1.0)
     temple (0.8.2)
     terrapin (0.6.0)
       climate_control (>= 0.0.3, < 1.0)
@@ -2603,7 +2603,7 @@ DEPENDENCIES
   climate_control (= 0.2.0)
   coffee-rails (~> 5.0.0)
   combine_pdf
-  config (~> 2.0)
+  config (~> 4.2.1)
   cucumber (= 3.1.2)
   cucumber-rails (= 2.0)
   database_cleaner-mongoid (~> 2.0, >= 2.0.1)
@@ -2646,7 +2646,7 @@ DEPENDENCIES
   mongoid_userstamp (~> 0.4)!
   net-imap (>= 0.4.19)
   newrelic_rpm (~> 9.6)
-  nokogiri (>= 1.18.4)
+  nokogiri (~> 1.18.6)
   nokogiri-happymapper (~> 0.8.0)
   non-stupid-digest-assets (~> 1.0, >= 1.0.9)
   notifier!
@@ -2691,7 +2691,7 @@ DEPENDENCIES
   sponsored_benefits!
   spring (= 1.6.3)
   sprockets (~> 3.5, >= 3.5.2)
-  symmetric-encryption (~> 3.6.0)
+  symmetric-encryption (~> 4.6.0)
   test-prof (~> 1.3)
   transport_gateway!
   transport_profiles!
@@ -2704,7 +2704,7 @@ DEPENDENCIES
   web-console (= 2.3.0)
   webdrivers (~> 5.3.1)
   webmock
-  webpacker
+  webpacker (~> 5.4.4)
   wicked_pdf (= 2.1.0)
   wkhtmltopdf-binary-edge (~> 0.12.3.0)
   yard (~> 0.9.5)

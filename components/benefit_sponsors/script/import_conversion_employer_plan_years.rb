@@ -9,7 +9,7 @@ module BenefitSponsors
     # @raise exception if file is not excel or csv or error raised during data import
     def import_employer(in_file)
       begin
-        config = YAML.load_file("#{Rails.root}/conversions.yml")
+        config = YAML.unsafe_load(File.read("#{Rails.root}/conversions.yml"))
         result_file = File.open(File.join(Rails.root, "conversion_employer_plan_year_results", "RESULT_PLAN_YEARS_" + File.basename(in_file) + ".csv"), 'wb')
 
         if BenefitSponsors::Site.by_site_key(:cca).present?

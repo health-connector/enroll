@@ -13,14 +13,14 @@ module Etl
     module ConverterMethods
       def __parse_gender_value(val)
         return nil if val.blank?
-          
+
         stripped_value = val.strip.downcase
         if stripped_value =~ /\Am/i
-           "male"
+          "male"
         elsif stripped_value =~ /\Af/i
-           "female"
+          "female"
         else
-           val
+          val
         end
       end
     end
@@ -40,11 +40,12 @@ module Etl
         elsif CONVERTER_PARSER_LIST.include?(as)
           converter_method = CONVERTER_PARSER_LIST[as]
           names.each do |attribute_name|
-            define_method("#{attribute_name}=") do |val|
-              instance_variable_set("@#{attribute_name}", send(converter_method, val))
-            end
-
-            attr_reader attribute_name
+            self.class_eval(<<-RUBY_CODE)
+              def #{attribute_name}=(val)
+                @#{attribute_name} = #{converter_method}(val)
+              end
+              attr_reader :#{attribute_name}
+            RUBY_CODE
           end
         else
           raise ::Etl::ValueParsers::UnknownParserTypeError, "#{as} is not a recognized parser"
