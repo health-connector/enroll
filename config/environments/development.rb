@@ -64,7 +64,7 @@ Rails.application.configure do
   config.acapi.app_id = "enroll"
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
-  config.action_controller.raise_on_missing_callback_actions = true
+  config.action_controller.raise_on_missing_callback_actions = false
 
   config.action_mailer.default_url_options = {
     :host => "127.0.0.1",
