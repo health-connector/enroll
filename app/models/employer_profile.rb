@@ -8,7 +8,7 @@ class EmployerProfile
   extend Acapi::Notifiers
   include StateTransitionPublisher
   include ScheduledEventService
-  include Concerns::Observable
+  include Observable
   include ModelEvents::EmployerProfile
   include ApplicationHelper
 

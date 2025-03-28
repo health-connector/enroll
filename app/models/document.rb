@@ -4,7 +4,7 @@ class Document
   include Mongoid::Attributes::Dynamic
   include ModelEvents::Document
   include Config::AcaModelConcern
-  include Concerns::Observable
+  include Observable
 
   RESOURCE_LIST = %w[BenefitSponsors::Organizations::AcaShopDcEmployerProfile
                      BenefitSponsors::Organizations::FehbEmployerProfile

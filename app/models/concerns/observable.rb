@@ -1,4 +1,4 @@
-module Concerns::Observable
+module Observable
   extend ActiveSupport::Concern
 
   included do
