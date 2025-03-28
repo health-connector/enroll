@@ -1,41 +1,43 @@
+# frozen_string_literal: true
 require File.join(Rails.root, "lib/mongoid_migration_task")
 require 'csv'
 
-class TerminatedHbxEnrollments < MongoidMigrationTask
-  include Config::AcaHelper
+module HbxReports
+  class TerminatedHbxEnrollments < MongoidMigrationTask
+    include Config::AcaHelper
 
-  def migrate
-    families = get_families
-    field_names = %w(
-                   Enrolled_Member_HBX_ID
-                   Enrolled_Member_First_Name
-                   Enrolled_Member_Last_Name
-                   Employer_Legal_Name
-                   Employer_Fein
-                   Employee_Census_State
-                   Primary_Member_HBX_ID
-                   Primary_Member_First_Name
-                   Primary_Member_Last_Name
-                   Market_Kind
-                   Carrier_Legal_Name
-                   Plan_Name
-                   Coverage_Type
-                   HIOS_ID
-                   Policy_ID
-                   Enrollment_State
-                   Effective_Start_Date
-                   Coverage_End_Date
-                   Member_relationship
-                   Coverage_state_occured)
+    def migrate
+      families = get_families
+      field_names = %w[
+                     Enrolled_Member_HBX_ID
+                     Enrolled_Member_First_Name
+                     Enrolled_Member_Last_Name
+                     Employer_Legal_Name
+                     Employer_Fein
+                     Employee_Census_State
+                     Primary_Member_HBX_ID
+                     Primary_Member_First_Name
+                     Primary_Member_Last_Name
+                     Market_Kind
+                     Carrier_Legal_Name
+                     Plan_Name
+                     Coverage_Type
+                     HIOS_ID
+                     Policy_ID
+                     Enrollment_State
+                     Effective_Start_Date
+                     Coverage_End_Date
+                     Member_relationship
+                     Coverage_state_occured]
 
-    processed_count = 0
+      processed_count = 0
 
-    file_name = fetch_file_format('edi_enrollment_termination_report', 'EDIENROLLMENTTERMINATION')
+      file_name = fetch_file_format('edi_enrollment_termination_report', 'EDIENROLLMENTTERMINATION')
 
-    CSV.open(file_name, "w", force_quotes: true) do |csv|
-      csv << field_names
-      families.each do |family|
-        if family.try(:primary_family_member).try(:person).try(:active_employee_roles).try(:any?) || family.try(:primary_family_member).try(:person).try(:consumer_role).try(:present?)
+      CSV.open(file_name, "w", force_quotes: true) do |csv|
+        csv << field_names
+        families.each do |family|
+          next unless family.try(:primary_family_member).try(:person).try(:active_employee_roles).try(:any?) || family.try(:primary_family_member).try(:person).try(:consumer_role).try(:present?)
           hbx_enrollments = family.active_household.hbx_enrollments.select {|enrollment| enrollment_for_report?(enrollment)}
           hbx_enrollment_members = hbx_enrollments.flat_map(&:hbx_enrollment_members)
           hbx_enrollment_members.each do |hbx_enrollment_member|
@@ -71,45 +73,45 @@ class TerminatedHbxEnrollments < MongoidMigrationTask
             processed_count += 1
           end
         end
-      end
 
-      if Rails.env.production?
-        pubber = Publishers::Legacy::EdiEnrollmentTerminationReportPublisher.new
-        pubber.publish URI.join("file://", file_name)
-      end
+        if Rails.env.production?
+          pubber = Publishers::Legacy::EdiEnrollmentTerminationReportPublisher.new
+          pubber.publish URI.join("file://", file_name)
+        end
 
-      puts "For date #{date_of_termination}, total terminated hbx_enrollments count #{processed_count} and output file is: #{file_name}" unless Rails.env.test?
+        puts "For date #{date_of_termination}, total terminated hbx_enrollments count #{processed_count} and output file is: #{file_name}" unless Rails.env.test?
+      end
     end
-  end
 
-  def get_families
-    Family.where(:"households.hbx_enrollments" =>
-                     {:$elemMatch =>
-                          {'$or'=>
-                               [{:"aasm_state" => "coverage_terminated"},
-                                {:"aasm_state" => "coverage_termination_pending"}],
-                           "workflow_state_transitions.transition_at" => date_of_termination}})
-  end
+    def get_families
+      Family.where(:"households.hbx_enrollments" =>
+                       {:$elemMatch =>
+                            {'$or'=>
+                                 [{:aasm_state => "coverage_terminated"},
+                                  {:aasm_state => "coverage_termination_pending"}],
+                             "workflow_state_transitions.transition_at" => date_of_termination}})
+    end
 
-  def date_of_termination
-    start_date = ENV['start_date'] ? Date.strptime(ENV['start_date'], '%Y-%m-%d').beginning_of_day : Date.yesterday.beginning_of_day
-    end_date = ENV['end_date'] ? Date.strptime(ENV['end_date'], '%Y-%m-%d').end_of_day : Date.yesterday.end_of_day
-    start_date..end_date
-  end
+    def date_of_termination
+      start_date = ENV['start_date'] ? Date.strptime(ENV['start_date'], '%Y-%m-%d').beginning_of_day : Date.yesterday.beginning_of_day
+      end_date = ENV['end_date'] ? Date.strptime(ENV['end_date'], '%Y-%m-%d').end_of_day : Date.yesterday.end_of_day
+      start_date..end_date
+    end
 
-  def enrollment_for_report?(enrollment)
-    enrollment_state?(enrollment) && enrollment_date?(enrollment)
-  end
+    def enrollment_for_report?(enrollment)
+      enrollment_state?(enrollment) && enrollment_date?(enrollment)
+    end
 
-  def enrollment_state?(enrollment)
-    enrollment.coverage_terminated? || enrollment.coverage_termination_pending?
-  end
+    def enrollment_state?(enrollment)
+      enrollment.coverage_terminated? || enrollment.coverage_termination_pending?
+    end
 
-  def enrollment_date?(enrollment)
-    (date_of_termination).cover?(transition_date(enrollment).try(:strftime, '%Y-%m-%d'))
-  end
+    def enrollment_date?(enrollment)
+      date_of_termination.cover?(transition_date(enrollment).try(:strftime, '%Y-%m-%d'))
+    end
 
-  def transition_date(enrollment)
-    enrollment.workflow_state_transitions.try(:first).try(:transition_at)
+    def transition_date(enrollment)
+      enrollment.workflow_state_transitions.try(:first).try(:transition_at)
+    end
   end
 end

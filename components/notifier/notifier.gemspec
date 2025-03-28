@@ -17,9 +17,9 @@ Gem::Specification.new do |s|
 
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]
 
-  s.add_dependency "rails", "~> 6.1.7.10"
-  s.add_dependency "slim", "3.0.9"
-  s.add_dependency "mongoid", '~> 7.5.4'
+  s.add_dependency "rails", "~> 7.1.0"
+  s.add_dependency "slim", '~> 5.2'
+  s.add_dependency "mongoid", '~> 8.1.10'
   s.add_dependency "virtus", "~> 1.0.5"
   s.add_dependency "wkhtmltopdf-binary-edge", "~> 0.12.3.0"
   s.add_dependency "wicked_pdf", "2.1.0"
@@ -29,7 +29,7 @@ Gem::Specification.new do |s|
   s.add_dependency "roo", '~> 2.10'
   s.add_dependency 'aasm', '~> 4.8.0'
   s.add_dependency 'acapi'
-  s.add_dependency 'config', '~> 4.2.1'
+  s.add_dependency 'config',  '~> 5.5', '>= 5.5.2'
   s.add_dependency 'money-rails', '~> 1.13'
   s.add_dependency 'pundit'
   s.add_dependency 'rack', '>= 2.2.13'

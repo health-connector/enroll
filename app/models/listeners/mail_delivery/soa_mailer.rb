@@ -1,4 +1,4 @@
-module MailDelivery
+module Listeners::MailDelivery
   class SoaMailer
     include Acapi::Notifiers
 

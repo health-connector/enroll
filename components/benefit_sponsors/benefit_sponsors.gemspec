@@ -17,14 +17,14 @@ Gem::Specification.new do |s|
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]
   s.test_files = Dir["test/**/*"]
 
-  s.add_dependency "rails", "~> 6.1.7.10"
-  s.add_dependency "slim", "~> 3.0.8"
-  s.add_dependency "mongoid", '~> 7.5.4'
+  s.add_dependency "rails", "~> 7.1.0"
+  s.add_dependency "slim", '~> 5.2'
+  s.add_dependency "mongoid", '~> 8.1.10'
   # s.add_dependency 'mongoid-multitenancy', '~> 1.2'
   s.add_dependency "aasm", "~> 4.8.0"
-  s.add_dependency 'config', '~> 4.2.1'
+  s.add_dependency 'config', '~> 5.5', '>= 5.5.2'
   s.add_dependency 'symmetric-encryption', '~> 4.6.0'
-  s.add_dependency 'pundit', '~> 1.0.1'
+  s.add_dependency 'pundit', '~> 2.0'
   s.add_dependency 'roo', '~> 2.10'
   s.add_dependency 'money-rails', '~> 1.13'
   s.add_dependency 'virtus', '~> 1.0.5'
@@ -32,7 +32,7 @@ Gem::Specification.new do |s|
   # s.add_dependency 'devise', '~> 3.5.4'
   s.add_dependency 'devise', '~> 4.5'
   s.add_dependency 'language_list', '~> 1.1.0'
-  s.add_dependency 'mongoid-autoinc'
+  s.add_dependency 'mongoid-autoinc', '~> 6.0'
   s.add_dependency 'interactor', '3.1.2'
   s.add_dependency 'interactor-rails', '2.2.1'
   s.add_dependency 'browser', '2.7.0'
