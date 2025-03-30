@@ -2259,8 +2259,6 @@ GEM
     pry-byebug (3.10.1)
       byebug (~> 11.0)
       pry (>= 0.13, < 0.15)
-    psych (4.0.6)
-      stringio
     public_suffix (4.0.7)
     puma (5.6.9)
       nio4r (~> 2.0)
@@ -2323,8 +2321,6 @@ GEM
     rbnacl (7.1.1)
       ffi
     rbtree (0.4.6)
-    rdoc (6.7.0)
-      psych (>= 4.0.0)
     recaptcha (4.3.1)
       json
     recurring_select (3.0.1)
@@ -2445,8 +2441,6 @@ GEM
       sprockets (> 3.0)
       sprockets-rails
       tilt
-    sdoc (1.1.0)
-      rdoc (>= 5.0)
     selenium-webdriver (4.10.0)
       rexml (~> 3.2, >= 3.2.5)
       rubyzip (>= 1.2.2, < 3.0)
@@ -2503,7 +2497,6 @@ GEM
       net-ssh (>= 2.8.0)
     ssrf_filter (1.1.2)
     state_machines (0.6.0)
-    stringio (3.1.6)
     symmetric-encryption (4.6.0)
       coercible (~> 1.0)
     temple (0.8.2)
@@ -2655,7 +2648,6 @@ DEPENDENCIES
   parallel_tests (= 2.26.2)
   prawn!
   pry-byebug
-  psych (~> 4.0.6)
   puma (~> 5.6.9)
   pundit (~> 1.0.1)
   rack (>= 2.2.13)
@@ -2683,7 +2675,6 @@ DEPENDENCIES
   rubyXL
   sass-rails (~> 5)
   sassc (~> 2.0)
-  sdoc (~> 1.0)
   shoulda-matchers (>= 4.0.0)
   simple_calendar!
   simplecov (= 0.14.1)

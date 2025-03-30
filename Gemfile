@@ -31,7 +31,7 @@ gem 'coffee-rails', '~> 5.0.0'
 gem 'combine_pdf'
 gem 'devise',  '~> 4.5'
 gem 'matrix'
-gem 'psych', '~> 4.0.6' # Version compatible with Ruby 3.1.x
+# gem 'psych', '~> 4.0.6' # Version compatible with Ruby 3.1.x
 gem 'effective_datatables', path: './project_gems/effective_datatables-2.6.14'
 gem 'haml'
 gem 'httparty'
@@ -146,7 +146,7 @@ group :development, :test do
   gem 'spring', '1.6.3'
   gem 'yard', '~> 0.9.5', require: false
   gem 'yard-mongoid', '~> 0.1.0', require: false
-  gem 'sdoc',  '~> 1.0'
+  # gem 'sdoc',  '~> 1.0'
   gem 'pry-byebug'
 end
 
