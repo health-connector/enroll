@@ -141,12 +141,13 @@ group :development, :test do
   gem 'parallel_tests', '2.26.2'
   gem 'rails-controller-testing'
   gem 'railroady', '~> 1.5.2'
+  gem 'rdoc', '~> 6.3.4'
   gem 'rspec-rails', '~> 5.1.2'
   gem 'rspec_junit_formatter', '0.2.3'
   gem 'spring', '1.6.3'
   gem 'yard', '~> 0.9.5', require: false
   gem 'yard-mongoid', '~> 0.1.0', require: false
-  # gem 'sdoc',  '~> 1.0'
+  gem 'sdoc',  '~> 1.0'
   gem 'pry-byebug'
 end
 
