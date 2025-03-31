@@ -13,8 +13,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
         with:
-          bundler-cache: true
+          bundler-cache: false
           rubygems: 3.3.26
+          bundler: 2.4.22
       - name: Config git and fetch comparison branch
         run: |
           git config diff.renameLimit 800
