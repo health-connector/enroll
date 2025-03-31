@@ -4,5 +4,5 @@ require File.join(Rails.root, "app", "data_migrations", "update_benefit_sponsors
 
 namespace :migrations do
   desc "Updating the aasm_state of benefit sponsorships and benefit applications"
-  UpdateBenefitSponosorshipStates.define_task :update_benefit_sponsorship_states => :environment
+  UpdateBenefitSponsorshipStates.define_task :update_benefit_sponsorship_states => :environment
 end

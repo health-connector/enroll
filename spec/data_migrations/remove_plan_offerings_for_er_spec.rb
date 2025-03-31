@@ -3,9 +3,9 @@
 require 'rails_helper'
 require File.join(Rails.root, "app", "data_migrations", "remove_plan_offerings_for_er")
 
-describe RemovePlanOfferings, dbclean: :after_each do
+describe RemovePlanOfferingsForEmployer, dbclean: :after_each do
   let(:given_task_name) { "remove_plan_offerings" }
-  subject { RemovePlanOfferings.new(given_task_name, double(:current_scope => nil)) }
+  subject { RemovePlanOfferingsForEmployer.new(given_task_name, double(:current_scope => nil)) }
   describe "given a task name" do
     it "has the given task name" do
       expect(subject.name).to eql given_task_name

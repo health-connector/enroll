@@ -3,10 +3,10 @@
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "products", "mapping_to_correct_hios_id")
 
-describe MappingToCorrectHiosId, dbclean: :after_each do
+describe Products::MappingToCorrectHiosId, dbclean: :after_each do
 
   let(:given_task_name) { "mapping_to_correct_hios_id" }
-  subject { MappingToCorrectHiosId.new(given_task_name, double(:current_scope => nil)) }
+  subject { Products::MappingToCorrectHiosId.new(given_task_name, double(:current_scope => nil)) }
 
   describe "given a task name" do
     it "has the given task name" do

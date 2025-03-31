@@ -3,9 +3,9 @@
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "components", "fix_office_location_address_kind")
 
-describe FixOfficeLocationAddressKind, dbclean: :after_each do
+describe Components::FixOfficeLocationAddressKind, dbclean: :after_each do
   let(:given_task_name) { "fix_office_location_address_kind" }
-  subject { FixOfficeLocationAddressKind.new(given_task_name, double(:current_scope => nil)) }
+  subject { Components::FixOfficeLocationAddressKind.new(given_task_name, double(:current_scope => nil)) }
 
   describe "given a task name" do
     it "has the given task name" do

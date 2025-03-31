@@ -1,6 +1,6 @@
 require File.join(Rails.root, "lib/mongoid_migration_task")
 
-class CorrectCitizenStatus < MongoidMigrationTask
+class CorrectCitizenWithSsn < MongoidMigrationTask
   def get_people
     Person.where("consumer_role.lawful_presence_determination.ssa_responses" =>
                      { "$elemMatch" =>

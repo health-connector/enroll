@@ -1,5 +1,5 @@
 require File.join(Rails.root, "lib/mongoid_migration_task")
-class RemoveCoverageHouseHoldMemberForInactiveFamilyMember < MongoidMigrationTask
+class RemoveCoverageHouseholdMemberForInactiveFamilyMember < MongoidMigrationTask
   def migrate
     #person_hbx_id=19810927 family_member_hbx_id=123123123
     person = Person.where(hbx_id: ENV['person_hbx_id']).first

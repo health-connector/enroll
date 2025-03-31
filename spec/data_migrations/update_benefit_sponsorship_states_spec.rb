@@ -5,10 +5,10 @@ require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
 require File.join(Rails.root, "app", "data_migrations", "update_benefit_sponsorship_states")
 
-describe UpdateBenefitSponosorshipStates, dbclean: :after_each do
+describe UpdateBenefitSponsorshipStates, dbclean: :after_each do
 
   let(:given_task_name) { "update_benefit_sponsorship_states" }
-  subject { UpdateBenefitSponosorshipStates.new(given_task_name, double(:current_scope => nil)) }
+  subject { UpdateBenefitSponsorshipStates.new(given_task_name, double(:current_scope => nil)) }
 
   describe "given a task name" do
     it "has the given task name" do

@@ -3,6 +3,6 @@ require File.join(Rails.root, "app", "data_migrations", "remove_plan_offerings_f
 
 namespace :migrations  do
   desc "removing plans for er"
-  RemovePlanOfferings.define_task :remove_plan_offerings => :environment
+  RemovePlanOfferingsForEmployer.define_task :remove_plan_offerings => :environment
 end
  
