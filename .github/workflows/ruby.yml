@@ -33,10 +33,15 @@ jobs:
         with:
           bundler-cache: true
           rubygems: 3.3.26
-          bundler: 2.4.22
       - uses: actions/setup-node@v4
         with:
           node-version: '12'
+      - name: Install dependencies
+        run: |
+          gem update --system 3.3.26
+          gem install bundler:2.4.22
+          gem install psych -v "~> 4.0.0"
+          bundle _2.4.22_ install
       - name: Install dependencies
         run: |
           gem update --system 3.3.26
@@ -90,6 +95,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '12'
+      - name: Install dependencies
+        run: |
+          gem update --system 3.3.26
+          gem install bundler:2.4.22
+          gem install psych -v "~> 4.0.0"
+          bundle _2.4.22_ install
       - name: Restore Node Modules
         id: npm-cache
         uses: actions/cache@v4
