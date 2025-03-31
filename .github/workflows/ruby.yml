@@ -35,12 +35,6 @@ jobs:
           rubygems: 3.3.26
           bundler: 2.3.24
           node-version: '12'
-      - name: Install dependencies with compatible Psych
-        run: |
-          gem update --system 3.3.26
-          bundle _2.3.24_ install
-          bundle add psych --version "~> 4.0.0" --conservative
-          bundle _2.3.24_ install
       - name: Restore Node Modules
         id: npm-cache
         uses: actions/cache@v4
@@ -89,12 +83,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '12'
-      - name: Install dependencies with compatible Psych
-        run: |
-          gem update --system 3.3.26
-          bundle _2.3.24_ install
-          bundle add psych --version "~> 4.0.0" --conservative
-          bundle _2.3.24_ install
       - name: Restore Node Modules
         id: npm-cache
         uses: actions/cache@v4
