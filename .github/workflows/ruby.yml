@@ -33,7 +33,6 @@ jobs:
         with:
           bundler-cache: false
           rubygems: 3.3.26
-          bundler: 2.4.22
           node-version: '12'
       - name: Restore Node Modules
         id: npm-cache
@@ -79,7 +78,6 @@ jobs:
         with:
           bundler-cache: false
           rubygems: 3.3.26
-          bundler: 2.4.22
       - uses: actions/setup-node@v4
         with:
           node-version: '12'
