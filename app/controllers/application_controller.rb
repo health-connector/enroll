@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class ApplicationController < ActionController::Base
-  include Pundit
+  include Pundit::Authorization
   include Config::SiteConcern
   include Config::AcaConcern
   include Config::ContactCenterConcern

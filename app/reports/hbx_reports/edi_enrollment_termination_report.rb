@@ -3,7 +3,7 @@ require File.join(Rails.root, "lib/mongoid_migration_task")
 require 'csv'
 
 module HbxReports
-  class TerminatedHbxEnrollments < MongoidMigrationTask
+  class EdiEnrollmentTerminationReport < MongoidMigrationTask
     include Config::AcaHelper
 
     def migrate

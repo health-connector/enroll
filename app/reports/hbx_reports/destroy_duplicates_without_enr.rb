@@ -1,7 +1,7 @@
 # require File.join(Rails.root, "lib/mongoid_migration_task")
 # require 'csv'
 
-# class DestroyDuplicatesWithoutEnr < MongoidMigrationTask
+class HbxReports::DestroyDuplicatesWithoutEnr < MongoidMigrationTask
 #   def migrate
 
 # field_names  = %w(Person_HBX_ID Primary_subscriber_HBX_ID)
@@ -47,4 +47,4 @@
 #       end
 #     end
 #   end
-# end
+end

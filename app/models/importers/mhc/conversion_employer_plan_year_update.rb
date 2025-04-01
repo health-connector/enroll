@@ -1,5 +1,5 @@
-# module Importers::Mhc
-#   class ConversionEmployerPlanYearUpdate < ConversionEmployerPlanYear
+module Importers::Mhc
+  class ConversionEmployerPlanYearUpdate < ConversionEmployerPlanYear
 #
 #     def calculated_coverage_start
 #       return @calculated_coverage_start if @calculated_coverage_start
@@ -87,6 +87,7 @@
 #       plan_year.benefit_groups.first.errors.each do |attr, err|
 #         errors.add("plan_year_benefit_group_" + attr.to_s, err)
 #       end
-#     end
+#
 #   end
-# end
+  end
+end

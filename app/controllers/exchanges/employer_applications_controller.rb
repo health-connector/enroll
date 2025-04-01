@@ -1,5 +1,5 @@
 class Exchanges::EmployerApplicationsController < ApplicationController
-  include Pundit
+  include Pundit::Authorization
   include Config::AcaHelper
   include L10nHelper
 

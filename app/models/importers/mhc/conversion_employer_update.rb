@@ -1,5 +1,5 @@
-# module Importers::Mhc
-#   class ConversionEmployerUpdate < ConversionEmployer
+module Importers::Mhc
+  class ConversionEmployerUpdate < ConversionEmployer
 #
 #     def initialize(opts = {})
 #       super(opts)
@@ -138,5 +138,5 @@
 #
 #       return update_result
 #     end
-#   end
-# end
+  end
+end

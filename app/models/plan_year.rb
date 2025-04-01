@@ -6,7 +6,7 @@ class PlanYear
   include Acapi::Notifiers
   include ScheduledEventService
   include Config::AcaModelConcern
-  include Observable
+  include Concerns::Observable
   include ModelEvents::PlanYear
   include Config::BankHolidaysHelper
 
