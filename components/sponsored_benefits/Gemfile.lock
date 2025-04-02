@@ -31,7 +31,7 @@ PATH
       dry-struct
       dry-types
       dry-validation (~> 1.0)
-      mongoid (~> 8.1.10)
+      mongoid (~> 8.1.5)
       rack (>= 2.2.13)
       rails (~> 7.1.0)
       roo (~> 2.10)

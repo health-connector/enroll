@@ -4,7 +4,7 @@ module BenefitSponsors
     ## Deprecated
 
 
-    # class BenefitGroupAssignment
+    class BenefitGroupAssignment
     #   include Mongoid::Document
     #   include Mongoid::Timestamps
     #   include AASM
@@ -71,6 +71,6 @@ module BenefitSponsors
     #       to_state: aasm.to_state
     #       )
     #   end
-    # end
+    end
   end
 end

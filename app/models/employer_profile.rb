@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class EmployerProfile
   include Config::AcaModelConcern
   include Mongoid::Document
@@ -8,7 +10,7 @@ class EmployerProfile
   extend Acapi::Notifiers
   include StateTransitionPublisher
   include ScheduledEventService
-  # include Concerns::Observable
+  include Observable
   include ModelEvents::EmployerProfile
   include ApplicationHelper
 
@@ -68,7 +70,7 @@ class EmployerProfile
   embeds_one  :inbox, as: :recipient, cascade_callbacks: true
   embeds_one  :employer_profile_account
   embeds_one  :employer_attestation
-  embeds_many :plan_years, cascade_callbacks: true, validate: true
+  embeds_many :plan_years, class_name: 'PlanYear', cascade_callbacks: true, validate: true
   embeds_many :broker_agency_accounts, cascade_callbacks: true, validate: true
   embeds_many :general_agency_accounts, cascade_callbacks: true, validate: true
 

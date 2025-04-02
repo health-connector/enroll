@@ -8,7 +8,7 @@ PATH
       combine_pdf
       config (~> 5.5, >= 5.5.2)
       money-rails (~> 1.13)
-      mongoid (~> 8.1.10)
+      mongoid (~> 8.1.5)
       non-stupid-digest-assets
       pundit
       rack (>= 2.2.13)

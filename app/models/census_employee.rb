@@ -1,4 +1,3 @@
-require 'services/checkbook_services'
 
 class CensusEmployee < CensusMember
   include AASM

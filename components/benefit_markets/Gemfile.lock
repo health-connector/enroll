@@ -29,7 +29,7 @@ PATH
       dry-types
       dry-validation
       mini_portile2 (~> 2.8.0)
-      mongoid (~> 8.1.10)
+      mongoid (~> 8.1.5)
       pundit (~> 2.0)
       rack (>= 2.2.13)
       rails (~> 7.1.0)

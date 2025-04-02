@@ -5,7 +5,7 @@ require "observer"
 module TransportGateway
   module Adapters
     module Base
-      include Observable
+      # include Observable
 
       attr_reader :gateway, :credential_provider
 
