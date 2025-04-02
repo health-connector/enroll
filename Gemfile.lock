@@ -2529,7 +2529,7 @@ GEM
     sorted_set (1.0.3)
       rbtree
       set (~> 1.0)
-    spring (1.6.3)
+    spring (3.0.0)
     sprockets (3.7.3)
       base64
       concurrent-ruby (~> 1.0)
@@ -2734,7 +2734,7 @@ DEPENDENCIES
   slim (~> 5.2)
   slim-rails
   sponsored_benefits!
-  spring (= 1.6.3)
+  spring (= 3.0.0)
   sprockets (~> 3.5, >= 3.5.2)
   symmetric-encryption (~> 4.6.0)
   test-prof (~> 1.3)
