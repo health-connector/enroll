@@ -139,10 +139,6 @@ class FamilyPolicy < ApplicationPolicy
     coverall_market_admin?
   end
 
-  def request_help?
-    show?
-  end
-
   # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
   def legacy_show?
     user_person = @user.person
