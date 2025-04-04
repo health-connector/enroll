@@ -7,7 +7,7 @@ module BenefitSponsors
       before_action :check_for_late_rates, only: [:new]
       skip_before_action :verify_authenticity_token, only: :create
 
-      include Pundit
+      include Pundit::Authorization
 
       layout "two_column", except: :estimated_employee_cost_details
 

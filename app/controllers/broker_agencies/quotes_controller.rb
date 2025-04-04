@@ -3,10 +3,10 @@ class BrokerAgencies::QuotesController < ApplicationController
   include BrokerAgencies::QuoteHelper
 
   before_action :validate_roles, :set_broker_role
-  before_action :find_quote , :only => [:destroy ,:show, :delete_member, :delete_household, :publish_quote, :view_published_quote]
-  before_action :format_date_params  , :only => [:update,:create]
+  before_action :find_quote, only: [:show, :delete_member, :delete_household, :publish_quote, :view_published_quote]
+  before_action :format_date_params, only: [:update,:create]
   before_action :employee_relationship_map
-  before_action :set_qhp_variables, :only => [:plan_comparison, :download_pdf]
+  before_action :set_qhp_variables, only: [:plan_comparison, :download_pdf]
 
   def view_published_quote
 

@@ -1,7 +1,7 @@
 module SponsoredBenefits
   module Validations
     class DateRangeValidator < ActiveModel::Validator
-      ::Validations::DateRangeValidator::DATA_TYPES = [Date, Time].freeze unless defined?(Validations::DateRangeValidator::DATA_TYPES)
+      DATA_TYPES = [Date, Time].freeze unless defined?(DATA_TYPES)
 
       def validate(record)
         record.attributes.keys.each do |key|

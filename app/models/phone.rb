@@ -1,6 +1,7 @@
 class Phone
   include Mongoid::Document
   include Mongoid::Timestamps
+  include ActiveSupport::NumberHelper
 
   embedded_in :person
   embedded_in :office_location
@@ -77,9 +78,9 @@ class Phone
   def to_s
     full_number = (self.area_code + self.number).to_i
     if self.extension.present?
-      full_number.to_s(:phone, area_code: true, extension: self.extension)
+      number_to_phone(full_number, area_code: true, extension: self.extension)
     else
-      full_number.to_s(:phone, area_code: true)
+      number_to_phone(full_number, area_code: true)
     end
   end
 
