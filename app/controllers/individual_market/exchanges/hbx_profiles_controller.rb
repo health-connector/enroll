@@ -5,7 +5,7 @@ module IndividualMarket
     class HbxProfilesController < ApplicationController
       include HtmlScrubberUtil
       include StringScrubberUtil
-      include Exchanges::HbxProfilesHelper
+      include ::Exchanges::HbxProfilesHelper
       include ::DataTablesAdapter
       include ::DataTablesSearch
       include ::Pundit
