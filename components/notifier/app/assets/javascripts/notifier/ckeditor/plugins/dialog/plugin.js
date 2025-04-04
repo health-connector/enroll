@@ -3022,7 +3022,7 @@ CKEDITOR.DIALOG_STATE_BUSY = 2;
 			numberRegex = /^\d*(?:\.\d+)?$/,
 			htmlLengthRegex = /^(((\d*(\.\d+))|(\d*))(px|\%)?)?$/,
 			cssLengthRegex = /^(((\d*(\.\d+))|(\d*))(px|em|ex|in|cm|mm|pt|pc|\%)?)?$/i,
-			inlineStyleRegex = /^(\s*[\w-]+\s*:\s*[^:;]*[^:;\s](?:\s*;\s*|$))*$/;
+			inlineStyleRegex = /^(\s*[\w-]+:\s*[^:;\s]+(?:\s*;\s*[^:;\s]+)*)$/;
 
 		CKEDITOR.VALIDATE_OR = 1;
 		CKEDITOR.VALIDATE_AND = 2;
