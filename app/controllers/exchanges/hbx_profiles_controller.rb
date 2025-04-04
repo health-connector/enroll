@@ -1111,7 +1111,6 @@ class Exchanges::HbxProfilesController < ApplicationController
       params[:person_present]
     )
     result.deliver_now
-    Rails.logger.info(result.to_s)
   end
 
   def find_hbx_profile
