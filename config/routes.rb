@@ -294,6 +294,7 @@ Rails.application.routes.draw do
       get 'verify_attestation'
       delete 'delete_attestation_documents'
       #get 'revert_attestation'
+      post 'edit', on: :member # This POST request hides sensitive data per security review
     end
 
     resources :employer_profiles do
