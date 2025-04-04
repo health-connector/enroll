@@ -1028,39 +1028,90 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   def agent_assistance_messages(params, agent, role)
-    if params[:person].present?
-      insured = Person.find(params[:person])
-      first_name = insured.first_name
-      last_name = insured.last_name
-      name = insured.full_name
-      insured_email = insured.emails.last.try(:address) || insured.try(:user).try(:email)
-      root = "http://#{request.env['HTTP_HOST']}/exchanges/agents/resume_enrollment?person_id=#{params[:person]}&original_application_type:"
-      body =
-        "Please contact #{insured.first_name} #{insured.last_name}. <br> " +
-        "Plan shopping help has been requested by #{insured_email}<br>" +
-        "<a href='" + root + "phone'>Assist Customer</a>  <br>"
-    else
-      first_name = params[:first_name]
-      last_name = params[:last_name]
-      name = first_name.to_s + ' ' + last_name.to_s
-      insured_email = params[:email]
-      body =  "Please contact #{first_name} #{last_name}. <br>" +
-              "Plan shopping help has been requested by #{insured_email}<br>"
-    end
+    # Extract sanitized user details
+    details = extract_and_sanitize_user_details(params)
+
+    # Construct the email body
+    body = construct_message_body(details, params)
+
+    # Retrieve the HbxProfile
     hbx_profile = HbxProfile.find_by_state_abbreviation(aca_state_abbreviation)
+
+    # Build secure message parameters
     message_params = {
       sender_id: hbx_profile.id,
       parent_message_id: hbx_profile.id,
       from: 'Plan Shopping Web Portal',
-      to: "Agent Mailbox",
-      subject: "Please contact #{first_name} #{last_name}. ",
+      to: 'Agent Mailbox',
+      subject: "Please contact #{details[:first_name]} #{details[:last_name]}.",
       body: body
     }
-    create_secure_message message_params, hbx_profile, :sent
-    create_secure_message message_params, agent, :inbox
-    result = UserMailer.new_client_notification(find_email(agent,role), first_name, name, role, insured_email, params[:person].present?)
+
+    # Send secure messages
+    send_secure_messages(message_params, hbx_profile, agent)
+
+    # Send email notification
+    send_email_notification(
+      agent: agent,
+      role: role,
+      first_name: details[:first_name],
+      full_name: details[:full_name],
+      email: details[:email],
+      person_present: params[:person].present?
+    )
+  end
+
+  def extract_and_sanitize_user_details(params)
+    if params[:person].present?
+      insured = Person.find(params[:person])
+      {
+        first_name: sanitize_html(insured.first_name),
+        last_name: sanitize_html(insured.last_name),
+        full_name: sanitize_html(insured.full_name),
+        email: sanitize_html(insured.emails.last.try(:address) || insured.try(:user).try(:email))
+      }
+    else
+      {
+        first_name: sanitize_html(params[:first_name]),
+        last_name: sanitize_html(params[:last_name]),
+        full_name: sanitize_html("#{params[:first_name]} #{params[:last_name]}"),
+        email: sanitize_html(params[:email])
+      }
+    end
+  end
+
+  def construct_message_body(details, params)
+    if params[:person].present?
+      root = sanitize_html("http://#{request.env['HTTP_HOST']}/exchanges/agents/resume_enrollment?person_id=#{params[:person]}&original_application_type:")
+      <<~HTML
+        Please contact #{details[:first_name]} #{details[:last_name]}. <br>
+        Plan shopping help has been requested by #{details[:email]} <br>
+        <a href="#{root}phone">Assist Customer</a> <br>
+      HTML
+    else
+      <<~HTML
+        Please contact #{details[:first_name]} #{details[:last_name]}. <br>
+        Plan shopping help has been requested by #{details[:email]} <br>
+      HTML
+    end
+  end
+
+  def send_secure_messages(message_params, hbx_profile, agent)
+    create_secure_message(message_params, hbx_profile, :sent)
+    create_secure_message(message_params, agent, :inbox)
+  end
+
+  def send_email_notification(params)
+    result = UserMailer.new_client_notification(
+      find_email(params[:agent], params[:role]),
+      params[:first_name],
+      params[:full_name],
+      params[:role],
+      params[:email],
+      params[:person_present]
+    )
     result.deliver_now
-    puts result.to_s if Rails.env.development?
+    Rails.logger.info(result.to_s)
   end
 
   def find_hbx_profile
