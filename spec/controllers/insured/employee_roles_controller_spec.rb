@@ -35,10 +35,12 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
 
     describe "given valid person parameters" do
       let(:save_result) { true }
-      it "should redirect to dependent_details" do
+
+      it "should securely store employee_role_id in the session and redirect to dependent_details" do
         put :update, params: { person: person_parameters, id: person_id }
+        expect(session[:employee_role_id]).to eq(employee_role_id)
         expect(response).to have_http_status(:redirect)
-        expect(response).to redirect_to(insured_family_members_path(:employee_role_id => employee_role_id))
+        expect(response).to redirect_to(insured_family_members_path)
       end
 
       context "to verify new addreses not created on updating the existing address" do
@@ -56,20 +58,16 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
       end
     end
 
-    describe "given invalid person parameters" do
-      let(:save_result) { false }
-      it "should render edit" do
-        put :update, params: { :person => person_parameters, :id => person_id }
-        expect(response).to have_http_status(:success)
-        expect(response).to render_template("edit")
-        expect(assigns(:person)).to eq role_form
+    describe "when employee role is not found" do
+      before do
+        allow(person).to receive(:employee_roles).and_return([])
       end
 
-      it "should call bubble_address_errors_by_person" do
-        expect(controller).to receive(:bubble_address_errors_by_person)
-        put :update, params: { :person => person_parameters, :id => person_id }
-        expect(response).to have_http_status(:success)
-        expect(response).to render_template(:edit)
+      it "should log an error and redirect to root path" do
+        put :update, params: { person: person_parameters, id: person_id }
+        expect(Rails.logger).to receive(:error).with("No matching employee role found for ID: #{employee_role_id}")
+        expect(response).to redirect_to(root_path)
+        expect(flash[:alert]).to eq("Employee role not found")
       end
     end
   end

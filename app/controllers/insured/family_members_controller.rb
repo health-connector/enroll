@@ -10,7 +10,7 @@ class Insured::FamilyMembersController < ApplicationController
     authorize @family, :index?
 
     set_bookmark_url
-    @type = (session[:employee_role_id].present? && session[:employee_role_id] != 'None') ? "employee" : "consumer"
+    @type = session[:employee_role_id].present? && session[:employee_role_id] != 'None' ? "employee" : "consumer"
 
     if (params[:resident_role_id].present? && params[:resident_role_id])
       @type = "resident"
