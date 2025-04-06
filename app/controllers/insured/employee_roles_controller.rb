@@ -112,13 +112,12 @@ class Insured::EmployeeRolesController < ApplicationController
           format.html {redirect_to destroy_user_session_path}
         end
       else
-        # set_employee_bookmark_url
-        # @employee_role.census_employee.trigger_notices("employee_eligibility_notice")
-        redirect_path = insured_family_members_path(employee_role_id: @employee_role.id)
-        if @person.primary_family && @person.primary_family.active_household
-          if @person.primary_family.active_household.hbx_enrollments.any?
-            redirect_path = insured_root_path
-          end
+        # Securely store employee_role_id in the session
+        session[:employee_role_id] = @employee_role.id
+
+        redirect_path = insured_family_members_path
+        if @person.primary_family && @person.primary_family.active_household&.hbx_enrollments&.any?
+          redirect_path = insured_root_path
         end
         respond_to do |format|
           format.html { redirect_to redirect_path }
