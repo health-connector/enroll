@@ -10,7 +10,7 @@ class EmployerProfile
   extend Acapi::Notifiers
   include StateTransitionPublisher
   include ScheduledEventService
-  include Observable
+  include EnrollObservable
   include ModelEvents::EmployerProfile
   include ApplicationHelper
 
@@ -958,7 +958,7 @@ class EmployerProfile
 
   after_update :broadcast_employer_update, :notify_broker_added, :notify_general_agent_added
 
-  after_save :notify_on_save
+  # after_save :notify_on_save
 
   def broadcast_employer_update
     if previous_states.include?(:binder_paid) || (aasm_state.to_sym == :binder_paid)

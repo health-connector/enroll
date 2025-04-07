@@ -604,6 +604,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
   end
 
   describe "GET terminate" do
+    let(:termination_date) { DateTime.strptime(Date.today.to_s, '%Y-%m-%d').try(:to_date)}
 
     before do
       allow(@hbx_staff_role).to receive(:permission).and_return(double('Permission', modify_family: true))
@@ -619,7 +620,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
 
     it "should throw error when census_employee terminate_employment error" do
       allow(census_employee).to receive(:terminate_employment).and_return(false)
-      get :terminate, params: { :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, termination_date: Date.today.to_s }, :format => :js
+      get :terminate, params: { :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, termination_date: termination_date }, :format => :js
       expect(response).to have_http_status(:success)
       expect(assigns[:fa]).to eq false
       expect(flash[:error]).to eq "Census Employee could not be terminated: Termination date must be within the past 60 days."
@@ -628,7 +629,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
     context "with termination date" do
       it "should terminate census employee" do
         expect(controller).to receive(:notify_employee_of_termination)
-        get :terminate, params: { :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, termination_date: Date.today.to_s}, :format => :js
+        get :terminate, params: { :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, termination_date: termination_date}, :format => :js
         expect(response).to have_http_status(:success)
         expect(assigns[:fa]).to eq census_employee
       end

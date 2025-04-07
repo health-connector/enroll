@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Observable
+module EnrollObservable
   extend ActiveSupport::Concern
 
   included do
