@@ -3,7 +3,8 @@ require 'active_support/concern'
 module SponsoredBenefits
   module Concerns::Phone
     extend ActiveSupport::Concern
-    
+    include ActiveSupport::NumberHelper
+
     KINDS = ["home", "work", "mobile", "main", "fax"]
     OFFICE_KINDS = ["phone main"]
     
@@ -77,9 +78,9 @@ module SponsoredBenefits
       def to_s
         full_number = (self.area_code + self.number).to_i
         if self.extension.present?
-          full_number.to_s(:phone, area_code: true, extension: self.extension)
+          number_to_phone(full_number, area_code: true, extension: self.extension)
         else
-          full_number.to_s(:phone, area_code: true)
+          number_to_phone(full_number, area_code: true)
         end
       end
 

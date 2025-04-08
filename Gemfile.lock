@@ -2702,7 +2702,7 @@ DEPENDENCIES
   pry-byebug
   puma (~> 5.6.9)
   pundit (~> 2.0)
-  rack (~> 2.2.4)
+  rack (>= 2.2.13)
   rack-cors
   railroady (~> 1.5.3)
   rails (~> 7.1)
@@ -2723,7 +2723,7 @@ DEPENDENCIES
   rubocop-git
   rubocop-rspec
   ruby-progressbar (~> 1.7)
-  ruby-saml (~> 1.3)
+  ruby-saml (~> 1.18.0)
   rubyXL
   sass-rails (~> 5)
   sassc (~> 2.0)

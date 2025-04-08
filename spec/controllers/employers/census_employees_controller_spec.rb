@@ -604,7 +604,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
   end
 
   describe "GET terminate" do
-    let(:termination_date) { DateTime.strptime(Date.today.to_s, '%Y-%m-%d').try(:to_date)}
+    let(:termination_date) { Date.today.strftime('%m/%d/%Y') }
 
     before do
       allow(@hbx_staff_role).to receive(:permission).and_return(double('Permission', modify_family: true))
@@ -612,6 +612,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
       allow(EmployerProfile).to receive(:find).with(employer_profile_id).and_return(employer_profile)
       allow(CensusEmployee).to receive(:find).and_return(census_employee)
     end
+
     it "should be redirect" do
       get :terminate, params: { :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id }
       expect(flash[:notice]).to eq "Successfully terminated Census Employee."
@@ -629,7 +630,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
     context "with termination date" do
       it "should terminate census employee" do
         expect(controller).to receive(:notify_employee_of_termination)
-        get :terminate, params: { :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, termination_date: termination_date}, :format => :js
+        get :terminate, params: { census_employee_id: census_employee.id, employer_profile_id: employer_profile_id, termination_date: termination_date}, format: :js
         expect(response).to have_http_status(:success)
         expect(assigns[:fa]).to eq census_employee
       end
@@ -659,6 +660,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
   describe "for cobra" do
     let(:hired_on) { TimeKeeper.date_of_record }
     let(:cobra_date) { hired_on + 10.days }
+
     before do
       sign_in @user
       allow(EmployerProfile).to receive(:find).with(employer_profile_id).and_return(employer_profile)
