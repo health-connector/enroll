@@ -660,6 +660,9 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
   describe "for cobra" do
     let(:hired_on) { TimeKeeper.date_of_record }
     let(:cobra_date) { hired_on + 10.days }
+    let(:hired_on_formated) { hired_on.strftime('%m/%d/%Y') }
+    let(:cobra_date_formated) { cobra_date.strftime('%m/%d/%Y') }
+    let(:hired_on_two_days_late_formated) { (hired_on + 2.days).strftime('%m/%d/%Y') }
 
     before do
       sign_in @user
@@ -676,7 +679,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
 
       it "should be redirect" do
         allow(census_employee).to receive(:update_for_cobra).and_return true
-        get :cobra, params: { :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, cobra_date: cobra_date.to_s}, :format => :js
+        get :cobra, params: { :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, cobra_date: hired_on_formated }, :format => :js
         expect(flash[:notice]).to eq "Successfully update Census Employee."
         expect(flash[:success]).to eq "Employee has successfully been  enrolled into COBRA coverage on selected start date."
         expect(response).to have_http_status(:success)
@@ -684,15 +687,15 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
 
       context "with cobra date" do
         it "should cobra census employee" do
-          get :cobra, params: { :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, cobra_date: cobra_date.to_s}, :format => :js
+          get :cobra, params: { :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, cobra_date: hired_on_formated }, :format => :js
           expect(response).to have_http_status(:success)
-          expect(assigns[:cobra_date]).to eq cobra_date
+          expect(assigns[:cobra_date]).to eq hired_on
         end
 
         it "should not cobra census_employee" do
-          census_employee.update_attributes(coverage_terminated_on: (cobra_date + 2.days))
+          census_employee.update_attributes(coverage_terminated_on: cobra_date + 2.days)
           allow(census_employee).to receive(:update_for_cobra).and_return false
-          get :cobra, params: { :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, cobra_date: cobra_date.to_s}, :format => :js
+          get :cobra, params: { :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, cobra_date: cobra_date_formated }, :format => :js
           expect(response).to have_http_status(:success)
           expect(flash[:error]).to eq "COBRA cannot be initiated for this employee because of invalid date. Please contact #{Settings.site.short_name} at #{Settings.contact_center.phone_number} for further assistance."
         end
@@ -700,7 +703,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
         it "should not cobra census_employee when termination date is same as cobra date" do
           census_employee.update_attributes(coverage_terminated_on: cobra_date)
           allow(census_employee).to receive(:update_for_cobra).and_return false
-          get :cobra, params: { :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, cobra_date: cobra_date.to_s}, :format => :js
+          get :cobra, params: { :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, cobra_date: cobra_date_formated }, :format => :js
           expect(response).to have_http_status(:success)
           expect(flash[:error]).to eq "COBRA cannot be initiated for this employee with the effective date entered. Please contact #{Settings.site.short_name} at #{Settings.contact_center.phone_number} for further assistance."
         end
@@ -763,7 +766,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
         sign_in @user
         allow(EmployerProfile).to receive(:find).with(employer_profile_id).and_return(employer_profile)
         allow(CensusEmployee).to receive(:find).and_return(census_employee)
-        get :rehire, params: { :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, rehiring_date: (TimeKeeper.date_of_record + 30.days).to_s}, :format => :js
+        get :rehire, params: { :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, rehiring_date: (TimeKeeper.date_of_record + 30.days).strftime('%m/%d/%Y') }, :format => :js
         expect(response).to have_http_status(:success)
         expect(flash[:error]).to eq "Census Employee is already active."
       end
@@ -789,7 +792,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
           allow(census_employee).to receive(:valid?).and_return(true)
           allow(census_employee).to receive(:save).and_return(true)
           allow(census_employee).to receive(:rehire_employee_role).never
-          get :rehire, params: {:census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, rehiring_date: (TimeKeeper.date_of_record + 30.days).to_s}, :format => :js
+          get :rehire, params: {:census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, rehiring_date: (TimeKeeper.date_of_record + 30.days).strftime('%m/%d/%Y') }, :format => :js
           expect(response).to have_http_status(:success)
           expect(flash[:notice]).to eq "Successfully rehired Census Employee."
         end
@@ -800,7 +803,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
           allow(census_employee).to receive(:valid?).and_return(true)
           allow(census_employee).to receive(:save).and_return(true)
           allow(census_employee).to receive(:rehire_employee_role).never
-          get :rehire, params: {:census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, rehiring_date: (TimeKeeper.date_of_record + 30.days).to_s}, :format => :js
+          get :rehire, params: {:census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, rehiring_date: (TimeKeeper.date_of_record + 30.days).strftime('%m/%d/%Y') }, :format => :js
           expect(response).to have_http_status(:success)
           expect(flash[:notice]).to eq "Successfully rehired Census Employee."
           expect(assigns(:census_employee)).to eq new_census_employee
@@ -808,7 +811,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
 
         it "when new_census_employee invalid" do
           allow(new_census_employee).to receive(:valid?).and_return(false)
-          get :rehire, params: {:census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, rehiring_date: (TimeKeeper.date_of_record + 30.days).to_s}, :format => :js
+          get :rehire, params: {:census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, rehiring_date: (TimeKeeper.date_of_record + 30.days).strftime('%m/%d/%Y') }, :format => :js
           expect(response).to have_http_status(:success)
           expect(flash[:error]).to eq "Error during rehire."
         end
