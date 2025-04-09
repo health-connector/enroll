@@ -377,7 +377,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
     end
 
     it "create new organization if params valid" do
-      get :generate_invoice, params: {"employerId" => [organization.id], ids: [organization.id]},  format: :js
+      get :generate_invoice, params: {"employerId" => [organization.id], ids: [organization.id]}, format: :js
       expect(response).to have_http_status(:success)
       # expect(organization.invoices.size).to eq 1
     end

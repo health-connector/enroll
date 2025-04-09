@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Exchanges::HbxProfilesController < ApplicationController
   include Exchanges::HbxProfilesHelper
   include ::DataTablesAdapter
@@ -9,10 +11,10 @@ class Exchanges::HbxProfilesController < ApplicationController
   include StringScrubberUtil
 
   before_action :check_hbx_staff_role, except: [:request_help, :configuration, :show, :assister_index, :family_index, :update_cancel_enrollment, :update_terminate_enrollment]
-  before_action :set_hbx_profile, only: [:edit, :update, :destroy]
+  before_action :set_hbx_profile, only: :edit
   before_action :view_the_configuration_tab?, only: [:set_date]
   before_action :can_submit_time_travel_request?, only: [:set_date]
-  before_action :find_hbx_profile, only: [:employer_index, :configuration, :broker_agency_index, :inbox, :show, :binder_index]
+  before_action :find_hbx_profile, only: [:employer_index, :configuration, :broker_agency_index, :show, :binder_index]
   #before_action :authorize_for, except: [:edit, :update, :destroy, :request_help, :staff_index, :assister_index]
   #before_action :authorize_for_instance, only: [:edit, :update, :destroy]
   before_action :check_csr_or_hbx_staff, only: [:family_index]
@@ -190,7 +192,7 @@ class Exchanges::HbxProfilesController < ApplicationController
     last_visited_url = current_user.try(:last_portal_visited) || root_path if current_user.present?
     @datatable = Effective::Datatables::BenefitSponsorsEmployerDatatable.new
     respond_to do |format|
-      format.html { redirect_to(last_visited_url) }
+      format.html { redirect_to(last_visited_url, allow_other_host: true) }
       format.js
     end
   end
