@@ -41,7 +41,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
       before :each do
         allow(hbx_staff_role).to receive(:permission).and_return(double('Permission', can_modify_plan_year: true))
         sign_in(user)
-        put :terminate, params: { employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id, end_on: TimeKeeper.date_of_record.next_month.end_of_month, term_reason: "nonpayment" }, format: :json
+        put :terminate, params: { employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id, end_on: TimeKeeper.date_of_record.next_month.end_of_month.strftime('%m/%d/%Y'), term_reason: "nonpayment" }, format: :json
       end
 
       context 'when application in active status' do
@@ -59,7 +59,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
       context 'when application is termination_pending' do
         before do
           initial_application.update_attributes(aasm_state: 'termination_pending')
-          put :terminate, params: { employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id, end_on: TimeKeeper.date_of_record.next_month.end_of_month.to_s, term_reason: "nonpayment" }, format: :json
+          put :terminate, params: { employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id, end_on: TimeKeeper.date_of_record.next_month.end_of_month.strftime('%m/%d/%Y'), term_reason: "nonpayment" }, format: :json
         end
 
         it "should be success" do
@@ -94,7 +94,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
           put :terminate, format: :json, params: {
             employer_application_id: initial_application.id,
             employer_id: benefit_sponsorship.id,
-            end_on: TimeKeeper.date_of_record.next_month.end_of_month.prev_day,
+            end_on: TimeKeeper.date_of_record.next_month.end_of_month.prev_day.strftime('%m/%d/%Y'),
             term_reason: "nonpayment", term_kind: "nonpayment"
           }
         end
