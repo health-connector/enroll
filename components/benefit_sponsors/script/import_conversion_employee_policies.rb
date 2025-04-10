@@ -8,7 +8,7 @@ module BenefitSponsors
   class ConversionEmployeePolicies
 
     def import_employee(in_file)
-      config = YAML.load_file("#{Rails.root}/conversions.yml")
+      config = YAML.unsafe_load(File.read("#{Rails.root}/conversions.yml"))
       result_file = File.open(File.join(Rails.root, "conversion_employee_policy_results", "RESULT_" + File.basename(in_file) + ".csv"), 'wb')
 
       if Settings.site.key == :cca

@@ -4,7 +4,7 @@ def load_cca_locations_county_zips_seed
   Dir.glob(cz_pattern).each do |f_name|
     loaded_class = ::BenefitMarkets::Locations::CountyZip
     yaml_str = File.read(f_name)
-    data = YAML.load(yaml_str)
+    data = YAML.unsafe_load(yaml_str)
     data.new_record = true
     data.save!
   end
@@ -15,7 +15,7 @@ def load_ma_locations_rating_areas_seed
   Dir.glob(ra_pattern).each do |f_name|
     loaded_class = ::BenefitMarkets::Locations::RatingArea
     yaml_str = File.read(f_name)
-    data = YAML.load(yaml_str)
+    data = YAML.unsafe_load(yaml_str)
     data.new_record = true
     data.save!
   end
@@ -26,7 +26,7 @@ def load_ma_locations_service_areas_seed
   Dir.glob(sa_pattern).each do |f_name|
     loaded_class = ::BenefitMarkets::Locations::ServiceArea
     yaml_str = File.read(f_name)
-    data = YAML.load(yaml_str)
+    data = YAML.unsafe_load(yaml_str)
     data.new_record = true
     data.save!
   end
