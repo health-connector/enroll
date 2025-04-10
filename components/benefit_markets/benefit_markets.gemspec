@@ -22,8 +22,8 @@ Gem::Specification.new do |s|
   s.add_dependency "mongoid", '~> 7.5.4'
   # s.add_dependency 'mongoid-multitenancy', '~> 1.2'
   s.add_dependency "aasm", "~> 4.8.0"
-  s.add_dependency 'config'
-  s.add_dependency 'symmetric-encryption', '~> 3.6.0'
+  s.add_dependency 'config', '~> 4.2.1'
+  s.add_dependency 'symmetric-encryption', '~> 4.6.0'
   s.add_dependency 'pundit', '~> 1.0.1'
   s.add_dependency 'active_model_serializers'
   s.add_dependency 'virtus', '1.0.5'
