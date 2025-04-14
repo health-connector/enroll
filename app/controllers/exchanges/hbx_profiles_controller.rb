@@ -137,8 +137,8 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   def generate_invoice
-    @benfit_sponsorships = ::BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(:_id.in => params[:ids])
-    @organizations = @benfit_sponsorships.map(&:organization)
+    @benefit_sponsorships = ::BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(:_id.in => params[:ids])
+    @organizations = @benefit_sponsorships.map(&:organization)
     @employer_profiles = @organizations.flat_map(&:employer_profile)
     @employer_profiles.each do |employer_profile|
       employer_profile.trigger_model_event(:generate_initial_employer_invoice)
