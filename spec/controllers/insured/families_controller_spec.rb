@@ -465,7 +465,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
 
     context 'when its initial enrollment' do
       before :each do
-        post :record_sep, params: { qle_id: @qle.id, qle_date: Date.today }
+        post :record_sep, params: { qle_id: @qle.id, qle_date: Date.today.strftime('%m/%d/%Y') }
       end
 
       it "should redirect" do
@@ -479,7 +479,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
 
       before :each do
         allow(@family).to receive(:enrolled_hbx_enrollments).and_return([double])
-        post :record_sep, params: { qle_id: @qle.id, qle_date: Date.today }
+        post :record_sep, params: { qle_id: @qle.id, qle_date: Date.today.strftime('%m/%d/%Y') }
       end
 
       it "should redirect with change_plan parameter" do
@@ -753,7 +753,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
       allow(@controller).to receive(:file_name).and_return("sample-filename")
       allow(@controller).to receive(:file_content_type).and_return("application/pdf")
       allow(Aws::S3Storage).to receive(:save).with(file_path, bucket_name).and_return(doc_id)
-      person2.consumer_role = consumer_role2
+      person2.consumer_role = consumer_role2.dup
       person2.consumer_role.gender = 'male'
       person2.save
       request.env["HTTP_REFERER"] = "/insured/families/upload_notice_form"
@@ -807,7 +807,8 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
 
         context "person has chosen not to receive electronic communication" do
           before do
-            consumer_role2.contact_method = "Only Paper communication"
+            person2.consumer_role.contact_method = "Only Paper communication"
+            person2.save
           end
 
           it "should not sent the email" do

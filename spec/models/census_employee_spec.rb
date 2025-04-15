@@ -557,8 +557,8 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
         ben_app.benefit_application_items.build(effective_period: effective_period, sequence_id: 1, state: :active)
         ben_app
       end
-      let!(:product_package2) {initial_application2.benefit_sponsor_catalog.product_packages.detect {|package| package.package_kind == :single_issuer}}
-      let!(:current_benefit_package2) {create(:benefit_sponsors_benefit_packages_benefit_package, health_sponsored_benefit: true, product_package: product_package2, title: "second benefit package", benefit_application: initial_application2)}
+      let!(:product_package2) { initial_application2.benefit_sponsor_catalog.product_packages.detect {|package| package.package_kind == :single_issuer}}
+      let!(:current_benefit_package2) { create(:benefit_sponsors_benefit_packages_benefit_package, health_sponsored_benefit: true, product_package: product_package2, title: "second benefit package", benefit_application: initial_application2)}
 
       before do
         FactoryBot.create(:benefit_sponsors_benefit_group_assignment, benefit_group: current_benefit_package2, census_employee: initial_census_employee)

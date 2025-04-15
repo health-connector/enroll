@@ -3,7 +3,7 @@
 module Insured
   class ProductShoppingsController < ApplicationController
 
-    before_action :set_current_person, :only => [:receipt, :thankyou, :waive, :continuous_show, :checkout, :terminate]
+    before_action :set_current_person_required, :only => [:receipt, :thankyou, :waive, :continuous_show, :checkout]
     before_action :set_hbx_enrollment, :only => [:continuous_show, :thankyou, :checkout, :receipt, :waiver_checkout, :waiver_thankyou]
 
     # rubocop:disable Metrics/CyclomaticComplexity
@@ -67,7 +67,7 @@ module Insured
       set_consumer_bookmark_url(family_account_path)
 
       respond_to do |format|
-        format.html { render 'thankyou.html.erb' }
+        format.html { render 'thankyou' }
       end
     end
 
@@ -153,7 +153,7 @@ module Insured
         if is_outside_service_area_reason && current_user.person.hbx_staff_role.blank?
           format.html { redirect_back(fallback_location: :back) }
         else
-          format.html { render 'waiver_thankyou.html.erb' }
+          format.html { render 'waiver_thankyou' }
         end
       end
     end
@@ -202,6 +202,10 @@ module Insured
     end
 
     private
+
+    def set_current_person_required
+      set_current_person(required: true)
+    end
 
     def strong_params
       params.permit!
