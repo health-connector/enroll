@@ -2,7 +2,7 @@ class Insured::GroupSelectionController < ApplicationController
   include Insured::GroupSelectionHelper
   include L10nHelper
 
-  before_action :initialize_common_vars, only: [:new, :create, :terminate_selection]
+  before_action :initialize_common_vars, only: [:new, :create, :terminate_selection, :terminate_confirm]
   # before_action :set_vars_for_market, only: [:new]
   # before_action :is_under_open_enrollment, only: [:new]
 
