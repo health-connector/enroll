@@ -248,7 +248,7 @@ describe UsersController do
       end
       it do
         put :confirm_reset_password, params: { id: user_id, user: { email: '' }, format: :js }
-        expect(response).to render_template('users/reset_password.js.erb')
+        expect(response).to render_template('users/reset_password')
       end
     end
 
@@ -268,7 +268,7 @@ describe UsersController do
       end
       it do
         put :confirm_reset_password, params: { id: user_id, user: { email: '' }, format: :js }
-        expect(response).to render_template('users/reset_password.js.erb')
+        expect(response).to render_template('users/reset_password')
       end
     end
 

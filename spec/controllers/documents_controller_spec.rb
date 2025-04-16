@@ -247,7 +247,8 @@ RSpec.describe DocumentsController, dbclean: :after_each, :type => :controller d
     include_context "setup initial benefit application"
     let(:document) do
       doc = FactoryBot.create(:employer_attestation_document, identifier: "urn:opentest:terms:t1:test_storage:t3:bucket:test-test-id-verification-test#sample-key")
-      doc.employer_attestation.update_attributes(employer_profile: abc_profile)
+      abc_profile.employer_attestation.employer_attestation_documents << doc
+      abc_profile.save!
       doc
     end
 
