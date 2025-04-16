@@ -420,9 +420,11 @@ class BenefitGroupAssignment
     return false if start_on.blank? || canceled?
 
     end_date = end_on || start_on.next_year.prev_day
+    Rails.logger.info "start_on: #{start_on} end_date: #{end_date} date: #{date}"
+    Rails.logger.info "benefit_application.start_on: #{benefit_application.start_on} benefit_application.end_on: #{benefit_application.end_on}"
 
     # if the benefit application is enrolling, then the start_on date should be the start_on date of the benefit application
-    start_on = benefit_application.start_on if benefit_application&.is_enrolling? && start_on > benefit_application&.start_on
+    start_on = benefit_application.start_on if benefit_application&.is_enrolling?
 
     (start_on..end_date).cover?(date)
   end
