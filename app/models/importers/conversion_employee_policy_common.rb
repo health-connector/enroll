@@ -77,12 +77,10 @@ module Importers
       if val.blank?
         @subscriber_zip = nil
         return val
-      else
-        if val.strip.length == 9 
+      elsif val.strip.length == 9
           @subscriber_zip = val[0..4]
-        else
-          @subscriber_zip = val.strip.rjust(5, "0")
-        end
+      else
+        @subscriber_zip = val.strip.rjust(5, "0")
       end
     end
 
@@ -106,31 +104,31 @@ module Importers
       end
     end
 
-    (1..8).to_a.each do |num|
-      class_eval(<<-RUBYCODE)
-      def dep_#{num}_zip=(val)
+    (1..8).each do |num|
+      define_method("dep_#{num}_zip=") do |val|
         if val.blank?
-          @dep_#{num}_zip = nil
+          instance_variable_set("@dep_#{num}_zip", nil)
           return val
+        elsif val.strip.length == 9
+          instance_variable_set("@dep_#{num}_zip", val[0..4])
         else
-          if val.strip.length == 9 
-            @dep_#{num}_zip = val[0..4]
-          else
-            @dep_#{num}_zip = val.strip.rjust(5, "0")
-          end 
+          instance_variable_set("@dep_#{num}_zip", val.strip.rjust(5, "0"))
         end
       end
 
-      def dep_#{num}_relationship=(val)
+      define_method("dep_#{num}_relationship=") do |val|
         dep_rel = Maybe.new(val).strip.downcase.extract_value
-        @dep_#{num}_relationship = RELATIONSHIP_MAP[dep_rel]
+        instance_variable_set("@dep_#{num}_relationship", RELATIONSHIP_MAP[dep_rel])
       end
 
-      def dep_#{num}_dob=(val)
-        @dep_#{num}_dob = val.blank? ? nil : (Date.strptime(val, ("%m/%d/%Y")) rescue nil)
+      define_method("dep_#{num}_dob=") do |val|
+        dob_value = begin
+                      val.blank? ? nil : Date.strptime(val, "%m/%d/%Y")
+                    rescue ArgumentError # rubocop:disable Lint/EmptyRescueClause
+                      nil
+                    end
+        instance_variable_set("@dep_#{num}_dob", dob_value)
       end
-      RUBYCODE
     end
-
   end
 end

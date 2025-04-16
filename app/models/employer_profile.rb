@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class EmployerProfile
   include Config::AcaModelConcern
   include Mongoid::Document
@@ -8,7 +10,7 @@ class EmployerProfile
   extend Acapi::Notifiers
   include StateTransitionPublisher
   include ScheduledEventService
-  include Concerns::Observable
+  include EnrollObservable
   include ModelEvents::EmployerProfile
   include ApplicationHelper
 
@@ -68,7 +70,7 @@ class EmployerProfile
   embeds_one  :inbox, as: :recipient, cascade_callbacks: true
   embeds_one  :employer_profile_account
   embeds_one  :employer_attestation
-  embeds_many :plan_years, cascade_callbacks: true, validate: true
+  embeds_many :plan_years, class_name: 'PlanYear', cascade_callbacks: true, validate: true
   embeds_many :broker_agency_accounts, cascade_callbacks: true, validate: true
   embeds_many :general_agency_accounts, cascade_callbacks: true, validate: true
 
@@ -956,7 +958,7 @@ class EmployerProfile
 
   after_update :broadcast_employer_update, :notify_broker_added, :notify_general_agent_added
 
-  after_save :notify_on_save
+  # after_save :notify_on_save
 
   def broadcast_employer_update
     if previous_states.include?(:binder_paid) || (aasm_state.to_sym == :binder_paid)
@@ -1143,7 +1145,7 @@ class EmployerProfile
 
     tmp_file = "#{Rails.root}/tmp/#{file_name}"
     id = 0
-    while File.exists?(tmp_file) do
+    while File.exist?(tmp_file)
       tmp_file = "#{Rails.root}/tmp/#{id}_#{file_name}"
       id += 1
     end

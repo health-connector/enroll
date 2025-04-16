@@ -1,6 +1,6 @@
 require File.join(Rails.root, "lib/mongoid_migration_task")
 
-class FixDocumentStatus < MongoidMigrationTask
+class FixDocumentStatusOnFamily < MongoidMigrationTask
   def migrate
     hbx_ids = ENV['hbx_ids'].split(',')
     hbx_ids.each do |hbx_id|

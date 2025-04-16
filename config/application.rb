@@ -21,10 +21,44 @@ Bundler.require(*Rails.groups)
 
 require File.join(File.dirname(__FILE__), "json_log_format")
 
+# Extends Psych (Ruby's YAML parser) to safely allow deserialization of specific application
+# classes while maintaining protection against arbitrary code execution vulnerabilities.
+# This configuration permits essential application and MongoDB classes to be deserialized
+# from YAML without completely disabling Ruby's deserialization security features.
+# Required since Ruby 3.1, which made YAML deserialization more restrictive by default.
+Psych::ClassLoader::ALLOWED_PSYCH_CLASSES = [
+  Date,
+  Time,
+  Symbol,
+  'SicCode',
+  'BenefitSponsors::Organizations::ExemptOrganization',
+  'BSON::Document',
+  'BSON::ObjectId'
+].freeze
+
+module Psych
+  # modify the class loader to allow for additional data types as yaml columns
+  class ClassLoader
+    ALLOWED_PSYCH_CLASSES = [].freeze unless defined? ALLOWED_PSYCH_CLASSES
+    # modify the class loader to allow for additional data types as yaml columns
+    class Restricted < ClassLoader
+      def initialize(classes, symbols)
+        allowed_classes = Psych::ClassLoader::ALLOWED_PSYCH_CLASSES.map do |klass|
+          klass.is_a?(String) ? klass : klass.to_s
+        end
+
+        @classes = classes + allowed_classes
+        @symbols = symbols
+        super()
+      end
+    end
+  end
+end
+
 module Enroll
   class Application < Rails::Application
 
-    config.load_defaults 5.0
+    config.load_defaults 7.1
 
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers

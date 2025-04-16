@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe Exchanges::AgentsController do
   render_views
   let(:person_user) { FactoryBot.create(:person, user: current_user)}
-  let(:current_user){FactoryBot.create(:user)}
+  let(:current_user){ FactoryBot.create(:user) }
   let(:flash_error_message) { "You must be an Agent: CSR, CAC, IPA or a Broker" }
 
   describe 'Agent Controller behavior' do

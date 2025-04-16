@@ -3,9 +3,9 @@
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "components", "fix_employer_attestation")
 
-describe FixEmployerAttestation, dbclean: :after_each do
+describe Components::FixEmployerAttestation, dbclean: :after_each do
   let(:given_task_name) { "fix_employer_attestation" }
-  subject { FixEmployerAttestation.new(given_task_name, double(:current_scope => nil)) }
+  subject { Components::FixEmployerAttestation.new(given_task_name, double(:current_scope => nil)) }
 
   describe "given a task name" do
     it "has the given task name" do

@@ -209,7 +209,7 @@ class TranscriptGenerator
   private
 
   def create_directory(path)
-    if Dir.exists?(path)
+    if Dir.exist?(path)
       FileUtils.rm_rf(path)
     end
     Dir.mkdir path

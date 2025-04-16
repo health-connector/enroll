@@ -9,7 +9,6 @@ class Insured::FamiliesController < FamiliesController
   before_action :check_employee_role, :except => [:home]
   before_action :find_or_build_consumer_role, only: [:home]
   before_action :calculate_dates, only: [:check_move_reason, :check_marriage_reason, :check_insurance_reason]
-  before_action :transition_family_members_update_params, only: %i[transition_family_members_update]
 
   def home
     authorize @family, :home?
@@ -373,14 +372,14 @@ class Insured::FamiliesController < FamiliesController
 
   def notice_upload_email
     if (@person.consumer_role.present? && @person.consumer_role.can_receive_electronic_communication?) ||
-      (@person.employee_roles.present? && (@person.employee_roles.map(&:contact_method) & ["Only Electronic communications", "Paper and Electronic communications"]).any?)
+       (@person.employee_roles.present? && (@person.employee_roles.map(&:contact_method) & ["Only Electronic communications", "Paper and Electronic communications"]).any?)
       UserMailer.generic_notice_alert(@person.first_name, "You have a new message from #{site_short_name}", @person.work_email_or_best).deliver_now
     end
   end
 
   def notice_upload_secure_message(notice, subject)
     body = "<br>You can download the notice by clicking this link " +
-            "<a href=" + "#{authorized_document_download_path('Person', @person.id, 'documents', notice.id )}?content_type=#{notice.format}&filename=#{notice.title.gsub(/[^0-9a-z]/i,'')}.pdf&disposition=inline" + " target='_blank'>" + subject + "</a>"
+           "<a href=" + "#{authorized_document_download_path('Person', @person.id, 'documents', notice.id )}?content_type=#{notice.format}&filename=#{notice.title.gsub(/[^0-9a-z]/i,'')}.pdf&disposition=inline" + " target='_blank'>" + subject + "</a>"
 
     @person.inbox.messages << Message.new(subject: subject, body: body, from: site_short_name)
     @person.save!

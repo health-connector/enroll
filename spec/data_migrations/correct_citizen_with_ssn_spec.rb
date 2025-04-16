@@ -49,7 +49,7 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
     end
   end
 
-  describe CorrectCitizenStatus, :dbclean => :after_each do
+  describe CorrectCitizenWithSsn, :dbclean => :after_each do
     let(:threshold_date) { Time.mktime(2016,7,5,8,0,0) }
     let(:previous_date) { Time.mktime(2015,7,5,8,0,0) }
     let(:body_ssn_true_citizenship_true) do
@@ -162,7 +162,7 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
 
 
     describe "given a citizen with ssn, ssa_response after July 5, and no previous response" do
-      subject { CorrectCitizenStatus.new("fix me task", double(:current_scope => nil)) }
+      subject { CorrectCitizenWithSsn.new("fix me task", double(:current_scope => nil)) }
 
       context "ssn response false" do
         before :each do
@@ -234,7 +234,7 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
     end
 
     describe "given a citizen with ssn, ssa_response after July 5, and a previous response" do
-      subject { CorrectCitizenStatus.new("fix me task", double(:current_scope => nil)) }
+      subject { CorrectCitizenWithSsn.new("fix me task", double(:current_scope => nil)) }
 
       before :each do
         person.consumer_role.aasm_state = "any state"

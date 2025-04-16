@@ -930,7 +930,9 @@ class Person
   def create_inbox
     welcome_subject = "Welcome to #{site_short_name}"
     welcome_body = "#{site_short_name} is the #{aca_state_name}'s on-line marketplace to shop, compare, and select health insurance that meets your health needs and budgets."
-    mailbox = Inbox.create(recipient: self)
+    self.inbox = Inbox.new
+    self.save!
+    mailbox = inbox
     mailbox.messages.create(subject: welcome_subject, body: welcome_body, from: site_short_name.to_s)
   end
 

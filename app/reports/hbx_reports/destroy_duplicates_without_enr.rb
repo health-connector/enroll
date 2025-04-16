@@ -1,12 +1,12 @@
 # require File.join(Rails.root, "lib/mongoid_migration_task")
 # require 'csv'
 
-# class DestroyDuplicatesWithoutEnr < MongoidMigrationTask
+class HbxReports::DestroyDuplicatesWithoutEnr < MongoidMigrationTask
 #   def migrate
 
 # field_names  = %w(Person_HBX_ID Primary_subscriber_HBX_ID)
 
-# Dir.mkdir("hbx_report") unless File.exists?("hbx_report")
+# Dir.mkdir("hbx_report") unless File.exist?("hbx_report")
 # file_name = "#{Rails.root}/hbx_report/destroy_duplicates_without_enr.csv"
 #     CSV.open(file_name, "w", force_quotes: true) do |csv|
 #       csv << field_names
@@ -47,4 +47,4 @@
 #       end
 #     end
 #   end
-# end
+end

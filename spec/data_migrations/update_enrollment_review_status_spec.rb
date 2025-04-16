@@ -3,8 +3,8 @@
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "update_enrollment_review_status")
 
-describe UpdateReviewStatus, dbclean: :after_each do
-  subject { UpdateReviewStatus.new("update_enrollment_review_status", double(:current_scope => nil)) }
+describe UpdateEnrollmentReviewStatus, dbclean: :after_each do
+  subject { UpdateEnrollmentReviewStatus.new("update_enrollment_review_status", double(:current_scope => nil)) }
   let(:family) { FactoryBot.create(:family, :with_primary_family_member) }
   let(:enrollment_with_nil_review) do
     FactoryBot.create(:hbx_enrollment,

@@ -2,7 +2,7 @@
 ### Base image ###
 ############################################
 
-ARG RUBY_VERSION=3.0.6
+ARG RUBY_VERSION=3.2.5
 FROM ruby:$RUBY_VERSION-slim-bullseye AS base
 LABEL author="MHC"
 
@@ -169,6 +169,12 @@ ENV RABBITMQ_URL=amqp://${HOSTNAME}:5672
 
 # Precompile bootsnap code for faster boot times
 RUN bundle exec bootsnap precompile --gemfile app/ lib/
+
+# This is the change needed due to Ruby 3.2.5 upgrade
+# create tmp file to avoid `File.exists?` error when pre-compiling assets
+RUN echo 'class File; def self.exists?(*args); exist?(*args); end; end unless File.respond_to?(:exists?)' > /usr/local/lib/ruby/site_ruby/file_exists_patch.rb
+# add patch to ruby options
+ENV RUBYOPT="-r /usr/local/lib/ruby/site_ruby/file_exists_patch.rb"
 
 # Asset precompilation requires many seemingly un-asset-related configurations, as it starts a rails process (e.g., an
 # available mongo, symmetric key config, an available rabbit, etc. This may explains some preceding dependencies/steps.)

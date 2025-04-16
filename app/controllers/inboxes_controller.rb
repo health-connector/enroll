@@ -1,5 +1,6 @@
+# frozen_string_literal: true
 class InboxesController < ApplicationController
-  before_action :find_inbox_provider, except: [:msg_to_portal]
+  before_action :find_inbox_provider
   before_action :find_hbx_profile, only: [:new, :create]
   before_action :find_message, only: [:show, :destroy]
   before_action :set_inbox_and_assign_message, only: [:create]
@@ -41,6 +42,11 @@ class InboxesController < ApplicationController
   end
 
   private
+
+  def find_inbox_provider
+    @inbox_provider = current_user.person
+    @inbox_provider_name = "Agent"
+  end
 
   def create_sent_message
     sent_message = @new_message.dup

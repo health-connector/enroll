@@ -14,7 +14,7 @@ class EnrollmentEligibilityReason
 
   class ReasonProvider
     def initialize(provider)
-      case provider.class
+      case provider
       when SpecialEnrollmentPeriod
         SpecialEnrollmentPeriodReasonProvider.new(provider)
       when BenefitSponsors::Organizations::AcaShopCcaEmployerProfile

@@ -237,8 +237,14 @@ namespace :load_service_reference do
   end
 
   def to_boolean(value)
-    return true   if value == true   || value =~ (/(true|t|yes|y|1)$/i)
-    return false  if value == false  || value =~ (/(false|f|no|n|0)$/i)
+    return true if value == true
+    return false if value == false
+
+    if value.respond_to?(:to_s)
+      str_val = value.to_s.strip.downcase
+      return true if str_val =~ (/(true|t|yes|y|1)$/i)
+      return false if str_val =~ (/(false|f|no|n|0)$/i)
+    end
     return nil
   end
 

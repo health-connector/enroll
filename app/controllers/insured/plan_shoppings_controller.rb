@@ -94,7 +94,7 @@ class Insured::PlanShoppingsController < ApplicationController
     #flash.now[:error] = qualify_qle_notice unless @enrollment.can_select_coverage?(qle: @enrollment.is_special_enrollment?)
 
     respond_to do |format|
-      format.html { render 'thankyou.html.erb' }
+      format.html { render 'thankyou' }
     end
   end
 
@@ -255,7 +255,7 @@ class Insured::PlanShoppingsController < ApplicationController
   def send_receipt_emails
     email = @person.work_email_or_best
     UserMailer.generic_consumer_welcome(@person.first_name, @person.hbx_id, email).deliver_now
-    body = render_to_string 'user_mailer/secure_purchase_confirmation.html.erb', layout: false
+    body = render_to_string 'user_mailer/secure_purchase_confirmation', layout: false
     from_provider = HbxProfile.current_hbx
     message_params = {
       sender_id: from_provider.try(:id),

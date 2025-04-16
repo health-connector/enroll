@@ -1,12 +1,15 @@
-module Concerns::Observable
+# frozen_string_literal: true
+
+module EnrollObservable
   extend ActiveSupport::Concern
 
   included do
     attr_reader :observer_peers
+
     delegate :add_observer, to: :class
     register_observers
 
-    after_initialize do |instance|
+    after_initialize do
       @observer_peers = {}
       register_observers
     end
@@ -16,7 +19,7 @@ module Concerns::Observable
     end
 
     def update_method_name
-      self.class.model_name.param_key + '_update'
+      "#{self.class.model_name.param_key}_update"
     end
 
     def delete_observers
@@ -30,7 +33,7 @@ module Concerns::Observable
         end
       end
     end
-  end  
+  end
 
   class_methods do
 
@@ -47,12 +50,12 @@ module Concerns::Observable
 
     def register_observers
       @@observer_peers ||= {}
-      @@observer_peers[self.to_s] ||= []
+      @@observer_peers[to_s] ||= []
 
       add_observer_peer = lambda do |observer_instance|
-        matched_peer = @@observer_peers[self.to_s].detect{|peer| peer.any?{|k, v| k.is_a?(observer_instance.class)}}
+        matched_peer = @@observer_peers[to_s].detect{|peer| peer.any?{|k, v| k.is_a?(observer_instance.class)}}
         if matched_peer.blank?
-          @@observer_peers[self.to_s] << add_observer(observer_instance, update_method_name.to_sym, {})
+          @@observer_peers[to_s] << add_observer(observer_instance, update_method_name.to_sym, {})
         end
       end
 
@@ -60,12 +63,16 @@ module Concerns::Observable
     end
 
     def update_method_name
-      self.model_name.param_key + '_date_change'
+      if respond_to?(:model_name)
+        "#{model_name.param_key}_date_change"
+      else
+        "#{name.underscore}_date_change"
+      end
     end
 
     def notify_observers(*arg)
       if defined? @@observer_peers
-        @@observer_peers[self.to_s].each do |peer|
+        @@observer_peers[to_s].each do |peer|
           peer.each do |k, v|
             k.send v, *arg
           end

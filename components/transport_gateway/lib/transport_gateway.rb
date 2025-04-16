@@ -18,8 +18,7 @@ module URI
     end
   end
 
-  @@schemes ||= scheme_list
-  @@schemes['S3'] = S3
+  register_scheme "S3", S3
 end
 # rubocop:enable Style/ClassVars
 

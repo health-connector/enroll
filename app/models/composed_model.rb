@@ -47,8 +47,8 @@ module ComposedModel
           #{name}_attributes
         end
         RUBYCODE
-        if do_validation_on_collection
-          class_eval(<<-RUBYCODE) 
+      if do_validation_on_collection
+        class_eval(<<-RUBYCODE)
           validate :#{name}_validation_steps
 
           def #{name}_validation_steps
@@ -56,7 +56,7 @@ module ComposedModel
             validate_collection_and_propagate_errors("#{name}",objs_to_validate)
           end
             RUBYCODE
-        end
+      end
     end
 
   end

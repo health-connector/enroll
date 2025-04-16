@@ -1,6 +1,6 @@
 require File.join(Rails.root, "lib/mongoid_migration_task")
 
-class RemovePlanOfferings< MongoidMigrationTask
+class RemovePlanOfferingsForEmployer < MongoidMigrationTask
   def migrate
     begin
       organizations = Organization.where(fein: ENV['fein'])

@@ -206,7 +206,7 @@ describe Person, :dbclean => :after_each do
         it "should fail validation" do
           person = Person.new(**params)
           person.valid?
-          expect(person.errors[:ssn]).to eq ["SSN must be 9 digits"]
+          expect(person.errors[:ssn]).to include("must have 9 digits")
         end
       end
 

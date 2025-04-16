@@ -17,10 +17,10 @@ FactoryBot.define do
     #association :employee_role, strategy: :build
 
     after(:create) do |p, _evaluator|
-      create_list(:address, 2, person: p)
-      create_list(:phone, 2, person: p)
-      create_list(:email, 2, person: p)
-      #create_list(:employee_role, 1, person: p)
+      2.times { p.addresses << build(:address) }
+      2.times { p.phones << build(:phone) }
+      2.times { p.emails << build(:email) }
+      p.save!
     end
 
     trait :with_mailing_address do

@@ -13,6 +13,32 @@ require "devise"
 require "benefit_sponsors"
 require "symmetric-encryption"
 
+Psych::ClassLoader::ALLOWED_PSYCH_CLASSES = [
+  Date,
+  Time,
+  Symbol,
+  'SicCode',
+  'BenefitSponsors::Organizations::ExemptOrganization',
+  'BSON::Document',
+  'BSON::ObjectId'
+].freeze
+
+module Psych
+  class ClassLoader
+    class Restricted < ClassLoader
+      def initialize(classes, symbols)
+        allowed_classes = Psych::ClassLoader::ALLOWED_PSYCH_CLASSES.map do |klass|
+          klass.is_a?(String) ? klass : klass.to_s
+        end
+
+        @classes = classes + Psych::ClassLoader::ALLOWED_PSYCH_CLASSES.map(&:to_s)
+        @symbols = symbols
+        super()
+      end
+    end
+  end
+end
+
 module Dummy
   class Application < Rails::Application
     # Settings in config/environments/* take precedence over those specified here.

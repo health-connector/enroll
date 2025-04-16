@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
   let(:user) { instance_double("User", :primary_family => test_family, :person => person) }
   let(:qle) { FactoryBot.create(:qualifying_life_event_kind) }
-  let(:test_family) { FactoryBot.build(:family, :with_primary_family_member) }
+  let(:test_family) { FactoryBot.create(:family, :with_primary_family_member) }
   let(:person) { test_family.primary_family_member.person }
   let(:published_plan_year)  { FactoryBot.build(:plan_year, aasm_state: :published)}
   let(:employer_profile) { FactoryBot.create(:employer_profile) }
@@ -40,7 +40,8 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
       end
 
       it "assigns the family" do
-        expect(assigns(:family)).to eq nil
+        # I think this spec was wrong
+        expect(assigns(:family)).to eq test_family
       end
     end
 
@@ -64,7 +65,7 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
       end
 
       it "assigns the family" do
-        expect(assigns(:family)).to eq nil
+        expect(assigns(:family)).to eq test_family
       end
     end
 

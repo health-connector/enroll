@@ -5,5 +5,5 @@ require File.join(Rails.root, "app", "data_migrations", "products", "mapping_to_
 
 namespace :migrations do
   desc "map previous year dental plans with current year dental plans"
-  MappingToCorrectHiosId.define_task :mapping_to_correct_hios_id => :environment
+  Products::MappingToCorrectHiosId.define_task :mapping_to_correct_hios_id => :environment
 end

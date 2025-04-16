@@ -366,7 +366,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
   describe "#generate_invoice" do
     let(:user) { double("user", :has_hbx_staff_role? => true)}
     let(:employer_profile) { double("EmployerProfile", id: double("id"))}
-    let(:organization){ Organization.new }
+    let(:organization) { Organization.new }
     let(:family) { FactoryBot.build(:family, :with_primary_family_member_and_dependent)}
     let(:hbx_enrollment) { FactoryBot.create(:hbx_enrollment, household: family.active_household)}
 
@@ -377,7 +377,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
     end
 
     it "create new organization if params valid" do
-      get :generate_invoice, params: {"employerId" => [organization.id], ids: [organization.id]},  format: :js
+      get :generate_invoice, params: { "employerId": [organization.id], ids: [organization.id] }, format: :js
       expect(response).to have_http_status(:success)
       # expect(organization.invoices.size).to eq 1
     end
@@ -738,8 +738,12 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
         Settings.aca.general_agency_enabled = false
         Enroll::Application.reload_routes!
       end
+
       it "should returns http success" do
-        expect(:get => :general_agency_index).not_to be_routable
+        expect(get: "/exchanges/hbx_profiles/general_agency_index").not_to route_to(
+          controller: "exchanges/hbx_profiles",
+          action: "general_agency_index"
+        )
       end
     end
   end
@@ -893,7 +897,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
               expect_any_instance_of(HbxEnrollment).to receive(:notify).with("acapi.info.events.hbx_enrollment.terminated",
                                                                              {:reply_to => glue_event_queue_name, "hbx_enrollment_id" => enrollment.hbx_id, "enrollment_action_uri" => "urn:openhbx:terms:v1:enrollment#terminate_enrollment",
                                                                               "is_trading_partner_publishable" => false})
-              post :update_enrollment_termianted_on_date, params: {enrollment_id: enrollment.id.to_s, family_actions_id: family.id, new_termination_date: TimeKeeper.date_of_record.to_s}, format: :js
+              post :update_enrollment_termianted_on_date, params: {enrollment_id: enrollment.id.to_s, family_actions_id: family.id, new_termination_date: TimeKeeper.date_of_record.strftime('%m/%d/%Y')}, format: :js
               enrollment.reload
               expect(enrollment.aasm_state).to eq "coverage_terminated"
               expect(enrollment.terminated_on).to eq TimeKeeper.date_of_record
@@ -908,7 +912,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
               expect_any_instance_of(HbxEnrollment).to receive(:notify).with("acapi.info.events.hbx_enrollment.terminated",
                                                                              {:reply_to => glue_event_queue_name, "hbx_enrollment_id" => enrollment.hbx_id, "enrollment_action_uri" => "urn:openhbx:terms:v1:enrollment#terminate_enrollment",
                                                                               "is_trading_partner_publishable" => false})
-              post :update_enrollment_termianted_on_date, params: {enrollment_id: enrollment.id.to_s, family_actions_id: family.id, new_termination_date: (TimeKeeper.date_of_record + 1.day).to_s}, format: :js
+              post :update_enrollment_termianted_on_date, params: {enrollment_id: enrollment.id.to_s, family_actions_id: family.id, new_termination_date: (TimeKeeper.date_of_record + 1.day).strftime('%m/%d/%Y')}, format: :js
               enrollment.reload
               expect(enrollment.aasm_state).to eq "coverage_termination_pending"
               expect(enrollment.terminated_on).to eq TimeKeeper.date_of_record + 1.day
@@ -928,7 +932,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       context "with valid params" do
 
         it "should render template " do
-          post :update_enrollment_termianted_on_date, params: {enrollment_id: enrollment.id.to_s, family_actions_id: family.id, new_termination_date: TimeKeeper.date_of_record.to_s}, format: :js
+          post :update_enrollment_termianted_on_date, params: {enrollment_id: enrollment.id.to_s, family_actions_id: family.id, new_termination_date: TimeKeeper.date_of_record.strftime('%m/%d/%Y')}, format: :js
           expect(response).to have_http_status(:redirect)
           expect(response).to redirect_to(exchanges_hbx_profiles_root_path)
         end
@@ -939,7 +943,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
               expect_any_instance_of(HbxEnrollment).to receive(:notify).with("acapi.info.events.hbx_enrollment.terminated",
                                                                              {:reply_to => glue_event_queue_name, "hbx_enrollment_id" => enrollment.hbx_id, "enrollment_action_uri" => "urn:openhbx:terms:v1:enrollment#terminate_enrollment",
                                                                               "is_trading_partner_publishable" => false})
-              post :update_enrollment_termianted_on_date, params: {enrollment_id: enrollment.id.to_s, family_actions_id: family.id, new_termination_date: TimeKeeper.date_of_record.to_s}, format: :js, xhr: true
+              post :update_enrollment_termianted_on_date, params: {enrollment_id: enrollment.id.to_s, family_actions_id: family.id, new_termination_date: TimeKeeper.date_of_record.strftime('%m/%d/%Y')}, format: :js, xhr: true
               enrollment.reload
               expect(enrollment.aasm_state).to eq "coverage_terminated"
               expect(enrollment.terminated_on).to eq TimeKeeper.date_of_record
@@ -954,7 +958,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
               expect_any_instance_of(HbxEnrollment).to receive(:notify).with("acapi.info.events.hbx_enrollment.terminated",
                                                                              {:reply_to => glue_event_queue_name, "hbx_enrollment_id" => enrollment.hbx_id, "enrollment_action_uri" => "urn:openhbx:terms:v1:enrollment#terminate_enrollment",
                                                                               "is_trading_partner_publishable" => false})
-              post :update_enrollment_termianted_on_date, params: { enrollment_id: enrollment.id.to_s, family_actions_id: family.id, new_termination_date: (TimeKeeper.date_of_record + 1.day).to_s}, format: :js
+              post :update_enrollment_termianted_on_date, params: { enrollment_id: enrollment.id.to_s, family_actions_id: family.id, new_termination_date: (TimeKeeper.date_of_record + 1.day).strftime('%m/%d/%Y')}, format: :js
               enrollment.reload
               expect(enrollment.aasm_state).to eq "coverage_terminated"
               expect(enrollment.terminated_on).to eq TimeKeeper.date_of_record + 1.day
@@ -1174,13 +1178,13 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       )
     end
 
-    let!(:valid_params)   do
+    let!(:valid_params) do #here
       { admin_datatable_action: true,
         benefit_sponsorship_id: benefit_sponsorship.id.to_s,
         start_on: effective_period.min,
         end_on: effective_period.max,
-        open_enrollment_start_on: TimeKeeper.date_of_record + 2.months,
-        open_enrollment_end_on: TimeKeeper.date_of_record + 2.months + 20.day}
+        open_enrollment_start_on: (TimeKeeper.date_of_record + 2.months).strftime('%m/%d/%Y'),
+        open_enrollment_end_on: (TimeKeeper.date_of_record + 2.months + 20.day).strftime('%m/%d/%Y')}
     end
 
     before :each do
@@ -1259,8 +1263,8 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
           benefit_sponsorship_id: benefit_sponsorship.id.to_s,
           start_on: new_start_date,
           end_on: new_start_date + 1.year - 1.day,
-          open_enrollment_start_on: (current_date + 1.month).beginning_of_month,
-          open_enrollment_end_on: (current_date + 1.month).beginning_of_month + 20.days,
+          open_enrollment_start_on: (current_date + 1.month).beginning_of_month.strftime('%m/%d/%Y'),
+          open_enrollment_end_on: ((current_date + 1.month).beginning_of_month + 20.days).strftime('%m/%d/%Y'),
           has_active_ba: true
         }
       end

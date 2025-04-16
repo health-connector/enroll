@@ -1,6 +1,7 @@
 module BenefitSponsors
   module ModelEvents
     module BenefitApplication
+      include DefineVariableHelper
 
       APPLICATION_EXCEPTION_STATES  = [:pending, :assigned, :processing, :reviewing, :information_needed, :appealing].freeze
 
@@ -116,10 +117,9 @@ module BenefitSponsors
           # TODO -- encapsulated notify_observers to recover from errors raised by any of the observers
           (REGISTERED_EVENTS + EMPLOYER_EVENTS).each do |event|
             begin
-              if event_fired = instance_eval("is_" + event.to_s)
-                event_options = {}
-                notify_observers(ModelEvent.new(event, self, event_options))
-              end
+              next unless check_local_variable("is_#{event}", binding)
+              event_options = {}
+              notify_observers(ModelEvent.new(event, self, event_options))
             rescue Exception => e
               Rails.logger.info { "Benefit Application REGISTERED_EVENTS: #{event} unable to notify observers" }
             end
@@ -135,10 +135,9 @@ module BenefitSponsors
 
         REGISTERED_EVENTS.each do |event|
           begin
-            if event_fired = instance_eval("is_" + event.to_s)
-              event_options = {}
-              notify_observers(ModelEvent.new(event, self, event_options))
-            end
+            next unless check_local_variable("is_#{event}", binding)
+            event_options = {}
+            notify_observers(ModelEvent.new(event, self, event_options))
           rescue Exception => e
             Rails.logger.info { "Benefit Application REGISTERED_EVENTS: #{event} unable to notify observers" }
           end
@@ -201,10 +200,9 @@ module BenefitSponsors
 
           DATA_CHANGE_EVENTS.each do |event|
             begin
-              if event_fired = instance_eval("is_" + event.to_s)
-                event_options = {}
-                self.new.notify_observers(ModelEvent.new(event, self, event_options))
-              end
+              next unless check_local_variable("is_#{event}", binding)
+              event_options = {}
+              self.new.notify_observers(ModelEvent.new(event, self, event_options))
             rescue Exception => e
               Rails.logger.error { "Benefit Application DATA_CHANGE_EVENTS: #{event} - unable to notify observers" }
             end

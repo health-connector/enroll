@@ -11,6 +11,23 @@ require "sprockets/railtie"
 Bundler.require(*Rails.groups)
 require "notifier"
 
+Psych::ClassLoader::ALLOWED_PSYCH_CLASSES = [Date, Time, Symbol].freeze
+
+module Psych
+  # modify the class loader to allow for additional data types as yaml columns
+  class ClassLoader
+    ALLOWED_PSYCH_CLASSES = [].freeze unless defined? ALLOWED_PSYCH_CLASSES
+    # modify the class loader to allow for additional data types as yaml columns
+    class Restricted < ClassLoader
+      def initialize(classes, symbols)
+        @classes = classes + Psych::ClassLoader::ALLOWED_PSYCH_CLASSES.map(&:to_s)
+        @symbols = symbols
+        super()
+      end
+    end
+  end
+end
+
 module Dummy
   class Application < Rails::Application
     # Settings in config/environments/* take precedence over those specified here.

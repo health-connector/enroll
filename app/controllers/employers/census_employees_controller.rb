@@ -99,6 +99,7 @@ class Employers::CensusEmployeesController < ApplicationController
     status = params[:status]
     termination_date = params["termination_date"]
 
+    # I didn't find where we use termination_date for this endpoint
     if termination_date.present?
       termination_date = DateTime.strptime(termination_date, '%m/%d/%Y').try(:to_date)
       if termination_date >= (TimeKeeper.date_of_record - 60.days)

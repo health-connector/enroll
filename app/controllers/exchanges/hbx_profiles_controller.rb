@@ -1,18 +1,20 @@
+# frozen_string_literal: true
+
 class Exchanges::HbxProfilesController < ApplicationController
   include Exchanges::HbxProfilesHelper
   include ::DataTablesAdapter
   include ::DataTablesSearch
-  include ::Pundit
+  include Pundit::Authorization
   include ::SepAll
   include ::Config::AcaHelper
   include HtmlScrubberUtil
   include StringScrubberUtil
 
   before_action :check_hbx_staff_role, except: [:request_help, :configuration, :show, :assister_index, :family_index, :update_cancel_enrollment, :update_terminate_enrollment]
-  before_action :set_hbx_profile, only: [:edit, :update, :destroy]
+  before_action :set_hbx_profile, only: :edit
   before_action :view_the_configuration_tab?, only: [:set_date]
   before_action :can_submit_time_travel_request?, only: [:set_date]
-  before_action :find_hbx_profile, only: [:employer_index, :configuration, :broker_agency_index, :inbox, :show, :binder_index]
+  before_action :find_hbx_profile, only: [:employer_index, :configuration, :broker_agency_index, :show, :binder_index]
   #before_action :authorize_for, except: [:edit, :update, :destroy, :request_help, :staff_index, :assister_index]
   #before_action :authorize_for_instance, only: [:edit, :update, :destroy]
   before_action :check_csr_or_hbx_staff, only: [:family_index]
@@ -135,8 +137,8 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   def generate_invoice
-    @benfit_sponsorships = ::BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(:_id.in => params[:ids])
-    @organizations = @benfit_sponsorships.map(&:organization)
+    @benefit_sponsorships = ::BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(:_id.in => params[:ids])
+    @organizations = @benefit_sponsorships.map(&:organization)
     @employer_profiles = @organizations.flat_map(&:employer_profile)
     @employer_profiles.each do |employer_profile|
       employer_profile.trigger_model_event(:generate_initial_employer_invoice)
@@ -190,7 +192,7 @@ class Exchanges::HbxProfilesController < ApplicationController
     last_visited_url = current_user.try(:last_portal_visited) || root_path if current_user.present?
     @datatable = Effective::Datatables::BenefitSponsorsEmployerDatatable.new
     respond_to do |format|
-      format.html { redirect_to(last_visited_url) }
+      format.html { redirect_to(last_visited_url, allow_other_host: true) }
       format.js
     end
   end

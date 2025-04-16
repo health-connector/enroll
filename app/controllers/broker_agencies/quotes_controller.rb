@@ -1,16 +1,16 @@
-class BrokerAgencies::QuotesController < ApplicationController
+# frozen_string_literal: true
+module BrokerAgencies
+  class QuotesController < ApplicationController
 
   include BrokerAgencies::QuoteHelper
 
   before_action :validate_roles, :set_broker_role
-  before_action :find_quote , :only => [:destroy ,:show, :delete_member, :delete_household, :publish_quote, :view_published_quote]
-  before_action :format_date_params  , :only => [:update,:create]
+  before_action :find_quote, only: [:show, :delete_member, :delete_household, :publish_quote, :view_published_quote]
+  before_action :format_date_params, only: [:update,:create]
   before_action :employee_relationship_map
-  before_action :set_qhp_variables, :only => [:plan_comparison, :download_pdf]
+  before_action :set_qhp_variables, only: [:plan_comparison, :download_pdf]
 
-  def view_published_quote
-
-  end
+  def view_published_quote; end
 
   def publish_quote
     authorize @broker
@@ -19,7 +19,7 @@ class BrokerAgencies::QuotesController < ApplicationController
       flash[:notice] = "Quote Published"
     else
       errors = @quote.quote_warnings.values
-      flash[:error] = "Quote failed to publish. #{('<li>' + errors.flatten.join('</li><li>') + '</li>') if errors.try(:any?)}".html_safe
+      flash[:error] = "Quote failed to publish. #{"<li>#{errors.flatten.join('</li><li>')}</li>" if errors.try(:any?)}".html_safe
       redirect_to broker_agencies_broker_role_quote_path(params[:broker_role_id],params[:id])
     end
   end
@@ -60,9 +60,7 @@ class BrokerAgencies::QuotesController < ApplicationController
     @quote_criteria = @quote_benefit_group.criteria_for_ui
     return unless params[:section].present?
 
-    respond_to do |format|
-        format.js
-    end
+    respond_to(&:js)
   end
 
   def health_cost_comparison
@@ -92,15 +90,15 @@ class BrokerAgencies::QuotesController < ApplicationController
     @quote = Quote.find(params[:id])
     broker_role_id = @quote.broker_role.id
     @orgs = Organization.by_broker_role(broker_role_id)
-    @employer_profiles =  @orgs.blank? ? [] : @orgs.map {|o| o.employer_profile}.collect{|e| [e.legal_name, e.id]}
+    @employer_profiles =  @orgs.blank? ? [] : @orgs.map(&:employer_profile).collect{|e| [e.legal_name, e.id]}
     max_family_id = @quote.quote_households.max(:family_id).to_i
 
     unless params[:duplicate_household].blank? && params[:num_of_dup].blank?
       dup_household = @quote.quote_households.find(params[:duplicate_household]).dup
 
-      for i in 1..params[:num_of_dup].to_i
+      (1..params[:num_of_dup].to_i).each do |i|
         temp_household = dup_household.dup
-        max_family_id = max_family_id + 1
+        max_family_id += 1
         temp_household.family_id = max_family_id
         @quote.quote_households << temp_household
       end
@@ -162,22 +160,23 @@ class BrokerAgencies::QuotesController < ApplicationController
       update_params[:quote_benefit_groups_attributes] = update_params[:quote_benefit_groups_attributes].select {|k,v| update_params[:quote_benefit_groups_attributes][k][:id].present?}
       insert_params[:quote_benefit_groups_attributes] = insert_params[:quote_benefit_groups_attributes].select {|k,v| insert_params[:quote_benefit_groups_attributes][k][:id].blank?}
     end
-    if params[:commit] == "Add Employee"
+    case params[:commit]
+    when "Add Employee"
       new_family = true
       notice_message = "New employee added."
       scrollTo = 1
-    elsif params[:commit] == "Save Changes"
+    when "Save Changes"
       new_family = nil
       notice_message = "Successfully saved quote/employee roster."
       scrollTo = 0
-    elsif params[:commit] == "Save"
+    when "Save"
       new_family = @quote.quote_households.count > 0 ? '' : true
     end
     if (params[:quote][:employer_type] == 'prospect' && @quote.employer_type != 'prospect') || (params[:quote][:employer_type] == 'client' && @quote.employer_profile_id != params[:employer_profile_id])
       @quote.quote_households if @quote.quote_households.present?
       @quote.update_attributes(employer_profile_id: nil)
     end
-    if (@quote.update_attributes(update_params) && @quote.update_attributes(insert_params))
+    if @quote.update_attributes(update_params) && @quote.update_attributes(insert_params)
       duplicate_household = @quote.quote_households.where(family_id: params[:duplicate_household]).first.try(:id).try(:to_str)
       num_of_dup = duplicate_household ? params[:num_of_dup] : nil
       if params[:commit] == "Create Quote"
@@ -193,15 +192,15 @@ class BrokerAgencies::QuotesController < ApplicationController
   def create
     authorize @broker
     @quote = Quote.new(quote_params)
-    @quote.broker_role_id= @broker.id
+    @quote.broker_role_id = @broker.id
     if @format_errors.present?
-      flash[:error]= "#{@format_errors.join(', ')}"
-      render "new"  and return
+      flash[:error] = @format_errors.join(', ')
+      render "new" and return
     end
     if @quote.save
-      redirect_to  edit_broker_agencies_broker_role_quote_path(@broker.id, @quote),:flash => { :notice => "Successfully saved quote/employee roster." }
+      redirect_to edit_broker_agencies_broker_role_quote_path(@broker.id, @quote), flash: { notice: "Successfully saved quote/employee roster." }
     else
-      flash[:error]="Unable to save the employee roster : #{@quote.errors.full_messages.join(", ")}"
+      flash[:error] = "Unable to save the employee roster : #{@quote.errors.full_messages.join(', ')}"
       render "new"
     end
   end
@@ -214,11 +213,10 @@ class BrokerAgencies::QuotesController < ApplicationController
     # Sorting by the same parameter alternates between ascending and descending
     @order = @sort_by == session[:sort_by_copay] ? -1 : 1
     session[:sort_by_copay] = @order == 1 ? @sort_by : ''
-    if @sort_by && @sort_by.length > 0
+    if @sort_by && !@sort_by.empty?
       @sort_by = @sort_by.strip
-      sort_array = []
-      @qhps.each do |qhp|
-        sort_array.push( [qhp, get_visit_cost(qhp,@sort_by)]  )
+      sort_array = @qhps.map do |qhp|
+        [qhp, get_visit_cost(qhp,@sort_by)]
       end
       sort_array.sort!{|a,b| a[1]*@order <=> b[1]*@order}
       @qhps = sort_array.map{|item| item[0]}
@@ -232,7 +230,7 @@ class BrokerAgencies::QuotesController < ApplicationController
     @quote= Quote.find(params[:id])
     broker_role_id = @quote.broker_role.id
     @orgs = Organization.by_broker_role(broker_role_id)
-    @employer_profiles = @orgs.map {|o| o.employer_profile} unless @orgs.blank?
+    @employer_profiles = @orgs.map(&:employer_profile) unless @orgs.blank?
     @quote_benefit_group_dropdown = @quote.quote_benefit_groups
     if @employee_roster.is_a?(Hash)
       @employee_roster.each do |family_id , members|
@@ -269,23 +267,23 @@ class BrokerAgencies::QuotesController < ApplicationController
     @row = params[:row]
     @quote = Quote.find(params[:id])
     respond_to do |format|
-      format.js {
+      format.js do
         render "datatables/delete_quote_modal"
-      }
+      end
     end
   end
 
   def delete_quote
     authorize @broker
     @quote = Quote.find(params[:id])
-    if @quote.destroy
+    return unless @quote.destroy
       flash[:notice] = "Successfully deleted #{@quote.quote_name}."
       respond_to do |format|
-        format.html {
+        format.html do
           redirect_to my_quotes_broker_agencies_broker_role_quotes_path(@broker)
-        }
+        end
       end
-    end
+
   end
 
   def delete_member
@@ -295,24 +293,24 @@ class BrokerAgencies::QuotesController < ApplicationController
       return
     end
     @qh = @quote.quote_households.find(params[:household_id])
-    if @qh
-      if @qh.quote_members.find(params[:member_id]).delete
+    return unless @qh
+      return unless @qh.quote_members.find(params[:member_id]).delete
         respond_to do |format|
           format.js { render body: nil }
         end
-      end
-    end
+
+
   end
 
   def delete_household
     authorize @broker
     #render :text => "false", :format => :js if @quote.is_complete?
     @qh = @quote.quote_households.find(params[:household_id])
-    if @qh.destroy
+    return unless @qh.destroy
       respond_to do |format|
         format.js { render body: nil }
       end
-    end
+
   end
 
   def delete_benefit_group
@@ -342,7 +340,7 @@ class BrokerAgencies::QuotesController < ApplicationController
     benefit_group = Quote.find(params[:quote_id]).quote_benefit_groups.find(params[:benefit_id])
     return false if benefit_group.quote.is_complete?
     benefits = params[:benefits]
-    relationship_benefits = params[:coverage_kind] != 'dental' ?  benefit_group.quote_relationship_benefits : benefit_group.quote_dental_relationship_benefits
+    relationship_benefits = params[:coverage_kind] == 'dental' ?  benefit_group.quote_dental_relationship_benefits : benefit_group.quote_relationship_benefits
     relationship_benefits.each {|b| b.update_attributes!(premium_pct: benefits[b.relationship]) }
     render json: {}
   end
@@ -356,8 +354,8 @@ class BrokerAgencies::QuotesController < ApplicationController
     bg = (params[:benefit_group_id] && quote.quote_benefit_groups.find(params[:benefit_group_id])) || benefit_groups.first
     summary = {name: quote.quote_name,
      status: quote.aasm_state.capitalize,
-     plan_name: bg.plan && bg.plan.name || 'None',
-     dental_plan_name: "bg.dental_plan && bg.dental_plan.name" || 'None',
+     plan_name: bg.plan&.name || 'None',
+     dental_plan_name: "bg.dental_plan && bg.dental_plan.name" || 'None'
     }
     bg.quote_relationship_benefits.each{|bp| bp_hash[bp.relationship] = bp.premium_pct}
     bg.quote_dental_relationship_benefits.each{|bp| bp_dental_hash[bp.relationship] = bp.premium_pct}
@@ -374,11 +372,25 @@ class BrokerAgencies::QuotesController < ApplicationController
     authorize @broker
     @q = Quote.find(params[:quote_id])
 
-    bg = (params[:benefit_group_id] && @q.quote_benefit_groups.find(params[:benefit_group_id]))
+    bg = params[:benefit_group_id] && @q.quote_benefit_groups.find(params[:benefit_group_id])
 
     if params[:plan_id] && bg
       plan = Plan.find(params[:plan_id][8,100])
-      if params[:coverage_kind]  != 'dental'
+      if params[:coverage_kind] == 'dental'
+        column_for_dental_plan_option_kind = params[:elected].to_i # col 3 is custom, col 1 is single
+        elected_plan_choice = ['na', 'single_plan', 'single_carrier', 'single_plan'][params[:elected].to_i]
+        bg.dental_plan_option_kind = elected_plan_choice
+        bg.dental_plan = plan
+        bg.elected_dental_plan_ids = params[:elected_plans_list]
+        # bg.elected_dental_plan_ids = case column_for_dental_plan_option_kind.to_i
+        # when 1
+        #  [plan.id]
+        # when 2
+        #  [plan.id]
+        # else
+        #   params[:elected_plans_list].map{|plan_id| Plan.find(plan_id).id}
+        # end
+      else
         elected_plan_choice = ['na', 'Single Plan', 'Single Carrier', 'Metal Level'][params[:elected].to_i]
         bg.plan = plan
         bg.plan_option_kind = elected_plan_choice
@@ -399,20 +411,6 @@ class BrokerAgencies::QuotesController < ApplicationController
             bg.published_lowest_cost_plan = plan.id
             bg.published_highest_cost_plan = plan.id
         end
-      else
-        column_for_dental_plan_option_kind = params[:elected].to_i # col 3 is custom, col 1 is single
-        elected_plan_choice = ['na', 'single_plan', 'single_carrier', 'single_plan'][params[:elected].to_i]
-        bg.dental_plan_option_kind = elected_plan_choice
-        bg.dental_plan = plan
-        bg.elected_dental_plan_ids = params[:elected_plans_list]
-        # bg.elected_dental_plan_ids = case column_for_dental_plan_option_kind.to_i
-        # when 1
-        #  [plan.id]
-        # when 2
-        #  [plan.id]
-        # else
-        #   params[:elected_plans_list].map{|plan_id| Plan.find(plan_id).id}
-        # end
       end
       bg.save
     end
@@ -478,7 +476,10 @@ class BrokerAgencies::QuotesController < ApplicationController
     quote = Quote.find(params[:quote_id])
     @quote_benefit_group_dropdown = quote.quote_benefit_groups
 
-    unless employer_profile.blank?
+    if employer_profile.blank?
+      tmp_households
+      @employee_present = false
+    else
       @employees = employer_profile.census_employees.non_terminated
 
       @quote = Quote.new
@@ -491,14 +492,8 @@ class BrokerAgencies::QuotesController < ApplicationController
        @quote.quote_households << qhh
       end
        @employee_present = true
-    else
-      tmp_households
-      @employee_present = false
     end
-    respond_to do |format|
-      # format.html
-      format.js
-    end
+    respond_to(&:js)
   end
 
   def employee_type
@@ -506,28 +501,28 @@ class BrokerAgencies::QuotesController < ApplicationController
     @quote= Quote.find(params[:id])
     broker_role_id = @quote.broker_role.id
     @orgs = Organization.by_broker_role(broker_role_id)
-    @employer_profiles =  @orgs.blank? ? [] : @orgs.map {|o| o.employer_profile}.collect{|e| [e.legal_name, e.id]}
+    @employer_profiles =  @orgs.blank? ? [] : @orgs.map(&:employer_profile).collect{|e| [e.legal_name, e.id]}
     @employee_type = params[:type]
-    if @quote.employer_type == 'client' && params[:type] == 'prospect'
+    return unless @quote.employer_type == 'client' && params[:type] == 'prospect'
       @quote.quote_households.destroy_all
-    end
+
   end
 
 
 private
 
   def set_broker_role
-    begin
+
       @broker = BrokerRole.find(params[:broker_role_id])
     rescue Exception => e
       log(e, {:severity => "error", :error_message => "Error in #{controller_name} Controller #{action_name}
        Action. Current URL: #{request.original_url}"})
       raise e
-    end
+
   end
 
   def quote_download_link(quote)
-    return quote.published? ? view_context.link_to("Download PDF" , publish_broker_agencies_broker_role_quotes(:format => :pdf,:quote_id => quote.id)) : ""
+    quote.published? ? view_context.link_to("Download PDF" , publish_broker_agencies_broker_role_quotes(:format => :pdf,:quote_id => quote.id)) : ""
   end
 
   def employee_relationship_map
@@ -548,26 +543,25 @@ private
                     :employer_profile_id,
                     :quote_benefit_groups_attributes => [:id, :title],
                     :quote_households_attributes => [ :id, :family_id , :quote_benefit_group_id,
-                                       :quote_members_attributes => [ :id, :first_name, :last_name ,:dob,
-                                                                      :employee_relationship,:_delete ] ] )
+                                       {:quote_members_attributes => [ :id, :first_name, :last_name ,:dob,
+                                                                      :employee_relationship,:_delete ]} ] )
   end
 
   def format_date_params
     @format_errors=[]
     params[:quote][:start_on] =  Date.strptime(params[:quote][:start_on],"%Y-%m-%d") if params[:quote][:start_on]
-    if params[:quote][:quote_households_attributes]
-      params[:quote][:quote_households_attributes].values.each do |household_attribute|
-        if household_attribute[:quote_members_attributes].present?
-          household_attribute[:quote_members_attributes].values.map do |m|
-            begin
-              m[:dob] = Date.strptime(m[:dob],"%m/%d/%Y") unless m[:dob] && m[:dob].blank?
-            rescue Exception => e
-              @format_errors << "Error parsing date #{m[:dob]}"
-            end
-          end
+    return unless params[:quote][:quote_households_attributes]
+      params[:quote][:quote_households_attributes].each_value do |household_attribute|
+        next unless household_attribute[:quote_members_attributes].present?
+        household_attribute[:quote_members_attributes].values.map do |m|
+
+            m[:dob] = Date.strptime(m[:dob],"%m/%d/%Y") unless m[:dob]&.blank?
+          rescue Exception => e
+            @format_errors << "Error parsing date #{m[:dob]}"
+
         end
       end
-    end
+
   end
 
 
@@ -576,16 +570,16 @@ private
     if params[:quote][:quote_benefit_groups_attributes].present?
       params[:quote][:quote_benefit_groups_attributes].each do |k,v|
         #do not save if no data was entered for benefit group
-        if v["title"].blank?
-          params[:quote][:quote_benefit_groups_attributes].delete(k)
-        end
+        params[:quote][:quote_benefit_groups_attributes].delete(k) if v["title"].blank?
       end
     end
 
-    if params[:quote][:quote_households_attributes].present?
-      params[:quote][:quote_households_attributes].each do |key, fid|
+    return unless params[:quote][:quote_households_attributes].present?
+      params[:quote][:quote_households_attributes].each_key do |key|
         delete_family_key = 1
-        unless params[:quote][:quote_households_attributes][key][:quote_members_attributes].nil?
+        if params[:quote][:quote_households_attributes][key][:quote_members_attributes].nil?
+          params[:quote][:quote_households_attributes].delete(key)
+        else
           params[:quote][:quote_households_attributes][key][:quote_members_attributes].each do |k, mid|
             if mid['dob'].blank?
                 params[:quote][:quote_households_attributes][key][:quote_members_attributes].delete(k)
@@ -594,11 +588,9 @@ private
             end
           end
           params[:quote][:quote_households_attributes].delete(key) if delete_family_key == 1
-        else
-          params[:quote][:quote_households_attributes].delete(key)
         end
       end
-    end
+
   end
 
   def employee_roster_group_by_family_id
@@ -612,7 +604,7 @@ private
     @quote = Quote.find(params[:id])
   end
 
-  # TODO JIM Is this used anywhere?
+  # TODO: JIM Is this used anywhere?
   def find_benefit_group
     @benefit_group = QuoteBenefitGroup.find(params[:id])
   end
@@ -627,7 +619,7 @@ private
   # end
 
   def parse_employee_roster_file
-    begin
+
       roster = Roo::Spreadsheet.open(params[:employee_roster_file])
       sheet = roster.sheet(0)
       sheet_header_row = sheet.row(1)
@@ -647,7 +639,7 @@ private
       puts e.message
       flash[:error] = "Unable to parse the csv file"
       #redirect_to :action => "new" and return
-    end
+
   end
 
   def csv_for(employee_roster)
@@ -666,8 +658,8 @@ private
     end
   end
 
-  def dollar_value copay
-    return 10000 if copay == 'Not Applicable'
+  def dollar_value(copay)
+    return 10_000 if copay == 'Not Applicable'
     cost = 0
     cost += 1000 if copay.match(/after deductible/)
     return cost if copay.match(/No charge/)
@@ -675,7 +667,7 @@ private
     cost += (dollars && dollars[1]).to_i || 0
   end
 
-  def get_visit_cost qhp_cost_share_variance, visit_type
+  def get_visit_cost(qhp_cost_share_variance, visit_type)
     service_visit = qhp_cost_share_variance.qhp_service_visits.detect{|v| visit_type == v.visit_type }
     cost = dollar_value service_visit.copay_in_network_tier_1
   end
@@ -720,4 +712,5 @@ private
     @quote.quote_households << qhh
   end
 
+  end
 end

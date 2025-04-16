@@ -170,7 +170,7 @@ class Insured::FamilyMembersController < ApplicationController
     end
     consumer_role = @dependent.family_member.try(:person).try(:consumer_role)
     consumer_role.check_for_critical_changes(params[:dependent], @family) if consumer_role
-    if @dependent.update_attributes(params.require(:dependent)) && update_vlp_documents(consumer_role, 'dependent', @dependent)
+    if @dependent.update_attributes(dependent_person_params.to_h) && update_vlp_documents(consumer_role, 'dependent', @dependent)
       if @family.present?
         active_family_members_count = @family.active_family_members.count
         household = @family.active_household
@@ -193,7 +193,7 @@ class Insured::FamilyMembersController < ApplicationController
     end
   end
 
-private
+  private
   def set_family
     @family = @person.try(:primary_family)
   end
@@ -235,5 +235,64 @@ private
   def set_dependent
     @dependent = Forms::FamilyMember.find(params.require(:id))
     @family = Family.find(@dependent.family_id) if @dependent.family_id
+  end
+
+  def dependent_person_params
+    params.require(:dependent).permit(person_parameters_list)
+  end
+
+  def person_parameters_list
+    [
+      :family_id,
+      :first_name,
+      :last_name,
+      :middle_name,
+      :name_pfx,
+      :name_sfx,
+      :dob,
+      :ssn,
+      :no_ssn,
+      :gender,
+      :relationship,
+      :language_code,
+      :is_incarcerated,
+      :is_disabled,
+      :is_consumer_role,
+      :is_resident_role,
+      {:immigration_doc_statuses => []},
+      :us_citizen,
+      :naturalized_citizen,
+      :eligible_immigration_status,
+      :indian_tribe_member,
+      :tribal_id,
+      :tribal_state,
+      :tribal_name,
+      { :tribe_codes => [] },
+      :same_with_primary,
+      :no_dc_address,
+      :no_dc_address_reason,
+      :is_applying_coverage,
+      :is_homeless,
+      :is_temporarily_out_of_state,
+      :is_moving_to_state,
+      :user_id,
+      :dob_check,
+      :is_tobacco_user,
+      { :addresses => [:kind, :address_1, :address_2, :city, :state, :zip, :county, :id, :_destroy] }
+    ] + allowed_race_or_ethnicity_params
+  end
+
+  def allowed_race_or_ethnicity_params
+    [
+      race: [
+        :other_race,
+        {attested_races: []}
+      ],
+      ethnicity: [
+        :hispanic_or_latino,
+        :other_ethnicity,
+        {attested_ethnicities: []}
+      ]
+    ]
   end
 end

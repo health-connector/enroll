@@ -5,7 +5,7 @@ module BenefitSponsors
     module Employers
       class EmployerStaffRolesController < ::BenefitSponsors::ApplicationController
 
-        include Pundit
+        include Pundit::Authorization
 
         def new
           @staff = BenefitSponsors::Organizations::OrganizationForms::StaffRoleForm.for_new

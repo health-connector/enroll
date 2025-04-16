@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Inbox
   include Mongoid::Document
 
@@ -8,7 +10,7 @@ class Inbox
   embeds_many :messages
   accepts_nested_attributes_for :messages
 
-  before_create :generate_acccess_key
+  before_create :generate_access_key
 
   def read_messages
     messages.where(message_read: true, folder: Message::FOLDER_TYPES[:inbox])
@@ -31,8 +33,9 @@ class Inbox
     self
   end
 
-private
-  def generate_acccess_key
+  private
+
+  def generate_access_key
     self.access_key = [id.to_s, SecureRandom.hex(10)].join
   end
 end

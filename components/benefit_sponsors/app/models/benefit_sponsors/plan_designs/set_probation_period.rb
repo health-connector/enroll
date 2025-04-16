@@ -1,6 +1,6 @@
 module BenefitSponsors
   module PlanDesigns
-    class GetProbationPeriod
+    class SetProbationPeriod
 
       def process
       end

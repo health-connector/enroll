@@ -1,3 +1,5 @@
+require_dependency 'plan_year'
+
 class Organization
   include Mongoid::Document
   include SetCurrentUser
@@ -8,6 +10,7 @@ class Organization
   extend Acapi::Notifiers
 
   extend Mongorder
+
 
   ENTITY_KINDS = [
     "tax_exempt_organization",
