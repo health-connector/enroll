@@ -9,7 +9,7 @@ class PersistEnrollmentAndAssignToAssignments
 
     context.shopping_enrollments.each do |enrollment|
       if enrollment.save
-        find_assignment(enrollment)
+        assignment = find_assignment(enrollment)
         assignment.update(hbx_enrollment_id: enrollment.id)
         enrollment.update(benefit_group_assignment_id: assignment.id)
       else
