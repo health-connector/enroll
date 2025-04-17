@@ -61,7 +61,7 @@ namespace :reports do
               benefit_application = er.active_benefit_application || er.latest_benefit_application
               next unless benefit_application
 
-              fein                  = er.fein
+              fein                  = "=\"#{er.fein}\""
               legal_name            = er.legal_name
               dba                   = er.dba
               employer_aasm_state   = org.active_benefit_sponsorship.aasm_state
@@ -78,7 +78,7 @@ namespace :reports do
               if broker_account.present?
                 role = broker_account.broker_agency_profile.primary_broker_role
                 broker_name   = role.person.full_name
-                broker_phone  = role.phone
+                broker_phone  = "=\"#{role.phone}\""
                 broker_email  = role.email.address if role.email
               end
 
@@ -92,7 +92,7 @@ namespace :reports do
 
                 reference_products    = bg.sponsored_benefits.map(&:reference_product)
                 ref_plan_name     = reference_products.map(&:title).join(',')
-                ref_plan_year     = reference_products.map(&:active_year).join(',')
+                ref_plan_year     = reference_products.map(&:active_year).uniq.join(',').to_s
                 ref_plan_hios_id  = reference_products.map(&:hios_id).join(',')
 
                 contribution_levels = bg.sponsored_benefits.map(&:sponsor_contribution).map(&:contribution_levels)
