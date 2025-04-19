@@ -48,7 +48,7 @@ class ChangeEnrollmentDetails < MongoidMigrationTask
     if ENV['new_effective_on'].blank?
       raise "Input required: effective on" unless Rails.env.test?
     end
-    new_effective_on = Date.strptime(ENV['new_effective_on'].to_s, "%m/%d/%Y")
+    new_effective_on = ENV['new_effective_on'].to_date
     enrollments.each do |enrollment|
       enrollment.update_attributes!(:effective_on => new_effective_on)
       puts "Changed Enrollment effective on date to #{new_effective_on}" unless Rails.env.test?

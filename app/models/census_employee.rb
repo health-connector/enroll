@@ -1326,7 +1326,6 @@ class CensusEmployee < CensusMember
       transitions from: :cobra_terminated, to: :cobra_linked, :guard => :has_employee_role_linked?
       transitions from: :cobra_terminated, to: :cobra_eligible
     end
-
   end
 
   def self.roster_import_fallback_match(f_name, l_name, dob, bg_id)

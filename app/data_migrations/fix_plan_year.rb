@@ -7,7 +7,7 @@ class FixPlanYear < MongoidMigrationTask
 
     if employer_profile.present?
 
-      plan_year_start_on = Date.strptime(ENV['start_on'].to_s, "%m/%d/%Y")
+      plan_year_start_on = ENV['start_on'].to_date
       plan_year = employer_profile.plan_years.where(start_on: plan_year_start_on).first
       prev_state = plan_year.aasm_state
 
@@ -21,9 +21,9 @@ class FixPlanYear < MongoidMigrationTask
                            find_by_benefit_groups(plan_year.benefit_groups).select {|enrollment| enrollment.coverage_canceled?}
                          end
 
-      plan_year.end_on = Date.strptime(ENV['end_on'].to_s, "%m/%d/%Y") if ENV['end_on']
+      plan_year.end_on = ENV['end_on'].to_date if ENV['end_on']
       plan_year.aasm_state = ENV['aasm_state']
-      plan_year.terminated_on = ENV['terminated_on'].present? ? Date.strptime(ENV['terminated_on'].to_s, "%m/%d/%Y") : " "
+      plan_year.terminated_on = ENV['terminated_on'].present? ? ENV['terminated_on'].to_date : " "
 
       if plan_year.save!
         plan_year.workflow_state_transitions << WorkflowStateTransition.new(from_state: prev_state, to_state: ENV['aasm_state'])

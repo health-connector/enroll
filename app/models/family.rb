@@ -81,12 +81,12 @@ class Family
          "households.hbx_enrollments.created_at" => 1},
          {name: "state_and_created"})
 
-    index({"households.hbx_enrollments.kind" => 1,
-         "households.hbx_enrollments.aasm_state" => 1,
-         "households.hbx_enrollments.effective_on" => 1,
-         "households.hbx_enrollments.terminated_on" => 1
-         },
-         {name: "kind_and_state_and_created_and_terminated"})
+  index({"households.hbx_enrollments.kind" => 1,
+       "households.hbx_enrollments.aasm_state" => 1,
+       "households.hbx_enrollments.effective_on" => 1,
+       "households.hbx_enrollments.terminated_on" => 1
+       },
+       {name: "kind_and_state_and_created_and_terminated"})
 
   index({"households.hbx_enrollments._id" => 1})
   index({"households.hbx_enrollments.kind" => 1,
@@ -1155,10 +1155,10 @@ class Family
     document_status_outstanding = []
     self.active_family_members.each do |member|
       member.person.verification_types.each do |type|
-      if member.person.consumer_role && is_document_not_verified(type, member.person)
-        documents_list <<  (member.person.consumer_role.has_docs_for_type?(type) && verification_type_status(type, member.person) != "outstanding")
-        document_status_outstanding << member.person.consumer_role.has_outstanding_documents?
-      end
+        if member.person.consumer_role && is_document_not_verified(type, member.person)
+          documents_list <<  (member.person.consumer_role.has_docs_for_type?(type) && verification_type_status(type, member.person) != "outstanding")
+          document_status_outstanding << member.person.consumer_role.has_outstanding_documents?
+        end
       end
     end
     case

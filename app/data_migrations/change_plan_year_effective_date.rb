@@ -6,7 +6,7 @@ class ChangePlanYearEffectiveDate < MongoidMigrationTask
     begin
       organizations = Organization.where(fein: ENV['fein'])
       state = ENV['aasm_state'].to_s
-      start_on = Date.strptime((ENV['py_new_start_on']).to_s, "%m/%d/%Y")
+      start_on = ENV['py_new_start_on'].to_date
       hios_id = ENV['referenece_plan_hios_id']
       ref_plan_active_year = ENV['ref_plan_active_year']
       action_on_enrollments = ENV['action_on_enrollments']

@@ -3,7 +3,7 @@
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "revert_termination_for_employee")
 
-describe RevertTerminationForEmployee, dbclean: :after_each do
+describe RevertTerminationForEmployee, dbclean: :after_each do # comeback to later
 
   let(:given_task_name) { "revert_termination_for_employee" }
   subject { RevertTerminationForEmployee.new(given_task_name, double(:current_scope => nil)) }

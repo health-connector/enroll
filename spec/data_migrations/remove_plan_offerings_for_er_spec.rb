@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require File.join(Rails.root, "app", "data_migrations", "remove_plan_offerings_for_er")
+require File.join(Rails.root, "app", "data_migrations", "remove_plan_offerings_for_employer")
 
 describe RemovePlanOfferingsForEmployer, dbclean: :after_each do
   let(:given_task_name) { "remove_plan_offerings" }

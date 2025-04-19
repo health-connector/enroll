@@ -4,7 +4,7 @@ class CreateBrokerAgencyAccountForEmployer < MongoidMigrationTask
 
     emp_org = Organization.where(:'employer_profile'.exists=>true, hbx_id: ENV['emp_hbx_id']).first
     br_agency_profile_org = Organization.where(:'broker_agency_profile'.exists=>true, hbx_id: ENV['br_agency_hbx_id']).first
-    start_on = Date.strptime(ENV['br_start_on'].to_s, "%m/%d/%Y")
+    start_on = ENV['br_start_on'].to_date
 
     if emp_org.present? && br_agency_profile_org.present?
       employer_profile=emp_org.employer_profile
