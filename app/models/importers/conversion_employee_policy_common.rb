@@ -66,11 +66,11 @@ module Importers
     end
 
     def subscriber_dob=(val)
-      @subscriber_dob = val.blank? ? nil : (Date.strptime(val, "%m/%d/%Y") rescue nil)
+      @subscriber_dob = val.blank? ? nil : val.to_date rescue nil
     end
 
     def benefit_begin_date=(val)
-      @benefit_begin_date = val.blank? ? nil : (Date.strptime(val.to_s, "%m/%d/%Y") rescue nil)
+      @benefit_begin_date = val.blank? ? nil : val.to_date rescue nil
     end
 
     def subscriber_zip=(val)

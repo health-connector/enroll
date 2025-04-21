@@ -134,7 +134,7 @@ describe Forms::BrokerCandidate do
     end
 
     it "should raise an error" do
-      person_obj.broker_role = broker_role
+      person_obj.broker_role = broker_role.dup
       subject.valid?
       expect(subject.errors.to_hash[:base]).to include("NPN has already been claimed by another broker. Please contact HBX.")
     end

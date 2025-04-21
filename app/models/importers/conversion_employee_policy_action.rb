@@ -72,7 +72,7 @@ module Importers
       non_terminated_employees = candidate_employees.reject do |ce|
         (!ce.employment_terminated_on.blank?) && ce.employment_terminated_on <= Date.today
       end
-    
+
       @found_employee = non_terminated_employees.sort_by(&:hired_on).last
     end
 
@@ -91,9 +91,9 @@ module Importers
 
       if find_benefit_group_assignment.blank?
         if plan_year = employer.plan_years.published_and_expired_plan_years_by_date(employer.registered_on).first
-          employee.benefit_group_assignments << BenefitGroupAssignment.new({ 
-            benefit_group: plan_year.benefit_groups.first, 
-            start_on: plan_year.start_on, 
+          employee.benefit_group_assignments << BenefitGroupAssignment.new({
+            benefit_group: plan_year.benefit_groups.first,
+            start_on: plan_year.start_on,
             is_active: PlanYear::PUBLISHED.include?(plan_year.aasm_state)})
           employee.save
         end
