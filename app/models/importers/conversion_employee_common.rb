@@ -61,11 +61,11 @@ module Importers
     end
 
     def hire_date=(val)
-      @hire_date = val.blank? ? nil : (Date.strptime(val, "%m/%d/%Y") rescue nil)
+      @hire_date = val.blank? ? nil : val.to_date rescue nil
     end
 
     def subscriber_dob=(val)
-      @subscriber_dob = val.blank? ? nil : (Date.strptime(val, "%m/%d/%Y") rescue nil)
+      @subscriber_dob = val.blank? ? nil : val.to_date rescue nil
     end
 
     def subscriber_zip=(val)
@@ -104,7 +104,7 @@ module Importers
 
       define_method("dep_#{num}_dob=") do |val|
         dob_value = begin
-                      val.blank? ? nil : Date.strptime(val, "%m/%d/%Y")
+                      val.blank? ? nil : val.to_date
                     rescue ArgumentError # rubocop:disable Lint/EmptyRescueClause
                       nil
                     end
