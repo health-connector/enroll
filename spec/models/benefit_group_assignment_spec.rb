@@ -120,7 +120,7 @@ describe BenefitGroupAssignment, type: :model, dbclean: :around_each do
 
     context "and invalid dates are specified" do
       let(:params) {valid_params}
-      let(:benefit_group_assignment)  { BenefitGroupAssignment.new(**params) }
+      let(:benefit_group_assignment)  { BenefitGroupAssignment.new(**params.merge(start_on: benefit_package.start_on)) }
 
       context "start too early" do
         before { benefit_group_assignment.start_on = benefit_package.plan_year.start_on - 1.day }
@@ -523,9 +523,56 @@ describe BenefitGroupAssignment, type: :model, dbclean: :around_each do
     end
   end
 
-  # describe '.cover_date' do
+  describe '.is_active?' do
+    let!(:census_employee) do
+      FactoryBot.create(
+        :census_employee,
+        :with_active_assignment,
+        benefit_sponsorship: benefit_sponsorship,
+        employer_profile: employer_profile,
+        employee_role_id: employee_role_100.id,
+        benefit_group: benefit_package
+      )
+    end
 
-  #   before do
+    let(:benefit_group_assignment) { census_employee.benefit_group_assignments.first }
+
+    context "when benefit application is in enrollment_extended state" do
+      before do
+        allow(benefit_group_assignment).to receive(:benefit_application).and_return(double(is_enrolling?: true, start_on: benefit_package.start_on))
+      end
+
+      it "returns true if the date is within the benefit application period" do
+        expect(benefit_group_assignment.is_active?(benefit_package.start_on)).to be_truthy
+      end
+
+      it "returns false if the date is outside the benefit application period" do
+        expect(benefit_group_assignment.is_active?(benefit_package.start_on - 1.day)).to be_falsey
+      end
+    end
+
+    context "when benefit application is not in enrollment_extended state" do
+      before do
+        allow(benefit_group_assignment).to receive(:benefit_application).and_return(double(is_enrolling?: false))
+      end
+
+      it "returns true if the date is within the assignment period" do
+        expect(benefit_group_assignment.is_active?(benefit_group_assignment.start_on)).to be_truthy
+      end
+
+      it "returns false if the date is outside the assignment period" do
+        expect(benefit_group_assignment.is_active?(benefit_group_assignment.start_on - 1.day)).to be_falsey
+      end
+    end
+
+    context "when the assignment is canceled" do
+      before { allow(benefit_group_assignment).to receive(:canceled?).and_return(true) }
+
+      it "returns false" do
+        expect(benefit_group_assignment.is_active?).to be_falsey
+      end
+    end
+  end
   #     census_employee.benefit_group_assignments = []
   #   end
 
