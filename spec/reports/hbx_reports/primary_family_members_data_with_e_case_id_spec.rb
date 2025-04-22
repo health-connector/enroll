@@ -4,10 +4,10 @@ require "rails_helper"
 require 'csv'
 require File.join(Rails.root, "app", "reports", "hbx_reports", "primary_family_members_data_with_e_case_id")
 
-describe PrimaryFamilyMembersDataWithECaseId do
+describe HbxReports::PrimaryFamilyMembersDataWithECaseId do
 
   let(:given_task_name) { "with_e_case_id" }
-  subject { PrimaryFamilyMembersDataWithECaseId.new(given_task_name, double(:current_scope => nil)) }
+  subject { HbxReports::PrimaryFamilyMembersDataWithECaseId.new(given_task_name, double(:current_scope => nil)) }
   let(:person1) do
     FactoryBot.create(:person,
                       :with_consumer_role,

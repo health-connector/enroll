@@ -537,7 +537,7 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
       end
     end
 
-    context 'When there are two active benefit applications' do
+    context 'When there are two active benefit applications' do # comeback later
       let(:current_year) { TimeKeeper.date_of_record.year }
       let(:effective_period) {current_effective_date..current_effective_date.next_year.prev_day}
       let(:open_enrollment_period) {effective_period.min.prev_month..(effective_period.min - 10.days)}
