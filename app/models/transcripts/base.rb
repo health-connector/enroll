@@ -78,10 +78,13 @@ module Transcripts
         other_assocs = @transcript[:other].send(association[:association]).reject{|member| member.coverage_end_on.present? && member.coverage_end_on <= member.coverage_start_on}
       else
         association[:association] = "product" if association[:association] == "plan"
-        other_assocs = @transcript[:other].send(association[:association]).to_a.dup
+        other_assocs = @transcript[:other].send(association[:association]).dup
+        other_assocs = [other_assocs] unless other_assocs.is_a? Enumerable
       end
 
-      source_other_pairs = @transcript[:source].send(association[:association]).to_a.map do |source_assoc|
+      source_result = @transcript[:source].send(association[:association])
+      source_result = [source_result] unless source_result.is_a? Enumerable
+      source_other_pairs = source_result.map do |source_assoc|
         enumeration_value = source_assoc.send(association[:enumeration_field])
         other_assoc = other_assocs.detect{|other_assoc| other_assoc.send(association[:enumeration_field]) == enumeration_value}
         other_assocs.delete(other_assoc)
