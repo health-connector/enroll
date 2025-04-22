@@ -7,6 +7,12 @@ describe CompositeRatingListBillPrecalculator, "given:
 - an hbx_enrollment
 - a benefit group
 " do
+  # let(:enrollment) { FactoryBot.create(:hbx_enrollment, household: family.active_household, hbx_enrollment_members: [subscriber]) }
+  # let(:subscriber) do
+  #   FactoryBot.build(:hbx_enrollment_member, is_subscriber: true,  applicant_id: family.family_members.first.id, coverage_start_on: TimeKeeper.date_of_record.beginning_of_month, eligibility_date: TimeKeeper.date_of_record.beginning_of_month)
+  # end
+  # let(:family) { FactoryBot.build(:family, :with_primary_family_member_and_dependent)}
+
   let(:enrollment) { instance_double(HbxEnrollment, :class => HbxEnrollment, :hbx_enrollment_members => [subscriber]) }
   let(:subscriber) { instance_double(HbxEnrollmentMember, :class => HbxEnrollmentMember) }
   let(:benefit_group) { instance_double(BenefitGroup, :plan_year => plan_year, :rating_area => rating_area) }
@@ -27,7 +33,7 @@ describe CompositeRatingListBillPrecalculator, "given:
     allow(benefit_group).to receive(:composite_participation_rate_factor_for).with(plan).and_return(1.0)
   end
 
-  it "gives the correct total premium" do
+  it "gives the correct total premium" do # TODO comeback later had seems like it worked wrong before
     expect(subject.total_premium).to eq expected_total_premium
   end
 end
@@ -37,7 +43,7 @@ describe CompositeRatingListBillPrecalculator, "given:
 - a census employee
 - a benefit group
 " do
-  let(:census_employee) { instance_double(CensusEmployee, :class => CensusEmployee, :census_dependents => []) }
+  let(:census_employee) { FactoryBot.build(:census_employee) }
   let(:benefit_group) { instance_double(BenefitGroup, :plan_year => plan_year, :rating_area => rating_area) }
   let(:plan_id) { double }
   let(:plan) { instance_double(Plan, :id => plan_id) }
@@ -59,5 +65,4 @@ describe CompositeRatingListBillPrecalculator, "given:
   it "gives the correct total premium" do
     expect(subject.total_premium).to eq expected_total_premium
   end
-
 end

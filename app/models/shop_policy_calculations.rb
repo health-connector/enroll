@@ -10,7 +10,7 @@ module ShopPolicyCalculations
   end
 
   def members
-    case member_provider.class
+    case member_provider
     when HbxEnrollment
       member_provider.hbx_enrollment_members
     when CensusEmployee
