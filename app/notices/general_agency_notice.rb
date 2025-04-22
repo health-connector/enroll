@@ -14,7 +14,7 @@ class GeneralAgencyNotice < Notice
     args[:to] = general_agent.work_email_or_best
     args[:name] = general_agent.full_name
     args[:recipient_document_store] = general_agency_profile
-    self.header = "notices/shared/shop_header.html.erb"
+    self.header = "notices/shared/shop_header"
     super(args)
   end
 

@@ -111,7 +111,7 @@ module BenefitSponsors
         end
 
         it 'should assign page_alphabets variable' do
-          expect(assigns(:filter_criteria)).to eq ({"q"=>broker_agency_profile1.legal_name[0]})
+          expect(assigns(:filter_criteria).to_h).to eq ({"q"=>broker_agency_profile1.legal_name[0]})
         end
 
         it 'should assign employer_profile variable' do

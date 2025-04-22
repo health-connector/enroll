@@ -13,7 +13,7 @@ class ShopBrokerNotices::BrokerHiredNotice < ShopBrokerNotice
     args[:to] = broker.work_email_or_best
     args[:name] = broker.full_name
     args[:recipient_document_store] = broker
-    self.header = "notices/shared/shop_header.html.erb"
+    self.header = "notices/shared/shop_header"
     super(employer_profile, args)
   end
 
