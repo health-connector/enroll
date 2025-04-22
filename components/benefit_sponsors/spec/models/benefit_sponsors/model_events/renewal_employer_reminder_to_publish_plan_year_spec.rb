@@ -13,11 +13,11 @@ RSpec.describe 'BenefitSponsors::ModelEvents::RenewalEmployerReminderToPublishPl
 
   let(:renewal_effective_date)  { TimeKeeper.date_of_record.next_month.beginning_of_month }
   let(:current_effective_date)  { renewal_effective_date.prev_year }
-  let(:employer_profile) { abc_profile }  
+  let(:employer_profile) { abc_profile }
   let(:model_instance) { renewal_application }
 
   let!(:date_mock_object) { double("Date", day: Settings.aca.shop_market.renewal_application.publish_due_day_of_month - 2 )}
-  
+
   before do
     model_instance.benefit_application_items.create(
       effective_period: renewal_effective_date..(renewal_effective_date + 1.year) - 1.day,
@@ -29,11 +29,11 @@ RSpec.describe 'BenefitSponsors::ModelEvents::RenewalEmployerReminderToPublishPl
   describe "ModelEvent" do
     it "should trigger model event" do
       model_instance.class.observer_peers.keys.each do |observer|
-        expect(observer).to receive(:notifications_send) do |instance, model_event|
+        expect(observer).to receive(:notifications_send) do |_instance, model_event|
           expect(model_event).to be_an_instance_of(BenefitSponsors::ModelEvents::ModelEvent)
         end
 
-        expect(observer).to receive(:notifications_send) do |instance, model_event|
+        expect(observer).to receive(:notifications_send) do |_instance, model_event|
           expect(model_event).to be_an_instance_of(BenefitSponsors::ModelEvents::ModelEvent)
           expect(model_event).to have_attributes(:event_key => :renewal_plan_year_publish_dead_line, :klass_instance => model_instance, :options => {})
         end
