@@ -7,7 +7,7 @@ Mongoid::Migration.say_with_time("Load MA Pricing Models") do
     loaded_class_2 = ::BenefitMarkets::PricingModels::TieredPricingUnit
     loaded_class_3 = ::BenefitMarkets::PricingModels::RelationshipPricingUnit
     yaml_str = File.read(f_name)
-    data = YAML.load(yaml_str)
+    data = YAML.unsafe_load(yaml_str)
     data.new_record = true
     data.save!
   end
@@ -18,7 +18,7 @@ Mongoid::Migration.say_with_time("Load MA Contribution Models") do
     loaded_class_1 = ::BenefitMarkets::ContributionModels::ContributionModel
     loaded_class_2 = ::BenefitMarkets::ContributionModels::FixedPercentContributionUnit
     yaml_str = File.read(f_name)
-    data = YAML.load(yaml_str)
+    data = YAML.unsafe_load(yaml_str)
     data.new_record = true
     data.save!
   end

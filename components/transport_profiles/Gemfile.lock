@@ -27,7 +27,7 @@ PATH
       rack (>= 2.2.13)
       rails (~> 6.1.7.8)
       rubyzip (>= 1.3.0)
-      symmetric-encryption (~> 3.6.0)
+      symmetric-encryption (~> 4.6.0)
       transport_gateway
 
 GEM
@@ -1784,8 +1784,8 @@ GEM
       activesupport (>= 6.1)
       sprockets (>= 3.0.0)
     strscan (3.1.0)
-    symmetric-encryption (3.6.0)
-      coercible (>= 1.0.0)
+    symmetric-encryption (4.6.0)
+      coercible (~> 1.0)
     thor (1.3.1)
     thread_safe (0.3.6)
     timeout (0.4.1)
@@ -1802,6 +1802,7 @@ GEM
 
 PLATFORMS
   arm64-darwin-23
+  arm64-darwin-24
 
 DEPENDENCIES
   acapi!

@@ -84,7 +84,6 @@ Rails.application.routes.draw do
         post :update_setting
         get :staff_index
         get :assister_index
-        get :request_help
         get :aptc_csr_family_index
         get :binder_index
         get :binder_index_datatable
@@ -295,6 +294,7 @@ Rails.application.routes.draw do
       get 'verify_attestation'
       delete 'delete_attestation_documents'
       #get 'revert_attestation'
+      post 'edit', on: :member # This POST request hides sensitive data per security review
     end
 
     resources :employer_profiles do
@@ -587,6 +587,12 @@ Rails.application.routes.draw do
         resources :agents do
           collection do
             get :begin_consumer_enrollment
+          end
+        end
+
+        resources :hbx_profiles do
+          collection do
+            get :request_help
           end
         end
 
