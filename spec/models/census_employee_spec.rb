@@ -278,7 +278,7 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
 
   describe "Employee terminated" do
     let(:params) {valid_params}
-    let(:initial_census_employee) {CensusEmployee.new(**params)}
+    let(:initial_census_employee) { CensusEmployee.new(**params) }
     context "and employee is terminated and reported by employer on timely basis" do
 
       let(:termination_maximum) { Settings.aca.shop_market.retroactive_coverage_termination_maximum.to_hash }
@@ -467,8 +467,8 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
 
   describe "When plan year is published" do
     let(:params) {valid_params}
-    let(:initial_census_employee) {CensusEmployee.new(**params)}
-    let(:benefit_group_assignment) {FactoryBot.create(:benefit_sponsors_benefit_group_assignment, benefit_group: benefit_group, census_employee: initial_census_employee)}
+    let(:initial_census_employee) { CensusEmployee.new(**params) }
+    let(:benefit_group_assignment) { FactoryBot.create(:benefit_sponsors_benefit_group_assignment, benefit_group: benefit_group, census_employee: initial_census_employee) }
 
     context "and a roster match by SSN and DOB is performed" do
 
@@ -543,16 +543,18 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
       let(:open_enrollment_period) {effective_period.min.prev_month..(effective_period.min - 10.days)}
       let!(:service_areas2) {benefit_sponsorship.service_areas_on(effective_period.min)}
       let!(:benefit_sponsor_catalog2) {benefit_sponsorship.benefit_sponsor_catalog_for(effective_period.min)}
+
       let(:initial_application2) do
-        ben_app = BenefitSponsors::BenefitApplications::BenefitApplication.new(
-          benefit_sponsor_catalog: benefit_sponsor_catalog2,
-          open_enrollment_period: open_enrollment_period,
-          aasm_state: :active,
-          recorded_rating_area: rating_area,
-          recorded_service_areas: service_areas2,
-          fte_count: 5,
-          pte_count: 0,
-          msp_count: 0
+        ben_app = create(:benefit_sponsors_benefit_application,
+                         benefit_sponsorship: benefit_sponsorship,
+                         benefit_sponsor_catalog: benefit_sponsor_catalog2,
+                         open_enrollment_period: open_enrollment_period,
+                         aasm_state: :active,
+                         recorded_rating_area: rating_area,
+                         recorded_service_areas: service_areas2,
+                         fte_count: 5,
+                         pte_count: 0,
+                         msp_count: 0
         )
         ben_app.benefit_application_items.build(effective_period: effective_period, sequence_id: 1, state: :active)
         ben_app
