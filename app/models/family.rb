@@ -1156,7 +1156,7 @@ class Family
     self.active_family_members.each do |member|
       member.person.verification_types.each do |type|
         if member.person.consumer_role && is_document_not_verified(type, member.person)
-          documents_list <<  (member.person.consumer_role.has_docs_for_type?(type) && verification_type_status(type, member.person) != "outstanding")
+          documents_list << (member.person.consumer_role.has_docs_for_type?(type) && verification_type_status(type, member.person) != "outstanding")
           document_status_outstanding << member.person.consumer_role.has_outstanding_documents?
         end
       end

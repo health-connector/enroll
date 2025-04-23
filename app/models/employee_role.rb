@@ -50,6 +50,7 @@ class EmployeeRole
     end
     true
   end
+
   after_build do |employee_role|
     if employee_role.person.present? && @changed_nested_person_attributes.present?
       employee_role.person.update_attributes(@changed_nested_person_attributes)

@@ -106,6 +106,7 @@ module BenefitSponsors
     add_observer ::BenefitSponsors::Observers::BenefitApplicationObserver.new, [:notifications_send]
 
     before_validation :pull_benefit_sponsorship_attributes
+
     after_create      :renew_benefit_package_assignments
     after_save        :notify_on_save
     after_create      :notify_on_create, :set_expiration_date

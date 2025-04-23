@@ -21,12 +21,13 @@ describe RevertTerminationForEmployee, dbclean: :after_each do # comeback to lat
     let(:census_employee) { FactoryBot.build(:census_employee, :termination_details) }
 
     before do
-      ClimateControl.modify enrollment_hbx_id: enrollment.hbx_id,census_employee_id: census_employee.id do
+      ClimateControl.modify enrollment_hbx_id: enrollment.hbx_id, census_employee_id: census_employee.id do
         allow(ShopNoticesNotifierJob).to receive(:perform_later).and_return(true)
         census_employee.class.skip_callback(:save, :after, :assign_default_benefit_package)
         census_employee.save! # We can only change the census record SSN & DOB when CE is in "eligible" status
         census_employee.aasm_state = "employment_terminated"
         census_employee.employee_role_id = employee_role.id
+        census_employee.benefit_sponsors_employer_profile_id = nil
         census_employee.save!
         subject.migrate
         census_employee.reload

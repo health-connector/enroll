@@ -9,13 +9,13 @@ class AssisterRole
 
   accepts_nested_attributes_for :person
   field :organization, type: String
-  
+
   def parent
     person
   end
 
   class << self
-    
+
     def find(id)
       return nil if id.blank?
       people = Person.where("assister_role._id" => BSON::ObjectId.from_string(id))

@@ -142,7 +142,7 @@ describe EmployeeRole, dbclean: :after_each do
     end
 
     context "with valid parameters" do
-      let(:employee_role) {saved_person.employee_roles.build(valid_params)}
+      let(:employee_role) { saved_person.employee_roles.build(valid_params) }
 
       # %w[employer_profile ssn dob gender hired_on].each do |m|
       %w[ssn dob gender hired_on].each do |m|
