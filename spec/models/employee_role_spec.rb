@@ -108,7 +108,7 @@ describe EmployeeRole, dbclean: :after_each do
     sponsorship
   end
 
-  describe "built" do
+  describe "built" do # TODO comeback later
     let(:address) {FactoryBot.build(:address)}
     let(:saved_person) {FactoryBot.create(:person, first_name: "Annie", last_name: "Lennox", addresses: [address])}
     let(:new_person) {FactoryBot.build(:person, first_name: "Carly", last_name: "Simon")}
@@ -282,7 +282,7 @@ describe EmployeeRole, dbclean: :after_each do
 =end
 end
 
-describe EmployeeRole, dbclean: :after_each do
+describe EmployeeRole, dbclean: :after_each do # TODO comeback
   let(:person_created_at) {10.minutes.ago}
   let(:person_updated_at) {8.minutes.ago}
   let(:employee_role_created_at) {9.minutes.ago}

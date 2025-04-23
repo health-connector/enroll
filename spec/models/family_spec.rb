@@ -1095,7 +1095,7 @@ describe Family, "given a primary applicant and a dependent", dbclean: :after_ea
   end
 
   it "should build the consumer role for the dependents when primary has a consumer role" do
-    person.consumer_role = FactoryBot.create(:consumer_role)
+    person.consumer_role = FactoryBot.build(:consumer_role)
     person.save
     expect(family_member_dependent.person.consumer_role).to eq nil
     family_member_dependent.family.check_for_consumer_role
@@ -1103,9 +1103,9 @@ describe Family, "given a primary applicant and a dependent", dbclean: :after_ea
   end
 
   it "should return the existing consumer roles if dependents already have a consumer role" do
-    person.consumer_role = FactoryBot.create(:consumer_role)
+    person.consumer_role = FactoryBot.build(:consumer_role)
     person.save
-    cr = FactoryBot.create(:consumer_role)
+    cr = FactoryBot.build(:consumer_role)
     person_two.consumer_role = cr
     person_two.save
     expect(family_member_dependent.person.consumer_role).to eq cr
