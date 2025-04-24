@@ -11,19 +11,15 @@ RSpec.describe "insured/consumer_roles/_form.html.erb" do
   #end
 
   before :each do
-    helper = Object.new.extend ActionView::Helpers::FormHelper
-    helper.extend ActionView::Context
-    helper.extend ActionDispatch::Routing::PolymorphicRoutes
-    helper.extend ActionView::Helpers::FormOptionsHelper
     person.build_consumer_role if person.consumer_role.blank?
     person.consumer_role.build_nested_models_for_person
-    mock_form = ActionView::Helpers::FormBuilder.new(:person, person, helper, {})
-    stub_template "shared/_consumer_fields.html.erb" => ''
+    mock_form = ActionView::Helpers::FormBuilder.new(:person, person, view, {})
+    stub_template "shared/_consumer_fields" => ''
     sign_in current_user
     allow(view).to receive(:policy_helper).and_return(double("FamilyPolicy", updateable?: true))
     assign(:consumer_role, person.consumer_role)
     assign(:person, person)
-    render partial: "insured/consumer_roles/form", locals: {f: mock_form}
+    render partial: "insured/consumer_roles/form", locals: { f: mock_form }
   end
 
   it "should have title" do

@@ -15,7 +15,7 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
     end
 
     it "should render a form for the questions" do
-      render :template => "insured/interactive_identity_verifications/new.html.haml"
+      render :template => "insured/interactive_identity_verifications/new"
       expect(rendered).to have_selector("form")
     end
   end

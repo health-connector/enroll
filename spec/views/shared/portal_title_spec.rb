@@ -24,7 +24,7 @@ RSpec.describe "layouts/_header.html.erb", :dbclean => :around_each do
   it 'identifies HBX Staff' do
     current_user.roles = ['hbx_staff']
     current_user.save
-    render :template => 'layouts/_header.html.erb'
+    render :template => 'layouts/_header'
     expect(rendered).to match(/I'm an Admin/)
   end
   it 'identifies Brokers' do

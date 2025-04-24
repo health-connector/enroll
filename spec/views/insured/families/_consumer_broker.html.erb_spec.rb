@@ -27,12 +27,12 @@ RSpec.describe "insured/families/_consumer_broker.html.erb" do
     end
 
     it "should render the partial" do
-      render partial: 'insured/families/consumer_broker.html.erb', locals: { title: nil}
+      render partial: 'insured/families/consumer_broker', locals: { title: nil}
       expect(rendered).to match(/Your Broker/)
     end
 
     it "the partial should have Assignment Date" do
-      render partial: 'insured/families/consumer_broker.html.erb', locals: { title: nil}
+      render partial: 'insured/families/consumer_broker', locals: { title: nil}
       expect(rendered).to match(/Assignment Date/)
     end
   end

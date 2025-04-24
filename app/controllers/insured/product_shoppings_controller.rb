@@ -228,7 +228,7 @@ module Insured
 
     def send_receipt_emails
       UserMailer.generic_consumer_welcome(@person.first_name, @person.hbx_id, @person.emails.first.address).deliver_now
-      body = render_to_string 'user_mailer/secure_purchase_confirmation.html.erb', layout: false
+      body = render_to_string 'user_mailer/secure_purchase_confirmation', layout: false
       from_provider = HbxProfile.current_hbx
       message_params = {
         sender_id: from_provider.try(:id),

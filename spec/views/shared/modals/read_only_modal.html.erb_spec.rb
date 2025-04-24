@@ -5,7 +5,7 @@ require 'rails_helper'
 describe "shared/read_only_modal.html.erb with all options" do
 
   before :each do
-    render :partial => "shared/modals/read_only_modal.html.erb", locals: { modal_id: 'test_id', header_icon: "<i class='fa fa-life-ring' aria-hidden='true'></i>", title: "test modal header text", body: "test modal body text" }
+    render :partial => "shared/modals/read_only_modal", locals: { modal_id: 'test_id', header_icon: "<i class='fa fa-life-ring' aria-hidden='true'></i>", title: "test modal header text", body: "test modal body text" }
   end
 
   it "should display the modal title" do

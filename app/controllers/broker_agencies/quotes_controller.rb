@@ -459,7 +459,7 @@ module BrokerAgencies
     standard_component_ids = get_standard_component_ids
     @qhps = Products::QhpCostShareVariance.find_qhp_cost_share_variances(standard_component_ids, @active_year, "Health")
     render pdf: 'plan_comparison_export',
-           template: 'broker_agencies/quotes/_plan_comparison_export.html.erb',
+           template: 'broker_agencies/quotes/_plan_comparison_export',
            disposition: 'attachment',
            locals: { qhps: @qhps }
   end

@@ -59,7 +59,7 @@ class IvlNotice < Notice
       encoding: 'utf8',
       header: {
         content: ApplicationController.new.render_to_string({
-          template: 'notices/shared/header_for_documents.html.erb',
+          template: 'notices/shared/header_for_documents',
           layout: false,
           locals: { recipient: recipient, notice: notice}
           }),
@@ -67,7 +67,7 @@ class IvlNotice < Notice
     }
     options.merge!({footer: {
       content: ApplicationController.new.render_to_string({
-        template: "notices/shared/footer_ivl.html.erb",
+        template: "notices/shared/footer_ivl",
         layout: false,
         locals: {notice: notice}
       })

@@ -2,7 +2,7 @@ class IvlNotices::ConditionalEligibilityNoticeBuilder < IvlNotices::NoticeBuilde
 
   def initialize(hbx_enrollment_id, template_name=nil)
     template_obj = {}
-    template_obj[:template] = (template_name || "notices/ivl/9f_conditional_eligibility_confirmation_notification.html.erb")
+    template_obj[:template] = (template_name || "notices/ivl/9f_conditional_eligibility_confirmation_notification")
     super(PdfTemplates::ConditionalEligibilityNotice,template_obj)
     @hbx_enrollment_id = hbx_enrollment_id
     build

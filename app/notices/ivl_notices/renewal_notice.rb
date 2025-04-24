@@ -8,7 +8,7 @@ module IvlNotices
       @employee = employee
       @to = "raghuramg83@gmail.com"
       @subject = "Employee Renewal notice"
-      @template = "user_mailer/plan_shopping_completed.html.erb"
+      @template = "user_mailer/plan_shopping_completed"
       build
     end
 

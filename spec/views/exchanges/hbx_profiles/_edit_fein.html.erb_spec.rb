@@ -43,15 +43,15 @@ RSpec.describe "hbx_admin/_edit_aptc_csr", :dbclean => :after_each do
 
   context "change fein" do
     it "Should match text Change FEIN" do
-      render partial: 'exchanges/hbx_profiles/edit_fein.html.erb', locals: {params: org_params}
+      render partial: 'exchanges/hbx_profiles/edit_fein', locals: {params: org_params}
       expect(rendered).to match(/Change FEIN/)
     end
     it "Should match text New FEIN :" do
-      render partial: 'exchanges/hbx_profiles/edit_fein.html.erb', locals: {params: org_params}
+      render partial: 'exchanges/hbx_profiles/edit_fein', locals: {params: org_params}
       expect(rendered).to match(/New FEIN :/)
     end
     it "Should display the error: FEIN must be at least 9 digits" do
-      render partial: 'exchanges/hbx_profiles/edit_fein.html.erb', locals: {params: org_params }
+      render partial: 'exchanges/hbx_profiles/edit_fein', locals: {params: org_params }
       expect(rendered).to match(/FEIN must be at least 9 digits/)
     end
   end

@@ -19,7 +19,7 @@ RSpec.describe "insured/employee_roles/match.html.haml" do
   end
 
   it "should display the employee search page with no match info" do
-    render template: "insured/employee_roles/match.html.haml"
+    render template: "insured/employee_roles/match"
     expect(rendered).to have_selector('h1', text: 'Personal Information')
     expect(rendered).to have_selector("input[type='text']", count: 5)
     expect(rendered).to have_selector("input[type='radio']", count: count)
@@ -38,7 +38,7 @@ RSpec.describe "insured/employee_roles/match.html.haml" do
 
     before :each do
       assign(:found_census_employees, [double("census_employee_1"), double("census_employee_2")])
-      render template: "insured/employee_roles/match.html.haml"
+      render template: "insured/employee_roles/match"
     end
 
     it "should display text about plan shopping" do

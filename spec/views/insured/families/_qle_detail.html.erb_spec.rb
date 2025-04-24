@@ -2,15 +2,14 @@
 
 require 'rails_helper'
 
-RSpec.describe "insured/families/_qle_detail.html.erb" do
+RSpec.describe "insured/families/_qle_detail.html.erb" do # TODO comeback later
   let(:person) { FactoryBot.create(:person, :with_family) }
   let(:user) { FactoryBot.create(:user, person: person) }
   let(:resident_role) { FactoryBot.create(:resident_role) }
 
   before :each do
     assign(:person, person)
-    person.resident_role = resident_role
-    person.save
+    person.update(resident_role: resident_role)
     allow(view).to receive(:policy_helper).and_return(double("FamilyPolicy", updateable?: true))
     render "insured/families/qle_detail"
   end

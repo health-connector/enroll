@@ -1,6 +1,6 @@
 <div class="container bottom-pd">
   <div class="row"> <h4 class="title-inline">Editing APTC / CSR for:</h4> </div>
-  <%= render 'demographics_info.html.erb'%>
+  <%= render 'demographics_info'%>
   
   <div class="row input-no-pd">
     <%= form_for @person, remote: true, url: update_aptc_csr_path, method: "post", class: "form" do |f|%>
@@ -9,11 +9,11 @@
       <%= f.hidden_field :hbx_enrollment_id, value: @hbx.id if @hbx.present?%>
       <%= f.hidden_field :current_year, value: @current_year%>
 
-      <%= render 'global_filter_header.html.erb'%>
+      <%= render 'global_filter_header'%>
 
       <div id = "validation-error"></div>
       
-      <%= render 'household_level_info.html.erb'%>
+      <%= render 'household_level_info'%>
 
       <% if inactive_enrollments(@family, @current_year).present? %>
         <div align="right">
@@ -25,7 +25,7 @@
         <%count =0%>
         <%@enrollments_info.each do |enrollment_info_key, enrollment_info_value|%>
           <%count = count+1%>
-          <%= render 'enrollment_level_info.html.erb', :hbx_id => enrollment_info_key.to_s, :hbx_values => enrollment_info_value, :max_aptc  => @max_aptc, :enrollment_count => count%>
+          <%= render 'enrollment_level_info', :hbx_id => enrollment_info_key.to_s, :hbx_values => enrollment_info_value, :max_aptc  => @max_aptc, :enrollment_count => count%>
         <%end%>
       </div>
       
