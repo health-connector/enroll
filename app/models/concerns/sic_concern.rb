@@ -1,6 +1,7 @@
 require 'set'
 
 module SicConcern
+  extend ActiveSupport::Concern
 
   def generate_sic_array
     ## Deleted in favor of more efficient method -- brianweiner 8/15
