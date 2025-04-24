@@ -97,7 +97,7 @@ class Notice
   end
 
   def save_html
-    File.open(Rails.root.join("tmp", "notice.html"), 'wb') do |file|
+    File.open(Rails.root.join("tmp", "notice"), 'wb') do |file|
       file << self.html
     end
   end

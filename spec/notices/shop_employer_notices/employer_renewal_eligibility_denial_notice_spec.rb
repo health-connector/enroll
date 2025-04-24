@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe ShopEmployerNotices::EmployerRenewalEligibilityDenialNotice do
+RSpec.describe ShopEmployerNotices::EmployerRenewalEligibilityDenialNotice, dbclean: :after_each do
   let(:address)  { Address.new(kind: "primary", address_1: "3234 R st", city: "Alexandria", state: "VA", zip: "20402") }
   let(:office_location) do
     OfficeLocation.new(
@@ -11,14 +11,14 @@ RSpec.describe ShopEmployerNotices::EmployerRenewalEligibilityDenialNotice do
     )
   end
   let(:organization) do
-    Organization.create(
+    FactoryBot.create(
+      :organization,
       legal_name: "Sail Adventures, Inc",
       dba: "Sail Away",
-      fein: "001223333",
-      office_locations: [office_location]
+      fein: "001223333"
     )
   end
-  let(:employer_profile) { FactoryBot.create :employer_profile, organization: organization}
+  let(:employer_profile) { FactoryBot.create(:employer_profile, organization: organization) }
   let(:calender_year) { TimeKeeper.date_of_record.year }
   let(:calender_month) { (TimeKeeper.date_of_record + 2.months).month}
   let(:person){ create :person}
@@ -55,7 +55,7 @@ RSpec.describe ShopEmployerNotices::EmployerRenewalEligibilityDenialNotice do
     end
     context "valid params" do
       it "should initialze" do
-        expect{ShopEmployerNotices::EmployerRenewalEligibilityDenialNotice.new(employer_profile, valid_params)}.not_to raise_error
+        expect{ ShopEmployerNotices::EmployerRenewalEligibilityDenialNotice.new(employer_profile, valid_params) }.not_to raise_error
       end
     end
 
@@ -63,7 +63,7 @@ RSpec.describe ShopEmployerNotices::EmployerRenewalEligibilityDenialNotice do
       [:mpi_indicator,:subject,:template].each do  |key|
         it "should NOT initialze with out #{key}" do
           valid_params.delete(key)
-          expect{ShopEmployerNotices::EmployerRenewalEligibilityDenialNotice.new(employer_profile, valid_params)}.to raise_error(RuntimeError,"Required params #{key} not present")
+          expect{ ShopEmployerNotices::EmployerRenewalEligibilityDenialNotice.new(employer_profile, valid_params) }.to raise_error(RuntimeError,"Required params #{key} not present")
         end
       end
     end
