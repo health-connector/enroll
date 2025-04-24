@@ -33,7 +33,7 @@ describe CompositeRatingListBillPrecalculator, "given:
     allow(benefit_group).to receive(:composite_participation_rate_factor_for).with(plan).and_return(1.0)
   end
 
-  it "gives the correct total premium" do # TODO comeback later had seems like it worked wrong before
+  it "gives the correct total premium" do # TODO comeback later
     expect(subject.total_premium).to eq expected_total_premium
   end
 end

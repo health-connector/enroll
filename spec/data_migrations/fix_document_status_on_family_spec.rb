@@ -9,7 +9,7 @@ describe FixDocumentStatusOnFamily, dbclean: :after_each do
   let(:family) { FactoryBot.create(:family, :with_primary_family_member, person: person)}
   let(:family_person) {family.primary_applicant.person}
 
-  it "should update the document status on family" do # comeback later
+  it "should update the document status on family" do
     ClimateControl.modify hbx_ids: family_person.hbx_id do
       family_person.consumer_role.is_state_resident = true
       family_person.consumer_role.update_attributes(ssn_validation: "valid")

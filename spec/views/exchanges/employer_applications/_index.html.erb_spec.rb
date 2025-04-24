@@ -22,7 +22,7 @@ RSpec.describe "exchanges/employer_applications/index.html.erb", dbclean: :after
       sign_in(user)
       assign :employer_profile, employer_profile
       assign :benefit_sponsorship, benefit_sponsorship
-      render "exchanges/employer_applications/index", employers_action_id: "employers_action_#{employer_profile.id}", employer_id: benefit_sponsorship
+      render "exchanges/employer_applications/index", format: :html, employers_action_id: "employers_action_#{employer_profile.id}", employer_id: benefit_sponsorship
     end
 
     it 'should have title' do
@@ -34,7 +34,7 @@ RSpec.describe "exchanges/employer_applications/index.html.erb", dbclean: :after
     end
 
     it "should have plan year start date" do #TODO comeback later
-      expect(rendered).to match(/#{initial_application.start_on}/)
+      expect(rendered).to match(/#{initial_application.start_on.to_date}/)
     end
 
     it "should have cancel, terminate, reinstate links" do
