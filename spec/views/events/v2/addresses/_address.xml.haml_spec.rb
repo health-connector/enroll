@@ -10,7 +10,7 @@ RSpec.describe "app/views/events/v2/addresses/_address.xml.haml" do
 
     context "kind=`primary`" do
       before :each do
-        render :template => "events/v2/addresses/_address.xml.haml", :locals => {:address => address}
+        render :template => "events/v2/addresses/_address", :locals => {:address => address}
         @doc = Nokogiri::XML(rendered)
       end
 
