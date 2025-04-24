@@ -31,7 +31,7 @@ RSpec.describe "layouts/_header.html.erb", :dbclean => :around_each do
     current_user.roles = ['broker_agency_staff']
     person_user.broker_role = broker_role
     current_user.save
-    render :template => 'layouts/_header.html.erb'
+    render :template => 'layouts/_header'
     expect(rendered).to match(/I'm a Broker/)
   end
   it 'identifies Employers' do
@@ -40,33 +40,33 @@ RSpec.describe "layouts/_header.html.erb", :dbclean => :around_each do
     current_user.roles = ['employer_staff']
     current_user.save
     allow_any_instance_of(User).to receive(:has_employer_staff_role?).and_return(true)
-    render :template => 'layouts/_header.html.erb'
+    render :template => 'layouts/_header'
     expect(rendered).to match(/I'm an Employer/)
   end
 
   it 'identifies Customer Service Staff' do
     person_user.csr_role = FactoryBot.build(:csr_role, cac: false)
     current_user.roles = ['csr']
-    render :template => 'layouts/_header.html.erb'
+    render :template => 'layouts/_header'
     expect(rendered).to match(/I'm a Trained Expert/)
   end
 
   it 'identifies Certified Applicant Counselor' do
     person_user.csr_role = FactoryBot.build(:csr_role, cac: true)
     current_user.roles = ['csr']
-    render :template => 'layouts/_header.html.erb'
+    render :template => 'layouts/_header'
     expect(rendered).to match(/I'm a Trained Expert/)
   end
 
   it 'identifies Assisters' do
     current_user.roles = ['assister']
     current_user.person.assister_role = FactoryBot.build(:assister_role)
-    render :template => 'layouts/_header.html.erb'
+    render :template => 'layouts/_header'
     expect(rendered).to match(/I'm a Trained Expert/)
   end
 
   it 'identifies default controller' do
-    render :template => 'layouts/_header.html.erb'
+    render :template => 'layouts/_header'
     expect(rendered).to match(/#{Settings.site.header_message}/)
   end
 

@@ -12,8 +12,8 @@ RSpec.describe "products/qhp/summary.js.erb" do
     assign(:member_group, member_group)
     assign(:hbx_enrollment, hbx_enrollment)
     allow(benefit_group).to receive(:sole_source?).and_return(true)
-    stub_template "shared/_summary.html.erb" => ''
-    render template: "products/qhp/summary"
+    stub_template "shared/_summary" => ''
+    render template: "products/qhp/summary", formats: :js
   end
 
   it "should call account-detail" do
