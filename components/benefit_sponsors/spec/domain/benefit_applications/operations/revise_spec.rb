@@ -137,7 +137,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Revise, dbclean
     end
 
     context 'revise benefit application with edi' do
-      it 'should send application event for reinstate and term' do
+      it 'should send application event for reinstate and term' do# TODO comeback later
         expect_any_instance_of(::BenefitSponsors::Observers::BenefitApplicationObserver).to receive(:notify).with(
           "acapi.info.events.employer.benefit_coverage_period_reinstated",
           {:employer_id => benefit_application.sponsor_profile.hbx_id, :is_trading_partner_publishable => true, :event_name => "benefit_coverage_period_reinstated"}
