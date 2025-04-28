@@ -3,7 +3,7 @@
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "revert_termination_for_employee")
 
-describe RevertTerminationForEmployee, dbclean: :after_each do # comeback to later
+describe RevertTerminationForEmployee, dbclean: :after_each do
 
   let(:given_task_name) { "revert_termination_for_employee" }
   subject { RevertTerminationForEmployee.new(given_task_name, double(:current_scope => nil)) }
@@ -64,7 +64,7 @@ describe RevertTerminationForEmployee, dbclean: :after_each do # comeback to lat
     let(:family) { FactoryBot.create(:family, :with_primary_family_member)}
     let(:enrollment) { FactoryBot.create(:hbx_enrollment, :terminated, household: family.active_household, terminate_reason: "by_error")}
     let(:employee_role) { FactoryBot.create(:employee_role)}
-    let(:census_employee) { FactoryBot.build(:census_employee, :termination_details) }
+    let(:census_employee) { FactoryBot.create(:census_employee, :termination_details) }
 
     before do
       ClimateControl.modify enrollment_hbx_id: enrollment.hbx_id,census_employee_id: census_employee.id do
