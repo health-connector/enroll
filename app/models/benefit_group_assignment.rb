@@ -420,7 +420,10 @@ class BenefitGroupAssignment
     return false if start_on.blank? || canceled?
 
     end_date = end_on || start_on.next_year.prev_day
-    (start_on..end_date).cover?(date)
+    # if the benefit application is enrolling, then the start_on date should be the start_on date of the benefit application
+    start_date = benefit_application&.is_enrolling? ? benefit_application.start_on : start_on
+
+    (start_date..end_date).cover?(date)
   end
 
   def make_active
