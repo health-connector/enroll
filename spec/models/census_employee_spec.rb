@@ -466,8 +466,8 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
   end
 
   describe "When plan year is published" do
-    let(:params) {valid_params}
-    let(:initial_census_employee) { CensusEmployee.new(**params) }
+    let(:params) { valid_params }
+    let(:initial_census_employee) { FactoryBot.create(:census_employee, **params) }
     let(:benefit_group_assignment) { FactoryBot.create(:benefit_sponsors_benefit_group_assignment, benefit_group: benefit_group, census_employee: initial_census_employee) }
 
     context "and a roster match by SSN and DOB is performed" do
@@ -541,8 +541,8 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
       let(:current_year) { TimeKeeper.date_of_record.year }
       let(:effective_period) {current_effective_date..current_effective_date.next_year.prev_day}
       let(:open_enrollment_period) {effective_period.min.prev_month..(effective_period.min - 10.days)}
-      let!(:service_areas2) {benefit_sponsorship.service_areas_on(effective_period.min)}
-      let!(:benefit_sponsor_catalog2) {benefit_sponsorship.benefit_sponsor_catalog_for(effective_period.min)}
+      let!(:service_areas2) { benefit_sponsorship.service_areas_on(effective_period.min) }
+      let!(:benefit_sponsor_catalog2) { benefit_sponsorship.benefit_sponsor_catalog_for(effective_period.min) }
 
       let(:initial_application2) do
         ben_app = create(:benefit_sponsors_benefit_application,
