@@ -2,15 +2,12 @@
 
 require 'rails_helper'
 
-RSpec.describe "insured/families/_qles.html.erb" do # TODO comeback later
-  let(:person) { FactoryBot.create(:person, :with_family) }
+RSpec.describe "insured/families/_qles.html.erb" do
+  let(:person) { FactoryBot.create(:person, :with_family, :with_resident_role) }
   let(:user) { FactoryBot.create(:user, person: person) }
   let(:resident_role) { FactoryBot.create(:resident_role) }
 
   before :each do
-    assign(:person, person)
-    person.resident_role = resident_role
-    person.save
     QualifyingLifeEventKind.delete_all
     10.times.each {FactoryBot.create(:qualifying_life_event_kind)}
     FactoryBot.create(:qualifying_life_event_kind, tool_tip: "")
