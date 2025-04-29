@@ -1,7 +1,7 @@
 module ShopPolicyCalculations
 
   def age_of(member)
-    case member.class
+    case member
     when HbxEnrollmentMember
       member.age_on_effective_date
     else
