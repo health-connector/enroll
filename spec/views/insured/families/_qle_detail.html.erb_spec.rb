@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe "insured/families/_qle_detail.html.erb" do # TODO comeback later
+RSpec.describe "insured/families/_qle_detail.html.erb" do
   let(:person) { FactoryBot.create(:person, :with_family, :with_resident_role) }
   let(:user) { FactoryBot.create(:user, person: person) }
 
