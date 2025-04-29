@@ -68,7 +68,7 @@ FactoryBot.define do
     end
 
     trait :with_benefit_package do
-      association :benefit_sponsor_catalog, factory: :benefit_markets_benefit_sponsor_catalog
+      association :benefit_sponsor_catalog, factory: :benefit_markets_benefit_sponsor_catalog, strategy: :create
       after(:build) do |benefit_application, evaluator|
         product_package = benefit_application.benefit_sponsor_catalog.product_packages.by_package_kind(evaluator.package_kind).by_product_kind(:health).first
         if evaluator.dental_sponsored_benefit
