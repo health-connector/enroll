@@ -864,4 +864,8 @@ module ApplicationHelper
   def format_rating_area_codes(codes)
     codes.map {|c| c.match(/(\d+)/)[1].to_i}.join(', ')
   end
+
+  def valid_mmddyyyy_format?(str)
+    !!(str =~ /\A(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])\/\d{4}\z/)
+  end
 end
