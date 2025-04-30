@@ -33,7 +33,7 @@ RSpec.describe "exchanges/employer_applications/index.html.erb", dbclean: :after
       expect(rendered).to match(/#{initial_application.aasm_state}/)
     end
 
-    it "should have plan year start date" do #TODO comeback later
+    it "should have plan year start date" do
       expect(rendered).to match(/#{initial_application.start_on.to_date}/)
     end
 
