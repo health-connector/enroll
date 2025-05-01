@@ -44,7 +44,7 @@ module BenefitSponsors
       # Events triggered by state changes on individual instances
       def notify_on_save
         return if self.is_conversion?
-        if aasm_state_changed?
+        if saved_change_to_aasm_state?
 
           if is_transition_matching?(to: :enrollment_closed, from: [:enrollment_open, :enrollment_extended], event: :end_open_enrollment)
             is_employer_open_enrollment_completed = true

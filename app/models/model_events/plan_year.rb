@@ -32,7 +32,7 @@ module ModelEvents
 
     def notify_on_save
       return if self.is_conversion
-      if aasm_state_changed?
+      if saved_change_to_aasm_state?
 
         if is_transition_matching?(to: :renewing_draft, from: :draft, event: :renew_plan_year)
           is_renewal_application_created = true

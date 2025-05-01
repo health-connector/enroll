@@ -29,7 +29,7 @@ module BenefitSponsors
         end
 
         it "should return nil and given billing date if given date covers canceled benefit_application effective period " do
-          application.update_attributes!(aasm_state: :canceled)
+          application.assign_attributes(aasm_state: :canceled)
           date = application.start_on
           expect(profile.billing_benefit_application(date)).to eq [nil, date]
         end

@@ -19,7 +19,7 @@ module BenefitSponsors
       end
 
       def notify_on_save
-        if aasm_state_changed?
+        if saved_change_to_aasm_state?
 
           REGISTERED_EVENTS.each do |event|
             next unless check_local_variable("is_#{event}", binding)

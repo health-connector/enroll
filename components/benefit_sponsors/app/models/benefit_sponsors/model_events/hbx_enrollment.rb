@@ -10,7 +10,7 @@ module BenefitSponsors
 
       def notify_on_save
 
-        if aasm_state_changed?
+        if saved_change_to_aasm_state?
 
           if is_transition_matching?(to: [:coverage_selected, :renewing_coverage_selected],  from: [:shopping, :auto_renewing], event: :select_coverage)
             @is_application_coverage_selected = true

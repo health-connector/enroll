@@ -21,7 +21,7 @@ module ModelEvents
     end
 
     def notify_on_save
-      if aasm_state_changed?
+      if saved_change_to_aasm_state?
         if is_transition_matching?(to: :binder_paid, from: :eligible, event: :binder_credited)
           is_initial_employee_plan_selection_confirmation = true
         end
