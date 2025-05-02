@@ -490,7 +490,7 @@ RSpec.describe ModifyBenefitApplication, dbclean: :after_each do
 
       let(:model_instance) { benefit_application }
 
-      context "should trigger termination notice to employer and employees" do # TODO comeback later
+      context "should trigger termination notice to employer and employees" do
         it "should trigger model event" do
           model_instance.class.observer_peers.keys.each do |observer|
             expect(observer).to receive(:notifications_send) do |instance, model_event|

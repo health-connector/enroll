@@ -98,7 +98,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
       end
     end
 
-    context 'reinstate benefit application with edi' do# TODO comeback later
+    context 'reinstate benefit application with edi' do
       it 'should send application event' do
         expect_any_instance_of(::BenefitSponsors::Observers::BenefitApplicationObserver).to receive(:notify).with(
           "acapi.info.events.employer.benefit_coverage_period_reinstated",
