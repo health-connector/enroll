@@ -30,6 +30,8 @@ class BenefitGroupAssignment
   validates_presence_of :benefit_package_id, :if => Proc.new {|obj| obj.benefit_group_id.blank? }
   validate :date_guards, :model_integrity
 
+  index({aasm_state: 1})
+
   scope :renewing,       -> { any_in(aasm_state: RENEWING) }
   # scope :active,         -> { where(:is_active => true) }
   scope :effective_on,   ->(effective_date) { where(:start_on => effective_date) }
