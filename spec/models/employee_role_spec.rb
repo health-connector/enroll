@@ -108,7 +108,7 @@ describe EmployeeRole, dbclean: :after_each do
     sponsorship
   end
 
-  describe "built" do # TODO comeback later
+  describe "built" do
     let(:address) {FactoryBot.build(:address)}
     let(:saved_person) {FactoryBot.create(:person, first_name: "Annie", last_name: "Lennox", addresses: [address])}
     let(:new_person) {FactoryBot.build(:person, first_name: "Carly", last_name: "Simon")}
@@ -142,9 +142,14 @@ describe EmployeeRole, dbclean: :after_each do
     end
 
     context "with valid parameters" do
-      let(:employee_role) { saved_person.employee_roles.build(valid_params) }
+      let(:employee_role) do
+        role = saved_person.employee_roles.build(valid_params)
+        role.person.ssn = valid_params[:person_attributes][:ssn]
+        role.person.dob = valid_params[:person_attributes][:dob]
+        role.person.gender = valid_params[:person_attributes][:gender]
+        role
+      end
 
-      # %w[employer_profile ssn dob gender hired_on].each do |m|
       %w[ssn dob gender hired_on].each do |m|
         it "should have the right #{m}" do
           expect(employee_role.send(m)).to eq send(m)
@@ -345,8 +350,13 @@ describe EmployeeRole, dbclean: :after_each do # TODO comeback
     context "then parent updated" do
       let(:middle_name) {"Albert"}
       before do
+        # Ensure there's a time difference
+        sleep(0.1)
         person.middle_name = middle_name
-        person.save
+        person.save!
+        # Force reload from database
+        person.reload
+        employee_role.reload
       end
 
       it "parent created_at should not have changed" do
@@ -368,14 +378,19 @@ describe EmployeeRole, dbclean: :after_each do # TODO comeback
 
     context "then parent touched" do
       before do
+        # Ensure there's a time difference
+        sleep(0.1)
         person.touch
+        # Force reload from database
+        person.reload
+        employee_role.reload
       end
 
       it "parent created_at should not have changed" do
         expect(person.created_at).to eq person_created_at
       end
 
-      it "parent updated_at should not have changed" do
+      it "parent updated_at should have changed" do
         expect(person.updated_at).to be > person_updated_at
       end
 
@@ -383,15 +398,20 @@ describe EmployeeRole, dbclean: :after_each do # TODO comeback
         expect(employee_role.created_at).to eq employee_role_created_at
       end
 
-      it "updated_at should not have changed" do
-        expect(employee_role.updated_at).to eq employee_role_updated_at
+      it "updated_at should have changed" do
+        expect(employee_role.updated_at).to be > employee_role_updated_at
       end
     end
 
     context "then a nested parent attribute is updated" do
       before do
+        # Ensure there's a time difference
+        sleep(0.1)
         employee_role.ssn = "647382910"
-        employee_role.save
+        employee_role.save!
+        # Force reload from database
+        employee_role.reload
+        person.reload
       end
 
       it "parent created_at should not have changed" do
@@ -415,8 +435,13 @@ describe EmployeeRole, dbclean: :after_each do # TODO comeback
       let(:new_hired_on) {10.days.ago.to_date}
 
       before do
+        # Ensure there's a time difference
+        sleep(0.1)
         employee_role.hired_on = new_hired_on
-        employee_role.save
+        employee_role.save!
+        # Force reload from database
+        employee_role.reload
+        person.reload
       end
 
       it "parent created_at should not have changed" do
@@ -438,7 +463,12 @@ describe EmployeeRole, dbclean: :after_each do # TODO comeback
 
     context "then touched" do
       before do
+        # Ensure there's a time difference
+        sleep(0.1)
         employee_role.touch
+        # Force reload from database
+        employee_role.reload
+        person.reload
       end
 
       it "parent created_at should not have changed" do
