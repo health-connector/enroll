@@ -467,8 +467,8 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
 
   describe "When plan year is published" do
     let(:params) { valid_params }
-    let(:initial_census_employee) { FactoryBot.create(:census_employee, **params) }
-    let(:benefit_group_assignment) { FactoryBot.create(:benefit_sponsors_benefit_group_assignment, benefit_group: benefit_group, census_employee: initial_census_employee) }
+    let(:initial_census_employee) {CensusEmployee.new(**params)}
+    let(:benefit_group_assignment) {FactoryBot.create(:benefit_sponsors_benefit_group_assignment, benefit_group: benefit_group, census_employee: initial_census_employee)}
 
     context "and a roster match by SSN and DOB is performed" do
 
@@ -537,30 +537,28 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
       end
     end
 
-    context 'When there are two active benefit applications' do # comeback later
+    context 'When there are two active benefit applications' do
       let(:current_year) { TimeKeeper.date_of_record.year }
       let(:effective_period) {current_effective_date..current_effective_date.next_year.prev_day}
       let(:open_enrollment_period) {effective_period.min.prev_month..(effective_period.min - 10.days)}
-      let!(:service_areas2) { benefit_sponsorship.service_areas_on(effective_period.min) }
-      let!(:benefit_sponsor_catalog2) { benefit_sponsorship.benefit_sponsor_catalog_for(effective_period.min) }
-
+      let!(:service_areas2) {benefit_sponsorship.service_areas_on(effective_period.min)}
+      let!(:benefit_sponsor_catalog2) {benefit_sponsorship.benefit_sponsor_catalog_for(effective_period.min)}
       let(:initial_application2) do
-        ben_app = create(:benefit_sponsors_benefit_application,
-                         benefit_sponsorship: benefit_sponsorship,
-                         benefit_sponsor_catalog: benefit_sponsor_catalog2,
-                         open_enrollment_period: open_enrollment_period,
-                         aasm_state: :active,
-                         recorded_rating_area: rating_area,
-                         recorded_service_areas: service_areas2,
-                         fte_count: 5,
-                         pte_count: 0,
-                         msp_count: 0
+        ben_app = BenefitSponsors::BenefitApplications::BenefitApplication.new(
+          benefit_sponsor_catalog: benefit_sponsor_catalog2,
+          open_enrollment_period: open_enrollment_period,
+          aasm_state: :active,
+          recorded_rating_area: rating_area,
+          recorded_service_areas: service_areas2,
+          fte_count: 5,
+          pte_count: 0,
+          msp_count: 0
         )
         ben_app.benefit_application_items.build(effective_period: effective_period, sequence_id: 1, state: :active)
         ben_app
       end
-      let!(:product_package2) { initial_application2.benefit_sponsor_catalog.product_packages.detect {|package| package.package_kind == :single_issuer}}
-      let!(:current_benefit_package2) { create(:benefit_sponsors_benefit_packages_benefit_package, health_sponsored_benefit: true, product_package: product_package2, title: "second benefit package", benefit_application: initial_application2)}
+      let!(:product_package2) {initial_application2.benefit_sponsor_catalog.product_packages.detect {|package| package.package_kind == :single_issuer}}
+      let!(:current_benefit_package2) {build(:benefit_sponsors_benefit_packages_benefit_package, health_sponsored_benefit: true, product_package: product_package2, title: "second benefit package", benefit_application: initial_application2)}
 
       before do
         FactoryBot.create(:benefit_sponsors_benefit_group_assignment, benefit_group: current_benefit_package2, census_employee: initial_census_employee)
