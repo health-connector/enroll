@@ -150,12 +150,23 @@ class SpecialEnrollmentPeriod
   end
 
 private
+
   def next_poss_effective_date_within_range
     return if next_poss_effective_date.blank?
     return true unless is_shop?
+
     min_date = sep_optional_date family, 'min', qualifying_life_event_kind.market_kind
     max_date = sep_optional_date family, 'max', qualifying_life_event_kind.market_kind
-    errors.add(:next_poss_effective_date, "out of range.") if not next_poss_effective_date.between?(min_date, max_date)
+    error_message = if min_date.blank? && max_date.blank?
+                      "both min and max sep optional dates are not present for next possible effective date. Please specify."
+                    elsif min_date.blank?
+                      "min sep optional date is not present for next possible effective date. Please specify."
+                    elsif max_date.blank?
+                      "max sep optional date is not present for next possible effective date. Please specify."
+                    elsif !next_poss_effective_date.between?(min_date, max_date)
+                      "out of range."
+                    end
+    errors.add(:next_poss_effective_date, error_message) if error_message.present?
   end
 
   def optional_effective_on_dates_within_range
