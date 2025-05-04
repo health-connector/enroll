@@ -47,6 +47,22 @@ class EmployeeRole
           @changed_nested_person_attributes[field] = employee_role.person.send(field)
         end
       end
+
+      # Handle person_attributes
+      if defined?(@attributes) && @attributes
+        person_attrs = nil
+        
+        # Try to get person_attributes from different possible sources
+        if @attributes['person_attributes'].present?
+          person_attrs = @attributes['person_attributes']
+        elsif @attributes[:person_attributes].present?
+          person_attrs = @attributes[:person_attributes]
+        end
+        
+        if person_attrs.present?
+          assign_person_attributes(person_attrs, employee_role)
+        end
+      end
     end
     true
   end
@@ -58,7 +74,11 @@ class EmployeeRole
     end
     true
   end
-
+  
+  # explicitly handle person_attributes
+  def person_attributes=(attrs)
+    assign_person_attributes(attrs, self)
+  end
 
   ## TODO: propogate to EmployerCensus updates to employee demographics and family
 
@@ -299,7 +319,24 @@ class EmployeeRole
     end
   end
 
-private
+  private
+
+  def assign_person_attributes(attrs, employee_role)
+    return unless attrs.present? && employee_role.person.present?
+    
+    # Normalize attributes to support both string and symbol keys
+    normalized_attrs = {}
+    attrs.each do |key, value|
+      normalized_attrs[key.to_s] = value
+    end
+    
+    %w[ssn dob gender hbx_id].each do |field|
+      if normalized_attrs.key?(field)
+        value = normalized_attrs[field]
+        employee_role.person.send("#{field}=", value) if value.present?
+      end
+    end
+  end
 
   def termination_date_must_follow_hire_date
     return if hired_on.nil? || terminated_on.nil?

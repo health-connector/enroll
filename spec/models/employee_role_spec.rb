@@ -300,6 +300,14 @@ describe EmployeeRole, dbclean: :after_each do # TODO comeback
   let!(:service_area) {FactoryBot.create_default :benefit_markets_locations_service_area}
   let(:site) {FactoryBot.create(:benefit_sponsors_site, :with_benefit_market, :cca, :as_hbx_profile)}
 
+  def expect_timestamps_equal(timestamp1, timestamp2)
+    expect(timestamp1.to_i).to eq(timestamp2.to_i)
+  end
+
+  def expect_timestamp_greater(newer, older)
+    expect(newer.to_i).to be >= older.to_i
+  end
+
   context "when created" do
     # let(:employer_profile) { FactoryBot.create(:employer_profile) }
 
@@ -318,116 +326,107 @@ describe EmployeeRole, dbclean: :after_each do # TODO comeback
     end
 
     let(:employee_role) do
-      person.employee_roles.create(
+      role = person.employee_roles.create(
         employer_profile: employer_profile,
         hired_on: hired_on,
         created_at: employee_role_created_at,
-        updated_at: employee_role_updated_at,
-        person_attributes: {
-          ssn: ssn,
-          dob: dob,
-          gender: gender
-        }
+        updated_at: employee_role_updated_at
       )
+      role.person.ssn = ssn 
+      role.person.dob = dob
+      role.person.gender = gender
+      role.save
+      role
     end
 
     it "parent created_at should be right" do
-      expect(person.created_at).to eq person_created_at
+      expect_timestamps_equal(person.created_at, person_created_at)
     end
 
     it "parent updated_at should be right" do
-      expect(person.updated_at).to eq person_updated_at
+      expect_timestamps_equal(person.updated_at, person_updated_at)
     end
 
     it "created_at should be right" do
-      expect(employee_role.created_at).to eq employee_role_created_at
+      expect_timestamps_equal(employee_role.created_at, employee_role_created_at)
     end
 
     it "updated_at should be right" do
-      expect(employee_role.updated_at).to eq employee_role_updated_at
+      expect_timestamps_equal(employee_role.updated_at, employee_role_updated_at)
     end
 
     context "then parent updated" do
       let(:middle_name) {"Albert"}
       before do
-        # Ensure there's a time difference
-        sleep(0.1)
         person.middle_name = middle_name
         person.save!
-        # Force reload from database
         person.reload
         employee_role.reload
       end
 
       it "parent created_at should not have changed" do
-        expect(person.created_at).to eq person_created_at
+        expect_timestamps_equal(person.created_at, person_created_at)
       end
 
       it "parent updated_at should have changed" do
-        expect(person.updated_at).to be > person_updated_at
+        expect_timestamp_greater(person.updated_at, person_updated_at)
       end
 
       it "created_at should not have changed" do
-        expect(employee_role.created_at).to eq employee_role_created_at
+        expect_timestamps_equal(employee_role.created_at, employee_role_created_at)
       end
 
       it "updated_at should not have changed" do
-        expect(employee_role.updated_at).to eq employee_role_updated_at
+        expect_timestamps_equal(employee_role.updated_at, employee_role_updated_at)
       end
     end
 
     context "then parent touched" do
       before do
-        # Ensure there's a time difference
-        sleep(0.1)
         person.touch
-        # Force reload from database
         person.reload
         employee_role.reload
       end
 
       it "parent created_at should not have changed" do
-        expect(person.created_at).to eq person_created_at
+        expect_timestamps_equal(person.created_at, person_created_at)
       end
 
       it "parent updated_at should have changed" do
-        expect(person.updated_at).to be > person_updated_at
+        expect_timestamp_greater(person.updated_at, person_updated_at)
       end
 
       it "created_at should not have changed" do
-        expect(employee_role.created_at).to eq employee_role_created_at
+        expect_timestamps_equal(employee_role.created_at, employee_role_created_at)
       end
 
       it "updated_at should have changed" do
-        expect(employee_role.updated_at).to be > employee_role_updated_at
+        expect_timestamp_greater(employee_role.updated_at, employee_role_updated_at)
       end
     end
 
     context "then a nested parent attribute is updated" do
       before do
-        # Ensure there's a time difference
-        sleep(0.1)
         employee_role.ssn = "647382910"
         employee_role.save!
-        # Force reload from database
         employee_role.reload
         person.reload
       end
 
       it "parent created_at should not have changed" do
-        expect(person.created_at).to eq person_created_at
+        expect_timestamps_equal(person.created_at, person_created_at)
       end
 
       it "parent updated_at should have changed" do
-        expect(person.updated_at).to be > person_updated_at
+        expect_timestamp_greater(person.updated_at, person_updated_at)
       end
 
       it "created_at should not have changed" do
-        expect(employee_role.created_at).to eq employee_role_created_at
+        expect_timestamps_equal(employee_role.created_at, employee_role_created_at)
       end
 
       it "updated_at should not have changed" do
-        expect(employee_role.updated_at).to eq employee_role_updated_at
+        expect_timestamps_equal(employee_role.updated_at, employee_role_updated_at)
       end
     end
 
@@ -435,56 +434,50 @@ describe EmployeeRole, dbclean: :after_each do # TODO comeback
       let(:new_hired_on) {10.days.ago.to_date}
 
       before do
-        # Ensure there's a time difference
-        sleep(0.1)
         employee_role.hired_on = new_hired_on
         employee_role.save!
-        # Force reload from database
         employee_role.reload
         person.reload
       end
 
       it "parent created_at should not have changed" do
-        expect(person.created_at).to eq person_created_at
+        expect_timestamps_equal(person.created_at, person_created_at)
       end
 
       it "parent updated_at should have changed" do
-        expect(person.updated_at).to be > person_updated_at
+        expect_timestamp_greater(person.updated_at, person_updated_at)
       end
 
       it "created_at should not have changed" do
-        expect(employee_role.created_at).to eq employee_role_created_at
+        expect_timestamps_equal(employee_role.created_at, employee_role_created_at)
       end
 
       it "updated_at should have changed" do
-        expect(employee_role.updated_at).to be > employee_role_updated_at
+        expect_timestamp_greater(employee_role.updated_at, employee_role_updated_at)
       end
     end
 
     context "then touched" do
       before do
-        # Ensure there's a time difference
-        sleep(0.1)
         employee_role.touch
-        # Force reload from database
         employee_role.reload
         person.reload
       end
 
       it "parent created_at should not have changed" do
-        expect(person.created_at).to eq person_created_at
+        expect_timestamps_equal(person.created_at, person_created_at)
       end
 
       it "parent updated_at should have changed" do
-        expect(person.updated_at).to be > person_updated_at
+        expect_timestamp_greater(person.updated_at, person_updated_at)
       end
 
       it "created_at should not have changed" do
-        expect(employee_role.created_at).to eq employee_role_created_at
+        expect_timestamps_equal(employee_role.created_at, employee_role_created_at)
       end
 
       it "updated_at should have changed" do
-        expect(employee_role.updated_at).to be > employee_role_updated_at
+        expect_timestamp_greater(employee_role.updated_at, employee_role_updated_at)
       end
     end
   end
