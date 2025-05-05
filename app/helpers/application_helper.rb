@@ -3,7 +3,7 @@ module ApplicationHelper
 
   def can_employee_shop?(date)
     return false if date.blank?
-    date = Date.strptime(date.to_s,"%m/%d/%Y")
+    date = date.to_date
     Plan.has_rates_for_all_carriers?(date) == false
   end
 
