@@ -625,14 +625,19 @@ module BenefitSponsors
     end
 
     def is_renewal_carrier_drop?
-      return unless is_renewal_transmission_eligible?
-
-      carriers_dropped_for(:health).any? || carriers_dropped_for(:dental).any?
+      if is_renewal_transmission_eligible?
+        carriers_dropped_for(:health).any? || carriers_dropped_for(:dental).any?
+      else
+        true
+      end
     end
 
     def carriers_dropped_for(product_kind)
-      renewal_benefit_application.predecessor.issuers_offered_for(product_kind) - renewal_benefit_application.issuers_offered_for(product_kind) if renewal_benefit_application.present?
-      late_renewal_benefit_application.predecessor.issuers_offered_for(product_kind) - late_renewal_benefit_application.issuers_offered_for(product_kind) if late_renewal_benefit_application.present?
+      if renewal_benefit_application.present?
+        renewal_benefit_application.predecessor.issuers_offered_for(product_kind) - renewal_benefit_application.issuers_offered_for(product_kind)
+      elsif late_renewal_benefit_application.present?
+        late_renewal_benefit_application.predecessor.issuers_offered_for(product_kind) - late_renewal_benefit_application.issuers_offered_for(product_kind)
+      end
     end
 
     ####
