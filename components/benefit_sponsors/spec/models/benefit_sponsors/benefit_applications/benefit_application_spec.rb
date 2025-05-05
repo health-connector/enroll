@@ -513,7 +513,7 @@ module BenefitSponsors
     #   end
     # end
 
-    describe ".renew" do # TODO comeback later
+    describe ".renew" do
       before do
         allow_any_instance_of(BenefitSponsors::BenefitPackages::BenefitPackage).to receive(:can_renew?).and_return(true)
       end
@@ -582,10 +582,10 @@ module BenefitSponsors
           before do
             renewal_application.save
             renewal_bga
+            census_employee.reload
           end
 
           it "should create renewal benefit group assignment" do
-            #expect(census_employee.active_benefit_group_assignment.benefit_application).to eq initial_application
             expect(census_employee.renewal_benefit_group_assignment.benefit_application).to eq renewal_application
           end
 
@@ -603,12 +603,14 @@ module BenefitSponsors
             renewal_application.recorded_service_areas = [service_area]
             renewal_application.recorded_sic_code = sic_code
             renewal_application.save!
+            census_employee.reload
           end
 
           it "should not update benefit group assignments" do
             expect(renewal_application.aasm_state).to eq :enrollment_open
-
-            expect(census_employee.renewal_benefit_group_assignment.benefit_application).to eq renewal_application
+            
+            renewal_assignment = census_employee.benefit_group_assignments.detect { |bga| bga.benefit_package.id == renewal_application.benefit_packages.first.id }
+            expect(renewal_assignment.benefit_application).to eq renewal_application
 
             expect(census_employee.active_benefit_group_assignment.benefit_application).to eq initial_application
           end
@@ -626,6 +628,7 @@ module BenefitSponsors
             renewal_application.renew_benefit_package_assignments
             renewal_application.save!
             renewal_application.activate_enrollment!
+            census_employee.reload
           end
 
           it "should activate renewal benefit group assignment" do
@@ -639,6 +642,7 @@ module BenefitSponsors
 
           before :each do
             renewal_application.benefit_packages.first.update_attributes!(_id: CensusEmployee.all.first.benefit_group_assignments.first.benefit_package_id)
+            census_employee.reload
           end
 
           it 'should not return the terminated EEs' do
