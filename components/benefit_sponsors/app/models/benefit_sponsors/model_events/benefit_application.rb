@@ -1,7 +1,7 @@
 module BenefitSponsors
   module ModelEvents
     module BenefitApplication
-      include DefineVariableHelper
+      include BenefitSponsors::ModelEvents::DefineVariableHelper
 
       APPLICATION_EXCEPTION_STATES  = [:pending, :assigned, :processing, :reviewing, :information_needed, :appealing].freeze
 
@@ -158,6 +158,7 @@ module BenefitSponsors
       end
 
       module ClassMethods
+        include BenefitSponsors::ModelEvents::DefineVariableHelper
         def date_change_event(new_date)
           # renewal employer publish plan_year reminder a day after advertised soft deadline i.e 11th of the month
           if new_date.day == Settings.aca.shop_market.renewal_application.application_submission_soft_deadline + 1
