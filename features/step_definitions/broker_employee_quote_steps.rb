@@ -156,7 +156,7 @@ Then(/^the broker selects plan offerings by metal level and enters (.*) for empl
   find('label[for="forms_plan_design_proposal_plan_option_kind_metal_level"]', wait: 10).click
   expect(page).to have_content("Gold")
   find('#metal_level_for_elected_plan_gold').click
-  wait_for_ajax(3, 2)
+  wait_for_ajax(3, 5)
   fill_in "forms_plan_design_proposal[profile][benefit_sponsorship][benefit_application][benefit_group][relationship_benefits_attributes][0][premium_pct]", with: int.to_i
   fill_in "forms_plan_design_proposal[profile][benefit_sponsorship][benefit_application][benefit_group][relationship_benefits_attributes][1][premium_pct]", with: int.to_i
   fill_in "forms_plan_design_proposal[profile][benefit_sponsorship][benefit_application][benefit_group][relationship_benefits_attributes][2][premium_pct]", with: int.to_i

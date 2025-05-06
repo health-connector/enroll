@@ -828,6 +828,7 @@ When(/^.+ clicks? continue on the dependents page$/) do
 end
 
 Then(/^.+ should see the group selection page$/) do
+  wait_for_ajax
   find('#group-selection-form', :wait => 10)
   expect(page).to have_css('form')
 end

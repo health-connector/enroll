@@ -156,7 +156,7 @@
                 <div class='col-xs-5'><%= enrollment_coverage_end(hbx_enrollment) %></div>
               <% else %>
                 <div class='col-xs-7'><strong><%= l10n("plan_start") %></strong></div>
-                <div class='col-xs-5'><%= hbx_enrollment.effective_on %></div>
+                <div class='col-xs-5'><%= hbx_enrollment.effective_on.strftime('%m/%d/%Y') %></div>
                 <% if read_only == true %>
                   <br>
                   <div class='col-xs-7'>

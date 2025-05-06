@@ -186,7 +186,7 @@ end
 
 Then(/(.*) should see passive renewal/) do |_named_person|
   renewal_start = benefit_sponsorship.renewal_benefit_application.start_on
-  renewal = page.all('.hbx-enrollment-panel').detect{|e| e.find('.enrollment-effective').text.match(renewal_start.to_s)}
+  renewal = page.all('.hbx-enrollment-panel').detect{|e| e.find('.enrollment-effective').text.match(renewal_start.strftime('%m/%d/%Y'))}
 
   expect(renewal.present?).to be_truthy
   expect(renewal.find('.panel-heading .text-right').text).to eq "Auto Renewing"
