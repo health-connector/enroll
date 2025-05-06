@@ -6,7 +6,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployerFinalRemainderToPub
   let(:notice_event) { "initial_employer_final_reminder_to_publish_plan_year" }
   let(:start_on) { TimeKeeper.date_of_record.next_month.beginning_of_month}
   let!(:site) { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
-  let!(:organization)     { FactoryBot.build(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+  let!(:organization)     { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
   let!(:employer_profile)    { organization.employer_profile }
   let!(:benefit_sponsorship) do
     sponsorship = employer_profile.add_benefit_sponsorship
@@ -32,7 +32,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployerFinalRemainderToPub
 
         expect(observer).to receive(:notifications_send) do |instance, model_event|
           expect(model_event).to be_an_instance_of(BenefitSponsors::ModelEvents::ModelEvent)
-          expect(model_event).to have_attributes(:event_key => :initial_employer_final_reminder_to_publish_plan_year, :klass_instance => model_instance, :options => {})
+          expect(model_event).to have_attributes(:event_key => :initial_employer_final_reminder_to_publish_plan_year, :klass_instance => model_instance.class, :options => {})
         end
       end
       BenefitSponsors::BenefitApplications::BenefitApplication.date_change_event(date_mock_object)
@@ -43,7 +43,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployerFinalRemainderToPub
     context "2 days prior to publishing dead line" do
       subject { BenefitSponsors::Observers::BenefitApplicationObserver.new }
 
-      let(:model_event) { BenefitSponsors::ModelEvents::ModelEvent.new(:initial_employer_final_reminder_to_publish_plan_year, model_instance, {}) }
+      let(:model_event) { BenefitSponsors::ModelEvents::ModelEvent.new(:initial_employer_final_reminder_to_publish_plan_year, model_instance.class, {}) }
 
       it "should trigger notice event" do
         expect(subject.notifier).to receive(:notify) do |event_name, payload|

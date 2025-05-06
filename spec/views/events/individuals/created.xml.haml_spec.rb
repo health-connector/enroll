@@ -6,7 +6,7 @@ require File.join(Rails.root, "spec", "support", "acapi_vocabulary_spec_helpers"
 RSpec.describe "events/individuals/created.haml.erb", dbclean: :after_each do
   include AcapiVocabularySpecHelpers
 
-  (1..15).each do |rnd|
+  (1..15).to_a.each do |rnd|
     describe "given a generated individual, round #{rnd}" do
       let(:individual) { FactoryBot.build :generative_individual }
 

@@ -177,9 +177,13 @@ module BenefitSponsors
     end
 
     def self.may_renew_application?(compare_date = TimeKeeper.date_of_record)
+      # Using a range query matching any time on the given date
+      start_of_day = compare_date.to_date.beginning_of_day
+      end_of_day = compare_date.to_date.end_of_day
+
       where(:benefit_applications => {:"$elemMatch" => {
               :aasm_state => :active,
-              :"benefit_application_items.effective_period.max" => compare_date
+              :"benefit_application_items.effective_period.max" => {"$gte" => start_of_day, "$lte" => end_of_day}
             }})
     end
 

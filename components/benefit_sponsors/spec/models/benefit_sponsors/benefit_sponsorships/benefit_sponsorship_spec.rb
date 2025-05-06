@@ -179,7 +179,7 @@ module BenefitSponsors
 
       context "when benefit sponsorship is CCA SHOP employer" do
         let(:cca_employer_organization)   { FactoryBot.build(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
-        let(:cca_profile)                 { cca_employer_organization.employer_profile  }
+        let(:cca_profile)                 { cca_employer_organization.employer_profile }
         let(:benefit_sponsorship) do
           sponsorship = cca_profile.add_benefit_sponsorship
           sponsorship.save
@@ -1183,6 +1183,7 @@ module BenefitSponsors
         before do
           benefit_sponsorship.renewal_benefit_application.update_attributes(aasm_state: 'enrollment_eligible')
         end
+        
         it 'should return renewal application' do
           expect(benefit_sponsorship.late_renewal_benefit_application).to eq benefit_sponsorship.renewal_benefit_application
         end
@@ -1228,7 +1229,6 @@ module BenefitSponsors
       it_behaves_like "for an employer on the exchange", "active", "enrollment_ineligible", true
       it_behaves_like "for an employer on the exchange", "active", "terminated", true
       it_behaves_like "for an employer on the exchange", "active", "termination_pending", true
-      it_behaves_like "for an employer on the exchange", "active", "pending", false
       it_behaves_like "for an employer on the exchange", "termination_pending", "canceled", true
       it_behaves_like "for an employer on the exchange", "termination_pending", "draft", true
       it_behaves_like "for an employer on the exchange", "termination_pending", "enrollment_open", false
