@@ -118,6 +118,7 @@ Then(/^.+ sees that publish button is (.*)$/) do |publish_btn|
 end
 
 And(/^.+ sees quote for (.*) employer$/) do |employer_name|
+  wait_for_ajax(3, 2)
   expect(page).to have_content("Quote for #{employer_name}")
 end
 

@@ -3,8 +3,8 @@
 # load Rails.root + "db/seeds.rb"
 When(/I use unique values/) do
   require 'test/unique_value_stash'
-  include UniqueValueStash
-  @u = UniqueValueStash::UniqueValues.new unless defined?(@u)
+  include Test::UniqueValueStash
+  @u = Test::UniqueValueStash::UniqueValues.new unless defined?(@u)
 end
 
 def people

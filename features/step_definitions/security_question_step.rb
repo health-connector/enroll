@@ -53,7 +53,7 @@ Then(/^Hbx Admin update the question title$/) do
 end
 
 When(/^Hbx Admin submit the question form$/) do
-  page.find_button('submit').click
+  page.find_button(type: 'submit').click
 end
 
 Then(/^there (is|are) (\d+) preloaded security questions$/) do |_text, num|

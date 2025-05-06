@@ -833,7 +833,7 @@ class Exchanges::HbxProfilesController < ApplicationController
 
   def fetch_products_data_by_years
     product_ids_by_year = BenefitMarkets::Products::Product.pluck(:application_period, :id).each_with_object({ }) do |data, result|
-      (result[data[0]['min'].year] ||= []) << data[1]
+      (result[data[0].min.year] ||= []) << data[1]
     end.sort.reverse.to_h
 
     all_product_ids = BenefitMarkets::Products::Product.pluck(:id)
