@@ -59,6 +59,7 @@ PATH
       config
       money-rails (~> 1.13)
       mongoid (~> 7.5.4)
+      net-imap (>= 0.4.20)
       non-stupid-digest-assets
       pundit
       rack (>= 2.2.13)
@@ -84,6 +85,7 @@ PATH
       dry-types
       dry-validation (~> 1.0)
       mongoid (~> 7.5.4)
+      net-imap (>= 0.4.20)
       rack (>= 2.2.13)
       rails (~> 6.1.7.10)
       roo (~> 2.10)
@@ -112,6 +114,7 @@ PATH
       money-rails (~> 1.13)
       mongoid (~> 7.5.4)
       mongoid-autoinc
+      net-imap (>= 0.4.20)
       pundit (~> 1.0.1)
       rack (>= 2.2.13)
       rails (~> 6.1.7.10)
@@ -396,7 +399,7 @@ GEM
       rails (>= 4.2.0)
       railties (>= 4.2.0)
     msgpack (1.7.3)
-    net-imap (0.4.19)
+    net-imap (0.5.8)
       date
       net-protocol
     net-pop (0.1.2)
