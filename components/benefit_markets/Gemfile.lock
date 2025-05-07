@@ -1,7 +1,7 @@
 GIT
   remote: https://github.com/ideacrew/resource_registry.git
   revision: a3ca0b8001247663a7f052cfdc32180dc7e1f43d
-  branch: v0.10.1
+  tag: v0.10.1
   specs:
     resource_registry (0.10.1)
       bootsnap (~> 1.0)
@@ -30,6 +30,7 @@ PATH
       dry-validation
       mini_portile2 (~> 2.8.0)
       mongoid (~> 7.5.4)
+      net-imap (>= 0.4.20)
       pundit (~> 1.0.1)
       rack (>= 2.2.13)
       rails (~> 6.1.7.10)
@@ -235,7 +236,7 @@ GEM
       rails (>= 4.2.0)
       railties (>= 4.2.0)
     msgpack (1.7.2)
-    net-imap (0.4.19)
+    net-imap (0.5.8)
       date
       net-protocol
     net-pop (0.1.2)
