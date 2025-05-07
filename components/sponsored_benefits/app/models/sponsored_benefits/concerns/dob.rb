@@ -22,12 +22,21 @@ module SponsoredBenefits
     end
 
     def age_on(date)
+      return nil if dob.nil?
       age = date.year - dob.year
       if date.month < dob.month || (date.month == dob.month && date.day < dob.day)
-        age - 1
-      else
-        age
+        age -= 1
       end
+      age
+    end
+
+    def age_as_of(date)
+      age_on(date)
+    end
+
+    def age
+      return nil if dob.blank?
+      age_on(TimeKeeper.date_of_record)
     end
   end
 end

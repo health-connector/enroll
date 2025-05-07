@@ -150,9 +150,7 @@ class Person
 
   validates :encrypted_ssn, uniqueness: true, allow_blank: true
 
-  validates :gender,
-            allow_blank: true,
-            inclusion: { in: Person::GENDER_KINDS, message: "%<value>s is not a valid gender" }
+  validate :validate_gender_format
 
   before_save :generate_hbx_id
   before_save :update_full_name
@@ -653,7 +651,7 @@ class Person
       #       change is all within the 0-20 age range or all within the 61+ age range (20 >= age <= 61)
       active_enrolled_hbxs.each do |hbx|
         new_temp_person = person.dup
-        new_temp_person.dob = Date.strptime(new_dob.to_s, '%m/%d/%Y')
+        new_temp_person.dob = Date.strptime(new_dob.to_s, "%Y-%m-%d")
         new_age     = new_temp_person.age_on(hbx.effective_on)  # age with the new DOB on the day coverage started
         current_age = person.age_on(hbx.effective_on)           # age with the current DOB on the day coverage started
 
@@ -1001,5 +999,12 @@ class Person
 
   def incarceration_validation
     errors.add(:base, "Incarceration status is required.") if is_incarcerated.to_s.blank?
+  end
+
+  def validate_gender_format
+    return if gender.blank?
+    unless GENDER_KINDS.include?(gender)
+      errors.add(:gender, "#{gender} is not a valid gender")
+    end
   end
 end
