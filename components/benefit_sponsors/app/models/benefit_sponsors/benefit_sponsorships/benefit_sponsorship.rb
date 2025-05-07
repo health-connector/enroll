@@ -545,8 +545,15 @@ module BenefitSponsors
     # use this only for EDI
     def late_renewal_benefit_application
       benefit_applications.order(updated_at: :desc).detect do |application|
-        application.predecessor.present? && application.start_on == application.predecessor.end_on + 1.day &&
-          [:active, :enrollment_eligible].include?(application.aasm_state) && application.start_on >= TimeKeeper.date_of_record - 1.month # grace period of one month for late renewal
+        if application.predecessor.present?
+          start_on_condition = application.start_on.to_date == (application.predecessor.end_on + 1.day).to_date
+          state_condition = [:active, :enrollment_eligible].include?(application.aasm_state.to_sym)
+          date_condition = application.start_on.to_date >= (TimeKeeper.date_of_record - 1.month).to_date # grace period of one month for late renewal
+          
+          start_on_condition && state_condition && date_condition
+        else
+          false
+        end
       end
     end
 

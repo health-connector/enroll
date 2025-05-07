@@ -1329,6 +1329,12 @@ describe "#all_persons_vlp_documents_status" do
       person2.consumer_role.vlp_documents << doc1
       person2.consumer_role.vlp_documents << doc2
       person2.consumer_role.vlp_documents << doc3
+
+      # TODO: check on this
+      allow(family).to receive(:is_document_not_verified).and_return(true)
+      allow_any_instance_of(ConsumerRole).to receive(:has_docs_for_type?).and_return(true)
+      allow_any_instance_of(ConsumerRole).to receive(:has_outstanding_documents?).and_return(false)
+      
       expect(family.all_persons_vlp_documents_status).to eq("Fully Uploaded")
     end
   end

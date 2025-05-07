@@ -35,6 +35,7 @@ module SponsoredBenefits
     def create
       @plan_design_census_employee = SponsoredBenefits::CensusMembers::PlanDesignCensusEmployee.new(plan_design_employee_params)
       @plan_design_census_employee.benefit_sponsorship_id = @plan_design_proposal.profile.benefit_sponsorships.first.id
+      @plan_design_census_employee.address = nil if @plan_design_census_employee.try(:address).try(:address_1).blank? # TODO: Verify this
 
       if @plan_design_census_employee.save
         redirect_back fallback_location: main_app.root_path, :flash => {:success => "Employee record created successfully."}
