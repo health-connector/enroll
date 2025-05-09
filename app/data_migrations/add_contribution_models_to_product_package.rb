@@ -33,9 +33,9 @@ class AddContributionModelsToProductPackage < MongoidMigrationTask
   end
 
   def create_contribution_model(contribution_model)
-    new_contribution_model = contribution_model.class.new(contribution_model.attributes.except(:_id, :contribution_units, :member_relationships))
-    new_contribution_model.contribution_units = contribution_model.contribution_units.collect{ |contribution_unit| contribution_unit.class.new(contribution_unit.attributes.except(:_id)) }
-    new_contribution_model.member_relationships = contribution_model.member_relationships.collect{ |mr| mr.class.new(mr.attributes.except(:_id)) }
+    new_contribution_model = contribution_model.class.new(contribution_model.attributes.except("_id", "contribution_units", "member_relationships"))
+    new_contribution_model.contribution_units = contribution_model.contribution_units.collect{ |contribution_unit| contribution_unit.class.new(contribution_unit.attributes.except("_id")) }
+    new_contribution_model.member_relationships = contribution_model.member_relationships.collect{ |mr| mr.class.new(mr.attributes.except("_id")) }
     new_contribution_model
   end
 

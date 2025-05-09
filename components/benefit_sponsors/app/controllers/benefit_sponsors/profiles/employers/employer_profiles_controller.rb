@@ -157,7 +157,7 @@ module BenefitSponsors
           authorize @employer_profile
 
           options={}
-          options[:content_type] = @invoice.type
+          options[:type] = @invoice.type
           options[:filename] = @invoice.title
           send_data Aws::S3Storage.find(@invoice.identifier) , options
         end

@@ -3,7 +3,7 @@
 ############################################
 
 ARG RUBY_VERSION=3.2.5
-FROM ruby:$RUBY_VERSION-slim-bullseye AS base
+FROM ruby:$RUBY_VERSION-slim-bookworm AS base
 LABEL author="MHC"
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -12,7 +12,7 @@ ARG BUNDLER_VERSION=2.5.21
 # Must be set as ENV variable to overrride the default
 ENV BUNDLER_VERSION=$BUNDLER_VERSION
 
-ARG NODE_MAJOR=12
+ARG NODE_MAJOR=20
 ENV NODE_MAJOR=$NODE_MAJOR
 
 # Only add packages that aren't already in the base image
@@ -23,7 +23,7 @@ RUN apt-get update \
       curl \
       fontconfig \
       libcurl4-openssl-dev \
-      libffi7 \
+      libffi8 \
       libsodium23 \
       libxext6 \
       libxrender1 \
@@ -109,9 +109,9 @@ FROM builder AS prod_gems_and_assets
 
 RUN apt-get update -qq \
     && apt-get install -yq --no-install-recommends \
-      python \
+      python3 python-is-python3 \
     && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /node_modules/* \
     && truncate -s 0 /var/log/*log
 
 # Need all gemfiles and lockfiles

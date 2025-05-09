@@ -7,9 +7,11 @@ on:
       - master
       - enroll_uat
       - rc-release-*
+      - upgrade_to_rails_7_2
   pull_request:
     branches:
       - master
+      - upgrade_to_rails_7_2
 
 concurrency:
   group: docker-${{ github.ref }}

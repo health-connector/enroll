@@ -1,7 +1,7 @@
 # # Note: You can use any Debian/Ubuntu based image you want. 
-# FROM mcr.microsoft.com/devcontainers/base:bullseye
+# FROM mcr.microsoft.com/devcontainers/base:3.2-bookworm
 
-ARG RUBY_VARIANT=2-bullseye
+ARG RUBY_VARIANT=3.2-bookworm
 
 FROM mcr.microsoft.com/vscode/devcontainers/ruby:0-${RUBY_VARIANT}
 
