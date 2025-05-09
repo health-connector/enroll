@@ -1,7 +1,7 @@
 GIT
   remote: https://github.com/ideacrew/resource_registry.git
   revision: a3ca0b8001247663a7f052cfdc32180dc7e1f43d
-  branch: v0.10.1
+  tag: v0.10.1
   specs:
     resource_registry (0.10.1)
       bootsnap (~> 1.0)
@@ -31,7 +31,7 @@ PATH
       mini_portile2 (~> 2.8.0)
       mongoid (~> 7.5.4)
       pundit (~> 1.0.1)
-      rack (>= 2.2.13)
+      rack (>= 2.2.14)
       rails (~> 6.1.7.10)
       slim (~> 3.0.9)
       symmetric-encryption (~> 4.6.0)
@@ -256,7 +256,7 @@ GEM
     pundit (1.0.1)
       activesupport (>= 3.0.0)
     racc (1.8.1)
-    rack (2.2.13)
+    rack (2.2.14)
     rack-test (2.1.0)
       rack (>= 1.3)
     rails (6.1.7.10)

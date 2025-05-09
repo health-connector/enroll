@@ -15,7 +15,7 @@ PATH
       aws-sdk (~> 3.2)
       net-sftp (~> 2.1, >= 2.1.2)
       net-ssh (= 4.2.0)
-      rack (>= 2.2.13)
+      rack (>= 2.2.14)
       rails (~> 6.1.7.8)
 
 PATH
@@ -24,7 +24,7 @@ PATH
     transport_profiles (0.0.1)
       acapi
       mongoid (~> 7.5.4)
-      rack (>= 2.2.13)
+      rack (>= 2.2.14)
       rails (~> 6.1.7.8)
       rubyzip (>= 1.3.0)
       symmetric-encryption (~> 4.6.0)
@@ -1703,7 +1703,7 @@ GEM
       racc (~> 1.4)
     public_suffix (6.0.1)
     racc (1.8.1)
-    rack (2.2.13)
+    rack (2.2.14)
     rack-test (2.1.0)
       rack (>= 1.3)
     rails (6.1.7.8)
