@@ -901,6 +901,10 @@ class Person
     meaningful_changes?(changed_attributes) || embedded_attributes_changed?
   end
 
+  def employee_role_id
+    employee_roles.detect(&:is_active)&.id
+  end
+
   private
 
   # Determine if there are meaningful changes, excluding specific attributes

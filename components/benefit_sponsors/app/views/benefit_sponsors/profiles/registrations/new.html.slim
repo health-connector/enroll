@@ -33,7 +33,7 @@
 
         = f.submit 'CREATE BROKER AGENCY', class:'btn btn-primary float-right', id:'broker-btn'
 - else
-  = render './users/security_question_responses/modal'
+  = render '/users/security_question_responses/modal'
   = form_for @agency, as: :agency, url: {action: "create"},  html: { class: "needs-validation s508", novalidate:true } do |f|
     = f.hidden_field :profile_type, value: params[:profile_type]
     = render 'benefit_sponsors/shared/error_messages', :object => @agency

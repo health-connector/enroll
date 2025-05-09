@@ -127,7 +127,7 @@
 
                 <div data-target="<%= 'office-locations.officeLocation' if office_fields.object.is_primary? %>" class="js-office-location">
                   <%= office_fields.hidden_field '_destroy', value: false, id: 'delete_location' %>
-                  <%= render partial: './ui-components/v1/forms/office_locations/old_style_address', locals: {office_fields: office_fields, profile_type: f_profile.object.profile_type}  %>
+                  <%= render partial: '/ui-components/v1/forms/office_locations/old_style_address', locals: {office_fields: office_fields, profile_type: f_profile.object.profile_type}  %>
                 </div>
               <% end %> 
             </div>

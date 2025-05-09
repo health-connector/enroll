@@ -118,6 +118,7 @@ When(/^Admin choose (.*)$/) do |state|
 end
 
 When(/^Admin enters the information needed$/) do
+  wait_for_ajax
   select "Unable To Open Document", :from => "reason_for_rejection"
 end
 
