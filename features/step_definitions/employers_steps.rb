@@ -813,9 +813,8 @@ And(/^employer populates the address field$/) do
   fill_in 'census_employee[address_attributes][address_1]', :with => "1026 Potomac"
   fill_in 'census_employee[address_attributes][address_2]', :with => "Apt ABC"
   fill_in 'census_employee[address_attributes][city]', :with => "Alpharetta"
-  find(:xpath, "//p[@class='label'][contains(., 'SELECT STATE')]").click
-  find(:xpath, "//li[contains(., 'GA')]").click
-
+  find('#address_info .address-row.active .selectric > p').click
+  find('.selectric-items li', text: 'GA').click
   fill_in 'census_employee[address_attributes][zip]', :with => "30228"
 end
 
@@ -829,7 +828,7 @@ And(/^employer clicks on non-linked employee with address$/) do
 end
 
 And(/^employer clicks on non-linked employee without address$/) do
-  @census_employees.first.address.delete
+  @census_employees.first.address&.delete
   @census_employees.first.update_attributes(aasm_state: "eligible")
   click_link @census_employees.first.full_name
 end
