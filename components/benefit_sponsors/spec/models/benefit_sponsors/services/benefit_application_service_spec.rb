@@ -65,6 +65,7 @@ module BenefitSponsors
       let!(:invalid_benefit_application) { BenefitSponsors::BenefitApplications::BenefitApplication.new }
 
       let!(:organization) { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+      let!(:issuer_profile)              { FactoryBot.create(:benefit_sponsors_organizations_issuer_profile, assigned_site: site) }
       let(:benefit_sponsorship) do
         FactoryBot.create(
           :benefit_sponsors_benefit_sponsorship,
@@ -246,6 +247,7 @@ module BenefitSponsors
       let!(:service_area)  { FactoryBot.create_default :benefit_markets_locations_service_area }
       let!(:employer_attestation)     { BenefitSponsors::Documents::EmployerAttestation.new(aasm_state: "approved") }
       let!(:benefit_market) { site.benefit_markets.first }
+      let!(:issuer_profile)              { FactoryBot.create(:benefit_sponsors_organizations_issuer_profile, assigned_site: site) }
 
       let(:benefit_sponsorship) do
         FactoryBot.create(
@@ -282,6 +284,7 @@ module BenefitSponsors
       let(:site)                          { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
       let(:organization)                  { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
       let(:employer_profile)              { organization.employer_profile }
+      let!(:issuer_profile)              { FactoryBot.create(:benefit_sponsors_organizations_issuer_profile, assigned_site: site) }
       let(:benefit_sponsorship)           do
         bs = employer_profile.add_benefit_sponsorship
         bs.save!
@@ -303,8 +306,6 @@ module BenefitSponsors
           application_period: (TimeKeeper.date_of_record.beginning_of_year..TimeKeeper.date_of_record.end_of_year)
         )
       end
-
-      let!(:issuer_profile)  { FactoryBot.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
 
       let(:create_ba_params) do
         {
@@ -450,6 +451,7 @@ module BenefitSponsors
       let(:benefit_market)                { site.benefit_markets.first }
       let(:organization)                  { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
       let(:employer_profile)              { organization.employer_profile }
+      let!(:issuer_profile)              { FactoryBot.create(:benefit_sponsors_organizations_issuer_profile, assigned_site: site) }
       let!(:benefit_sponsorship) do
         bs = employer_profile.add_benefit_sponsorship
         bs.save!
@@ -469,7 +471,6 @@ module BenefitSponsors
           "benefit_sponsorship_id" => benefit_sponsorship.id.to_s
         }
       end
-      let!(:issuer_profile)  { FactoryBot.create :benefit_sponsors_organizations_issuer_profile, assigned_site: site}
       let!(:previous_benefit_market_catalog) do
         create(
           :benefit_markets_benefit_market_catalog,
@@ -477,7 +478,7 @@ module BenefitSponsors
           benefit_market: benefit_market,
           issuer_profile: issuer_profile,
           title: "SHOP Benefits for #{new_ba_start_on.prev_year.year}",
-          application_period: (new_ba_start_on.prev_year.beginning_of_year...new_ba_start_on.prev_year.end_of_year)
+          application_period: (new_ba_start_on.prev_year.beginning_of_year..new_ba_start_on.prev_year.end_of_year)
         )
       end
       let!(:current_benefit_market_catalog) do
@@ -659,6 +660,7 @@ module BenefitSponsors
       let(:site)                          { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
       let(:organization)                  { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
       let(:employer_profile)              { organization.employer_profile }
+      let!(:issuer_profile)              { FactoryBot.create(:benefit_sponsors_organizations_issuer_profile, assigned_site: site) }
       let(:benefit_sponsorship) do
         bs = employer_profile.add_benefit_sponsorship
         bs.save!

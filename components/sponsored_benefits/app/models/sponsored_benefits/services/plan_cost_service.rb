@@ -77,7 +77,7 @@ class SponsoredBenefits::Services::PlanCostService
     if coverage_kind == 'dental'
       [@benefit_group.dental_reference_plan]
     else
-      plans = @benefit_group.elected_plans_by_option_kind.to_a
+      plans = [@benefit_group.elected_plans_by_option_kind].flatten
       plans.sort_by!(&:name) && ([reference_plan] + plans).uniq
     end
   end

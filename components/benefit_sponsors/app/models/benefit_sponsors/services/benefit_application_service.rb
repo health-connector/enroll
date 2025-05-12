@@ -200,7 +200,7 @@ module BenefitSponsors
       end
 
       def format_date_to_string(date)
-        date.to_date.to_s
+        date.to_date.strftime('%m/%d/%Y')
       end
 
       def store(form, benefit_application)
@@ -234,7 +234,7 @@ module BenefitSponsors
       # end
 
       def map_errors_for(benefit_application, onto:)
-        benefit_application.errors.each do |att, err|
+        benefit_application.errors.messages.each do |att, err|
           onto.errors.add(map_model_error_attribute(att), err)
         end
       end

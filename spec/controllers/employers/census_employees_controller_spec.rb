@@ -657,11 +657,9 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
     end
   end
 
-  describe "for cobra" do
+  describe "for cobra", dbclean: :around_each do
     let(:hired_on) { TimeKeeper.date_of_record }
     let(:cobra_date) { hired_on + 10.days }
-    let(:hired_on_formated) { hired_on.strftime('%m/%d/%Y') }
-    let(:cobra_date_formated) { cobra_date.strftime('%m/%d/%Y') }
     let(:hired_on_two_days_late_formated) { (hired_on + 2.days).strftime('%m/%d/%Y') }
 
     before do
@@ -679,7 +677,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
 
       it "should be redirect" do
         allow(census_employee).to receive(:update_for_cobra).and_return true
-        get :cobra, params: { :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, cobra_date: hired_on_formated }, :format => :js
+        get :cobra, params: { :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, cobra_date: cobra_date }, :format => :js, xhr: true
         expect(flash[:notice]).to eq "Successfully update Census Employee."
         expect(flash[:success]).to eq "Employee has successfully been  enrolled into COBRA coverage on selected start date."
         expect(response).to have_http_status(:success)
@@ -687,7 +685,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
 
       context "with cobra date" do
         it "should cobra census employee" do
-          get :cobra, params: { :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, cobra_date: hired_on_formated }, :format => :js
+          get :cobra, params: { :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, cobra_date: hired_on }, :format => :js
           expect(response).to have_http_status(:success)
           expect(assigns[:cobra_date]).to eq hired_on
         end
@@ -695,7 +693,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
         it "should not cobra census_employee" do
           census_employee.update_attributes(coverage_terminated_on: cobra_date + 2.days)
           allow(census_employee).to receive(:update_for_cobra).and_return false
-          get :cobra, params: { :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, cobra_date: cobra_date_formated }, :format => :js
+          get :cobra, params: { :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, cobra_date: cobra_date }, :format => :js, xhr: true
           expect(response).to have_http_status(:success)
           expect(flash[:error]).to eq "COBRA cannot be initiated for this employee because of invalid date. Please contact #{Settings.site.short_name} at #{Settings.contact_center.phone_number} for further assistance."
         end
@@ -703,7 +701,7 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
         it "should not cobra census_employee when termination date is same as cobra date" do
           census_employee.update_attributes(coverage_terminated_on: cobra_date)
           allow(census_employee).to receive(:update_for_cobra).and_return false
-          get :cobra, params: { :census_employee_id => census_employee.id, :employer_profile_id => employer_profile_id, cobra_date: cobra_date_formated }, :format => :js
+          get :cobra, params: {census_employee_id: census_employee.id, employer_profile_id: employer_profile_id, cobra_date: cobra_date}, :format => :js, xhr: true
           expect(response).to have_http_status(:success)
           expect(flash[:error]).to eq "COBRA cannot be initiated for this employee with the effective date entered. Please contact #{Settings.site.short_name} at #{Settings.contact_center.phone_number} for further assistance."
         end

@@ -170,7 +170,7 @@ class Employers::CensusEmployeesController < ApplicationController
     cobra_date = params["cobra_date"]
 
     if cobra_date.present?
-      @cobra_date = cobra_date.to_date
+      @cobra_date = DateTime.strptime(cobra_date, '%Y-%m-%d').to_date
     else
       @cobra_date = ""
       flash[:error] = "Please enter cobra date."

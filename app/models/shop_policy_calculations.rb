@@ -1,8 +1,8 @@
 module ShopPolicyCalculations
 
   def age_of(member)
-    case member
-    when HbxEnrollmentMember
+    case member.class.to_s
+    when "HbxEnrollmentMember"
       member.age_on_effective_date
     else
       member.age_on(plan_year_start_on)
@@ -10,15 +10,15 @@ module ShopPolicyCalculations
   end
 
   def members
-    case member_provider
-    when HbxEnrollment
+    case member_provider.class.to_s
+    when "HbxEnrollment"
       member_provider.hbx_enrollment_members
-    when CensusEmployee
+    when "CensusEmployee", "SponsoredBenefits::CensusMembers::PlanDesignCensusEmployee"
       [member_provider] + member_provider.census_dependents
-    when QuoteHousehold
+    when "QuoteHousehold"
       member_provider.quote_members
-    when SponsoredBenefits::CensusMembers::PlanDesignCensusEmployee
-      [member_provider] + member_provider.census_dependents
+    else
+      []
     end
   end
 
@@ -45,8 +45,8 @@ module ShopPolicyCalculations
   end
 
   def relationship_for(member)
-    case member.class
-    when HbxEnrollmentMember
+    case  member.class.to_s
+    when "HbxEnrollmentMember"
       if member.is_subscriber?
         "employee"
       else

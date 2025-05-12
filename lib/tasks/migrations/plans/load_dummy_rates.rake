@@ -51,10 +51,10 @@ end
 def self.build_premiums(product, effective_period)
   pts = product.premium_tables.select {|a| a.effective_period.min == effective_period.min.months_ago(3)}
   pts.each do |pt|
-    new_pt = product.premium_tables.create(pt.attributes.except(:_id, :premium_tuples))
+    new_pt = product.premium_tables.create(pt.attributes.except("_id", "premium_tuples"))
     new_pt.effective_period = effective_period
     pt.premium_tuples.each do |tuple|
-      new_pt.premium_tuples.create(tuple.attributes.except(:_id, :premium_tables))
+      new_pt.premium_tuples.create(tuple.attributes.except("_id", "premium_tables"))
     end
     product.save!
     print "." unless Rails.env.test?

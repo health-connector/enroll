@@ -144,7 +144,7 @@ RSpec.describe "insured/families/_enrollment.html.erb" do
         product: product,
         employee_role: employee_role,
         census_employee: census_employee,
-        effective_on: Date.new(2015,8,10),
+        effective_on: TimeKeeper.date_of_record,
         updated_at: DateTime.now,
         created_at: DateTime.now,
         kind: "employer_sponsored",
@@ -242,7 +242,7 @@ RSpec.describe "insured/families/_enrollment.html.erb" do
 
     it "should display the plan start" do
       expect(rendered).to have_selector('strong', text: 'Plan Start')
-      expect(rendered).to match(/#{Date.new(2015,8,10)}/)
+      expect(rendered).to match(/#{TimeKeeper.date_of_record}/)
     end
 
     it "should not disable the Make Changes button" do
@@ -251,7 +251,7 @@ RSpec.describe "insured/families/_enrollment.html.erb" do
 
     it "should display the Plan Start" do
       expect(rendered).to have_selector('strong', text: 'Plan Start')
-      expect(rendered).to match(/#{Date.new(2015,8,10)}/)
+      expect(rendered).to match(/#{TimeKeeper.date_of_record}/)
     end
 
     it "should display effective date when terminated enrollment" do
@@ -343,7 +343,7 @@ RSpec.describe "insured/families/_enrollment.html.erb" do
           coverage_terminated?: false,
           coverage_termination_pending?: false,
           may_terminate_coverage?: true,
-          effective_on: Date.new(2015,8,10),
+          effective_on: TimeKeeper.date_of_record,
           consumer_role: double,
           applied_aptc_amount: 100,
           employee_role: employee_role,

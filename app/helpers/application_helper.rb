@@ -3,7 +3,7 @@ module ApplicationHelper
 
   def can_employee_shop?(date)
     return false if date.blank?
-    date = date.to_date
+    date = date_from_string(date)
     Plan.has_rates_for_all_carriers?(date) == false
   end
 
@@ -12,7 +12,7 @@ module ApplicationHelper
   end
 
   def product_rates_available?(benefit_sponsorship, date = nil)
-    date = date.to_date if date.present?
+    date = date_from_string(date) if date.present?
     return false if benefit_sponsorship.present? && benefit_sponsorship.active_benefit_application.present?
     date = date || BenefitSponsors::BenefitApplications::BenefitApplicationSchedular.new.calculate_start_on_dates[0]
     benefit_sponsorship.applicant? && BenefitMarkets::Forms::ProductForm.for_new(date).fetch_results.is_late_rate
@@ -79,25 +79,47 @@ module ApplicationHelper
     end
   end
 
+  def format_date_value(obj_val, default_value, format)
+    if obj_val.blank?
+      default_value
+    elsif obj_val.is_a?(Date) || obj_val.is_a?(DateTime)
+      obj_val.strftime(format)
+    else
+      obj_val
+    end
+  end
+
+  def date_from_string(string)
+    return string if string.is_a?(Date)
+
+    if string.split('/').first.size == 2
+      Date.strptime(string, "%m/%d/%Y")
+    elsif string.split('-').first.size == 4
+      Date.strptime(string, "%Y-%m-%d")
+    else
+      Date.parse(string)
+    end
+  end
+
   def datepicker_control(f, field_name, options = {}, value = "")
     sanitized_field_name = field_name.to_s.sub(/\?$/,"")
     opts = options.dup
     obj_name = f.object_name
     obj_val = f.object.send(field_name.to_sym)
-    current_value = obj_val.blank? ? value : obj_val.is_a?(DateTime) ? obj_val.strftime("%m/%d/%Y") : obj_val
+    formatted_date_for_display = format_date_value(obj_val, value, "%m/%d/%Y")
+    formatted_date_for_db = format_date_value(obj_val, value, "%Y-%m-%d")
+
     html_class_list = opts.delete(:class) { |k| "" }
     jq_tag_classes = (html_class_list.split(/\s+/) + ["jq-datepicker"]).join(" ")
     generated_field_name = "jq_datepicker_ignore_#{obj_name}[#{sanitized_field_name}]"
     provided_id = options[:id] || options["id"]
     generate_target_id = nil
-    if !provided_id.blank?
-      generated_target_id = "#{provided_id}_jq_datepicker_plain_field"
-    end
+    generated_target_id = provided_id.present? ? "#{provided_id}_jq_datepicker_plain_field" : nil
     sanitized_object_name = "#{obj_name}_#{sanitized_field_name}".delete(']').tr('^-a-zA-Z0-9:.', "_")
     generated_target_id ||= "#{sanitized_object_name}_jq_datepicker_plain_field"
     capture do
-      concat f.text_field(field_name, opts.merge(class: html_class_list, id: generated_target_id, value: obj_val.try(:to_formatted_s, :db)))
-      concat text_field_tag(generated_field_name, current_value, opts.merge(:class => jq_tag_classes, :start_date => "07/01/2016", :style => "display: none;", "data-submission-field" => "##{generated_target_id}"))
+      concat f.text_field(field_name, opts.merge(:class => html_class_list, :id => generated_target_id, :value => formatted_date_for_db))
+      concat text_field_tag(generated_field_name, formatted_date_for_display, opts.merge(:class => jq_tag_classes, :start_date => "07/01/2016", :style => "display: none;", "data-submission-field" => "##{generated_target_id}"))
     end
   end
 
@@ -435,7 +457,7 @@ module ApplicationHelper
 
   def display_carrier_logo(plan, options = {:width => 50})
     carrier_name = carrier_logo(plan)
-    image_tag("logo/carrier/#{carrier_name.parameterize.underscore}.jpg", width: options[:width]) # Displays carrier logo (Delta Dental => delta_dental.jpg)
+    image_tag("logo/carrier/#{carrier_name.parameterize.underscore}.jpg", width: options[:width], alt: "#{carrier_name} logo") # Displays carrier logo (Delta Dental => delta_dental.jpg)
   end
 
   def digest_logos
