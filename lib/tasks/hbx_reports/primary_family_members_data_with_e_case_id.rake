@@ -4,6 +4,6 @@ require File.join(Rails.root, "app", "reports", "hbx_reports", "primary_family_m
 namespace :reports do
   namespace :primary_family_members do
     desc "List of all Primary Family Members in Enroll with an associated integrated case"
-    PrimaryFamilyMembersDataWithECaseId.define_task  :with_e_case_id => :environment
+    HbxReports::PrimaryFamilyMembersDataWithECaseId.define_task  :with_e_case_id => :environment
   end
 end
