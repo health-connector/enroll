@@ -14,8 +14,8 @@ end
 
 When(/Hbx admin enter announcement info for (.*?)$/) do |role|
   fill_in 'announcement[content]', with: 'announcement for current'
-  fill_in 'jq_datepicker_ignore_announcement[start_date]', with: (TimeKeeper.date_of_record - 5.days).to_s
-  fill_in 'jq_datepicker_ignore_announcement[end_date]', with: (TimeKeeper.date_of_record + 5.days).to_s
+  fill_in 'jq_datepicker_ignore_announcement[start_date]', with: (TimeKeeper.date_of_record - 5.days).strftime("%m/%d/%Y")
+  fill_in 'jq_datepicker_ignore_announcement[end_date]', with: (TimeKeeper.date_of_record + 5.days).strftime("%m/%d/%Y")
   find('#announcement_content').click
   find('#announcement_audiences_ivl').click if role == "ivl"
   find('#announcement_audiences_employer').click if role == "employee"
@@ -25,8 +25,8 @@ end
 
 When(/^Hbx admin enter announcement info with future date for (.*?)$/) do |role|
   fill_in 'announcement[content]', with: 'announcement for future'
-  fill_in 'jq_datepicker_ignore_announcement[start_date]', with: (TimeKeeper.date_of_record + 5.days).to_s
-  fill_in 'jq_datepicker_ignore_announcement[end_date]', with: (TimeKeeper.date_of_record + 15.days).to_s
+  fill_in 'jq_datepicker_ignore_announcement[start_date]', with: (TimeKeeper.date_of_record + 5.days).strftime("%m/%d/%Y")
+  fill_in 'jq_datepicker_ignore_announcement[end_date]', with: (TimeKeeper.date_of_record + 15.days).strftime("%m/%d/%Y")
   find('#announcement_content').click
   find('#announcement_audiences_ivl').click if role == "ivl"
   find('#announcement_audiences_employer').click if role == "employee"
@@ -47,8 +47,8 @@ end
 
 When(/^Hbx admin enter announcement info with invalid params for (.*?)$/) do |role|
   fill_in 'announcement[content]', with: 'invalid announcement'
-  fill_in 'jq_datepicker_ignore_announcement[start_date]', with: (TimeKeeper.date_of_record + 5.days).to_s
-  fill_in 'jq_datepicker_ignore_announcement[end_date]', with: TimeKeeper.date_of_record.to_s
+  fill_in 'jq_datepicker_ignore_announcement[start_date]', with: (TimeKeeper.date_of_record + 5.days).strftime("%m/%d/%Y")
+  fill_in 'jq_datepicker_ignore_announcement[end_date]', with: TimeKeeper.date_of_record.strftime("%m/%d/%Y")
   find('#announcement_content').click
   find('#announcement_audiences_ivl').click if role == "ivl"
   find('#announcement_audiences_employer').click if role == "employee"
