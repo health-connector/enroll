@@ -303,7 +303,7 @@ end
 Then(/Employee should see "not yet eligible" error message/) do
   screenshot("new_hire_not_yet_eligible_exception")
   wait_for_ajax(2,2)
-  expect(page).to have_content("You're not yet eligible under your employer-sponsored benefits. Please return on #{TimeKeeper.date_of_record + 15.days} to enroll for coverage.")
+  expect(page).to have_content("You're not yet eligible under your employer-sponsored benefits. Please return on #{(TimeKeeper.date_of_record + 15.days).strftime('%m/%d/%Y')} to enroll for coverage.")
   visit '/families/home'
 end
 
