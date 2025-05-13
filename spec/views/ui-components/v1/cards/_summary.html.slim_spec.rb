@@ -55,7 +55,6 @@ RSpec.describe "_summary.html.slim.rb", :type => :view, dbclean: :after_each  do
     assign :plan, mock_product
     assign :hbx_enrollment, hbx_enrollment
     assign :member_group, member_group
-    allow(view).to receive(:display_carrier_logo).and_return("Carrier Logo Displayed")
   end
 
   it "should display standard plan indicator" do
@@ -123,7 +122,6 @@ RSpec.describe "_summary.html.slim.rb", :type => :view, dbclean: :after_each  do
     end
 
     it "should have provider directory url if nationwide = true" do
-      allow(view).to receive(:display_carrier_logo).and_return("Carrier Logo Displayed")
       render "ui-components/v1/cards/summary", :qhp => mock_qhp_cost_share_variance
       expect(rendered).to match(/#{mock_product.provider_directory_url}/)
       expect(rendered).to match("PROVIDER DIRECTORY")

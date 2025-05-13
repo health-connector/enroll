@@ -504,7 +504,7 @@ RSpec.describe "insured/families/_enrollment.html.erb" do
 
     it "should display coverage end date for expired enrollment" do
       expect(rendered).to have_text(/Coverage End/)
-      expect(rendered).to have_text(/#{end_on.strftime("%m/%d/%Y")}/)
+      expect(rendered).to have_text(end_on.strftime("%m/%d/%Y"))
     end
   end
 
