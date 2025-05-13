@@ -354,7 +354,7 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
 
       it "query string for census employee firstname or last name" do
         employee_search = "test1"
-        expected_result = {"$or" => [{"$or" => [{"first_name" => /test1/i}, {"last_name" => /test1/i}]}, {"encrypted_ssn" => "QEVuQwAA0m50gjJW7mR4HLnepJyFmg==\n"}]}
+        expected_result = {"$or" => [{"$or" => [{"first_name" => /test1/i}, {"last_name" => /test1/i}]}, {"encrypted_ssn" => "QEVuQwAA+MZq0qWj9VdyUd9MifJWpQ==\n"}]}
         result = CensusEmployee.search_hash(employee_search)
         expect(result).to eq expected_result
       end

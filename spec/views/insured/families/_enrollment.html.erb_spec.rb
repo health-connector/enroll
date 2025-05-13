@@ -242,16 +242,11 @@ RSpec.describe "insured/families/_enrollment.html.erb" do
 
     it "should display the plan start" do
       expect(rendered).to have_selector('strong', text: 'Plan Start')
-      expect(rendered).to match(/#{TimeKeeper.date_of_record}/)
+      expect(rendered).to match(/#{TimeKeeper.date_of_record.strftime('%m/%d/%Y')}/)
     end
 
     it "should not disable the Make Changes button" do
       expect(rendered).to_not have_selector('.cna')
-    end
-
-    it "should display the Plan Start" do
-      expect(rendered).to have_selector('strong', text: 'Plan Start')
-      expect(rendered).to match(/#{TimeKeeper.date_of_record}/)
     end
 
     it "should display effective date when terminated enrollment" do
@@ -413,8 +408,8 @@ RSpec.describe "insured/families/_enrollment.html.erb" do
         is_coverage_waived?: false,
         coverage_year: 2018,
         employer_profile: employer_profile,
-        coverage_termination_pending?: false,
         coverage_terminated?: true,
+        coverage_termination_pending?: false,
         coverage_expired?: false,
         total_premium: 200.00,
         total_employer_contribution: 100.00,

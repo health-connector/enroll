@@ -279,7 +279,7 @@ RSpec.describe User, :type => :model, dbclean: :after_each do
         expect(user.errors[:person].any?).to be_truthy
         expect(user.errors[:person]).to eq ["is invalid"]
         expect(user.person.errors[:ssn].any?).to be_truthy
-        expect(user.person.errors[:ssn]).to eq ["must be 9 digits"]
+        expect(user.person.errors[:ssn]).to eq ["must have 9 digits"]
       end
     end
 
