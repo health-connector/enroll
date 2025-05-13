@@ -110,6 +110,10 @@ FROM builder AS prod_gems_and_assets
 RUN apt-get update -qq \
     && apt-get install -yq --no-install-recommends \
       python3 python-is-python3 \
+      build-essential \
+      g++ \
+      make \
+      python3-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /node_modules/* \
     && truncate -s 0 /var/log/*log
@@ -117,8 +121,11 @@ RUN apt-get update -qq \
 # Need all gemfiles and lockfiles
 COPY --chown=nonroot:nonroot package.json $HOME/
 COPY --chown=nonroot:nonroot yarn.lock $HOME/
-RUN yarn install \
-  && (rm -rf /tmp/* || true)
+
+# Install node-sass explicitly first
+RUN npm install node-sass --unsafe-perm=true --allow-root \
+    && yarn install \
+    && (rm -rf /tmp/* || true)
 
 COPY --chown=nonroot:nonroot ./project_gems/effective_datatables-2.6.14/effective_datatables-2.6.14.gemspec $HOME/project_gems/effective_datatables-2.6.14/effective_datatables-2.6.14.gemspec
 COPY --chown=nonroot:nonroot ./project_gems/mongoid_userstamp-0.4.0/mongoid_userstamp.gemspec $HOME/project_gems/mongoid_userstamp-0.4.0/mongoid_userstamp.gemspec
