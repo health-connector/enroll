@@ -59,7 +59,7 @@ module BenefitSponsors
       end
 
       def can_create_draft_for_tp?(bas, form)
-        start_on_date = Date.strptime(form.start_on, "%m/%d/%Y")
+        start_on_date = form.start_on.to_date
         bas.any? { |ba| ba.effective_period.cover?(start_on_date)}
       end
 

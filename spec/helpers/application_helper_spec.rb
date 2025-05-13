@@ -124,7 +124,7 @@ RSpec.describe ApplicationHelper, :type => :helper do
     let(:plan){ Maybe.new(FactoryBot.build(:plan, hios_id: "94506DC0350001-01", carrier_profile: carrier_profile)) }
 
     it "should return the named logo" do
-      expect(helper.display_carrier_logo(plan)).to match(%r{<img width="50" src="/assets/logo/carrier/kaiser-\w+\.jpg" />})
+      expect(helper.display_carrier_logo(plan)).to match(%r{<img width="50" alt="Kaiser logo" src="/assets/logo/carrier/kaiser-\w+\.jpg" />})
     end
   end
 

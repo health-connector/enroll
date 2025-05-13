@@ -8,7 +8,7 @@ module BenefitSponsors
       ]
 
       def notify_on_save
-        if self._id_changed?
+        if self._id_previously_changed?
           is_employee_sep_request_accepted = true
         end
 

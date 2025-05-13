@@ -175,7 +175,8 @@ class SponsoredBenefits::Services::PlanCostService
 
   def max_employer_contribution(member, census_employee)
     Rails.cache.fetch("employer_contribution_#{reference_plan.id}_#{member.id}_#{employer_contribution_percent(member)}", expires_in: 15.minutes) do
-      ((large_family_factor(member, census_employee) * reference_premium_for(member, census_employee) * employer_contribution_percent(member)) / 100.00).round(2)
+      contribution_percent = employer_contribution_percent(member) || 0.0
+      ((large_family_factor(member, census_employee) * reference_premium_for(member, census_employee) * contribution_percent) / 100.00).round(2)
     end
   end
 

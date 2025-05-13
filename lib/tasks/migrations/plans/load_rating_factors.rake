@@ -52,15 +52,14 @@ namespace :load_rating_factors do
           issuer_hios_id = sheet.cell(2,carrier_column).to_i.to_s
           issuer_profile_id = @issuer_profile_hash[issuer_hios_id]
           if issuer_profile_id.present?
-
-            obj = case(Object.const_get(rating_factor_class))
-            when(SicCodeRatingFactorSet)
+            obj = case Object.const_get(rating_factor_class).to_s
+            when "SicCodeRatingFactorSet"
               ::BenefitMarkets::Products::ActuarialFactors::SicActuarialFactor
-            when(EmployerGroupSizeRatingFactorSet)
+            when "EmployerGroupSizeRatingFactorSet"
               ::BenefitMarkets::Products::ActuarialFactors::GroupSizeActuarialFactor
-            when(EmployerParticipationRateRatingFactorSet)
+            when "EmployerParticipationRateRatingFactorSet"
               ::BenefitMarkets::Products::ActuarialFactors::ParticipationRateActuarialFactor
-            when(CompositeRatingTierFactorSet)
+            when "CompositeRatingTierFactorSet"
               ::BenefitMarkets::Products::ActuarialFactors::CompositeRatingTierActuarialFactor
             end
 

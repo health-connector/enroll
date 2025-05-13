@@ -11,7 +11,7 @@ RSpec.describe "layouts/_header.html.erb", :dbclean => :around_each do
   let(:employer_profile) { benefit_sponsor.employer_profile }
   let(:active_employer_staff_role) { FactoryBot.create(:benefit_sponsor_employer_staff_role, person: person_user, aasm_state: 'is_active', benefit_sponsor_employer_profile_id: employer_profile.id)}
   let(:broker_agency_profile) { FactoryBot.create(:broker_agency_profile)}
-  let(:broker_role) { FactoryBot.build(:broker_role, broker_agency_profile_id: broker_agency_profile.id, benefit_sponsors_broker_agency_profile_id: broker_agency_profile.id)}
+  let(:broker_role) { FactoryBot.build(:broker_role, broker_agency_profile_id: broker_agency_profile.id, benefit_sponsors_broker_agency_profile_id: broker_agency_profile.id) }
   let(:signed_in?) { true }
 
   #let!(:byline) { create(:translation, key: "en.layouts.header.byline", value: Settings.site.header_message) }
@@ -28,9 +28,15 @@ RSpec.describe "layouts/_header.html.erb", :dbclean => :around_each do
     expect(rendered).to match(/I'm an Admin/)
   end
   it 'identifies Brokers' do
-    current_user.roles = ['broker_agency_staff']
-    person_user.broker_role = broker_role
-    current_user.save
+    broker_person = FactoryBot.create(:person, :with_broker_role)
+    broker_role = broker_person.broker_role
+    broker_role.broker_agency_profile_id = broker_agency_profile.id
+    broker_role.benefit_sponsors_broker_agency_profile_id = broker_agency_profile.id
+    broker_role.save!
+    broker_user = FactoryBot.create(:user, person: broker_person, roles: ['broker'])
+    
+    # Sign in as the broker
+    sign_in broker_user
     render :template => 'layouts/_header'
     expect(rendered).to match(/I'm a Broker/)
   end
