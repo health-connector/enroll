@@ -47,6 +47,7 @@ When("the user clicks on Confirm button") do
 end
 
 Then(/the user will see a (.*) message/) do |message|
+  wait_for_ajax
   expect(page).to have_content(message)
 end
 
