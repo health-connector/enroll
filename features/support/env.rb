@@ -84,7 +84,14 @@ Capybara.register_driver :selenium_chrome_custom do |app|
   options = Selenium::WebDriver::Chrome::Options.new
   options.add_argument("headless")
   options.add_argument("--no-sandbox")
+  options.add_argument('--disable-gpu')
+  options.add_argument('--disable-site-isolation-trials')
   options.add_argument("--window-size=1920,1080")
+
+  options.add_argument("--disable-dev-shm-usage")
+  options.add_argument("--disable-extensions")
+  options.add_argument("--disable-infobars")
+  options.add_argument("--remote-debugging-port=9222")
 
   if RUBY_PLATFORM =~ /darwin/
     options.add_argument("--enable-features=NetworkService,NetworkServiceInProcess")
@@ -97,7 +104,7 @@ Capybara.register_driver :selenium_chrome_custom do |app|
   Capybara::Selenium::Driver.new(
     app,
     browser: :chrome,
-    capabilities: [options],
+    options: options,
     http_client: client
   )
 end
