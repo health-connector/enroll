@@ -118,13 +118,11 @@ RUN apt-get update -qq \
 COPY --chown=nonroot:nonroot package.json $HOME/
 COPY --chown=nonroot:nonroot yarn.lock $HOME/
 
-# Replace node-sass with sass (Dart Sass)
-RUN npm config set unsafe-perm true \
-    && npm uninstall -g node-sass \
-    && npm i -g sass \
-    && echo '{"dependencies": {"node-sass": "npm:sass"}}' > /tmp/package.json \
-    && npm install --prefix /tmp \
-    && yarn install --ignore-scripts \
+# Skip node-sass and use a prebuilt binary with NPM
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+RUN npm install -g sass \
+    && yarn config set ignore-engines true \
+    && SASS_BINARY_SITE=https://github.com/sass/node-sass/releases/download yarn install --ignore-scripts \
     && (rm -rf /tmp/* || true)
 
 COPY --chown=nonroot:nonroot ./project_gems/effective_datatables-2.6.14/effective_datatables-2.6.14.gemspec $HOME/project_gems/effective_datatables-2.6.14/effective_datatables-2.6.14.gemspec
