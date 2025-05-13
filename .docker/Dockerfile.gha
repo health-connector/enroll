@@ -117,7 +117,7 @@ RUN apt-get update -qq \
 # Need all gemfiles and lockfiles
 COPY --chown=nonroot:nonroot package.json $HOME/
 COPY --chown=nonroot:nonroot yarn.lock $HOME/
-RUN yarn install \
+RUN yarn install --verbose \
   && (rm -rf /tmp/* || true)
 
 COPY --chown=nonroot:nonroot ./project_gems/effective_datatables-2.6.14/effective_datatables-2.6.14.gemspec $HOME/project_gems/effective_datatables-2.6.14/effective_datatables-2.6.14.gemspec
