@@ -112,6 +112,7 @@ FROM builder AS prod_gems_and_assets
 RUN apt-get update -qq \
     && apt-get install -yq --no-install-recommends \
       shared-mime-info python3 python-is-python3 \
+      nodejs \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /node_modules/* \
     && truncate -s 0 /var/log/*log
