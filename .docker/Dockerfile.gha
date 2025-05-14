@@ -122,7 +122,7 @@ COPY --chown=nonroot:nonroot package.json $HOME/
 COPY --chown=nonroot:nonroot yarn.lock $HOME/
 
 # Skip node-sass and use a prebuilt binary with NPM
-ENV NODE_OPTIONS="--max-old-space-size=4096"
+ENV NODE_OPTIONS="--max-old-space-size=4096 --openssl-legacy-provider"
 RUN npm install -g sass \
     && yarn config set ignore-engines true \
     && SASS_BINARY_SITE=https://github.com/sass/node-sass/releases/download yarn install --ignore-scripts \

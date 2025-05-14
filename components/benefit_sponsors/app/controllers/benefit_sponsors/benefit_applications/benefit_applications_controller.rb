@@ -80,7 +80,7 @@ module BenefitSponsors
       end
 
       def late_rates_check
-        date = params[:start_on_date].present? ? params[:start_on_date].to_date : nil
+        date = params[:start_on_date].present? ? Date.strptime(params[:start_on_date], "%m/%d/%Y") : nil
         product_form = BenefitMarkets::Forms::ProductForm.for_new(date)
         product_form = product_form.fetch_results
         render json: product_form.is_late_rate

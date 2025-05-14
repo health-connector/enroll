@@ -45,7 +45,7 @@ class Exchanges::HbxProfilesController < ApplicationController
   def extend_open_enrollment
     authorize HbxProfile, :can_extend_open_enrollment?
     @benefit_application = @benefit_sponsorship.benefit_applications.find(params[:id])
-    open_enrollment_end_date = params["open_enrollment_end_date"].to_date
+    open_enrollment_end_date = Date.strptime(params["open_enrollment_end_date"], "%m/%d/%Y")
     ::BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(@benefit_application).extend_open_enrollment(open_enrollment_end_date)
     redirect_to exchanges_hbx_profiles_root_path, :flash => { :success => "Successfully extended employer(s) open enrollment." }
   end
