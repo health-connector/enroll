@@ -33,12 +33,12 @@
         <% benefit_applications.order('start_on DESC').each do |application| %>
           <tr>
             <td class="py-status"><%= radio_button_tag 'plan_year_radio', application.id, false, status: application.aasm_state.to_s, action_under_24_hours: action_under_24_hours %></td>
-            <td><%= (application.start_on.to_date) %></td>
-            <td><%= (application.end_on.to_date) %></td>
-            <td><%= (application.open_enrollment_period.begin.to_date) %></td>
-            <td><%= (application.open_enrollment_period.end.to_date) %></td>
-            <td><%= (application.created_at.to_datetime) %></td>
-            <td><%= (application.terminated_on.to_datetime) if application.terminated_on.present? %></td>
+            <td><%= format_date(application.start_on.to_date) %></td>
+            <td><%= format_date(application.end_on.to_date) %></td>
+            <td><%= format_date(application.open_enrollment_period.begin.to_date) %></td>
+            <td><%= format_date(application.open_enrollment_period.end.to_date) %></td>
+            <td><%= format_date(application.created_at.to_datetime) %></td>
+            <td><%= format_date(application.terminated_on.to_datetime) if application.terminated_on.present? %></td>
             <td data-cuke='application_status'><%= benefit_application_summarized_state(application) %></td>
             <td colspan="1">
               <div class="btn-group" id="plan-year-btn-group">
@@ -49,13 +49,13 @@
                     <% if ::EnrollRegistry.feature_enabled?(:benefit_application_history) %>
                       <%= link_to(l10n("exchange.employer_applications.view_history"), exchanges_employer_application_application_history_path(application.id, employer_id: @benefit_sponsorship.id), class: "application-history btn btn-default btn-block",  data: { turbolinks: false }) %>
                     <% end %>
-                    <li onclick="pyAction('cancel', '<%= application.id %>', '<%= application.aasm_state %>', '<%= @benefit_sponsorship.id %>', '0', '<%= application.start_on.to_date.to_s %>')" class="cancel-py btn btn-default btn-block"><%= l10n("exchange.employer_applications.cancel") %></li>
-                    <li onclick="pyAction('terminate', '<%= application.id %>', '<%= application.aasm_state %>', '<%= @benefit_sponsorship.id %>', '0', '<%= application.start_on.to_date.to_s %>')" class="terminate-py btn btn-default btn-block"><%= l10n("exchange.employer_applications.terminate") %></li>
+                    <li onclick="pyAction('cancel', '<%= application.id %>', '<%= application.aasm_state %>', '<%= @benefit_sponsorship.id %>', '0', '<%= format_date(application.start_on.to_date) %>')" class="cancel-py btn btn-default btn-block"><%= l10n("exchange.employer_applications.cancel") %></li>
+                    <li onclick="pyAction('terminate', '<%= application.id %>', '<%= application.aasm_state %>', '<%= @benefit_sponsorship.id %>', '0', '<%= format_date(application.start_on.to_date) %>')" class="terminate-py btn btn-default btn-block"><%= l10n("exchange.employer_applications.terminate") %></li>
                     <%if ::EnrollRegistry.feature_enabled?(:benefit_application_reinstate)%>
-                      <li onclick="pyAction('reinstate', '<%= application.id %>', '<%= application.aasm_state %>', '<%= @benefit_sponsorship.id %>', '<%= (application.end_on.to_date.next_day).to_s if application.end_on.present?%>', '<%= application.start_on.to_date.to_s %>')" class="reinstate-py btn btn-default btn-block"><%= l10n("exchange.employer_applications.reinstate") %></li>
+                      <li onclick="pyAction('reinstate', '<%= application.id %>', '<%= application.aasm_state %>', '<%= @benefit_sponsorship.id %>', '<%= format_date(application.end_on.to_date.next_day) if application.end_on.present?%>', '<%= application.start_on.to_date.to_s %>')" class="reinstate-py btn btn-default btn-block"><%= l10n("exchange.employer_applications.reinstate") %></li>
                     <%end%>
                     <%if ::EnrollRegistry.feature_enabled?(:benefit_application_revise_end_date)%>
-                      <li onclick="pyAction('revise_end_date', '<%= application.id %>', '<%= application.aasm_state %>', '<%= @benefit_sponsorship.id %>', '0', '<%= application.start_on.to_date.to_s %>')" class="revise-end-date-py btn btn-default btn-block"><%= l10n("exchange.employer_applications.revise_end_date") %></li>
+                      <li onclick="pyAction('revise_end_date', '<%= application.id %>', '<%= application.aasm_state %>', '<%= @benefit_sponsorship.id %>', '0', '<%= format_date(application.start_on.to_date) %>')" class="revise-end-date-py btn btn-default btn-block"><%= l10n("exchange.employer_applications.revise_end_date") %></li>
                     <%end%>
                 </ul>
               </div>

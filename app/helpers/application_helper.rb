@@ -156,6 +156,10 @@ module ApplicationHelper
     date_value.strftime("%m/%d/%Y") if date_value.respond_to?(:strftime)
   end
 
+  def format_time(time_value)
+    time_value.strftime("%m/%d/%Y %H:%M") if time_value.respond_to?(:strftime)
+  end
+
   def format_datetime(date_value)
     date_value.to_time.strftime("%m/%d/%Y %H:%M %Z %:z") if date_value.respond_to?(:strftime)
   end

@@ -11,7 +11,7 @@
             <td><h5> <b>HBX ID:</b> <%=@person.hbx_id%></h5></tb>
           </tr>
           <tr>
-            <td><h5> <b>DOB:</b> <%=@person.dob%> </h5></td>
+            <td><h5> <b>DOB:</b> <%=format_date(@person.dob)%> </h5></td>
             <td><h5> <b>SSN:</b> <%=@person.ssn%></h5></tb>
           </tr>
         </tbody>
@@ -26,7 +26,7 @@
       First Name :<b><%=@ssn_match.first_name%></b> <br />
       Last Name:  <b><%=@ssn_match.last_name%></b>  <br />  
       HBX ID:     <b><%=@ssn_match.hbx_id%></b>     <br />
-      Date of Birth: <b><%=@ssn_match.dob%></b>     <br />
+      Date of Birth: <b><%=format_date(@ssn_match.dob)%></b>     <br />
       SSN: <b><%=@ssn_match.ssn%></b>     <br />
     </h5>
     <h5>Please resolve the match issue.</h5>
