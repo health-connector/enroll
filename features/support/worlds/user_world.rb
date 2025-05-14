@@ -121,7 +121,7 @@ end
 
 Then(/^the user enters a new open enrollment end date$/) do
   input = find('input.hasDatepicker')
-  input.set(Date.today + 1.week)
+  input.set((Date.today + 1.week).strftime("%m/%d/%Y"))
 end
 
 Then(/^the user will see the Create Plan Year button$/) do
