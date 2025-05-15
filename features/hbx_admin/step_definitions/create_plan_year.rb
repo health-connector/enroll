@@ -38,6 +38,8 @@ Given('the user has a valid input for all required fields') do
 end
 
 When(/the admin clicks (.*)$/) do |btn|
+  sleep 2
+  wait_for_ajax
   screenshot('the admin clicks submit')
   find('.btn', :text => /#{btn}/i).click
 end
