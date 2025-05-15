@@ -33,6 +33,7 @@ PATH
       dry-validation (~> 1.0)
       mongoid (~> 7.5.4)
       rack (>= 2.2.14)
+      net-imap (>= 0.4.20)
       rails (~> 6.1.7.10)
       roo (~> 2.10)
       slim (~> 3.0.8)
@@ -220,7 +221,7 @@ GEM
       mongo (>= 2.10.5, < 3.0.0)
       ruby2_keywords (~> 0.0.5)
     msgpack (1.7.2)
-    net-imap (0.4.19)
+    net-imap (0.5.8)
       date
       net-protocol
     net-pop (0.1.2)

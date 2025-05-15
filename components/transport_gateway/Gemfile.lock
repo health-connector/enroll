@@ -3,6 +3,7 @@ PATH
   specs:
     transport_gateway (0.0.1)
       aws-sdk (~> 3.2)
+      net-imap (>= 0.4.20)
       net-sftp (~> 2.1, >= 2.1.2)
       net-ssh (= 4.2.0)
       rack (>= 2.2.14)
@@ -1649,7 +1650,7 @@ GEM
     method_source (1.1.0)
     mini_mime (1.1.5)
     minitest (5.24.1)
-    net-imap (0.4.14)
+    net-imap (0.5.8)
       date
       net-protocol
     net-pop (0.1.2)

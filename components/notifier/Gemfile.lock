@@ -9,6 +9,7 @@ PATH
       config
       money-rails (~> 1.13)
       mongoid (~> 7.5.4)
+      net-imap (>= 0.4.20)
       non-stupid-digest-assets
       pundit
       rack (>= 2.2.14)
@@ -176,7 +177,7 @@ GEM
       activemodel (>= 5.1, < 7.1, != 7.0.0)
       mongo (>= 2.10.5, < 3.0.0)
       ruby2_keywords (~> 0.0.5)
-    net-imap (0.4.19)
+    net-imap (0.5.8)
       date
       net-protocol
     net-pop (0.1.2)
