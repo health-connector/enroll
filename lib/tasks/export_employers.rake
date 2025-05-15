@@ -71,7 +71,7 @@ namespace :employers do
       csv << [
         profile.legal_name,
         profile.dba,
-        profile.fein,
+        "#{profile.fein}",
         profile.hbx_id,
         profile.entity_kind,
         profile.sic_code,
@@ -87,12 +87,12 @@ namespace :employers do
         primary_address.try(:address_2),
         primary_address.try(:city),
         primary_address.try(:state),
-        primary_address.try(:zip),
+        "#{primary_address.try(:zip)}",
         mailing_address.try(:address_1),
         mailing_address.try(:address_2),
         mailing_address.try(:city),
         mailing_address.try(:state),
-        mailing_address.try(:zip),
+        "#{mailing_address.try(:zip)}",
         application.try(:recorded_rating_area).try(:exchange_provided_code),
         primary_ol.try(:phone).try(:full_phone_number),
         staff_role.try(:full_name),
@@ -139,7 +139,7 @@ namespace :employers do
 
       headers = %w[employer.legal_name employer.dba employer.fein employer.hbx_id employer.entity_kind employer.sic_code employer_profile.profile_source employer.referred_by employer.referred_reason employer.status ga_fein ga_agency_name ga_start_on
                    office_location.is_primary office_location.address.address_1 office_location.address.address_2
-                   office_location.address.city office_location.address.state office_location.address.zip mailing_location.address_1 mailing_location.address_2 mailing_location.city mailing_location.state mailing_location.zip, employer.rating_area,
+                   office_location.address.city office_location.address.state office_location.address.zip mailing_location.address_1 mailing_location.address_2 mailing_location.city mailing_location.state mailing_location.zip employer.rating_area
                    office_location.phone.full_phone_number staff.name staff.phone staff.email
                    employee offered spouce offered domestic_partner offered child_under_26 offered child_26_and_over
                    offered benefit_group.title benefit_group.plan_option_kind

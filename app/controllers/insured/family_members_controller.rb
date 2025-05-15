@@ -10,7 +10,7 @@ class Insured::FamilyMembersController < ApplicationController
     authorize @family, :index?
 
     set_bookmark_url
-    @type = (params[:employee_role_id].present? && params[:employee_role_id] != 'None') ? "employee" : "consumer"
+    @type = session[:employee_role_id].present? && session[:employee_role_id] != 'None' ? "employee" : "consumer"
 
     if (params[:resident_role_id].present? && params[:resident_role_id])
       @type = "resident"
@@ -27,8 +27,12 @@ class Insured::FamilyMembersController < ApplicationController
     end
 
     if @type == "employee"
-      emp_role_id = params.require(:employee_role_id)
+      emp_role_id = session[:employee_role_id]
       @employee_role = @person.employee_roles.detect { |emp_role| emp_role.id.to_s == emp_role_id.to_s }
+      unless @employee_role
+        Rails.logger.error("No matching employee role found for ID: #{emp_role_id}")
+        redirect_to root_path, alert: "Employee role not found" and return
+      end
     elsif @type == "consumer"
       @consumer_role = @person.consumer_role
       @family.hire_broker_agency(current_user.person.broker_role.try(:id))

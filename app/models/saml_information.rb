@@ -32,7 +32,7 @@ class SamlInformation
   # TODO: I have a feeling we may be using this pattern
   #       A LOT.  Look into extracting it if we repeat.
   def initialize
-    @config = YAML.safe_load(ERB.new(File.read(File.join(Rails.root,'config', 'saml.yml'))).result(binding))
+    @config = YAML.unsafe_load(ERB.new(File.read(File.join(Rails.root,'config', 'saml.yml'))).result(binding))
     ensure_configuration_values(@config)
   end
 

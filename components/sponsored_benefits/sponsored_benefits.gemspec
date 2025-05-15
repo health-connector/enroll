@@ -32,6 +32,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'dry-struct'
   s.add_dependency 'dry-monads'
   s.add_dependency 'rack', '>= 2.2.13'
+  s.add_dependency 'net-imap',  '>= 0.4.20'
 
   s.test_files = Dir["spec/**/*"]
 

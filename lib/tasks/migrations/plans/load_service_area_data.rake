@@ -237,8 +237,8 @@ namespace :load_service_reference do
   end
 
   def to_boolean(value)
-    return true if value == true
-    return false if value == false
+    return true   if value == true
+    return false  if value == false
 
     if value.respond_to?(:to_s)
       str_val = value.to_s.strip.downcase

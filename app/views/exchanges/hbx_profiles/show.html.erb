@@ -6,13 +6,14 @@
 </div>
 
 <script>
-  var employersTabActive = <%= @employers_tab_active %>;
-
   document.addEventListener("DOMContentLoaded", function() {
+    var employersTabActive = sessionStorage.getItem('employers_tab_active') === "true";
+
     if (employersTabActive) {
       var employersElements = document.getElementsByClassName("interaction-click-control-employers");
       if (employersElements.length > 0) {
         employersElements[0].click();
+        sessionStorage.removeItem('employers_tab_active');
       }
     }
   });

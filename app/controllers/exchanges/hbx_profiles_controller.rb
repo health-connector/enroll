@@ -223,52 +223,6 @@ class Exchanges::HbxProfilesController < ApplicationController
              end
   end
 
-  def find_email(agent, role)
-    if role == 'Broker'
-      agent.try(:broker_role).try(:email).try(:address)
-    else
-      agent.try(:user).try(:email)
-    end
-  end
-
-  def request_help
-    @person = Person.find(params[:person])
-    authorize @person.primary_family, :request_help?
-
-    role = nil
-    if params[:type]
-      cac_flag = params[:type] == 'CAC'
-      match = CsrRole.find_by_name(params[:firstname], params[:lastname], cac_flag)
-      if match.count > 0
-        agent = match.first
-        role = cac_flag ? 'Certified Applicant Counselor' : 'Customer Service Representative'
-      end
-    elsif params[:broker].present?
-      agent = Person.find(params[:broker])
-      broker_role_id = agent.broker_role.id
-      consumer = Person.find(params[:person])
-      family = consumer.primary_family
-      family.hire_broker_agency(broker_role_id)
-      role = 'Broker'
-    else
-      agent = Person.find(params[:assister])
-      role = 'In-Person Assister'
-    end
-    if role
-      status_text = 'Message sent to ' + role + ' ' + agent.full_name + ' <br>'
-      if find_email(agent, role)
-        agent_assistance_messages(params,agent,role)
-      else
-
-        status_text = "Agent has no email.   Please select another"
-      end
-    else
-      status_text = call_customer_service params[:firstname].strip, params[:lastname].strip
-    end
-    broker_view = render_to_string 'insured/families/_consumer_brokers_widget', :layout => false
-    render :text => {broker: broker_view, status: status_text}.to_json, layout: false
-  end
-
   def family_index
     authorize HbxProfile, :family_index?
 
@@ -696,7 +650,6 @@ class Exchanges::HbxProfilesController < ApplicationController
   # GET /exchanges/hbx_profiles/1
   # GET /exchanges/hbx_profiles/1.json
   def show
-    @employers_tab_active = (params[:employers_tab] == "true")
     if current_user.has_csr_role? || current_user.try(:has_assister_role?)
       redirect_to home_exchanges_agents_path
       return
@@ -1029,42 +982,6 @@ class Exchanges::HbxProfilesController < ApplicationController
     params.require(:setting).permit(:name, :value)
   end
 
-  def agent_assistance_messages(params, agent, role)
-    if params[:person].present?
-      insured = Person.find(params[:person])
-      first_name = insured.first_name
-      last_name = insured.last_name
-      name = insured.full_name
-      insured_email = insured.emails.last.try(:address) || insured.try(:user).try(:email)
-      root = "http://#{request.env['HTTP_HOST']}/exchanges/agents/resume_enrollment?person_id=#{params[:person]}&original_application_type:"
-      body =
-        "Please contact #{insured.first_name} #{insured.last_name}. <br> " +
-        "Plan shopping help has been requested by #{insured_email}<br>" +
-        "<a href='" + root + "phone'>Assist Customer</a>  <br>"
-    else
-      first_name = params[:first_name]
-      last_name = params[:last_name]
-      name = first_name.to_s + ' ' + last_name.to_s
-      insured_email = params[:email]
-      body =  "Please contact #{first_name} #{last_name}. <br>" +
-              "Plan shopping help has been requested by #{insured_email}<br>"
-    end
-    hbx_profile = HbxProfile.find_by_state_abbreviation(aca_state_abbreviation)
-    message_params = {
-      sender_id: hbx_profile.id,
-      parent_message_id: hbx_profile.id,
-      from: 'Plan Shopping Web Portal',
-      to: "Agent Mailbox",
-      subject: "Please contact #{first_name} #{last_name}. ",
-      body: body
-    }
-    create_secure_message message_params, hbx_profile, :sent
-    create_secure_message message_params, agent, :inbox
-    result = UserMailer.new_client_notification(find_email(agent,role), first_name, name, role, insured_email, params[:person].present?)
-    result.deliver_now
-    puts result.to_s if Rails.env.development?
-  end
-
   def find_hbx_profile
     @profile = current_user.person.try(:hbx_staff_role).try(:hbx_profile)
   end
@@ -1103,10 +1020,6 @@ class Exchanges::HbxProfilesController < ApplicationController
 
   def authorize_for_instance
     authorize @hbx_profile, "#{action_name}?".to_sym
-  end
-
-  def call_customer_service(first_name, last_name)
-    "No match found for #{first_name} #{last_name}.  Please call Customer Service at: (855)532-5465 for assistance.<br/>"
   end
 
   def find_benefit_sponsorship

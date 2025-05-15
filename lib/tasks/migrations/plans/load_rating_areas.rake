@@ -86,7 +86,6 @@ namespace :load_rate_reference do
       return true if str_val =~ (/(true|t|yes|y|1)$/i)
       return false if str_val =~ (/(false|f|no|n|0)$/i)
     end
-
     raise ArgumentError.new("invalid value for Boolean: \"#{value}\"")
   end
 end

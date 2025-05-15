@@ -1,7 +1,7 @@
 GIT
   remote: https://github.com/ideacrew/resource_registry.git
-  revision: 5a6fe1e6b3182d6194152e2bbc7f7910c41ad42b
-  branch: trunk
+  revision: a3ca0b8001247663a7f052cfdc32180dc7e1f43d
+  tag: v0.10.1
   specs:
     resource_registry (0.10.1)
       bootsnap (~> 1.0)
@@ -32,6 +32,7 @@ PATH
       dry-types
       dry-validation (~> 1.0)
       mongoid (~> 8.1.5)
+      net-imap (>= 0.4.20)
       rack (>= 2.2.13)
       rails (~> 7.1.0)
       roo (~> 2.10)
@@ -250,7 +251,7 @@ GEM
       ruby2_keywords (~> 0.0.5)
     msgpack (1.8.0)
     mutex_m (0.3.0)
-    net-imap (0.5.6)
+    net-imap (0.5.8)
       date
       net-protocol
     net-pop (0.1.2)
@@ -371,6 +372,9 @@ GEM
     slim (5.2.1)
       temple (~> 0.10.0)
       tilt (>= 2.1.0)
+    sprockets (4.2.1)
+      concurrent-ruby (~> 1.0)
+      rack (>= 2.2.4, < 4)
     stringio (3.1.6)
     symmetric-encryption (4.6.0)
       coercible (~> 1.0)

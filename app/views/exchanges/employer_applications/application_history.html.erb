@@ -59,6 +59,7 @@
 
 <script>
   function backToEmployerIndex() {
-    window.location.href = '/exchanges/hbx_profiles?employers_tab=true';
+    sessionStorage.setItem('employers_tab_active', 'true');
+    window.location.href = '/exchanges/hbx_profiles';
   }
 </script>

@@ -35,18 +35,24 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
 
     describe "given valid person parameters" do
       let(:save_result) { true }
-      it "should redirect to dependent_details" do
+
+      it "should securely store employee_role_id in session and redirect to insured_family_members_path" do
         put :update, params: { person: person_parameters, id: person_id }
+
+        # Verify the employee_role_id is stored in session
+        expect(session[:employee_role_id]).to eq(employee_role_id)
+
+        # Verify the redirect path
         expect(response).to have_http_status(:redirect)
-        expect(response).to redirect_to(insured_family_members_path(:employee_role_id => employee_role_id))
+        expect(response).to redirect_to(insured_family_members_path)
       end
 
-      context "to verify new addreses not created on updating the existing address" do
+      context "to verify new addresses are not created when updating existing address" do
         before :each do
-          put :update, params: { :person => person_parameters, :id => person_id }
+          put :update, params: { person: person_parameters, id: person_id }
         end
 
-        it "should not empty the person's addresses on update" do
+        it "should not remove the person's existing addresses" do
           expect(person.addresses).not_to eq []
         end
 
@@ -58,6 +64,7 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
 
     describe "given invalid person parameters" do
       let(:save_result) { false }
+
       it "should render edit" do
         put :update, params: { :person => person_parameters, :id => person_id }
         expect(response).to have_http_status(:success)
@@ -70,6 +77,18 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
         put :update, params: { :person => person_parameters, :id => person_id }
         expect(response).to have_http_status(:success)
         expect(response).to render_template(:edit)
+      end
+    end
+
+    describe "handling save_and_exit parameter" do
+      let(:save_result) { true }
+
+      it "should log out the user if save_and_exit is true" do
+        put :update, params: { person: person_parameters, id: person_id, exit_after_method: 'true' }
+
+        # Verify redirect to destroy_user_session_path
+        expect(response).to have_http_status(:redirect)
+        expect(response).to redirect_to(destroy_user_session_path)
       end
     end
   end

@@ -1,7 +1,7 @@
 GIT
   remote: https://github.com/ideacrew/resource_registry.git
-  revision: 5a6fe1e6b3182d6194152e2bbc7f7910c41ad42b
-  branch: trunk
+  revision: a3ca0b8001247663a7f052cfdc32180dc7e1f43d
+  tag: v0.10.1
   specs:
     resource_registry (0.10.1)
       bootsnap (~> 1.0)
@@ -59,6 +59,7 @@ PATH
       config (~> 5.5, >= 5.5.2)
       money-rails (~> 1.13)
       mongoid (~> 8.1.10)
+      net-imap (>= 0.4.20)
       non-stupid-digest-assets
       pundit
       rack (>= 2.2.13)
@@ -84,6 +85,7 @@ PATH
       dry-types
       dry-validation (~> 1.0)
       mongoid (~> 8.1.10)
+      net-imap (>= 0.4.20)
       rack (>= 2.2.13)
       rails (~> 7.1.0)
       roo (~> 2.10)
@@ -113,6 +115,7 @@ PATH
       mongoid (~> 8.1.5)
       mongoid-autoinc (~> 6.0)
       pundit (~> 2.0)
+      net-imap (>= 0.4.20)
       rack (>= 2.2.13)
       rails (~> 7.1.0)
       roo (~> 2.10)
@@ -433,7 +436,7 @@ GEM
       railties (>= 4.2.0)
     msgpack (1.8.0)
     mutex_m (0.3.0)
-    net-imap (0.5.6)
+    net-imap (0.5.8)
       date
       net-protocol
     net-pop (0.1.2)
