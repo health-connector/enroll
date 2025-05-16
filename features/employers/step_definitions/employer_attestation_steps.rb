@@ -85,6 +85,8 @@ Then(/^Admin should see preview and attestation form$/) do
 end
 
 When(/^Admin clicks submit in employer attestation form$/) do
+  wait_for_ajax
+  screenshot("Admin clicks submit in employer attestation form")
   accept_alert do
     first('#attestation_documents_table .btn-primary',:text => /SUBMIT/i).click
   end

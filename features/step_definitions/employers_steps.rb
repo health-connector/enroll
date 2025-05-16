@@ -72,6 +72,7 @@ end
 Then(/^.+ uploads an attestation document/) do
   if Settings.aca.enforce_employer_attestation.to_s == "true"
     find('#uic-employers-right-menu > li:nth-child(5) > a').click
+    screenshot("employer_portal_document_upload")
     wait_for_ajax
     find('.upload-document-location').click
     wait_for_ajax
