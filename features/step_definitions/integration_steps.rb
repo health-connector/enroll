@@ -587,6 +587,8 @@ Then(/^(?:.+) should be logged on as an unlinked employee$/) do
 end
 
 When(/^(.*) logs? out$/) do |_someone|
+  wait_for_ajax
+  screenshot("Logout")
   click_link "Logout"
   visit "/"
 end
