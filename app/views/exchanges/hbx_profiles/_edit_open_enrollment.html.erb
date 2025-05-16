@@ -55,7 +55,7 @@
 
 
 <script>
-  $(".uidatepicker").datepicker({minDate: "<%= format_date(@benefit_application.open_enrollment_date_bounds[:min]) %>", maxDate: "<%= format_date(@benefit_application.open_enrollment_date_bounds[:max]) %>", changeMonth: true, changeYear: true, yearRange: (new Date).getFullYear() + ":" + (new Date).getFullYear()+1 });
+  $(".uidatepicker").datepicker({minDate: "<%= @benefit_application.open_enrollment_date_bounds[:min] %>", maxDate: "<%= @benefit_application.open_enrollment_date_bounds[:max] %>", changeMonth: true, changeYear: true, yearRange: (new Date).getFullYear() + ":" + (new Date).getFullYear()+1 });
 
   $(".uidatepicker").datepicker( "option", "dateFormat", "mm/dd/yy" );
 </script>

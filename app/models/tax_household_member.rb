@@ -51,7 +51,6 @@ class TaxHouseholdMember
   end
 
   def strictly_boolean
-    apply_defaults
     unless is_ia_eligible.is_a? Boolean
       self.errors.add(:base, "is_ia_eligible should be a boolean")
     end

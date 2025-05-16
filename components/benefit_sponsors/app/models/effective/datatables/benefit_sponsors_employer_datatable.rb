@@ -186,11 +186,9 @@ module Effective
       end
 
       def nested_filter_definition
-        next_30_day = TimeKeeper.date_of_record.next_month.beginning_of_month
-        next_60_day = next_30_day.next_month
-        @next_30_day = next_30_day.strftime('%m/%d/%Y')
-        @next_60_day = next_30_day.next_month.strftime('%m/%d/%Y')
-        @next_90_day = next_60_day.next_month.strftime('%m/%d/%Y')
+        @next_30_day = TimeKeeper.date_of_record.next_month.beginning_of_month
+        @next_60_day = @next_30_day.next_month
+        @next_90_day = @next_60_day.next_month
 
         filters = {
         enrolling_renewing:
