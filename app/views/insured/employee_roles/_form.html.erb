@@ -1,4 +1,4 @@
-<%= f.hidden_field :employee_role_id %>
+<%= f.hidden_field :employee_role_id, value: @person.employee_role_id %>
 
 <%= render "shared/error_messages", object: f.object %>
 <%= render 'shared/person/personal_information', f: f %>

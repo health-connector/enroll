@@ -92,7 +92,7 @@
               <div class="vertically-aligned-row">
                 <div class="info">
                   <strong><%= l10n("insured.families.future_enrollment_termination_date") %></strong>
-                  <%= hbx_enrollment.terminated_on %>
+                  <%= format_date(hbx_enrollment.terminated_on) %>
                 </div>
               </div>
             <% end %>
