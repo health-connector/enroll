@@ -190,6 +190,8 @@ Then(/^the user will( not)? see the Force Publish button$/) do |visible|
 end
 
 Then(/^the user will( not)? see the Edit DOB SSN button$/) do |visible|
+  wait_for_ajax(2,2)
+  screenshot("see Edit DOB SSN button")
   if visible.blank?
     find_link('Edit DOB / SSN').visible?
   else
