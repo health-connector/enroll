@@ -47,7 +47,6 @@ module HbxReports
               primary_person = family.primary_family_member.person
               employer = enrollment.try(:employer_profile)
               census_employee = person.try(:employee_roles).try(:first).try(:census_employee)
-              # bearer:ignore ruby_lang_file_generation
               csv << [
                   person.hbx_id,
                   person.first_name,
