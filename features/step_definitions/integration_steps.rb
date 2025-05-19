@@ -613,8 +613,9 @@ Then(/^.+ should see the employee privacy text$/) do
 end
 
 When(/^(.*) creates an HBX account$/) do |named_person|
+  wait_for_ajax
   screenshot("start")
-
+  sleep 1
   person = people[named_person]
 
   fill_in "user[oim_id]", :with => person[:email]
