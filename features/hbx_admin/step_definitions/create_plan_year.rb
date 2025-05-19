@@ -45,14 +45,16 @@ When(/the admin clicks (.*)$/) do |btn|
 end
 
 When("the user clicks on Confirm button") do
-  sleep 5
+  sleep 2
   wait_for_ajax
   screenshot('the admin clicks submit')
   find('.btn', :text => 'Confirm').click
 end
 
 Then(/the user will see a (.*) message/) do |message|
+  sleep 2
   wait_for_ajax
+  screenshot('the user will see a message')
   expect(page).to have_content(message)
 end
 
