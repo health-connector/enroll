@@ -8,45 +8,43 @@ module BenefitSponsors
       let(:observer_instance) { OrganizationObserver.new }
 
       context 'organization legal_name changed' do
-
         it 'should send notification' do
-          allow_any_instance_of(OrganizationObserver).to receive(:notify)
+          allow(observer_instance).to receive(:notify)
           expected_payload = {:employer_id => organization.hbx_id, :event_name => "name_changed"}
 
           organization.update_attributes!(legal_name: "test1234")
+          observer_instance.update(organization, nil)
 
-          subject.observer_peers.each do |observer, _|
-            expect(observer).to have_received(:notify).with("acapi.info.events.employer.name_changed", expected_payload)
-          end
+          expect(observer_instance).to have_received(:notify).with("acapi.info.events.employer.name_changed", expected_payload)
         end
 
         it 'do not send notification' do
+          allow(observer_instance).to receive(:notify)
           organization.update_attributes!(dba: "virtual")
+          observer_instance.update(organization, nil)
 
-          subject.observer_peers.each do |observer, _|
-            expect(observer).not_to receive(:notify)
-          end
+          expect(observer_instance).not_to have_received(:notify)
         end
       end
 
       describe '.update' do
         context 'has to send notification when' do
           it 'fein updated' do
-            allow_any_instance_of(OrganizationObserver).to receive(:notify)
+            allow(observer_instance).to receive(:notify)
             organization.assign_attributes(fein: "987654532")
             observer_instance.update(organization, nil)
             expect(observer_instance).to have_received(:notify).with('acapi.info.events.employer.fein_corrected', {:employer_id=> organization.hbx_id, :event_name=>"fein_corrected"})
           end
 
           it 'DBA updated' do
-            allow_any_instance_of(OrganizationObserver).to receive(:notify)
+            allow(observer_instance).to receive(:notify)
             organization.assign_attributes(dba: "test")
             observer_instance.update(organization, nil)
             expect(observer_instance).to have_received(:notify).with('acapi.info.events.employer.name_changed', {:employer_id => organization.hbx_id, :event_name => "name_changed"})
           end
 
           it 'legal_name updated' do
-            allow_any_instance_of(OrganizationObserver).to receive(:notify)
+            allow(observer_instance).to receive(:notify)
             organization.assign_attributes(legal_name: "test")
             observer_instance.update(organization, nil)
             expect(observer_instance).to have_received(:notify).with('acapi.info.events.employer.name_changed', {:employer_id => organization.hbx_id, :event_name => "name_changed"})
