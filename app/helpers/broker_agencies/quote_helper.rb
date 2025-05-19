@@ -73,4 +73,16 @@ module BrokerAgencies::QuoteHelper
     @quote_results = @quote_results.sort_by { |k, v| v[:total_employer_cost] }.to_h
   end
 
+  def date_from_string(string)
+    return string if string.is_a?(Date)
+
+    if string.split('/').first.size == 2
+      Date.strptime(string, "%m/%d/%Y")
+    elsif string.split('-').first.size == 4
+      Date.strptime(string, "%Y-%m-%d")
+    else
+      Date.parse(string)
+    end
+  end
+
 end

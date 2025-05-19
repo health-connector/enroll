@@ -549,12 +549,12 @@ class Organization
   end
 
   def check_legal_name_or_fein_changed?
-    fein_changed? || legal_name_changed?
+    fein_previously_changed? || legal_name_previously_changed?
   end
 
   def legal_name_or_fein_change_attributes
-    @changed_fields = changed_attributes.keys
-    notify_legal_name_or_fein_change if changed_attributes.keys.include?("fein")
+    @changed_fields = previous_changes.keys
+    notify_legal_name_or_fein_change if previous_changes.keys.include?("fein")
   end
 
   def notify_legal_name_or_fein_change

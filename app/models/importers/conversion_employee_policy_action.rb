@@ -113,13 +113,13 @@ module Importers
 
     def propagate_warnings(proxy)
       proxy.warnings.each do |error|
-        warnings.add(error.attribute, error.type)
+        warnings.add(error.attribute, error.message)
       end
     end
 
     def propagate_errors(proxy)
       proxy.errors.each do |error|
-        errors.add(error.attribute, error.type)
+        errors.add(error.attribute, error.message)
       end
     end
 

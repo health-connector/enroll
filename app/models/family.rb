@@ -53,7 +53,6 @@ class Family
   embeds_many :general_agency_accounts
   embeds_many :documents, as: :documentable
 
-  after_initialize :build_household
   before_save :clear_blank_fields
 
   accepts_nested_attributes_for :special_enrollment_periods, :family_members, :irs_groups,
