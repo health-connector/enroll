@@ -45,6 +45,7 @@ When(/the admin clicks (.*)$/) do |btn|
 end
 
 When("the user clicks on Confirm button") do
+  sleep 5
   wait_for_ajax
   screenshot('the admin clicks submit')
   find('.btn', :text => 'Confirm').click
