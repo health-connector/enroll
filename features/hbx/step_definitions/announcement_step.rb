@@ -57,6 +57,9 @@ When(/^Hbx admin enter announcement info with invalid params for (.*?)$/) do |ro
 end
 
 Then(/^Hbx admin should see the alert msg$/) do
+  sleep 2
+  wait_for_ajax
+  screenshot("Hbx admin should see the alert msg")
   find('.alert-error', wait: 5)
   expect(page).to have_content('prohibited this announcement from being saved')
   expect(page).to have_content('End Date should be later than Start date')

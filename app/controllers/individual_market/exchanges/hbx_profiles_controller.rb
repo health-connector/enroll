@@ -8,7 +8,7 @@ module IndividualMarket
       include ::Exchanges::HbxProfilesHelper
       include ::DataTablesAdapter
       include ::DataTablesSearch
-      include ::Pundit
+      include ::Pundit::Authorization
       include ::SepAll
       include ::Config::AcaHelper
 
