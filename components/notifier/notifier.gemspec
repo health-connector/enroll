@@ -32,7 +32,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'config'
   s.add_dependency 'money-rails', '~> 1.13'
   s.add_dependency 'pundit'
-  s.add_dependency 'rack', '>= 2.2.13'
+  s.add_dependency 'rack', '>= 2.2.14'
   s.add_dependency 'net-imap',  '>= 0.4.20'
 
   s.add_development_dependency 'rspec-rails', '~> 5.0.1'
@@ -42,4 +42,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'factory_bot_rails'
   s.add_development_dependency 'database_cleaner-mongoid', '~> 2.0'
 
+  s.metadata['rubygems_mfa_required'] = 'true'
 end
