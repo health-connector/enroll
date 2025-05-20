@@ -13,7 +13,7 @@
         = l10n("hbx_profiles.effective_start_date")
       br
       .input-group
-        = select_tag :start_on, options_for_select(@ba_form.start_on_options.keys), {:prompt => "SELECT START ON", class:'form-control floatlabel benefit-application-start-date', onchange:"selectedDate(this); validateInputs()", id:'baStartDate'}
+        = select_tag :start_on, options_for_select(@ba_form.start_on_options.keys.map {|date| date.strftime("%m/%d/%Y") }), {:prompt => "SELECT START ON", class:'form-control floatlabel benefit-application-start-date', onchange:"selectedDate(this); validateInputs()", id:'baStartDate'}
     .col-md-4
       label[for="effectiveEndDate" style="font-weight:bold"]
         = l10n("hbx_profiles.effective_end_date")
@@ -136,11 +136,17 @@ javascript:
     document.querySelector("input#open_enrollment_end_on").value = '';
   }
 
+  function formatDateToKey(dateStr) {
+      let parts = dateStr.split('/');
+      return `${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`;
+  }
+
   function assignBenefitApplicationDates(targetDate) {
-    var date = JSON.parse('#{@ba_form.start_on_options.to_json.html_safe}');
-    document.querySelector('input#end_on').value = getFormattedDate(date[targetDate]["benefit_application_end_on"]);
-    document.querySelector("input#open_enrollment_start_on").value = getFormattedDate(date[targetDate]["open_enrollment_start_on"]);
-    document.querySelector("input#open_enrollment_end_on").value = getFormattedDate(date[targetDate]["open_enrollment_end_on"]);
+    let date = JSON.parse('#{@ba_form.start_on_options.to_json.html_safe}');
+    let formattedDateKey = formatDateToKey(targetDate);
+    document.querySelector('input#end_on').value = getFormattedDate(date[formattedDateKey]["benefit_application_end_on"]);
+    document.querySelector("input#open_enrollment_start_on").value = getFormattedDate(date[formattedDateKey]["open_enrollment_start_on"]);
+    document.querySelector("input#open_enrollment_end_on").value = getFormattedDate(date[formattedDateKey]["open_enrollment_end_on"]);
   }
 
 css:
