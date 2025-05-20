@@ -650,9 +650,12 @@
 
 	// Add inline style into head
 	Tree.prototype.injectStyle = function () {
-
 		if (this.options.injectStyle && !document.getElementById(this.styleId)) {
-			$('<style type="text/css" id="' + this.styleId + '"> ' + this.buildStyle() + ' </style>').appendTo('head');
+			const styleElement = document.createElement('style');
+			styleElement.type = 'text/css';
+			styleElement.id = this.styleId;
+			styleElement.textContent = this.buildStyle();  // Safe: avoids interpreting as HTML
+			document.head.appendChild(styleElement);
 		}
 	};
 
