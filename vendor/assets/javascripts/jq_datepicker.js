@@ -20,7 +20,10 @@ function applyJQDatePickerSetup(ele) {
   var yearMax = dchbx_enroll_date_of_record().getFullYear() + 10;
   var yearMin = dchbx_enroll_date_of_record().getFullYear() - 110;
   var otherFieldSelector = el.attr("data-submission-field");
-  var otherField = $(otherFieldSelector);
+  // Validate it's a safe CSS selector (e.g., only allows class or ID selectors)
+  if (/^(\.[\w-]+|#[\w-]+)$/.test(otherFieldSelector)) {
+    var otherField = $(otherFieldSelector);
+  }
   otherField.hide();
   el.show();
   var otherFieldId = otherField.attr("id");
