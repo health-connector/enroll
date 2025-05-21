@@ -94,7 +94,7 @@ class Family
         {name: "kind_and_state_and_coverage_kind_effective_date"})
 
   index({
-    "households.hbx_enrollments.sponsored_benefit_package_id" => 1,
+          "households.hbx_enrollments.sponsored_benefit_package_id" => 1,
     "households.hbx_enrollments.sponsored_benefit_id" => 1,
     "households.hbx_enrollments.effective_on" => 1,
     "households.hbx_enrollments.submitted_at" => 1,
@@ -102,7 +102,7 @@ class Family
     "households.hbx_enrollments.employee_role_id" => 1,
     "households.hbx_enrollments.aasm_state" => 1,
     "households.hbx_enrollments.kind" => 1
-  }, {name: "hbx_enrollment_sb_package_lookup"})
+        }, {name: "hbx_enrollment_sb_package_lookup"})
 
   index({"households.hbx_enrollments.plan_id" => 1}, { sparse: true })
   index({"households.hbx_enrollments.writing_agent_id" => 1}, { sparse: true })
@@ -227,7 +227,7 @@ class Family
   scope :all_enrollments_by_benefit_package,    ->(benefit_package) { unscoped.where(
                                                     :"households.hbx_enrollments" => {
                                                       :$elemMatch => { :sponsored_benefit_package_id => benefit_package._id, :aasm_state.ne => :shopping }
-                                                  }) }
+                                                    }) }
 
   scope :all_enrollments_by_benefit_sponsorship_id,  ->(benefit_sponsorship_id){where(:"households.hbx_enrollments.benefit_sponsorship_id" => benefit_sponsorship_id) }
   scope :enrolled_under_benefit_application,    ->(benefit_application) { unscoped.where(
@@ -236,7 +236,7 @@ class Family
                                                         :sponsored_benefit_package_id => {"$in" => benefit_application.benefit_packages.pluck(:_id) },
                                                         :aasm_state => {'$nin' => %w[coverage_canceled shopping coverage_terminated] }
                                                       }
-                                                  })}
+                                                    })}
 
 
   def enrollment_is_not_most_recent_sep_enrollment?(hbx_enrollment)
@@ -811,7 +811,7 @@ class Family
     def expire_individual_market_enrollments
       current_benefit_period = HbxProfile.current_hbx.benefit_sponsorship.current_benefit_coverage_period
       query = {
-          :effective_on.lt => current_benefit_period.start_on,
+        :effective_on.lt => current_benefit_period.start_on,
           :kind => 'individual',
           :aasm_state.in => HbxEnrollment::ENROLLED_STATUSES - ['coverage_termination_pending', 'enrolled_contingent', 'unverified']
       }
@@ -830,10 +830,10 @@ class Family
     def begin_coverage_for_ivl_enrollments
       current_benefit_period = HbxProfile.current_hbx.benefit_sponsorship.current_benefit_coverage_period
       query = {
-          :effective_on => current_benefit_period.start_on,
+        :effective_on => current_benefit_period.start_on,
           :kind => 'individual',
           :aasm_state => 'auto_renewing'
-        }
+      }
       families = Family.where("households.hbx_enrollments" => {:$elemMatch => query})
 
       families.each do |family|
@@ -854,14 +854,14 @@ class Family
       start_time = (new_date - 2.days).in_time_zone("Eastern Time (US & Canada)").beginning_of_day
       end_time = (new_date - 2.days).in_time_zone("Eastern Time (US & Canada)").end_of_day
       families = Family.where({
-        "households.hbx_enrollments" => {
-          "$elemMatch" => {
-            "kind" => "individual",
-            "aasm_state" => { "$in" => HbxEnrollment::ENROLLED_STATUSES },
-            "created_at" => { "$gte" => start_time, "$lte" => end_time},
-        } 
-}
-      })
+                                "households.hbx_enrollments" => {
+                                  "$elemMatch" => {
+                                    "kind" => "individual",
+                                    "aasm_state" => { "$in" => HbxEnrollment::ENROLLED_STATUSES },
+                                    "created_at" => { "$gte" => start_time, "$lte" => end_time},
+                                  }
+                                }
+                              })
       families.each do |family|
         begin
           person = family.primary_applicant.person
@@ -1038,7 +1038,7 @@ class Family
       {"$match" => {"households.hbx_enrollments.external_enrollment" => {"$ne" => true}}},
       {"$sort" => {"households.hbx_enrollments.submitted_at" => -1 }},
       {"$group" => {'_id' => {
-                  'year' => { "$year" => '$households.hbx_enrollments.effective_on'},
+                      'year' => { "$year" => '$households.hbx_enrollments.effective_on'},
                   'month' => { "$month" => '$households.hbx_enrollments.effective_on'},
                   'day' => { "$dayOfMonth" => '$households.hbx_enrollments.effective_on'},
                   'subscriber_id' => '$households.hbx_enrollments.enrollment_signature',
@@ -1047,7 +1047,7 @@ class Family
                   'state' => '$households.hbx_enrollments.aasm_state',
                   'market' => '$households.hbx_enrollments.kind',
                   'coverage_kind' => '$households.hbx_enrollments.coverage_kind'
-},
+                    },
                     "hbx_enrollment" => { "$first" => '$households.hbx_enrollments'}}},
       {"$project" => {'hbx_enrollment._id' => 1, '_id' => 1}}
       ],

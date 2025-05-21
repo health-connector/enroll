@@ -22,8 +22,8 @@ class ShopEmployeeNotices::EeSepRequestAcceptedNotice < ShopEmployeeNotice
   def append_data
     notice.sep = PdfTemplates::SpecialEnrollmentPeriod.new({
                                                              :qle_on => @qle_on.to_date,
-      :end_on => @end_on.to_date,
-      :title => @title
+                                                             :end_on => @end_on.to_date,
+                                                             :title => @title
                                                            })
 
   end

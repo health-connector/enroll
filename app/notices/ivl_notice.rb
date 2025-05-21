@@ -46,7 +46,7 @@ class IvlNotice < Notice
 
   def pdf_options_custom
     options = {
-      margin:  {
+      margin: {
         top: 15,
         bottom: 20,
         left: 22,
@@ -60,16 +60,16 @@ class IvlNotice < Notice
       header: {
         content: ApplicationController.new.render_to_string({
                                                               template: 'notices/shared/header_for_documents',
-          layout: false,
-          locals: { recipient: recipient, notice: notice}
-                                                            }),
+                                                              layout: false,
+                                                              locals: { recipient: recipient, notice: notice}
+                                                            })
       }
     }
     options.merge!({footer: {
                      content: ApplicationController.new.render_to_string({
                                                                            template: "notices/shared/footer_ivl",
-                       layout: false,
-                       locals: {notice: notice}
+                                                                           layout: false,
+                                                                           locals: {notice: notice}
                                                                          })
                    }})
     options
@@ -92,9 +92,9 @@ class IvlNotice < Notice
   def append_hbe
     notice.hbe = PdfTemplates::Hbe.new({
                                          url: Settings.site.home_url,
-      phone: phone_number_format(Settings.contact_center.phone_number),
-      email: Settings.contact_center.email_address,
-      short_url: "#{Settings.site.short_name.gsub(/[^0-9a-z]/i,'').downcase}.com",
+                                         phone: phone_number_format(Settings.contact_center.phone_number),
+                                         email: Settings.contact_center.email_address,
+                                         short_url: "#{Settings.site.short_name.gsub(/[^0-9a-z]/i,'').downcase}.com"
                                        })
   end
 
@@ -145,10 +145,10 @@ class IvlNotice < Notice
   def append_address(primary_address)
     notice.primary_address = PdfTemplates::NoticeAddress.new({
                                                                street_1: capitalize_quadrant(primary_address.address_1.to_s.titleize),
-      street_2: capitalize_quadrant(primary_address.address_2.to_s.titleize),
-      city: primary_address.city.titleize,
-      state: primary_address.state,
-      zip: primary_address.zip
+                                                               street_2: capitalize_quadrant(primary_address.address_2.to_s.titleize),
+                                                               city: primary_address.city.titleize,
+                                                               state: primary_address.state,
+                                                               zip: primary_address.zip
                                                              })
   end
 

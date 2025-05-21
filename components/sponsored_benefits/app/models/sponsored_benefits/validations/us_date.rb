@@ -18,10 +18,11 @@ module SponsoredBenefits
             validate :"__valid_US_date_property_#{prop_name}"
           end
           return if allow_blank
-            klass.class_eval do
-              validates_presence_of prop_name.to_sym
-            end
-          
+
+          klass.class_eval do
+            validates_presence_of prop_name.to_sym
+          end
+
         end
         mod
       end

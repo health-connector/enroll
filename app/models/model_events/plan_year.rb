@@ -83,7 +83,7 @@ module ModelEvents
         if is_transition_matching?(to: :termination_pending, from: :active, event: :schedule_termination)
           is_group_advance_termination_confirmation = true
         end
-        
+
         if is_transition_matching?(to: :terminated, from: [:active, :suspended], event: :terminate)
           is_group_advance_termination_confirmation = true
         end
@@ -100,7 +100,7 @@ module ModelEvents
           event_options = {} # instance_eval(event.to_s + "_options") || {}
           notify_observers(ModelEvent.new(event, self, event_options))
         end
-      
+
     end
 
     def self.included(base)

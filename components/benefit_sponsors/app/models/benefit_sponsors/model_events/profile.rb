@@ -16,7 +16,7 @@ module BenefitSponsors
 
           BenefitSponsors::Organizations::AcaShopCcaEmployerProfile.add_observer(BenefitSponsors::Observers::EmployerProfileObserver.new, [:update, :notifications_send])
           notify_observers(ModelEvent.new(event_name, self, event_options))
-        
+
       end
 
       def notify_on_save
@@ -28,7 +28,7 @@ module BenefitSponsors
             event_options = {}
             notify_observers(ModelEvent.new(event, self, event_options))
           end
-        
+
       end
 
       def is_transition_matching?(from: nil, to: nil, event: nil)

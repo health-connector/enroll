@@ -9,23 +9,23 @@ module Components
       action = ENV['action'].to_s
       case action
       when "update_fein"
-          update_fein(organization) if organization.present?
+        update_fein(organization) if organization.present?
       when "swap_fein"
-          swap_fein(organization) if organization.present?
+        swap_fein(organization) if organization.present?
       when "approve_attestation"
-          approve_attestation_for_employer(organization) if organization.present?
+        approve_attestation_for_employer(organization) if organization.present?
       when "update_employer_broker_agency_account"
-          update_employer_broker_agency_account(organization) if organization.present?
-        else
-          puts "The Action defined is not performed in the rake task" unless Rails.env.test?
+        update_employer_broker_agency_account(organization) if organization.present?
+      else
+        puts "The Action defined is not performed in the rake task" unless Rails.env.test?
       end
     end
 
     def get_organization
       organization_count = BenefitSponsors::Organizations::Organization.where(fein: ENV.fetch('organization_fein', nil)).count
       if organization_count == 1
-        organization = BenefitSponsors::Organizations::Organization.where(fein: ENV.fetch('organization_fein', nil)).first
-        organization
+        BenefitSponsors::Organizations::Organization.where(fein: ENV.fetch('organization_fein', nil)).first
+        
       else
         raise "No Organization found (or) found more than 1 Organization record" unless Rails.env.test?
       end
@@ -60,13 +60,11 @@ module Components
     def approve_attestation_for_employer(organization)
       employer = organization.employer_profile
       attestation = employer.employer_attestation.blank? ? employer.build_employer_attestation : employer.employer_attestation
-      if attestation.present? && attestation.denied? && attestation.may_revert?
-        attestation.revert!
-      end
+      attestation.revert! if attestation.present? && attestation.denied? && attestation.may_revert?
       documents = attestation.employer_attestation_documents
       if documents.present?
         documents.each do |document|
-        document.revert! if document.present? && document.may_revert?
+          document.revert! if document.present? && document.may_revert?
         document.employer_attestation.submit! if document.submitted? && document.employer_attestation.may_submit?
         document.accept if document.submitted?
         document.approve_attestation if document.accepted?

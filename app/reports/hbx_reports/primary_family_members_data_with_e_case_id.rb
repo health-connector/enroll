@@ -4,7 +4,7 @@ require 'csv'
 module HbxReports
   class PrimaryFamilyMembersDataWithECaseId < MongoidMigrationTask
     def migrate
-      field_names  = %w(
+      field_names = %w(
             Integrated_Case_ID_(e_case_id)
             Subscriber_FN
             Subscriber_LN
@@ -25,7 +25,7 @@ module HbxReports
        families = Family.where(:e_case_id.nin => ["", nil])
 
        families.all.each do |family|
-         
+
          person = family.primary_family_member.person
          aptc = 0
          csr = "No"
@@ -65,13 +65,13 @@ module HbxReports
               aptc,
               csr
             ]
-          end
+         end
          count += 1
        rescue StandardError
          puts "Bad Family record with id: #{family.id}" unless Rails.env.test?
-         
+
        end
-     end
+      end
       puts "Total number of families with e_case_id: #{count}" unless Rails.env.test?
     end
   end

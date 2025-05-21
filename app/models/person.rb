@@ -1010,7 +1010,7 @@ class Person
 
     return if GENDER_KINDS.include?(gender)
 
-      errors.add(:gender, "#{gender} is not a valid gender")
-    
+    errors.add(:gender, "#{gender} is not a valid gender")
+
   end
 end

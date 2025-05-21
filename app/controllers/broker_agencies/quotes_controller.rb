@@ -400,16 +400,16 @@ module BrokerAgencies
           case elected_plan_choice
           when 'Single Carrier'
             bg.plan_option_kind = "single_carrier"
-              bg.published_lowest_cost_plan = roster_elected_plan_bounds[:carrier_low_plan][plan.carrier_profile.abbrev]
-              bg.published_highest_cost_plan = roster_elected_plan_bounds[:carrier_high_plan][plan.carrier_profile.abbrev]
+            bg.published_lowest_cost_plan = roster_elected_plan_bounds[:carrier_low_plan][plan.carrier_profile.abbrev]
+            bg.published_highest_cost_plan = roster_elected_plan_bounds[:carrier_high_plan][plan.carrier_profile.abbrev]
           when 'Metal Level'
             bg.plan_option_kind = "metal_level"
-              bg.published_lowest_cost_plan = roster_elected_plan_bounds[:metal_low_plan][plan.metal_level]
-              bg.published_highest_cost_plan = roster_elected_plan_bounds[:metal_high_plan][plan.metal_level]
+            bg.published_lowest_cost_plan = roster_elected_plan_bounds[:metal_low_plan][plan.metal_level]
+            bg.published_highest_cost_plan = roster_elected_plan_bounds[:metal_high_plan][plan.metal_level]
           else
             bg.plan_option_kind = "single_plan"
-              bg.published_lowest_cost_plan = plan.id
-              bg.published_highest_cost_plan = plan.id
+            bg.published_lowest_cost_plan = plan.id
+            bg.published_highest_cost_plan = plan.id
           end
         end
         bg.save
@@ -543,7 +543,7 @@ module BrokerAgencies
         :quote_households_attributes => [:id, :family_id, :quote_benefit_group_id,
                                          {:quote_members_attributes => [:id, :first_name, :last_name,:dob,
                                                                         :employee_relationship,:_delete]}]
-)
+      )
     end
 
     def format_date_params

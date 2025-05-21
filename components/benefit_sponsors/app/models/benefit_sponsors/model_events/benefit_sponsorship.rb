@@ -20,7 +20,7 @@ module BenefitSponsors
             event_options = {}
             notify_observers(ModelEvent.new(event, self, event_options))
           end
-        
+
       end
 
       def is_transition_matching?(from: nil, to: nil, event: nil)

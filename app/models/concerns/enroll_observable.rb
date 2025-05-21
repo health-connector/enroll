@@ -38,13 +38,9 @@ module EnrollObservable
   class_methods do
 
     def add_observer(observer, func=:update, observers)
-      unless observer.respond_to? func
-        raise NoMethodError, "observer does not respond to '#{func.to_s}'"
-      end
+      raise NoMethodError, "observer does not respond to '#{func.to_s}'" unless observer.respond_to? func
 
-      if observers.none?{|k, _v| k.is_a?(observer.class)}
-        observers[observer] = func
-      end
+      observers[observer] = func if observers.none?{|k, _v| k.is_a?(observer.class)}
       observers
     end
 
@@ -54,9 +50,7 @@ module EnrollObservable
 
       add_observer_peer = lambda do |observer_instance|
         matched_peer = @@observer_peers[to_s].detect{|peer| peer.any?{|k, _v| k.is_a?(observer_instance.class)}}
-        if matched_peer.blank?
-          @@observer_peers[to_s] << add_observer(observer_instance, update_method_name.to_sym, {})
-        end
+        @@observer_peers[to_s] << add_observer(observer_instance, update_method_name.to_sym, {}) if matched_peer.blank?
       end
 
       add_observer_peer.call(Observers::NoticeObserver.new)
