@@ -21,7 +21,7 @@ module ComposedModel
 
   module ComposedModelClassMethods
     def composed_of_many(name, klass_name, do_validation_on_collection = false)
-      class_eval(<<-RUBYCODE, __FILE__, __LINE__ + 1)
+      class_eval(<<-RUBYCODE)
         def #{name}=(vals)
           @#{name} ||= []
           if !vals.nil?
@@ -47,8 +47,8 @@ module ComposedModel
           #{name}_attributes
         end
         RUBYCODE
-      return unless do_validation_on_collection
-        class_eval(<<-RUBYCODE, __FILE__, __LINE__ + 1)
+      if do_validation_on_collection
+        class_eval(<<-RUBYCODE)
           validate :#{name}_validation_steps
 
           def #{name}_validation_steps
