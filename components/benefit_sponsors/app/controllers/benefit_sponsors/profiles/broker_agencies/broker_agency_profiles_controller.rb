@@ -125,7 +125,7 @@ module BenefitSponsors
           authorize @broker_agency_profile
 
           options = {}
-          options[:type] = @commission_statement.type
+          options[:content_type] = @commission_statement.type
           options[:filename] = @commission_statement.title
           send_data Aws::S3Storage.find(@commission_statement.identifier),
                     options

@@ -333,8 +333,8 @@ module BenefitMarkets
     end
 
     def create_copy_for_embedding
-      self.class.new(self.attributes.except(:premium_tables)).tap do |new_product|
-        new_product.premium_tables = self.premium_tables.map { |pt| pt.create_copy_for_embedding }
+      self.class.new(self.attributes.except("premium_tables")).tap do |new_product|
+        new_product.premium_tables = self.premium_tables.map(&:create_copy_for_embedding)
       end
     end
 
