@@ -171,7 +171,7 @@ module Employers
     def download_invoice
       authorize @employer_profile
       options = {}
-      options[:type] = @invoice.type
+      options[:content_type] = @invoice.type
       options[:filename] = @invoice.title
       send_data Aws::S3Storage.find(@invoice.identifier), options
     end

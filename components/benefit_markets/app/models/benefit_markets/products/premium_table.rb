@@ -49,7 +49,7 @@ module BenefitMarkets
     end
 
     def create_copy_for_embedding
-      self.class.new(self.attributes.except(:premium_tuples))
+      self.class.new(self.attributes.except("premium_tuples"))
     end
   end
 end
