@@ -198,6 +198,7 @@ class Insured::FamilyMembersController < ApplicationController
   end
 
   private
+
   def set_family
     @family = @person.try(:primary_family)
   end

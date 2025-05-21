@@ -22,7 +22,7 @@ module Components
             employer_attestation.approve! if employer_attestation.may_approve?
             employer_attestation.save!
             puts "updated employer attestation to #{employer_attestation.aasm_state} for organization #{organization.legal_name}" unless Rails.env.test?
-         end
+          end
         else
           organization.employer_profile.employer_attestation.employer_attestation_documents.each do |document|
             document.approve_attestation if document.accepted?

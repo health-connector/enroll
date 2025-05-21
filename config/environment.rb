@@ -9,13 +9,13 @@ module YAML
     alias original_load load # Retain original load method
 
     # Create custom load method
-    def load(yaml, *args, **keywords)
+    def load(yaml, *, **keywords)
       # Enable aliases if not explicitly disabled
       # without this, aliases are disabled by default, and any .yml file using `*default` will fail to load
       keywords[:aliases] = true unless keywords.key?(:aliases)
 
       # Call original method with modified keyword params
-      original_load(yaml, *args, **keywords)
+      original_load(yaml, *, **keywords)
     end
   end
 end

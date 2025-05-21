@@ -49,7 +49,7 @@ class SamlInformation
       config[key.to_s]
     end
     define_singleton_method(key.to_sym) do
-      self.instance.send(key.to_sym)
+      instance.send(key.to_sym)
     end
   end
 

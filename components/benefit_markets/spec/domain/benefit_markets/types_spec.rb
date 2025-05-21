@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe ::Types do # Seems like we do not use Types::PositiveInteger
+RSpec.describe Types do # Seems like we do not use Types::PositiveInteger
 
   describe "Types::PositiveInteger" do
     let(:positive_integer)   { 1 }

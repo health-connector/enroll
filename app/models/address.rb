@@ -42,7 +42,7 @@ class Address
   validates_presence_of :address_1, :city, :state, :zip
 
   validates :kind,
-            inclusion: { in: KINDS + OFFICE_KINDS, message: "%{value} is not a valid address kind" },
+            inclusion: { in: KINDS + OFFICE_KINDS, message: "%<value>s is not a valid address kind" },
             allow_blank: false
 
   validates :zip,

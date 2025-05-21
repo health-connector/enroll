@@ -933,7 +933,7 @@ class Person
     welcome_subject = "Welcome to #{site_short_name}"
     welcome_body = "#{site_short_name} is the #{aca_state_name}'s on-line marketplace to shop, compare, and select health insurance that meets your health needs and budgets."
     self.inbox = Inbox.new
-    self.save!
+    save!
     mailbox = inbox
     mailbox.messages.create(subject: welcome_subject, body: welcome_body, from: site_short_name.to_s)
   end
@@ -1007,8 +1007,10 @@ class Person
 
   def validate_gender_format
     return if gender.blank?
-    unless GENDER_KINDS.include?(gender)
+
+    return if GENDER_KINDS.include?(gender)
+
       errors.add(:gender, "#{gender} is not a valid gender")
-    end
+    
   end
 end

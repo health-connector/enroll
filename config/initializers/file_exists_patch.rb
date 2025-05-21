@@ -2,8 +2,8 @@
 
 unless File.respond_to?(:exists?)
   class File
-    def self.exists?(*args)
-      exist?(*args)
+    def self.exists?(*)
+      exist?(*)
     end
   end
 end

@@ -4,8 +4,7 @@ module BenefitSponsors
       include ActiveModel::Model
       include ActiveModel::Validations
 
-      attr_accessor :title, :description, :probation_period_kind
-      attr_accessor :benefit_application, :product_packages
+      attr_accessor :title, :description, :probation_period_kind, :benefit_application, :product_packages
 
       validates :title, presence: true
 
@@ -15,7 +14,7 @@ module BenefitSponsors
 
       def assign_application_attributes(atts = {})
         atts.each_pair do |k, v|
-          self.send("#{k}=".to_sym, v)
+          send(:"#{k}=", v)
         end
       end
 
@@ -35,6 +34,7 @@ module BenefitSponsors
       def get_product_packages
         benefit_catalog = benefit_application.benefit_catalog
         raise "Unable to find benefit catalog!!" if catalog.blank?
+
         @product_packages = benefit_catalog.product_packages
       end
     end

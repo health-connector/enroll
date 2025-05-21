@@ -42,6 +42,7 @@ module TransportGateway
       unless message.body.blank?
         return Sources::StringIoSource.new(message.body)
       end
+
       gateway.receive_message(message)
     end
 
@@ -49,6 +50,7 @@ module TransportGateway
     def ensure_directory_for(path)
       dir = File.dirname(path)
       return nil if File.exist?(dir)
+
       FileUtils.mkdir_p(dir)
     end
 

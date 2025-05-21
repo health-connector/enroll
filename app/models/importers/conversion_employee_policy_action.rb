@@ -46,9 +46,9 @@ module Importers
       clean_hios = hios_id.strip
       corrected_hios_id = (clean_hios.end_with?("-01") ? clean_hios : clean_hios + "-01")
       @plan = Plan.where({
-        active_year: plan_year.to_i,
+                           active_year: plan_year.to_i,
         hios_id: corrected_hios_id
-      }).first
+                         }).first
     end
 
     def validate_plan
@@ -65,10 +65,10 @@ module Importers
       found_employer = find_employer
       return nil if found_employer.nil?
       candidate_employees = CensusEmployee.where({
-        employer_profile_id: found_employer.id,
+                                                   employer_profile_id: found_employer.id,
         # hired_on: {"$lte" => start_date},
         encrypted_ssn: CensusMember.encrypt_ssn(subscriber_ssn)
-      })
+                                                 })
       non_terminated_employees = candidate_employees.reject do |ce|
         (!ce.employment_terminated_on.blank?) && ce.employment_terminated_on <= Date.today
       end
@@ -92,7 +92,7 @@ module Importers
       if find_benefit_group_assignment.blank?
         if plan_year = employer.plan_years.published_and_expired_plan_years_by_date(employer.registered_on).first
           employee.benefit_group_assignments << BenefitGroupAssignment.new({
-            benefit_group: plan_year.benefit_groups.first,
+                                                                             benefit_group: plan_year.benefit_groups.first,
             start_on: plan_year.start_on,
             is_active: PlanYear::PUBLISHED.include?(plan_year.aasm_state)})
           employee.save
@@ -135,9 +135,9 @@ module Importers
       return [] if active_plan_year.blank?
 
       family.active_household.hbx_enrollments.where({
-        :benefit_group_id.in => active_plan_year.benefit_group_ids,
+                                                      :benefit_group_id.in => active_plan_year.benefit_group_ids,
         :aasm_state.in => HbxEnrollment::ENROLLED_STATUSES + HbxEnrollment::TERMINATED_STATUSES + ["coverage_expired"]
-        })
+                                                    })
     end
   end
 end

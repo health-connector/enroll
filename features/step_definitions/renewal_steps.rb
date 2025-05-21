@@ -9,7 +9,7 @@ Then(/(.*) should see active and renewing enrollments/) do |named_person|
   renewal_effective_date = ce.benefit_sponsorship.renewal_benefit_application.start_on
   effective_date = ce.benefit_sponsorship.active_benefit_application.start_on
 
-  find_all('.enrollment-tile').count { |n| n.find_all("h3", :text => /Coverage/i).any? } > 1
+  find_all('.enrollment-tile').count { |n| n.find_all("h3", :text => /Coverage/i).any? }
 
   expect(
     page.find_all('.enrollment-tile').any? do |e|

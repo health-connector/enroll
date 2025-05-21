@@ -21,6 +21,7 @@ module ModelEvents
 
       REGISTERED_EVENTS.each do |event|
         next unless check_local_variable("is_#{event}", binding)
+
         # event_name = ("on_" + event.to_s).to_sym
         event_options = {} # instance_eval(event.to_s + "_options") || {}
         notify_observers(ModelEvent.new(event, self, event_options))

@@ -24,10 +24,10 @@ module SponsoredBenefits
             owner_profile_id: @broker_agency_profile.id
           )
         )
-        
+
         # Directly set the broker_agency_profile relationship
         plan_design_organization.broker_agency_profile = broker_agency_profile
-        
+
         if plan_design_organization.save
           flash[:success] = "Prospect Employer (#{organization_params[:legal_name]}) Added Successfully."
           redirect_to employers_organizations_broker_agency_profile_path(@broker_agency_profile)

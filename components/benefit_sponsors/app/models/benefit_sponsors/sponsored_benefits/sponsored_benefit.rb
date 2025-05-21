@@ -40,7 +40,7 @@ module BenefitSponsors
 
       def product_package_exists
         if product_package.blank? && source_kind == :benefit_sponsor_catalog
-          self.errors.add(:base, "Unable to find mappable product package")
+          errors.add(:base, "Unable to find mappable product package")
         end
       end
 
@@ -71,13 +71,13 @@ module BenefitSponsors
       end
 
       def product_package
-        return nil if self.product_package_kind.blank?
+        return nil if product_package_kind.blank?
         @product_package ||= benefit_sponsor_catalog.product_package_for(self)
       end
 
       # Changing the package kind should clear the package
       def product_package_kind=(pp_kind)
-        if pp_kind != self.product_package_kind
+        if pp_kind != product_package_kind
           @product_package = nil
           write_attribute(:product_package_kind, pp_kind)
         end

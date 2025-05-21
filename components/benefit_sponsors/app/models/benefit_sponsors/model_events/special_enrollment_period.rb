@@ -8,12 +8,11 @@ module BenefitSponsors
       ]
 
       def notify_on_save
-        if self._id_previously_changed?
-          is_employee_sep_request_accepted = true
-        end
+        is_employee_sep_request_accepted = true if _id_previously_changed?
 
         REGISTERED_EVENTS.each do |event|
           next unless check_local_variable("is_#{event}", binding)
+
           event_options = {}
           notify_observers(ModelEvent.new(event, self, event_options))
         end

@@ -15,24 +15,27 @@ module ModelEvents
     ]
 
     def trigger_model_event(event_name, event_options = {})
-      if OTHER_EVENTS.include?(event_name)
+      return unless OTHER_EVENTS.include?(event_name)
+
         notify_observers(ModelEvent.new(event_name, self, event_options))
-      end
+      
     end
 
     def notify_on_save
-      if saved_change_to_aasm_state?
+      return unless saved_change_to_aasm_state?
+
         if is_transition_matching?(to: :binder_paid, from: :eligible, event: :binder_credited)
           is_initial_employee_plan_selection_confirmation = true
         end
 
         REGISTERED_EVENTS.each do |event|
           next unless check_local_variable("is_#{event}", binding)
+
           # event_name = ("on_" + event.to_s).to_sym
           event_options = {} # instance_eval(event.to_s + "_options") || {}
           notify_observers(ModelEvent.new(event, self, event_options))
         end
-      end
+      
     end
 
     def is_transition_matching?(from: nil, to: nil, event: nil)

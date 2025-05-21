@@ -28,7 +28,8 @@ module HbxReports
                      Effective_Start_Date
                      Coverage_End_Date
                      Member_relationship
-                     Coverage_state_occured]
+                     Coverage_state_occured
+]
 
       processed_count = 0
 
@@ -38,6 +39,7 @@ module HbxReports
         csv << field_names
         families.each do |family|
           next unless family.try(:primary_family_member).try(:person).try(:active_employee_roles).try(:any?) || family.try(:primary_family_member).try(:person).try(:consumer_role).try(:present?)
+
           hbx_enrollments = family.active_household.hbx_enrollments.select {|enrollment| enrollment_for_report?(enrollment)}
           hbx_enrollment_members = hbx_enrollments.flat_map(&:hbx_enrollment_members)
           hbx_enrollment_members.each do |hbx_enrollment_member|
@@ -86,7 +88,7 @@ module HbxReports
     def get_families
       Family.where(:"households.hbx_enrollments" =>
                        {:$elemMatch =>
-                            {'$or'=>
+                            {'$or' =>
                                  [{:aasm_state => "coverage_terminated"},
                                   {:aasm_state => "coverage_termination_pending"}],
                              "workflow_state_transitions.transition_at" => date_of_termination}})

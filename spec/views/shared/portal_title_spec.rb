@@ -34,7 +34,7 @@ RSpec.describe "layouts/_header.html.erb", :dbclean => :around_each do
     broker_role.benefit_sponsors_broker_agency_profile_id = broker_agency_profile.id
     broker_role.save!
     broker_user = FactoryBot.create(:user, person: broker_person, roles: ['broker'])
-    
+
     # Sign in as the broker
     sign_in broker_user
     render :template => 'layouts/_header'

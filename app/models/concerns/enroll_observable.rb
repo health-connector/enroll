@@ -42,7 +42,7 @@ module EnrollObservable
         raise NoMethodError, "observer does not respond to '#{func.to_s}'"
       end
 
-      if observers.none?{|k, v| k.is_a?(observer.class)}
+      if observers.none?{|k, _v| k.is_a?(observer.class)}
         observers[observer] = func
       end
       observers
@@ -53,7 +53,7 @@ module EnrollObservable
       @@observer_peers[to_s] ||= []
 
       add_observer_peer = lambda do |observer_instance|
-        matched_peer = @@observer_peers[to_s].detect{|peer| peer.any?{|k, v| k.is_a?(observer_instance.class)}}
+        matched_peer = @@observer_peers[to_s].detect{|peer| peer.any?{|k, _v| k.is_a?(observer_instance.class)}}
         if matched_peer.blank?
           @@observer_peers[to_s] << add_observer(observer_instance, update_method_name.to_sym, {})
         end

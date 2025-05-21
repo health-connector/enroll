@@ -10,6 +10,5 @@ module BenefitSponsors
     include Dry::Logic
 
     Bson = Types.Constructor(BSON::ObjectId) { |val| BSON::ObjectId val } unless Types.const_defined?('Bson')
-
   end
 end

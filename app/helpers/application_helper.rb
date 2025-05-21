@@ -892,6 +892,6 @@ module ApplicationHelper
   end
 
   def valid_mmddyyyy_format?(str)
-    !!(str =~ /\A(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])\/\d{4}\z/)
+    !!(str =~ %r{\A(0[1-9]|1[0-2])/(0[1-9]|[12]\d|3[01])/\d{4}\z})
   end
 end

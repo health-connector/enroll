@@ -26,9 +26,7 @@ class TranscriptGenerator
       begin
         @count += 1
 
-        if @count % 100 == 0
-          puts "------#{@count}"
-        end
+        puts "------#{@count}" if @count % 100 == 0
 
         individual_parser = Parsers::Xml::Cv::Importers::IndividualParser.new(File.read(file_path))
         # individual_parser = Parsers::Xml::Cv::Importers::EnrollmentParser.new(File.read(file_path))
@@ -158,9 +156,7 @@ class TranscriptGenerator
             rows.each{|row| csv << row}
           end
 
-          if count % 100 == 0
-            puts "processed #{count}"
-          end
+          puts "processed #{count}" if count % 100 == 0
         rescue Exception => e
           puts "Failed.....#{file_path}"
         end
@@ -196,9 +192,7 @@ class TranscriptGenerator
             rows.each{|row| csv << row}
           end
 
-          if count % 100 == 0
-            puts "processed #{count}"
-          end
+          puts "processed #{count}" if count % 100 == 0
         rescue Exception => e
           puts "Failed.....#{file_path}"
         end
@@ -209,9 +203,7 @@ class TranscriptGenerator
   private
 
   def create_directory(path)
-    if Dir.exist?(path)
-      FileUtils.rm_rf(path)
-    end
+    FileUtils.rm_rf(path) if Dir.exist?(path)
     Dir.mkdir path
   end
 end

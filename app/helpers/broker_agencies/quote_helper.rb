@@ -1,5 +1,4 @@
 module BrokerAgencies::QuoteHelper
-
   def draft_quote_header(state,quote_name)
     if state == "draft"
       content_tag(:h3, "Review: Publish your #{quote_name}" )+
@@ -84,5 +83,4 @@ module BrokerAgencies::QuoteHelper
       Date.parse(string)
     end
   end
-
 end

@@ -10,7 +10,7 @@ module BenefitSponsors
 
       def notify_on_save
 
-        if aasm_state_previously_changed?
+        return unless aasm_state_previously_changed?
 
           if is_transition_matching?(to: [:coverage_selected, :renewing_coverage_selected],  from: [:shopping, :auto_renewing], event: :select_coverage)
             @is_application_coverage_selected = true
@@ -36,7 +36,7 @@ module BenefitSponsors
               notify_observers(ModelEvent.new(event, self, event_options))
             end
           end
-        end
+        
       end
 
       def is_transition_matching?(from: nil, to: nil, event: nil)

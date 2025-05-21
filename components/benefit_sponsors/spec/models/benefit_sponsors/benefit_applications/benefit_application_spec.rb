@@ -608,7 +608,7 @@ module BenefitSponsors
 
           it "should not update benefit group assignments" do
             expect(renewal_application.aasm_state).to eq :enrollment_open
-            
+
             renewal_assignment = census_employee.benefit_group_assignments.detect { |bga| bga.benefit_package.id == renewal_application.benefit_packages.first.id }
             expect(renewal_assignment.benefit_application).to eq renewal_application
 

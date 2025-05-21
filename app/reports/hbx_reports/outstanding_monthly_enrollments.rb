@@ -20,22 +20,22 @@ module HbxReports
     end
 
     def migrate
-      effective_on = Date.strptime(ENV['start_date'],'%m/%d/%Y')
+      effective_on = Date.strptime(ENV.fetch('start_date', nil),'%m/%d/%Y')
       file_name = "#{Rails.root}/hbx_report/#{effective_on.strftime('%Y%m%d')}_employer_enrollments_#{Time.now.strftime('%Y%m%d%H%M')}.csv"
       Dir.mkdir("hbx_report") unless File.exist?("hbx_report")
 
       def quiet_period_range(benefit_application,effective_on)
         start_on = benefit_application.open_enrollment_period.max.to_date
-        if benefit_application.predecessor.present?
-          end_on = benefit_application.renewal_quiet_period_end(effective_on)
+        end_on = if benefit_application.predecessor.present?
+          benefit_application.renewal_quiet_period_end(effective_on)
         else
-          end_on = benefit_application.initial_quiet_period_end(effective_on)
-        end
+          benefit_application.initial_quiet_period_end(effective_on)
+                 end
         (start_on..end_on)
       end
 
       glue_list = File.read("all_glue_policies.txt").split("\n").map(&:strip) if File.exist?("all_glue_policies.txt")
-      field_names = [ "Employer ID",
+      field_names = ["Employer ID",
                       "Employer FEIN",
                       "Employer Name",
                       "Open Enrollment Start",
@@ -68,7 +68,7 @@ module HbxReports
         enrollment_ids = get_enrollment_ids(benefit_applications)
         # enrollment_ids = benefit_applications.flat_map(&:hbx_enrollments).map(&:hbx_id).compact.uniq
         enrollment_ids.each do |id|
-          begin
+          
             hbx_enrollment = HbxEnrollment.by_hbx_id(id).first
             case hbx_enrollment.enrollment_kind
             when "special_enrollment"
@@ -90,9 +90,17 @@ module HbxReports
             initial_renewal = benefit_application.predecessor.present? ? "renewal" : "initial"
             binder_paid = benefit_application.binder_paid?
             eg_id = id
-            product = hbx_enrollment.product rescue ""
+            product = begin
+                        hbx_enrollment.product
+                      rescue
+                        ""
+                      end
             super_group_id = product.try(:issuer_assigned_id)
-            carrier = product.issuer_profile.legal_name rescue ""
+            carrier = begin
+                        product.issuer_profile.legal_name
+                      rescue
+                        ""
+                      end
             purchase_time = hbx_enrollment.created_at
             coverage_start = hbx_enrollment.effective_on
             enrollment_state = hbx_enrollment.aasm_state
@@ -110,7 +118,7 @@ module HbxReports
           rescue Exception => e
             puts "#{id} - #{e.inspect}" unless Rails.env.test?
             next
-          end
+          
         end
 
         if Rails.env.production?
@@ -118,8 +126,8 @@ module HbxReports
           pubber.publish URI.join("file://", file_name)
         end
 
-        if File.exist?(file_name)
-          puts 'Report has been successfully generated in the hbx_report directory!' unless Rails.env.test?
+        if File.exist?(file_name) && !Rails.env.test?
+          puts 'Report has been successfully generated in the hbx_report directory!'
         end
       end
     end

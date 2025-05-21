@@ -15,6 +15,7 @@ module BenefitSponsors
 
         REGISTERED_EVENTS.each do |event|
           next unless check_local_variable("is_#{event}", binding)
+
           event_options = {}
           notify_observers(ModelEvent.new(event, self, event_options))
         end

@@ -43,25 +43,21 @@ class EmployeeRole
     if employee_role.person.present?
       @changed_nested_person_attributes = {}
       %w[ssn dob gender hbx_id].each do |field|
-        if employee_role.person.send("#{field}_changed?")
-          @changed_nested_person_attributes[field] = employee_role.person.send(field)
-        end
+        @changed_nested_person_attributes[field] = employee_role.person.send(field) if employee_role.person.send("#{field}_changed?")
       end
 
       # Handle person_attributes
       if defined?(@attributes) && @attributes
         person_attrs = nil
-        
+
         # Try to get person_attributes from different possible sources
         if @attributes['person_attributes'].present?
           person_attrs = @attributes['person_attributes']
         elsif @attributes[:person_attributes].present?
           person_attrs = @attributes[:person_attributes]
         end
-        
-        if person_attrs.present?
-          assign_person_attributes(person_attrs, employee_role)
-        end
+
+        assign_person_attributes(person_attrs, employee_role) if person_attrs.present?
       end
     end
     true
@@ -74,7 +70,7 @@ class EmployeeRole
     end
     true
   end
-  
+
   # explicitly handle person_attributes
   def person_attributes=(attrs)
     assign_person_attributes(attrs, self)
@@ -248,9 +244,7 @@ class EmployeeRole
   end
 
   def coverage_effective_on(current_benefit_group: nil, qle: false)
-    if qle && benefit_package(qle: qle).present?
-      current_benefit_group = benefit_package(qle: qle)
-    end
+    current_benefit_group = benefit_package(qle: qle) if qle && benefit_package(qle: qle).present?
 
     census_employee.coverage_effective_on(current_benefit_group)
   end
@@ -323,13 +317,13 @@ class EmployeeRole
 
   def assign_person_attributes(attrs, employee_role)
     return unless attrs.present? && employee_role.person.present?
-    
+
     # Normalize attributes to support both string and symbol keys
     normalized_attrs = {}
     attrs.each do |key, value|
       normalized_attrs[key.to_s] = value
     end
-    
+
     %w[ssn dob gender hbx_id].each do |field|
       if normalized_attrs.key?(field)
         value = normalized_attrs[field]

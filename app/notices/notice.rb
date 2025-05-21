@@ -81,7 +81,7 @@ class Notice
           }),
         }
     }
-    footer = (market_kind == "individual") ? "notices/shared/footer_ivl" : "notices/shared/footer"
+    footer = market_kind == "individual" ? "notices/shared/footer_ivl" : "notices/shared/footer"
       options.merge!({footer: {
         content: ApplicationController.new.render_to_string({
           template: footer,

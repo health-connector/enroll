@@ -438,7 +438,7 @@ module BenefitSponsors
 
     # TODO: Enable it for new domain benefit sponsor catalog
     def benefit_sponsor_catalog_for(effective_date)
-      benefit_sponsor_catalog_entity = BenefitSponsors::Operations::BenefitSponsorCatalog::Build.new.call(effective_date: effective_date.to_date, benefit_sponsorship_id: self._id).value!
+      benefit_sponsor_catalog_entity = BenefitSponsors::Operations::BenefitSponsorCatalog::Build.new.call(effective_date: effective_date.to_date, benefit_sponsorship_id: _id).value!
       BenefitMarkets::BenefitSponsorCatalog.new(benefit_sponsor_catalog_entity.to_h)
     end
 
@@ -549,7 +549,7 @@ module BenefitSponsors
           start_on_condition = application.start_on.to_date == (application.predecessor.end_on + 1.day).to_date
           state_condition = [:active, :enrollment_eligible].include?(application.aasm_state.to_sym)
           date_condition = application.start_on.to_date >= (TimeKeeper.date_of_record - 1.month).to_date # grace period of one month for late renewal
-          
+
           start_on_condition && state_condition && date_condition
         else
           false

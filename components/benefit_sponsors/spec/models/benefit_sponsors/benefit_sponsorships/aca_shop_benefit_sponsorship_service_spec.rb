@@ -223,7 +223,7 @@ module BenefitSponsors
       end
     end
 
-    describe ".transmit_renewal_carrier_drop_event" do # TODO comeback later
+    describe ".transmit_renewal_carrier_drop_event" do # TODO: comeback later
       let!(:benefit_market) { site.benefit_markets.first }
       let!(:benefit_market_catalog)  { benefit_market.benefit_market_catalogs.first }
       let(:organization) { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_dc_employer_profile_renewal_application, site: site)}

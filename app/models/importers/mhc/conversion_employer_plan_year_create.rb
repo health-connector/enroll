@@ -47,6 +47,7 @@ module Importers::Mhc
 
       return true if instance_variable_defined?(preference) && instance_variable_get(preference)
       return true if respond_to?(preference) && send(preference)
+
       false
     end
 
@@ -90,6 +91,7 @@ module Importers::Mhc
 
     def save
       return false unless valid?
+
       record = map_plan_year
       save_result = record.save
       propagate_errors(record)

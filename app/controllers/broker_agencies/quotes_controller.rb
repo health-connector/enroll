@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module BrokerAgencies
   class QuotesController < ApplicationController
 
@@ -46,13 +47,13 @@ module BrokerAgencies
 
       @health_plans = Plan.shop_health_plans @q.plan_year
       @health_selectors = Plan.build_plan_selectors('shop', 'health', @q.plan_year)
-      @health_plan_quote_criteria  = Plan.build_plan_features('shop', 'health', @q.plan_year).to_json
+      @health_plan_quote_criteria = Plan.build_plan_features('shop', 'health', @q.plan_year).to_json
       @dental_plans = Plan.shop_dental_plans @q.plan_year
       @dental_selectors = Plan.build_plan_selectors('shop', 'dental', @q.plan_year)
-      dental_plan_quote_criteria  = Plan.build_plan_features('shop', 'dental',@q.plan_year) .to_json
+      dental_plan_quote_criteria = Plan.build_plan_features('shop', 'dental',@q.plan_year).to_json
       @dental_plans_count = @dental_plans.count
 
-      @bp_hash = {'employee':50, 'spouse': 0, 'domestic_partner': 0, 'child_under_26': 0, 'child_26_and_over': 0}
+      @bp_hash = {employee: 50, spouse: 0, domestic_partner: 0, child_under_26: 0, child_26_and_over: 0}
       @quote_criteria = []
 
       @quote_benefit_group.quote_relationship_benefits.each{|bp| @bp_hash[bp.relationship] = bp.premium_pct}
@@ -91,13 +92,13 @@ module BrokerAgencies
       @quote = Quote.find(params[:id])
       broker_role_id = @quote.broker_role.id
       @orgs = Organization.by_broker_role(broker_role_id)
-      @employer_profiles =  @orgs.blank? ? [] : @orgs.map(&:employer_profile).collect{|e| [e.legal_name, e.id]}
+      @employer_profiles = @orgs.blank? ? [] : @orgs.map(&:employer_profile).collect{|e| [e.legal_name, e.id]}
       max_family_id = @quote.quote_households.max(:family_id).to_i
 
       unless params[:duplicate_household].blank? && params[:num_of_dup].blank?
         dup_household = @quote.quote_households.find(params[:duplicate_household]).dup
 
-        (1..params[:num_of_dup].to_i).each do |i|
+        (1..params[:num_of_dup].to_i).each do |_i|
           temp_household = dup_household.dup
           max_family_id += 1
           temp_household.family_id = max_family_id
@@ -127,7 +128,6 @@ module BrokerAgencies
 
       flash.now[:notice] = "This quote has been published and no editing is allowed." if @quote.is_complete?
       #redirect_to edit_broker_agencies_quote_path(@quote.id)
-
     end
 
     def new
@@ -154,12 +154,12 @@ module BrokerAgencies
       update_params = quote_params
       insert_params = quote_params
       if update_params[:quote_households_attributes]
-        update_params[:quote_households_attributes] = update_params[:quote_households_attributes].select {|k,v| update_params[:quote_households_attributes][k][:id].present?}
-        insert_params[:quote_households_attributes] = insert_params[:quote_households_attributes].select {|k,v| insert_params[:quote_households_attributes][k][:id].blank?}
+        update_params[:quote_households_attributes] = update_params[:quote_households_attributes].select {|k,_v| update_params[:quote_households_attributes][k][:id].present?}
+        insert_params[:quote_households_attributes] = insert_params[:quote_households_attributes].select {|k,_v| insert_params[:quote_households_attributes][k][:id].blank?}
       end
       if update_params[:quote_benefit_groups_attributes]
-        update_params[:quote_benefit_groups_attributes] = update_params[:quote_benefit_groups_attributes].select {|k,v| update_params[:quote_benefit_groups_attributes][k][:id].present?}
-        insert_params[:quote_benefit_groups_attributes] = insert_params[:quote_benefit_groups_attributes].select {|k,v| insert_params[:quote_benefit_groups_attributes][k][:id].blank?}
+        update_params[:quote_benefit_groups_attributes] = update_params[:quote_benefit_groups_attributes].select {|k,_v| update_params[:quote_benefit_groups_attributes][k][:id].present?}
+        insert_params[:quote_benefit_groups_attributes] = insert_params[:quote_benefit_groups_attributes].select {|k,_v| insert_params[:quote_benefit_groups_attributes][k][:id].blank?}
       end
       case params[:commit]
       when "Add Employee"
@@ -183,10 +183,10 @@ module BrokerAgencies
         if params[:commit] == "Create Quote"
           redirect_to broker_agencies_broker_role_quote_path(params[:broker_role_id],params[:id])
         else
-          redirect_to edit_broker_agencies_broker_role_quote_path(@broker.id, @quote, new_family: new_family, scrollTo: scrollTo,duplicate_household: duplicate_household ,num_of_dup: num_of_dup),  :flash => { :notice => notice_message }
+          redirect_to edit_broker_agencies_broker_role_quote_path(@broker.id, @quote, new_family: new_family, scrollTo: scrollTo,duplicate_household: duplicate_household,num_of_dup: num_of_dup),  :flash => { :notice => notice_message }
         end
       else
-        redirect_to edit_broker_agencies_broker_role_quote_path(@broker.id, @quote) ,  :flash => { :error => "Unable to update the employee roster." }
+        redirect_to edit_broker_agencies_broker_role_quote_path(@broker.id, @quote),  :flash => { :error => "Unable to update the employee roster." }
       end
     end
 
@@ -218,7 +218,7 @@ module BrokerAgencies
         sort_array = @qhps.map do |qhp|
           [qhp, get_visit_cost(qhp,@sort_by)]
         end
-        sort_array.sort!{|a,b| a[1]*@order <=> b[1]*@order}
+        sort_array.sort!{|a,b| a[1] * @order <=> b[1] * @order}
         @qhps = sort_array.map{|item| item[0]}
       end
       render partial: 'plan_comparision', layout: false, locals: {qhps: @qhps}
@@ -227,17 +227,17 @@ module BrokerAgencies
     def build_employee_roster
       authorize @broker
       @employee_roster = parse_employee_roster_file
-      @quote= Quote.find(params[:id])
+      @quote = Quote.find(params[:id])
       broker_role_id = @quote.broker_role.id
       @orgs = Organization.by_broker_role(broker_role_id)
       @employer_profiles = @orgs.map(&:employer_profile) unless @orgs.blank?
       @quote_benefit_group_dropdown = @quote.quote_benefit_groups
       if @employee_roster.is_a?(Hash)
-        @employee_roster.each do |family_id , members|
+        @employee_roster.each do |family_id, members|
           @quote_household = @quote.quote_households.where(:family_id => family_id).first
-          @quote_household= QuoteHousehold.new(:family_id => family_id ) if @quote_household.nil?
+          @quote_household = QuoteHousehold.new(:family_id => family_id) if @quote_household.nil?
           members.each do |member|
-            @quote_members= QuoteMember.new(:employee_relationship => member[0], :dob => member[1], :last_name => member[2], :first_name => member[3])
+            @quote_members = QuoteMember.new(:employee_relationship => member[0], :dob => member[1], :last_name => member[2], :first_name => member[3])
             @quote_household.quote_members << @quote_members
           end
           @quote.quote_households << @quote_household
@@ -259,7 +259,7 @@ module BrokerAgencies
       @quote = Quote.find(params[:id])
       @employee_roster = @quote.quote_households.map(&:quote_members).flatten
       send_data(csv_for(@employee_roster), :type => 'text/csv; charset=iso-8859-1; header=present',
-      :disposition => "attachment; filename=Employee_Roster.csv")
+                                           :disposition => "attachment; filename=Employee_Roster.csv")
     end
 
     def delete_quote_modal
@@ -284,7 +284,6 @@ module BrokerAgencies
           redirect_to my_quotes_broker_agencies_broker_role_quotes_path(@broker)
         end
       end
-
     end
 
     def delete_member
@@ -300,8 +299,6 @@ module BrokerAgencies
       respond_to do |format|
         format.js { render body: nil }
       end
-
-
     end
 
     def delete_household
@@ -313,7 +310,6 @@ module BrokerAgencies
       respond_to do |format|
         format.js { render body: nil }
       end
-
     end
 
     def delete_benefit_group
@@ -328,8 +324,8 @@ module BrokerAgencies
       end
 
       respond_to do |format|
-          format.js { render :nothing => true }
-        end
+        format.js { render :nothing => true }
+      end
     end
 
     def new_household
@@ -344,7 +340,7 @@ module BrokerAgencies
       return false if benefit_group.quote.is_complete?
 
       benefits = params[:benefits]
-      relationship_benefits = params[:coverage_kind] == 'dental' ?  benefit_group.quote_dental_relationship_benefits : benefit_group.quote_relationship_benefits
+      relationship_benefits = params[:coverage_kind] == 'dental' ? benefit_group.quote_dental_relationship_benefits : benefit_group.quote_relationship_benefits
       relationship_benefits.each {|b| b.update_attributes!(premium_pct: benefits[b.relationship]) }
       render json: {}
     end
@@ -357,19 +353,19 @@ module BrokerAgencies
       benefit_groups = quote.quote_benefit_groups
       bg = (params[:benefit_group_id] && quote.quote_benefit_groups.find(params[:benefit_group_id])) || benefit_groups.first
       summary = {name: quote.quote_name,
-       status: quote.aasm_state.capitalize,
-       plan_name: bg.plan&.name || 'None',
-       dental_plan_name: "bg.dental_plan && bg.dental_plan.name" || 'None'
-      }
+                 status: quote.aasm_state.capitalize,
+                 plan_name: bg.plan&.name || 'None',
+                 dental_plan_name: "bg.dental_plan && bg.dental_plan.name" || 'None'}
       bg.quote_relationship_benefits.each{|bp| bp_hash[bp.relationship] = bp.premium_pct}
       bg.quote_dental_relationship_benefits.each{|bp| bp_dental_hash[bp.relationship] = bp.premium_pct}
       render json: {
-                    'relationship_benefits' => bp_hash,
-                    'dental_relationship_benefits' => bp_dental_hash,
-                    'roster_premiums' => bg.roster_cost_all_plans,
-                    'dental_roster_premiums' => bg.roster_cost_all_plans('dental'),
-                    'criteria' => JSON.parse(bg.criteria_for_ui),
-                    'summary' => summary}
+        'relationship_benefits' => bp_hash,
+        'dental_relationship_benefits' => bp_dental_hash,
+        'roster_premiums' => bg.roster_cost_all_plans,
+        'dental_roster_premiums' => bg.roster_cost_all_plans('dental'),
+        'criteria' => JSON.parse(bg.criteria_for_ui),
+        'summary' => summary
+      }
     end
 
     def set_plan
@@ -400,18 +396,18 @@ module BrokerAgencies
           bg.plan_option_kind = elected_plan_choice
           bg.elected_health_plan_ids = params[:elected_plans_list]
           roster_elected_plan_bounds = PlanCostDecoratorQuote.elected_plans_cost_bounds(Plan.shop_health_plans(@q.plan_year),
-             bg.quote_relationship_benefits, bg.roster_cost_all_plans('health'))
+                                                                                        bg.quote_relationship_benefits, bg.roster_cost_all_plans('health'))
           case elected_plan_choice
-            when 'Single Carrier'
-              bg.plan_option_kind = "single_carrier"
+          when 'Single Carrier'
+            bg.plan_option_kind = "single_carrier"
               bg.published_lowest_cost_plan = roster_elected_plan_bounds[:carrier_low_plan][plan.carrier_profile.abbrev]
               bg.published_highest_cost_plan = roster_elected_plan_bounds[:carrier_high_plan][plan.carrier_profile.abbrev]
-            when 'Metal Level'
-              bg.plan_option_kind = "metal_level"
+          when 'Metal Level'
+            bg.plan_option_kind = "metal_level"
               bg.published_lowest_cost_plan = roster_elected_plan_bounds[:metal_low_plan][plan.metal_level]
               bg.published_highest_cost_plan = roster_elected_plan_bounds[:metal_high_plan][plan.metal_level]
-            else
-              bg.plan_option_kind = "single_plan"
+          else
+            bg.plan_option_kind = "single_plan"
               bg.published_lowest_cost_plan = plan.id
               bg.published_highest_cost_plan = plan.id
           end
@@ -454,7 +450,7 @@ module BrokerAgencies
 
       criteria_for_ui = params[:criteria_for_ui]
       deductible_for_ui = params[:deductible_for_ui]
-      benefit_group.update_attributes!(criteria_for_ui: criteria_for_ui ) if criteria_for_ui
+      benefit_group.update_attributes!(criteria_for_ui: criteria_for_ui) if criteria_for_ui
       benefit_group.update_attributes(deductible_for_ui: deductible_for_ui) if deductible_for_ui
       render json: JSON.parse(benefit_group.criteria_for_ui)
     end
@@ -493,7 +489,7 @@ module BrokerAgencies
         @employees.each do |x|
           max_family_id = @quote.quote_households.max(:family_id).to_i
           qhh = QuoteHousehold.new(family_id: max_family_id + 1)
-          qhh.quote_members << QuoteMember.new(dob: x.dob, first_name: x.first_name, last_name:x.last_name)
+          qhh.quote_members << QuoteMember.new(dob: x.dob, first_name: x.first_name, last_name: x.last_name)
           @quote.quote_households << qhh
         end
         @employee_present = true
@@ -503,31 +499,28 @@ module BrokerAgencies
 
     def employee_type
       authorize @broker
-      @quote= Quote.find(params[:id])
+      @quote = Quote.find(params[:id])
       broker_role_id = @quote.broker_role.id
       @orgs = Organization.by_broker_role(broker_role_id)
-      @employer_profiles =  @orgs.blank? ? [] : @orgs.map(&:employer_profile).collect{|e| [e.legal_name, e.id]}
+      @employer_profiles = @orgs.blank? ? [] : @orgs.map(&:employer_profile).collect{|e| [e.legal_name, e.id]}
       @employee_type = params[:type]
       return unless @quote.employer_type == 'client' && params[:type] == 'prospect'
 
       @quote.quote_households.destroy_all
-
     end
-    
+
     private
 
     def set_broker_role
-
       @broker = BrokerRole.find(params[:broker_role_id])
     rescue Exception => e
       log(e, {:severity => "error", :error_message => "Error in #{controller_name} Controller #{action_name}
        Action. Current URL: #{request.original_url}"})
       raise e
-
     end
 
     def quote_download_link(quote)
-      quote.published? ? view_context.link_to("Download PDF" , publish_broker_agencies_broker_role_quotes(:format => :pdf,:quote_id => quote.id)) : ""
+      quote.published? ? view_context.link_to("Download PDF", publish_broker_agencies_broker_role_quotes(:format => :pdf,:quote_id => quote.id)) : ""
     end
 
     def employee_relationship_map
@@ -535,21 +528,22 @@ module BrokerAgencies
     end
 
     def get_standard_component_ids
-      Plan.where(:_id => { '$in': params[:plans] } ).map(&:hios_id)
+      Plan.where(:_id => { '$in': params[:plans] }).map(&:hios_id)
     end
 
     def quote_params
       params.require(:quote).permit(
-                      :quote_name,
-                      :start_on,
-                      :broker_role_id,
-                      :employer_type,
-                      :employer_name,
-                      :employer_profile_id,
-                      :quote_benefit_groups_attributes => [:id, :title],
-                      :quote_households_attributes => [ :id, :family_id , :quote_benefit_group_id,
-                                         {:quote_members_attributes => [ :id, :first_name, :last_name ,:dob,
-                                                                        :employee_relationship,:_delete ]} ] )
+        :quote_name,
+        :start_on,
+        :broker_role_id,
+        :employer_type,
+        :employer_name,
+        :employer_profile_id,
+        :quote_benefit_groups_attributes => [:id, :title],
+        :quote_households_attributes => [:id, :family_id, :quote_benefit_group_id,
+                                         {:quote_members_attributes => [:id, :first_name, :last_name,:dob,
+                                                                        :employee_relationship,:_delete]}]
+)
     end
 
     def format_date_params
@@ -564,16 +558,15 @@ module BrokerAgencies
 
           unless m[:dob]&.blank?
             m[:dob] = if valid_mmddyyyy_format?(m[:dob])
-              date_from_string(m[:dob])
-            else
-              m[:dob].to_date
+                        date_from_string(m[:dob])
+                      else
+                        m[:dob].to_date
             end
           end
         rescue Exception => e
           @format_errors << "Error parsing date #{m[:dob]}"
         end
       end
-
     end
 
     def sanitize_quote_roster_params
@@ -601,12 +594,11 @@ module BrokerAgencies
           params[:quote][:quote_households_attributes].delete(key) if delete_family_key == 1
         end
       end
-
     end
 
     def employee_roster_group_by_family_id
       params[:employee_roster].inject({}) do  |new_hash,e|
-        new_hash[e[1][:family_id]].nil? ? new_hash[e[1][:family_id]] = [e[1]]  : new_hash[e[1][:family_id]] << e[1]
+        new_hash[e[1][:family_id]].nil? ? new_hash[e[1][:family_id]] = [e[1]] : new_hash[e[1][:family_id]] << e[1]
         new_hash
       end
     end
@@ -630,15 +622,14 @@ module BrokerAgencies
   # end
 
     def parse_employee_roster_file
-
       roster = Roo::Spreadsheet.open(params[:employee_roster_file])
       sheet = roster.sheet(0)
       sheet_header_row = sheet.row(1)
       column_header_row = sheet.row(2)
       census_employees = {}
-      (4..sheet.last_row).each_with_index.map do |i, index|
+      (4..sheet.last_row).each_with_index.map do |i, _index|
         row = roster.row(i)
-        row[1]="child_under_26" if row[1].downcase == "child"
+        row[1] = "child_under_26" if row[1].downcase == "child"
         if census_employees[row[0].to_i].nil?
           census_employees[row[0].to_i] = [[row[1].split.join('_').downcase,row[8],row[2],row[3]]]
         else
@@ -650,7 +641,6 @@ module BrokerAgencies
       puts e.message
       flash[:error] = "Unable to parse the csv file"
         #redirect_to :action => "new" and return
-
     end
 
     def csv_for(employee_roster)
@@ -658,12 +648,11 @@ module BrokerAgencies
         CSV.generate(output) do |csv|
           csv << ["FamilyID", "FirstName", "LastName", "Relationship", "DOB"]
           employee_roster.each do |employee|
-            csv << [  employee.quote_household.family_id,
-                      employee.first_name,
-                      employee.last_name,
-                      employee.employee_relationship,
-                      employee.dob
-                    ]
+            csv << [employee.quote_household.family_id,
+                    employee.first_name,
+                    employee.last_name,
+                    employee.employee_relationship,
+                    employee.dob]
           end
         end
       end
@@ -698,7 +687,7 @@ module BrokerAgencies
       carrier = params[:carrier_id].nil? ? [] : params[:carrier_id]
       dental_level = params[:dental_level].nil? ? [] : params[:dental_level]
       plan_type = params[:plan_type].nil? ? [] : params[:plan_type]
-      dc_network = params[:dc_network].nil?  ? [] : params[:dc_network]
+      dc_network = params[:dc_network].nil? ? [] : params[:dc_network]
       nationwide = params[:nationwide].nil? ? [] : params[:nationwide]
       @dental_plans = @dental_plans.by_carrier_profile_for_bqt(params[:carrier_id]) unless  carrier.empty? || carrier.include?('')
       @dental_plans = @dental_plans.by_dental_level_for_bqt(params[:dental_level])  unless  dental_level.empty? || dental_level.include?('')

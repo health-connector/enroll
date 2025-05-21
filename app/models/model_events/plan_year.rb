@@ -32,7 +32,8 @@ module ModelEvents
 
     def notify_on_save
       return if self.is_conversion
-      if saved_change_to_aasm_state?
+
+      return unless saved_change_to_aasm_state?
 
         if is_transition_matching?(to: :renewing_draft, from: :draft, event: :renew_plan_year)
           is_renewal_application_created = true
@@ -94,11 +95,12 @@ module ModelEvents
         # TODO -- encapsulated notify_observers to recover from errors raised by any of the observers
         REGISTERED_EVENTS.each do |event|
           next unless check_local_variable("is_#{event}", binding)
+
           # event_name = ("on_" + event.to_s).to_sym
           event_options = {} # instance_eval(event.to_s + "_options") || {}
           notify_observers(ModelEvent.new(event, self, event_options))
         end
-      end
+      
     end
 
     def self.included(base)
@@ -149,6 +151,7 @@ module ModelEvents
 
         DATA_CHANGE_EVENTS.each do |event|
           next unless check_local_variable("is_#{event}", binding)
+
           event_options = {}
           notify_observers(ModelEvent.new(event, self, event_options))
         end

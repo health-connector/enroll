@@ -7,9 +7,9 @@ module SponsoredBenefits
     included do
       
       validates :ssn,
-        length: { minimum: 9, maximum: 9, message: "must have 9 digits" },
-        allow_blank: true,
-        numericality: { only_integer: true, message: "must have 9 digits" }
+                length: { minimum: 9, maximum: 9, message: "must have 9 digits" },
+                allow_blank: true,
+                numericality: { only_integer: true, message: "must have 9 digits" }
 
       validate :is_ssn_composition_correct?
       after_validation :move_encrypted_ssn_errors

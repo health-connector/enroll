@@ -1334,7 +1334,7 @@ describe "#all_persons_vlp_documents_status" do
       allow(family).to receive(:is_document_not_verified).and_return(true)
       allow_any_instance_of(ConsumerRole).to receive(:has_docs_for_type?).and_return(true)
       allow_any_instance_of(ConsumerRole).to receive(:has_outstanding_documents?).and_return(false)
-      
+
       expect(family.all_persons_vlp_documents_status).to eq("Fully Uploaded")
     end
   end

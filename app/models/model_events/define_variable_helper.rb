@@ -11,10 +11,10 @@ module ModelEvents
       var_name = expression.to_sym
       return context.local_variable_get(var_name) if context.local_variable_defined?(var_name)
 
-      var_name = "@#{expression}".to_sym
+      var_name = :"@#{expression}"
       return instance_variable_get(var_name) if instance_variable_defined?(var_name)
 
-      return send(expression) if respond_to?(expression)
+      send(expression) if respond_to?(expression)
     end
   end
 end

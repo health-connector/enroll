@@ -78,22 +78,20 @@ class Family
 
   index({"households.hbx_enrollments.aasm_state" => 1,
          "households.hbx_enrollments.created_at" => 1},
-         {name: "state_and_created"})
+        {name: "state_and_created"})
 
   index({"households.hbx_enrollments.kind" => 1,
-       "households.hbx_enrollments.aasm_state" => 1,
-       "households.hbx_enrollments.effective_on" => 1,
-       "households.hbx_enrollments.terminated_on" => 1
-       },
-       {name: "kind_and_state_and_created_and_terminated"})
+         "households.hbx_enrollments.aasm_state" => 1,
+         "households.hbx_enrollments.effective_on" => 1,
+         "households.hbx_enrollments.terminated_on" => 1},
+        {name: "kind_and_state_and_created_and_terminated"})
 
   index({"households.hbx_enrollments._id" => 1})
   index({"households.hbx_enrollments.kind" => 1,
          "households.hbx_enrollments.aasm_state" => 1,
          "households.hbx_enrollments.coverage_kind" => 1,
-         "households.hbx_enrollments.effective_on" => 1
-         },
-         {name: "kind_and_state_and_coverage_kind_effective_date"})
+         "households.hbx_enrollments.effective_on" => 1},
+        {name: "kind_and_state_and_coverage_kind_effective_date"})
 
   index({
     "households.hbx_enrollments.sponsored_benefit_package_id" => 1,
@@ -861,7 +859,8 @@ class Family
             "kind" => "individual",
             "aasm_state" => { "$in" => HbxEnrollment::ENROLLED_STATUSES },
             "created_at" => { "$gte" => start_time, "$lte" => end_time},
-        } }
+        } 
+}
       })
       families.each do |family|
         begin
@@ -1043,15 +1042,16 @@ class Family
                   'month' => { "$month" => '$households.hbx_enrollments.effective_on'},
                   'day' => { "$dayOfMonth" => '$households.hbx_enrollments.effective_on'},
                   'subscriber_id' => '$households.hbx_enrollments.enrollment_signature',
-                  'provider_id'   => '$households.hbx_enrollments.carrier_profile_id',
+                  'provider_id' => '$households.hbx_enrollments.carrier_profile_id',
                   'benefit_group_id' => '$households.hbx_enrollments.benefit_group_id',
                   'state' => '$households.hbx_enrollments.aasm_state',
                   'market' => '$households.hbx_enrollments.kind',
-                  'coverage_kind' => '$households.hbx_enrollments.coverage_kind'},
-                  "hbx_enrollment" => { "$first" => '$households.hbx_enrollments'}}},
+                  'coverage_kind' => '$households.hbx_enrollments.coverage_kind'
+},
+                    "hbx_enrollment" => { "$first" => '$households.hbx_enrollments'}}},
       {"$project" => {'hbx_enrollment._id' => 1, '_id' => 1}}
       ],
-      :allow_disk_use => true)
+                                :allow_disk_use => true)
   end
 
 
@@ -1066,12 +1066,12 @@ class Family
       {"$match" => {'households.hbx_enrollments.aasm_state' => 'inactive'}},
       {"$sort" => {"households.hbx_enrollments.submitted_at" => -1 }},
       {"$group" => {'_id' => {'year' => { "$year" => '$households.hbx_enrollments.effective_on'},
-                    'state' => '$households.hbx_enrollments.aasm_state',
-                    'kind' => '$households.hbx_enrollments.kind',
-                    'coverage_kind' => '$households.hbx_enrollments.coverage_kind'}, "hbx_enrollment" => { "$first" => '$households.hbx_enrollments'}}},
+                              'state' => '$households.hbx_enrollments.aasm_state',
+                              'kind' => '$households.hbx_enrollments.kind',
+                              'coverage_kind' => '$households.hbx_enrollments.coverage_kind'}, "hbx_enrollment" => { "$first" => '$households.hbx_enrollments'}}},
       {"$project" => {'hbx_enrollment._id' => 1, '_id' => 0}}
       ],
-      :allow_disk_use => true)
+                                :allow_disk_use => true)
   end
 
   def generate_family_search

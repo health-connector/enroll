@@ -785,7 +785,7 @@ class PlanYear
     end
 
     def calculate_start_on_options
-      calculate_start_on_dates.map {|date| [date.strftime("%B %Y"), date.to_formatted_s(:db) ]}
+      calculate_start_on_dates.map {|date| [date.strftime("%B %Y"), date.to_formatted_s(:db)]}
     end
 
     def calculate_open_enrollment_date(start_on)
