@@ -22,7 +22,7 @@ module HbxReports
     def migrate
       effective_on = Date.strptime(ENV.fetch('start_date', nil),'%m/%d/%Y')
       file_name = "#{Rails.root}/hbx_report/#{effective_on.strftime('%Y%m%d')}_employer_enrollments_#{Time.now.strftime('%Y%m%d%H%M')}.csv"
-      Dir.mkdir("hbx_report") unless File.exist?("hbx_report")
+      FileUtils.mkdir_p("hbx_report")
 
       def quiet_period_range(benefit_application,effective_on)
         start_on = benefit_application.open_enrollment_period.max.to_date

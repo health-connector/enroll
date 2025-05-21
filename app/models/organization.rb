@@ -1,5 +1,5 @@
+# frozen_string_literal: true
 require_dependency 'plan_year'
-
 class Organization
   include Mongoid::Document
   include SetCurrentUser

@@ -22,7 +22,7 @@ FactoryBot.define do
     end
 
     trait :default do
-
+      legal_name { "Blue Cross Blue Shield" }
     end
 
   end

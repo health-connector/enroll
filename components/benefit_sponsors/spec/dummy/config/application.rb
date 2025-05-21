@@ -27,7 +27,7 @@ module Psych
   class ClassLoader
     class Restricted < ClassLoader
       def initialize(classes, symbols)
-        allowed_classes = Psych::ClassLoader::ALLOWED_PSYCH_CLASSES.map do |klass|
+        Psych::ClassLoader::ALLOWED_PSYCH_CLASSES.map do |klass|
           klass.is_a?(String) ? klass : klass.to_s
         end
 

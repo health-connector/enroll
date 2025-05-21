@@ -14,7 +14,9 @@ ConnectionSlug = Struct.new(:broker_npn) do
   end
 
   def publish(payload, headers)
-    Dir.mkdir("broker_xmls") unless File.exist?("broker_xmls")
+    unless File.directory?("broker_xmls")
+      FileUtils.mkdir_p("broker_xmls")
+    end
     File.open(File.join("broker_xmls", "#{broker_npn}.xml"), 'w') do |f|
       f.puts payload
     end

@@ -2,7 +2,7 @@ class CcaHbxEnrollmentsMigration < Mongoid::Migration
   def self.up
     if Settings.site.key.to_s == "cca"
 
-      Dir.mkdir("hbx_report") unless File.exist?("hbx_report")
+      FileUtils.mkdir_p("hbx_report")
       file_name = "#{Rails.root}/hbx_report/enrollment_migration_status_#{TimeKeeper.datetime_of_record.strftime("%m_%d_%Y_%H_%M_%S")}.csv"
       field_names = %w( employer_name census_emp_id benefit_group_assignment_id enrollment_id status product_id issuer_profile_id benefit_sponsorship_id sponsored_benefit_package_id sponsored_benefit_id)
 

@@ -41,8 +41,7 @@ module BenefitSponsors
       def product_package_exists
         return unless product_package.blank? && source_kind == :benefit_sponsor_catalog
 
-          errors.add(:base, "Unable to find mappable product package")
-        
+        errors.add(:base, "Unable to find mappable product package")
       end
 
       def product_kind
@@ -82,9 +81,8 @@ module BenefitSponsors
       def product_package_kind=(pp_kind)
         return unless pp_kind != product_package_kind
 
-          @product_package = nil
-          write_attribute(:product_package_kind, pp_kind)
-        
+        @product_package = nil
+        write_attribute(:product_package_kind, pp_kind)
       end
 
       def issuers_offered

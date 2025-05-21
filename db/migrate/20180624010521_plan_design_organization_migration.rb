@@ -2,7 +2,7 @@ class PlanDesignOrganizationMigration < Mongoid::Migration
   def self.up
     if Settings.site.key.to_s == "cca"
 
-      Dir.mkdir("hbx_report") unless File.exist?("hbx_report")
+      FileUtils.mkdir_p("hbx_report")
       file_name = "#{Rails.root}/hbx_report/plan_design_migration_status_#{TimeKeeper.datetime_of_record.strftime("%m_%d_%Y_%H_%M_%S")}.csv"
       field_names = %w( plan_design_org_name plan_design_org_id status owner_profile_id sponsor_profile_id)
 

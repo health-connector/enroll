@@ -24,8 +24,7 @@ module HbxReports
             count += 1
           end
       rescue StandardError
-          puts "Bad family record #{family.id}" unless Rails.env.test?
-
+        puts "Bad family record #{family.id}" unless Rails.env.test?
       end
     end
       puts "Total number of updated records #{count}" unless Rails.env.test?

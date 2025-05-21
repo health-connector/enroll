@@ -657,7 +657,7 @@ module BenefitSponsors
         end
       end
 
-      context '.may_renew_application?' do # TODO comeback later
+      context '.may_renew_application?' do
         let(:initial_application_state) { :active }
 
         it "should find sponsorships with application in active state and matching effective period begin date" do
@@ -1179,7 +1179,7 @@ module BenefitSponsors
         end
       end
 
-      context "when renewal application is eligible" do # TODO comeback later
+      context "when renewal application is eligible" do
         before do
           benefit_sponsorship.renewal_benefit_application.update_attributes(aasm_state: 'enrollment_eligible')
         end

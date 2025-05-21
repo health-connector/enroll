@@ -147,7 +147,7 @@ module BenefitSponsors
         else
           Date.parse(string.to_s)
         end
-      rescue Date::Error => e
+      rescue Date::Error
         errors.add(:base, "Invalid date format. Please use MM/DD/YYYY format for open enrollment dates.")
         nil
       end

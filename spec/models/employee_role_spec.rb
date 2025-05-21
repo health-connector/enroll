@@ -287,7 +287,7 @@ describe EmployeeRole, dbclean: :after_each do
 =end
 end
 
-describe EmployeeRole, dbclean: :after_each do # TODO comeback
+describe EmployeeRole, dbclean: :after_each do # TODO: comeback
   let(:person_created_at) {10.minutes.ago}
   let(:person_updated_at) {8.minutes.ago}
   let(:employee_role_created_at) {9.minutes.ago}
@@ -332,7 +332,7 @@ describe EmployeeRole, dbclean: :after_each do # TODO comeback
         created_at: employee_role_created_at,
         updated_at: employee_role_updated_at
       )
-      role.person.ssn = ssn 
+      role.person.ssn = ssn
       role.person.dob = dob
       role.person.gender = gender
       role.save

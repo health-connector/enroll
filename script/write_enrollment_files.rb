@@ -15,7 +15,9 @@ ConnectionSlug = Struct.new(:policy_id) do
   end
 
   def publish(payload, properties)
-    Dir.mkdir("policy_cvs") unless File.exist?("policy_cvs")
+    unless File.directory?("policy_cvs")
+      FileUtils.mkdir_p("policy_cvs")
+    end
     if properties[:headers][:return_status] == "200"
       File.open(File.join("policy_cvs", "#{policy_id}.xml"), 'w') do |f|
         f.puts payload

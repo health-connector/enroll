@@ -14,21 +14,19 @@ module BenefitSponsors
       def trigger_model_event(event_name, event_options = {})
         return unless OTHER_EVENTS.include?(event_name)
 
-          BenefitSponsors::Organizations::AcaShopCcaEmployerProfile.add_observer(BenefitSponsors::Observers::EmployerProfileObserver.new, [:update, :notifications_send])
-          notify_observers(ModelEvent.new(event_name, self, event_options))
-
+        BenefitSponsors::Organizations::AcaShopCcaEmployerProfile.add_observer(BenefitSponsors::Observers::EmployerProfileObserver.new, [:update, :notifications_send])
+        notify_observers(ModelEvent.new(event_name, self, event_options))
       end
 
       def notify_on_save
         return unless saved_change_to_aasm_state?
 
-          REGISTERED_EVENTS.each do |event|
-            next unless check_local_variable("is_#{event}", binding)
+        REGISTERED_EVENTS.each do |event|
+          next unless check_local_variable("is_#{event}", binding)
 
-            event_options = {}
-            notify_observers(ModelEvent.new(event, self, event_options))
-          end
-
+          event_options = {}
+          notify_observers(ModelEvent.new(event, self, event_options))
+        end
       end
 
       def is_transition_matching?(from: nil, to: nil, event: nil)
