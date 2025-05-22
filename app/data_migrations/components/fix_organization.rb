@@ -25,7 +25,7 @@ module Components
       organization_count = BenefitSponsors::Organizations::Organization.where(fein: ENV.fetch('organization_fein', nil)).count
       if organization_count == 1
         BenefitSponsors::Organizations::Organization.where(fein: ENV.fetch('organization_fein', nil)).first
-        
+
       else
         raise "No Organization found (or) found more than 1 Organization record" unless Rails.env.test?
       end

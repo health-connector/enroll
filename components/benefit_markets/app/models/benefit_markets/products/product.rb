@@ -271,7 +271,7 @@ module BenefitMarkets
 
     def issuer_profile
       return @issuer_profile if defined?(@issuer_profile)
-      @issuer_profile = ::BenefitSponsors::Organizations::IssuerProfile.find(self.issuer_profile_id)
+      @issuer_profile = ::BenefitSponsors::Organizations::IssuerProfile.find(issuer_profile_id)
     end
 
     def issuer_profile=(new_issuer_profile)
@@ -333,8 +333,8 @@ module BenefitMarkets
     end
 
     def create_copy_for_embedding
-      self.class.new(self.attributes.except("premium_tables")).tap do |new_product|
-        new_product.premium_tables = self.premium_tables.map(&:create_copy_for_embedding)
+      self.class.new(attributes.except("premium_tables")).tap do |new_product|
+        new_product.premium_tables = premium_tables.map(&:create_copy_for_embedding)
       end
     end
 

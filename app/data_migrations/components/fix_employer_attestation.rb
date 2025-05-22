@@ -12,17 +12,13 @@ module Components
         if ["conversion", "mid_plan_year_conversion"].include?(organization.active_benefit_sponsorship.source_kind.to_s)
           if organization.employer_profile.employer_attestation.present?
             employer_attestation = organization.employer_profile.employer_attestation
-            employer_attestation.submit! if employer_attestation.may_submit?
-            employer_attestation.approve! if employer_attestation.may_approve?
-            employer_attestation.save!
-            puts "updated employer attestation to #{employer_attestation.aasm_state} for organization #{organization.legal_name}" unless Rails.env.test?
           else
             employer_attestation = organization.employer_profile.create_employer_attestation
-            employer_attestation.submit!  if employer_attestation.may_submit?
-            employer_attestation.approve! if employer_attestation.may_approve?
-            employer_attestation.save!
-            puts "updated employer attestation to #{employer_attestation.aasm_state} for organization #{organization.legal_name}" unless Rails.env.test?
           end
+employer_attestation.submit! if employer_attestation.may_submit?
+employer_attestation.approve! if employer_attestation.may_approve?
+employer_attestation.save!
+puts "updated employer attestation to #{employer_attestation.aasm_state} for organization #{organization.legal_name}" unless Rails.env.test?
         else
           organization.employer_profile.employer_attestation.employer_attestation_documents.each do |document|
             document.approve_attestation if document.accepted?

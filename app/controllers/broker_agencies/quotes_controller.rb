@@ -50,7 +50,7 @@ module BrokerAgencies
       @health_plan_quote_criteria = Plan.build_plan_features('shop', 'health', @q.plan_year).to_json
       @dental_plans = Plan.shop_dental_plans @q.plan_year
       @dental_selectors = Plan.build_plan_selectors('shop', 'dental', @q.plan_year)
-      dental_plan_quote_criteria = Plan.build_plan_features('shop', 'dental',@q.plan_year).to_json
+      Plan.build_plan_features('shop', 'dental',@q.plan_year).to_json
       @dental_plans_count = @dental_plans.count
 
       @bp_hash = {employee: 50, spouse: 0, domestic_partner: 0, child_under_26: 0, child_26_and_over: 0}
@@ -377,7 +377,7 @@ module BrokerAgencies
       if params[:plan_id] && bg
         plan = Plan.find(params[:plan_id][8,100])
         if params[:coverage_kind] == 'dental'
-          column_for_dental_plan_option_kind = params[:elected].to_i # col 3 is custom, col 1 is single
+          params[:elected].to_i # col 3 is custom, col 1 is single
           elected_plan_choice = ['na', 'single_plan', 'single_carrier', 'single_plan'][params[:elected].to_i]
           bg.dental_plan_option_kind = elected_plan_choice
           bg.dental_plan = plan
@@ -485,7 +485,7 @@ module BrokerAgencies
 
         @quote = Quote.new
         # # Create place holder for new member of household
-        households = quote.quote_households.destroy_all
+        quote.quote_households.destroy_all
         @employees.each do |x|
           max_family_id = @quote.quote_households.max(:family_id).to_i
           qhh = QuoteHousehold.new(family_id: max_family_id + 1)
@@ -563,7 +563,7 @@ module BrokerAgencies
                         m[:dob].to_date
             end
           end
-        rescue Exception => e
+        rescue Exception
           @format_errors << "Error parsing date #{m[:dob]}"
         end
       end
@@ -624,8 +624,8 @@ module BrokerAgencies
     def parse_employee_roster_file
       roster = Roo::Spreadsheet.open(params[:employee_roster_file])
       sheet = roster.sheet(0)
-      sheet_header_row = sheet.row(1)
-      column_header_row = sheet.row(2)
+      sheet.row(1)
+      sheet.row(2)
       census_employees = {}
       (4..sheet.last_row).each_with_index.map do |i, _index|
         row = roster.row(i)
@@ -666,12 +666,12 @@ module BrokerAgencies
       return cost if copay.match(/No charge/)
 
       dollars = copay.match(/(\d+)/)
-      cost += (dollars && dollars[1]).to_i || 0
+      cost + (dollars && dollars[1]).to_i || 0
     end
 
     def get_visit_cost(qhp_cost_share_variance, visit_type)
       service_visit = qhp_cost_share_variance.qhp_service_visits.detect{|v| visit_type == v.visit_type }
-      cost = dollar_value service_visit.copay_in_network_tier_1
+      dollar_value service_visit.copay_in_network_tier_1
     end
 
     def set_qhp_variables
@@ -702,7 +702,7 @@ module BrokerAgencies
 
     def tmp_households
       @quote = Quote.new
-      qbg = QuoteBenefitGroup.new
+      QuoteBenefitGroup.new
       # Create place holder for a new household and new member for the roster
       qhh = QuoteHousehold.new
       # Increment family id so the new place holder contains max + 1

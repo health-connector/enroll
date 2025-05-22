@@ -38,7 +38,7 @@ module EnrollObservable
   class_methods do
 
     def add_observer(observer, func=:update, observers)
-      raise NoMethodError, "observer does not respond to '#{func.to_s}'" unless observer.respond_to? func
+      raise NoMethodError, "observer does not respond to '#{func}'" unless observer.respond_to? func
 
       observers[observer] = func if observers.none?{|k, _v| k.is_a?(observer.class)}
       observers

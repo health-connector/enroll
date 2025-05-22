@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module SponsoredBenefits
   module Validations
     class DateRangeValidator < ActiveModel::Validator

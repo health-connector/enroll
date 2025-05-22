@@ -372,7 +372,7 @@ class Insured::FamiliesController < FamiliesController
 
   def notice_upload_email
     if (@person.consumer_role.present? && @person.consumer_role.can_receive_electronic_communication?) ||
-       (@person.employee_roles.present? && (@person.employee_roles.map(&:contact_method) & ["Only Electronic communications", "Paper and Electronic communications"]).any?)
+       (@person.employee_roles.present? && @person.employee_roles.map(&:contact_method).intersect?(["Only Electronic communications", "Paper and Electronic communications"]))
       UserMailer.generic_notice_alert(@person.first_name, "You have a new message from #{site_short_name}", @person.work_email_or_best).deliver_now
     end
   end

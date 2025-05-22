@@ -14,9 +14,7 @@ ConnectionSlug = Struct.new(:employer_fein) do
   end
 
   def publish(payload, headers)
-    unless File.directory?("employer_xmls")
-      FileUtils.mkdir_p("employer_xmls")
-    end
+    FileUtils.mkdir_p("employer_xmls") unless File.directory?("employer_xmls")
     File.open(File.join("employer_xmls", "#{employer_fein}.xml"), 'w') do |f|
       f.puts payload
     end

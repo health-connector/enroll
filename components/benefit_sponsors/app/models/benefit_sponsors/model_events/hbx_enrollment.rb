@@ -11,13 +11,9 @@ module BenefitSponsors
       def notify_on_save
         return unless aasm_state_previously_changed?
 
-        if is_transition_matching?(to: [:coverage_selected, :renewing_coverage_selected],  from: [:shopping, :auto_renewing], event: :select_coverage)
-          @is_application_coverage_selected = true
-        end
+        @is_application_coverage_selected = true if is_transition_matching?(to: [:coverage_selected, :renewing_coverage_selected],  from: [:shopping, :auto_renewing], event: :select_coverage)
 
-        if is_transition_matching?(to: :inactive, from: [:shopping, :coverage_selected, :auto_renewing, :renewing_coverage_selected], event: :waive_coverage)
-          @is_employee_waiver_confirmation = true
-        end
+        @is_employee_waiver_confirmation = true if is_transition_matching?(to: :inactive, from: [:shopping, :coverage_selected, :auto_renewing, :renewing_coverage_selected], event: :waive_coverage)
 
         if is_transition_matching?(to: [:coverage_terminated, :coverage_termination_pending],
                                    from: [:coverage_selected, :coverage_enrolled, :auto_renewing, :renewing_coverage_selected, :auto_renewing_contingent,

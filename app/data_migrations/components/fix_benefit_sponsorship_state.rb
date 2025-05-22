@@ -6,7 +6,7 @@ module Components
   class FixBenefitSponsorshipState < MongoidMigrationTask
     def migrate
       BenefitSponsors::BenefitSponsorships::BenefitSponsorship.all.each do |benefit_sponsorship|
-        next unless benefit_sponsorship.benefit_applications.any?{|b| b.active?} && benefit_sponsorship.aasm_state != :active
+        next unless benefit_sponsorship.benefit_applications.any?(&:active?) && benefit_sponsorship.aasm_state != :active
 
         before_update = benefit_sponsorship.aasm_state
         benefit_sponsorship.aasm_state = :active

@@ -55,9 +55,9 @@ module BenefitMarkets
       end
 
       def create_copy_for_embedding
-        new_contribution_model = self.class.new(self.attributes.except("contribution_units", "member_relationships"))
-        new_contribution_model.contribution_units = self.contribution_units.collect{ |contribution_unit| contribution_unit.class.new(contribution_unit.attributes) }
-        new_contribution_model.member_relationships = self.member_relationships.collect{ |mr| mr.class.new(mr.attributes) }
+        new_contribution_model = self.class.new(attributes.except("contribution_units", "member_relationships"))
+        new_contribution_model.contribution_units = contribution_units.collect{ |contribution_unit| contribution_unit.class.new(contribution_unit.attributes) }
+        new_contribution_model.member_relationships = member_relationships.collect{ |mr| mr.class.new(mr.attributes) }
         new_contribution_model
       end
 

@@ -21,7 +21,7 @@ module Exchanges
       end_on = Date.strptime(params[:end_on], "%m/%d/%Y")
       termination_kind = params['term_kind']
       termination_reason = params['term_reason']
-      transmit_to_carrier = params['transmit_to_carrier'] == "true" || params['transmit_to_carrier'] == true ? true : false
+      transmit_to_carrier = params['transmit_to_carrier'] == "true" || params['transmit_to_carrier'] == true
       if @application.termination_pending?
         result = false
         errors = { message: l10n('exchange.employer_applications.cannot_terminate_term_pending_application').to_s }
@@ -47,9 +47,9 @@ module Exchanges
 
     def cancel
       @application = @benefit_sponsorship.benefit_applications.find(params[:employer_application_id])
-      transmit_to_carrier = params['transmit_to_carrier'] == "true" || params['transmit_to_carrier'] == true ? true : false
+      transmit_to_carrier = params['transmit_to_carrier'] == "true" || params['transmit_to_carrier'] == true
       @service = BenefitSponsors::Services::BenefitApplicationActionService.new(@application, { transmit_to_carrier: transmit_to_carrier, current_user: current_user })
-      result, application, errors = @service.cancel_application
+      result, _, errors = @service.cancel_application
 
       item = @application.reload.latest_benefit_application_item
       confirmation_payload = { employer_id: @benefit_sponsorship.id, employer_application_id: @application.id, sequence_id: item.sequence_id}
@@ -145,7 +145,7 @@ module Exchanges
       redirect_to exchanges_hbx_profiles_root_path, flash[:error] => "#{application.benefit_sponsorship.legal_name} - #{l10n('exchange.employer_applications.unable_to_change_end_date')}"
     end
 
-  private
+    private
 
     def can_modify_plan_year?
       authorize HbxProfile, :can_modify_plan_year?
