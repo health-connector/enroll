@@ -1183,7 +1183,7 @@ module BenefitSponsors
         before do
           benefit_sponsorship.renewal_benefit_application.update_attributes(aasm_state: 'enrollment_eligible')
         end
-        
+
         it 'should return renewal application' do
           expect(benefit_sponsorship.late_renewal_benefit_application).to eq benefit_sponsorship.renewal_benefit_application
         end
