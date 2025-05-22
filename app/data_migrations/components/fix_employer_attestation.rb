@@ -9,11 +9,12 @@ module Components
 
       organizations.each do |organization|
         if ["conversion", "mid_plan_year_conversion"].include?(organization.active_benefit_sponsorship.source_kind.to_s)
-          if organization.employer_profile.employer_attestation.present?
-            employer_attestation = organization.employer_profile.employer_attestation
-          else
-            employer_attestation = organization.employer_profile.create_employer_attestation
-          end
+          employer_attestation = if organization.employer_profile.employer_attestation.present?
+                                   organization.employer_profile.employer_attestation
+                                 else
+                                   organization.employer_profile.create_employer_attestation
+                                 end
+
           employer_attestation.submit! if employer_attestation.may_submit?
           employer_attestation.approve! if employer_attestation.may_approve?
           employer_attestation.save!

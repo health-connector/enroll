@@ -1,12 +1,13 @@
+# frozen_string_literal: true
+
 module BenefitSponsors
   module ModelEvents
     module HbxEnrollment
-
       REGISTERED_EVENTS = [
         :application_coverage_selected,
         :employee_waiver_confirmation,
         :employee_coverage_termination
-      ]
+      ].freeze
 
       def notify_on_save
         return unless aasm_state_previously_changed?
@@ -15,21 +16,17 @@ module BenefitSponsors
 
         @is_employee_waiver_confirmation = true if is_transition_matching?(to: :inactive, from: [:shopping, :coverage_selected, :auto_renewing, :renewing_coverage_selected], event: :waive_coverage)
 
-        if is_transition_matching?(to: [:coverage_terminated, :coverage_termination_pending],
-                                   from: [:coverage_selected, :coverage_enrolled, :auto_renewing, :renewing_coverage_selected, :auto_renewing_contingent,
-                                          :renewing_contingent_selected, :renewing_contingent_transmitted_to_carrier, :renewing_contingent_enrolled,
-                                          :enrolled_contingent, :unverified],
-                                   event: [:terminate_coverage, :schedule_coverage_termination]) && !(is_shop? && (sponsored_benefit_package.benefit_application.terminated? || sponsored_benefit_package.benefit_application.termination_pending?))
-        end
 
         # TODO: -- encapsulated notify_observers to recover from errors raised by any of the observers
         REGISTERED_EVENTS.each do |event|
-          next unless event_fired = instance_eval("@is_" + event.to_s)
+          next unless instance_eval("@is_#{event}", __FILE__, __LINE__)
+
           # event_name = ("on_" + event.to_s).to_sym
           event_options = {} # instance_eval(event.to_s + "_options") || {}
           notify_observers(ModelEvent.new(event, self, event_options))
         end
       end
+
       def is_transition_matching?(from: nil, to: nil, event: nil)
         aasm_matcher = lambda {|expected, current|
           expected.blank? || expected == current || (expected.is_a?(Array) && expected.include?(current))

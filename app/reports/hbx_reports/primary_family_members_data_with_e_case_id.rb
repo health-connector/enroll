@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require File.join(Rails.root, "lib/mongoid_migration_task")
 require 'csv'
 
@@ -30,7 +32,7 @@ module HbxReports
           csr = "No"
           if family.has_aptc_hbx_enrollment?
             aptc = family.latest_household.hbx_enrollments.active.order("created_at DESC").first.applied_aptc_amount.to_f
-           csr = "Yes" if family.active_household.hbx_enrollments.with_aptc.enrolled_and_renewing.any? {|enrollment| enrollment.plan.is_csr? }
+            csr = "Yes" if family.active_household.hbx_enrollments.with_aptc.enrolled_and_renewing.any? {|enrollment| enrollment.plan.is_csr? }
           end
 
           csv << [
@@ -50,20 +52,20 @@ module HbxReports
 
           family.dependents.each do |dependent|
             dependent_person = dependent.person
-             csv << [
-               family.e_case_id,
-               dependent_person.first_name,
-               dependent_person.last_name,
-               dependent_person.hbx_id,
-               dependent_person.ssn,
-               dependent_person.dob,
-               dependent_person.gender,
-               dependent_person.created_at.to_date,
-               "Dependent",
-               Person.person_has_an_active_enrollment?(dependent_person) ? "Yes" : "No",
-               aptc,
-               csr
-             ]
+            csv << [
+              family.e_case_id,
+              dependent_person.first_name,
+              dependent_person.last_name,
+              dependent_person.hbx_id,
+              dependent_person.ssn,
+              dependent_person.dob,
+              dependent_person.gender,
+              dependent_person.created_at.to_date,
+              "Dependent",
+              Person.person_has_an_active_enrollment?(dependent_person) ? "Yes" : "No",
+              aptc,
+              csr
+            ]
           end
           count += 1
         rescue StandardError

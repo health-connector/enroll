@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 module SponsoredBenefits
   module Validations
     class UsDate
       def self.on(prop_name, allow_blank = false)
         mod = Module.new
         mod.define_singleton_method :included do |klass|
-          method_name = "__valid_US_date_property_#{prop_name}".to_sym
+          method_name = :"__valid_US_date_property_#{prop_name}"
 
           klass.send(:define_method, method_name) do
             d_value = send(prop_name)
@@ -16,14 +18,15 @@ module SponsoredBenefits
           end
 
           klass.class_eval do
-            validate "__valid_US_date_property_#{prop_name}".to_sym
+            validate :"__valid_US_date_property_#{prop_name}"
           end
 
-          unless allow_blank
-            klass.class_eval do
-              validates_presence_of prop_name.to_sym
-            end
+          return if allow_blank
+
+          klass.class_eval do
+            validates_presence_of prop_name.to_sym
           end
+
         end
 
         mod

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 module BenefitSponsors
@@ -13,7 +15,7 @@ module BenefitSponsors
           expected_payload = { employer_id: organization.hbx_id, event_name: "name_changed" }
 
           organization.update_attributes(legal_name: "test")
-          BenefitSponsors::Organizations::Organization::FIELD_AND_EVENT_NAMES_MAP.each do |key, event_name|
+          BenefitSponsors::Organizations::Organization::FIELD_AND_EVENT_NAMES_MAP.each_key do |key|
             expect(observer).to have_received(:notify).with("acapi.info.events.employer.name_changed", expected_payload) if organization.attribute_changed?(key)
           end
         end
@@ -21,7 +23,7 @@ module BenefitSponsors
         it 'do not send notification' do
           organization.update_attributes!(dba: "virtual")
 
-          subject.observer_peers.each do |observer, _|
+          subject.observer_peers.each_key do |observer|
             expect(observer).not_to receive(:notify)
           end
         end
@@ -46,7 +48,7 @@ module BenefitSponsors
             allow_any_instance_of(OrganizationObserver).to receive(:notify)
             organization.assign_attributes(fein: "987654532")
             observer.update(organization, nil)
-            expect(observer).to have_received(:notify).with('acapi.info.events.employer.fein_corrected', {:employer_id=> organization.hbx_id, :event_name=>"fein_corrected"})
+            expect(observer).to have_received(:notify).with('acapi.info.events.employer.fein_corrected', {:employer_id => organization.hbx_id, :event_name => "fein_corrected"})
           end
 
           it 'DBA updated' do
