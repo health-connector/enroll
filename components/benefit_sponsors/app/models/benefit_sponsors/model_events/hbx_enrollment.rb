@@ -19,17 +19,15 @@ module BenefitSponsors
                                    from: [:coverage_selected, :coverage_enrolled, :auto_renewing, :renewing_coverage_selected, :auto_renewing_contingent,
                                           :renewing_contingent_selected, :renewing_contingent_transmitted_to_carrier, :renewing_contingent_enrolled,
                                           :enrolled_contingent, :unverified],
-                                   event: [:terminate_coverage, :schedule_coverage_termination])
-          @is_employee_coverage_termination = true unless is_shop? && (sponsored_benefit_package.benefit_application.terminated? || sponsored_benefit_package.benefit_application.termination_pending?)
+                                   event: [:terminate_coverage, :schedule_coverage_termination]) && !(is_shop? && (sponsored_benefit_package.benefit_application.terminated? || sponsored_benefit_package.benefit_application.termination_pending?))
         end
 
-        # TODO -- encapsulated notify_observers to recover from errors raised by any of the observers
+        # TODO: -- encapsulated notify_observers to recover from errors raised by any of the observers
         REGISTERED_EVENTS.each do |event|
-          if event_fired = instance_eval("@is_" + event.to_s)
-            # event_name = ("on_" + event.to_s).to_sym
-            event_options = {} # instance_eval(event.to_s + "_options") || {}
-            notify_observers(ModelEvent.new(event, self, event_options))
-          end
+          next unless event_fired = instance_eval("@is_" + event.to_s)
+          # event_name = ("on_" + event.to_s).to_sym
+          event_options = {} # instance_eval(event.to_s + "_options") || {}
+          notify_observers(ModelEvent.new(event, self, event_options))
         end
       end
       def is_transition_matching?(from: nil, to: nil, event: nil)

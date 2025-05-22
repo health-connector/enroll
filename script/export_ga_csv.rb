@@ -20,9 +20,7 @@ def write_to_csv(type, feins)
 
     employer = org.employer_profile
 
-    if employer.active_general_agency_account.nil?
-      next
-    end
+    next if employer.active_general_agency_account.nil?
 
     carriers = employer.plan_years.select(&:eligible_for_export?).flat_map(&:benefit_groups).flat_map(&:elected_plans).flat_map(&:carrier_profile).uniq! || []
 

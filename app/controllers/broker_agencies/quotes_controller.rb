@@ -666,7 +666,7 @@ module BrokerAgencies
       return cost if copay.match(/No charge/)
 
       dollars = copay.match(/(\d+)/)
-      cost + (dollars && dollars[1]).to_i || 0
+      (cost + (dollars && dollars[1]).to_i) || 0
     end
 
     def get_visit_cost(qhp_cost_share_variance, visit_type)

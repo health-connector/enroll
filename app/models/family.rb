@@ -95,13 +95,13 @@ class Family
 
   index({
           "households.hbx_enrollments.sponsored_benefit_package_id" => 1,
-    "households.hbx_enrollments.sponsored_benefit_id" => 1,
-    "households.hbx_enrollments.effective_on" => 1,
-    "households.hbx_enrollments.submitted_at" => 1,
-    "households.hbx_enrollments.terminated_on" => 1,
-    "households.hbx_enrollments.employee_role_id" => 1,
-    "households.hbx_enrollments.aasm_state" => 1,
-    "households.hbx_enrollments.kind" => 1
+          "households.hbx_enrollments.sponsored_benefit_id" => 1,
+          "households.hbx_enrollments.effective_on" => 1,
+          "households.hbx_enrollments.submitted_at" => 1,
+          "households.hbx_enrollments.terminated_on" => 1,
+          "households.hbx_enrollments.employee_role_id" => 1,
+          "households.hbx_enrollments.aasm_state" => 1,
+          "households.hbx_enrollments.kind" => 1
         }, {name: "hbx_enrollment_sb_package_lookup"})
 
   index({"households.hbx_enrollments.plan_id" => 1}, { sparse: true })
@@ -164,7 +164,9 @@ class Family
   scope :by_general_agency_profile_id,      ->(general_agency_profile_id) { where(general_agency_accounts: {:$elemMatch=> {general_agency_profile_id: general_agency_profile_id, aasm_state: "active"}})}
 
   scope :all_assistance_applying,           ->{ unscoped.exists(:"households.tax_households.eligibility_determinations" => true).order(
-                                                  :"households.tax_households.eligibility_determinations.determined_at".desc) }
+                                                  :"households.tax_households.eligibility_determinations.determined_at".desc
+)
+}
 
   scope :all_aptc_hbx_enrollments,      ->{ unscoped.where(:"households.hbx_enrollments.applied_aptc_amount.cents".gt => 0)}
   scope :all_unassisted,                ->{ exists(:"households.tax_households.eligibility_determinations" => false) }
@@ -172,13 +174,19 @@ class Family
   scope :all_eligible_for_assistance,   ->{ exists(:"households.tax_households.eligibility_determinations" => true) }
 
   scope :all_assistance_receiving,      ->{ unscoped.where(:"households.tax_households.eligibility_determinations.max_aptc.cents".gt => 0).order(
-                                                  :"households.tax_households.eligibility_determinations.determined_at".desc) }
+                                                  :"households.tax_households.eligibility_determinations.determined_at".desc
+)
+}
 
   scope :all_active_assistance_receiving_for_current_year, ->{ unscoped.where( :"households.tax_households.eligibility_determinations.max_aptc.cents".gt => 0).order(
-                                                                        :"households.tax_households.eligibility_determinations.determined_at".desc).and(
-                                                                        :"households.tax_households.effective_ending_on" => nil ).and(
-                                                                        :"households.tax_households.effective_starting_on".gte => Date.new(TimeKeeper.date_of_record.year)).and(
-                                                                        :"households.tax_households.effective_starting_on".lte => Date.new(TimeKeeper.date_of_record.year).end_of_year)
+                                                                        :"households.tax_households.eligibility_determinations.determined_at".desc
+).and(
+                                                                        :"households.tax_households.effective_ending_on" => nil 
+).and(
+                                                                        :"households.tax_households.effective_starting_on".gte => Date.new(TimeKeeper.date_of_record.year)
+).and(
+                                                                        :"households.tax_households.effective_starting_on".lte => Date.new(TimeKeeper.date_of_record.year).end_of_year
+)
                                                       }
 
   scope :active_assistance_receiving,   ->{ all_assistance_receiving.where(:"households.tax_households.effective_ending_on" => nil) }
@@ -186,7 +194,8 @@ class Family
 
 
   scope :by_eligibility_determination_date_range, ->(start_at, end_at){ where(
-                                                        :"households.tax_households.eligibility_determinations.determined_on".gte => start_at).and(
+                                                        :"households.tax_households.eligibility_determinations.determined_on".gte => start_at
+).and(
                                                         :"households.tax_households.eligibility_determinations.determined_on".lte => end_at
                                                       )
                                                     }
@@ -217,17 +226,21 @@ class Family
   scope :enrolled_through_benefit_package,      ->(benefit_package) { unscoped.where(
                                                     :"households.hbx_enrollments.aasm_state".in => (HbxEnrollment::ENROLLED_STATUSES + HbxEnrollment::RENEWAL_STATUSES + HbxEnrollment::WAIVED_STATUSES),
                                                     :"households.hbx_enrollments.sponsored_benefit_package_id" => benefit_package._id
-                                                  ) }
+                                                  )
+}
 
   scope :enrolled_and_terminated_through_benefit_package, ->(benefit_package) { unscoped.where(
                                                     :"households.hbx_enrollments.aasm_state".in => (HbxEnrollment::ENROLLED_STATUSES + HbxEnrollment::RENEWAL_STATUSES + HbxEnrollment::WAIVED_STATUSES + HbxEnrollment::TERMINATED_STATUSES),
                                                     :"households.hbx_enrollments.sponsored_benefit_package_id" => benefit_package._id
-                                                  ) }
+                                                  )
+}
 
   scope :all_enrollments_by_benefit_package,    ->(benefit_package) { unscoped.where(
                                                     :"households.hbx_enrollments" => {
                                                       :$elemMatch => { :sponsored_benefit_package_id => benefit_package._id, :aasm_state.ne => :shopping }
-                                                    }) }
+                                                    }
+)
+}
 
   scope :all_enrollments_by_benefit_sponsorship_id,  ->(benefit_sponsorship_id){where(:"households.hbx_enrollments.benefit_sponsorship_id" => benefit_sponsorship_id) }
   scope :enrolled_under_benefit_application,    ->(benefit_application) { unscoped.where(
@@ -236,7 +249,9 @@ class Family
                                                         :sponsored_benefit_package_id => {"$in" => benefit_application.benefit_packages.pluck(:_id) },
                                                         :aasm_state => {'$nin' => %w[coverage_canceled shopping coverage_terminated] }
                                                       }
-                                                    })}
+                                                    }
+)
+}
 
 
   def enrollment_is_not_most_recent_sep_enrollment?(hbx_enrollment)
@@ -812,8 +827,8 @@ class Family
       current_benefit_period = HbxProfile.current_hbx.benefit_sponsorship.current_benefit_coverage_period
       query = {
         :effective_on.lt => current_benefit_period.start_on,
-          :kind => 'individual',
-          :aasm_state.in => HbxEnrollment::ENROLLED_STATUSES - ['coverage_termination_pending', 'enrolled_contingent', 'unverified']
+        :kind => 'individual',
+        :aasm_state.in => HbxEnrollment::ENROLLED_STATUSES - ['coverage_termination_pending', 'enrolled_contingent', 'unverified']
       }
       families = Family.where("households.hbx_enrollments" => {:$elemMatch => query})
       families.each do |family|
@@ -831,8 +846,8 @@ class Family
       current_benefit_period = HbxProfile.current_hbx.benefit_sponsorship.current_benefit_coverage_period
       query = {
         :effective_on => current_benefit_period.start_on,
-          :kind => 'individual',
-          :aasm_state => 'auto_renewing'
+        :kind => 'individual',
+        :aasm_state => 'auto_renewing'
       }
       families = Family.where("households.hbx_enrollments" => {:$elemMatch => query})
 
@@ -1039,14 +1054,14 @@ class Family
       {"$sort" => {"households.hbx_enrollments.submitted_at" => -1 }},
       {"$group" => {'_id' => {
                       'year' => { "$year" => '$households.hbx_enrollments.effective_on'},
-                  'month' => { "$month" => '$households.hbx_enrollments.effective_on'},
-                  'day' => { "$dayOfMonth" => '$households.hbx_enrollments.effective_on'},
-                  'subscriber_id' => '$households.hbx_enrollments.enrollment_signature',
-                  'provider_id' => '$households.hbx_enrollments.carrier_profile_id',
-                  'benefit_group_id' => '$households.hbx_enrollments.benefit_group_id',
-                  'state' => '$households.hbx_enrollments.aasm_state',
-                  'market' => '$households.hbx_enrollments.kind',
-                  'coverage_kind' => '$households.hbx_enrollments.coverage_kind'
+                      'month' => { "$month" => '$households.hbx_enrollments.effective_on'},
+                      'day' => { "$dayOfMonth" => '$households.hbx_enrollments.effective_on'},
+                      'subscriber_id' => '$households.hbx_enrollments.enrollment_signature',
+                      'provider_id' => '$households.hbx_enrollments.carrier_profile_id',
+                      'benefit_group_id' => '$households.hbx_enrollments.benefit_group_id',
+                      'state' => '$households.hbx_enrollments.aasm_state',
+                      'market' => '$households.hbx_enrollments.kind',
+                      'coverage_kind' => '$households.hbx_enrollments.coverage_kind'
                     },
                     "hbx_enrollment" => { "$first" => '$households.hbx_enrollments'}}},
       {"$project" => {'hbx_enrollment._id' => 1, '_id' => 1}}

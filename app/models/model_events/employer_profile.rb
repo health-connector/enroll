@@ -17,8 +17,7 @@ module ModelEvents
     def trigger_model_event(event_name, event_options = {})
       return unless OTHER_EVENTS.include?(event_name)
 
-        notify_observers(ModelEvent.new(event_name, self, event_options))
-
+      notify_observers(ModelEvent.new(event_name, self, event_options))
     end
 
     def notify_on_save
@@ -35,7 +34,6 @@ module ModelEvents
           event_options = {} # instance_eval(event.to_s + "_options") || {}
           notify_observers(ModelEvent.new(event, self, event_options))
         end
-
     end
 
     def is_transition_matching?(from: nil, to: nil, event: nil)

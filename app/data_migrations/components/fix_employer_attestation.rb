@@ -5,7 +5,6 @@ require File.join(Rails.root, "lib/mongoid_migration_task")
 module Components
   class FixEmployerAttestation < MongoidMigrationTask
     def migrate
-
       organizations = BenefitSponsors::Organizations::Organization.where(:"profiles.employer_attestation.aasm_state" => 'unsubmitted')
 
       organizations.each do |organization|
@@ -15,10 +14,10 @@ module Components
           else
             employer_attestation = organization.employer_profile.create_employer_attestation
           end
-employer_attestation.submit! if employer_attestation.may_submit?
-employer_attestation.approve! if employer_attestation.may_approve?
-employer_attestation.save!
-puts "updated employer attestation to #{employer_attestation.aasm_state} for organization #{organization.legal_name}" unless Rails.env.test?
+          employer_attestation.submit! if employer_attestation.may_submit?
+          employer_attestation.approve! if employer_attestation.may_approve?
+          employer_attestation.save!
+          puts "updated employer attestation to #{employer_attestation.aasm_state} for organization #{organization.legal_name}" unless Rails.env.test?
         else
           organization.employer_profile.employer_attestation.employer_attestation_documents.each do |document|
             document.approve_attestation if document.accepted?

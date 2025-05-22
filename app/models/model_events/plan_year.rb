@@ -101,7 +101,6 @@ module ModelEvents
           event_options = {} # instance_eval(event.to_s + "_options") || {}
           notify_observers(ModelEvent.new(event, self, event_options))
         end
-
     end
 
     def self.included(base)

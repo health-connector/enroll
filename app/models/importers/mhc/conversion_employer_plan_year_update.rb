@@ -1,8 +1,7 @@
 # frozen_string_literal: true
-
 module Importers
   module Mhc
-    class ConversionEmployerPlanYearUpdate < ConversionEmployerPlanYear
+  class ConversionEmployerPlanYearUpdate < ConversionEmployerPlanYear
 #
 #     def calculated_coverage_start
 #       return @calculated_coverage_start if @calculated_coverage_start
@@ -92,6 +91,6 @@ module Importers
 #       end
 #
 #   end
-    end
+  end
   end
 end
