@@ -231,7 +231,9 @@ class Family
   scope :vlp_partially_uploaded,                ->{ where(vlp_documents_status: "Partially Uploaded")}
   scope :vlp_none_uploaded,                     ->{ where(:vlp_documents_status.in => ["None",nil])}
   scope :outstanding_verification,              lambda {
-                                                  by_enrollment_individual_market.where(:"households.hbx_enrollments" => {"$elemMatch" => {:aasm_state => "enrolled_contingent", :effective_on => { :"$gte" => TimeKeeper.date_of_record.beginning_of_year, :"$lte" => TimeKeeper.date_of_record.end_of_year }}})
+                                                  by_enrollment_individual_market.where(:"households.hbx_enrollments" => {"$elemMatch" => {:aasm_state => "enrolled_contingent",
+                                                                                                                                           :effective_on => { :"$gte" => TimeKeeper.date_of_record.beginning_of_year,
+                                                                                                                                                              :"$lte" => TimeKeeper.date_of_record.end_of_year }}})
                                                 }
   scope :enrolled_through_benefit_package,      lambda { |benefit_package|
                                                   unscoped.where(
@@ -855,9 +857,8 @@ class Family
         family.active_household.hbx_enrollments.where(query).each do |enrollment|
           enrollment.expire_coverage! if enrollment.may_expire_coverage?
         end
-      rescue Exception
+      rescue StandardError
         Rails.logger.error "Unable to expire enrollments for family #{family.e_case_id}"
-
       end
     end
 
@@ -900,9 +901,8 @@ class Family
 
         person = family.primary_applicant.person
         IvlNoticesNotifierJob.perform_later(person.id.to_s, "enrollment_notice") if person.consumer_role.present?
-      rescue Exception => e
+      rescue StandardError => e
         Rails.logger.error { "Unable to deliver enrollment notice #{person.hbx_id} due to #{e.inspect}" }
-
       end
     end
 
@@ -1266,9 +1266,9 @@ class Family
   end
 
   def single_primary_family_member
-    list = family_members.reduce([]) do |list, family_member|
-      list << family_member if family_member.is_primary_applicant?
-      list
+    list = family_members.reduce([]) do |inner_list, family_member|
+      inner_list << family_member if family_member.is_primary_applicant?
+      inner_list
     end
     errors.add(:family_members, "one family member must be primary family member") if list.empty?
     errors.add(:family_members, "may not have more than one primary family member") if list.size > 1
@@ -1285,9 +1285,9 @@ class Family
   end
 
   def single_active_household
-    list = households.reduce([]) do |list, household|
-      list << household if household.is_active?
-      list
+    list = households.reduce([]) do |inner_list, household|
+      inner_list << household if household.is_active?
+      inner_list
     end
     errors.add(:households, "one household must be active") if list.empty?
     errors.add(:households, "may not have more than one active household") if list.size > 1

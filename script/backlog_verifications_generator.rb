@@ -83,7 +83,7 @@ CSV.open("families_processed_#{TimeKeeper.date_of_record.strftime('%m_%d_%Y')}.c
       csv << [family.id, family.e_case_id, person.full_name, person.hbx_id]
 
       puts "processed--#{person.full_name}"
-    rescue Exception => e
+    rescue StandardError => e
       case e.to_s
       when 'needs ssa validation!'
         pending_ssa_validation << person.full_name

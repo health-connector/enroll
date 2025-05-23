@@ -21,7 +21,9 @@ FactoryBot.define do
       profile.office_locations << build_list(:benefit_sponsors_locations_office_location, evaluator.office_locations_count, :primary)
     end
 
+    # rubocop:disable Lint/EmptyBlock
     trait :default do
     end
+    # rubocop:enable Lint/EmptyBlock
   end
 end
