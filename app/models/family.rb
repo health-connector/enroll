@@ -1038,10 +1038,11 @@ class Family
 
   def has_aptc_hbx_enrollment?
     enrollments = begin
-      latest_household.hbx_enrollments.active
-    rescue StandardError
-      []
-    end
+                    latest_household.hbx_enrollments.active
+                  rescue StandardError => e
+                    Rails.logger.error "Error in has_aptc_hbx_enrollment?, error - #{e.message}"
+                    []
+                  end
     enrollments.any? {|enrollment| enrollment.applied_aptc_amount > 0}
   end
 
