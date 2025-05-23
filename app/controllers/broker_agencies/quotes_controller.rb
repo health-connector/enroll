@@ -124,7 +124,7 @@ module BrokerAgencies
       @quote.quote_benefit_groups << qbg
 
 
-      @scrollTo = params[:scrollTo] == "1" ? 1 : 0
+      @scroll_to = params[:scrollTo] == "1" ? 1 : 0
 
       flash.now[:notice] = "This quote has been published and no editing is allowed." if @quote.is_complete?
       #redirect_to edit_broker_agencies_quote_path(@quote.id)
@@ -165,11 +165,11 @@ module BrokerAgencies
       when "Add Employee"
         new_family = true
         notice_message = "New employee added."
-        scrollTo = 1
+        scroll_to = 1
       when "Save Changes"
         new_family = nil
         notice_message = "Successfully saved quote/employee roster."
-        scrollTo = 0
+        scroll_to = 0
       when "Save"
         new_family = @quote.quote_households.count > 0 ? '' : true
       end
@@ -183,7 +183,7 @@ module BrokerAgencies
         if params[:commit] == "Create Quote"
           redirect_to broker_agencies_broker_role_quote_path(params[:broker_role_id],params[:id])
         else
-          redirect_to edit_broker_agencies_broker_role_quote_path(@broker.id, @quote, new_family: new_family, scrollTo: scrollTo,duplicate_household: duplicate_household,num_of_dup: num_of_dup),  :flash => { :notice => notice_message }
+          redirect_to edit_broker_agencies_broker_role_quote_path(@broker.id, @quote, new_family: new_family, scrollTo: scroll_to, duplicate_household: duplicate_household, num_of_dup: num_of_dup),  :flash => { :notice => notice_message }
         end
       else
         redirect_to edit_broker_agencies_broker_role_quote_path(@broker.id, @quote),  :flash => { :error => "Unable to update the employee roster." }
@@ -345,6 +345,7 @@ module BrokerAgencies
       render json: {}
     end
 
+    # rubocop:disable Naming/AccessorMethodName
     def get_quote_info
       authorize @broker
       bp_hash = {}
@@ -367,6 +368,7 @@ module BrokerAgencies
         'summary' => summary
       }
     end
+  # rubocop:enable Naming/AccessorMethodName
 
     def set_plan
       authorize @broker
@@ -513,7 +515,7 @@ module BrokerAgencies
 
     def set_broker_role
       @broker = BrokerRole.find(params[:broker_role_id])
-    rescue Exception => e
+    rescue StandardError => e
       log(e, {:severity => "error", :error_message => "Error in #{controller_name} Controller #{action_name}
        Action. Current URL: #{request.original_url}"})
       raise e
@@ -527,9 +529,11 @@ module BrokerAgencies
       @employee_relationship_map = {"employee" => "Employee", "spouse" => "Spouse", "domestic_partner" => "Domestic Partner", "child_under_26" => "Child"}
     end
 
+  # rubocop:disable Naming/AccessorMethodName
     def get_standard_component_ids
       Plan.where(:_id => { '$in': params[:plans] }).map(&:hios_id)
     end
+  # rubocop:enable Naming/AccessorMethodName
 
     def quote_params
       params.require(:quote).permit(
@@ -563,7 +567,7 @@ module BrokerAgencies
                         m[:dob].to_date
             end
           end
-        rescue Exception
+        rescue StandardError
           @format_errors << "Error parsing date #{m[:dob]}"
         end
       end
@@ -637,7 +641,7 @@ module BrokerAgencies
         end
       end
       census_employees
-    rescue Exception => e
+    rescue StandardError => e
       puts e.message
       flash[:error] = "Unable to parse the csv file"
         #redirect_to :action => "new" and return
@@ -669,10 +673,12 @@ module BrokerAgencies
       (cost + (dollars && dollars[1]).to_i) || 0
     end
 
+  # rubocop:disable Naming/AccessorMethodName
     def get_visit_cost(qhp_cost_share_variance, visit_type)
       service_visit = qhp_cost_share_variance.qhp_service_visits.detect{|v| visit_type == v.visit_type }
       dollar_value service_visit.copay_in_network_tier_1
     end
+  # rubocop:enable Naming/AccessorMethodName
 
     def set_qhp_variables
       @quote = Quote.find(params['quote_id'])

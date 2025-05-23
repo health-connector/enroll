@@ -60,6 +60,7 @@ module Exchanges
       end
     end
 
+    # rubocop:disable Naming/AccessorMethodName
     def get_term_reasons
       @reasons = if params[:reason_type_id] == "term_actions_nonpayment"
                    BenefitSponsors::BenefitApplications::BenefitApplicationItem::NON_PAYMENT_TERM_REASONS
@@ -68,6 +69,7 @@ module Exchanges
                  end
       render json: @reasons
     end
+    # rubocop:enable Naming/AccessorMethodName
 
     def application_history
       if ::EnrollRegistry.feature_enabled?(:benefit_application_history)
