@@ -8,3 +8,10 @@ unless File.respond_to?(:exists?)
   end
 end
 
+unless Dir.respond_to?(:exists?)
+  class Dir
+    def self.exists?(*)
+      exist?(*)
+    end
+  end
+end
