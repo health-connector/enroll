@@ -35,7 +35,7 @@ jobs:
           rubygems: 3.3.26
       - uses: actions/setup-node@v4
         with:
-          node-version: '12'
+          node-version: '20'
       - name: Install dependencies
         run: |
           gem update --system 3.3.26
@@ -47,9 +47,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: node_modules
-          key: ${{ runner.os }}-node_modules-v12-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-node_modules-v20-${{ hashFiles('yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-node_modules-v12-${{ hashFiles('yarn.lock') }}
+            ${{ runner.os }}-node_modules-v20-${{ hashFiles('yarn.lock') }}
       - name: Install node dependencies
         if: steps.npm-cache.outputs.cache-hit != 'true'
         run: yarn install
@@ -100,9 +100,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: node_modules
-          key: ${{ runner.os }}-node_modules-v12-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-node_modules-v20-${{ hashFiles('yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-node_modules-v12-${{ hashFiles('yarn.lock') }}
+            ${{ runner.os }}-node_modules-v20-${{ hashFiles('yarn.lock') }}
       - name: Install node dependencies
         if: steps.npm-cache.outputs.cache-hit != 'true'
         run: yarn install
