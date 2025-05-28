@@ -2269,6 +2269,7 @@ GEM
       iniparse (~> 1.4)
       rexml (~> 3.2)
     ox (2.14.18)
+    package_json (0.1.0)
     parallel (1.25.1)
     parallel_tests (2.26.2)
       parallel
@@ -2491,6 +2492,12 @@ GEM
     serverengine (2.1.1)
       sigdump (~> 0.2.2)
     set (1.1.0)
+    shakapacker (7.3.0.beta.1)
+      activesupport (>= 5.2)
+      package_json
+      rack-proxy (>= 0.6.1)
+      railties (>= 5.2)
+      semantic_range (>= 2.3.0)
     shoulda-matchers (6.2.0)
       activesupport (>= 5.2.0)
     sigdump (0.2.5)
@@ -2590,11 +2597,6 @@ GEM
       addressable (>= 2.8.0)
       crack (>= 0.3.2)
       hashdiff (>= 0.4.0, < 2.0.0)
-    webpacker (6.0.0.rc.6)
-      activesupport (>= 5.2)
-      rack-proxy (>= 0.6.1)
-      railties (>= 5.2)
-      semantic_range (>= 2.3.0)
     webrick (1.9.1)
     websocket (1.2.11)
     websocket-driver (0.7.7)
@@ -2724,6 +2726,7 @@ DEPENDENCIES
   sass-rails (~> 5)
   sassc (~> 2.0)
   sdoc (~> 1.0)
+  shakapacker (~> 7.0)
   shoulda-matchers (>= 4.0.0)
   simple_calendar!
   simplecov (~> 0.22.0)
@@ -2745,7 +2748,6 @@ DEPENDENCIES
   web-console (>= 3)
   webdrivers (~> 5.3.1)
   webmock
-  webpacker (= 6.0.0.rc.6)
   wicked_pdf (= 2.1.0)
   wkhtmltopdf-binary-edge (~> 0.12.3.0)
   yard (~> 0.9.5)

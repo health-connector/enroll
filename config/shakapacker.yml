@@ -1,45 +1,47 @@
-# Note: You must restart bin/webpack-dev-server for changes to take effect
+# Note: You must restart bin/shakapacker-dev-server for changes to take effect
+# This file contains the defaults used by shakapacker.
 
 default: &default
   source_path: app/javascript
   source_entry_path: packs
+  nested_entries: true
+  css_extract_ignore_order_warnings: false
   public_root_path: public
   public_output_path: packs
-  cache_path: tmp/webpacker
+  cache_path: tmp/shakapacker
   webpack_compile_output: true
-
-  # Additional paths webpack should look up modules
-  # ['app/assets', 'engine/foo/app/assets']
+  shakapacker_precompile: true
   additional_paths: []
 
-  # Reload manifest.json on all requests so we reload latest compiled packs
   cache_manifest: false
+
+  webpack_loader: 'babel'
+
+  ensure_consistent_versioning: false
+
+  compiler_strategy: digest
+  useContentHash: false
 
 development:
   <<: *default
   compile: true
+  compiler_strategy: mtime
 
-  # Reference: https://webpack.js.org/configuration/dev-server/
   dev_server:
-    https: false
     host: localhost
     port: 3035
     # Hot Module Replacement updates modules while the application is running without a full reload
     hmr: false
-    # Defaults to the inverse of hmr. Uncomment to manually set this.
-    # live_reload: true
+    inline_css: true
     client:
-      # Should we show a full-screen overlay in the browser when there are compiler errors or warnings?
       overlay: true
       # May also be a string
       # webSocketURL:
-      #  hostname: "0.0.0.0"
-      #  pathname: "/ws"
+      #  hostname: '0.0.0.0'
+      #  pathname: '/ws'
       #  port: 8080
-    # Should we use gzip compression?
     compress: true
-    # Note that apps that do not check the host are vulnerable to DNS rebinding attacks
-    allowed_hosts: "all"
+    allowed_hosts: 'auto'
     pretty: true
     headers:
       'Access-Control-Allow-Origin': '*'
@@ -60,5 +62,5 @@ production:
   # Production depends on precompilation of packs prior to booting for performance.
   compile: false
 
-  # Cache manifest.json for performance
+  useContentHash: true
   cache_manifest: true

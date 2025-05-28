@@ -1,6 +1,6 @@
-const { webpackConfig, merge } = require('@rails/webpacker')
+const { generateWebpackConfig } = require('shakapacker')
 
-const options = {
+const customConfig = {
     resolve: {
         extensions: [
             '.js',
@@ -19,4 +19,4 @@ const options = {
     }
 }
 
-module.exports = merge(webpackConfig, options)
+module.exports = generateWebpackConfig(customConfig)

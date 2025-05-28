@@ -85,7 +85,7 @@ gem 'uglifier', '>= 4', require: 'uglifier'
 gem 'virtus'
 gem 'wicked_pdf', '2.1.0'
 gem 'wkhtmltopdf-binary-edge', '~> 0.12.3.0'
-gem 'webpacker', '6.0.0.rc.6'
+gem 'shakapacker', '~> 7.0'
 gem 'rubyXL'
 gem 'holidays', '~> 8.6'
 
