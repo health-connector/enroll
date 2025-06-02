@@ -21,6 +21,7 @@ module Components
       end
     end
 
+    # rubocop:disable Naming/AccessorMethodName
     def get_organization
       organization_count = BenefitSponsors::Organizations::Organization.where(fein: ENV.fetch('organization_fein', nil)).count
       if organization_count == 1
@@ -30,6 +31,7 @@ module Components
         raise "No Organization found (or) found more than 1 Organization record" unless Rails.env.test?
       end
     end
+    # rubocop:enable Naming/AccessorMethodName
 
     def update_fein(organization)
       correct_fein = ENV.fetch('correct_fein', nil)

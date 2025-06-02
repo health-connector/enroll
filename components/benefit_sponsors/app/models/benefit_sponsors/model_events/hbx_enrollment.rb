@@ -17,14 +17,16 @@ module BenefitSponsors
         @is_employee_waiver_confirmation = true if is_transition_matching?(to: :inactive, from: [:shopping, :coverage_selected, :auto_renewing, :renewing_coverage_selected], event: :waive_coverage)
 
 
+        # rubocop:disable Style/DocumentDynamicEvalDefinition
         # TODO: -- encapsulated notify_observers to recover from errors raised by any of the observers
         REGISTERED_EVENTS.each do |event|
-          next unless instance_eval("@is_#{event}", __FILE__, __LINE__)
-
-          # event_name = ("on_" + event.to_s).to_sym
-          event_options = {} # instance_eval(event.to_s + "_options") || {}
-          notify_observers(ModelEvent.new(event, self, event_options))
+          if event_fired = instance_eval("@is_" + event.to_s)
+            # event_name = ("on_" + event.to_s).to_sym
+            event_options = {} # instance_eval(event.to_s + "_options") || {}
+            notify_observers(ModelEvent.new(event, self, event_options))
+          end
         end
+        # rubocop:enable Style/DocumentDynamicEvalDefinition
       end
 
       def is_transition_matching?(from: nil, to: nil, event: nil)

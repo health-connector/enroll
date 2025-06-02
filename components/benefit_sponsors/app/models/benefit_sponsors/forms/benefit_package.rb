@@ -33,12 +33,14 @@ module BenefitSponsors
         end
       end
 
+      # rubocop:disable Naming/AccessorMethodName
       def get_product_packages
         benefit_catalog = benefit_application.benefit_catalog
         raise "Unable to find benefit catalog!!" if catalog.blank?
 
         @product_packages = benefit_catalog.product_packages
       end
+      # rubocop:enable Naming/AccessorMethodName
     end
   end
 end
