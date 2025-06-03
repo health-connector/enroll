@@ -294,7 +294,7 @@ class Organization
     return get_dental_carriers(office_location, quote_effective_date) if filters[:kind] == "dental"
     return valid_health_carrier_names unless constrain_service_areas?
 
-    cache_string = "load-carriers"
+    cache_string = +"load-carriers"
     cache_string << "-for-#{filters[:selected_carrier_level]}" if filters[:selected_carrier_level].present?
     cache_string << "-#{office_location.address.zip}-#{office_location.address.county}" if office_location.present?
     cache_string << "-carrier-names-at-#{filters[:quote_effective_date]}" if filters[:quote_effective_date].present?

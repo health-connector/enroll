@@ -2269,6 +2269,7 @@ GEM
       iniparse (~> 1.4)
       rexml (~> 3.2)
     ox (2.14.18)
+    package_json (0.1.0)
     parallel (1.25.1)
     parallel_tests (2.26.2)
       parallel
@@ -2487,10 +2488,16 @@ GEM
       rexml (~> 3.2, >= 3.2.5)
       rubyzip (>= 1.2.2, < 3.0)
       websocket (~> 1.0)
-    semantic_range (3.0.0)
+    semantic_range (3.1.0)
     serverengine (2.1.1)
       sigdump (~> 0.2.2)
     set (1.1.0)
+    shakapacker (7.3.0.beta.1)
+      activesupport (>= 5.2)
+      package_json
+      rack-proxy (>= 0.6.1)
+      railties (>= 5.2)
+      semantic_range (>= 2.3.0)
     shoulda-matchers (6.2.0)
       activesupport (>= 5.2.0)
     sigdump (0.2.5)
@@ -2524,7 +2531,7 @@ GEM
     sorted_set (1.0.3)
       rbtree
       set (~> 1.0)
-    spring (3.0.0)
+    spring (4.3.0)
     sprockets (3.7.3)
       base64
       concurrent-ruby (~> 1.0)
@@ -2590,11 +2597,6 @@ GEM
       addressable (>= 2.8.0)
       crack (>= 0.3.2)
       hashdiff (>= 0.4.0, < 2.0.0)
-    webpacker (5.4.4)
-      activesupport (>= 5.2)
-      rack-proxy (>= 0.6.1)
-      railties (>= 5.2)
-      semantic_range (>= 2.3.0)
     webrick (1.9.1)
     websocket (1.2.11)
     websocket-driver (0.7.7)
@@ -2700,7 +2702,7 @@ DEPENDENCIES
   rack (>= 2.2.13)
   rack-cors
   railroady (~> 1.5.3)
-  rails (~> 7.2)
+  rails (~> 7.2, >= 7.2.2)
   rails-controller-testing
   rails-i18n (= 7.0.9)
   rdoc (~> 6.3.4)
@@ -2724,13 +2726,14 @@ DEPENDENCIES
   sass-rails (~> 5)
   sassc (~> 2.0)
   sdoc (~> 1.0)
+  shakapacker (~> 7.0)
   shoulda-matchers (>= 4.0.0)
   simple_calendar!
   simplecov (~> 0.22.0)
   slim (~> 5.2)
   slim-rails
   sponsored_benefits!
-  spring (= 3.0.0)
+  spring
   sprockets (~> 3.5, >= 3.5.2)
   symmetric-encryption (~> 4.6.0)
   test-prof (~> 1.3)
@@ -2745,7 +2748,6 @@ DEPENDENCIES
   web-console (>= 3)
   webdrivers (~> 5.3.1)
   webmock
-  webpacker (~> 5.4.4)
   wicked_pdf (= 2.1.0)
   wkhtmltopdf-binary-edge (~> 0.12.3.0)
   yard (~> 0.9.5)
