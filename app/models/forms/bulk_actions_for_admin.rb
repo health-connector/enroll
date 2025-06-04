@@ -39,7 +39,7 @@ module Forms
         if key.to_s[/terminate_hbx_.*/]
           hbx = HbxEnrollment.find(params[key.to_s])
           begin
-            termination_date = params["termination_date_#{value}"].to_date
+            termination_date = DateParser.smart_parse(params["termination_date_#{value}"])
             hbx.terminate_coverage!(termination_date) if hbx.may_terminate_coverage?
             @result[:success] << hbx
             terminated_enrollments_transmission_info[hbx.id] = params.key?("transmit_hbx_#{hbx.id.to_s}") ? true : false

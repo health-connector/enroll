@@ -161,7 +161,7 @@ private
   def optional_effective_on_dates_within_range
     return true unless is_shop?
     optional_effective_on.each_with_index do |date_option, index|
-      date_option = Date.strptime(date_option, "%m/%d/%Y")
+      date_option = DateParser.smart_parse(date_option)
       min_date = sep_optional_date family, 'min', qualifying_life_event_kind.market_kind
       max_date = sep_optional_date family, 'max', qualifying_life_event_kind.market_kind
       error_message = if min_date.blank? && max_date.blank?

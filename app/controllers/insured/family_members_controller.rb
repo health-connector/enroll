@@ -52,9 +52,9 @@ class Insured::FamilyMembersController < ApplicationController
 
       qle = QualifyingLifeEventKind.find(params[:qle_id])
       special_enrollment_period = @family.special_enrollment_periods.new(effective_on_kind: params[:effective_on_kind])
-      special_enrollment_period.selected_effective_on = Date.strptime(params[:effective_on_date], "%m/%d/%Y") if params[:effective_on_date].present?
+      special_enrollment_period.selected_effective_on = DateParser.smart_parse(params[:effective_on_date]) if params[:effective_on_date].present?
       special_enrollment_period.qualifying_life_event_kind = qle
-      special_enrollment_period.qle_on = Date.strptime(params[:qle_date], "%m/%d/%Y")
+      special_enrollment_period.qle_on = DateParser.smart_parse(params[:qle_date])
       special_enrollment_period.qle_answer = params[:qle_reason_choice] if params[:qle_reason_choice].present?
       special_enrollment_period.save
       @market_kind = qle.market_kind

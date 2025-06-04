@@ -88,9 +88,9 @@ class Insured::FamiliesController < FamiliesController
     if params[:qle_id].present?
       qle = QualifyingLifeEventKind.find(params[:qle_id])
       special_enrollment_period = @family.special_enrollment_periods.new(effective_on_kind: params[:effective_on_kind])
-      special_enrollment_period.selected_effective_on = Date.strptime(params[:effective_on_date], "%m/%d/%Y") if params[:effective_on_date].present?
+      special_enrollment_period.selected_effective_on = DateParser.smart_parse(params[:effective_on_date]) if params[:effective_on_date].present?
       special_enrollment_period.qualifying_life_event_kind = qle
-      special_enrollment_period.qle_on = Date.strptime(params[:qle_date], "%m/%d/%Y")
+      special_enrollment_period.qle_on = DateParser.smart_parse(params[:qle_date])
       special_enrollment_period.save
     end
 
@@ -137,7 +137,7 @@ class Insured::FamiliesController < FamiliesController
   def check_qle_date
     authorize @family, :check_qle_date?
     today = TimeKeeper.date_of_record
-    @qle_date = Date.strptime(params[:date_val], "%m/%d/%Y")
+    @qle_date = DateParser.smart_parse(params[:date_val])
     start_date = today - 30.days
     end_date = today + 30.days
 
@@ -386,7 +386,7 @@ class Insured::FamiliesController < FamiliesController
   end
 
   def calculate_dates
-    @qle_date = Date.strptime(params[:date_val], "%m/%d/%Y")
+    @qle_date = DateParser.smart_parse(params[:date_val])
     @qle = QualifyingLifeEventKind.find(params[:qle_id])
     start_date = TimeKeeper.date_of_record - @qle.post_event_sep_in_days.try(:days)
     end_date = TimeKeeper.date_of_record + @qle.pre_event_sep_in_days.try(:days)

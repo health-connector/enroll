@@ -3,7 +3,7 @@ module ApplicationHelper
 
   def can_employee_shop?(date)
     return false if date.blank?
-    date = date_from_string(date)
+    date = DateParser.smart_parse(date)
     Plan.has_rates_for_all_carriers?(date) == false
   end
 
@@ -12,7 +12,7 @@ module ApplicationHelper
   end
 
   def product_rates_available?(benefit_sponsorship, date = nil)
-    date = date_from_string(date) if date.present?
+    date = DateParser.smart_parse(date) if date.present?
     return false if benefit_sponsorship.present? && benefit_sponsorship.active_benefit_application.present?
     date = date || BenefitSponsors::BenefitApplications::BenefitApplicationSchedular.new.calculate_start_on_dates[0]
     benefit_sponsorship.applicant? && BenefitMarkets::Forms::ProductForm.for_new(date).fetch_results.is_late_rate
@@ -89,16 +89,8 @@ module ApplicationHelper
     end
   end
 
-  def date_from_string(string)
-    return string if string.is_a?(Date)
-
-    if string.split('/').first.size == 2
-      Date.strptime(string, "%m/%d/%Y")
-    elsif string.split('-').first.size == 4
-      Date.strptime(string, "%Y-%m-%d")
-    else
-      Date.parse(string)
-    end
+  def date_from_string(date_string)
+    DateParser.smart_parse(date_string)
   end
 
   def datepicker_control(f, field_name, options = {}, value = "")

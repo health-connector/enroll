@@ -12,7 +12,7 @@ module ModelEvents
     ].freeze
 
     def notify_on_save
-      return unless saved_change_to_aasm_state?
+      return unless aasm_state_changed? || aasm_state_previously_changed?
 
       is_application_coverage_selected = true if is_transition_matching?(to: :coverage_selected, from: :shopping, event: :select_coverage)
 

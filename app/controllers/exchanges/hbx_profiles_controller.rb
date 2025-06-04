@@ -45,7 +45,7 @@ class Exchanges::HbxProfilesController < ApplicationController
   def extend_open_enrollment
     authorize HbxProfile, :can_extend_open_enrollment?
     @benefit_application = @benefit_sponsorship.benefit_applications.find(params[:id])
-    open_enrollment_end_date = Date.strptime(params["open_enrollment_end_date"], "%m/%d/%Y")
+    open_enrollment_end_date = DateParser.smart_parse(params["open_enrollment_end_date"])
     ::BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(@benefit_application).extend_open_enrollment(open_enrollment_end_date)
     redirect_to exchanges_hbx_profiles_root_path, :flash => { :success => "Successfully extended employer(s) open enrollment." }
   end
@@ -372,7 +372,7 @@ class Exchanges::HbxProfilesController < ApplicationController
     begin
       enrollment = HbxEnrollment.find(params[:enrollment_id])
       @row = params[:family_actions_id]
-      termination_date = Date.strptime(params["new_termination_date"], "%m/%d/%Y")
+      termination_date = DateParser.smart_parse(params["new_termination_date"])
       message = if enrollment.present? && enrollment.reterm_enrollment_with_earlier_date(termination_date, params["edi_required"].present?)
                   {notice: "Enrollment Updated Successfully."}
                 else

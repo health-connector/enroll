@@ -552,7 +552,7 @@ module BrokerAgencies
 
     def format_date_params
       @format_errors = []
-      params[:quote][:start_on] = date_from_string(params[:quote][:start_on]) if params[:quote][:start_on]
+      params[:quote][:start_on] = DateParser.smart_parse(params[:quote][:start_on]) if params[:quote][:start_on]
       return unless params[:quote][:quote_households_attributes]
 
       params[:quote][:quote_households_attributes].each_value do |household_attribute|
@@ -562,7 +562,7 @@ module BrokerAgencies
 
           unless m[:dob]&.blank?
             m[:dob] = if valid_mmddyyyy_format?(m[:dob])
-                        date_from_string(m[:dob])
+                        DateParser.smart_parse(m[:dob])
                       else
                         m[:dob].to_date
             end

@@ -18,7 +18,7 @@ module Exchanges
 
     def terminate
       @application = @benefit_sponsorship.benefit_applications.find(params[:employer_application_id])
-      end_on = Date.strptime(params[:end_on], "%m/%d/%Y")
+      end_on = DateParser.smart_parse(params[:end_on])
       termination_kind = params['term_kind']
       termination_reason = params['term_reason']
       transmit_to_carrier = params['transmit_to_carrier'] == "true" || params['transmit_to_carrier'] == true
@@ -125,7 +125,7 @@ module Exchanges
       if ::EnrollRegistry.feature_enabled?(:benefit_application_revise_end_date)
         application = @benefit_sponsorship.benefit_applications.find(params[:employer_application_id])
         transmit_to_carrier = params['transmit_to_carrier'] == "true"
-        term_date = Date.strptime(params[:revise_end_date], "%m/%d/%Y")
+        term_date = DateParser.smart_parse(params[:revise_end_date])
         reinstate_on = application.retroactive_canceled? ? application.start_on : (application.end_on + 1.day)
 
         result = BenefitSponsors::Operations::BenefitApplications::Revise.new.call({

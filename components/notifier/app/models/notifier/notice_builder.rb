@@ -40,7 +40,7 @@ module Notifier
 
     def render_envelope(params)
       template_location = if self.event_name == 'generate_initial_employer_invoice'
-                            'notifier/notice_kinds/initial_invoice/invoice_template.html.erb'
+                            'notifier/notice_kinds/initial_invoice/invoice_template'
                           else
                             Settings.notices.shop.partials.template
                           end
