@@ -35,7 +35,7 @@
                           <tr>
                             <td><%= question.title %></td>
                             <td><%= question.status %></td>
-                            <td><%= question.created_at %></td>
+                            <td><%= DateParser.smart_parse(question.created_at) %></td>
                             <td>
                               <%= link_to 'Edit', edit_exchanges_security_question_path(question), class: 'btn btn-default' %>
                               <%= link_to 'Delete', exchanges_security_question_path(question), class: 'btn btn-default', method: :delete, data: { confirm: 'Are you sure' } %>

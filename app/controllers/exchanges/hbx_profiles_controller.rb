@@ -14,7 +14,7 @@ class Exchanges::HbxProfilesController < ApplicationController
   before_action :set_hbx_profile, only: :edit
   before_action :view_the_configuration_tab?, only: [:set_date]
   before_action :can_submit_time_travel_request?, only: [:set_date]
-  before_action :find_hbx_profile, only: [:employer_index, :configuration, :broker_agency_index, :show, :binder_index]
+  before_action :find_hbx_profile, only: [:employer_index, :configuration, :broker_agency_index, :inbox, :show, :binder_index]
   #before_action :authorize_for, except: [:edit, :update, :destroy, :request_help, :staff_index, :assister_index]
   #before_action :authorize_for_instance, only: [:edit, :update, :destroy]
   before_action :check_csr_or_hbx_staff, only: [:family_index]
@@ -356,7 +356,7 @@ class Exchanges::HbxProfilesController < ApplicationController
     @family_id = params_parser.family_id
     params_parser.terminate_enrollments
     respond_to do |format|
-      format.js { render "datatables/terminate_enrollment_result.js.erb"}
+      format.js { render "datatables/terminate_enrollment_result"}
     end
   end
 
