@@ -22,11 +22,12 @@ Gem::Specification.new do |s|
   s.add_dependency 'acapi'
   s.add_dependency 'symmetric-encryption', '~> 4.6.0'
   s.add_dependency 'rubyzip', '>=1.3.0'
-  s.add_dependency 'rack', '>= 2.2.13'
+  s.add_dependency 'rack', '>= 2.2.14'
   s.add_dependency 'net-imap',  '>= 0.4.20'
 
   s.add_development_dependency 'rspec-rails', '~> 5.0.1'
   s.add_development_dependency 'shoulda-matchers'
   s.add_development_dependency 'webmock'
   s.add_development_dependency 'rspec'
+  s.metadata['rubygems_mfa_required'] = 'true'
 end
