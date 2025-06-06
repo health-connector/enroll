@@ -13,6 +13,8 @@ module HtmlScrubberUtil
       attributes: Loofah::HTML5::SafeList::ACCEPTABLE_ATTRIBUTES.dup.merge(
         [
           'style',
+          'data-turbo',
+          'data-turbolinks',
           'data-toggle',
           'data-slide-to',
           'data-target'
