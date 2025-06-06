@@ -49,7 +49,7 @@
         <% user = User.where(_id: item.updated_by).first if item.updated_by %>
         <tr style='border-bottom: 1px solid #d1d1d1;'>
           <td style='padding: 1%'><%=  user&.oim_id %></td>
-          <td><%= item.state&.to_s&.titleize %> - <%= item.created_at %></td>
+          <td><%= item.state&.to_s&.titleize %> - <%= format_time(item.created_at) %></td>
           <td style='padding: 1%'><%= confirmation_details_text(item) %></td>
         </tr>
       <% end %>
