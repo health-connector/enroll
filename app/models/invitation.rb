@@ -91,8 +91,7 @@ class Invitation
     broker_role = BrokerRole.find(source_id)
     person = broker_role.person
     redirection_obj.create_sso_account(user_obj, person, 15, "broker") do
-      person.user = user_obj
-      person.save!
+      person.update(user: user_obj)
       broker_agency_profile = broker_role.broker_agency_profile
 
       person.broker_agency_staff_roles << ::BrokerAgencyStaffRole.new({
@@ -176,9 +175,7 @@ class Invitation
     result_type = INVITE_TYPES[self.source_kind]
     check_role = result_type.blank? ? nil : result_type.downcase
     return if (self.source_kind.blank? || self.role.blank?)
-    if result_type != self.role.downcase
-      errors.add(:base, "a combination of source #{self.source_kind} and role #{self.role} is invalid")
-    end
+    errors.add(:base, "a combination of source #{self.source_kind} and role #{self.role} is invalid") if result_type != self.role.downcase
   end
 
   def send_invitation!(invitee_name)
