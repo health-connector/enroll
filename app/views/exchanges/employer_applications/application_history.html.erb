@@ -16,15 +16,15 @@
     </tr>
     <tr>
       <td><h4><%= l10n("exchange.employer_applications.created_on") %>:</h4></td>
-      <td><%= @application.created_at %></td>
+      <td><%= format_time(@application.created_at) %></td>
     </tr>
     <tr>
       <td><h4><%= l10n("exchange.employer_applications.coverage_period")%></h4></td>
-      <td><%= @application.start_on %> - <%= @application.end_on %></td>
+      <td><%= format_time(@application.start_on) %> - <%= format_time(@application.end_on) %></td>
     </tr>
     <tr>
       <td><h4><%= l10n("exchange.employer_applications.oe_period")%></h4></td>
-      <td><%= @application.open_enrollment_start_on %> - <%= @application.open_enrollment_end_on %></td>
+      <td><%= format_time(@application.open_enrollment_start_on) %> - <%= format_time(@application.open_enrollment_end_on) %></td>
     </tr>
   </table>
   <h4><strong>
