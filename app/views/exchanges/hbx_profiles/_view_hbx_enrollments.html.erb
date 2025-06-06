@@ -34,8 +34,8 @@
                     <td id="active_enroll_exists_with_reinstate_date" class="hidden"><%= enrollment.has_active_or_term_exists_for_reinstated_date? %></td>
                     <td><%= enrollment.effective_on.year %></td>
                     <td><%= format_date(enrollment.effective_on) %></td>
-                    <td><%= enrollment.terminated_on %></td>
-                    <td id="reinstate"><%= enrollment.terminated_on.next_day %></td>
+                    <td><%= format_date(enrollment.terminated_on) %></td>
+                    <td id="reinstate"><%= format_date(enrollment.terminated_on.next_day) %></td>
                     <td>
                       <input type="checkbox" name="edi_required" value="checked" checked />
                     </td>
