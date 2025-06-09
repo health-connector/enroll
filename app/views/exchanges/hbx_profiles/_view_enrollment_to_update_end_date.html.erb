@@ -76,8 +76,8 @@
                   <td><%= hbx.product.name %></td>
                   <td id="enrollment_eligible_for_reterm" class="hidden"><%= hbx.enrollment_eligible_for_reterm? %></td>
                   <td id="enrollment_effective_on"><%= format_date(hbx.effective_on) %></td>
-                  <td><%= hbx.terminated_on %></td>
-                  <td><%= text_field_tag "new_termination_date", nil, readonly: true, disabled: true, value:  hbx.terminated_on, id: "termination-date-picker_#{hbx.id}", class: "form-control date-field date-picker", "data-date-min" =>  format_date(hbx.effective_on), "data-date-max" =>  format_date(hbx.terminated_on) %></td>
+                  <td><%= format_date(hbx.terminated_on) %></td>
+                  <td><%= text_field_tag "new_termination_date", nil, readonly: true, disabled: true, value:  format_date(hbx.terminated_on), id: "termination-date-picker_#{hbx.id}", class: "form-control date-field date-picker", "data-date-min" =>  format_date(hbx.effective_on), "data-date-max" =>  format_date(hbx.terminated_on) %></td>
                   <td><%= check_box_tag "edi_required", hbx.id, false,  disabled: true%></td>
                 </tr>
             <% end %>
