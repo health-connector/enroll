@@ -26,6 +26,7 @@
     "webpack": "5",
     "webpack-assets-manifest": "5",
     "webpack-cli": "4",
+    "webpack-dev-server": "^4.x.x",
     "webpack-merge": "5"
   },
   "version": "0.1.0",
