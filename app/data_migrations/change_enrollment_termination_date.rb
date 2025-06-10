@@ -4,7 +4,7 @@ require File.join(Rails.root, "lib/mongoid_migration_task")
 class ChangeEnrollmentTerminationDate < MongoidMigrationTask
   def migrate
     enrollment = HbxEnrollment.by_hbx_id(ENV['hbx_id'].to_s)
-    new_termination_date = ENV['new_termination_date'].to_date
+    new_termination_date = Date.strptime(ENV['termination_date'],'%Y-%m-%d').to_date
     enrollment.first.update_attributes(terminated_on: new_termination_date)
     enrollment_members = enrollment.first.hbx_enrollment_members
     unless enrollment_members.nil?
