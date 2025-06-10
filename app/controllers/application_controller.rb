@@ -97,6 +97,15 @@ class ApplicationController < ActionController::Base
     yield
   end
 
+  # allow open redirect
+  def redirect_to(options = {}, response_status = {})
+    if options.is_a?(String) && options =~ URI::DEFAULT_PARSER.make_regexp
+      super(options, response_status.merge(allow_other_host: true))
+    else
+      super
+    end
+  end
+
   private
 
   def check_concurrent_sessions
