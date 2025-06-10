@@ -309,9 +309,9 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   def add_new_sep
-    return unless params[:qle_id].present?
+    return unless sep_params[:qle_id].present?
 
-    @element_to_replace_id = params[:family_actions_id]
+    @element_to_replace_id = sep_params[:family_actions_id]
     createSep
     respond_to do |format|
       format.js { render "sep/approval/add_sep_result", name: @name }
@@ -782,6 +782,12 @@ class Exchanges::HbxProfilesController < ApplicationController
       fetch_eligible_pvp_ras_for(product)
     end
     eligible_pvp_ras.reduce({}) { |acc, hash| acc.merge(hash) }.sort
+  end
+
+  def sep_params
+    params.except(:utf8, :commit).permit(:market_kind, :person, :firstName, :lastName, :family_actions_id,
+                                         :effective_on_kind, :qle_id, :event_date, :effective_on_date, :csl_num,
+                                         :start_on, :end_on, :next_poss_effective_date, :option1_date, :option2_date, :option3_date, :admin_comment, :coverage_renewal_flag)
   end
 
   def fetch_products_data_by_years
