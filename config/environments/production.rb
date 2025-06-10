@@ -16,7 +16,6 @@ Rails.application.configure do
   # Full error reports are disabled and caching is turned on.
   config.consider_all_requests_local = ENV.fetch('ENROLL_REVIEW_ENVIRONMENT', nil) == 'true'
   config.action_controller.perform_caching = true
-  config.action_controller.raise_on_open_redirects = false
 
   # Enable Rack::Cache to put a simple HTTP cache in front of your application
   # Add `rack-cache` to your Gemfile before enabling this.
