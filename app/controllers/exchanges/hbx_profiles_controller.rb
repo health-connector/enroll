@@ -314,7 +314,7 @@ class Exchanges::HbxProfilesController < ApplicationController
     @element_to_replace_id = params[:family_actions_id]
     createSep
     respond_to do |format|
-      format.js { render "sep/approval/add_sep_result.js.erb", name: @name }
+      format.js { render "sep/approval/add_sep_result", name: @name }
     end
   end
 
