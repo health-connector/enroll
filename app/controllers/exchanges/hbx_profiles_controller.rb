@@ -335,7 +335,7 @@ class Exchanges::HbxProfilesController < ApplicationController
     @family_id = params_parser.family_id
     params_parser.cancel_enrollments
     respond_to do |format|
-      format.js { render "datatables/cancel_enrollment_result.js.erb"}
+      format.js { render "datatables/cancel_enrollment_result"}
     end
   end
 
