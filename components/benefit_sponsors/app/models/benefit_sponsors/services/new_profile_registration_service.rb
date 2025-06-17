@@ -203,7 +203,7 @@ module BenefitSponsors
 
       def map_errors_for(factory_obj, onto:)
         factory_obj.errors.messages.each do |att, err|
-          onto.errors.add(map_model_error_attribute(att), err)
+          onto.errors.add(map_model_error_attribute(att), err&.join(', '))
         end
       end
 
