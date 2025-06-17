@@ -6,10 +6,10 @@ module BenefitSponsors
       REGISTERED_EVENTS = [
         :broker_hired,
         :broker_fired
-      ]
+      ].freeze
 
       def notify_on_save
-        if is_active_changed? && (!is_active.nil?)
+        if saved_change_to_is_active? && !is_active.nil?
           if is_active
             is_broker_hired = true
           end

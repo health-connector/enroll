@@ -31,8 +31,8 @@ module BenefitSponsors
         end
       end
 
-      def notifications_send(model_instance, new_model_event)
-        if new_model_event.present? &&  new_model_event.is_a?(BenefitSponsors::ModelEvents::ModelEvent)
+      def notifications_send(_model_instance, new_model_event)
+        if new_model_event.present? && new_model_event.is_a?(BenefitSponsors::ModelEvents::ModelEvent)
           broker_agency_account = new_model_event.klass_instance
           if  broker_agency_account.benefit_sponsorship.present?
 
