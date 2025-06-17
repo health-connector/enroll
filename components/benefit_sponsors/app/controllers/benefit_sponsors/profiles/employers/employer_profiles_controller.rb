@@ -78,7 +78,7 @@ module BenefitSponsors
 
         def coverage_reports
           authorize @employer_profile
-          @billing_date = Date.strptime(params[:billing_date], "%m/%d/%Y") if params[:billing_date]
+          @billing_date = DateParser.smart_parse(params[:billing_date]) if params[:billing_date]
           @datatable = ::Effective::Datatables::BenefitSponsorsCoverageReportsDataTable.new({ id: params.require(:employer_profile_id), billing_date: @billing_date})
 
           respond_to do |format|
