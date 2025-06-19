@@ -312,7 +312,7 @@ RSpec.describe "insured/families/_enrollment.html.erb" do
       end
 
       it 'displays terminated_on when coverage_termination_pending and not future_enrollment_termination_date' do
-        expect(rendered).to have_text(/#format_date(terminated_on)}/)
+        expect(rendered).to have_text(/#{format_date(terminated_on)}/)
       end
     end
   end
