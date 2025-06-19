@@ -30,7 +30,7 @@ module BenefitSponsors
                                               employer_profile_id: employer_profile.id,
                                               broker_agency_profile_id: broker_agency_profile1.id,
                                               direct_terminate: 'true',
-                                              termination_date: TimeKeeper.date_of_record.strftime('%m/%d/%Y'))
+                                              termination_date: TimeKeeper.date_of_record.to_s)
                                             }
 
     before :each do

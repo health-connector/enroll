@@ -317,9 +317,9 @@ class Organization
 
 
     cache_string = if filters[:selected_carrier_level].present?
-                     "for-#{filters[:selected_carrier_level]}"
+                     String.new("for-#{filters[:selected_carrier_level]}")
                    else
-                     ""
+                     String.new("")
                    end
 
     if filters[:primary_office_location].present?
@@ -328,9 +328,9 @@ class Organization
     end
 
     cache_string << if filters[:active_year].present?
-                      "-carrier-names-at-#{filters[:active_year]}"
+                      String.new("-carrier-names-at-#{filters[:active_year]}")
                     else
-                      "-carrier-names-at-#{TimeKeeper.date_of_record.year}"
+                      String.new("-carrier-names-at-#{TimeKeeper.date_of_record.year}")
                     end
 
     Rails.cache.fetch(cache_string, expires_in: 2.hour) do
