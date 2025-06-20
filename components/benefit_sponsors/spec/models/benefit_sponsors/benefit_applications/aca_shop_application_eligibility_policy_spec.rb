@@ -87,7 +87,7 @@ RSpec.describe BenefitSponsors::BenefitApplications::AcaShopApplicationEligibili
       end
 
       it "should validate successfully" do
-        expect(rule.success.call(benefit_application)).to eq("Plan year was published before #{benefit_application.last_day_to_publish} on #{Time.now} ")
+        expect(rule.success.call(benefit_application)).to eq("Plan year was published before #{benefit_application.last_day_to_publish.strftime("%m/%d/%Y")} on #{Time.now.strftime("%m/%d/%Y")} ")
       end
     end
   end
