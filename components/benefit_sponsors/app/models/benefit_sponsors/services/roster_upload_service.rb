@@ -288,13 +288,21 @@ module BenefitSponsors
       end
 
       def sanitize_params(form)
-        form.attributes.slice(:employer_assigned_family_id, :employee_relationship, :last_name, :first_name, :middle_name, :name_sfx, :ssn, :gender).merge({
-          dob: DateParser.smart_parse(form.dob)
-        })
+        form.attributes
+            .slice(
+              :employer_assigned_family_id,
+              :employee_relationship,
+              :last_name,
+              :first_name,
+              :middle_name,
+              :name_sfx,
+              :ssn,
+              :gender
+            )
+            .merge(dob: DateParser.smart_parse(form.dob))
       end
 
-      def sanitize_primary_params(form)
-      end
+      def sanitize_primary_params(form); end
 
       def is_employee_terminable?(census_employee)
         #this logic may become more sophisticated in future
