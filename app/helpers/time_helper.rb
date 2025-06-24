@@ -40,4 +40,5 @@ module TimeHelper
     date = sep_optional_date(family, min_or_max, market_kind)
     date&.strftime("%m/%d/%Y")
   end
+
 end
