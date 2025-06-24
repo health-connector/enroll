@@ -21,9 +21,7 @@ module BenefitSponsors
           observer.update(organization)
 
           BenefitSponsors::Organizations::Organization::FIELD_AND_EVENT_NAMES_MAP.each_key do |key|
-            if organization.saved_change_to_attribute(key)
-              expect(observer).to have_received(:notify).with("acapi.info.events.employer.name_changed", expected_payload)
-            end
+            expect(observer).to have_received(:notify).with("acapi.info.events.employer.name_changed", expected_payload) if organization.saved_change_to_attribute(key)
           end
         end
 

@@ -6,9 +6,7 @@ module DateParser
     return nil if date_string.blank?
     return date_string if date_string.is_a?(Date)
 
-    if date_string.is_a?(Time) || date_string.is_a?(DateTime)
-      return date_string.strftime("%m/%d/%Y %H:%M")
-    end
+    return date_string.strftime("%m/%d/%Y %H:%M") if date_string.is_a?(Time) || date_string.is_a?(DateTime)
 
     case date_string
     when %r{\A\d{2}/\d{2}/\d{4}\z} # MM/DD/YYYY
