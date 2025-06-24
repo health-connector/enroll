@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Business rules governing ACA SHOP BenefitApplication and associated work flow processes.
 # BenefitApplication business rules are checked at two separate steps during the enrollment process:
 #
@@ -15,140 +17,141 @@
 # data model validation or verification errors during development, it likely indicates that you are
 # violating a design rule and should seek advice on proper approch to perform the necessary activity.
 module BenefitSponsors
-  class BenefitApplications::AcaShopApplicationEligibilityPolicy
-    include BenefitMarkets::BusinessRulesEngine
+  module BenefitApplications
+    class AcaShopApplicationEligibilityPolicy
+      include BenefitMarkets::BusinessRulesEngine
 
-    OPEN_ENROLLMENT_DAYS_MIN = 5
-    MIN_BENEFIT_GROUPS = 1
-    EMPLOYEE_MINIMUM_COUNT = 1
-    EMPLOYEE_MAXIMUM_COUNT = 50
+      OPEN_ENROLLMENT_DAYS_MIN = 5
+      MIN_BENEFIT_GROUPS = 1
+      EMPLOYEE_MINIMUM_COUNT = 1
+      EMPLOYEE_MAXIMUM_COUNT = 50
 
-    rule  :open_enrollment_period_minimum,
-            validate: -> (benefit_application){
-              if benefit_application.is_renewing?
-                true
-              else
-                benefit_application.open_enrollment_length >= OPEN_ENROLLMENT_DAYS_MIN
-              end
-              },
-            success:  -> (benfit_application) { "validated successfully" },
-            fail:     -> (benefit_application) {
+      rule  :open_enrollment_period_minimum,
+            validate: lambda { |benefit_application|
+                        if benefit_application.is_renewing?
+                          true
+                        else
+                          benefit_application.open_enrollment_length >= OPEN_ENROLLMENT_DAYS_MIN
+                        end
+                      },
+            success: ->(_benfit_application) { "validated successfully" },
+            fail: lambda { |benefit_application|
               number_of_days = benefit_application.open_enrollment_length
               "open enrollment period length #{number_of_days} day(s) is less than #{OPEN_ENROLLMENT_DAYS_MIN} day(s) minimum"
             }
 
-    rule  :benefit_application_fte_count,
-            validate: -> (benefit_application){
-              if benefit_application.is_renewing?
-                true
-              else
-                benefit_application.fte_count >= EMPLOYEE_MINIMUM_COUNT && benefit_application.fte_count < EMPLOYEE_MAXIMUM_COUNT
-              end
-                },
-            success:  -> (benfit_application)  { "validated successfully" },
-            fail:     -> (benefit_application) { "Small business should have #{EMPLOYEE_MINIMUM_COUNT} - #{EMPLOYEE_MAXIMUM_COUNT} full time equivalent employees" }
+      rule  :benefit_application_fte_count,
+            validate: lambda { |benefit_application|
+                        if benefit_application.is_renewing?
+                          true
+                        else
+                          benefit_application.fte_count >= EMPLOYEE_MINIMUM_COUNT && benefit_application.fte_count < EMPLOYEE_MAXIMUM_COUNT
+                        end
+                      },
+            success: ->(_benfit_application)  { "validated successfully" },
+            fail: ->(_benefit_application) { "Small business should have #{EMPLOYEE_MINIMUM_COUNT} - #{EMPLOYEE_MAXIMUM_COUNT} full time equivalent employees" }
 
-    #TODO: Do not use Settings.
-    rule  :employer_primary_office_location,
-            validate: -> (benefit_application){
-              benefit_application.sponsor_profile.is_primary_office_local?
-              },
-            success:  -> (benfit_application)  { "validated successfully" },
-            fail:     -> (benefit_application) { "Small business NOT located in #{Settings.aca.state_name}" }
+  #TODO: Do not use Settings.
+      rule  :employer_primary_office_location,
+            validate: lambda { |benefit_application|
+                        benefit_application.sponsor_profile.is_primary_office_local?
+                      },
+            success: ->(_benfit_application)  { "validated successfully" },
+            fail: ->(_benefit_application) { "Small business NOT located in #{Settings.aca.state_name}" }
 
-    rule  :benefit_application_contains_benefit_packages,
-            validate: -> (benefit_application){
-              benefit_application.benefit_packages.count >= MIN_BENEFIT_GROUPS
-              },
-            success:  -> (benfit_application)  { "validated successfully" },
-            fail:     -> (benefit_application) { "application must contain at least  #{MIN_BENEFIT_GROUPS} benefit_group(s)" }
+      rule  :benefit_application_contains_benefit_packages,
+            validate: lambda { |benefit_application|
+                        benefit_application.benefit_packages.count >= MIN_BENEFIT_GROUPS
+                      },
+            success: ->(_benfit_application)  { "validated successfully" },
+            fail: ->(_benefit_application) { "application must contain at least  #{MIN_BENEFIT_GROUPS} benefit_group(s)" }
 
-    rule  :benefit_packages_contains_reference_plans,
-            validate: -> (benefit_application){
+      rule  :benefit_packages_contains_reference_plans,
+            validate: lambda { |benefit_application|
               benefit_application.benefit_packages.all?{|bp| bp.reference_plan.present? }
             },
-            success:  -> (benfit_application)  { "validated successfully" },
-            fail:     -> (benefit_application) { "application benefit packages must have reference plans" }
+            success: ->(_benfit_application)  { "validated successfully" },
+            fail: ->(_benefit_application) { "application benefit packages must have reference plans" }
 
-    rule :all_employees_are_assigned_benefit_package,
-            validate: -> (benefit_application){
-              !benefit_application.has_unassigned_census_employees?
-            },
-            success:  -> (benfit_application)  { "validated successfully" },
-            fail:     -> (benefit_application) { "All employees must have an assigned benefit package" }
+      rule :all_employees_are_assigned_benefit_package,
+           validate: lambda { |benefit_application|
+             !benefit_application.has_unassigned_census_employees?
+           },
+           success: ->(_benfit_application)  { "validated successfully" },
+           fail: ->(_benefit_application) { "All employees must have an assigned benefit package" }
 
-    rule :employer_profile_eligible,
-          validate: -> (benefit_application) {
-            benefit_application.employer_profile.is_benefit_sponsorship_eligible
-          },
-          success:  -> (benfit_application)  { "validated successfully" },
-          fail:     -> (benefit_application) { "This employer is ineligible to enroll for coverage at this time" }
+      rule :employer_profile_eligible,
+           validate: lambda { |benefit_application|
+             benefit_application.employer_profile.is_benefit_sponsorship_eligible
+           },
+           success: ->(_benfit_application)  { "validated successfully" },
+           fail: ->(_benefit_application) { "This employer is ineligible to enroll for coverage at this time" }
 
-    rule :all_contribution_levels_min_met,
-          validate: -> (benefit_application) {
-            if benefit_application.benefit_packages.map(&:sponsored_benefits).flatten.present?
-              if benefit_application.start_on.month != 1
-                all_contributions = benefit_application.benefit_packages.collect(&:sorted_composite_tier_contributions)
-                all_contributions.flatten.all?{|c| (!c.is_offered || (c.contribution_factor >= c.min_contribution_factor)) }
-              else
-                true
-              end
-            else
-              false
-            end
-          },
-          success:  -> (benfit_application)  { "validated successfully" },
-          fail:     -> (benefit_application) { "one or more contribution minimum not met" }
+      rule :all_contribution_levels_min_met,
+           validate: lambda { |benefit_application|
+             if benefit_application.benefit_packages.map(&:sponsored_benefits).flatten.present?
+               if benefit_application.start_on.month == 1
+                 true
+               else
+                 all_contributions = benefit_application.benefit_packages.collect(&:sorted_composite_tier_contributions)
+                 all_contributions.flatten.all?{|c| !c.is_offered || (c.contribution_factor >= c.min_contribution_factor) }
+               end
+             else
+               false
+             end
+           },
+           success: ->(_benfit_application)  { "validated successfully" },
+           fail: ->(_benefit_application) { "one or more contribution minimum not met" }
 
-    rule :within_last_day_to_publish,
-          validate: -> (benefit_application) {
-            TimeKeeper.date_of_record <= benefit_application.last_day_to_publish
-          },
-          success:  -> (benfit_application)  { "Plan year was published before #{benfit_application.last_day_to_publish.strftime("%m/%d/%Y")} on #{TimeKeeper.date_of_record.strftime("%m/%d/%Y")} " },
-          fail:     -> (benefit_application) { "Plan year starting on #{benefit_application.start_on.strftime("%m/%d/%Y")} must be published by #{benefit_application.last_day_to_publish.strftime("%m/%d/%Y")}" }
+      rule :within_last_day_to_publish,
+           validate: lambda { |benefit_application|
+             TimeKeeper.date_of_record <= benefit_application.last_day_to_publish
+           },
+           success: ->(benfit_application)  { "Plan year was published before #{benfit_application.last_day_to_publish.strftime('%m/%d/%Y')} on #{TimeKeeper.date_of_record.strftime('%m/%d/%Y')} " },
+           fail: ->(benefit_application) { "Plan year starting on #{benefit_application.start_on.strftime('%m/%d/%Y')} must be published by #{benefit_application.last_day_to_publish.strftime('%m/%d/%Y')}" }
 
-    rule  :stubbed_rule_one,
-            validate: -> (model_instance) {
+      rule  :stubbed_rule_one,
+            validate: lambda { |_model_instance|
               true
             },
-            fail:     -> (model_instance){ "something went wrong!!" },
-            success:  -> (model_instance){ "validated successfully" }
+            fail: ->(_model_instance){ "something went wrong!!" },
+            success: ->(_model_instance){ "validated successfully" }
 
-    rule  :stubbed_rule_two,
-            validate: -> (model_instance) {
+      rule  :stubbed_rule_two,
+            validate: lambda { |_model_instance|
               true
             },
-            fail:     -> (model_instance){ "something went wrong!!" },
-            success:  -> (model_instance){ "validated successfully" }
+            fail: ->(_model_instance){ "something went wrong!!" },
+            success: ->(_model_instance){ "validated successfully" }
 
-    business_policy :passes_open_enrollment_period_policy, rules: []
+      business_policy :passes_open_enrollment_period_policy, rules: []
 
-    business_policy :submit_benefit_application,
-            rules: [:open_enrollment_period_minimum,
-                    :benefit_application_contains_benefit_packages,
-                    :benefit_packages_contains_reference_plans,
-                    :all_employees_are_assigned_benefit_package,
-                    :employer_profile_eligible,
-                    :employer_primary_office_location,
-                    :all_contribution_levels_min_met,
-                    :within_last_day_to_publish,
-                    :benefit_application_fte_count]
+      business_policy :submit_benefit_application,
+                      rules: [:open_enrollment_period_minimum,
+                              :benefit_application_contains_benefit_packages,
+                              :benefit_packages_contains_reference_plans,
+                              :all_employees_are_assigned_benefit_package,
+                              :employer_profile_eligible,
+                              :employer_primary_office_location,
+                              :all_contribution_levels_min_met,
+                              :within_last_day_to_publish,
+                              :benefit_application_fte_count]
 
-    business_policy  :stubbed_policy,
-            rules: [:stubbed_rule_one, :stubbed_rule_two ]
+      business_policy :stubbed_policy,
+                      rules: [:stubbed_rule_one, :stubbed_rule_two]
 
-    business_policy :force_submit_benefit_application,
-            rules: [:open_enrollment_period_minimum,
-                    :benefit_application_contains_benefit_packages,
-                    :benefit_packages_contains_reference_plans,
-                    :all_employees_are_assigned_benefit_package,
-                    :employer_profile_eligible,
-                    :employer_primary_office_location,
-                    :all_contribution_levels_min_met,
-                    :benefit_application_fte_count]
+      business_policy :force_submit_benefit_application,
+                      rules: [:open_enrollment_period_minimum,
+                              :benefit_application_contains_benefit_packages,
+                              :benefit_packages_contains_reference_plans,
+                              :all_employees_are_assigned_benefit_package,
+                              :employer_profile_eligible,
+                              :employer_primary_office_location,
+                              :all_contribution_levels_min_met,
+                              :benefit_application_fte_count]
 
-    def business_policies_for(model_instance, event_name)
-      if model_instance.is_a?(BenefitSponsors::BenefitApplications::BenefitApplication)
+      def business_policies_for(model_instance, event_name)
+        return unless model_instance.is_a?(BenefitSponsors::BenefitApplications::BenefitApplication)
 
         case event_name
         when :force_submit_benefit_application

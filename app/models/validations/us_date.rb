@@ -3,6 +3,7 @@ module Validations
     def self.on(prop_name, allow_blank = false)
       mod = Module.new
       mod.define_singleton_method :included do |klass|
+        # rubocop:disable Style/EvalWithLocation, Style/DocumentDynamicEvalDefinition
         klass.class_eval(<<-RUBYCODE)
           def __valid_US_date_property_#{prop_name}
             d_value = #{prop_name}
@@ -13,8 +14,9 @@ module Validations
             end
           end
         RUBYCODE
+        # rubocop:enable Style/EvalWithLocation, Style/DocumentDynamicEvalDefinition
         klass.class_eval do
-          validate "__valid_US_date_property_#{prop_name}".to_sym
+          validate "__valid_US_date_property_#{prop_name}".to_sym # rubocop:disable Lint/SymbolConversion
         end
         unless allow_blank
           klass.class_eval do
