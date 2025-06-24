@@ -1,0 +1,8 @@
+{
+  "08ddd91659718c61a94e1e86860b8ce9_1": {
+    "author": "Hanna",
+    "comment": "This is flagged as 'Leakage of sensitive data in dynamic file generation [CWE-313]' but the code is expected to generate CSV files with the given data with sensitive information.",
+    "false_positive": true,
+    "ignored_at": "2025-06-24T16:20:06Z"
+  }
+}
