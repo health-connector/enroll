@@ -32,9 +32,8 @@ module TimeHelper
     end
   end
 
-  def sep_optional_date_formatted family, min_or_max, market_kind=nil
+  def sep_optional_date_formatted(family, min_or_max, market_kind = nil)
     date = sep_optional_date(family, min_or_max, market_kind)
     date&.strftime("%m/%d/%Y")
   end
-
 end
