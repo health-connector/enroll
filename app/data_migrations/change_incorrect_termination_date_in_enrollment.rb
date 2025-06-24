@@ -11,7 +11,7 @@ class ChangeIncorrectTerminationDateInEnrollment < MongoidMigrationTask
     puts "No enrollment with given hbx_id was found" if enrollment.nil? && !Rails.env.test?
     enrollment.update_attributes(terminated_on: new_termination_date)
     enrollment.update_attributes(aasm_state: "coverage_terminated") if enrollment.aasm_state != "coverage_terminated"
-  rescue Exception => e
+  rescue StandardError => e
     puts e.message
   end
 end
