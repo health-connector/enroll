@@ -8,8 +8,8 @@ module DeviseHelper
     mutable_errors = resource.errors.messages.deep_dup
     mutable_errors[:username] = mutable_errors.delete(:oim_id) if mutable_errors.key?(:oim_id)
 
-    messages = mutable_errors.map do |_key, value|
-      value.map { |v| content_tag(:li, v) }
+    messages = mutable_errors.map do |key, value|
+      value.map { |v| content_tag(:li, "#{key.to_s.humanize} #{v}") }
     end.join
 
     html = <<-HTML
