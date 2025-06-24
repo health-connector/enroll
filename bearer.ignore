@@ -11,6 +11,12 @@
     "false_positive": true,
     "ignored_at": "2025-06-24T16:44:42Z"
   },
+  "04e71e6830591e727d5e530cfb65053e_3": {
+    "author": "Hanna",
+    "comment": "This is flagged as 'Leakage of sensitive data in dynamic file generation [CWE-313]' but the code is expected to generate CSV files with the given data with sensitive information.",
+    "false_positive": true,
+    "ignored_at": "2025-06-24T19:53:00Z"
+  },
   "08ddd91659718c61a94e1e86860b8ce9_1": {
     "author": "Hanna",
     "comment": "This is flagged as 'Leakage of sensitive data in dynamic file generation [CWE-313]' but the code is expected to generate CSV files with the given data with sensitive information.",
@@ -65,6 +71,12 @@
     "false_positive": true,
     "ignored_at": "2025-06-24T16:44:27Z"
   },
+  "3f00ceb8778528fdcf6672f5daac458a_3": {
+    "author": "Hanna",
+    "comment": "This is flagged as 'Leakage of sensitive data in dynamic file generation [CWE-313]' but the code is expected to generate CSV files with the given data with sensitive information.",
+    "false_positive": true,
+    "ignored_at": "2025-06-24T19:52:47Z"
+  },
   "5f566bcc34af3eac186a8c19ef03dc51_1": {
     "author": "Hanna",
     "comment": "This is flagges as 'Leakage of sensitive data in dynamic file generation [CWE-313]' but the code is expected to generate CSV files with the given data with sensitive information.",
@@ -89,6 +101,12 @@
     "false_positive": true,
     "ignored_at": "2025-06-24T16:43:51Z"
   },
+  "9e42fed1f95e343e3929466a68ed31a9_3": {
+    "author": "Hanna",
+    "comment": "This is flagged as 'Leakage of sensitive data in dynamic file generation [CWE-313]' but the code is expected to generate CSV files with the given data with sensitive information.",
+    "false_positive": true,
+    "ignored_at": "2025-06-24T19:52:15Z"
+  },
   "a8d7ea00fb52cbda9319240b6e541a14_0": {
     "author": "Hanna",
     "comment": "This is flagges as 'Leakage of sensitive data in exception message [CWE-210]' but the code is expected to raise exception.",
@@ -112,5 +130,11 @@
     "comment": "This is flagged as 'Leakage of sensitive data in dynamic file generation [CWE-313]' but the code is expected to generate CSV files with the given data with sensitive information.",
     "false_positive": true,
     "ignored_at": "2025-06-24T16:44:10Z"
+  },
+  "e15a71769ab3600fb6b4b7d9747ce588_3": {
+    "author": "Hanna",
+    "comment": "This is flagged as 'Leakage of sensitive data in dynamic file generation [CWE-313]' but the code is expected to generate CSV files with the given data with sensitive information.",
+    "false_positive": true,
+    "ignored_at": "2025-06-24T19:52:31Z"
   }
 }
