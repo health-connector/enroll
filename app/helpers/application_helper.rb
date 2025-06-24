@@ -401,7 +401,7 @@ module ApplicationHelper
 
   def retrieve_inbox_path(provider, folder: 'inbox')
     return nil if provider.nil?
-    
+
     if provider.try(:broker_role)
       broker_agency_mailbox = benefit_sponsors.inbox_profiles_broker_agencies_broker_agency_profile_path(id: provider.id.to_s, folder: folder)
       return broker_agency_mailbox
