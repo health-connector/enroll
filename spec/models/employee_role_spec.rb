@@ -488,6 +488,9 @@ describe EmployeeRole, dbclean: :after_each do
     before do
       match_benefit_sponsorship
       non_match_benefit_sponsorship
+      match_employee_roles.each do |employee_role|
+        employee_role.update_attributes(census_employee_id: FactoryBot.create(:benefit_sponsors_census_employee, employer_profile: match_employer_profile, benefit_sponsorship: match_benefit_sponsorship).id)
+      end
     end
 
     it "should find employee roles using a list of ids" do
