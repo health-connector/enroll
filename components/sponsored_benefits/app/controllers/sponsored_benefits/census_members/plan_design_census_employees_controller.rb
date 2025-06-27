@@ -3,6 +3,7 @@ require_dependency "sponsored_benefits/application_controller"
 module SponsoredBenefits
   class CensusMembers::PlanDesignCensusEmployeesController < ApplicationController
     include DataTablesAdapter
+    include ::L10nHelper
 
     before_action :load_plan_design_proposal
     before_action :load_plan_design_census_employee, only: [:show, :edit, :update, :destroy]
