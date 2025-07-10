@@ -898,7 +898,7 @@ class Person
 
   def attributes_changed?
     # Check if there are meaningful changes in the person attributes or embedded documents
-    meaningful_changes?(changed_attributes) || embedded_attributes_changed?
+    meaningful_changes?(previous_changes) || embedded_attributes_changed?
   end
 
   def employee_role_id
