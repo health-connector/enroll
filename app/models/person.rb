@@ -898,7 +898,7 @@ class Person
 
   def attributes_changed?
     # Check if there are meaningful changes in the person attributes or embedded documents
-    meaningful_changes?(previous_changes) || embedded_attributes_changed?
+    meaningful_changes?(changed_attributes.merge(previous_changes)) || embedded_attributes_changed?
   end
 
   def employee_role_id
@@ -920,7 +920,9 @@ class Person
   #
   # @return [Boolean] true if there are changes in embedded documents, false otherwise
   def embedded_attributes_changed?
-    addresses.any?(&:address_changed?) || phones.any?(&:phone_changed?) || emails.any?(&:email_changed?)
+    addresses.any? { |addr| addr.previous_changes.merge(addr.changed_attributes).except('updated_at').present? } ||
+      phones.any? { |phone| phone.previous_changes.merge(phone.changed_attributes).except('updated_at').present? } ||
+      emails.any? { |email| email.previous_changes.merge(email.changed_attributes).except('updated_at').present? }
   end
 
   def update_census_dependent_relationship(existing_relationship)
