@@ -345,6 +345,7 @@ module BenefitSponsors
 
       def update_plan_design_organization
         return if employer_profile.blank?
+        return unless fein_previously_changed? || legal_name_previously_changed?
 
         ::SponsoredBenefits::Organizations::PlanDesignOrganization.where(:sponsor_profile_id => BSON::ObjectId.from_string(employer_profile.id)).each do |pdo|
           pdo.update!(legal_name: legal_name, fein: fein)
