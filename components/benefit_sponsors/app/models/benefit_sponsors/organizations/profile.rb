@@ -52,7 +52,7 @@ module BenefitSponsors
       after_save :publish_profile_event
 
       def publish_profile_event
-        if primary_office_location && primary_office_location.changed?
+        if primary_office_location && (primary_office_location.address&.previous_changes.present? || primary_office_location.phone&.previous_changes.present?)
           benefit_sponsorships.each do |benefit_sponsorship|
             benefit_sponsorship.profile_event_subscriber(:primary_office_location_change)
           end
