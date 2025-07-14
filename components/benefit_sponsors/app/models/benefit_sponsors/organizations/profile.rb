@@ -53,9 +53,10 @@ module BenefitSponsors
 
       def publish_profile_event
         return unless primary_office_location && (primary_office_location.address&.previous_changes.present? || primary_office_location.phone&.previous_changes.present?)
-          benefit_sponsorships.each do |benefit_sponsorship|
-            benefit_sponsorship.profile_event_subscriber(:primary_office_location_change)
-          end
+
+        benefit_sponsorships.each do |benefit_sponsorship|
+          benefit_sponsorship.profile_event_subscriber(:primary_office_location_change)
+        end
       end
 
       def is_new_employer?
@@ -117,6 +118,7 @@ module BenefitSponsors
       class << self
         def find(id)
           return nil if id.blank?
+
           organization = BenefitSponsors::Organizations::Organization.where("profiles._id" => BSON::ObjectId.from_string(id)).first
           organization.profiles.detect { |profile| profile.id.to_s == id.to_s } if organization.present?
         end
@@ -129,6 +131,7 @@ module BenefitSponsors
       def self.by_hbx_id(an_hbx_id)
         organization = BenefitSponsors::Organizations::Organization.where(hbx_id: an_hbx_id, profiles: {"$exists" => true})
         return nil unless organization.any?
+
         organization.first.employer_profile
       end
 
