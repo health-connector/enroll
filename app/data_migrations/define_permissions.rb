@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require File.join(Rails.root, "lib/migration_task")
 
 class DefinePermissions < MigrationTask
@@ -10,61 +12,62 @@ class DefinePermissions < MigrationTask
       .update_attributes!(modify_family: true, modify_employer: true, revert_application: true, list_enrollments: true,
                           send_broker_agency_message: true, approve_broker: true, approve_ga: true, can_update_ssn: false, can_complete_resident_application: false,
                           can_add_sep: false, can_lock_unlock: true, can_view_username_and_email: true, can_reset_password: false, modify_admin_tabs: true,
-                          view_admin_tabs: true,  view_the_configuration_tab: true, can_submit_time_travel_request: false)
+                          view_admin_tabs: true,  view_the_configuration_tab: true, can_generate_v2_xml: false, can_submit_time_travel_request: false)
     Permission
       .find_or_initialize_by(name: 'hbx_read_only')
       .update_attributes!(modify_family: true, modify_employer: false, revert_application: false, list_enrollments: true,
                           send_broker_agency_message: false, approve_broker: false, approve_ga: false, modify_admin_tabs: false, view_admin_tabs: true,
-                          view_the_configuration_tab: true, can_submit_time_travel_request: false)
+                          view_the_configuration_tab: true, can_generate_v2_xml: false, can_submit_time_travel_request: false)
     Permission
       .find_or_initialize_by(name: 'hbx_csr_supervisor')
       .update_attributes!(modify_family: true, modify_employer: true, revert_application: true, list_enrollments: true,
                           send_broker_agency_message: false, approve_broker: false, approve_ga: false, modify_admin_tabs: false, view_admin_tabs: false,
-                          view_the_configuration_tab: true, can_submit_time_travel_request: false)
+                          view_the_configuration_tab: true, can_generate_v2_xml: false, can_submit_time_travel_request: false)
     Permission
       .find_or_initialize_by(name: 'hbx_csr_tier2')
       .update_attributes!(modify_family: true, modify_employer: true, revert_application: false, list_enrollments: false,
                           send_broker_agency_message: false, approve_broker: false, approve_ga: false, modify_admin_tabs: false, view_admin_tabs: false,
-                          view_the_configuration_tab: true, can_submit_time_travel_request: false)
+                          view_the_configuration_tab: true, can_generate_v2_xml: false, can_submit_time_travel_request: false)
     Permission
       .find_or_initialize_by(name: 'hbx_csr_tier1')
       .update_attributes!(modify_family: true, modify_employer: false, revert_application: false, list_enrollments: false,
                           send_broker_agency_message: false, approve_broker: false, approve_ga: false, modify_admin_tabs: false, view_admin_tabs: false,
-                          view_the_configuration_tab: true, can_submit_time_travel_request: false)
+                          view_the_configuration_tab: true, can_generate_v2_xml: false, can_submit_time_travel_request: false)
     Permission
       .find_or_initialize_by(name: 'developer')
       .update_attributes!(modify_family: false, modify_employer: false, revert_application: false, list_enrollments: true,
                           send_broker_agency_message: false, approve_broker: false, approve_ga: false, modify_admin_tabs: false, view_admin_tabs: true,
-                          view_the_configuration_tab: true, can_submit_time_travel_request: false)
+                          view_the_configuration_tab: true, can_generate_v2_xml: false, can_submit_time_travel_request: false)
     Permission
       .find_or_initialize_by(name: 'hbx_tier3')
       .update_attributes!(modify_family: true, modify_employer: true, revert_application: true, list_enrollments: true,
                           send_broker_agency_message: true, approve_broker: true, approve_ga: true, can_update_ssn: false, can_complete_resident_application: false,
                           can_add_sep: false, can_lock_unlock: true, can_view_username_and_email: true, can_reset_password: false, modify_admin_tabs: true,
-                          view_admin_tabs: true,  view_the_configuration_tab: true, can_submit_time_travel_request: false, can_change_username_and_email: true,
-                          can_update_pvp_eligibilities: true)
+                          view_admin_tabs: true,  view_the_configuration_tab: true, can_generate_v2_xml: false, can_submit_time_travel_request: false, 
+                          can_update_pvp_eligibilities: true, can_change_username_and_email: true)
     Permission
       .find_or_initialize_by(name: 'super_admin')
       .update_attributes!(modify_family: true, modify_employer: true, revert_application: true, list_enrollments: true,
                           send_broker_agency_message: true, approve_broker: true, approve_ga: true, can_update_ssn: false, can_complete_resident_application: false,
                           can_add_sep: false, can_lock_unlock: true, can_view_username_and_email: true, can_reset_password: false, modify_admin_tabs: true,
-                          view_admin_tabs: true, can_extend_open_enrollment: true, view_the_configuration_tab: true, can_submit_time_travel_request: false,
-                          can_change_username_and_email: true, view_login_history: true, can_update_pvp_eligibilities: true)
+                          view_admin_tabs: true, can_extend_open_enrollment: true, can_generate_v2_xml: false, view_the_configuration_tab: true, 
+                          can_submit_time_travel_request: false, can_change_username_and_email: true, view_login_history: true, can_update_pvp_eligibilities: true)
       #puts 'Permissions Updated!'
   end
 
+  # rubocop:disable Metrics/AbcSize
   def build_test_roles
     User.where(email: /themanda.*dc.gov/).delete_all
     Person.where(last_name: /^amanda\d+$/).delete_all
-    a=10000000
-    u1 = User.create(email: 'themanda.staff@dc.gov',password: 'P@55word', password_confirmation: 'P@55word', oim_id: "ex#{rand(5999999)+a}")
-    u2 = User.create(email: 'themanda.readonly@dc.gov', password: 'P@55word', password_confirmation: 'P@55word',  oim_id: "ex#{rand(5999999)+a}")
-    u3 = User.create(email: 'themanda.csr_supervisor@dc.gov', password: 'P@55word', password_confirmation: 'P@55word', oim_id: "ex#{rand(5999999)+a}")
-    u4 = User.create(email: 'themanda.csr_tier1@dc.gov', password: 'P@55word', password_confirmation: 'P@55word',  oim_id: "ex#{rand(5999999)+a}")
-    u5 = User.create(email: 'themanda.csr_tier2@dc.gov', password: 'P@55word', password_confirmation: 'P@55word', oim_id: "ex#{rand(5999999)+a}")
-    u6 = User.create(email: 'developer@dc.gov', password: 'P@55word', password_confirmation: 'P@55word', oim_id: "ex#{rand(5999999)+a}")
-    u7 = User.create(email: 'themanda.csr_tier3@dc.gov', password: 'P@55word', password_confirmation: 'P@55word', oim_id: "ex#{rand(5999999)+a}")
-    u8 = User.create(email: 'themanda.super_admin@dc.gov', password: 'P@55word', password_confirmation: 'P@55word', oim_id: "ex#{rand(5999999)+a}")
+    a = 10_000_000
+    u1 = User.create(email: 'themanda.staff@dc.gov',password: 'P@55word', password_confirmation: 'P@55word', oim_id: "ex#{rand(5_999_999) + a}")
+    u2 = User.create(email: 'themanda.readonly@dc.gov', password: 'P@55word', password_confirmation: 'P@55word',  oim_id: "ex#{rand(5_999_999) + a}")
+    u3 = User.create(email: 'themanda.csr_supervisor@dc.gov', password: 'P@55word', password_confirmation: 'P@55word', oim_id: "ex#{rand(5_999_999) + a}")
+    u4 = User.create(email: 'themanda.csr_tier1@dc.gov', password: 'P@55word', password_confirmation: 'P@55word',  oim_id: "ex#{rand(5_999_999) + a}")
+    u5 = User.create(email: 'themanda.csr_tier2@dc.gov', password: 'P@55word', password_confirmation: 'P@55word', oim_id: "ex#{rand(5_999_999) + a}")
+    u6 = User.create(email: 'developer@dc.gov', password: 'P@55word', password_confirmation: 'P@55word', oim_id: "ex#{rand(5_999_999) + a}")
+    u7 = User.create(email: 'themanda.csr_tier3@dc.gov', password: 'P@55word', password_confirmation: 'P@55word', oim_id: "ex#{rand(5_999_999) + a}")
+    u8 = User.create(email: 'themanda.super_admin@dc.gov', password: 'P@55word', password_confirmation: 'P@55word', oim_id: "ex#{rand(5_999_999) + a}")
 
     hbx_profile_id = FactoryBot.create(:hbx_profile).id
     p1 = Person.create(first_name: 'staff', last_name: "amanda#{rand(1000000)}", user: u1)
@@ -85,6 +88,7 @@ class DefinePermissions < MigrationTask
     HbxStaffRole.create!(person: p7, permission_id: Permission.hbx_tier3.id, subrole: 'hbx_tier3', hbx_profile_id: hbx_profile_id)
     HbxStaffRole.create!(person: p8, permission_id: Permission.super_admin.id, subrole: 'super_admin', hbx_profile_id: hbx_profile_id)
   end
+  # rubocop:enable Metrics/AbcSize
 
   def hbx_admin_can_update_ssn
     Permission.hbx_staff.update_attributes!(can_update_ssn: true)
@@ -153,22 +157,24 @@ class DefinePermissions < MigrationTask
   end
 
   def grant_super_admin_access
-    raise "User Email Argument expected!!"if ENV['user_email'].blank?
+    raise "User Email Argument expected!!" if ENV['user_email'].blank?
+
     user_emails = ENV['user_email'].split(',')
     hbx_organization = BenefitSponsors::Organizations::Organization.hbx_profiles.first
     users = User.where(:email.in => user_emails)
     users.each do |user|
-      HbxStaffRole.create!( person: user.person, permission_id: Permission.super_admin.id, subrole: 'super_admin', hbx_profile_id: HbxProfile.current_hbx.id, benefit_sponsor_hbx_profile_id: hbx_organization.hbx_profile.id)
+      HbxStaffRole.create!(person: user.person, permission_id: Permission.super_admin.id, subrole: 'super_admin', hbx_profile_id: HbxProfile.current_hbx.id, benefit_sponsor_hbx_profile_id: hbx_organization.hbx_profile.id)
     end
   end
 
   def grant_hbx_tier3_access
-    raise "User Email Argument expected!!"if ENV['user_email'].blank?
+    raise "User Email Argument expected!!" if ENV['user_email'].blank?
+
     user_emails = ENV['user_email'].split(',')
     hbx_organization = BenefitSponsors::Organizations::Organization.hbx_profiles.first
     users = User.where(:email.in => user_emails)
     users.each do |user|
-      HbxStaffRole.create!( person: user.person, permission_id: Permission.hbx_tier3.id, subrole: 'hbx_tier3', hbx_profile_id: HbxProfile.current_hbx.id, benefit_sponsor_hbx_profile_id: hbx_organization.hbx_profile.id)
+      HbxStaffRole.create!(person: user.person, permission_id: Permission.hbx_tier3.id, subrole: 'hbx_tier3', hbx_profile_id: HbxProfile.current_hbx.id, benefit_sponsor_hbx_profile_id: hbx_organization.hbx_profile.id)
     end
   end
 

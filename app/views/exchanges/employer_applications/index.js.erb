@@ -30,6 +30,7 @@ else {
 
 $('input[name=plan_year_radio]').click(function() {
   hidePlanYearActions();
+  hideV2XmlInputs();
   clearDatePickerValue();
   hideTerminationRadios();
   $('.py-btn-grp').addClass('disabled');
@@ -50,6 +51,7 @@ function populateDropDown(status, actionTakenUnder24Hours) {
   var term_states = ["active", "suspended", "expired"];
   var reinstate_states = ["terminated", "termination_pending", "retroactive_canceled"];
   var revise_end_date_states = ["terminated", "termination_pending"];
+  var unwanted_v2_xml_states = cancel_states.filter(state => state !== "active").concat(["suspended", "retroactive_canceled", "canceled"]);
 
   if (actionTakenUnder24Hours === 'true') {
     $('li.cancel-py, li.terminate-py, li.reinstate-py, li.revise-end-date-py').addClass('blocking');
@@ -58,6 +60,12 @@ function populateDropDown(status, actionTakenUnder24Hours) {
     updateBlockingState(status, 'terminate-py', term_states);
     updateBlockingState(status, 'reinstate-py', reinstate_states);
     updateBlockingState(status, 'revise-end-date-py', revise_end_date_states);
+  }
+
+  if (unwanted_v2_xml_states.indexOf(status) > -1) {
+    $('li.generate-v2-xml-py').addClass('blocking');
+  } else {
+    $('li.generate-v2-xml-py').removeClass('blocking');
   }
 }
 
@@ -156,6 +164,22 @@ function hideTerminationRadios() {
   $('.term_action_radios').addClass('hidden');
 }
 
+function hideV2XmlInputs() {
+  $('.v2_xml_inputs').addClass('hidden');
+}
+
+function showV2XmlInputs() {
+  $(`#${applicationId}.v2_xml_inputs, #${applicationId} .v2_xml_inputs`).removeClass('hidden');
+}
+
+function hideCancelInputs() {
+  $('.cancel_action_inputs').addClass('hidden');
+}
+
+function showCancelInputs() {
+  $('.cancel_action_inputs').removeClass('hidden');
+}
+
 function terminateValidations() {
   if ($('input[name=term_actions]:checked').length) {
     return true;
@@ -205,6 +229,15 @@ function selectReviseEndDate(pyStatus, applicationId) {
   }
 }
 
+function v2DropDownEvents(id, applicationId){
+  if (id == 'v2 Event Type') {
+    $("#download_button_" + applicationId).addClass('disabled')
+  }
+  else {
+    $("#download_button_" + applicationId).removeClass('disabled')
+    $("#selected_event_type_" + applicationId).val(id)
+  }
+}
 
 function pyAction(action, id, status, employer_id, end_on, start_on) {
   actionSelected = action;
@@ -240,7 +273,15 @@ function pyAction(action, id, status, employer_id, end_on, start_on) {
   if (action == 'cancel') {
     hideEndDateField(pyStartDate, applicationId);
     hideTerminationRadios();
+    hideV2XmlInputs();
+    showCancelInputs();
     enableSubmitButton();
+  }
+
+  if (action == 'generate_v2_xml'){
+    hideEndDateField(pyStartDate, applicationId);
+    hidePlanYearActions();
+    showV2XmlInputs(applicationId);
   }
 
   // Clears all end dates from previous rows

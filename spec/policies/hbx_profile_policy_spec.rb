@@ -350,3 +350,33 @@ describe HbxProfilePolicy do
   end
 end
 
+describe HbxProfilePolicy do
+  context '.can_generate_v2_xml?' do
+    let!(:user10)                  { FactoryBot.create(:user) }
+    let!(:person)                  { FactoryBot.create(:person, :with_hbx_staff_role, user: user10) }
+
+    subject                        { HbxProfilePolicy.new(user10, nil) }
+
+    (Permission::PERMISSION_KINDS - ['super_admin']).each do |kind|
+      context "for permissions which doesn't allow the user" do
+        let(:bad_permission) { FactoryBot.create(:permission, kind.to_sym) }
+
+        it 'should return false' do
+          person.hbx_staff_role.update_attributes!(permission_id: bad_permission.id)
+          expect(subject.can_generate_v2_xml?).to eq false
+        end
+      end
+    end
+
+    context "for permissions which allow the user" do
+      let(:good_permission) { FactoryBot.create(:permission, :super_admin) }
+
+      it 'should return true' do
+        person.hbx_staff_role.update_attributes!(permission_id: good_permission.id)
+        person.user.permission.update_attributes!(can_generate_v2_xml: true)
+
+        expect(subject.can_generate_v2_xml?).to eq true
+      end
+    end
+  end
+end

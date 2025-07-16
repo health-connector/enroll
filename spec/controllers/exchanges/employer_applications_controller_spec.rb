@@ -5,6 +5,7 @@ require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
 
 RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each do
+  include ActionDispatch::TestProcess
 
   include_context "setup benefit market with market catalogs and product packages"
   include_context "setup initial benefit application"
@@ -237,7 +238,6 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
         end
       end
 
-
       context 'when feature disabled' do
         before :each do
           allow(::EnrollRegistry).to receive(:feature_enabled?).with(:benefit_application_history).and_return(false)
@@ -254,6 +254,177 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
         it 'should direct to profile root path' do
           expect(response).to redirect_to(exchanges_hbx_profiles_root_path)
         end
+      end
+    end
+  end
+
+  describe 'post upload_v2_xml', :dbclean => :after_each do
+    let(:user) { instance_double("User", :has_hbx_staff_role? => true, :person => person1) }
+    let(:hbx_staff_role) { FactoryBot.create(:hbx_staff_role, person: person1, subrole: "super_admin") }
+    let(:filename) { "#{Rails.root}/spec/test_data/employer_digest/tufts_health_direct.xml" }
+    let(:file) { fixture_file_upload(filename, 'application/xml') }
+    let(:employer_actions_id) { 'employer_actions_12345' }
+    let(:name) { can_generate_v2_xml }
+
+    context "when user has permissions" do
+      before :each do
+        allow(hbx_staff_role).to receive(:permission).and_return(double('Permission', can_modify_plan_year: true, can_generate_v2_xml: true, name: 'super_admin'))
+        allow_any_instance_of(BenefitSponsors::Services::V2XmlUploader).to receive(:upload).and_return([true, []])
+        sign_in(user)
+      end
+
+      it "returns a success message" do
+        post :upload_v2_xml, params: {
+          employer_application_id: initial_application.id,
+          id: initial_application.id,
+          employer_id: benefit_sponsorship.id,
+          file: file,
+          employer_actions_id: employer_actions_id
+        }
+        expect(response).to have_http_status(:ok)
+        expect(JSON.parse(response.body)['success_message']).to eq("Successfully uploaded V2 digest XML for employer FEIN: #{benefit_sponsorship.fein}.")
+      end
+
+      it "returns an error message when upload fails" do
+        allow_any_instance_of(BenefitSponsors::Services::V2XmlUploader).to receive(:upload).and_return([false, ["FEIN mismatch"]])
+        post :upload_v2_xml, params: {
+          employer_application_id: initial_application.id,
+          id: initial_application.id,
+          employer_id: benefit_sponsorship.id,
+          file: file,
+          employer_actions_id: employer_actions_id
+        }
+        expect(response).to have_http_status(:ok)
+        expect(JSON.parse(response.body)['error_message']).to eq("Failed to upload XML. Error: FEIN mismatch")
+      end
+    end
+
+    context "when file upload is invalid" do
+      before :each do
+        allow(hbx_staff_role).to receive(:permission).and_return(double('Permission', can_modify_plan_year: true, can_generate_v2_xml: true, name: 'super_admin'))
+        sign_in(user)
+      end
+
+      it "returns an error for invalid file" do
+        invalid_file = Rack::Test::UploadedFile.new("#{Rails.root}/spec/test_data/sample.txt", 'text/plain')
+        post :upload_v2_xml, params: {
+          employer_application_id: initial_application.id,
+          id: initial_application.id,
+          employer_id: benefit_sponsorship.id,
+          file: invalid_file,
+          employer_actions_id: employer_actions_id
+        }
+        expect(response).to have_http_status(:ok)
+        expect(JSON.parse(response.body)['error_message']).to eq("must be an XML file")
+      end
+    end
+  end
+
+  describe 'get new_v2_xml', :dbclean => :after_each do
+    let(:user) { instance_double("User", :has_hbx_staff_role? => true, :person => person1) }
+    let(:hbx_staff_role) { FactoryBot.create(:hbx_staff_role, person: person1, subrole: "super_admin") }
+    let(:name) { can_generate_v2_xml }
+
+    context "when user has permissions" do
+      before :each do
+        allow(hbx_staff_role).to receive(:permission).and_return(double('Permission', can_generate_v2_xml: true, name: 'super_admin'))
+        sign_in(user)
+        get :new_v2_xml, params: { employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id.to_s }, format: :js
+      end
+
+      it "does respond with success" do
+        expect(response).to have_http_status(:success)
+      end
+
+      it "renders the new_v2_xml template" do
+        expect(response).to render_template(:new_v2_xml)
+      end
+    end
+
+    context "when user does not have permissions" do
+      before :each do
+        allow(hbx_staff_role).to receive(:permission).and_return(double('Permission', can_generate_v2_xml: false, name: 'staff'))
+        sign_in(user)
+        get :new_v2_xml, params: { employer_application_id: initial_application.id, employer_id: benefit_sponsorship.id.to_s }, format: :js
+      end
+
+      it "does not respond with success" do
+        expect(response).to have_http_status(403)
+      end
+
+      it "does not render the new_v2_xml template" do
+        expect(response).not_to render_template(:new_v2_xml)
+      end
+    end
+  end
+
+  describe 'GET download_v2_xml', :dbclean => :after_each do
+    let(:user) { instance_double("User", :has_hbx_staff_role? => true, :person => person1) }
+    let(:hbx_staff_role) { FactoryBot.create(:hbx_staff_role, person: person1, subrole: "super_admin") }
+    let(:employer_actions_id) { 'employer_actions_12345' }
+    let(:selected_event) { 'selected_event_name' }
+    let(:download_v2_xml_operation) { instance_double(BenefitSponsors::Operations::BenefitApplications::DownloadV2Xml) }
+
+    before :each do
+      allow(hbx_staff_role).to receive(:permission).and_return(double('Permission', can_modify_plan_year: true, can_generate_v2_xml: true, name: 'super_admin'))
+      allow(BenefitSponsors::Operations::BenefitApplications::DownloadV2Xml).to receive(:new).and_return(download_v2_xml_operation)
+      sign_in(user)
+    end
+
+    context "when download is successful" do
+      before do
+        allow(download_v2_xml_operation).to receive(:call).and_return(Dry::Monads::Success('/path/to/file.zip'))
+      end
+
+      it "sets success message and file path" do
+        get :download_v2_xml, params: {
+          selected_event: selected_event,
+          employer_application_id: initial_application.id,
+          employer_actions_id: employer_actions_id,
+          employer_id: benefit_sponsorship.id
+        }, xhr: true
+
+        expect(assigns(:success_message)).to eq('V2 XML downloaded successfully.')
+        expect(assigns(:file_path)).to eq('/path/to/file.zip')
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context "when there are no files to download" do
+      before do
+        allow(download_v2_xml_operation).to receive(:call).and_return(Dry::Monads::Failure([:empty_files, 'No files to download']))
+      end
+
+      it "sets error message for empty files" do
+        get :download_v2_xml, params: {
+          selected_event: selected_event,
+          employer_application_id: initial_application.id,
+          employer_actions_id: employer_actions_id,
+          employer_id: benefit_sponsorship.id
+        }, xhr: true
+
+        expect(assigns(:error_message)).to eq('No files to download')
+        expect(assigns(:file_path)).to be_nil
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context "when an error occurs during download" do
+      before do
+        allow(download_v2_xml_operation).to receive(:call).and_return(Dry::Monads::Failure([:error, 'Some error']))
+      end
+
+      it "sets generic error message" do
+        get :download_v2_xml, params: {
+          selected_event: selected_event,
+          employer_application_id: initial_application.id,
+          employer_actions_id: employer_actions_id,
+          employer_id: benefit_sponsorship.id
+        }, xhr: true
+
+        expect(assigns(:error_message)).to eq('An error occurred during download')
+        expect(assigns(:file_path)).to be_nil
+        expect(response).to have_http_status(:ok)
       end
     end
   end
