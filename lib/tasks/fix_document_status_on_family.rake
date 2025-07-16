@@ -3,5 +3,5 @@ require File.join(Rails.root, "app", "data_migrations", "fix_document_status_on_
 
 namespace :migrations do
   desc "update document status on family"
-  FixDocumentStatus.define_task :fix_document_status_on_family => :environment
+  FixDocumentStatusOnFamily.define_task :fix_document_status_on_family => :environment
 end

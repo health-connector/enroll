@@ -18,7 +18,7 @@ describe "shared/inboxes/_message_list.html.erb" do
 
   before :each do
     allow(view).to receive(:policy_helper).and_return(double("PersonPolicy", updateable?: true))
-    render "shared/inboxes/message_list.html.erb",  :folder => "Sent", :sent_box => true,:provider => mock_provider
+    render "shared/inboxes/message_list",  :folder => "Sent", :sent_box => true,:provider => mock_provider
   end
 
   it "should have text From" do

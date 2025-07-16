@@ -29,7 +29,7 @@ RSpec.describe "exchanges/hbx_profiles/_edit_force_publish", :dbclean => :around
     assign :organization, organization
     assign :benefit_application, benefit_sponsorship.benefit_applications.first
     @benefit_sponsorship = benefit_sponsorship
-    render partial: 'exchanges/hbx_profiles/edit_force_publish.html.erb', locals: {params: params}
+    render partial: 'exchanges/hbx_profiles/edit_force_publish', locals: {params: params}
   end
 
   context "force publish" do

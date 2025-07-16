@@ -8,7 +8,7 @@ describe AssignNewParamsForMemberSelection, :dbclean => :after_each do
 
   context 'when passed invalid params' do
     it 'should not assign employee_role' do
-      context = described_class.call(person: nil, params: {employee_role_id: employee_role.id})
+      context = AssignNewParamsForMemberSelection.call(person: nil, params: {employee_role_id: employee_role.id})
       expect(context.employee_role).to eq nil
     end
 

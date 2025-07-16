@@ -41,7 +41,7 @@ describe ::Importers::ConversionEmployerSet do
         "Employer Contribution - Disabled child over 26,Import Status,Import Details\n" \
         "Add,931100000,AGA DBA,AGA LEGAL,799 9TH STREET NW,7TH FLR,Washington,DC,20001,County,\"\",\"\",\"\",\"\",\"\",THE,CONTACT," \
         "THECONTACT@AGA.COM,2025552675,14,Date of Hire equal to Effective Date,799 9TH STREET NW,7TH FLR,Washington,DC,20001,THE BROKER," \
-        "8262800,\"\",\"\",07/01/2016,United Healtcare,Single Plan from Carrier,Choice Plus Insurance/0/5000,41842DC0010068-01,\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\""
+        "8262800,\"\",\"\",2016-07-01,United Healtcare,Single Plan from Carrier,Choice Plus Insurance/0/5000,41842DC0010068-01,\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\""
     end
 
     describe "with a valid employer record" do

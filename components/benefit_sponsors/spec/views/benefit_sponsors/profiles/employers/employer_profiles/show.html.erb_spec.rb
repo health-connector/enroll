@@ -17,7 +17,7 @@ RSpec.describe "views/benefit_sponsors/profiles/employers/employer_profiles/_sho
   let(:reference_product) { current_benefit_package.sponsored_benefits[0].reference_product }
 
   before :each do
-    view.extend Pundit
+    view.extend Pundit::Authorization
     view.extend BenefitSponsors::ApplicationHelper
     view.extend BenefitSponsors::Engine.routes.url_helpers
     @employer_profile = employer_profile
@@ -28,7 +28,7 @@ RSpec.describe "views/benefit_sponsors/profiles/employers/employer_profiles/_sho
 
   it "should display the dashboard content" do
     @tab = 'home'
-    render template: "benefit_sponsors/profiles/employers/employer_profiles/show.html.erb"
+    render template: "benefit_sponsors/profiles/employers/employer_profiles/show"
     expect(rendered).to have_selector('h1', text: 'My Health Benefits Program')
   end
 

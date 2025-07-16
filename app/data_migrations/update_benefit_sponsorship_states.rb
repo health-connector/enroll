@@ -1,6 +1,6 @@
 require File.join(Rails.root, "lib/mongoid_migration_task")
 
-class UpdateBenefitSponosorshipStates < MongoidMigrationTask
+class UpdateBenefitSponsorshipStates < MongoidMigrationTask
 
   def migrate
     old_states = [:initial_application_under_review, :initial_application_denied, :initial_application_approved, :initial_enrollment_open, :initial_enrollment_closed, :initial_enrollment_ineligible, :initial_enrollment_eligible]

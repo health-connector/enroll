@@ -155,13 +155,17 @@ private
     return true unless is_shop?
     min_date = sep_optional_date family, 'min', qualifying_life_event_kind.market_kind
     max_date = sep_optional_date family, 'max', qualifying_life_event_kind.market_kind
-    errors.add(:next_poss_effective_date, "out of range.") if not next_poss_effective_date.between?(min_date, max_date)
+    if !(min_date || max_date)
+      errors.add(:next_poss_effective_date, "No eligible plan years present") unless errors.messages.values.flatten.include?("No eligible plan years present")
+    elsif !next_poss_effective_date.between?(min_date, max_date)
+      errors.add(:next_poss_effective_date, "out of range.")
+    end
   end
 
   def optional_effective_on_dates_within_range
     return true unless is_shop?
     optional_effective_on.each_with_index do |date_option, index|
-      date_option = Date.strptime(date_option, "%m/%d/%Y")
+      date_option = DateParser.smart_parse(date_option)
       min_date = sep_optional_date family, 'min', qualifying_life_event_kind.market_kind
       max_date = sep_optional_date family, 'max', qualifying_life_event_kind.market_kind
       error_message = if min_date.blank? && max_date.blank?

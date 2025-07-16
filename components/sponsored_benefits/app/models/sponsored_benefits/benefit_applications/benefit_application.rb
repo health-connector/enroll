@@ -239,7 +239,7 @@ module SponsoredBenefits
         end
 
         def calculate_start_on_options
-          calculate_start_on_dates.map {|date| [date.strftime("%B %Y"), date.to_s(:db) ]}
+          calculate_start_on_dates.map {|date| [date.strftime("%B %Y"), date.to_formatted_s(:db)]}
         end
 
         def enrollment_timetable_by_effective_date(effective_date)

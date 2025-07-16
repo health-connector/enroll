@@ -5,14 +5,14 @@ require 'csv'
 require File.join(Rails.root, "app", "reports", "hbx_reports", "outstanding_monthly_enrollments")
 require "#{Rails.root}/app/helpers/config/aca_helper"
 
-describe OutstandingMonthlyEnrollments, dbclean: :around_each do
+describe HbxReports::OutstandingMonthlyEnrollments, dbclean: :around_each do
 
   context 'reports:outstanding_monthly_enrollments_report' do
 
     let!(:start_date) {"2/1/2019"}
     let!(:effective_on) {Date.strptime(start_date,'%m/%d/%Y')}
     let(:given_task_name) { "outstanding_monthly_enrollments"}
-    subject { OutstandingMonthlyEnrollments.new(given_task_name, double(:current_scope => nil)) }
+    subject { HbxReports::OutstandingMonthlyEnrollments.new(given_task_name, double(:current_scope => nil)) }
 
     after(:all) do
       dir_path = "#{Rails.root}/hbx_report/"

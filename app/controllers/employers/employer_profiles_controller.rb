@@ -7,10 +7,10 @@ module Employers
 
     before_action :redirect_new_model, only: [:show, :welcome, :index, :new, :show_profile, :edit, :generate_sic_tree, :create]
 
-    before_action :find_employer, only: [:show, :show_profile, :destroy, :inbox,
-                                         :bulk_employee_upload, :download_invoice, :export_census_employees, :link_from_quote, :new_document, :upload_document, :generate_checkbook_urls, :consumer_override]
+    before_action :find_employer, only: [:show, :show_profile, :inbox,
+                                         :bulk_employee_upload, :download_invoice, :link_from_quote, :new_document, :upload_document, :generate_checkbook_urls, :consumer_override]
 
-    before_action :check_show_permissions, only: [:show, :show_profile, :destroy, :inbox, :bulk_employee_upload]
+    before_action :check_show_permissions, only: [:show, :show_profile, :inbox, :bulk_employee_upload]
     before_action :check_index_permissions, only: [:index]
     before_action :check_employer_staff_role, only: [:new]
     before_action :check_access_to_organization, only: [:edit]

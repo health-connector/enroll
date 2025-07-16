@@ -177,7 +177,7 @@ module BenefitSponsors
         end
       end
 
-      context  'For renewal employers for whom open enrollment extended' do 
+      context 'For renewal employers for whom open enrollment extended' do
         let(:renewal_application_state)       { :enrollment_extended }
 
         it "should close their open enrollment" do 
@@ -223,13 +223,13 @@ module BenefitSponsors
       end
     end
 
-    describe ".transmit_renewal_carrier_drop_event" do
+    describe ".transmit_renewal_carrier_drop_event" do # TODO: comeback later
       let!(:benefit_market) { site.benefit_markets.first }
       let!(:benefit_market_catalog)  { benefit_market.benefit_market_catalogs.first }
       let(:organization) { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_dc_employer_profile_renewal_application, site: site)}
-      let(:employer_profile) {organization.employer_profile}
+      let(:employer_profile) { organization.employer_profile }
       let(:benefit_package) { employer_profile.latest_benefit_application.benefit_packages.first }
-      let!(:health_sponsored_benefit) {benefit_package.health_sponsored_benefit}
+      let!(:health_sponsored_benefit) { benefit_package.health_sponsored_benefit }
       let!(:issuer_profile)  { FactoryBot.create(:benefit_sponsors_organizations_issuer_profile) }
       let!(:renewal_application)  { employer_profile.renewal_benefit_application }
       let!(:active_application)  { employer_profile.active_benefit_application }

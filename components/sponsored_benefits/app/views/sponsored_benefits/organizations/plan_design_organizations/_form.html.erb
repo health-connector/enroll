@@ -1,4 +1,4 @@
-<%= javascript_pack_tag 'benefit_sponsors', 'data-turbolinks-track': 'reload' %>
+<%= append_javascript_pack_tag 'benefit_sponsors' %>
 
 <%= render "entity_name_and_type_fields_autofill", f: f, entity_kinds: Organization::ENTITY_KINDS %>
 <br>

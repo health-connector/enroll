@@ -36,12 +36,12 @@
             </div>
             <div>
               <label><%= l10n("effective_date") %>: </label>
-              <strong><%= hbx_enrollment.effective_on %></strong>
+              <strong><%= format_date(hbx_enrollment.effective_on) %></strong>
             </div>
             <% if hbx_enrollment.is_shop? %>
               <div>
                 <label><%= l10n("termination_date") %>: </label>
-                <strong><%= @family.terminate_date_for_shop_by_enrollment(hbx_enrollment) %></strong>
+                <strong><%= format_date(@family.terminate_date_for_shop_by_enrollment(hbx_enrollment)) %></strong>
               </div>
             <% end %>
           </div>

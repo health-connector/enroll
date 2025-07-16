@@ -61,7 +61,7 @@ class Employers::PremiumStatementsController < ApplicationController
 
   def set_billing_date
     if params[:billing_date].present?
-      @billing_date = Date.strptime(params[:billing_date], "%m/%d/%Y")
+      @billing_date = DateParser.smart_parse(params[:billing_date])
     else
       @billing_date = billing_period_options.first[1]
     end

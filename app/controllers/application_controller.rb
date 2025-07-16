@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class ApplicationController < ActionController::Base
-  include Pundit
+  include Pundit::Authorization
   include Config::SiteConcern
   include Config::AcaConcern
   include Config::ContactCenterConcern
@@ -95,6 +95,15 @@ class ApplicationController < ActionController::Base
     #TODO: TREY KEVIN JIM CSR HAS NO SSO_ACCOUNT
     session[:person_id] = personish.id if current_user.try(:person).try(:agent?)
     yield
+  end
+
+  # allow open redirect
+  def redirect_to(options = {}, response_status = {})
+    if options.is_a?(String) && options =~ URI::DEFAULT_PARSER.make_regexp
+      super(options, response_status.merge(allow_other_host: true))
+    else
+      super
+    end
   end
 
   private

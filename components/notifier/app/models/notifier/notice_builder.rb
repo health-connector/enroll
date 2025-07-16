@@ -40,7 +40,7 @@ module Notifier
 
     def render_envelope(params)
       template_location = if self.event_name == 'generate_initial_employer_invoice'
-                            'notifier/notice_kinds/initial_invoice/invoice_template.html.erb'
+                            'notifier/notice_kinds/initial_invoice/invoice_template'
                           else
                             Settings.notices.shop.partials.template
                           end
@@ -139,7 +139,7 @@ module Notifier
     end
 
     def join_pdfs(pdfs)
-      pdf = File.exists?(pdfs[0]) ? CombinePDF.load(pdfs[0]) : CombinePDF.new
+      pdf = File.exist?(pdfs[0]) ? CombinePDF.load(pdfs[0]) : CombinePDF.new
       pdf << CombinePDF.load(pdfs[1])
       pdf.save notice_path
     end

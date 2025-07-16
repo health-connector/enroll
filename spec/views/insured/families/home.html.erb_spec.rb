@@ -20,17 +20,17 @@ RSpec.describe "insured/families/home.html.erb" do
   end
 
   before :each do
-    stub_template "insured/families/_right_column.html.erb" => ''
-    stub_template "insured/families/_qle_detail.html.erb" => ''
-    stub_template "insured/families/_enrollment.html.erb" => ''
-    stub_template "insured/families/_navigation.html.erb" => ''
-    stub_template "insured/families/_shop_for_plans_widget.html.erb" => ''
-    stub_template "insured/families/_apply_for_medicaid_widget.html.erb" => ''
-    stub_template "app/views/ui-components/v1/modals/_help_with_plan.html.slim" => ''
+    stub_template "insured/families/_right_column" => ''
+    stub_template "insured/families/_qle_detail" => ''
+    stub_template "insured/families/_enrollment" => ''
+    stub_template "insured/families/_navigation" => ''
+    stub_template "insured/families/_shop_for_plans_widget" => ''
+    stub_template "insured/families/_apply_for_medicaid_widget" => ''
+    stub_template "app/views/ui-components/v1/modals/_help_with_plan" => ''
     assign(:person, person)
     sign_in current_user
     assign(:family, family)
-    render template: "insured/families/home.html.erb"
+    render template: "insured/families/home"
   end
 
   it "should display the title" do
@@ -45,13 +45,13 @@ RSpec.describe "insured/families/home.html.erb" do
 
   it "should display 'existing SEP - Eligible to enroll' partial if there is an active admin SEP" do
     assign(:active_sep, sep)
-    render template: "insured/families/home.html.erb"
+    render template: "insured/families/home"
     expect(rendered).to have_selector('div#qle-details-for-existing-sep')
   end
 
   it "should not display 'existing SEP - Eligible to enroll' partial if there is no active admin SEP" do
     assign(:active_sep, [])
-    render template: "insured/families/home.html.erb"
+    render template: "insured/families/home"
     expect(rendered).to_not have_selector('div#qle-details-for-existing-sep')
   end
 

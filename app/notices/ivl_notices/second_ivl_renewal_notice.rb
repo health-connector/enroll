@@ -11,7 +11,7 @@ class IvlNotices::SecondIvlRenewalNotice < IvlNotice
     self.person = args[:person]
     self.data = args[:data]
     self.identifier = args[:primary_identifier]
-    self.header = "notices/shared/header_ivl.html.erb"
+    self.header = "notices/shared/header_ivl"
     super(args)
   end
 

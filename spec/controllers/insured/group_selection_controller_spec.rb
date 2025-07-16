@@ -329,14 +329,14 @@ RSpec.describe Insured::GroupSelectionController, :type => :controller, dbclean:
       allow(hbx_enrollment).to receive(:terminate_benefit)
       expect(HbxEnrollment.aasm.state_machine.events[:terminate_coverage].transitions[0].opts.values.include?(:propogate_terminate)).to eq true
       expect(hbx_enrollment.termination_submitted_on).to eq nil
-      post :terminate, params: {term_date: TimeKeeper.date_of_record, hbx_enrollment_id: hbx_enrollment.id}
+      post :terminate, params: {term_date: TimeKeeper.date_of_record.strftime('%Y-%m-%d'), hbx_enrollment_id: hbx_enrollment.id}
       expect(hbx_enrollment.termination_submitted_on.to_date).to eq(TimeKeeper.datetime_of_record.to_date)
       expect(response).to redirect_to(family_account_path)
     end
 
     it "should redirect back if hbx enrollment can't be terminated" do
       hbx_enrollment.assign_attributes(aasm_state: "shopping")
-      post :terminate, params: {term_date: TimeKeeper.date_of_record, hbx_enrollment_id: hbx_enrollment.id}
+      post :terminate, params: { term_date: TimeKeeper.date_of_record.strftime('%Y-%m-%d'), hbx_enrollment_id: hbx_enrollment.id }
       expect(hbx_enrollment.may_terminate_coverage?).to be_falsey
       expect(response).to redirect_to(terminate_confirm_insured_group_selections_path(person_id: person.id, hbx_enrollment_id: hbx_enrollment.id))
     end
@@ -344,7 +344,7 @@ RSpec.describe Insured::GroupSelectionController, :type => :controller, dbclean:
 
     it "should redirect back if termination date is in the past" do
       allow(hbx_enrollment).to receive(:terminate_benefit)
-      post :terminate, params: {term_date: TimeKeeper.date_of_record - 10.days, hbx_enrollment_id: hbx_enrollment.id}
+      post :terminate, params: {term_date: (TimeKeeper.date_of_record - 10.days).strftime('%Y-%m-%d'), hbx_enrollment_id: hbx_enrollment.id}
       expect(hbx_enrollment.may_terminate_coverage?).to be_truthy
       expect(response).to redirect_to(terminate_confirm_insured_group_selections_path(person_id: person.id, hbx_enrollment_id: hbx_enrollment.id))
     end

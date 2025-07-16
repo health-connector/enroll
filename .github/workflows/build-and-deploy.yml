@@ -7,9 +7,13 @@ on:
       - master
       - enroll_uat
       - rc-release-*
+      - upgrade_to_rails_7_2
+      - upgrade_to_rails_7_2_with_shakapacker
   pull_request:
     branches:
       - master
+      - upgrade_to_rails_7_2
+      - upgrade_to_rails_7_2_with_shakapacker
 
 concurrency:
   group: docker-${{ github.ref }}

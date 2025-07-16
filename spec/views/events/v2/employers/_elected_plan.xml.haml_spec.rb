@@ -10,7 +10,7 @@ describe "app/views/events/v2/employers/_elected_plan.xml.haml", dbclean: :after
 
   before :each do
     allow(elected_plan).to receive(:ehb).and_return(0.0)
-    render :template => "events/v2/employers/_elected_plan.xml.haml", locals: { elected_plan: elected_plan }
+    render :template => "events/v2/employers/_elected_plan", locals: { elected_plan: elected_plan }
   end
 
   describe "given a plan with a carrier_special_plan_identifier" do

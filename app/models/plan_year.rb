@@ -6,7 +6,7 @@ class PlanYear
   include Acapi::Notifiers
   include ScheduledEventService
   include Config::AcaModelConcern
-  include Concerns::Observable
+  include EnrollObservable
   include ModelEvents::PlanYear
   include Config::BankHolidaysHelper
 
@@ -785,7 +785,7 @@ class PlanYear
     end
 
     def calculate_start_on_options
-      calculate_start_on_dates.map {|date| [date.strftime("%B %Y"), date.to_s(:db) ]}
+      calculate_start_on_dates.map {|date| [date.strftime("%B %Y"), date.to_formatted_s(:db)]}
     end
 
     def calculate_open_enrollment_date(start_on)

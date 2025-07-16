@@ -16,15 +16,15 @@
     </tr>
     <tr>
       <td><h4><%= l10n("exchange.employer_applications.created_on") %>:</h4></td>
-      <td><%= @application.created_at %></td>
+      <td><%= format_time(@application.created_at) %></td>
     </tr>
     <tr>
       <td><h4><%= l10n("exchange.employer_applications.coverage_period")%></h4></td>
-      <td><%= @application.start_on %> - <%= @application.end_on %></td>
+      <td><%= format_time(@application.start_on) %> - <%= format_time(@application.end_on) %></td>
     </tr>
     <tr>
       <td><h4><%= l10n("exchange.employer_applications.oe_period")%></h4></td>
-      <td><%= @application.open_enrollment_start_on %> - <%= @application.open_enrollment_end_on %></td>
+      <td><%= format_time(@application.open_enrollment_start_on) %> - <%= format_time(@application.open_enrollment_end_on) %></td>
     </tr>
   </table>
   <h4><strong>
@@ -49,7 +49,7 @@
         <% user = User.where(_id: item.updated_by).first if item.updated_by %>
         <tr style='border-bottom: 1px solid #d1d1d1;'>
           <td style='padding: 1%'><%=  user&.oim_id %></td>
-          <td><%= item.state&.to_s&.titleize %> - <%= item.created_at %></td>
+          <td><%= item.state&.to_s&.titleize %> - <%= format_time(item.created_at) %></td>
           <td style='padding: 1%'><%= confirmation_details_text(item) %></td>
         </tr>
       <% end %>

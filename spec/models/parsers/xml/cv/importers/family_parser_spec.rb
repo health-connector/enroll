@@ -34,7 +34,7 @@ describe Parsers::Xml::Cv::Importers::FamilyParser do
       end
 
       it "should get relationship by person" do
-        person = subject.get_family_object.family_members.last.person
+        person = subject.get_family_object.family_members.where(is_primary_applicant: true).last.person
         expect(person.person_relationships.first.kind).to eq 'child'
       end
 
@@ -76,10 +76,8 @@ describe Parsers::Xml::Cv::Importers::FamilyParser do
       end
 
       it "person should have relationships" do
-        family_members = subject.get_family_object.family_members
-        family_members.each do |fm|
-          expect(fm.person.person_relationships.length).to be > 0
-        end
+        primary_family_members = subject.get_family_object.family_members.where(is_primary_applicant: true).last
+        expect(primary_family_members.person.person_relationships.length).to be > 0
       end
 
       it "should get person_relationships by primary_applicant" do

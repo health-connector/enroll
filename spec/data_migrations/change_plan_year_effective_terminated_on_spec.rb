@@ -3,10 +3,10 @@
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "change_plan_year_effective_terminated_on")
 
-describe ChangePlanYearEffectiveTerminatedon, dbclean: :after_each do
+describe ChangePlanYearEffectiveTerminatedOn, dbclean: :after_each do
 
   let(:given_task_name) { "change_plan_year_effective_terminated_on" }
-  subject { ChangePlanYearEffectiveTerminatedon.new(given_task_name, double(:current_scope => nil)) }
+  subject { ChangePlanYearEffectiveTerminatedOn.new(given_task_name, double(:current_scope => nil)) }
 
   def with_modified_env(options, &block)
     ClimateControl.modify(options, &block)

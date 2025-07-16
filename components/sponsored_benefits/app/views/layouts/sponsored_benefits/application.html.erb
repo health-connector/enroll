@@ -8,16 +8,17 @@
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
 	<%= javascript_include_tag "application" %>
 	<%= javascript_include_tag "sponsored_benefits/application" %>
+	<%= javascript_pack_tag 'benefit_sponsors', 'data-turbolinks-track': 'reload' %>
   <%= csrf_meta_tags %>
 </head>
 <body class="font">
-    <%= render './ui-components/v1/navs/header' %>
+    <%= render 'ui-components/v1/navs/header' %>
     <%= render 'shared/engines/broker_menu' %>
     <%= render_flash %>
     <div class="content <%= controller_name %>">
       <%= yield %>
     </div>
-    <%= render './ui-components/v1/layouts/footer' %>
+    <%= render 'ui-components/v1/layouts/footer' %>
 </body>
 </html>
 

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'sic_concern'
 class SicConverter
   extend SicConcern
 end

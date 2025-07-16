@@ -34,13 +34,13 @@ describe "exchanges/hbx_profiles/_edit_enrollment.html.erb" do
 
   it "display premium implications message if there exists any enrollment that is affected by DOB change" do
     assign(:premium_implications, with_premium_implications)
-    render template: "exchanges/hbx_profiles/_edit_enrollment.html.erb"
+    render template: "exchanges/hbx_profiles/_edit_enrollment"
     expect(rendered).to have_text(premium_implication_mesage, normalize_ws: true)
   end
 
   it "Do NOT display premium implications message if there is no enrollment affected by DOB change" do
     assign(:premium_implications, without_premium_implications)
-    render template: "exchanges/hbx_profiles/_edit_enrollment.html.erb"
+    render template: "exchanges/hbx_profiles/_edit_enrollment"
     expect(rendered).to_not have_text(premium_implication_mesage)
   end
 end

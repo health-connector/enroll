@@ -572,7 +572,7 @@ class HbxEnrollment
 
     aasm_state = parent_enrollment.aasm_state if parent_enrollment
     enrollments = if WAIVED_STATUSES.include?(aasm_state)
-                    parent_enrollment.to_a
+                    [parent_enrollment]
                   elsif is_open_enrollment? && renewing_enrollments.present?
                     update(predecessor_enrollment_id: renewing_enrollments.first.id)
                     (renewing_enrollments + terminating_enrollments).uniq

@@ -278,7 +278,7 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
 
   describe "Employee terminated" do
     let(:params) {valid_params}
-    let(:initial_census_employee) {CensusEmployee.new(**params)}
+    let(:initial_census_employee) { CensusEmployee.new(**params) }
     context "and employee is terminated and reported by employer on timely basis" do
 
       let(:termination_maximum) { Settings.aca.shop_market.retroactive_coverage_termination_maximum.to_hash }
@@ -466,7 +466,7 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
   end
 
   describe "When plan year is published" do
-    let(:params) {valid_params}
+    let(:params) { valid_params }
     let(:initial_census_employee) {CensusEmployee.new(**params)}
     let(:benefit_group_assignment) {FactoryBot.create(:benefit_sponsors_benefit_group_assignment, benefit_group: benefit_group, census_employee: initial_census_employee)}
 
@@ -558,7 +558,7 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
         ben_app
       end
       let!(:product_package2) {initial_application2.benefit_sponsor_catalog.product_packages.detect {|package| package.package_kind == :single_issuer}}
-      let!(:current_benefit_package2) {create(:benefit_sponsors_benefit_packages_benefit_package, health_sponsored_benefit: true, product_package: product_package2, title: "second benefit package", benefit_application: initial_application2)}
+      let!(:current_benefit_package2) {build(:benefit_sponsors_benefit_packages_benefit_package, health_sponsored_benefit: true, product_package: product_package2, title: "second benefit package", benefit_application: initial_application2)}
 
       before do
         FactoryBot.create(:benefit_sponsors_benefit_group_assignment, benefit_group: current_benefit_package2, census_employee: initial_census_employee)

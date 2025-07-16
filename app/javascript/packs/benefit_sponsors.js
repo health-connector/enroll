@@ -1,6 +1,6 @@
-import "babel-polyfill";
-import { Application } from "stimulus"
-import { definitionsFromContext } from "stimulus/webpack-helpers"
+import "@babel/polyfill";
+import { Application } from "@hotwired/stimulus"
+import { definitionsFromContext } from "@hotwired/stimulus-webpack-helpers"
 import * as officeLocations from "../benefit_sponsors/office_locations.js";
 
 window.checkOLKind = officeLocations.checkOLKind;

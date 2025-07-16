@@ -5,9 +5,9 @@ require File.join(Rails.root, "app", "data_migrations", "components", "fix_organ
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
 
-describe FixOrganization, dbclean: :after_each do
+describe Components::FixOrganization, dbclean: :after_each do
   let(:given_task_name) { "fix_organization" }
-  subject { FixOrganization.new(given_task_name, double(:current_scope => nil)) }
+  subject { Components::FixOrganization.new(given_task_name, double(:current_scope => nil)) }
 
   describe "given a task name" do
     it "has the given task name" do

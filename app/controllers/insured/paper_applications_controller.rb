@@ -85,7 +85,7 @@ class Insured::PaperApplicationsController < ApplicationController
 
   def download_options(document)
     options = {}
-    options[:content_type] = document.format
+    options[:type] = document.format
     options[:filename] = document.title
     options
   end

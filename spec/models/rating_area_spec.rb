@@ -24,7 +24,7 @@ RSpec.describe RatingArea, type: :model, dbclean: :after_each do
 
     it "does not allow a duplicate reference to be created" do
       expect(invalid_reference.valid?).to be_falsey
-      expect(invalid_reference.errors.full_messages.first).to match(/Zip code is already taken/)
+      expect(invalid_reference.errors.full_messages.first).to match(/Zip code has already been taken/)
     end
 
     it "allows a new reference in a separate county" do

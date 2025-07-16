@@ -4,7 +4,7 @@ class CcaBrokerAgencyProfilesMigration < Mongoid::Migration
     if Settings.site.key.to_s == "cca"
       site_key = "cca"
 
-      Dir.mkdir("hbx_report") unless File.exists?("hbx_report")
+      FileUtils.mkdir_p("hbx_report")
       file_name = "#{Rails.root}/hbx_report/cca_broker_profile_migration_status_#{TimeKeeper.datetime_of_record.strftime("%m_%d_%Y_%H_%M_%S")}.csv"
       field_names = %w( legal_name hbx_id new_organization_id  total_roles status)
 

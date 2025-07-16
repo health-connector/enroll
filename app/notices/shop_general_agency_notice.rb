@@ -12,7 +12,7 @@ class ShopGeneralAgencyNotice < Notice
     args[:to] = general_agency_profile.general_agency_staff_roles.first.email_address
     args[:name] = general_agency_profile.general_agency_staff_roles.first.person.full_name.titleize
     args[:recipient_document_store]= general_agency_profile
-    self.header = "notices/shared/shop_header.html.erb"
+    self.header = "notices/shared/shop_header"
     super(args)
   end
 

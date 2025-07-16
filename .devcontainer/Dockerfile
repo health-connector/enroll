@@ -1,7 +1,7 @@
 # # Note: You can use any Debian/Ubuntu based image you want. 
-# FROM mcr.microsoft.com/devcontainers/base:bullseye
+# FROM mcr.microsoft.com/devcontainers/base:3.2-bookworm
 
-ARG RUBY_VARIANT=2-bullseye
+ARG RUBY_VARIANT=3.2-bookworm
 
 FROM mcr.microsoft.com/vscode/devcontainers/ruby:0-${RUBY_VARIANT}
 
@@ -9,7 +9,7 @@ RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
 RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
 
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-    && apt-get -y install --no-install-recommends libsodium23 python2.7 python-is-python2 yarn 
+    && apt-get -y install --no-install-recommends libsodium23
 
 ARG NODE_VERSION="none"
 RUN if [ "${NODE_VERSION}" != "none" ]; then su vscode -c "umask 0002 && . /usr/local/share/nvm/nvm.sh && nvm install ${NODE_VERSION} 2>&1"; fi

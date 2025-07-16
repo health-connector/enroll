@@ -52,25 +52,25 @@ RSpec.describe "insured/thankyou.html.erb", dbclean: :after_each do
     end
 
     it 'should display the correct plan selection text' do
-      render :template => "insured/plan_shoppings/thankyou.html.erb"
+      render :template => "insured/plan_shoppings/thankyou"
       expect(rendered).to have_selector('h1', text: 'Confirm Your Plan Selection')
       expect(rendered).to have_selector('h4', text: /Please review your current plan selection. If you want to change your plan, select 'Previous' to go back/)
     end
 
     it 'should render coverage_information partial' do
-      render :template => "insured/plan_shoppings/thankyou.html.erb"
+      render :template => "insured/plan_shoppings/thankyou"
       expect(response).to render_template(:partial => "insured/plan_shoppings/_coverage_information")
     end
 
     it "should have market" do
-      render :template => "insured/plan_shoppings/thankyou.html.erb"
+      render :template => "insured/plan_shoppings/thankyou"
       expect(rendered).to match('Market')
       expect(rendered).to match('Employer Sponsored')
     end
 
     it "should have cobra msg" do
       allow(hbx_enrollment).to receive(:is_cobra_status?).and_return(true)
-      render :template => "insured/plan_shoppings/thankyou.html.erb"
+      render :template => "insured/plan_shoppings/thankyou"
       expect(rendered).to match("Your employer may charge an additional administration fee for your COBRA/Continuation coverage. If you have any questions, please direct them to the Employer")
     end
   end
@@ -97,7 +97,7 @@ RSpec.describe "insured/thankyou.html.erb", dbclean: :after_each do
       it 'should display the correct plan selection text' do
         allow(@enrollment).to receive(:employee_role).and_return(false)
         allow(@enrollment).to receive(:is_cobra_status?).and_return(false)
-        render :template => "insured/plan_shoppings/thankyou.html.erb"
+        render :template => "insured/plan_shoppings/thankyou"
         expect(rendered).to have_selector('h1', text: 'Confirm Your Plan Selection')
         expect(rendered).to have_selector('h4', text: /Please review your current plan selection. Select PREVIOUS if /)
         expect(rendered).to have_content(/You must complete these steps to enroll/i)
@@ -106,21 +106,21 @@ RSpec.describe "insured/thankyou.html.erb", dbclean: :after_each do
       it 'should render agreement partial' do
         allow(@enrollment).to receive(:employee_role).and_return(false)
         allow(@enrollment).to receive(:is_cobra_status?).and_return(false)
-        render :template => "insured/plan_shoppings/thankyou.html.erb"
+        render :template => "insured/plan_shoppings/thankyou"
         expect(response).to render_template(:partial => "insured/plan_shoppings/_individual_agreement")
       end
 
       it 'should render waive_confirmation partial' do
         allow(@enrollment).to receive(:employee_role).and_return(double)
         allow(@enrollment).to receive(:is_cobra_status?).and_return(false)
-        render :template => "insured/plan_shoppings/thankyou.html.erb"
+        render :template => "insured/plan_shoppings/thankyou"
         expect(response).to render_template(partial: "ui-components/v1/modals/waive_confirmation_during_shopping", locals: {enrollment: hbx_enrollment})
       end
 
       it "should not render waive_confirmation partial" do
         allow(@enrollment).to receive(:employee_role).and_return(false)
         allow(@enrollment).to receive(:is_cobra_status?).and_return(false)
-        render :template => "insured/plan_shoppings/thankyou.html.erb"
+        render :template => "insured/plan_shoppings/thankyou"
         expect(rendered).not_to have_selector('div#waive_confirm')
         expect(response).not_to render_template(partial: "insured/plan_shoppings/waive_confirmation_during_shopping", locals: {enrollment: hbx_enrollment})
       end

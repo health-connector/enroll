@@ -1,4 +1,5 @@
-# Embedded model that stores a location address
+# frozen_string_literal: true
+
 class Address
   include Mongoid::Document
   include Mongoid::Timestamps
@@ -39,16 +40,16 @@ class Address
   field :country_name, type: String, default: ""
 
   validates_presence_of :address_1, :city, :state, :zip
-  
+
   validates :kind,
-    inclusion: { in: KINDS + OFFICE_KINDS, message: "%{value} is not a valid address kind" },
-    allow_blank: false
+            inclusion: { in: KINDS + OFFICE_KINDS, message: "%<value>s is not a valid address kind" },
+            allow_blank: false
 
   validates :zip,
-    format: {
-        :with => /\A\d{5}(-\d{4})?\z/,
-        :message => "should be in the form: 12345 or 12345-1234"
-      }
+            format: {
+              :with => /\A\d{5}(-\d{4})?\z/,
+              :message => "should be in the form: 12345 or 12345-1234"
+            }
 
   # @note Add support for GIS location
   def location

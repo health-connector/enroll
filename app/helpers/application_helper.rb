@@ -3,7 +3,7 @@ module ApplicationHelper
 
   def can_employee_shop?(date)
     return false if date.blank?
-    date = Date.strptime(date.to_s,"%m/%d/%Y")
+    date = DateParser.smart_parse(date)
     Plan.has_rates_for_all_carriers?(date) == false
   end
 
@@ -11,8 +11,8 @@ module ApplicationHelper
     employer.applicant? && !Plan.has_rates_for_all_carriers?(date) ? "blocking" : ""
   end
 
-  def product_rates_available?(benefit_sponsorship, date=nil)
-    date = Date.strptime(date.to_s, '%m/%d/%Y') if date.present?
+  def product_rates_available?(benefit_sponsorship, date = nil)
+    date = DateParser.smart_parse(date) if date.present?
     return false if benefit_sponsorship.present? && benefit_sponsorship.active_benefit_application.present?
     date = date || BenefitSponsors::BenefitApplications::BenefitApplicationSchedular.new.calculate_start_on_dates[0]
     benefit_sponsorship.applicant? && BenefitMarkets::Forms::ProductForm.for_new(date).fetch_results.is_late_rate
@@ -79,26 +79,44 @@ module ApplicationHelper
     end
   end
 
+  def format_date_value(obj_val, default_value, format)
+    if obj_val.blank?
+      default_value
+    elsif obj_val.is_a?(Date) || obj_val.is_a?(DateTime)
+      obj_val.strftime(format)
+    else
+      obj_val
+    end
+  end
+
+  def date_from_string(date_string)
+    DateParser.smart_parse(date_string)
+  end
+
   def datepicker_control(f, field_name, options = {}, value = "")
     sanitized_field_name = field_name.to_s.sub(/\?$/,"")
     opts = options.dup
     obj_name = f.object_name
     obj_val = f.object.send(field_name.to_sym)
-    current_value = obj_val.blank? ? value : obj_val.is_a?(DateTime) ? obj_val.strftime("%m/%d/%Y") : obj_val
+    formatted_date_for_display = format_date_value(obj_val, value, "%m/%d/%Y")
+    formatted_date_for_db = format_date_value(obj_val, value, "%Y-%m-%d")
+
     html_class_list = opts.delete(:class) { |k| "" }
     jq_tag_classes = (html_class_list.split(/\s+/) + ["jq-datepicker"]).join(" ")
     generated_field_name = "jq_datepicker_ignore_#{obj_name}[#{sanitized_field_name}]"
     provided_id = options[:id] || options["id"]
     generate_target_id = nil
-    if !provided_id.blank?
-      generated_target_id = "#{provided_id}_jq_datepicker_plain_field"
-    end
+    generated_target_id = provided_id.present? ? "#{provided_id}_jq_datepicker_plain_field" : nil
     sanitized_object_name = "#{obj_name}_#{sanitized_field_name}".delete(']').tr('^-a-zA-Z0-9:.', "_")
     generated_target_id ||= "#{sanitized_object_name}_jq_datepicker_plain_field"
     capture do
-      concat f.text_field(field_name, opts.merge(:class => html_class_list, :id => generated_target_id, :value=> obj_val.try(:to_s, :db)))
-      concat text_field_tag(generated_field_name, current_value, opts.merge(:class => jq_tag_classes, :start_date => "07/01/2016", :style => "display: none;", "data-submission-field" => "##{generated_target_id}"))
+      concat f.text_field(field_name, opts.merge(:class => html_class_list, :id => generated_target_id, :value => formatted_date_for_db))
+      concat text_field_tag(generated_field_name, formatted_date_for_display, opts.merge(:class => jq_tag_classes, :start_date => "07/01/2016", :style => "display: none;", "data-submission-field" => "##{generated_target_id}"))
     end
+  end
+
+  def format_date_db(date)
+    date.respond_to?(:to_formatted_s) ? date.to_formatted_s(:db) : date.to_s
   end
 
   def generate_breadcrumbs(breadcrumbs)
@@ -128,6 +146,10 @@ module ApplicationHelper
 
   def format_date(date_value)
     date_value.strftime("%m/%d/%Y") if date_value.respond_to?(:strftime)
+  end
+
+  def format_time(time_value)
+    time_value.strftime("%m/%d/%Y %H:%M") if time_value.respond_to?(:strftime)
   end
 
   def format_datetime(date_value)
@@ -378,6 +400,8 @@ module ApplicationHelper
   end
 
   def retrieve_inbox_path(provider, folder: 'inbox')
+    return nil if provider.nil?
+
     if provider.try(:broker_role)
       broker_agency_mailbox = benefit_sponsors.inbox_profiles_broker_agencies_broker_agency_profile_path(id: provider.id.to_s, folder: folder)
       return broker_agency_mailbox
@@ -431,7 +455,7 @@ module ApplicationHelper
 
   def display_carrier_logo(plan, options = {:width => 50})
     carrier_name = carrier_logo(plan)
-    image_tag("logo/carrier/#{carrier_name.parameterize.underscore}.jpg", width: options[:width]) # Displays carrier logo (Delta Dental => delta_dental.jpg)
+    image_tag("logo/carrier/#{carrier_name.parameterize.underscore}.jpg", width: options[:width], alt: "#{carrier_name} logo") # Displays carrier logo (Delta Dental => delta_dental.jpg)
   end
 
   def digest_logos
@@ -748,8 +772,17 @@ module ApplicationHelper
   end
 
   def convert_to_bool(val)
-    return true if val == true || val == 1  || val =~ (/^(true|t|yes|y|1)$/i)
-    return false if val == false || val == 0 || val =~ (/^(false|f|no|n|0)$/i)
+    return true if [true, 1].include?(val)
+    return false if [false, 0].include?(val)
+
+    # As of Ruby 3.2.5, the =~ operator does not automatically converts strings to integers and boolean values
+    # convert val to string and strip any leading/trailing whitespace
+    if val.respond_to?(:to_s)
+      str_val = val.to_s.strip.downcase
+      return true if str_val =~ (/^(true|t|yes|y|1)$/i)
+      return false if str_val =~ (/^(false|f|no|n|0)$/i)
+    end
+
     raise(ArgumentError, "invalid value for Boolean: \"#{val}\"")
   end
 
@@ -850,5 +883,9 @@ module ApplicationHelper
 
   def format_rating_area_codes(codes)
     codes.map {|c| c.match(/(\d+)/)[1].to_i}.join(', ')
+  end
+
+  def valid_mmddyyyy_format?(str)
+    !!(str =~ %r{\A(0[1-9]|1[0-2])/(0[1-9]|[12]\d|3[01])/\d{4}\z})
   end
 end

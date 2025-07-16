@@ -103,7 +103,7 @@ class Employers::EmployerAttestationsController < ApplicationController
 
   def get_options(params)
     options = {}
-    options[:content_type] = params[:content_type] if params[:content_type]
+    options[:type] = params[:content_type] if params[:content_type]
     options[:filename] = params[:filename] if params[:filename]
     options[:disposition] = params[:disposition] if params[:disposition]
     options

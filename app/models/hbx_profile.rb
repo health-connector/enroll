@@ -27,7 +27,7 @@ class HbxProfile
 
   validates_presence_of :us_state_abbreviation, :cms_id
 
-  after_initialize :build_nested_models
+  before_create :build_nested_models
 
   def advance_day
   end

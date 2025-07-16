@@ -2,12 +2,12 @@
 
 require 'rails_helper'
 
-RSpec.describe "insured/employee_roles/privacy.html.erb" do
+RSpec.describe "insured/employee_roles/privacy" do
   let(:person) {FactoryBot.create(:person)}
 
   before :each do
     assign(:person, person)
-    render template: "insured/employee_roles/privacy.html.erb"
+    render template: "insured/employee_roles/privacy"
   end
 
   it "should display the employee privacy message" do

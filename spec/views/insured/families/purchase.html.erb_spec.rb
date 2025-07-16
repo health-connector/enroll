@@ -22,7 +22,7 @@ RSpec.describe "insured/families/purchase.html.erb" do
       @plan = PlanCostDecorator.new(@plan, @enrollment, @benefit_group, @reference_plan)
       allow(person).to receive(:consumer_role).and_return(false)
       @person = person
-      render :template => "insured/families/purchase.html.erb"
+      render :template => "insured/families/purchase"
     end
 
     it 'should display the correct plan selection text' do
@@ -48,7 +48,7 @@ RSpec.describe "insured/families/purchase.html.erb" do
       @reference_plan = @benefit_group.reference_plan
       @plan = PlanCostDecorator.new(@plan, @enrollment, @benefit_group, @reference_plan)
       assign :terminate, 'terminate'
-      render :template => "insured/families/purchase.html.erb"
+      render :template => "insured/families/purchase"
     end
 
     it "should display the terminate button" do

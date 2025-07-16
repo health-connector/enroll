@@ -10,6 +10,6 @@ include Config::AcaHelper
 
 namespace :reports do 
   desc "Outstanding Enrollments by Employer"
-    OutstandingMonthlyEnrollments.define_task :outstanding_monthly_enrollments => :environment
+  HbxReports::OutstandingMonthlyEnrollments.define_task :outstanding_monthly_enrollments => :environment
 end
   

@@ -19,6 +19,7 @@ module ComposedModel
     "#{collection_name}_attributes[#{idx}][#{property}]"
   end
 
+  # rubocop:disable Style/DocumentDynamicEvalDefinition
   module ComposedModelClassMethods
     def composed_of_many(name, klass_name, do_validation_on_collection = false)
       class_eval(<<-RUBYCODE)
@@ -47,8 +48,8 @@ module ComposedModel
           #{name}_attributes
         end
         RUBYCODE
-        if do_validation_on_collection
-          class_eval(<<-RUBYCODE) 
+      if do_validation_on_collection
+        class_eval(<<-RUBYCODE)
           validate :#{name}_validation_steps
 
           def #{name}_validation_steps
@@ -56,8 +57,9 @@ module ComposedModel
             validate_collection_and_propagate_errors("#{name}",objs_to_validate)
           end
             RUBYCODE
-        end
+      end
     end
+    # rubocop:enable Style/DocumentDynamicEvalDefinition
 
   end
 end

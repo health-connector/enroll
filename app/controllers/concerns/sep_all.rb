@@ -15,7 +15,7 @@ module SepAll
     special_enrollment_period = @family.special_enrollment_periods.new(effective_on_kind: params[:effective_kind].split.join("_").downcase)
     qle = QualifyingLifeEventKind.find(params[:id]) if params[:id].present?
     special_enrollment_period.qualifying_life_event_kind = qle
-    special_enrollment_period.qle_on = Date.strptime(params[:eventDate], "%m/%d/%Y")
+    special_enrollment_period.qle_on = DateParser.smart_parse(params[:eventDate])
     @start_on = special_enrollment_period.start_on
     @end_on = special_enrollment_period.end_on
     @effective_on = special_enrollment_period.effective_on
@@ -137,18 +137,18 @@ module SepAll
     @name = params.permit(:firstName)[:firstName] + " " + params.permit(:lastName)[:lastName]
     special_enrollment_period = @family.special_enrollment_periods.new(effective_on_kind: params[:effective_on_kind].downcase)
     special_enrollment_period.qualifying_life_event_kind = qle
-    special_enrollment_period.qle_on = Date.strptime(params[:event_date], "%m/%d/%Y") if params[:event_date].present?
-    special_enrollment_period.start_on = Date.strptime(params[:start_on], "%m/%d/%Y") if params[:start_on].present?
-    special_enrollment_period.end_on = Date.strptime(params[:end_on], "%m/%d/%Y") if params[:end_on].present?
+    special_enrollment_period.qle_on = DateParser.smart_parse(params[:event_date]) if params[:event_date].present?
+    special_enrollment_period.start_on = DateParser.smart_parse(params[:start_on]) if params[:start_on].present?
+    special_enrollment_period.end_on = DateParser.smart_parse(params[:end_on]) if params[:end_on].present?
     special_enrollment_period.selected_effective_on = params.permit(:effective_on_date)[:effective_on_date] if params[:effective_on_date].present?
     # special_enrollment_period.admin_comment = params.permit(:admin_comment)[:admin_comment] if params[:admin_comment].present?
     special_enrollment_period.comments << Comment.new(content: params[:admin_comment], user: current_user.email) if params[:admin_comment].present?
     special_enrollment_period.csl_num = params.permit(:csl_num)[:csl_num] if params[:csl_num].present?
-    special_enrollment_period.next_poss_effective_date = Date.strptime(params[:next_poss_effective_date], "%m/%d/%Y") if params[:next_poss_effective_date].present?
+    special_enrollment_period.next_poss_effective_date = DateParser.smart_parse(params[:next_poss_effective_date]) if params[:next_poss_effective_date].present?
     date_arr = Array.new
-    date_arr.push(Date.strptime(params[:option1_date], "%m/%d/%Y").to_s) if params[:option1_date].present?
-    date_arr.push(Date.strptime(params[:option2_date], "%m/%d/%Y").to_s) if params[:option2_date].present?
-    date_arr.push(Date.strptime(params[:option3_date], "%m/%d/%Y").to_s) if params[:option3_date].present?
+    date_arr.push(DateParser.smart_parse(params[:option1_date]).to_s) if params[:option1_date].present?
+    date_arr.push(DateParser.smart_parse(params[:option2_date]).to_s) if params[:option2_date].present?
+    date_arr.push(DateParser.smart_parse(params[:option3_date]).to_s) if params[:option3_date].present?
     special_enrollment_period.optional_effective_on = date_arr if date_arr.length > 0
     special_enrollment_period.market_kind = params.permit(:market_kind)[:market_kind] if params[:market_kind].present?
     special_enrollment_period.admin_flag = true

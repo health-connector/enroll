@@ -214,10 +214,6 @@ module Transcripts
         )
     end
 
-    def person
-      Marshal.load(File.open("#{Rails.root}/sample_file"))
-    end
-
     # def person
     #   HashWithIndifferentAccess.new(
     #   :source=>

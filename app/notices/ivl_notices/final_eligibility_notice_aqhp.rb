@@ -11,7 +11,7 @@ class IvlNotices::FinalEligibilityNoticeAqhp < IvlNotice
     self.person = args[:person]
     self.enrollments = args[:enrollments]
     self.data = args[:data]
-    self.header = "notices/shared/header_ivl.html.erb"
+    self.header = "notices/shared/header_ivl"
     super(args)
   end
 

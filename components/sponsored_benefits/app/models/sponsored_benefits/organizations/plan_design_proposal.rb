@@ -25,7 +25,7 @@ module SponsoredBenefits
       scope :datatable_search, ->(query) { self.where({"$or" => ([{"title" => ::Regexp.compile(::Regexp.escape(query), true)}])}) }
       ## TODO: how are we defining 'initial' vs 'renewing'?
       scope :initial, -> { not_in(aasm_state: RENEWAL_STATES) }
-      scope :renewing, ->{ any_in(aasm_state: RENEWAL_STATES) }
+      scope :renewing, -> { any_in(aasm_state: RENEWAL_STATES) }
       scope :draft, -> { any_in(aasm_state: %w(draft renewing_draft)) }
       scope :published, -> { any_in(aasm_state: %w(published renewing_published)) }
       scope :expired, -> { any_in(aasm_state: %w(expired renewing_expired)) }
@@ -115,9 +115,7 @@ module SponsoredBenefits
       end
 
       def set_employer_claim_code
-        self.claim_code = employer_claim_code
-        self.published_on = TimeKeeper.date_of_record
-        self.save!
+        update_attributes(claim_code: employer_claim_code, published_on: TimeKeeper.date_of_record)
       end
 
       aasm do

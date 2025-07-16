@@ -6,7 +6,7 @@ initial_feins = ["451431314", "274551672", "273208144", "200457331", "811095280"
 def write_to_csv(type, feins)
   dir = "ga_files"
 
-  Dir.mkdir(dir) unless File.exists?(dir)
+  FileUtils.mkdir_p(dir) unless File.directory?(dir)
 
   csv_hash = {}
 
@@ -20,9 +20,7 @@ def write_to_csv(type, feins)
 
     employer = org.employer_profile
 
-    if employer.active_general_agency_account.nil?
-      next
-    end
+    next if employer.active_general_agency_account.nil?
 
     carriers = employer.plan_years.select(&:eligible_for_export?).flat_map(&:benefit_groups).flat_map(&:elected_plans).flat_map(&:carrier_profile).uniq! || []
 

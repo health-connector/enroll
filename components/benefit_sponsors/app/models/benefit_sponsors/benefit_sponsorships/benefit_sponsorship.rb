@@ -177,9 +177,13 @@ module BenefitSponsors
     end
 
     def self.may_renew_application?(compare_date = TimeKeeper.date_of_record)
+      # Using a range query matching any time on the given date
+      start_of_day = compare_date.to_date.beginning_of_day
+      end_of_day = compare_date.to_date.end_of_day
+
       where(:benefit_applications => {:"$elemMatch" => {
               :aasm_state => :active,
-              :"benefit_application_items.effective_period.max" => compare_date
+              :"benefit_application_items.effective_period.max" => {"$gte" => start_of_day, "$lte" => end_of_day}
             }})
     end
 
@@ -434,7 +438,7 @@ module BenefitSponsors
 
     # TODO: Enable it for new domain benefit sponsor catalog
     def benefit_sponsor_catalog_for(effective_date)
-      benefit_sponsor_catalog_entity = BenefitSponsors::Operations::BenefitSponsorCatalog::Build.new.call(effective_date: effective_date, benefit_sponsorship_id: _id).value!
+      benefit_sponsor_catalog_entity = BenefitSponsors::Operations::BenefitSponsorCatalog::Build.new.call(effective_date: effective_date.to_date, benefit_sponsorship_id: _id).value!
       BenefitMarkets::BenefitSponsorCatalog.new(benefit_sponsor_catalog_entity.to_h)
     end
 
@@ -541,8 +545,15 @@ module BenefitSponsors
     # use this only for EDI
     def late_renewal_benefit_application
       benefit_applications.order(updated_at: :desc).detect do |application|
-        application.predecessor.present? && application.start_on == application.predecessor.end_on + 1.day &&
-          [:active, :enrollment_eligible].include?(application.aasm_state) && application.start_on >= TimeKeeper.date_of_record - 1.month # grace period of one month for late renewal
+        if application.predecessor.present?
+          start_on_condition = application.start_on.to_date == (application.predecessor.end_on + 1.day).to_date
+          state_condition = [:active, :enrollment_eligible].include?(application.aasm_state.to_sym)
+          date_condition = application.start_on.to_date >= (TimeKeeper.date_of_record - 1.month).to_date # grace period of one month for late renewal
+
+          start_on_condition && state_condition && date_condition
+        else
+          false
+        end
       end
     end
 
@@ -625,14 +636,19 @@ module BenefitSponsors
     end
 
     def is_renewal_carrier_drop?
-      return unless is_renewal_transmission_eligible?
-
-      carriers_dropped_for(:health).any? || carriers_dropped_for(:dental).any?
+      if is_renewal_transmission_eligible?
+        carriers_dropped_for(:health).any? || carriers_dropped_for(:dental).any?
+      else
+        true
+      end
     end
 
     def carriers_dropped_for(product_kind)
-      renewal_benefit_application.predecessor.issuers_offered_for(product_kind) - renewal_benefit_application.issuers_offered_for(product_kind) if renewal_benefit_application.present?
-      late_renewal_benefit_application.predecessor.issuers_offered_for(product_kind) - late_renewal_benefit_application.issuers_offered_for(product_kind) if late_renewal_benefit_application.present?
+      if renewal_benefit_application.present?
+        renewal_benefit_application.predecessor.issuers_offered_for(product_kind) - renewal_benefit_application.issuers_offered_for(product_kind)
+      elsif late_renewal_benefit_application.present?
+        late_renewal_benefit_application.predecessor.issuers_offered_for(product_kind) - late_renewal_benefit_application.issuers_offered_for(product_kind)
+      end
     end
 
     ####
