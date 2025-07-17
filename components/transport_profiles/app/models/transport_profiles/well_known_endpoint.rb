@@ -55,7 +55,8 @@ module TransportProfiles
       if sftp_credential.private_rsa_key.blank?
         {
           user: sftp_credential.account_name,
-          password: sftp_credential.pass_phrase
+          password: sftp_credential.pass_phrase,
+          host_key: ['ssh-rsa', 'ssh-dss']
         }
       else
         {
