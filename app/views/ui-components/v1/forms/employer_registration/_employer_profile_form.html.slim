@@ -8,7 +8,7 @@
         If the organization already has a staff role you will will be placed in applicant status for an additional staff role.
 fieldset.mt-2
   = f.fields_for :staff_roles, f.object.staff_roles, errors: {}, fieldset: false do |f|
-    = render partial: './ui-components/v1/forms/employer_registration/staff_role_information', locals: {f: f}
+    = render partial: '/ui-components/v1/forms/employer_registration/staff_role_information', locals: {f: f}
 
 fieldset.mt-2
   legend Employer Information
@@ -55,7 +55,7 @@ fieldset.mt-2
       br
       br
       br
-      = render partial: './ui-components/v1/forms/office_locations/office_location_fields', locals: {f: f_profile}
+      = render partial: '/ui-components/v1/forms/office_locations/office_location_fields', locals: {f: f_profile}
       h4.mt-1 Referred By *
       = f_profile.select :referred_by, options_for_select(f_profile.object.referred_by_options, selected: f_profile.object.try(:referred_by)), { prompt: "How did you find out about the Massachusetts Health Connector?"}, {:required => true, :class => "form-control", id: "referred-by-select"}
       .invalid-feedback

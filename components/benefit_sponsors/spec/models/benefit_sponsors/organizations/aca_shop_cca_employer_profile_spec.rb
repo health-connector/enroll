@@ -216,7 +216,7 @@ module BenefitSponsors
         sponsorship.save
         sponsorship
       end
-      let(:broker_agency_profile) { FactoryBot.create(:benefit_sponsors_organizations_broker_agency_profile, assigned_site: site) }
+      let(:broker_agency_profile) { FactoryBot.create(:benefit_sponsors_organizations_broker_agency_profile) }
       let!(:broker_agency_account) { FactoryBot.build(:benefit_sponsors_accounts_broker_agency_account, benefit_sponsorship: benefit_sponsorship100, broker_agency_profile: broker_agency_profile) }
 
       it "should return person record" do

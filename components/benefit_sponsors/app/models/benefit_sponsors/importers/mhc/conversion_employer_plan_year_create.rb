@@ -72,8 +72,8 @@ module Importers::Mhc
         contributions << {
           relationship: sponsor_level_name,
           offered: tier_offered?(sponsor_level_name),
-          premium_pct: eval("#{sponsor_level_name}_rt_contribution"),
-          estimated_tier_premium: eval("#{sponsor_level_name}_rt_premium")
+          premium_pct: instance_variable_get("#{sponsor_level_name}_rt_contribution"),
+          estimated_tier_premium: instance_variable_get("#{sponsor_level_name}_rt_premium")
         }
       end
     end

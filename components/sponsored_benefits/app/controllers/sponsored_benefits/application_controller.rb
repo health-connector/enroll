@@ -2,7 +2,7 @@
 
 module SponsoredBenefits
   class ApplicationController < ActionController::Base
-    include Pundit
+    include Pundit::Authorization
     include ::L10nHelper
     include ::FileUploadHelper
 

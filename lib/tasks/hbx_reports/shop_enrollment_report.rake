@@ -9,5 +9,5 @@ require File.join(Rails.root, "app", "reports", "hbx_reports", "shop_enrollment_
 
 namespace :hbx_reports do 
   desc "SHOP Enrollment Recon Report"
-  ShopEnrollmentReport.define_task :shop_enrollment_report => :environment 
+  HbxReports::ShopEnrollmentReport.define_task :shop_enrollment_report => :environment
 end

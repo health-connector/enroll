@@ -4,5 +4,5 @@ require File.join(Rails.root, "app", "data_migrations", "move_enrollment_between
 
 namespace :migrations do
   desc "move enrollment between two accounts"
-  MoveEnrollmentBetweenTwoAccount.define_task :move_enrollment_between_two_accounts => :environment
+  MoveEnrollmentBetweenTwoAccounts.define_task :move_enrollment_between_two_accounts => :environment
 end

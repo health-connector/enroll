@@ -32,7 +32,7 @@ module BenefitSponsors
 
       def termination_date=(val)
         begin
-          @termination_date = Date.strptime(val,"%m/%d/%Y")
+          @termination_date = Date.strptime(val, "%Y-%m-%d")
           return @termination_date
         rescue
           return nil

@@ -2,8 +2,8 @@
 ### Base image ###
 ############################################
 
-ARG RUBY_VERSION=3.1.6
-FROM ruby:$RUBY_VERSION-slim-bullseye AS base
+ARG RUBY_VERSION=3.2.5
+FROM ruby:$RUBY_VERSION-slim-bookworm AS base
 LABEL author="MHC"
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -12,7 +12,7 @@ ARG BUNDLER_VERSION=2.5.21
 # Must be set as ENV variable to overrride the default
 ENV BUNDLER_VERSION=$BUNDLER_VERSION
 
-ARG NODE_MAJOR=12
+ARG NODE_MAJOR=20
 ENV NODE_MAJOR=$NODE_MAJOR
 
 # Only add packages that aren't already in the base image
@@ -23,16 +23,18 @@ RUN apt-get update \
       curl \
       fontconfig \
       libcurl4-openssl-dev \
-      libffi7 \
+      libffi8 \
       libsodium23 \
       libxext6 \
       libxrender1 \
+      libyaml-cpp0.7 \
       nano \
       openssl \
       sshpass \
       unzip \
       vim \
       zip \
+      zlib1g \
       file \
       libjemalloc2 \
     && apt-get clean \
@@ -45,9 +47,9 @@ RUN curl -fsSL https://deb.nodesource.com/setup_$NODE_MAJOR.x | bash -
 # Install Nodejs
 RUN apt-get update -qq \
   && apt-get install -yq --no-install-recommends \
-    nodejs \
+    shared-mime-info python3 python-is-python3 \
   && apt-get clean \
-  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /node_modules/* \
   && truncate -s 0 /var/log/*log
 
 # Configure bundler and PATH, install bundler version
@@ -109,16 +111,22 @@ FROM builder AS prod_gems_and_assets
 
 RUN apt-get update -qq \
     && apt-get install -yq --no-install-recommends \
-      python \
+      shared-mime-info python3 python-is-python3 \
+      nodejs \
     && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /node_modules/* \
     && truncate -s 0 /var/log/*log
 
 # Need all gemfiles and lockfiles
 COPY --chown=nonroot:nonroot package.json $HOME/
 COPY --chown=nonroot:nonroot yarn.lock $HOME/
-RUN yarn install \
-  && (rm -rf /tmp/* || true)
+
+# Skip node-sass and use a prebuilt binary with NPM
+ENV NODE_OPTIONS="--max-old-space-size=4096 --openssl-legacy-provider"
+RUN npm install -g sass \
+    && yarn config set ignore-engines true \
+    && SASS_BINARY_SITE=https://github.com/sass/node-sass/releases/download yarn install --ignore-scripts \
+    && (rm -rf /tmp/* || true)
 
 COPY --chown=nonroot:nonroot ./project_gems/effective_datatables-2.6.14/effective_datatables-2.6.14.gemspec $HOME/project_gems/effective_datatables-2.6.14/effective_datatables-2.6.14.gemspec
 COPY --chown=nonroot:nonroot ./project_gems/mongoid_userstamp-0.4.0/mongoid_userstamp.gemspec $HOME/project_gems/mongoid_userstamp-0.4.0/mongoid_userstamp.gemspec
@@ -170,6 +178,12 @@ ENV RABBITMQ_URL=amqp://${HOSTNAME}:5672
 # Precompile bootsnap code for faster boot times
 RUN bundle exec bootsnap precompile --gemfile app/ lib/
 
+# This is the change needed due to Ruby 3.2.5 upgrade
+# create tmp file to avoid `File.exists?` error when pre-compiling assets
+RUN echo 'class File; def self.exists?(*args); exist?(*args); end; end unless File.respond_to?(:exists?)' > /usr/local/lib/ruby/site_ruby/file_exists_patch.rb
+# add patch to ruby options
+ENV RUBYOPT="-r /usr/local/lib/ruby/site_ruby/file_exists_patch.rb"
+
 # Asset precompilation requires many seemingly un-asset-related configurations, as it starts a rails process (e.g., an
 # available mongo, symmetric key config, an available rabbit, etc. This may explains some preceding dependencies/steps.)
 # Note: Non-empty value for SECRET_KEY_BASE needed for build. But this value is set anew to actual secure value at
@@ -196,6 +210,14 @@ FROM base AS deploy
 
 # Copy prebuilt gems
 COPY --chown=nonroot:nonroot --from=prod_gems_and_assets $BUNDLE_PATH $BUNDLE_PATH
+
+# Ensure Node.js is available for JavaScript runtime
+RUN apt-get update -qq \
+  && apt-get install -yq --no-install-recommends \
+    nodejs \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+  && truncate -s 0 /var/log/*log
 
 # Copy all app code again (sans gems, node_modules, assets)
 COPY --chown=nonroot:nonroot . $HOME

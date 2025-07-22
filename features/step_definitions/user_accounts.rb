@@ -163,6 +163,7 @@ When(/^a user enter person hbx id$/) do
 end
 
 Then(/^a user should see a result with hbx id$/) do
+  wait_for_ajax
   expect(page).to have_content(@user_1.email)
   expect(page).to have_no_content(@user_2.email)
 end

@@ -7,7 +7,7 @@ require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_applicatio
 RSpec.describe BenefitSponsors::BenefitApplications::AcaShopApplicationEligibilityPolicy, type: :model, :dbclean => :after_each do
   let!(:subject) {BenefitSponsors::BenefitApplications::AcaShopApplicationEligibilityPolicy.new}
   let(:site) { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, Settings.site.key) }
-  let(:organization)     { create(:benefit_sponsors_organizations_general_organization, "with_aca_shop_#{Settings.site.key}_employer_profile".to_sym, site: site) }
+  let(:organization)     { create(:benefit_sponsors_organizations_general_organization, :"with_aca_shop_#{Settings.site.key}_employer_profile", site: site) }
   let(:employer_profile)    { organization.employer_profile }
   let(:benefit_sponsorship)    { employer_profile.add_benefit_sponsorship }
 
@@ -76,7 +76,7 @@ RSpec.describe BenefitSponsors::BenefitApplications::AcaShopApplicationEligibili
       end
 
       it "should fail rule validation" do
-        expect(rule.fail.call(benefit_application)).to eq "Plan year starting on #{last_day_to_publish.to_date} must be published by #{last_day_to_publish.to_date}"
+        expect(rule.fail.call(benefit_application)).to eq "Plan year starting on #{last_day_to_publish.strftime('%m/%d/%Y')} must be published by #{last_day_to_publish.strftime('%m/%d/%Y')}"
       end
     end
 
@@ -87,7 +87,7 @@ RSpec.describe BenefitSponsors::BenefitApplications::AcaShopApplicationEligibili
       end
 
       it "should validate successfully" do
-        expect(rule.success.call(benefit_application)).to eq("Plan year was published before #{benefit_application.last_day_to_publish} on #{Time.now} ")
+        expect(rule.success.call(benefit_application)).to eq("Plan year was published before #{benefit_application.last_day_to_publish.strftime('%m/%d/%Y')} on #{Time.now.strftime('%m/%d/%Y')} ")
       end
     end
   end

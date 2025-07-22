@@ -152,7 +152,7 @@ Then(/^fill the form with hired date as future date$/) do
 
   find(:xpath, "//label[@for='census_employee_gender_male']").click
 
-  fill_in 'jq_datepicker_ignore_census_employee[hired_on]', :with => (TimeKeeper.date_of_record + 1.days).to_s
+  fill_in 'jq_datepicker_ignore_census_employee[hired_on]', :with => (TimeKeeper.date_of_record + 1.days).strftime('%m/%d/%Y')
 
   # Address
   fill_in 'census_employee[address_attributes][address_1]', :with => "1026 Potomac"
@@ -188,7 +188,7 @@ Then(/employer should see the message Your employee was successfully added to yo
   person = people_for_cobra['Jack Employee']
   expect(page).to have_content(person[:first_name])
   expect(page).to have_content(person[:last_name])
-  expect(page).to have_content((TimeKeeper.date_of_record + 1.days).to_s)
+  expect(page).to have_content((TimeKeeper.date_of_record + 1.days).strftime('%m/%d/%Y'))
 end
 
 And(/^.+ should see the status of cobra_eligible$/) do

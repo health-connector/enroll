@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 controller = Events::PoliciesController.new
 
 PropertiesSlug = Struct.new(:reply_to, :headers)
@@ -11,11 +13,10 @@ ConnectionSlug = Struct.new(:policy_id) do
     self
   end
 
-  def close
-  end
+  def close; end
 
   def publish(payload, properties)
-    Dir.mkdir("policy_cvs") unless File.exists?("policy_cvs")
+    FileUtils.mkdir_p("policy_cvs") unless File.directory?("policy_cvs")
     if properties[:headers][:return_status] == "200"
       File.open(File.join("policy_cvs", "#{policy_id}.xml"), 'w') do |f|
         f.puts payload
@@ -38,18 +39,17 @@ hbx_ids.each do |pid|
   count += 1
   puts "#{Time.now} - #{count}/#{total_count}" if count % 100 == 0
   pol = HbxEnrollment.by_hbx_id(pid).first
-  if pol.nil?
-    raise "NO SUCH POLICY #{pid}"
-  end
+  raise "NO SUCH POLICY #{pid}" if pol.nil?
+
   if pol.product.blank?
     puts "No product for policy ID #{pid}: plan ID #{pol.plan_id}"
     #  elsif pol.subscriber.nil?
     #    puts "No subscriber for Policy ID #{pid}"
   else
     properties_slug = PropertiesSlug.new("", {:policy_id => pid})
-    begin 
+    begin
       controller.resource(ConnectionSlug.new(pid), "", properties_slug, "")
-    rescue => e
+    rescue StandardError => e
       puts pid.inspect
       puts e.backtrace.inspect
     end

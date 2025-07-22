@@ -2,7 +2,7 @@ require File.join(Rails.root, "lib/mongoid_migration_task")
 class ChangeBrokerAssignmentDate < MongoidMigrationTask
   def migrate
     hbx_id = ENV['person_hbx_id']
-    new_date = Date.strptime(ENV['new_date'].to_s, "%m/%d/%Y")
+    new_date = ENV['new_date'].to_date
     person = Person.where(hbx_id:hbx_id)
     if person.size == 0
       puts "No person found with the given hbx_id" unless Rails.env.test?

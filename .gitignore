@@ -63,7 +63,6 @@ __MACOSX
 .project
 tags
 
-spec/vocabularies
 components/**/spec/dummy/tmp
 components/**/spec/examples.txt
 plan_xmls.zip
@@ -86,6 +85,7 @@ fixture_dumps
 /public/packs
 /public/packs-test
 /node_modules
+/yarn-error.log
 yarn-debug.log*
 .yarn-integrity
 

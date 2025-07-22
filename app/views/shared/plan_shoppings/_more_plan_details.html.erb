@@ -21,7 +21,7 @@
     &nbsp;&nbsp;
     <span class="ttu lg twelve">Effective Date:</span>
     &nbsp;
-    <strong id='effective_date'><%= @hbx_enrollment.effective_on %></strong>
+    <strong id='effective_date'><%= @hbx_enrollment.effective_on&.strftime("%m/%d/%Y") %></strong>
   </div>
   <br/>
 </div>

@@ -39,7 +39,7 @@ module BenefitSponsors
     let(:terminate_params) {
       {
         :direct_terminate => "true",
-        :termination_date => TimeKeeper.date_of_record.strftime('%m/%d/%Y'),
+        :termination_date => TimeKeeper.date_of_record.to_s,
         :employer_profile_id => employer_profile.id.to_s,
         :broker_agency_id => broker_agency_profile1.id.to_s
        }
@@ -94,7 +94,7 @@ module BenefitSponsors
         expect(broker_management_form_terminate.broker_agency_profile_id).to eq terminate_params[:broker_agency_id]
         expect(broker_management_form_terminate.employer_profile_id).to eq terminate_params[:employer_profile_id]
         expect(broker_management_form_terminate.direct_terminate.to_s).to eq terminate_params[:direct_terminate]
-        expect(broker_management_form_terminate.termination_date.strftime('%m/%d/%Y')).to eq terminate_params[:termination_date]
+        expect(broker_management_form_terminate.termination_date.to_s).to eq terminate_params[:termination_date]
       end
 
       it 'should have strings as the values for all the attributes related to for_terminate' do

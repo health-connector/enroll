@@ -31,7 +31,7 @@ if ExchangeTestingConfigurationHelper.general_agency_enabled?
       let(:messages){ double("Message", build: double("test")) }
 
       it "renders" do
-        sign_in
+        sign_in user
         allow(GeneralAgencyProfile).to receive(:find).and_return(general_agency_profile)
         allow(general_agency_profile).to receive(:inbox).and_return(inbox)
         allow(inbox).to receive(:messages).and_return(messages)

@@ -1,6 +1,7 @@
 module BenefitSponsors
   module ModelEvents
     module BenefitApplication
+      include BenefitSponsors::ModelEvents::DefineVariableHelper
 
       APPLICATION_EXCEPTION_STATES  = [:pending, :assigned, :processing, :reviewing, :information_needed, :appealing].freeze
 
@@ -43,7 +44,7 @@ module BenefitSponsors
       # Events triggered by state changes on individual instances
       def notify_on_save
         return if self.is_conversion?
-        if aasm_state_changed?
+        if saved_change_to_aasm_state?
 
           if is_transition_matching?(to: :enrollment_closed, from: [:enrollment_open, :enrollment_extended], event: :end_open_enrollment)
             is_employer_open_enrollment_completed = true
@@ -116,10 +117,9 @@ module BenefitSponsors
           # TODO -- encapsulated notify_observers to recover from errors raised by any of the observers
           (REGISTERED_EVENTS + EMPLOYER_EVENTS).each do |event|
             begin
-              if event_fired = instance_eval("is_" + event.to_s)
-                event_options = {}
-                notify_observers(ModelEvent.new(event, self, event_options))
-              end
+              next unless check_local_variable("is_#{event}", binding)
+              event_options = {}
+              notify_observers(ModelEvent.new(event, self, event_options))
             rescue Exception => e
               Rails.logger.info { "Benefit Application REGISTERED_EVENTS: #{event} unable to notify observers" }
             end
@@ -135,10 +135,9 @@ module BenefitSponsors
 
         REGISTERED_EVENTS.each do |event|
           begin
-            if event_fired = instance_eval("is_" + event.to_s)
-              event_options = {}
-              notify_observers(ModelEvent.new(event, self, event_options))
-            end
+            next unless check_local_variable("is_#{event}", binding)
+            event_options = {}
+            notify_observers(ModelEvent.new(event, self, event_options))
           rescue Exception => e
             Rails.logger.info { "Benefit Application REGISTERED_EVENTS: #{event} unable to notify observers" }
           end
@@ -159,6 +158,7 @@ module BenefitSponsors
       end
 
       module ClassMethods
+        include BenefitSponsors::ModelEvents::DefineVariableHelper
         def date_change_event(new_date)
           # renewal employer publish plan_year reminder a day after advertised soft deadline i.e 11th of the month
           if new_date.day == Settings.aca.shop_market.renewal_application.application_submission_soft_deadline + 1
@@ -201,10 +201,9 @@ module BenefitSponsors
 
           DATA_CHANGE_EVENTS.each do |event|
             begin
-              if event_fired = instance_eval("is_" + event.to_s)
-                event_options = {}
-                self.new.notify_observers(ModelEvent.new(event, self, event_options))
-              end
+              next unless check_local_variable("is_#{event}", binding)
+              event_options = {}
+              self.new.notify_observers(ModelEvent.new(event, self, event_options))
             rescue Exception => e
               Rails.logger.error { "Benefit Application DATA_CHANGE_EVENTS: #{event} - unable to notify observers" }
             end

@@ -2,7 +2,7 @@ class CcaBrokerAgencyAccountsMigration < Mongoid::Migration
   def self.up
     if Settings.site.key.to_s == "cca"
 
-      Dir.mkdir("hbx_report") unless File.exists?("hbx_report")
+      FileUtils.mkdir_p("hbx_report")
       file_name = "#{Rails.root}/hbx_report/cca_baa_migration_status_#{TimeKeeper.datetime_of_record.strftime("%m_%d_%Y_%H_%M_%S")}.csv"
       field_names = %w( hbx_id legal_name old_bk_agency_accs benefit_sponsor_organization_id
                         total_benefit_sponsorships accounts_in_each_benefit_sponsorship migrated_bk_agency_accs status valid_account)

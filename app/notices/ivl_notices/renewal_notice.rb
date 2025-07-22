@@ -1,16 +1,20 @@
-class RenewalNotice < Notice
+# frozen_string_literal: true
 
-  def initialize(employee, args = {})
-    super
-    @employee = employee
-    @to = "raghuramg83@gmail.com"
-    @subject = "Employee Renewal notice"
-    @template = "user_mailer/plan_shopping_completed.html.erb"
-    build
-  end
+module IvlNotices
+  class RenewalNotice < Notice
 
-  def build
-    @notice_data = {}
+    def initialize(employee, args = {})
+      super
+      @employee = employee
+      @to = "raghuramg83@gmail.com"
+      @subject = "Employee Renewal notice"
+      @template = "user_mailer/plan_shopping_completed"
+      build
+    end
+
+    def build
+      @notice_data = {}
+    end
   end
 end
 

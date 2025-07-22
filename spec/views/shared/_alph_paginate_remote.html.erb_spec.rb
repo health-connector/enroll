@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe "shared/_alph_paginate_remote.html.erb" do
+describe "shared/_alph_paginate_remote" do
 
   context "ALL link to be added" do
 

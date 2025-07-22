@@ -22,18 +22,18 @@ describe "insured/families/inbox.html.erb", dbclean: :after_each do
     end
 
     it "should display the upload notices button" do
-      render template: "insured/families/inbox.html.erb"
+      render template: "insured/families/inbox"
       expect(rendered).to match(/upload notices/i)
     end
 
     it "should not display the download tax documents button for employee with ssn and without consumer" do
       allow(person).to receive(:ssn).and_return '123456789'
-      render template: "insured/families/inbox.html.erb"
+      render template: "insured/families/inbox"
       expect(rendered).not_to match(/Download Tax Documents/i)
     end
 
     it "should not display the download tax documents button for employee without ssn and consumer" do
-      render template: "insured/families/inbox.html.erb"
+      render template: "insured/families/inbox"
       expect(rendered).not_to match(/Download Tax Documents/i)
     end
 
@@ -42,31 +42,31 @@ describe "insured/families/inbox.html.erb", dbclean: :after_each do
 
       it "should display the download tax documents button if consumer has SSN" do
         allow(person).to receive(:consumer_role).and_return consumer_role
-        stub_template "insured/families/_navigation.html.erb" => ""
+        stub_template "insured/families/_navigation" => ""
         allow(person).to receive(:ssn).and_return '123456789'
-        render template: "insured/families/inbox.html.erb"
+        render template: "insured/families/inbox"
         expect(rendered).to match(/Download Tax Documents/i)
       end
 
       it "should not display the download tax documents button if consumer has no SSN" do
         allow(person).to receive(:consumer_role).and_return consumer_role
-        stub_template "insured/families/_navigation.html.erb" => ""
-        render template: "insured/families/inbox.html.erb"
+        stub_template "insured/families/_navigation" => ""
+        render template: "insured/families/inbox"
         expect(rendered).not_to match(/Download Tax Documents/i)
       end
 
       it "should not display the download tax documents button if person is both consumer and employee without ssn" do
         allow(person).to receive(:consumer_role).and_return consumer_role
-        stub_template "insured/families/_navigation.html.erb" => ""
-        render template: "insured/families/inbox.html.erb"
+        stub_template "insured/families/_navigation" => ""
+        render template: "insured/families/inbox"
         expect(rendered).not_to match(/Download Tax Documents/i)
       end
 
       it "should display the download tax documents button if person is both consumer IVL and employee" do
         allow(person).to receive(:consumer_role).and_return consumer_role
-        stub_template "insured/families/_navigation.html.erb" => ""
+        stub_template "insured/families/_navigation" => ""
         allow(person).to receive(:ssn).and_return '123456789'
-        render template: "insured/families/inbox.html.erb"
+        render template: "insured/families/inbox"
         expect(rendered).to match(/Download Tax Documents/i)
       end
     end
@@ -78,11 +78,11 @@ describe "insured/families/inbox.html.erb", dbclean: :after_each do
         allow(view).to receive_message_chain("current_user.has_hbx_staff_role?").and_return(false)
         allow(view).to receive(:individual_market_is_enabled?).and_return(individual_market_is_enabled)
         allow(person).to receive(:consumer_role).and_return consumer_role
-        stub_template "insured/families/_navigation.html.erb" => ""
+        stub_template "insured/families/_navigation" => ""
       end
 
       it "should not display the upload notices button" do
-        render template: "insured/families/inbox.html.erb"
+        render template: "insured/families/inbox"
         expect(rendered).to_not match(/upload notices/i)
       end
 
@@ -137,12 +137,12 @@ describe "insured/families/inbox.html.erb", dbclean: :after_each do
 
     it "should not display the download tax documents button for employee with ssn" do
       allow(person).to receive(:ssn).and_return '123456789'
-      render template: "insured/families/inbox.html.erb"
+      render template: "insured/families/inbox"
       expect(rendered).not_to match(/Download Tax Documents/i)
     end
 
     it "should not display the download tax documents button for employee with out ssn" do
-      render template: "insured/families/inbox.html.erb"
+      render template: "insured/families/inbox"
       expect(rendered).not_to match(/Download Tax Documents/i)
     end
   end

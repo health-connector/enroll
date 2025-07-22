@@ -5,10 +5,10 @@ require File.join(Rails.root, "app", "data_migrations", "move_enrollment_between
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
 
-describe MoveEnrollmentBetweenTwoAccount, dbclean: :after_each do
+describe MoveEnrollmentBetweenTwoAccounts, dbclean: :after_each do
 
   let(:given_task_name) { "move_enrollment_between_two_accounts" }
-  subject { MoveEnrollmentBetweenTwoAccount.new(given_task_name, double(:current_scope => nil)) }
+  subject { MoveEnrollmentBetweenTwoAccounts.new(given_task_name, double(:current_scope => nil)) }
 
   def with_modified_env(options, &block)
     ClimateControl.modify(options, &block)

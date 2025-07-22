@@ -85,6 +85,8 @@ Then(/^Admin should see preview and attestation form$/) do
 end
 
 When(/^Admin clicks submit in employer attestation form$/) do
+  wait_for_ajax
+  screenshot("Admin clicks submit in employer attestation form")
   accept_alert do
     first('#attestation_documents_table .btn-primary',:text => /SUBMIT/i).click
   end
@@ -118,6 +120,7 @@ When(/^Admin choose (.*)$/) do |state|
 end
 
 When(/^Admin enters the information needed$/) do
+  wait_for_ajax
   select "Unable To Open Document", :from => "reason_for_rejection"
 end
 

@@ -81,7 +81,7 @@ class Notice
           }),
         }
     }
-    footer = (market_kind == "individual") ? "notices/shared/footer_ivl.html.erb" : "notices/shared/footer.html.erb"
+    footer = market_kind == "individual" ? "notices/shared/footer_ivl" : "notices/shared/footer"
       options.merge!({footer: {
         content: ApplicationController.new.render_to_string({
           template: footer,
@@ -97,7 +97,7 @@ class Notice
   end
 
   def save_html
-    File.open(Rails.root.join("tmp", "notice.html"), 'wb') do |file|
+    File.open(Rails.root.join("tmp", "notice"), 'wb') do |file|
       file << self.html
     end
   end
@@ -115,7 +115,7 @@ class Notice
   end
 
   def join_pdfs(pdfs)
-    pdf = File.exists?(pdfs[0]) ? CombinePDF.load(pdfs[0]) : CombinePDF.new
+    pdf = File.exist?(pdfs[0]) ? CombinePDF.load(pdfs[0]) : CombinePDF.new
     pdf << CombinePDF.load(pdfs[1])
     pdf.save notice_path
   end

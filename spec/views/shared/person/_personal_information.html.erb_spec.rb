@@ -6,10 +6,7 @@ describe "shared/person/_personal_information.html.erb" do
   let(:person) { FactoryBot.build(:person) }
 
   before :each do
-    helper = Object.new.extend ActionView::Helpers::FormHelper
-    helper.extend ActionDispatch::Routing::PolymorphicRoutes
-    helper.extend ActionView::Helpers::FormOptionsHelper
-    mock_form = ActionView::Helpers::FormBuilder.new(:person, person, helper, {})
+    mock_form = ActionView::Helpers::FormBuilder.new(:person, person, view, {})
     render "shared/person/personal_information", :f => mock_form
   end
 

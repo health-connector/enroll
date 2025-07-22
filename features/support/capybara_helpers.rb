@@ -74,7 +74,7 @@ module CapybaraHelpers
   #       Recent reading indicates it might have been swapped out for
   #       "jQuery.ajax.active".
   def finished_all_ajax_requests?
-    page.evaluate_script('jQuery.active').zero?
+    page.evaluate_script('window.fetchQueue === undefined || window.fetchQueue?.length === 0')
   end
 
   def l10n(translation_key, interpolated_keys = {})

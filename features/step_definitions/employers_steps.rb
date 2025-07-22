@@ -72,6 +72,7 @@ end
 Then(/^.+ uploads an attestation document/) do
   if Settings.aca.enforce_employer_attestation.to_s == "true"
     find('#uic-employers-right-menu > li:nth-child(5) > a').click
+    screenshot("employer_portal_document_upload")
     wait_for_ajax
     find('.upload-document-location').click
     wait_for_ajax
@@ -813,9 +814,8 @@ And(/^employer populates the address field$/) do
   fill_in 'census_employee[address_attributes][address_1]', :with => "1026 Potomac"
   fill_in 'census_employee[address_attributes][address_2]', :with => "Apt ABC"
   fill_in 'census_employee[address_attributes][city]', :with => "Alpharetta"
-  find(:xpath, "//p[@class='label'][contains(., 'SELECT STATE')]").click
-  find(:xpath, "//li[contains(., 'GA')]").click
-
+  find('#address_info .address-row.active .selectric > p').click
+  find('.selectric-items li', text: 'GA').click
   fill_in 'census_employee[address_attributes][zip]', :with => "30228"
 end
 
@@ -829,7 +829,7 @@ And(/^employer clicks on non-linked employee with address$/) do
 end
 
 And(/^employer clicks on non-linked employee without address$/) do
-  @census_employees.first.address.delete
+  @census_employees.first.address&.delete
   @census_employees.first.update_attributes(aasm_state: "eligible")
   click_link @census_employees.first.full_name
 end
@@ -886,7 +886,7 @@ end
 
 And(/^employer clicks on (.*) button with date as (.*)$/) do |_status, date|
   date = date == 'pastdate' ? TimeKeeper.date_of_record - 1.day : TimeKeeper.date_of_record - 3.months
-  find('input.text-center.date-picker').set date
+  find('input.text-center.date-picker').set date.strftime('%m/%d/%Y')
   find('#home').click
   find("a", :text => "Terminate Employee").click
 end
@@ -1016,7 +1016,7 @@ end
 
 And(/^employer clicks on submit button by entering todays date$/) do
   date = TimeKeeper.date_of_record
-  find('input.text-center.date-picker').set date
+  find('input.text-center.date-picker').set date.strftime('%m/%d/%Y')
   terminated_id = @census_employees.first.id.to_s
   find(:xpath, "//*[@id='rehire_#{terminated_id}']/strong").click
 end
@@ -1076,8 +1076,8 @@ end
 
 
 And(/^employer should see default cobra start date$/) do
-  terminated_on = @census_employees.first.employment_terminated_on.next_month.beginning_of_month.to_s
-  expect(find('input.text-center.date-picker').value).to eq terminated_on
+  terminated_on = @census_employees.first.employment_terminated_on.next_month.beginning_of_month
+  expect(find('input.text-center.date-picker').value).to eq terminated_on.strftime("%m/%d/%Y")
 end
 
 And(/^employer sets cobra start date to two months after termination date$/) do

@@ -5,6 +5,6 @@ require File.join(Rails.root, "app", "data_migrations", "components", "fix_emplo
 
 namespace :migrations do
   desc "change fein of an organization"
-  FixEmployerAttestation.define_task :fix_employer_attestation => :environment
+  Components::FixEmployerAttestation.define_task :fix_employer_attestation => :environment
 end
 

@@ -1,5 +1,7 @@
 class GeneralAgencies::InboxesController < InboxesController
   include Acapi::Notifiers
+  before_action :find_inbox_provider, except: :msg_to_portal
+
 
   def new
     @inbox_provider_name = 'HBX Admin.'

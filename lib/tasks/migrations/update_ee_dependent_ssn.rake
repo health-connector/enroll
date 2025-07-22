@@ -4,5 +4,5 @@
 require File.join(Rails.root, "app", "data_migrations", "update_ee_dependent_ssn")
 namespace :migrations do
   desc "update employee dependent ssn"
-  UpdateEeDependentSSN.define_task :update_ee_dependent_ssn => :environment
+  UpdateEeDependentSsn.define_task :update_ee_dependent_ssn => :environment
 end

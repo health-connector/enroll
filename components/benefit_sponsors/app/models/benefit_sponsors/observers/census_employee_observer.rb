@@ -21,7 +21,7 @@ module BenefitSponsors
         end
       end
 
-    private
+      private
 
       def initialize
         @notifier = BenefitSponsors::Services::NoticeService.new

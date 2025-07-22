@@ -11,7 +11,7 @@ module BenefitSponsors
         event_names = Array.new
 
         BenefitSponsors::Organizations::Organization::FIELD_AND_EVENT_NAMES_MAP.each do |key, event_name|
-          event_names << event_name if instance.changed_attributes.include?(key)
+          event_names << event_name if instance.previous_changes.include?(key)
         end
 
         if event_names.any?

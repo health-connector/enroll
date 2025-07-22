@@ -77,7 +77,7 @@ feature "Insured::MembersSelectionController GET new", :type => :feature, dbclea
         click_link_or_button("Shop for Plans")
         expect(find("#employee_role_id_#{employee_role.id}").checked?).to be_truthy
         expect(page).to have_content employee_role.employer_profile.legal_name.capitalize
-        expect(page).to have_content start_date.to_s
+        expect(page).to have_content start_date.strftime("%m/%d/%Y")
 
         within("#family_member_id_#{primary_family_member.id}") do
           expect(page).to have_content ee_person.first_name
@@ -100,7 +100,7 @@ feature "Insured::MembersSelectionController GET new", :type => :feature, dbclea
       scenario "Redirect to members selection page - display's employee and dependent coverage info" do
         expect(find("#employee_role_id_#{employee_role.id}").checked?).to be_truthy
         expect(page).to have_content employee_role.employer_profile.legal_name.capitalize
-        expect(page).to have_content start_date.to_s
+        expect(page).to have_content start_date.strftime("%m/%d/%Y")
 
         within("#family_member_id_#{primary_family_member.id}") do
           expect(page).to have_content ee_person.first_name
@@ -134,7 +134,7 @@ feature "Insured::MembersSelectionController GET new", :type => :feature, dbclea
         click_link_or_button("Shop for Plans")
         expect(find("#employee_role_id_#{employee_role.id}").checked?).to be_truthy
         expect(page).to have_content employee_role.employer_profile.legal_name.capitalize
-        expect(page).to have_content start_date.to_s
+        expect(page).to have_content start_date.strftime("%m/%d/%Y")
 
         within("#family_member_id_#{primary_family_member.id}") do
           expect(page).to have_content ee_person.first_name
@@ -157,7 +157,7 @@ feature "Insured::MembersSelectionController GET new", :type => :feature, dbclea
       scenario "Redirect to members selection page - display's employee and dependent coverage info" do
         expect(find("#employee_role_id_#{employee_role.id}").checked?).to be_truthy
         expect(page).to have_content employee_role.employer_profile.legal_name.capitalize
-        expect(page).to have_content start_date.to_s
+        expect(page).to have_content start_date.strftime("%m/%d/%Y")
 
         within("#family_member_id_#{primary_family_member.id}") do
           expect(page).to have_content ee_person.first_name

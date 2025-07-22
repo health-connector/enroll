@@ -36,9 +36,9 @@ module BenefitMarkets
       end
 
       def create_copy_for_embedding
-        new_pricing_model = BenefitMarkets::PricingModels::PricingModel.new(self.attributes.except(:pricing_units, :member_relationships))
-        new_pricing_model.pricing_units = self.pricing_units.collect{ |pricing_unit| pricing_unit.class.new(pricing_unit.attributes) }
-        new_pricing_model.member_relationships = self.member_relationships.collect{ |mr| mr.class.new(mr.attributes) }
+        new_pricing_model = BenefitMarkets::PricingModels::PricingModel.new(attributes.except("pricing_units", "member_relationships"))
+        new_pricing_model.pricing_units = pricing_units.collect{ |pricing_unit| pricing_unit.class.new(pricing_unit.attributes) }
+        new_pricing_model.member_relationships = member_relationships.collect{ |mr| mr.class.new(mr.attributes) }
         new_pricing_model
       end
 

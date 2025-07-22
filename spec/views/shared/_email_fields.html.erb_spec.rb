@@ -6,10 +6,7 @@ describe "shared/_email_fields.html.erb" do
   let(:email) { FactoryBot.build(:email, kind: 'home') }
 
   before :each do
-    helper = Object.new.extend ActionView::Helpers::FormHelper
-    helper.extend ActionDispatch::Routing::PolymorphicRoutes
-    helper.extend ActionView::Helpers::FormOptionsHelper
-    mock_form = ActionView::Helpers::FormBuilder.new(:email, email, helper, {})
+    mock_form = ActionView::Helpers::FormBuilder.new(:email, email, view, {})
     render "shared/email_fields", :f => mock_form
   end
 

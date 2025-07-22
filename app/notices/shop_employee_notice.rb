@@ -14,7 +14,7 @@ class ShopEmployeeNotice < Notice
     args[:name] = census_employee.employee_role.person.full_name
     args[:recipient_document_store]= census_employee.employee_role.person
     args[:sep_qle_hash] = args[:options][:sep] if args[:options]
-    self.header = "notices/shared/header_with_page_numbers.html.erb"
+    self.header = "notices/shared/header_with_page_numbers"
     super(args)
   end
 

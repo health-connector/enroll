@@ -13,14 +13,14 @@ module Etl
     module ConverterMethods
       def __parse_gender_value(val)
         return nil if val.blank?
-          
+
         stripped_value = val.strip.downcase
         if stripped_value =~ /\Am/i
-           "male"
+          "male"
         elsif stripped_value =~ /\Af/i
-           "female"
+          "female"
         else
-           val
+          val
         end
       end
     end

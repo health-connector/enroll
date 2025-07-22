@@ -136,7 +136,7 @@ module BenefitSponsors
 
       def close_enrollment_quiet_period
         if new_date.prev_day.mday == Settings.aca.shop_market.initial_application.quiet_period.mday
-          effective_on = (new_date.prev_day.beginning_of_month - Settings.aca.shop_market.initial_application.quiet_period.month_offset.months).to_s(:db)
+          effective_on = (new_date.prev_day.beginning_of_month - Settings.aca.shop_market.initial_application.quiet_period.month_offset.months).to_formatted_s(:db)
           notify("acapi.info.events.employer.initial_employer_quiet_period_ended", {:effective_on => effective_on})
         end
       end

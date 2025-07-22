@@ -48,11 +48,9 @@ class SamlInformation
     define_method(key.to_sym) do
       config[key.to_s]
     end
-    self.instance_eval(<<-RUBYCODE)
-      def self.#{key.to_s}
-        self.instance.#{key.to_s}
-      end
-    RUBYCODE
+    define_singleton_method(key.to_sym) do
+      instance.send(key.to_sym)
+    end
   end
 
   REQUIRED_KEYS.each do |k|

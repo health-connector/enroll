@@ -3,7 +3,7 @@
 module Insured
   class ProductShoppingsController < ApplicationController
 
-    before_action :set_current_person, :only => [:receipt, :thankyou, :waive, :continuous_show, :checkout, :terminate]
+    before_action :set_current_person_required, :only => [:receipt, :thankyou, :waive, :continuous_show, :checkout]
     before_action :set_hbx_enrollment, :only => [:continuous_show, :thankyou, :checkout, :receipt, :waiver_checkout, :waiver_thankyou]
 
     # rubocop:disable Metrics/CyclomaticComplexity
@@ -67,7 +67,7 @@ module Insured
       set_consumer_bookmark_url(family_account_path)
 
       respond_to do |format|
-        format.html { render 'thankyou.html.erb' }
+        format.html { render 'thankyou' }
       end
     end
 
@@ -153,7 +153,7 @@ module Insured
         if is_outside_service_area_reason && current_user.person.hbx_staff_role.blank?
           format.html { redirect_back(fallback_location: :back) }
         else
-          format.html { render 'waiver_thankyou.html.erb' }
+          format.html { render 'waiver_thankyou' }
         end
       end
     end
@@ -203,6 +203,10 @@ module Insured
 
     private
 
+    def set_current_person_required
+      set_current_person(required: true)
+    end
+
     def strong_params
       params.permit!
     end
@@ -224,7 +228,7 @@ module Insured
 
     def send_receipt_emails
       UserMailer.generic_consumer_welcome(@person.first_name, @person.hbx_id, @person.emails.first.address).deliver_now
-      body = render_to_string 'user_mailer/secure_purchase_confirmation.html.erb', layout: false
+      body = render_to_string 'user_mailer/secure_purchase_confirmation', layout: false
       from_provider = HbxProfile.current_hbx
       message_params = {
         sender_id: from_provider.try(:id),

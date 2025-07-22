@@ -52,14 +52,14 @@ module Importers
     end
 
     def propagate_warnings(proxy)
-      proxy.warnings.each do |attr, err|
-        warnings.add(attr, err)
+      proxy.warnings.each do |error|
+        warnings.add(error.attribute, error.message)
       end
     end
 
     def propagate_errors(proxy)
-      proxy.errors.each do |attr, err|
-        errors.add(attr, err)
+      proxy.errors.each do |error|
+        errors.add(error.attribute, error.message)
       end
     end
   end

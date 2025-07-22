@@ -15,13 +15,28 @@ module SponsoredBenefits
     def create
       authorize @broker_agency_profile, :plan_design_org_create?
       broker_agency_profile = SponsoredBenefits::Organizations::BrokerAgencyProfile.find_or_initialize_broker_profile(@broker_agency_profile).broker_agency_profile
-      broker_agency_profile.save unless broker_agency_profile.persisted?
 
-      plan_design_organization = broker_agency_profile.plan_design_organizations.create(organization_params.merge(owner_profile_id: @broker_agency_profile.id))
-      if plan_design_organization.persisted?
-        flash[:success] = "Prospect Employer (#{organization_params[:legal_name]}) Added Successfully."
-        redirect_to employers_organizations_broker_agency_profile_path(@broker_agency_profile)
+      # Instead of forcing a save that might trigger callbacks, check if it's available
+      if broker_agency_profile.present?
+        # Create a new plan design organization
+        plan_design_organization = SponsoredBenefits::Organizations::PlanDesignOrganization.new(
+          organization_params.merge(
+            owner_profile_id: @broker_agency_profile.id
+          )
+        )
+
+        # Directly set the broker_agency_profile relationship
+        plan_design_organization.broker_agency_profile = broker_agency_profile
+
+        if plan_design_organization.save
+          flash[:success] = "Prospect Employer (#{organization_params[:legal_name]}) Added Successfully."
+          redirect_to employers_organizations_broker_agency_profile_path(@broker_agency_profile)
+        else
+          init_organization(organization_params)
+          render :new
+        end
       else
+        flash[:error] = "Unable to create plan design organization: broker agency profile not found."
         init_organization(organization_params)
         render :new
       end

@@ -209,8 +209,8 @@ RSpec.describe SpecialEnrollmentPeriod, :type => :model, :dbclean => :after_each
       expect(
         SpecialEnrollmentPeriod.create(**param_with_invalid_optional_effective_on).errors[:optional_effective_on]
       ).to eq [
-        "both min and max sep optional dates are not present for 07/03/#{TimeKeeper.date_of_record.year}. Please specify.",
-        "both min and max sep optional dates are not present for 09/07/#{TimeKeeper.date_of_record.year}. Please specify."
+        "both min and max sep optional dates are not present for #{TimeKeeper.date_of_record.year}-07-03. Please specify.",
+        "both min and max sep optional dates are not present for #{TimeKeeper.date_of_record.year}-09-07. Please specify."
       ]
     end
   end

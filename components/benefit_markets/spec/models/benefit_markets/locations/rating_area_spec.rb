@@ -79,26 +79,26 @@ module BenefitMarkets
 
       it "will not be found when given an address not in that county" do
         rating_area
-        rating_areas = ::BenefitMarkets::Locations::RatingArea.rating_area_for(address_outside_county)
-        expect(rating_areas.to_a).not_to include(rating_area)
+        rating_areas = [::BenefitMarkets::Locations::RatingArea.rating_area_for(address_outside_county)]
+        expect(rating_areas).not_to include(rating_area)
       end
 
       it "will not be found when given an address not in that zip code" do
         rating_area
-        rating_areas = ::BenefitMarkets::Locations::RatingArea.rating_area_for(address_outside_zip)
-        expect(rating_areas.to_a).not_to include(rating_area)
+        rating_areas = [::BenefitMarkets::Locations::RatingArea.rating_area_for(address_outside_zip)]
+        expect(rating_areas).not_to include(rating_area)
       end
 
       it "will not be found when given an address not in that state" do
         rating_area
-        rating_areas = ::BenefitMarkets::Locations::RatingArea.rating_area_for(address_outside_state)
-        expect(rating_areas.to_a).not_to include(rating_area)
+        rating_areas = [::BenefitMarkets::Locations::RatingArea.rating_area_for(address_outside_state)]
+        expect(rating_areas).not_to include(rating_area)
       end
 
       it "is found when a matching address is provided" do
         rating_area
-        rating_areas = ::BenefitMarkets::Locations::RatingArea.rating_area_for(matching_address)
-        expect(rating_areas.to_a).to include(rating_area)
+        rating_areas = [::BenefitMarkets::Locations::RatingArea.rating_area_for(matching_address)]
+        expect(rating_areas).to include(rating_area)
       end
     end
 
@@ -122,14 +122,14 @@ module BenefitMarkets
 
       it "will not be found when given an address not in that state" do
         rating_area
-        rating_areas = ::BenefitMarkets::Locations::RatingArea.rating_area_for(address_outside_state)
-        expect(rating_areas.to_a).not_to include(rating_area)
+        rating_areas = [::BenefitMarkets::Locations::RatingArea.rating_area_for(address_outside_state)]
+        expect(rating_areas).not_to include(rating_area)
       end
 
       it "is found when a matching address is provided" do
         rating_area
-        rating_areas = ::BenefitMarkets::Locations::RatingArea.rating_area_for(matching_address)
-        expect(rating_areas.to_a).to include(rating_area)
+        rating_areas = [::BenefitMarkets::Locations::RatingArea.rating_area_for(matching_address)]
+        expect(rating_areas).to include(rating_area)
       end
     end
   end

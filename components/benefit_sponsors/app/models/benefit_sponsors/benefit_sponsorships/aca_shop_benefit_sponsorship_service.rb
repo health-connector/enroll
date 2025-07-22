@@ -157,7 +157,7 @@ module BenefitSponsors
       error_messages.to_a.inject([]) do |f_errors, error|
         if error[1].first.include?("is not a valid")
           f_errors << "FEIN must be at least 9 digits"
-        elsif error[1].first.include?("is already taken")
+        elsif error[1].first.include?("has already been taken")
           org = ::BenefitSponsors::Organizations::Organization.where(fein: (new_fein.gsub(/\D/, ''))).first
           f_errors << "FEIN matches HBX ID #{org.hbx_id}, #{org.legal_name}"
         else

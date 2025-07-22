@@ -5,7 +5,7 @@ require 'csv'
 require File.join(Rails.root, "app", "reports", "hbx_reports", "edi_enrollment_termination_report")
 require "#{Rails.root}/app/helpers/config/aca_helper"
 
-describe TerminatedHbxEnrollments, dbclean: :after_each do
+describe HbxReports::EdiEnrollmentTerminationReport, dbclean: :after_each do
 
   let(:given_task_name) { "enrollment_termination_on" }
   let(:person1) do
@@ -22,7 +22,7 @@ describe TerminatedHbxEnrollments, dbclean: :after_each do
   end
   let(:hbx_enrollment_member1){ FactoryBot.build(:hbx_enrollment_member, applicant_id: family1.family_members.first.id, eligibility_date: TimeKeeper.date_of_record.beginning_of_month) }
   let(:hbx_enrollment_member2){ FactoryBot.build(:hbx_enrollment_member, applicant_id: family2.family_members.first.id, eligibility_date: TimeKeeper.date_of_record.beginning_of_month) }
-  subject { TerminatedHbxEnrollments.new(given_task_name, double(:current_scope => nil)) }
+  subject { HbxReports::EdiEnrollmentTerminationReport.new(given_task_name, double(:current_scope => nil)) }
   let(:from_state) { "applicant" }
   let(:to_state1) { "coverage_terminated" }
   let(:to_state2) { "coverage_termination_pending" }

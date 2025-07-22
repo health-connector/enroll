@@ -75,7 +75,7 @@ module SponsoredBenefits
       end
 
       def check_legal_name_or_fein_changed?
-        fein_changed? || legal_name_changed?
+        fein_previously_changed? || legal_name_previously_changed?
       end
 
       def legal_name_or_fein_change_attributes

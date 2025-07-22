@@ -3,6 +3,7 @@ module BenefitSponsors
     class Phone
       include Mongoid::Document
       include Mongoid::Timestamps
+      include ActiveSupport::NumberHelper
 
       KINDS = ["home", "work", "mobile", "main", "fax"]
       OFFICE_KINDS = ["phone main"]
@@ -41,12 +42,12 @@ module BenefitSponsors
 
       def blank?
         [:full_phone_number, :area_code, :number, :extension].all? do |attr|
-          self.send(attr).blank?
+          send(attr).blank?
         end
       end
 
       def save_phone_components
-        phone_number = filter_non_numeric(self.full_phone_number).to_s
+        phone_number = filter_non_numeric(full_phone_number).to_s
         if !phone_number.blank?
           length=phone_number.length
           if length>10
@@ -78,11 +79,11 @@ module BenefitSponsors
       end
 
       def to_s
-        full_number = (self.area_code + self.number).to_i
-        if self.extension.present?
-          full_number.to_s(:phone, area_code: true, extension: self.extension)
+        full_number = (area_code + number).to_i
+        if extension.present?
+          number_to_phone(full_number, area_code: true, extension: extension)
         else
-          full_number.to_s(:phone, area_code: true)
+          number_to_phone(full_number, area_code: true)
         end
       end
 

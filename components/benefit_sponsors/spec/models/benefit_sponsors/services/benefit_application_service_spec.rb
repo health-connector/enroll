@@ -267,10 +267,10 @@ module BenefitSponsors
 
       it "should assign the form attributes from benefit application" do
         form = subject.load_form_params_from_resource(benefit_application_form)
-        expect(form[:start_on]).to eq benefit_application.start_on.to_date.to_s
-        expect(form[:end_on]).to eq benefit_application.end_on.to_date.to_s
-        expect(form[:open_enrollment_start_on]).to eq benefit_application.open_enrollment_start_on.to_date.to_s
-        expect(form[:open_enrollment_end_on]).to eq benefit_application.open_enrollment_end_on.to_date.to_s
+        expect(form[:start_on]).to eq benefit_application.start_on.strftime("%m/%d/%Y")
+        expect(form[:end_on]).to eq benefit_application.end_on.strftime("%m/%d/%Y")
+        expect(form[:open_enrollment_start_on]).to eq benefit_application.open_enrollment_start_on.strftime("%m/%d/%Y")
+        expect(form[:open_enrollment_end_on]).to eq benefit_application.open_enrollment_end_on.strftime("%m/%d/%Y")
         expect(form[:pte_count]).to eq benefit_application.pte_count
         expect(form[:msp_count]).to eq benefit_application.msp_count
       end
@@ -477,7 +477,7 @@ module BenefitSponsors
           benefit_market: benefit_market,
           issuer_profile: issuer_profile,
           title: "SHOP Benefits for #{new_ba_start_on.prev_year.year}",
-          application_period: (new_ba_start_on.prev_year.beginning_of_year...new_ba_start_on.prev_year.end_of_year)
+          application_period: (new_ba_start_on.prev_year.beginning_of_year..new_ba_start_on.prev_year.end_of_year)
         )
       end
       let!(:current_benefit_market_catalog) do

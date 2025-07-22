@@ -144,7 +144,7 @@ RSpec.describe "insured/families/_enrollment.html.erb" do
         product: product,
         employee_role: employee_role,
         census_employee: census_employee,
-        effective_on: Date.new(2015,8,10),
+        effective_on: TimeKeeper.date_of_record,
         updated_at: DateTime.now,
         created_at: DateTime.now,
         kind: "employer_sponsored",
@@ -242,16 +242,11 @@ RSpec.describe "insured/families/_enrollment.html.erb" do
 
     it "should display the plan start" do
       expect(rendered).to have_selector('strong', text: 'Plan Start')
-      expect(rendered).to match(/#{Date.new(2015,8,10)}/)
+      expect(rendered).to match(/#{TimeKeeper.date_of_record.strftime('%m/%d/%Y')}/)
     end
 
     it "should not disable the Make Changes button" do
       expect(rendered).to_not have_selector('.cna')
-    end
-
-    it "should display the Plan Start" do
-      expect(rendered).to have_selector('strong', text: 'Plan Start')
-      expect(rendered).to match(/#{Date.new(2015,8,10)}/)
     end
 
     it "should display effective date when terminated enrollment" do
@@ -317,7 +312,7 @@ RSpec.describe "insured/families/_enrollment.html.erb" do
       end
 
       it 'displays terminated_on when coverage_termination_pending and not future_enrollment_termination_date' do
-        expect(rendered).to have_text(/#{terminated_on.strftime("%m/%d/%Y")}/)
+        expect(rendered).to have_text(/#{format_date(terminated_on)}/)
       end
     end
   end
@@ -343,7 +338,7 @@ RSpec.describe "insured/families/_enrollment.html.erb" do
           coverage_terminated?: false,
           coverage_termination_pending?: false,
           may_terminate_coverage?: true,
-          effective_on: Date.new(2015,8,10),
+          effective_on: TimeKeeper.date_of_record,
           consumer_role: double,
           applied_aptc_amount: 100,
           employee_role: employee_role,
@@ -413,8 +408,8 @@ RSpec.describe "insured/families/_enrollment.html.erb" do
         is_coverage_waived?: false,
         coverage_year: 2018,
         employer_profile: employer_profile,
-        coverage_termination_pending?: false,
         coverage_terminated?: true,
+        coverage_termination_pending?: false,
         coverage_expired?: false,
         total_premium: 200.00,
         total_employer_contribution: 100.00,
@@ -509,7 +504,7 @@ RSpec.describe "insured/families/_enrollment.html.erb" do
 
     it "should display coverage end date for expired enrollment" do
       expect(rendered).to have_text(/Coverage End/)
-      expect(rendered).to have_text(/#{end_on.strftime("%m/%d/%Y")}/)
+      expect(rendered).to have_text(end_on.strftime("%m/%d/%Y"))
     end
   end
 

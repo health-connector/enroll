@@ -1,6 +1,6 @@
 
 require File.join(Rails.root, "lib/mongoid_migration_task")
-class UnsetEmplyeeRoleId < MongoidMigrationTask
+class UnsetEmployeeRoleId < MongoidMigrationTask
   def migrate
     p=Person.where(hbx_id: ENV['hbx_id']).first
     if p.present?

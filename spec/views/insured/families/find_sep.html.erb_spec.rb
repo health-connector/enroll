@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe "insured/families/find_sep.html.erb", :dbclean => :around_each do
   let(:current_user) {FactoryBot.create(:user)}
-  let(:person) { FactoryBot.create(:person, :with_family) }
+  let(:person) { FactoryBot.create(:person, :with_family, :with_resident_role) }
   let(:resident_role) { FactoryBot.create(:resident_role) }
 
   before do
@@ -13,10 +13,6 @@ RSpec.describe "insured/families/find_sep.html.erb", :dbclean => :around_each do
     sign_in current_user
     assign :qualifying_life_events, [qle1, qle2]
     assign :next_ivl_open_enrollment_date, TimeKeeper.date_of_record
-    #assign(:person, FactoryBot.create(:person))
-    assign(:person, person)
-    person.resident_role = resident_role
-    person.save
     allow(view).to receive(:policy_helper).and_return(double("Policy", updateable?: true))
     render
   end

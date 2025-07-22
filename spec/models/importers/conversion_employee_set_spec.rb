@@ -22,11 +22,11 @@ describe ::Importers::ConversionEmployeeSet do
     let(:employee_data) do
       {
         :default_hire_date => config["conversions"]["employee_date"], :action => "Add", :employer_name => "CCD Care Inc", :fein => "202187000",
-        :benefit_begin_date => "07/01/2015", :subscriber_ssn => "219000368", :subscriber_dob => "06/14/1962", :subscriber_gender => "FEMALE",
+        :benefit_begin_date => "2015-07-01", :subscriber_ssn => "219000368", :subscriber_dob => "1962-06-14", :subscriber_gender => "FEMALE",
         :subscriber_name_first => "Totally", :subscriber_name_middle => "An", :subscriber_name_last => "Employee", :subscriber_address_1 => "5807 Cotton Tail Lane",
-        :subscriber_city => "Riverdale", :subscriber_state => "MD", :subscriber_zip => "20737", :dep_1_ssn => "213000000", :dep_1_dob => "08/02/2009",
+        :subscriber_city => "Riverdale", :subscriber_state => "MD", :subscriber_zip => "20737", :dep_1_ssn => "213000000", :dep_1_dob => "2009-08-02",
         :dep_1_gender => "MALE", :dep_1_name_first => "Totally", :dep_1_name_middle => "A", :dep_1_name_last => "Kid", :dep_1_relationship => "Child",
-        :dep_2_dob => "03/14/2011", :dep_2_gender => "FEMALE", :dep_2_name_first => "ThisIs", :dep_2_name_middle => "Somebodys", :dep_2_name_last => "Daughter", :dep_2_relationship => "Child"
+        :dep_2_dob => "2011-03-14", :dep_2_gender => "FEMALE", :dep_2_name_first => "ThisIs", :dep_2_name_middle => "Somebodys", :dep_2_name_last => "Daughter", :dep_2_relationship => "Child"
       }
     end
 
@@ -42,8 +42,8 @@ describe ::Importers::ConversionEmployeeSet do
         "Dep4 Last Name,Dep4 Email,Dep4 Phone,Dep4 Address 1,Dep4 Address 2,Dep4 City,Dep4 State,Dep4 Zip,Dep4 Relationship,Dep5 SSN,Dep5 DOB,Dep5 Gender,Dep5 Premium," \
         "Dep5 First Name,Dep5 Middle Name,Dep5 Last Name,Dep5 Email,Dep5 Phone,Dep5 Address 1,Dep5 Address 2,Dep5 City,Dep5 State,Dep5 Zip,Dep5 Relationship,Dep6 SSN,Dep6 DOB," \
         "Dep6 Gender,Dep6 Premium,Dep6 First Name,Dep6 Middle Name,Dep6 Last Name,Dep6 Email,Dep6 Phone,Dep6 Address 1,Dep6 Address 2,Dep6 City,Dep6 State,Dep6 Zip," \
-        "Dep6 Relationship,Import Status,Import Details\nAdd,New Enrollment,Shop,CCD Care Inc,202187000,\"\",\"\",\"\",07/01/2015,Medical Fully Insured Exchange,\"\",\"\",\"\",86052DC0480005,830.75,\"\",\"\"," \
-        "219000368,06/14/1962,FEMALE,344.57,Totally,An,Employee, , ,5807 Cotton Tail Lane, ,Riverdale,MD,20737,Self ,213000000,08/02/2009,MALE,486.18,Totally,A,Kid,\"\",\"\",\"\",\"\",\"\",\"\",\"\",Child, ,03/14/2011,FEMALE,\"\"," \
+        "Dep6 Relationship,Import Status,Import Details\nAdd,New Enrollment,Shop,CCD Care Inc,202187000,\"\",\"\",\"\",2015-07-01,Medical Fully Insured Exchange,\"\",\"\",\"\",86052DC0480005,830.75,\"\",\"\"," \
+        "219000368,1962-06-14,FEMALE,344.57,Totally,An,Employee, , ,5807 Cotton Tail Lane, ,Riverdale,MD,20737,Self ,213000000,2009-08-02,MALE,486.18,Totally,A,Kid,\"\",\"\",\"\",\"\",\"\",\"\",\"\",Child, ,2011-03-14,FEMALE,\"\"," \
         "ThisIs,Somebodys,Daughter,\"\",\"\",\"\",\"\",\"\",\"\",\"\",Child,\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"," \
         "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"," \
         "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\""
@@ -53,6 +53,7 @@ describe ::Importers::ConversionEmployeeSet do
       let(:record_save_result) { true }
 
       it "should write the initial data and the results to the output stream" do
+        puts out_stream.string
         expect(out_stream.string).to eql("#{base_output_result},imported,\"\"\n")
       end
     end

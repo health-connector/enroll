@@ -9,7 +9,6 @@ class Insured::FamiliesController < FamiliesController
   before_action :check_employee_role, :except => [:home]
   before_action :find_or_build_consumer_role, only: [:home]
   before_action :calculate_dates, only: [:check_move_reason, :check_marriage_reason, :check_insurance_reason]
-  before_action :transition_family_members_update_params, only: %i[transition_family_members_update]
 
   def home
     authorize @family, :home?
@@ -89,9 +88,9 @@ class Insured::FamiliesController < FamiliesController
     if params[:qle_id].present?
       qle = QualifyingLifeEventKind.find(params[:qle_id])
       special_enrollment_period = @family.special_enrollment_periods.new(effective_on_kind: params[:effective_on_kind])
-      special_enrollment_period.selected_effective_on = Date.strptime(params[:effective_on_date], "%m/%d/%Y") if params[:effective_on_date].present?
+      special_enrollment_period.selected_effective_on = DateParser.smart_parse(params[:effective_on_date]) if params[:effective_on_date].present?
       special_enrollment_period.qualifying_life_event_kind = qle
-      special_enrollment_period.qle_on = Date.strptime(params[:qle_date], "%m/%d/%Y")
+      special_enrollment_period.qle_on = DateParser.smart_parse(params[:qle_date])
       special_enrollment_period.save
     end
 
@@ -138,7 +137,7 @@ class Insured::FamiliesController < FamiliesController
   def check_qle_date
     authorize @family, :check_qle_date?
     today = TimeKeeper.date_of_record
-    @qle_date = Date.strptime(params[:date_val], "%m/%d/%Y")
+    @qle_date = DateParser.smart_parse(params[:date_val])
     start_date = today - 30.days
     end_date = today + 30.days
 
@@ -373,21 +372,21 @@ class Insured::FamiliesController < FamiliesController
 
   def notice_upload_email
     if (@person.consumer_role.present? && @person.consumer_role.can_receive_electronic_communication?) ||
-      (@person.employee_roles.present? && (@person.employee_roles.map(&:contact_method) & ["Only Electronic communications", "Paper and Electronic communications"]).any?)
+       (@person.employee_roles.present? && @person.employee_roles.map(&:contact_method).intersect?(["Only Electronic communications", "Paper and Electronic communications"]))
       UserMailer.generic_notice_alert(@person.first_name, "You have a new message from #{site_short_name}", @person.work_email_or_best).deliver_now
     end
   end
 
   def notice_upload_secure_message(notice, subject)
     body = "<br>You can download the notice by clicking this link " +
-            "<a href=" + "#{authorized_document_download_path('Person', @person.id, 'documents', notice.id )}?content_type=#{notice.format}&filename=#{notice.title.gsub(/[^0-9a-z]/i,'')}.pdf&disposition=inline" + " target='_blank'>" + subject + "</a>"
+           "<a href=" + "#{authorized_document_download_path('Person', @person.id, 'documents', notice.id)}?content_type=#{notice.format}&filename=#{notice.title.gsub(/[^0-9a-z]/i,'')}.pdf&disposition=inline" + " target='_blank'>" + subject + "</a>"
 
     @person.inbox.messages << Message.new(subject: subject, body: body, from: site_short_name)
     @person.save!
   end
 
   def calculate_dates
-    @qle_date = Date.strptime(params[:date_val], "%m/%d/%Y")
+    @qle_date = DateParser.smart_parse(params[:date_val])
     @qle = QualifyingLifeEventKind.find(params[:qle_id])
     start_date = TimeKeeper.date_of_record - @qle.post_event_sep_in_days.try(:days)
     end_date = TimeKeeper.date_of_record + @qle.pre_event_sep_in_days.try(:days)

@@ -30,7 +30,7 @@ module BenefitSponsors
         sponsored_benefit.benefit_package = @benefit_package
         sponsored_benefit.assign_attributes(args[0].except(:id, :kind, :sponsor_contribution_attributes))
         sponsored_benefit.sponsor_contribution = build_sponsor_contribution(sponsored_benefit, args[0][:sponsor_contribution_attributes])
-        sponsored_benefit.to_a
+        [sponsored_benefit]
       end
 
       def build_sponsor_contribution(sponsored_benefit, attrs)

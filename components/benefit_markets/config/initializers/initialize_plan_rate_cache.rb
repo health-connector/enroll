@@ -1,3 +1,5 @@
 unless Rails.env.test?
-  ::BenefitMarkets::Products::ProductRateCache.initialize_rate_cache!
+  Rails.application.config.to_prepare do
+    BenefitMarkets::Products::ProductRateCache.initialize_rate_cache!
+  end
 end

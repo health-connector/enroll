@@ -112,7 +112,7 @@ RSpec.describe Organization, dbclean: :after_each do
     end
 
     context "with invalid fein" do
-      let(:params) {valid_params.deep_merge({fein: bad_fein})}
+      let(:params) { valid_params.deep_merge!({fein: bad_fein}) }
 
       it "should fail validation" do
         expect(Organization.create(**params).errors[:fein]).to eq [fein_error_message]
@@ -349,18 +349,18 @@ RSpec.describe Organization, dbclean: :after_each do
 
     context "changed_attributes" do
       let(:employer_profile) { FactoryBot.build(:employer_profile) }
-      let(:organization) {FactoryBot.create(:organization, employer_profile: employer_profile)}
+      let(:organization) { FactoryBot.create(:organization, employer_profile: employer_profile) }
 
       it "legal_name changed_attributes " do
         organization.legal_name = "test1"
         organization.save!
-        expect(organization.instance_variable_get(:@changed_fields)).to eq ["legal_name", "updated_at"]
+        expect(organization.previous_changes.keys).to eq ["legal_name", "updated_at"]
       end
 
       it "fein changed_attributes" do
         organization.fein = "000000001"
         organization.save
-        expect(organization.instance_variable_get(:@changed_fields)).to eq ["fein", "updated_at"]
+        expect(organization.previous_changes.keys).to eq ["fein", "updated_at"]
       end
     end
   end

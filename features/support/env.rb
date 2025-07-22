@@ -97,7 +97,7 @@ Capybara.register_driver :selenium_chrome_custom do |app|
   Capybara::Selenium::Driver.new(
     app,
     browser: :chrome,
-    capabilities: [options],
+    options: options,
     http_client: client
   )
 end

@@ -42,7 +42,7 @@ RSpec.describe "insured/families/_right_column.html.erb" do
         EnrollRegistry[:add_external_links].feature.stub(:is_enabled).and_return(true)
         EnrollRegistry[:add_external_links].setting(:employee_display).stub(:item).and_return(true)
 
-        render partial: 'insured/families/right_column.html.erb'
+        render partial: 'insured/families/right_column'
 
         expect(rendered).to include("Earn a $100 Reward when you complete a qualifying ConnectWell activity.")
         expect(rendered).to include("href=\"https://www.mahealthconnector.org/business/employees/connectwell-for-employees")
@@ -54,7 +54,7 @@ RSpec.describe "insured/families/_right_column.html.erb" do
         EnrollRegistry[:add_external_links].feature.stub(:is_enabled).and_return(true)
         EnrollRegistry[:add_external_links].setting(:employee_display).stub(:item).and_return(false)
 
-        render partial: 'insured/families/right_column.html.erb'
+        render partial: 'insured/families/right_column'
 
         expect(rendered).not_to include("Earn a $100 Reward when you complete a qualifying ConnectWell activity.")
         expect(rendered).not_to include("href=\"https://www.mahealthconnector.org/business/employees/connectwell-for-employees")

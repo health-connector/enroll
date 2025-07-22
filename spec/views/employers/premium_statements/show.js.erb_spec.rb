@@ -69,7 +69,7 @@ describe "employers/premium_statements/show.js.erb" do
     assign :hbx_enrollments, hbx_enrollments
     assign :employer_profile, employer_profile
     assign :billing_date, TimeKeeper.date_of_record.beginning_of_month
-    render template: "employers/premium_statements/show.js.erb"
+    render template: "employers/premium_statements/show"
   end
 
   # it "should display billing report of a user" do
