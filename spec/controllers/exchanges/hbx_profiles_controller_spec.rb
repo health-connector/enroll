@@ -1247,7 +1247,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       end
 
       it 'should have correct start_on' do
-        created_bs = BenefitSponsors::BenefitSponsorships::BenefitSponsorship.order_by(:'created_at'.asc).last.benefit_applications.order_by(:'created_at'.asc).last
+        created_bs = BenefitSponsors::BenefitSponsorships::BenefitSponsorship.order_by(:created_at.asc).last.benefit_applications.order_by(:created_at.asc).last
         expect(created_bs.start_on.to_date).to eq(start_on)
       end
     end
