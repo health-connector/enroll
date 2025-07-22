@@ -1178,13 +1178,15 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       )
     end
 
-    let!(:valid_params) do #here
+    let!(:valid_params) do #here form.start_on
       { admin_datatable_action: true,
         benefit_sponsorship_id: benefit_sponsorship.id.to_s,
-        start_on: effective_period.min,
-        end_on: effective_period.max,
+        start_on: (TimeKeeper.date_of_record + 3.months).strftime("%m/%d/%Y"),
+        end_on: (TimeKeeper.date_of_record + 1.year + 3.months - 1.day).strftime("%m/%d/%Y"),
         open_enrollment_start_on: (TimeKeeper.date_of_record + 2.months).strftime('%m/%d/%Y'),
-        open_enrollment_end_on: (TimeKeeper.date_of_record + 2.months + 20.day).strftime('%m/%d/%Y')}
+        open_enrollment_end_on: (TimeKeeper.date_of_record + 2.months + 20.day).strftime('%m/%d/%Y'),
+        fte_count: "1"
+      }
     end
 
     before :each do
@@ -1243,6 +1245,11 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       it 'should render new_benefit_application' do
         expect(response).to render_template("exchanges/hbx_profiles/create_benefit_application")
       end
+
+      it 'should have correct start_on' do
+        created_bs = BenefitSponsors::BenefitSponsorships::BenefitSponsorship.order_by(:'created_at'.asc).last.benefit_applications.order_by(:'created_at'.asc).last
+        expect(created_bs.start_on.to_date).to eq(start_on)
+      end
     end
 
     context '.create_benefit_application when existing application is in termination_pending state' do
@@ -1261,8 +1268,8 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
         {
           admin_datatable_action: true,
           benefit_sponsorship_id: benefit_sponsorship.id.to_s,
-          start_on: new_start_date,
-          end_on: new_start_date + 1.year - 1.day,
+          start_on: new_start_date.strftime("%m/%d/%Y"),
+          end_on: (new_start_date + 1.year - 1.day).strftime("%m/%d/%Y"),
           open_enrollment_start_on: (current_date + 1.month).beginning_of_month.strftime('%m/%d/%Y'),
           open_enrollment_end_on: ((current_date + 1.month).beginning_of_month + 20.days).strftime('%m/%d/%Y'),
           has_active_ba: true
