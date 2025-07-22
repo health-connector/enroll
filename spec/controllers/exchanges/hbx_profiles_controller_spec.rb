@@ -1185,8 +1185,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
         end_on: (TimeKeeper.date_of_record + 1.year + 3.months - 1.day).strftime("%m/%d/%Y"),
         open_enrollment_start_on: (TimeKeeper.date_of_record + 2.months).strftime('%m/%d/%Y'),
         open_enrollment_end_on: (TimeKeeper.date_of_record + 2.months + 20.day).strftime('%m/%d/%Y'),
-        fte_count: "1"
-      }
+        fte_count: "1" }
     end
 
     before :each do
