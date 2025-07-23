@@ -2134,7 +2134,7 @@ GEM
     jquery-turbolinks (2.1.0)
       railties (>= 3.1.0)
       turbolinks
-    jquery-ui-rails (7.0.0)
+    jquery-ui-rails (8.0.0)
       railties (>= 3.2.16)
     json (2.7.2)
     json-schema (5.0.1)
@@ -2248,12 +2248,12 @@ GEM
     next_rails (1.4.5)
       rainbow (>= 3)
     nio4r (2.7.3)
-    nokogiri (1.18.6)
+    nokogiri (1.18.9)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
-    nokogiri (1.18.6-arm64-darwin)
+    nokogiri (1.18.9-arm64-darwin)
       racc (~> 1.4)
-    nokogiri (1.18.6-x86_64-linux-gnu)
+    nokogiri (1.18.9-x86_64-linux-gnu)
       racc (~> 1.4)
     nokogiri-happymapper (0.8.1)
       nokogiri (~> 1.5)
@@ -2555,7 +2555,7 @@ GEM
     terrapin (0.6.0)
       climate_control (>= 0.0.3, < 1.0)
     test-prof (1.3.3.1)
-    thor (1.3.1)
+    thor (1.4.0)
     thread_safe (0.3.6)
     tilt (2.6.0)
     timeout (0.4.1)
@@ -2667,7 +2667,7 @@ DEPENDENCIES
   jbuilder (~> 2.7)
   jquery-rails (~> 4.3)
   jquery-turbolinks
-  jquery-ui-rails (~> 7.0)
+  jquery-ui-rails (>= 8.0.0)
   kaminari (= 1.2.1)
   kaminari-actionview
   kaminari-mongoid
@@ -2688,7 +2688,7 @@ DEPENDENCIES
   net-imap (>= 0.4.20)
   newrelic_rpm (~> 9.6)
   next_rails
-  nokogiri (~> 1.18.6)
+  nokogiri (~> 1.18.9)
   nokogiri-happymapper (~> 0.8.0)
   non-stupid-digest-assets (~> 1.0, >= 1.0.9)
   notifier!
@@ -2737,6 +2737,7 @@ DEPENDENCIES
   sprockets (~> 3.5, >= 3.5.2)
   symmetric-encryption (~> 4.6.0)
   test-prof (~> 1.3)
+  thor (>= 1.4.0)
   transport_gateway!
   transport_profiles!
   turbolinks (~> 5)
