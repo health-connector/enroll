@@ -102,7 +102,7 @@ gem 'sassc',                    '~> 2.0'
 gem 'sass-rails',               '~> 5'
 gem 'config',                   '~> 5.5', '>= 5.5.2'
 gem 'rack-cors'
-gem 'puma', '~> 5.6.9'
+gem 'puma', '~> 6.4.3'
 
 #######################################################
 # Removed gems
