@@ -55,7 +55,7 @@ gem 'mongoid-autoinc', '~> 6.0'
 gem 'mongoid-history', '~> 0.8'
 # gem 'mongoid-versioning'
 gem 'mongoid_rails_migrations', '1.2.1'
-gem 'nokogiri', '~> 1.18.6'
+gem 'nokogiri', '~> 1.18.9'
 gem 'nokogiri-happymapper', '~> 0.8.0', :require => 'happymapper'
 gem 'mongoid_userstamp', '~> 0.4', :path => "./project_gems/mongoid_userstamp-0.4.0"
 
@@ -88,6 +88,7 @@ gem 'wkhtmltopdf-binary-edge', '~> 0.12.3.0'
 gem 'shakapacker', '~> 7.0'
 gem 'rubyXL'
 gem 'holidays', '~> 8.6'
+gem 'thor', '>= 1.4.0'
 
 #arm64 mac support
 gem 'ffi', '1.15.5'
