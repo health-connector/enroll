@@ -19,7 +19,7 @@
     "compression-webpack-plugin": "9",
     "css-loader": "^7.1.2",
     "css-minimizer-webpack-plugin": "^7.0.2",
-    "mini-css-extract-plugin": "^2.9.2",
+    "mini-css-extract-plugin": "^2.9.4",
     "shakapacker": "7.3.0-beta.1",
     "style-loader": "^4.0.0",
     "terser-webpack-plugin": "5",
