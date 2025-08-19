@@ -109,9 +109,29 @@ module BenefitSponsors
       end
 
       context "tab: families" do
+        let(:person) {FactoryBot.create(:person)}
+        let(:employee_role1) {FactoryBot.create(:benefit_sponsors_employee_role, person: person, employer_profile: employer_profile, benefit_sponsors_employer_profile_id: employer_profile.id)}
+        let(:census_employee) do
+          census_employee = FactoryBot.create(:census_employee, :with_active_assignment,
+                                              first_name: person.first_name,
+                                              last_name: person.last_name,
+                                              benefit_sponsorship: benefit_sponsorship,
+                                              employer_profile: benefit_sponsorship.profile,
+                                              benefit_group: current_benefit_package,
+                                              employee_role_id: employee_role1.id)
+          census_employee.update_attributes(ssn: person.ssn, dob: person.dob)
+          employee_role1.update_attributes(census_employee_id: census_employee.id)
+          census_employee
+        end
+
         before do
+          allow(person).to receive(:active_employee_roles).and_return [employee_role1]
+          allow(employee_role1).to receive(:census_employee).and_return census_employee
+          benefit_sponsorship.save!
+          allow(controller).to receive(:authorize).and_return(true)
           sign_in user
-          get :show, params: { id: benefit_sponsor.profiles.first.id, tab: 'families' }
+          get :show, params: {id: benefit_sponsor.profiles.first.id.to_s, tab: 'families'}
+          allow(employer_profile).to receive(:active_benefit_sponsorship).and_return benefit_sponsorship
         end
 
         it "should render show template" do
@@ -120,6 +140,11 @@ module BenefitSponsors
 
         it "should return http success" do
           expect(response).to have_http_status(:success)
+        end
+
+        it "should return valid families" do
+          expect(assigns(:employees)).to eq([employee_role1])
+          expect(response).to render_template("show")
         end
       end
     end
