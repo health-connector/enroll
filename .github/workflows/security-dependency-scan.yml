@@ -24,11 +24,12 @@ jobs:
             bundle-audit --output=bundler_audit.txt
         - name: upload bundler-audit failure report
           uses: actions/upload-artifact@v4
-          # if: failure()
+          if: always()
           with:
             name: Bundler Report
             path: bundler_audit.txt
         - name: Write to Job Summary
+          if: always()
           run: |
             echo "Critical:" >> $GITHUB_STEP_SUMMARY 
             cat bundler_audit.txt | grep Critical | wc -l >> $GITHUB_STEP_SUMMARY
