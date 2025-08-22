@@ -20,7 +20,6 @@ jobs:
           run: |
             gem install bundler-audit && bundle-audit update
         - name: run bundler-audit
-          continue-on-error: true
           run: |
             bundle-audit --output=bundler_audit.txt
         - name: upload bundler-audit failure report
