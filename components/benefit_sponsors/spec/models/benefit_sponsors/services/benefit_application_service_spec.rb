@@ -379,7 +379,7 @@ module BenefitSponsors
             ba.benefit_application_items[0].update_attributes({
                                                                 effective_period: Date.new(current_year - 1, 7, 1)..Date.new(current_year, 6, 30)
                                                               })
-            create_ba_params['start_on'] = "1/1/#{current_year}"
+            create_ba_params['start_on'] = "01/01/#{current_year}"
             @form = ::BenefitSponsors::Forms::BenefitApplicationForm.for_create(create_ba_params)
             fetch_bs_for_service(@form)
             expect(subject.can_create_draft_ba?(@form)).to be_falsy
@@ -388,7 +388,7 @@ module BenefitSponsors
 
         context 'with no overlapping coverage' do
           it 'should return false as dt active state exists for one of the bas' do
-            create_ba_params['start_on'] = "1/1/#{current_year}"
+            create_ba_params['start_on'] = "01/01/#{current_year}"
             @form = ::BenefitSponsors::Forms::BenefitApplicationForm.for_create(create_ba_params)
             ba.benefit_application_items.create(
               effective_period: Date.new(current_year - 2, 7, 1)..Date.new(current_year - 1, 6, 30),
@@ -400,7 +400,7 @@ module BenefitSponsors
           end
 
           it 'should return false as dt active state exists for one of the bas' do
-            create_ba_params['start_on'] = "10/1/#{current_year}"
+            create_ba_params['start_on'] = "10/01/#{current_year}"
             @form = ::BenefitSponsors::Forms::BenefitApplicationForm.for_create(create_ba_params)
             ba.benefit_application_items.create(
               effective_period: Date.new(current_year - 1, 7, 1)..Date.new(current_year, 6, 30),
