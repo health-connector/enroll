@@ -4,7 +4,7 @@ module BenefitMarkets
     # by multiple keys.
     class ProductRateCache
       def self.initialize_rate_cache!
-        $product_rate_age_bounding_cache = Hash.new 
+        $product_rate_age_bounding_cache = Hash.new
         $product_rate_calculation_cache = Hash.new do |h, k|
           h[k] = (Hash.new do |h2, k2|
             h2[k2] = (Hash.new do |h3, k3|
@@ -17,15 +17,18 @@ module BenefitMarkets
           rating_area_cache[ra.id] = ra.exchange_provided_code
         end
         BenefitMarkets::Products::Product.each do |product|
+          # Add nil check for premium_ages
+          next if product.premium_ages.nil?
+
           $product_rate_age_bounding_cache[product.id] = {
-            minimum: product.premium_ages.min, 
+            minimum: product.premium_ages.min,
             maximum: product.premium_ages.max
           }
           product.premium_tables.each do |pt|
             r_area_tag = rating_area_cache[pt.rating_area_id]
             pt.premium_tuples.each do |tuple|
               $product_rate_calculation_cache[product.id][r_area_tag][tuple.age] = (
-                $product_rate_calculation_cache[product.id][r_area_tag][tuple.age] + 
+                $product_rate_calculation_cache[product.id][r_area_tag][tuple.age] +
                 [{
                   start_on: pt.effective_period.min,
                   end_on: pt.effective_period.max,
