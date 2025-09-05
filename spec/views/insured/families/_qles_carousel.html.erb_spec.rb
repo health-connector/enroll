@@ -79,4 +79,25 @@ RSpec.describe "insured/families/_qles_carousel.html.erb" do
     end
   end
 
+  context "carousel click functionality" do
+    before(:each) do
+      render "insured/families/qles_carousel"
+    end
+
+    it "should have next and previous controls" do
+      expect(rendered).to have_selector('a.carousel-control.left')
+      expect(rendered).to have_selector('a.carousel-control.right')
+    end
+
+    it "should have clickable indicator buttons" do
+      expect(rendered).to have_selector('ol.carousel-indicators li[data-slide-to]')
+    end
+
+    it "should have the correct number of indicator buttons" do
+      number_of_slides = (QualifyingLifeEventKind.count / 5.0).ceil
+      actual_indicators = rendered.scan(/data-slide-to/).count
+      expect(actual_indicators).to be_between(number_of_slides, number_of_slides * 2)
+    end
+  end
+
 end
