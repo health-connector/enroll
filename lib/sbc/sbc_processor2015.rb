@@ -45,15 +45,19 @@ class SbcProcessor2015
         else
           Aws::S3Storage.save(pdf_path(file_name), S3_BUCKET)
         end
-        product.sbc_document = Document.new({title: file_name, subject: "SBC", format: 'application/pdf', identifier: uri})
-        product.sbc_document.save!
+        product.build_sbc_document(title: file_name, subject: "SBC", format: 'application/pdf', identifier: uri)
         product.save!
 
         plan = Plan.where(active_year: product.active_year, hios_id: product.hios_id).first
         plan.update_attributes(sbc_document: product.sbc_document) if plan.present?
 
+        if product.sbc_document.blank? || (product.sbc_document.present? && product.sbc_document.identifier != uri)
+          puts "FAILED TO UPDATE #{product.title} #{product.hios_id} #{file_name}" unless Rails.env.test?
+          next
+        end
+
         counter += 1
-        puts "Product #{product.title} #{product.hios_id} updated, SBC #{file_name}, Document uri #{product.sbc_document.identifier}" unless Rails.env.test?
+        puts "Product #{product.title} #{product.hios_id} updated, SBC #{file_name}, Document uri #{product&.sbc_document.identifier}" unless Rails.env.test?
         # end of new model
       end
     end
