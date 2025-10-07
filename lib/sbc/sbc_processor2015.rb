@@ -57,7 +57,7 @@ class SbcProcessor2015
         end
 
         counter += 1
-        puts "Product #{product.title} #{product.hios_id} updated, SBC #{file_name}, Document uri #{product&.sbc_document.identifier}" unless Rails.env.test?
+        puts "Product #{product.title} #{product.hios_id} updated, SBC #{file_name}, Document uri #{product&.sbc_document&.identifier}" unless Rails.env.test?
         # end of new model
       end
     end
