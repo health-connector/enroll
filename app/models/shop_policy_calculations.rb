@@ -45,8 +45,8 @@ module ShopPolicyCalculations
   end
 
   def relationship_for(member)
-    case  member.class.to_s
-    when "HbxEnrollmentMember"
+    case  member
+    when HbxEnrollmentMember
       if member.is_subscriber?
         "employee"
       else
