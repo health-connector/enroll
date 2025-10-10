@@ -106,6 +106,9 @@ jobs:
           git show --quiet HEAD > release.txt
           git show --quiet HEAD > public/release.txt
 
+      - name: Set up git credentials for bundler
+        run: git config --global url."https://${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         with:
