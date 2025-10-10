@@ -371,6 +371,40 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
         expect(response).to have_http_status(:success)
         expect(response).to render_template("edit")
       end
+
+      context "with address updates" do
+        let(:dependent_properties_with_addresses) do
+          {
+            "first_name" => "John",
+            "addresses" => {
+              "0" => {"kind" => "home", "address_1" => "123 Main St", "city" => "Boston", "state" => "MA", "zip" => "02101"}
+            }
+          }
+        end
+
+        it "should update dependent address fields including zip code" do
+          allow(controller).to receive(:update_vlp_documents).and_return(true)
+          put :update, params: {:id => dependent_id, :dependent => dependent_properties_with_addresses}
+          expect(response).to have_http_status(:success)
+          expect(response).to render_template("show")
+        end
+
+        it "should convert ActionController::Parameters addresses to plain hashes" do
+          allow(controller).to receive(:update_vlp_documents).and_return(true)
+
+          # Verify that the sanitized params passed to update_attributes contain plain hashes, not ActionController::Parameters
+          expect_any_instance_of(Forms::FamilyMember).to receive(:update_attributes) do |_instance, attrs|
+            expect(attrs[:addresses]).to be_a(Hash)
+            attrs[:addresses].each do |_key, address|
+              expect(address).to be_a(Hash)
+              expect(address).not_to be_a(ActionController::Parameters)
+            end
+            true
+          end
+
+          put :update, params: {:id => dependent_id, :dependent => dependent_properties_with_addresses}
+        end
+      end
     end
   end
 end
