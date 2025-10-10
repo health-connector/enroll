@@ -63,6 +63,7 @@ gem 'non-stupid-digest-assets', '~> 1.0', '>= 1.0.9'
 gem 'openhbx_cv2', git: 'https://github.com/ideacrew/openhbx_cv2.git', branch: 'trunk'
 gem 'resource_registry',  git:  'https://github.com/ideacrew/resource_registry.git', tag: 'v0.10.1'
 gem 'prawn', '~> 1.3.0'
+gem 'prawn-table', '~> 0.2.2'
 
 gem 'pundit', '~> 2.0'
 gem 'rails', '~> 7.2', '>= 7.2.2'
