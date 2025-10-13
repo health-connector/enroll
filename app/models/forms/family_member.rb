@@ -62,7 +62,8 @@ module Forms
     def dob=(val)
       @dob = begin
         Date.strptime(val, "%Y-%m-%d")
-      rescue StandardError
+      rescue StandardError => e
+        Rails.logger.error { "Failed to parse date of birth: #{val} due to #{e.inspect}" }
         nil
       end
     end
@@ -133,12 +134,13 @@ module Forms
       else
         home_address = begin
           person.home_address
-        rescue StandardError
+        rescue StandardError => e
+          Rails.logger.error { "Failed to get home address for, error: #{e.inspect}" }
           nil
         end
         mailing_address = person.has_mailing_address? ? person.mailing_address : nil
 
-        addresses.each do |_key, address|
+        addresses.each_value do |_, address|
           address_attrs = address.is_a?(Hash) ? address : address.permit!
 
           current_address = case address_attrs["kind"]
@@ -271,7 +273,7 @@ module Forms
     end
 
     def bubble_person_errors(person)
-      return unless person.errors.has_key?(:ssn)
+      return unless person.errors.key?(:ssn)
 
       person.errors.get(:ssn).each do |err|
         errors.add(:ssn, err)

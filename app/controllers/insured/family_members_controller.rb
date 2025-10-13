@@ -206,7 +206,7 @@ class Insured::FamilyMembersController < ApplicationController
       @dependent.addresses = [Address.new(kind: 'home'), Address.new(kind: 'mailing')]
     elsif @dependent.addresses.is_a? ActionController::Parameters
       addresses = []
-      @dependent.addresses.each do |_k, address|
+      @dependent.addresses.map do |_, address|
         addresses << Address.new(address.permit!)
       end
       @dependent.addresses = addresses
