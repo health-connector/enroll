@@ -332,7 +332,7 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
     before(:each) do
       sign_in(user)
       allow(Forms::FamilyMember).to receive(:find).with(dependent_id).and_return(dependent)
-      allow(dependent).to receive(:update_attributes).with(dependent_properties).and_return(update_result)
+      allow(dependent).to receive(:update_attributes).with(kind_of(Hash)).and_return(update_result)
       allow(dependent).to receive(:family_id).and_return(test_family.id)
       allow(Family).to receive(:find).with(test_family.id).and_return(test_family)
       allow(address).to receive(:is_a?).and_return(true)
@@ -393,7 +393,7 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
           allow(controller).to receive(:update_vlp_documents).and_return(true)
 
           # Verify that the sanitized params passed to update_attributes contain plain hashes, not ActionController::Parameters
-          expect_any_instance_of(Forms::FamilyMember).to receive(:update_attributes) do |_instance, attrs|
+          expect(dependent).to receive(:update_attributes) do |attrs|
             expect(attrs[:addresses]).to be_a(Hash)
             attrs[:addresses].each do |_key, address|
               expect(address).to be_a(Hash)
