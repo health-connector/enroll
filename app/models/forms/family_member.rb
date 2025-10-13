@@ -140,7 +140,7 @@ module Forms
         end
         mailing_address = person.has_mailing_address? ? person.mailing_address : nil
 
-        addresses.each_value do |_, address|
+        addresses.each_value do |address|
           address_attrs = address.is_a?(Hash) ? address : address.permit!
 
           current_address = case address_attrs["kind"]

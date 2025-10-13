@@ -395,7 +395,7 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
           # Verify that the sanitized params passed to update_attributes contain plain hashes, not ActionController::Parameters
           expect(dependent).to receive(:update_attributes) do |attrs|
             expect(attrs[:addresses]).to be_a(Hash)
-            attrs[:addresses].each_value do |_, address|
+            attrs[:addresses].each_value do |address|
               expect(address).to be_a(Hash)
               expect(address).not_to be_a(ActionController::Parameters)
             end
