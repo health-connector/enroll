@@ -22,6 +22,12 @@ RSpec.describe PlanCostDecoratorCongress, dbclean: :after_each do
   before do
     allow(Caches::PlanDetails).to receive(:lookup_rate) {|_id, _start, age| age * premium_constant}
     allow(hbx_enrollment).to receive(:hbx_enrollment_members).and_return hbx_enrollment_members
+    allow(hem_employee).to receive(:employee_relationship).and_return 'employee'
+    allow(hem_spouse).to receive(:employee_relationship).and_return 'spouse'
+    allow(hem_child_1).to receive(:employee_relationship).and_return 'child_under_26'
+    allow(hem_child_2).to receive(:employee_relationship).and_return 'child_under_26'
+    allow(hem_child_3).to receive(:employee_relationship).and_return 'child_under_26'
+    allow(hem_child_4).to receive(:employee_relationship).and_return 'child_under_26'
   end
 
   context "when no hbx enrollment members" do
