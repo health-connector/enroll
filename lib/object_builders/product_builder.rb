@@ -96,6 +96,7 @@ class ProductBuilder
           family_deductible: cost_share_variance.qhp_deductibles.first.in_network_tier_1_family,
           is_reference_plan_eligible: true,
           metal_level_kind: retrieve_metal_level.to_sym,
+          hsa_eligibility: @qhp.hsa_eligibility.to_s.downcase.strip == "yes"
         }
 
         all_attributes = if is_health_product?
