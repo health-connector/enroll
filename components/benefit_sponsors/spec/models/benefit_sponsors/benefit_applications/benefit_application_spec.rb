@@ -1269,27 +1269,33 @@ module BenefitSponsors
       end
       let!(:benefit_package) { create(:benefit_sponsors_benefit_packages_benefit_package, benefit_application: benefit_application) }
 
+      let(:benefit_group_assignment_1) { build(:benefit_sponsors_benefit_group_assignment, benefit_group: benefit_package, start_on: current_effective_date) }
+      let(:benefit_group_assignment_2) { build(:benefit_sponsors_benefit_group_assignment, benefit_group: benefit_package, start_on: current_effective_date) }
+      let(:benefit_group_assignment_3) { build(:benefit_sponsors_benefit_group_assignment, benefit_group: benefit_package, start_on: current_effective_date) }
+
       let!(:active_employee_1) do
-        create(:census_employee, :with_active_assignment,
-               employer_profile: benefit_sponsorship.profile,
-               benefit_sponsorship: benefit_sponsorship,
-               benefit_group_assignments: [build(:benefit_sponsors_benefit_group_assignment, benefit_group: benefit_package)])
-      end
-
-      let!(:active_employee_2) do
-        create(:census_employee, :with_active_assignment,
-               employer_profile: benefit_sponsorship.profile,
-               benefit_sponsorship: benefit_sponsorship,
-               benefit_group_assignments: [build(:benefit_sponsors_benefit_group_assignment, benefit_group: benefit_package)])
-      end
-
-      let!(:terminated_employee) do
         create(:census_employee,
                employer_profile: benefit_sponsorship.profile,
                benefit_sponsorship: benefit_sponsorship,
-               aasm_state: :employment_terminated,
-               employment_terminated_on: TimeKeeper.date_of_record - 10.days,
-               benefit_group_assignments: [build(:benefit_sponsors_benefit_group_assignment, benefit_group: benefit_package)])
+               benefit_group_assignments: [benefit_group_assignment_1])
+      end
+
+      let!(:active_employee_2) do
+        create(:census_employee,
+               employer_profile: benefit_sponsorship.profile,
+               benefit_sponsorship: benefit_sponsorship,
+               benefit_group_assignments: [benefit_group_assignment_2])
+      end
+
+      let!(:terminated_employee) do
+        ce = create(:census_employee,
+                    employer_profile: benefit_sponsorship.profile,
+                    benefit_sponsorship: benefit_sponsorship,
+                    benefit_group_assignments: [benefit_group_assignment_3])
+        ce.aasm_state = 'employment_terminated'
+        ce.employment_terminated_on = TimeKeeper.date_of_record - 10.days
+        ce.save(validate: false)
+        ce
       end
 
       let!(:family_active_1) { create(:family, :with_primary_family_member) }
@@ -1299,8 +1305,8 @@ module BenefitSponsors
       let!(:enrollment_active_1) do
         create(:hbx_enrollment,
                household: family_active_1.latest_household,
-               family: family_active_1,
                sponsored_benefit_package_id: benefit_package.id,
+               benefit_group_assignment_id: active_employee_1.benefit_group_assignments.first.id,
                benefit_sponsorship_id: benefit_sponsorship.id,
                aasm_state: 'coverage_selected',
                kind: 'employer_sponsored',
@@ -1310,8 +1316,8 @@ module BenefitSponsors
       let!(:enrollment_active_2) do
         create(:hbx_enrollment,
                household: family_active_2.latest_household,
-               family: family_active_2,
                sponsored_benefit_package_id: benefit_package.id,
+               benefit_group_assignment_id: active_employee_2.benefit_group_assignments.first.id,
                benefit_sponsorship_id: benefit_sponsorship.id,
                aasm_state: 'coverage_selected',
                kind: 'employer_sponsored',
@@ -1321,8 +1327,8 @@ module BenefitSponsors
       let!(:enrollment_terminated) do
         create(:hbx_enrollment,
                household: family_terminated.latest_household,
-               family: family_terminated,
                sponsored_benefit_package_id: benefit_package.id,
+               benefit_group_assignment_id: terminated_employee.benefit_group_assignments.first.id,
                benefit_sponsorship_id: benefit_sponsorship.id,
                aasm_state: 'coverage_selected',
                kind: 'employer_sponsored',
@@ -1330,8 +1336,11 @@ module BenefitSponsors
       end
 
       before do
-        allow(active_employee_1).to receive(:family).and_return(family_active_1)
-        allow(active_employee_2).to receive(:family).and_return(family_active_2)
+        # Create a double for census employees query that handles both .terminated and .active
+        census_employees_relation = double('census_employees_relation')
+        allow(census_employees_relation).to receive(:terminated).and_return([terminated_employee])
+        allow(census_employees_relation).to receive(:active).and_return([active_employee_1, active_employee_2])
+        allow(benefit_application).to receive(:find_census_employees).and_return(census_employees_relation)
         allow(terminated_employee).to receive(:family).and_return(family_terminated)
       end
 
@@ -1352,6 +1361,10 @@ module BenefitSponsors
       context 'when no terminated employees' do
         before do
           terminated_employee.destroy
+          census_employees_relation = double('census_employees_relation')
+          allow(census_employees_relation).to receive(:terminated).and_return([])
+          allow(census_employees_relation).to receive(:active).and_return([active_employee_1, active_employee_2])
+          allow(benefit_application).to receive(:find_census_employees).and_return(census_employees_relation)
         end
 
         it 'enrolled_families_active_only equals enrolled_families' do
@@ -1363,6 +1376,12 @@ module BenefitSponsors
         before do
           active_employee_1.update_attributes(aasm_state: :employment_terminated, employment_terminated_on: TimeKeeper.date_of_record - 5.days)
           active_employee_2.update_attributes(aasm_state: :employment_terminated, employment_terminated_on: TimeKeeper.date_of_record - 3.days)
+          census_employees_relation = double('census_employees_relation')
+          allow(census_employees_relation).to receive(:terminated).and_return([active_employee_1, active_employee_2, terminated_employee])
+          allow(census_employees_relation).to receive(:active).and_return([])
+          allow(benefit_application).to receive(:find_census_employees).and_return(census_employees_relation)
+          allow(active_employee_1).to receive(:family).and_return(family_active_1)
+          allow(active_employee_2).to receive(:family).and_return(family_active_2)
         end
 
         it 'enrolled_families_active_only returns empty' do
