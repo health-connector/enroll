@@ -654,6 +654,33 @@ class PlanYear
     end
   end
 
+  def total_enrolled_active_count
+    if self.employer_profile.census_employees.active.count <= Settings.aca.shop_market.small_market_active_employee_limit
+      enrolled_by_bga_active_only.count
+    else
+      0
+    end
+  end
+
+  def enrolled_by_bga_active_only
+    all_enrolled = enrolled_by_bga_including_terminated
+    terminated_census_employees = find_census_employees.terminated
+    
+    all_enrolled.reject do |bga|
+      terminated_census_employees.any? { |terminated_ce| terminated_ce.id == bga.census_employee_id }
+    end
+  end
+
+  def enrolled_by_bga_including_terminated
+    all_census_employees = find_census_employees
+    candidate_benefit_group_assignments = all_census_employees.map { |ce| enrolled_bga_for_ce(ce) }.compact
+    enrolled_benefit_group_assignment_ids = HbxEnrollment.enrolled_shop_health_benefit_group_ids(candidate_benefit_group_assignments.map(&:id).uniq)
+    
+    candidate_benefit_group_assignments.select do |bga|
+      enrolled_benefit_group_assignment_ids.include?(bga.id)
+    end
+  end
+
   def enrollment_ratio
     if eligible_to_enroll_count == 0
       0
