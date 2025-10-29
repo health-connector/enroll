@@ -585,6 +585,25 @@ module BenefitSponsors
       @enrolled_families ||= Family.enrolled_under_benefit_application(self)
     end
 
+    def enrolled_families_active_only
+      total = enrolled_families
+      terminated_employees = find_census_employees.terminated
+      filter_enrolled_employees(terminated_employees, total)
+    end
+
+    def all_enrolled_and_waived_active_member_count
+      if active_census_employees.count <= Settings.aca.shop_market.small_market_active_employee_limit
+        enrolled_families_active_only.size
+      else
+        0
+      end
+    end
+
+    def total_enrolled_active_count
+      all_enrolled_and_waived_active_member_count
+    end
+
+
     def filter_enrolled_employees(employees_to_filter, total_enrolled)
       families_to_filter = employees_to_filter.collect{|census_employee| census_employee.family }.compact
       total_enrolled    -= families_to_filter

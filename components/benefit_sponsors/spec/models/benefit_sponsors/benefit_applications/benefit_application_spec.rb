@@ -31,9 +31,9 @@ module BenefitSponsors
 
     let(:benefit_sponsor_catalog_2) do
       FactoryBot.create(:benefit_markets_benefit_sponsor_catalog,
-                         service_areas: [service_area],
-                         effective_period: Date.new(application_period_next_year.min.year,6,1)..(Date.new(application_period_next_year.min.year,6,1) + 1.year - 1.day),
-                         open_enrollment_period: (Date.new(application_period_next_year.min.year,6,1) - 1.month)..(Date.new(application_period_next_year.min.year,6,1) - 1.month + 9.days))
+                        service_areas: [service_area],
+                        effective_period: Date.new(application_period_next_year.min.year,6,1)..(Date.new(application_period_next_year.min.year,6,1) + 1.year - 1.day),
+                        open_enrollment_period: (Date.new(application_period_next_year.min.year,6,1) - 1.month)..(Date.new(application_period_next_year.min.year,6,1) - 1.month + 9.days))
     end
 
     let(:params) do
@@ -247,11 +247,11 @@ module BenefitSponsors
 
       let(:march_sponsors)                 do
         FactoryBot.create_list(:benefit_sponsors_benefit_application, 3,
-                                default_effective_period: (march_effective_date..(march_effective_date + 1.year - 1.day)))
+                               default_effective_period: (march_effective_date..(march_effective_date + 1.year - 1.day)))
       end
       let(:april_sponsors)                 do
         FactoryBot.create_list(:benefit_sponsors_benefit_application, 2,
-                                default_effective_period: (april_effective_date..(april_effective_date + 1.year - 1.day)))
+                               default_effective_period: (april_effective_date..(april_effective_date + 1.year - 1.day)))
       end
 
       before { TimeKeeper.set_date_of_record_unprotected!(Date.today) }
@@ -1255,6 +1255,133 @@ module BenefitSponsors
 
       it 'returns nil if no active benefit package is found' do
         expect(initial_application.active_benefit_package).to be_nil
+      end
+    end
+
+    describe '#enrolled_families_active_only and #total_enrolled_active_count' do
+      let(:current_effective_date) { TimeKeeper.date_of_record.next_month.beginning_of_month }
+      let(:benefit_application) do
+        create(:benefit_sponsors_benefit_application,
+               benefit_sponsor_catalog: benefit_sponsor_catalog,
+               benefit_sponsorship: benefit_sponsorship,
+               aasm_state: :active,
+               default_effective_period: current_effective_date..(current_effective_date + 1.year - 1.day))
+      end
+      let!(:benefit_package) { create(:benefit_sponsors_benefit_packages_benefit_package, benefit_application: benefit_application) }
+
+      let!(:active_employee_1) do
+        create(:census_employee, :with_active_assignment,
+               employer_profile: benefit_sponsorship.profile,
+               benefit_sponsorship: benefit_sponsorship,
+               benefit_group_assignments: [build(:benefit_sponsors_benefit_group_assignment, benefit_group: benefit_package)])
+      end
+
+      let!(:active_employee_2) do
+        create(:census_employee, :with_active_assignment,
+               employer_profile: benefit_sponsorship.profile,
+               benefit_sponsorship: benefit_sponsorship,
+               benefit_group_assignments: [build(:benefit_sponsors_benefit_group_assignment, benefit_group: benefit_package)])
+      end
+
+      let!(:terminated_employee) do
+        create(:census_employee,
+               employer_profile: benefit_sponsorship.profile,
+               benefit_sponsorship: benefit_sponsorship,
+               aasm_state: :employment_terminated,
+               employment_terminated_on: TimeKeeper.date_of_record - 10.days,
+               benefit_group_assignments: [build(:benefit_sponsors_benefit_group_assignment, benefit_group: benefit_package)])
+      end
+
+      let!(:family_active_1) { create(:family, :with_primary_family_member) }
+      let!(:family_active_2) { create(:family, :with_primary_family_member) }
+      let!(:family_terminated) { create(:family, :with_primary_family_member) }
+
+      let!(:enrollment_active_1) do
+        create(:hbx_enrollment,
+               household: family_active_1.latest_household,
+               family: family_active_1,
+               sponsored_benefit_package_id: benefit_package.id,
+               benefit_sponsorship_id: benefit_sponsorship.id,
+               aasm_state: 'coverage_selected',
+               kind: 'employer_sponsored',
+               coverage_kind: 'health')
+      end
+
+      let!(:enrollment_active_2) do
+        create(:hbx_enrollment,
+               household: family_active_2.latest_household,
+               family: family_active_2,
+               sponsored_benefit_package_id: benefit_package.id,
+               benefit_sponsorship_id: benefit_sponsorship.id,
+               aasm_state: 'coverage_selected',
+               kind: 'employer_sponsored',
+               coverage_kind: 'health')
+      end
+
+      let!(:enrollment_terminated) do
+        create(:hbx_enrollment,
+               household: family_terminated.latest_household,
+               family: family_terminated,
+               sponsored_benefit_package_id: benefit_package.id,
+               benefit_sponsorship_id: benefit_sponsorship.id,
+               aasm_state: 'coverage_selected',
+               kind: 'employer_sponsored',
+               coverage_kind: 'health')
+      end
+
+      before do
+        allow(active_employee_1).to receive(:family).and_return(family_active_1)
+        allow(active_employee_2).to receive(:family).and_return(family_active_2)
+        allow(terminated_employee).to receive(:family).and_return(family_terminated)
+      end
+
+      context 'when counting enrolled families' do
+        it 'enrolled_families includes all families with enrollments' do
+          expect(benefit_application.enrolled_families.count).to eq 3
+        end
+
+        it 'enrolled_families_active_only excludes terminated employee families' do
+          expect(benefit_application.enrolled_families_active_only.count).to eq 2
+        end
+
+        it 'total_enrolled_active_count returns correct count' do
+          expect(benefit_application.total_enrolled_active_count).to eq 2
+        end
+      end
+
+      context 'when no terminated employees' do
+        before do
+          terminated_employee.destroy
+        end
+
+        it 'enrolled_families_active_only equals enrolled_families' do
+          expect(benefit_application.enrolled_families_active_only.count).to eq benefit_application.enrolled_families.count
+        end
+      end
+
+      context 'when all employees are terminated' do
+        before do
+          active_employee_1.update_attributes(aasm_state: :employment_terminated, employment_terminated_on: TimeKeeper.date_of_record - 5.days)
+          active_employee_2.update_attributes(aasm_state: :employment_terminated, employment_terminated_on: TimeKeeper.date_of_record - 3.days)
+        end
+
+        it 'enrolled_families_active_only returns empty' do
+          expect(benefit_application.enrolled_families_active_only.count).to eq 0
+        end
+
+        it 'total_enrolled_active_count returns 0' do
+          expect(benefit_application.total_enrolled_active_count).to eq 0
+        end
+      end
+
+      context 'when exceeding small market limit' do
+        before do
+          allow(benefit_application).to receive_message_chain(:active_census_employees, :count).and_return(Settings.aca.shop_market.small_market_active_employee_limit + 1)
+        end
+
+        it 'total_enrolled_active_count returns 0' do
+          expect(benefit_application.total_enrolled_active_count).to eq 0
+        end
       end
     end
   end
