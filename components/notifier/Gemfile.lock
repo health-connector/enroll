@@ -12,7 +12,7 @@ PATH
       net-imap (>= 0.4.20)
       non-stupid-digest-assets
       pundit
-      rack (>= 2.2.14)
+      rack (>= 2.2.13)
       rails (~> 7.2)
       roo (~> 2.10)
       slim (~> 5.2)
