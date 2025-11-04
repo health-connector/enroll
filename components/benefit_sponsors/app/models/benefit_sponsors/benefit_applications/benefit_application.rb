@@ -225,6 +225,8 @@ module BenefitSponsors
       where(:_id.in => ids)
     }
 
+    alias_method :total_enrolled_active_count, :all_enrolled_and_waived_active_member_count
+
     # TODO: - What is terminated on at benefit application item level; Add state check at item level instead of latest; is this end date ? or updated at
     def self.benefit_terminate_on(benefit_sponsorship, compare_date = TimeKeeper.date_of_record)
       ids = benefit_sponsorship.benefit_applications.select do |application|
@@ -586,23 +588,15 @@ module BenefitSponsors
     end
 
     def enrolled_families_active_only
-      total = enrolled_families
       terminated_employees = find_census_employees.terminated
-      filter_enrolled_employees(terminated_employees, total)
+      filter_enrolled_employees(terminated_employees, enrolled_families)
     end
 
     def all_enrolled_and_waived_active_member_count
-      if active_census_employees.count <= Settings.aca.shop_market.small_market_active_employee_limit
-        enrolled_families_active_only.size
-      else
-        0
-      end
-    end
+      return 0 if active_census_employees.count > Settings.aca.shop_market.small_market_active_employee_limit
 
-    def total_enrolled_active_count
-      all_enrolled_and_waived_active_member_count
+      enrolled_families_active_only.size
     end
-
 
     def filter_enrolled_employees(employees_to_filter, total_enrolled)
       families_to_filter = employees_to_filter.collect{|census_employee| census_employee.family }.compact

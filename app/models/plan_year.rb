@@ -655,25 +655,18 @@ class PlanYear
   end
 
   def total_enrolled_active_count
-    if employer_profile.census_employees.active.count <= Settings.aca.shop_market.small_market_active_employee_limit
-      enrolled_by_bga_active_only.count
-    else
-      0
-    end
+    return 0 if active_employee_count_exceeds_limit?
+
+    enrolled_by_bga_active_only.count
   end
 
   def enrolled_by_bga_active_only
-    all_enrolled = enrolled_by_bga_including_terminated
-    terminated_census_employees = find_census_employees.terminated
-
-    all_enrolled.reject do |bga|
-      terminated_census_employees.any? { |terminated_ce| terminated_ce.id == bga.census_employee_id }
-    end
+    terminated_ids = find_census_employees.terminated.pluck(:id).to_set
+    enrolled_by_bga_including_terminated.reject { |bga| terminated_ids.include?(bga.census_employee_id) }
   end
 
   def enrolled_by_bga_including_terminated
-    all_census_employees = find_census_employees
-    candidate_benefit_group_assignments = all_census_employees.map { |ce| enrolled_bga_for_ce(ce) }.compact
+    candidate_benefit_group_assignments = find_census_employees.map { |ce| enrolled_bga_for_ce(ce) }.compact
     enrolled_benefit_group_assignment_ids = HbxEnrollment.enrolled_shop_health_benefit_group_ids(candidate_benefit_group_assignments.map(&:id).uniq)
 
     candidate_benefit_group_assignments.select do |bga|
@@ -1211,6 +1204,10 @@ class PlanYear
   end
 
   private
+
+  def active_employee_count_exceeds_limit?
+    employer_profile.census_employees.active.count > Settings.aca.shop_market.small_market_active_employee_limit
+  end
 
   def log_message(errors)
     msg = yield.first
