@@ -660,6 +660,10 @@ class PlanYear
     enrolled_by_bga_active_only.count
   end
 
+  def active_employee_count_exceeds_limit?
+    employer_profile.census_employees.active.count > Settings.aca.shop_market.small_market_active_employee_limit
+  end
+
   def enrolled_by_bga_active_only
     terminated_ids = find_census_employees.terminated.pluck(:id).to_set
     enrolled_by_bga_including_terminated.reject { |bga| terminated_ids.include?(bga.census_employee_id) }
@@ -1204,10 +1208,6 @@ class PlanYear
   end
 
   private
-
-  def active_employee_count_exceeds_limit?
-    employer_profile.census_employees.active.count > Settings.aca.shop_market.small_market_active_employee_limit
-  end
 
   def log_message(errors)
     msg = yield.first
