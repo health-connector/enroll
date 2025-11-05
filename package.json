@@ -14,7 +14,7 @@
     "@hotwired/stimulus-webpack-helpers": "^1.0.1",
     "@types/babel__core": "7",
     "@types/webpack": "5",
-    "axios": "^1.9.0",
+    "axios": "^1.13.2",
     "babel-loader": "8",
     "compression-webpack-plugin": "9",
     "css-loader": "^7.1.2",
