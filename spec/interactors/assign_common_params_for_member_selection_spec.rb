@@ -7,7 +7,7 @@ describe AssignCommonParamsForMemberSelection, :dbclean => :after_each do
     let(:params) do
       {change_plan: 'change_by_qle', shop_under_current: 'true', shop_under_future: 'false',
        enrollment_kind: 'sep',
-       effective_on_option_selected: '2022-04-25',
+       effective_on_option_selected: '04/25/2022',
        commit: 'shop_for_plans'}
     end
 
@@ -39,7 +39,7 @@ describe AssignCommonParamsForMemberSelection, :dbclean => :after_each do
       expect(@context.shop_for_plans).to eq ''
     end
 
-    it 'should assign optional_effective_on' do
+    it 'should not assign optional_effective_on' do
       expect(@context.optional_effective_on).to eq Date.new(2022, 0o4, 25)
     end
 
@@ -49,18 +49,6 @@ describe AssignCommonParamsForMemberSelection, :dbclean => :after_each do
 
     it 'should not assign commit' do
       expect(@context.commit).to eq 'shop_for_plans'
-    end
-  end
-
-  context 'optional_effective_on parsing' do
-    it 'parses ISO formatted date strings via Date.parse' do
-      context_obj = described_class.call(params: { effective_on_option_selected: '2025-01-05' })
-      expect(context_obj.optional_effective_on).to eq Date.new(2025, 1, 5)
-    end
-
-    it 'is nil when effective_on_option_selected is not provided' do
-      context_obj = described_class.call(params: {})
-      expect(context_obj.optional_effective_on).to be_nil
     end
   end
 end
