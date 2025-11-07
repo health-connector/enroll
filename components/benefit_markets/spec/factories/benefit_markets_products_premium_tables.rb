@@ -7,7 +7,7 @@ FactoryBot.define do
     association :rating_area, factory: :benefit_markets_locations_rating_area, strategy: :create
 
     after(:build) do |premium_table, _evaluator|
-      (0..65).each do |age| # build tuple for default product premium ages
+      (0..65).each do |age| # build tuple for default product premium ages - this matches with product.premium_ages.max
         premium_table.premium_tuples << build_list(:benefit_markets_products_premium_tuple, 3, age: age)
       end
     end
