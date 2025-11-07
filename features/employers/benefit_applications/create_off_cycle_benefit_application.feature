@@ -52,6 +52,7 @@ Feature: Ability for employer to create an off-cycle benefit application and all
       And census employee Patrick Doe has benefit group assignment of the off cycle benefit application
       And staff role person clicked on benefits tab
       When Employer clicks on publish plan year
+      And product rate caches are initialized
       And user logs out
       And employee Patrick Doe already matched with employer ABC Widgets and logged into employee portal
       When Patrick Doe clicks "Shop for Plans" on my account page
@@ -109,6 +110,7 @@ Feature: Ability for employer to create an off-cycle benefit application and all
       And census employee Patrick Doe has benefit group assignment of the off cycle benefit application
       And staff role person clicked on benefits tab
       When Employer clicks on publish plan year
+      And product rate caches are initialized
       And user logs out
       And employee Patrick Doe already matched with employer ABC Widgets and logged into employee portal
       When Patrick Doe clicks "Shop for Plans" on my account page
