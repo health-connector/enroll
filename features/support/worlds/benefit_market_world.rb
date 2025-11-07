@@ -244,6 +244,27 @@ Given(/^benefit market catalog exists for (.*) initial employer with (.*) benefi
   set_initial_application_dates(status.to_sym)
   generate_initial_catalog_products_for(coverage_kinds)
   create_benefit_market_catalog_for(current_effective_date)
+
+  # Fix for Nov/Dec date selection mismatch:
+  # The form's date picker sometimes selects 1 month out instead of 2 months,
+  # so we need to create catalogs for both dates to avoid "catalog not found" errors as the year changes.
+  if status.to_sym == :enrollment_open && TimeKeeper.date_of_record.month >= 11
+    one_month_out = (TimeKeeper.date_of_record + 1.month).beginning_of_month
+
+    # Only create if it's a different date and doesn't already exist
+    if one_month_out != current_effective_date && !BenefitMarkets::BenefitMarketCatalog.by_application_date(one_month_out).present?
+      # Crossing into next year? Need to set up products for that year first
+      if one_month_out.year != current_effective_date.year
+        sa = FactoryBot.create(:benefit_markets_locations_service_area, county_zip_ids: [county_zip.id], active_year: one_month_out.year)
+        create_list(:benefit_markets_products_health_products_health_product, 5,
+                    application_period: (one_month_out.beginning_of_year..one_month_out.end_of_year),
+                    product_package_kinds: [:single_issuer, :metal_level, :single_product],
+                    service_area: sa, issuer_profile_id: issuer_profile.id, metal_level_kind: :gold)
+      end
+      create_benefit_market_catalog_for(one_month_out)
+    end
+  end
+
   if current_effective_date.month > 10
     generate_renewal_catalog_products_for(coverage_kinds)
     create_benefit_market_catalog_for(current_effective_date.next_year) unless BenefitMarkets::BenefitMarketCatalog.by_application_date(current_effective_date.next_year).present?
