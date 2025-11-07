@@ -146,9 +146,9 @@ module SepAll
     special_enrollment_period.csl_num = params.permit(:csl_num)[:csl_num] if params[:csl_num].present?
     special_enrollment_period.next_poss_effective_date = DateParser.smart_parse(params[:next_poss_effective_date]) if params[:next_poss_effective_date].present?
     date_arr = Array.new
-    date_arr.push(DateParser.smart_parse(params[:option1_date]).to_s) if params[:option1_date].present?
-    date_arr.push(DateParser.smart_parse(params[:option2_date]).to_s) if params[:option2_date].present?
-    date_arr.push(DateParser.smart_parse(params[:option3_date]).to_s) if params[:option3_date].present?
+    date_arr.push(DateParser.smart_parse(params[:option1_date])) if params[:option1_date].present?
+    date_arr.push(DateParser.smart_parse(params[:option2_date])) if params[:option2_date].present?
+    date_arr.push(DateParser.smart_parse(params[:option3_date])) if params[:option3_date].present?
     special_enrollment_period.optional_effective_on = date_arr if date_arr.length > 0
     special_enrollment_period.market_kind = params.permit(:market_kind)[:market_kind] if params[:market_kind].present?
     special_enrollment_period.admin_flag = true

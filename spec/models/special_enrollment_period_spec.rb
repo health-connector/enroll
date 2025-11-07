@@ -209,8 +209,8 @@ RSpec.describe SpecialEnrollmentPeriod, :type => :model, :dbclean => :after_each
       expect(
         SpecialEnrollmentPeriod.create(**param_with_invalid_optional_effective_on).errors[:optional_effective_on]
       ).to eq [
-        "both min and max sep optional dates are not present for #{TimeKeeper.date_of_record.year}-07-03. Please specify.",
-        "both min and max sep optional dates are not present for #{TimeKeeper.date_of_record.year}-09-07. Please specify."
+        "both min and max sep optional dates are not present for 07/03/#{TimeKeeper.date_of_record.year}. Please specify.",
+        "both min and max sep optional dates are not present for 09/07/#{TimeKeeper.date_of_record.year}. Please specify."
       ]
     end
   end
@@ -603,6 +603,52 @@ RSpec.describe SpecialEnrollmentPeriod, :type => :model, :dbclean => :after_each
     it "should return a sep with an effective date that equals to first of month" do
       sep.update_attribute(:effective_on_kind, "first_of_month")
       expect(sep.effective_on.day).to eq 1
+    end
+  end
+
+  describe "#optional_effective_on_dates_within_range" do
+    let(:min_date) { TimeKeeper.date_of_record.beginning_of_month }
+    let(:max_date) { TimeKeeper.date_of_record.end_of_month }
+
+    context "when SHOP and min/max optional dates are present" do
+      before do
+        allow_any_instance_of(SpecialEnrollmentPeriod).to receive(:sep_optional_date).with(family, "min", "shop").and_return(min_date)
+        allow_any_instance_of(SpecialEnrollmentPeriod).to receive(:sep_optional_date).with(family, "max", "shop").and_return(max_date)
+      end
+
+      context "and all optional dates are within the range" do
+        let(:params) do
+          {
+            family: family,
+            qualifying_life_event_kind: shop_qle,
+            effective_on_kind: "first_of_next_month",
+            qle_on: qle_on,
+            optional_effective_on: [min_date + 10.days, max_date - 5.days]
+          }
+        end
+
+        it "does not add validation errors" do
+          sep = SpecialEnrollmentPeriod.create(**params)
+          expect(sep.errors[:optional_effective_on]).to be_empty
+        end
+      end
+
+      context "and an optional date is out of range" do
+        let(:params) do
+          {
+            family: family,
+            qualifying_life_event_kind: shop_qle,
+            effective_on_kind: "first_of_next_month",
+            qle_on: qle_on,
+            optional_effective_on: [max_date + 1.day]
+          }
+        end
+
+        it "adds an out of range error" do
+          sep = SpecialEnrollmentPeriod.create(**params)
+          expect(sep.errors[:optional_effective_on]).to include("Date 1 option out of range.")
+        end
+      end
     end
   end
 end

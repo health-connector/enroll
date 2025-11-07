@@ -1,7 +1,7 @@
 <% content_for :horizontal_status do %>
   <%= render :partial => 'insured/families/horizontal_status', locals: {step: 1} %>
 <% end %>
-<% effective_date_for_display = @organizer.effective_on_date || @organizer.new_effective_on %>
+<% effective_date_for_display = @organizer.optional_effective_on || @organizer.effective_on_date || @organizer.new_effective_on %>
 <% waive_display = @organizer.employee_role.is_under_open_enrollment? || @organizer.employee_role.can_enroll_as_new_hire? %>
 <div class="container group-selection">
   <div class="row">
@@ -11,7 +11,7 @@
         <p class="twenty"><%= l10n("insured.group_selection.new.select_who_needs_coverage") %></p>
         <div style="font-size :24px">
 
-          <%if @organizer.effective_on_date.present? || @organizer.new_effective_on.present? %>
+          <%if @organizer.optional_effective_on.present? || @organizer.effective_on_date.present? || @organizer.new_effective_on.present? %>
             <%= l10n("insured.group_selection.new.effective_date") %>: <span style="color: red;"><%= format_date(effective_date_for_display) %></span>
           <%end%>
         </div>
