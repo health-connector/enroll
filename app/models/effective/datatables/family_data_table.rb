@@ -5,18 +5,18 @@ module Effective
       include Config::AcaModelConcern
       datatable do
         #table_column :family_hbx_id, :proc => Proc.new { |row| row.hbx_assigned_id }, :filter => false, :sql_column => "hbx_id"
-        table_column :name, :label => 'Name', :proc => Proc.new { |row| link_to row.primary_applicant.person.full_name, resume_enrollment_exchanges_agents_path(person_id: row.primary_applicant.person.id)}, :filter => false, :sortable => false
-        table_column :ssn, :label => 'SSN', :proc => Proc.new { |row| truncate(number_to_obscured_ssn(row.primary_applicant.person.ssn)) }, :filter => false, :sortable => false
-        table_column :dob, :label => 'DOB', :proc => Proc.new { |row| format_date(row.primary_applicant.person.dob)}, :filter => false, :sortable => false
-        table_column :hbx_id, :label => 'HBX ID', :proc => Proc.new { |row| row.primary_applicant.person.hbx_id }, :filter => false, :sortable => false
-        table_column :count, :label => 'Count', :width => '100px', :proc => Proc.new { |row| row.active_family_members.size }, :filter => false, :sortable => false
-        table_column :active_enrollments, :label => 'Active Enrollments?', :proc => Proc.new { |row| row.active_household.hbx_enrollments.non_external.active.enrolled_and_renewing.present? ? "Yes" : "No"}, :filter => false, :sortable => false
-        table_column :registered?, :width => '100px', :proc => Proc.new { |row| row.primary_applicant.person.user.present? ? "Yes" : "No"} , :filter => false, :sortable => false
+        table_column :name, :label => 'Name', :proc => Proc { |row| link_to row.primary_applicant.person.full_name, resume_enrollment_exchanges_agents_path(person_id: row.primary_applicant.person.id)}, :filter => false, :sortable => false
+        table_column :ssn, :label => 'SSN', :proc => Proc { |row| truncate(number_to_obscured_ssn(row.primary_applicant.person.ssn)) }, :filter => false, :sortable => false
+        table_column :dob, :label => 'DOB', :proc => Proc { |row| format_date(row.primary_applicant.person.dob)}, :filter => false, :sortable => false
+        table_column :hbx_id, :label => 'HBX ID', :proc => Proc { |row| row.primary_applicant.person.hbx_id }, :filter => false, :sortable => false
+        table_column :count, :label => 'Count', :width => '100px', :proc => Proc { |row| row.active_family_members.size }, :filter => false, :sortable => false
+        table_column :active_enrollments, :label => 'Active Enrollments?', :proc => Proc { |row| row.active_household.hbx_enrollments.non_external.active.enrolled_and_renewing.present? ? "Yes" : "No"}, :filter => false, :sortable => false
+        table_column :registered?, :width => '100px', :proc => Proc { |row| row.primary_applicant.person.user.present? ? "Yes" : "No"} , :filter => false, :sortable => false
         if individual_market_is_enabled?
-          table_column :consumer?, :width => '100px', :proc => Proc.new { |row| row.primary_applicant.person.consumer_role.present?  ? "Yes" : "No"}, :filter => false, :sortable => false
+          table_column :consumer?, :width => '100px', :proc => Proc { |row| row.primary_applicant.person.consumer_role.present?  ? "Yes" : "No"}, :filter => false, :sortable => false
         end
-        table_column :employee?, :width => '100px', :proc => Proc.new { |row| row.primary_applicant.person.active_employee_roles.present?  ? "Yes" : "No"}, :filter => false, :sortable => false
-        table_column :actions, :width => '50px', :proc => Proc.new { |row|
+        table_column :employee?, :width => '100px', :proc => Proc { |row| row.primary_applicant.person.active_employee_roles.present?  ? "Yes" : "No"}, :filter => false, :sortable => false
+        table_column :actions, :width => '50px', :proc => Proc { |row|
           dropdown = [
                       # Link Structure: ['Link Name', link_path(:params), 'link_type'], link_type can be 'ajax', 'static', or 'disabled'
                       ['Add SEP', add_sep_form_exchanges_hbx_profiles_path(family: row.id, family_actions_id: "family_actions_#{row.id.to_s}"), add_sep_link_type( pundit_allow(HbxProfile, :can_add_sep?) )],
