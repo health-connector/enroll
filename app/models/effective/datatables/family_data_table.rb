@@ -11,11 +11,11 @@ module Effective
         table_column :hbx_id, :label => 'HBX ID', :proc => Proc { |row| row.primary_applicant.person.hbx_id }, :filter => false, :sortable => false
         table_column :count, :label => 'Count', :width => '100px', :proc => Proc { |row| row.active_family_members.size }, :filter => false, :sortable => false
         table_column :active_enrollments, :label => 'Active Enrollments?', :proc => Proc { |row| row.active_household.hbx_enrollments.non_external.active.enrolled_and_renewing.present? ? "Yes" : "No"}, :filter => false, :sortable => false
-        table_column :registered?, :width => '100px', :proc => Proc { |row| row.primary_applicant.person.user.present? ? "Yes" : "No"} , :filter => false, :sortable => false
+        table_column :registered?, :width => '100px', :proc => Proc { |row| row.primary_applicant.person.user.present? ? "Yes" : "No"}, :filter => false, :sortable => false
         if individual_market_is_enabled?
-          table_column :consumer?, :width => '100px', :proc => Proc { |row| row.primary_applicant.person.consumer_role.present?  ? "Yes" : "No"}, :filter => false, :sortable => false
+          table_column :consumer?, :width => '100px', :proc => Proc { |row| row.primary_applicant.person.consumer_role.present? ? "Yes" : "No"}, :filter => false, :sortable => false
         end
-        table_column :employee?, :width => '100px', :proc => Proc { |row| row.primary_applicant.person.active_employee_roles.present?  ? "Yes" : "No"}, :filter => false, :sortable => false
+        table_column :employee?, :width => '100px', :proc => Proc { |row| row.primary_applicant.person.active_employee_roles.present? ? "Yes" : "No"}, :filter => false, :sortable => false
         table_column :actions, :width => '50px', :proc => Proc { |row|
           dropdown = [
                       # Link Structure: ['Link Name', link_path(:params), 'link_type'], link_type can be 'ajax', 'static', or 'disabled'
