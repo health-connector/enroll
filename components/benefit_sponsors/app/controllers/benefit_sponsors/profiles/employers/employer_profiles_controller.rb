@@ -55,7 +55,7 @@ module BenefitSponsors
             @broker_agency_account = @employer_profile.active_broker_agency_account
           when 'inbox'
           when 'families'
-            @employees = EmployeeRole.find_by_employer_profile(@employer_profile).select { |ee| CensusEmployee::EMPLOYMENT_ACTIVE_STATES.include?(ee.census_employee.aasm_state)}
+            @employees = EmployeeRole.find_by_employer_profile(@employer_profile).compact.select { |ee| CensusEmployee::EMPLOYMENT_ACTIVE_STATES.include?(ee.census_employee.aasm_state)}
           else
             @broker_agency_account = @employer_profile.active_broker_agency_account
             @benefit_sponsorship = @employer_profile.latest_benefit_sponsorship

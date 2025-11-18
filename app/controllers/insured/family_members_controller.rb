@@ -12,7 +12,7 @@ class Insured::FamilyMembersController < ApplicationController
     set_bookmark_url
     @type = session[:employee_role_id].present? && session[:employee_role_id] != 'None' ? "employee" : "consumer"
 
-    if (params[:resident_role_id].present? && params[:resident_role_id])
+    if params[:resident_role_id].present? && params[:resident_role_id]
       @type = "resident"
       @resident_role = ResidentRole.find(params[:resident_role_id])
       begin
@@ -23,7 +23,8 @@ class Insured::FamilyMembersController < ApplicationController
         Rails.logger.error(exception_message) unless Rails.env.test?
         redirect_to root_path and return
       end
-      redirect_to resident_index_insured_family_members_path(:resident_role_id => @person.resident_role.id, :change_plan => params[:change_plan], :qle_date => params[:qle_date], :qle_id => params[:qle_id], :effective_on_kind => params[:effective_on_kind], :qle_reason_choice => params[:qle_reason_choice], :commit => params[:commit])
+      redirect_to resident_index_insured_family_members_path(:resident_role_id => @person.resident_role.id, :change_plan => params[:change_plan], :qle_date => params[:qle_date], :qle_id => params[:qle_id],
+                                                             :effective_on_kind => params[:effective_on_kind], :qle_reason_choice => params[:qle_reason_choice], :commit => params[:commit])
     end
 
     if @type == "employee"
@@ -42,9 +43,7 @@ class Insured::FamilyMembersController < ApplicationController
 
     if params[:sep_id].present?
       @sep = @family.special_enrollment_periods.find(params[:sep_id])
-      if @sep.submitted_at.to_date != TimeKeeper.date_of_record
-        @sep = duplicate_sep(@sep)
-      end
+      @sep = duplicate_sep(@sep) if @sep.submitted_at.to_date != TimeKeeper.date_of_record
       @qle = QualifyingLifeEventKind.find(params[:qle_id])
       @change_plan = 'change_by_qle'
       @change_plan_date = @sep.qle_on
@@ -67,7 +66,6 @@ class Insured::FamilyMembersController < ApplicationController
       @prev_url_include_intractive_identity = false
       @prev_url_include_consumer_role_id = false
     end
-
   end
 
   def new
@@ -87,7 +85,7 @@ class Insured::FamilyMembersController < ApplicationController
 
     @dependent = ::Forms::FamilyMember.new(params[:dependent])
 
-    if ((Family.find(@dependent.family_id)).primary_applicant.person.resident_role?)
+    if Family.find(@dependent.family_id).primary_applicant.person.resident_role?
       if @dependent.save
         @created = true
         respond_to do |format|
@@ -163,7 +161,7 @@ class Insured::FamilyMembersController < ApplicationController
 
   def update
     authorize @family, :update?
-    if ((Family.find(@dependent.family_id)).primary_applicant.person.resident_role?)
+    if Family.find(@dependent.family_id).primary_applicant.person.resident_role?
       if @dependent.update_attributes(params.require(:dependent))
         respond_to do |format|
           format.html { render 'show_resident' }
@@ -208,7 +206,7 @@ class Insured::FamilyMembersController < ApplicationController
       @dependent.addresses = [Address.new(kind: 'home'), Address.new(kind: 'mailing')]
     elsif @dependent.addresses.is_a? ActionController::Parameters
       addresses = []
-      @dependent.addresses.each do |k, address|
+      @dependent.addresses.map do |_, address|
         addresses << Address.new(address.permit!)
       end
       @dependent.addresses = addresses
@@ -243,7 +241,9 @@ class Insured::FamilyMembersController < ApplicationController
   end
 
   def dependent_person_params
-    params.require(:dependent).permit(person_parameters_list)
+    params.require(:dependent).permit(person_parameters_list).tap do |sanitized|
+      sanitized[:addresses] = sanitized[:addresses].to_h.transform_values(&:to_h) if sanitized[:addresses].present?
+    end
   end
 
   def person_parameters_list
