@@ -14,7 +14,7 @@ gem "transport_profiles", path: "components/transport_profiles"
 gem 'aca_entities',       git: 'https://github.com/ideacrew/aca_entities.git', branch: 'trunk'
 
 gem 'aasm', '~> 4.8.0'
-gem 'acapi', git: "https://github.com/ideacrew/acapi.git", branch: 'trunk'
+gem 'acapi', git: "https://github.com/ideacrew/acapi.git", branch: 'quorom_queue_poc'
 gem 'addressable', '2.8.0'
 gem 'animate-rails', '~> 1.0.10'
 gem 'aws-sdk', '~> 3.2'
