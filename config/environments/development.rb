@@ -88,7 +88,7 @@ Rails.application.configure do
   config.wells_fargo_api_date_format = '%Y-%m-%dT%H:%M:%S.0000000%z'
 
   #Queue adapter
-  config.active_job.queue_adapter = :resque
+  config.active_job.queue_adapter = :async
 
   HbxIdGenerator.slug!
   config.ga_tracking_id = ENV['GA_TRACKING_ID'] || "dummy"

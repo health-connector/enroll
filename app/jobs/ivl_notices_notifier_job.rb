@@ -2,7 +2,6 @@ class IvlNoticesNotifierJob < ActiveJob::Base
   queue_as :default
 
   def perform(person_id, event)
-    Resque.logger.level = Logger::DEBUG
     person = Person.find(person_id)
     role = person.consumer_role || person.resident_role
     event_kind = ApplicationEventKind.where(:event_name => event).first
