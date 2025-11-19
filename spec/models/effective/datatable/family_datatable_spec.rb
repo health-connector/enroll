@@ -20,10 +20,10 @@ RSpec.describe Effective::Datatables::FamilyDataTable, type: :model, dbclean: :a
     context 'when family has only external enrollments' do
       let!(:external_enrollment) do
         FactoryBot.create(:hbx_enrollment,
-          household: household,
-          aasm_state: 'coverage_selected',
-          external_enrollment: true,
-          kind: 'individual')
+                          household: household,
+                          aasm_state: 'coverage_selected',
+                          external_enrollment: true,
+                          kind: 'individual')
       end
 
       it 'returns "No" for active_enrollments column' do
@@ -45,10 +45,10 @@ RSpec.describe Effective::Datatables::FamilyDataTable, type: :model, dbclean: :a
     context 'when family has non-external enrollments' do
       let!(:non_external_enrollment) do
         FactoryBot.create(:hbx_enrollment,
-          household: household,
-          aasm_state: 'coverage_selected',
-          external_enrollment: false,
-          kind: 'individual')
+                          household: household,
+                          aasm_state: 'coverage_selected',
+                          external_enrollment: false,
+                          kind: 'individual')
       end
 
       it 'returns "Yes" for active_enrollments column' do
@@ -70,18 +70,18 @@ RSpec.describe Effective::Datatables::FamilyDataTable, type: :model, dbclean: :a
     context 'when family has both external and non-external enrollments' do
       let!(:external_enrollment) do
         FactoryBot.create(:hbx_enrollment,
-          household: household,
-          aasm_state: 'coverage_selected',
-          external_enrollment: true,
-          kind: 'individual')
+                          household: household,
+                          aasm_state: 'coverage_selected',
+                          external_enrollment: true,
+                          kind: 'individual')
       end
 
       let!(:non_external_enrollment) do
         FactoryBot.create(:hbx_enrollment,
-          household: household,
-          aasm_state: 'coverage_selected',
-          external_enrollment: false,
-          kind: 'individual')
+                          household: household,
+                          aasm_state: 'coverage_selected',
+                          external_enrollment: false,
+                          kind: 'individual')
       end
 
       it 'returns "Yes" when non-external enrollments are present' do
@@ -117,10 +117,10 @@ RSpec.describe Effective::Datatables::FamilyDataTable, type: :model, dbclean: :a
     context 'when family has inactive non-external enrollments' do
       let!(:inactive_enrollment) do
         FactoryBot.create(:hbx_enrollment,
-          household: household,
-          aasm_state: 'coverage_canceled',
-          external_enrollment: false,
-          kind: 'individual')
+                          household: household,
+                          aasm_state: 'coverage_canceled',
+                          external_enrollment: false,
+                          kind: 'individual')
       end
 
       it 'returns "No" for active_enrollments column' do
@@ -137,18 +137,18 @@ RSpec.describe Effective::Datatables::FamilyDataTable, type: :model, dbclean: :a
     context 'when family has external enrollments in different states' do
       let!(:external_coverage_selected) do
         FactoryBot.create(:hbx_enrollment,
-          household: household,
-          aasm_state: 'coverage_selected',
-          external_enrollment: true,
-          kind: 'individual')
+                          household: household,
+                          aasm_state: 'coverage_selected',
+                          external_enrollment: true,
+                          kind: 'individual')
       end
 
       let!(:external_auto_renewing) do
         FactoryBot.create(:hbx_enrollment,
-          household: household,
-          aasm_state: 'auto_renewing',
-          external_enrollment: true,
-          kind: 'individual')
+                          household: household,
+                          aasm_state: 'auto_renewing',
+                          external_enrollment: true,
+                          kind: 'individual')
       end
 
       it 'returns "No" for active_enrollments column' do
@@ -165,24 +165,24 @@ RSpec.describe Effective::Datatables::FamilyDataTable, type: :model, dbclean: :a
     context 'testing enrolled_and_renewing scope with external enrollments' do
       let!(:external_renewing) do
         FactoryBot.create(:hbx_enrollment,
-          household: household,
-          aasm_state: 'renewing_coverage_selected',
-          external_enrollment: true,
-          kind: 'individual')
+                          household: household,
+                          aasm_state: 'renewing_coverage_selected',
+                          external_enrollment: true,
+                          kind: 'individual')
       end
 
       let!(:non_external_renewing) do
         FactoryBot.create(:hbx_enrollment,
-          household: household,
-          aasm_state: 'renewing_coverage_selected',
-          external_enrollment: false,
-          kind: 'individual')
+                          household: household,
+                          aasm_state: 'renewing_coverage_selected',
+                          external_enrollment: false,
+                          kind: 'individual')
       end
 
       it 'only includes non-external renewing enrollments' do
         result = active_enrollments_proc.call(family)
         expect(result).to eq "Yes"
-        
+
         active_enrollments = household.hbx_enrollments.non_external.active.enrolled_and_renewing
         expect(active_enrollments).to include(non_external_renewing)
         expect(active_enrollments).not_to include(external_renewing)
