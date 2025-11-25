@@ -103,7 +103,7 @@ gem 'sassc',                    '~> 2.0'
 gem 'sass-rails', '~> 6.0'
 gem 'config',                   '~> 5.5', '>= 5.5.2'
 gem 'rack-cors'
-gem 'puma', '~> 7.1.0'
+gem 'puma', '~> 6.6.0'
 
 #######################################################
 # Removed gems
@@ -178,5 +178,3 @@ group :production do
   gem 'newrelic_rpm', '~> 9.6'
   gem 'unicorn', '~> 4.8.3'
 end
-
-gem "mimemagic", "= 0.4.3"
