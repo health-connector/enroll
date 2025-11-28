@@ -29,6 +29,7 @@ namespace :reports do
           Broker_Status
           Last_Status_Updated_On
           Approval_date
+          Last_Login_Date
         )
 
       processed_count = 0
@@ -44,6 +45,7 @@ namespace :reports do
             primary_location = profile.primary_office_location
             approved_wfst = role.workflow_state_transitions.detect{ |t| t.to_state == "active"}
             approval_date = approved_wfst.transition_at.strftime("%Y-%m-%d") if approved_wfst
+            last_login_date = broker.user&.last_sign_in_at&.strftime("%Y-%m-%d") || nil
             csv << [
               role.npn,
               profile.legal_name,
@@ -62,7 +64,8 @@ namespace :reports do
                 role.created_at.try(:strftime,'%Y-%m-%d'),
                 role.aasm_state,
                 role.updated_at.try(:strftime,'%Y-%m-%d'),
-                approval_date
+                approval_date,
+                last_login_date
               ]
             rescue Exception => e
               "Exception on #{broker.hbx_id}: #{e}"
