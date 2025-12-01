@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-if ExchangeTestingConfigurationHelper.general_agency_enabled?
+if true #ExchangeTestingConfigurationHelper.general_agency_enabled?
   RSpec.describe GeneralAgencies::ProfilesController, dbclean: :after_each do
     let(:general_agency_profile) { FactoryBot.create(:general_agency_profile) }
     let(:general_agency_staff) { FactoryBot.create(:general_agency_staff_role) }
@@ -174,9 +174,53 @@ if ExchangeTestingConfigurationHelper.general_agency_enabled?
       it "should render the employers template" do
         expect(response).to render_template("employers")
       end
+    end
 
-      it "should get employers" do
-        #expect(assigns[:employers]).to eq general_agency_profile.employer_clients
+    describe "GET employers - Authorization" do
+      context "without proper permissions" do
+        it "should redirect when user lacks permissions" do
+          # Mock the authorization to trigger a redirect behavior
+          allow(controller).to receive(:redirect_to_new)
+          allow_any_instance_of(AccessPolicies::GeneralAgencyProfile).to receive(:authorize_index) do |instance, controller|
+            controller.redirect_to_new
+          end
+          sign_in(user)
+
+          get :employers, params: { id: general_agency_profile.id }, xhr: true
+          
+          expect(controller).to have_received(:redirect_to_new)
+        end
+      end
+
+      context "with proper permissions" do
+        before(:each) do
+          allow(controller).to receive(:check_general_agency_profile_permissions_index).and_return(true)
+          sign_in(user)
+          get :employers, params: { id: general_agency_profile.id }, xhr: true
+        end
+
+        it "returns http success" do
+          expect(response).to have_http_status(:success)
+        end
+
+        it "should render the employers template" do
+          expect(response).to render_template("employers")
+        end
+
+        it "should create the datatable" do
+          expect(assigns[:datatable]).to be_a(Effective::Datatables::GeneralAgencyDataTable)
+        end
+
+        it "should call the permission check" do
+          expect(controller).to have_received(:check_general_agency_profile_permissions_index)
+        end
+      end
+
+      context "without authentication" do
+        it "should redirect when not signed in" do
+          get :employers, params: { id: general_agency_profile.id }
+          expect(response).to have_http_status(:redirect)
+        end
       end
     end
 
