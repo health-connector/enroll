@@ -104,7 +104,6 @@ gem 'sass-rails', '~> 6.0'
 gem 'config',                   '~> 5.5', '>= 5.5.2'
 gem 'rack-cors'
 gem 'puma', '~> 6.6.0'
-gem "mimemagic", "= 0.4.3"
 
 #######################################################
 # Removed gems
