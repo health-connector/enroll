@@ -544,7 +544,7 @@ registry:
             item: false
           - key: :renewal_criterion_key
             item: :initial_sponsor_jan_default
-      - key: :initial_sponsor_default_2025
+      - key: :initial_sponsor_default_2026
         item: :contribution_model_criterion
         is_enabled: true
         settings:
@@ -560,7 +560,7 @@ registry:
             item: true
           - key: :renewal_criterion_key
             item: :initial_sponsor_default
-      - key: :renewal_sponsor_jan_default_2025
+      - key: :renewal_sponsor_jan_default_2026
         item: :contribution_model_criterion
         is_enabled: true
         settings:
