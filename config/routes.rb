@@ -1,6 +1,4 @@
 Rails.application.routes.draw do
-  require 'resque/server'
-#  mount Resque::Server, at: '/jobs'
   mount BenefitSponsors::Engine,      at: "/benefit_sponsors"
   mount BenefitMarkets::Engine,       at: "/benefit_markets"
   mount TransportGateway::Engine,       at: "/transport_gateway"
