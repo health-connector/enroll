@@ -176,5 +176,4 @@ end
 group :production do
   gem 'eye', '0.10.0'
   gem 'newrelic_rpm', '~> 9.6'
-  gem 'unicorn', '~> 4.8.3'
 end
