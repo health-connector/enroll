@@ -69,7 +69,7 @@ gem 'rails-i18n', '7.0.9'
 gem 'recurring_select', '~> 3.0'
 gem "recaptcha", '~> 4.13', require: 'recaptcha/rails'
 gem 'redis-rails'
-gem 'rack', '>= 2.2.20'
+gem 'rack', '>= 3.2.3'
 gem 'resque'
 gem 'sinatra', '>= 4.2.0' # update sub-dependency for resque
 gem 'net-imap', '>= 0.4.20'
