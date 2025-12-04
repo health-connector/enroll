@@ -117,7 +117,6 @@ Rails.application.configure do
   config.wells_fargo_private_key_location = '/wfpk.pem'
   config.wells_fargo_api_date_format = '%Y-%m-%dT%H:%M:%S.0000000%z'
 
-
   # Mongoid logger levels
   Mongoid.logger.level = Logger::ERROR
   Mongo::Logger.logger.level = Logger::ERROR
