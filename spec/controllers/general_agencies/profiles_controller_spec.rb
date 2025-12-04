@@ -354,7 +354,7 @@ if ExchangeTestingConfigurationHelper.general_agency_enabled?
     describe "POST create" do
       let(:form) { double("organization") }
       before do
-        allow(Forms::GeneralAgencyProfile).to receive(:new).and_return(form)
+        allow(::Forms::GeneralAgencyProfile).to receive(:new).and_return(form)
         sign_in(user)
       end
 
