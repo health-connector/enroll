@@ -17,6 +17,8 @@ Rails.application.configure do
   config.consider_all_requests_local = ENV.fetch('ENROLL_REVIEW_ENVIRONMENT', nil) == 'true'
   config.action_controller.perform_caching = true
 
+  config.active_job.queue_adapter = :resque
+
   # Enable Rack::Cache to put a simple HTTP cache in front of your application
   # Add `rack-cache` to your Gemfile before enabling this.
   # For large-scale production use, consider using a caching reverse proxy like
@@ -114,6 +116,7 @@ Rails.application.configure do
   config.wells_fargo_api_version = ENV.fetch('WF_API_VERSION', 'dummy')
   config.wells_fargo_private_key_location = '/wfpk.pem'
   config.wells_fargo_api_date_format = '%Y-%m-%dT%H:%M:%S.0000000%z'
+
 
   # Mongoid logger levels
   Mongoid.logger.level = Logger::ERROR
