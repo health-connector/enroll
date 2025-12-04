@@ -354,7 +354,7 @@ if ExchangeTestingConfigurationHelper.general_agency_enabled?
     describe "POST create" do
       let(:form) { double("organization") }
       before do
-        allow(::Forms::GeneralAgencyProfile).to receive(:new).and_return(form)
+        allow(Forms::GeneralAgencyProfile).to receive(:new).and_return(form)
         sign_in(user)
       end
 
@@ -377,6 +377,54 @@ if ExchangeTestingConfigurationHelper.general_agency_enabled?
         allow(form).to receive(:only_staff_role?).and_return true
         post :create, params: { organization: {first_name: 'test'} }
         expect(response).to render_template("new_agency_staff")
+      end
+    end
+
+    describe "GET families - Authorization" do
+      context "without proper permissions" do
+        it "should redirect when user lacks permissions" do
+          # Mock the authorization to trigger a redirect behavior
+          allow(controller).to receive(:redirect_to_new)
+          allow_any_instance_of(AccessPolicies::GeneralAgencyProfile).to receive(:authorize_index) do |_instance, controller|
+            controller.redirect_to_new
+          end
+          sign_in(user)
+
+          get :families, params: { id: general_agency_profile.id }, xhr: true
+
+          expect(controller).to have_received(:redirect_to_new)
+        end
+      end
+
+      context "with proper permissions" do
+        before(:each) do
+          allow(controller).to receive(:check_general_agency_profile_permissions_index).and_return(true)
+          sign_in(user)
+          get :families, params: { id: general_agency_profile.id }, xhr: true
+        end
+
+        it "returns http success" do
+          expect(response).to have_http_status(:success)
+        end
+
+        it "should render the families template" do
+          expect(response).to render_template("families")
+        end
+
+        it "should create the datatable" do
+          expect(assigns[:datatable]).to be_a(Effective::Datatables::GeneralAgencyFamilyDataTable)
+        end
+
+        it "should call the permission check" do
+          expect(controller).to have_received(:check_general_agency_profile_permissions_index)
+        end
+      end
+
+      context "without authentication" do
+        it "should redirect when not signed in" do
+          get :families, params: { id: general_agency_profile.id }
+          expect(response).to have_http_status(:redirect)
+        end
       end
     end
   end
