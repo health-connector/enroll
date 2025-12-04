@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-if true #ExchangeTestingConfigurationHelper.general_agency_enabled?
+if ExchangeTestingConfigurationHelper.general_agency_enabled?
   RSpec.describe GeneralAgencies::ProfilesController, dbclean: :after_each do
     let(:general_agency_profile) { FactoryBot.create(:general_agency_profile) }
     let(:general_agency_staff) { FactoryBot.create(:general_agency_staff_role) }
