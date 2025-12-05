@@ -4,8 +4,10 @@ module IndividualMarket
   module Insured
     class InteractiveIdentityVerificationsController < ApplicationController
       before_action :set_current_person
+      before_action :ensure_person_exists
 
       def new
+        authorize @person, :new?
         service = ::IdentityVerification::InteractiveVerificationService.new
         service_response = service.initiate_session(render_session_start)
         respond_to do |format|
@@ -25,6 +27,7 @@ module IndividualMarket
       end
 
       def create
+        authorize @person, :create?
         @interactive_verification = ::IdentityVerification::InteractiveVerification.new(params.require(:interactive_verification).permit!)
         respond_to do |format|
           format.html do
@@ -48,6 +51,7 @@ module IndividualMarket
       end
 
       def update
+        authorize @person, :update?
         @transaction_id = params.require(:id)
 
         respond_to do |format|
@@ -93,6 +97,13 @@ module IndividualMarket
 
       def render_verification_override(transaction_id)
         render_to_string "events/identity_verification/interactive_verification_override", :formats => ["xml"], :locals => { :transaction_id => transaction_id }
+      end
+
+      def ensure_person_exists
+        return if @person
+
+        flash[:error] = "Unable to find person for identity verification."
+        redirect_to root_path and return
       end
     end
   end

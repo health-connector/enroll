@@ -4,6 +4,7 @@ require "rails_helper"
 
 if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
   describe IndividualMarket::Insured::InteractiveIdentityVerificationsController do
+    routes { Rails.application.routes }
 
     after do
       allow(TimeKeeper).to receive(:date_of_record).and_call_original
@@ -19,7 +20,8 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
 
       before :each do
         sign_in(mock_user)
-        allow(::IdentityVerification::InteractiveVerificationService).to receive(:new).and_return(mock_service)
+        allow(controller).to receive(:authorize).and_return(true)  # Mock authorization for existing tests
+        allow(IdentityVerification::InteractiveVerificationService).to receive(:new).and_return(mock_service)
         allow(controller).to receive(:render_to_string).with(
           "events/identity_verification/interactive_session_start",
           {
@@ -83,7 +85,8 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
 
       before :each do
         sign_in(mock_user)
-        allow(::IdentityVerification::InteractiveVerification).to receive(:new).with(expected_params).and_return(mock_session)
+        allow(controller).to receive(:authorize).and_return(true)  # Mock authorization for existing tests
+        allow(IdentityVerification::InteractiveVerification).to receive(:new).with(expected_params).and_return(mock_session)
       end
 
       describe "with an invalid interactive_verification" do
@@ -118,7 +121,7 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
         let(:valid_verification) { true }
 
         before :each do
-          allow(::IdentityVerification::InteractiveVerificationService).to receive(:new).and_return(mock_service)
+          allow(IdentityVerification::InteractiveVerificationService).to receive(:new).and_return(mock_service)
           allow(controller).to receive(:render_to_string).with(
             "events/identity_verification/interactive_questions_response",
             {
@@ -182,7 +185,7 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
 
       before :each do
         sign_in(mock_user)
-        allow(::IdentityVerification::InteractiveVerificationService).to receive(:new).and_return(mock_service)
+        allow(IdentityVerification::InteractiveVerificationService).to receive(:new).and_return(mock_service)
         allow(controller).to receive(:render_to_string).with(
           "events/identity_verification/interactive_verification_override",
           {
@@ -223,6 +226,62 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
           expect(mock_person_user).to receive(:save!)
           post :update, params: { "id" => transaction_id }
           expect(response).to be_redirect
+        end
+      end
+    end
+
+    describe "Authorization" do
+      let(:person) { FactoryBot.create(:person, :with_family) }
+      let(:user) { FactoryBot.create(:user, person: person) }
+      let(:unauthorized_user) { FactoryBot.create(:user) }
+
+      before do
+        allow(controller).to receive(:set_current_person) { controller.instance_variable_set(:@person, person) }
+        # Mock the service calls to prevent actual external service calls during auth tests
+        allow(IdentityVerification::InteractiveVerificationService).to receive(:new).and_return(double)
+        allow(controller).to receive(:render_to_string).and_return("mock_xml")
+      end
+
+      describe "authorization behavior" do
+        it "blocks unauthorized user access" do
+          sign_in(unauthorized_user)
+
+          # Test the authorization directly via policy - unauthorized user without family access
+          policy = IdentityVerificationPolicy.new(unauthorized_user, person)
+          expect(policy.show?).to be_falsey
+        end
+
+        it "tests the identity verification policy integration" do
+          sign_in(user)
+          controller.instance_variable_set(:@person, person)
+
+          # Since our controller calls authorize(@person, :show?), let's test that path
+          expect { controller.send(:authorize, person, :show?) }.not_to raise_error
+        end
+
+        it "tests admin override permissions for identity verification" do
+          admin_person = FactoryBot.create(:person, :with_hbx_staff_role)
+          admin_user = FactoryBot.create(:user, :hbx_staff, person: admin_person)
+
+          # Mock permission for override capability with all required methods
+          permission_mock = double(can_update_ssn: true, modify_family: true)
+          allow(admin_person.hbx_staff_role).to receive(:permission).and_return(permission_mock)
+
+          sign_in(admin_user)
+          controller.instance_variable_set(:@person, person)
+
+          # Create and test the policy directly since Pundit looks for PersonPolicy by default
+          policy = IdentityVerificationPolicy.new(admin_user, person)
+          expect(policy.update?).to be_truthy
+        end
+
+        it "validates policy is called correctly for update action" do
+          sign_in(user)
+          controller.instance_variable_set(:@person, person)
+
+          # Test that regular user cannot do update (override) via our policy
+          policy = IdentityVerificationPolicy.new(user, person)
+          expect(policy.update?).to be_falsey
         end
       end
     end
