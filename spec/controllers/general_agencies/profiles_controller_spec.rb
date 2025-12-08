@@ -181,13 +181,13 @@ if ExchangeTestingConfigurationHelper.general_agency_enabled?
         it "should redirect when user lacks permissions" do
           # Mock the authorization to trigger a redirect behavior
           allow(controller).to receive(:redirect_to_new)
-          allow_any_instance_of(AccessPolicies::GeneralAgencyProfile).to receive(:authorize_index) do |instance, controller|
+          allow_any_instance_of(AccessPolicies::GeneralAgencyProfile).to receive(:authorize_index) do |_instance, controller|
             controller.redirect_to_new
           end
           sign_in(user)
 
           get :employers, params: { id: general_agency_profile.id }, xhr: true
-          
+
           expect(controller).to have_received(:redirect_to_new)
         end
       end
@@ -398,7 +398,7 @@ if ExchangeTestingConfigurationHelper.general_agency_enabled?
     describe "POST create" do
       let(:form) { double("organization") }
       before do
-        allow(::Forms::GeneralAgencyProfile).to receive(:new).and_return(form)
+        allow(Forms::GeneralAgencyProfile).to receive(:new).and_return(form)
         sign_in(user)
       end
 
