@@ -54,8 +54,8 @@ module Insured
         @context[k] = context.json
       end
 
-      @waiver_context = if params[:waiver_attrs].present?
-                          params[:waiver_attrs].to_h.each_with_object({}) do |(k,v),output|
+      @waiver_context = if thankyou_params[:waiver_attrs].present?
+                          thankyou_params[:waiver_attrs].to_h.each_with_object({}) do |(k,v),output|
                             context = Organizers::PrepareForWaiverCheckout.call(params: v, person: @person, event: thankyou_params[:event])
                             output[k] = context.json
                           end
@@ -237,6 +237,19 @@ module Insured
       dental: %i[id product_id]
     }.freeze
 
+    WAIVER_ITEMS = %i[
+      change_plan
+      enrollment_id
+      enrollment_kind
+      market_kind
+      selected_to_waive
+      waiver_reason
+    ].freeze
+
+    WAIVER_ATTR_ITEMS = {
+      health: WAIVER_ITEMS,
+      dental: WAIVER_ITEMS
+    }.freeze
 
     def continuous_params
       params.permit(
@@ -253,7 +266,7 @@ module Insured
     def thankyou_params
       params.permit(
         :event,
-        :waiver_attrs,
+        waiver_attrs: [WAIVER_ATTR_ITEMS],
         cart: [CART_ITEMS]
       )
     end
