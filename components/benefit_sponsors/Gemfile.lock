@@ -63,8 +63,8 @@ PATH
       net-imap (>= 0.4.20)
       non-stupid-digest-assets
       pundit
-      rack (>= 2.2.14)
-      rails (~> 7.2)
+      rack (>= 3.2.3)
+      rails (~> 7.2.3)
       roo (~> 2.10)
       slim (~> 5.2)
       virtus (~> 1.0.5)
@@ -87,8 +87,8 @@ PATH
       dry-validation (~> 1.0)
       mongoid (~> 8.1.5)
       net-imap (>= 0.4.20)
-      rack (>= 2.2.14)
-      rails (~> 7.2)
+      rack (>= 3.2.3)
+      rails (~> 7.2.3)
       roo (~> 2.10)
       slim (~> 5.2)
       symmetric-encryption (~> 4.6.0)
