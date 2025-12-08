@@ -6,7 +6,7 @@
 # - Family access: IVL family members with consumer roles can access family verification
 # - Admin access: HBX staff with family modification permissions can access any verification
 class IdentityVerificationPolicy < ApplicationPolicy
-  
+
   def initialize(user, record)
     super
     @person = record
@@ -18,16 +18,16 @@ class IdentityVerificationPolicy < ApplicationPolicy
   def new?
     return false unless @person
     return false unless user&.person
-    
+
     # User can access their own identity verification
     return true if user.person == @person
-    
+
     # User can access family member's identity verification if they're primary family member
     return true if ivl_primary_family_member?
-    
+
     # HBX staff with family modification permissions can access
     return true if hbx_staff_with_family_permissions?
-    
+
     false
   end
 
@@ -40,7 +40,7 @@ class IdentityVerificationPolicy < ApplicationPolicy
   # Update is specifically for verification override - more restrictive than normal access
   def update?
     return false unless @person
-    
+
     # Only HBX staff with appropriate override permissions can do updates
     user_can_override_verification?
   end
@@ -56,13 +56,13 @@ class IdentityVerificationPolicy < ApplicationPolicy
   def ivl_primary_family_member?
     return false unless @family
     return false unless user&.person  # Add nil check for user.person
-    
+
     primary_person = @family.primary_person
     user_person = user.person
-    
+
     # User is the primary family member
     return true if primary_person == user_person
-    
+
     # User is a family member with consumer role (IVL context)
     family_member_ids = @family.family_members.map(&:person_id)
     user_person.id.in?(family_member_ids) && user_person.consumer_role.present?
@@ -72,7 +72,7 @@ class IdentityVerificationPolicy < ApplicationPolicy
   def hbx_staff_with_family_permissions?
     role = user.person&.hbx_staff_role
     return false unless role&.permission
-    
+
     role.permission.modify_family
   end
 
