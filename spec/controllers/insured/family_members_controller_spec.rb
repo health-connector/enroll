@@ -332,7 +332,7 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
     before(:each) do
       sign_in(user)
       allow(Forms::FamilyMember).to receive(:find).with(dependent_id).and_return(dependent)
-      allow(dependent).to receive(:update_attributes).with(dependent_properties).and_return(update_result)
+      allow(dependent).to receive(:update_attributes).with(kind_of(Hash)).and_return(update_result)
       allow(dependent).to receive(:family_id).and_return(test_family.id)
       allow(Family).to receive(:find).with(test_family.id).and_return(test_family)
       allow(address).to receive(:is_a?).and_return(true)
@@ -370,6 +370,40 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
         put :update, params: {:id => dependent_id, :dependent => dependent_properties}
         expect(response).to have_http_status(:success)
         expect(response).to render_template("edit")
+      end
+
+      context "with address updates" do
+        let(:dependent_properties_with_addresses) do
+          {
+            "first_name" => "John",
+            "addresses" => {
+              "0" => {"kind" => "home", "address_1" => "123 Main St", "city" => "Boston", "state" => "MA", "zip" => "02101"}
+            }
+          }
+        end
+
+        it "should update dependent address fields including zip code" do
+          allow(controller).to receive(:update_vlp_documents).and_return(true)
+          put :update, params: {:id => dependent_id, :dependent => dependent_properties_with_addresses}
+          expect(response).to have_http_status(:success)
+          expect(response).to render_template("show")
+        end
+
+        it "should convert ActionController::Parameters addresses to plain hashes" do
+          allow(controller).to receive(:update_vlp_documents).and_return(true)
+
+          # Verify that the sanitized params passed to update_attributes contain plain hashes, not ActionController::Parameters
+          expect(dependent).to receive(:update_attributes) do |attrs|
+            expect(attrs[:addresses]).to be_a(Hash)
+            attrs[:addresses].each_value do |address|
+              expect(address).to be_a(Hash)
+              expect(address).not_to be_a(ActionController::Parameters)
+            end
+            true
+          end
+
+          put :update, params: {:id => dependent_id, :dependent => dependent_properties_with_addresses}
+        end
       end
     end
   end

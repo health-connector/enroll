@@ -59,7 +59,7 @@ module SponsoredBenefits
 
         @benefit_group = sponsorship.benefit_applications.first.benefit_groups.build(benefit_group_params) if @benefit_group.blank? && benefit_group_params.present?
 
-        @benefit_group.elected_plans = [@benefit_group.elected_plans_by_option_kind]
+        @benefit_group.elected_plans = @benefit_group.elected_plans_by_option_kind
       end
 
       def plan_array(plan)
