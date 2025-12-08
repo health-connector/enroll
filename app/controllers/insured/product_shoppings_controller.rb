@@ -230,7 +230,7 @@ module Insured
     ].freeze
 
     HEALTH_DENTAL_WAIVER_CHECKOUT = (HEALTH_DENTAL_CHECKOUT - %i[change_plan selected_to_waive]).freeze
-    HEALTH_DENTAL_RECEIPT = (HEALTH_DENTAL_CHECKOUT - %i[enrollable waivable event family_id]).freeze
+    HEALTH_DENTAL_RECEIPT = (HEALTH_DENTAL_CHECKOUT + %i[can_select_coverage employee_is_shopping_before_hire qle]).freeze
 
     CART_ITEMS = {
       health: %i[id product_id],
@@ -267,6 +267,7 @@ module Insured
 
     def receipt_params
       params.permit(
+        :event,
         health: HEALTH_DENTAL_RECEIPT,
         dental: HEALTH_DENTAL_RECEIPT
       )
