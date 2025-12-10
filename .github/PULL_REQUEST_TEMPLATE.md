@@ -1,7 +1,7 @@
 # PR Checklist
 
 Please check if your PR fulfills the following requirements
-- [ ] The title follows our [guidelines](https://github.com/dchbx/enroll/blob/main/CONTRIBUTING.md#commit
+- [ ] The title follows our [guidelines](https://github.com/health-connector/enroll/blob/master/CONTRIBUTING.md#commit
 )
 - [ ] Tests for the changes have been added (for bugfixes/features)
 
