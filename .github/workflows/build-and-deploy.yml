@@ -9,6 +9,8 @@ on:
       - rc-release-*
       - upgrade_to_rails_7_2
       - upgrade_to_rails_7_2_with_shakapacker
+    tags:
+      - 'v*'
   pull_request:
     branches:
       - master
