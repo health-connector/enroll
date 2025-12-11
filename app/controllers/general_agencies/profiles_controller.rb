@@ -94,7 +94,7 @@ class GeneralAgencies::ProfilesController < ApplicationController
   end
 
   def families
-    @datatable = Effective::Datatables::GeneralAgencyFamilyDataTable.new({id: params[:id]})
+    @datatable = Effective::Datatables::GeneralAgencyFamilyDataTable.new({id: @general_agency_profile.id})
   end
 
   # def families
