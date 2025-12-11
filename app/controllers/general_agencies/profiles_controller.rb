@@ -5,7 +5,7 @@ class GeneralAgencies::ProfilesController < ApplicationController
   before_action :general_agency_profile_params, only: [:update]
   before_action :find_general_agency_profile, only: [:show, :edit, :update, :employers, :families, :staffs, :agency_messages]
   before_action :find_general_agency_staff, only: [:edit_staff, :update_staff]
-  before_action :check_general_agency_profile_permissions_index, only: [:index]
+  before_action :check_general_agency_profile_permissions_index, only: [:index, :families]
   before_action :check_general_agency_profile_permissions_new, only: [:new]
 
   layout 'single_column'
