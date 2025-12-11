@@ -97,3 +97,131 @@ There are few endpoints in Enroll which accept XML data.  Of those, none perform
 #### Actions Taken
 
 Given that Enroll is not considered vulnerable against either underlying CVE, this specific security advisory has been added to the bundler audit ignore file.
+
+#### CVE-2025-61770
+
+Issue: https://nvd.nist.gov/vuln/detail/CVE-2024-56171
+
+Source: https://github.com/rack/rack/security/advisories/GHSA-p543-xpfm-54cp
+
+**Description:**
+
+```
+Rack::Multipart::Parser buffers the entire multipart preamble (bytes before the first boundary) in memory without any size limit. A client can send a large preamble followed by a valid boundary, causing significant memory use and potential process termination due to out-of-memory (OOM) conditions.
+```
+
+Notes from the Rack bugtracker state:
+
+```
+Remote attackers can trigger large transient memory spikes by including a long preamble in multipart/form-data requests. The impact scales with allowed request sizes and concurrency, potentially causing worker crashes or severe slowdown due to garbage collection.
+```
+
+**Mitigation:**
+
+Use a patched version of Rack that enforces a preamble size limit (e.g., 16 KiB) or discards preamble data entirely per [RFC 2046 § 5.1.1](https://www.rfc-editor.org/rfc/rfc2046.html#section-5.1.1).
+
+#### CVE-2025-61771
+
+Issue: https://nvd.nist.gov/vuln/detail/CVE-2025-61771
+
+Source: https://github.com/rack/rack/security/advisories/GHSA-w9pc-fmgc-vxvw
+
+**Description:**
+
+```
+Rack::Multipart::Parser stores non-file form fields (parts without a filename) entirely in memory as Ruby String objects. A single large text field in a multipart/form-data request (hundreds of megabytes or more) can consume equivalent process memory, potentially leading to out-of-memory (OOM) conditions and denial of service (DoS).
+```
+
+Notes from the Rack bugtracker state:
+
+```
+Attackers can send large non-file fields to trigger excessive memory usage. Impact scales with request size and concurrency, potentially leading to worker crashes or severe garbage-collection overhead.
+All Rack applications processing multipart form submissions are affected.
+```
+
+**Mitigation:**
+
+Use a patched version of Rack that enforces a reasonable size cap for non-file fields (e.g., 2 MiB).
+
+#### CVE-2025-61772
+
+Issue: https://nvd.nist.gov/vuln/detail/CVE-2025-61772
+
+Source: https://github.com/rack/rack/security/advisories/GHSA-wpv5-97wm-hp9c
+
+**Description:**
+
+```
+Rack::Multipart::Parser can accumulate unbounded data when a multipart part’s header block never terminates with the required blank line (CRLFCRLF). The parser keeps appending incoming bytes to memory without a size cap, allowing a remote attacker to exhaust memory and cause a denial of service (DoS).
+```
+
+Notes from the Rack bugtracker state:
+
+```
+Attackers can send incomplete multipart headers to trigger high memory use, leading to process termination (OOM) or severe slowdown. The effect scales with request size limits and concurrency. All applications handling multipart uploads may be affected.
+```
+
+**Mitigation:**
+
+Upgrade to a patched Rack version that caps per-part header size (e.g., 64 KiB).
+
+#### CVE-2025-61780
+
+Issue: https://nvd.nist.gov/vuln/detail/CVE-2025-61780
+
+Source: https://github.com/rack/rack/security/advisories/GHSA-p543-xpfm-54cp
+
+**Description:**
+
+```
+Rack::Multipart::Parser buffers the entire multipart preamble (bytes before the first boundary) in memory without any size limit. A client can send a large preamble followed by a valid boundary, causing significant memory use and potential process termination due to out-of-memory (OOM) conditions.
+```
+
+Notes from the Rack bugtracker state:
+
+```
+Remote attackers can trigger large transient memory spikes by including a long preamble in multipart/form-data requests. The impact scales with allowed request sizes and concurrency, potentially causing worker crashes or severe slowdown due to garbage collection.
+```
+
+**Mitigation:**
+
+Use a patched version of Rack that enforces a preamble size limit (e.g., 16 KiB) or discards preamble data entirely per [RFC 2046 § 5.1.1](https://www.rfc-editor.org/rfc/rfc2046.html#section-5.1.1).
+
+#### CVE-2025-61919
+
+Issue: https://nvd.nist.gov/vuln/detail/CVE-2025-61919
+
+Source: https://github.com/rack/rack/security/advisories/GHSA-6xw4-3v39-52mm
+
+**Description:**
+
+```
+Rack::Request#POST reads the entire request body into memory for Content-Type: application/x-www-form-urlencoded, calling rack.input.read(nil) without enforcing a length or cap. Large request bodies can therefore be buffered completely into process memory before parsing, leading to denial of service (DoS) through memory exhaustion.
+```
+
+Notes from the Rack bugtracker state:
+
+```
+Attackers can send large application/x-www-form-urlencoded bodies to consume process memory, causing slowdowns or termination by the operating system (OOM). The effect scales linearly with request size and concurrency. Even with parsing limits configured, the issue occurs before those limits are enforced.
+```
+
+**Mitigation:**
+
+Update to a patched version of Rack that enforces form parameter limits using query_parser.bytesize_limit, preventing unbounded reads of application/x-www-form-urlencoded bodies.
+
+#### CVE-2025-61921
+
+Issue: https://nvd.nist.gov/vuln/detail/CVE-2025-61921
+
+Source: https://github.com/rack/rack/security/advisories/GHSA-6xw4-3v39-52mm
+
+**Description:**
+
+```
+There is a denial of service vulnerability in the If-Match and If-None-Match header parsing component of Sinatra, if the etag method is used when constructing the response and you are using Ruby < 3.2.
+```
+
+Notes from the sinatra bugtracker state:
+
+```
+Carefully crafted input can cause If-Match and If-None-Match header parsing in Sinatra to take an unexpected amount of time, possibly resulting in a denial of service attack vector. This header is typically involved in generating the ETag header value. Any applications that use the etag method when generating a response are impacted if they are using Ruby below version 3.2.
