@@ -10,6 +10,7 @@ class ApplicationController < ActionController::Base
   include ::FileUploadHelper
 
   after_action :update_url, :unless => :format_js?
+  
   helper BenefitSponsors::Engine.helpers
 
   def format_js?
