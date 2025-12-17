@@ -1859,7 +1859,7 @@ GEM
       msgpack (~> 1.2)
     bootstrap-multiselect-rails (0.9.9)
       rails (>= 4.0.0)
-    brakeman (6.1.2)
+    brakeman (7.1.1)
       racc
     browser (2.7.0)
     bson (4.15.0)
@@ -2254,6 +2254,7 @@ GEM
       nokogiri (~> 1.5)
     non-stupid-digest-assets (1.0.11)
       sprockets (>= 2.0)
+    observer (0.1.2)
     oj (3.16.6)
       bigdecimal (>= 3.0)
       ostruct (>= 0.2)
@@ -2675,6 +2676,7 @@ DEPENDENCIES
   nokogiri-happymapper (~> 0.8.0)
   non-stupid-digest-assets (~> 1.0, >= 1.0.9)
   notifier!
+  observer
   openhbx_cv2!
   overcommit
   parallel_tests (= 2.26.2)
@@ -2737,7 +2739,7 @@ DEPENDENCIES
   yard-mongoid (~> 0.1.0)
 
 RUBY VERSION
-   ruby 3.2.5p208
+   ruby 3.4.7p58
 
 BUNDLED WITH
    2.5.23
