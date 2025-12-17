@@ -104,6 +104,7 @@ gem 'config',                   '~> 5.5', '>= 5.5.2'
 gem 'rack-cors'
 gem 'puma', '~> 6.6.0'
 gem "observer"
+gem "openssl"
 
 #######################################################
 # Removed gems
