@@ -10,9 +10,7 @@ module Validations
           klass.define_method(method_name) do
             d_value = send(prop_name)
 
-            if allow_blank && d_value.blank?
-              return
-            end
+            return if allow_blank && d_value.blank?
 
             begin
               Date.strptime(d_value, "%m/%d/%Y")
