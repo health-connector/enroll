@@ -1,31 +1,30 @@
-# frozen_string_literal: true
-
 module Validations
   class UsDate
-    def self.on(prop_name, allow_blank: false)
-      Module.new do
-        define_singleton_method :included do |klass|
-
-          method_name = :"__valid_US_date_property_#{prop_name}"
-
-          klass.define_method(method_name) do
-            d_value = send(prop_name)
-
+    def self.on(prop_name, allow_blank = false)
+      mod = Module.new
+      mod.define_singleton_method :included do |klass|
+        # rubocop:disable Style/EvalWithLocation, Style/DocumentDynamicEvalDefinition
+        klass.class_eval(<<-RUBYCODE)
+          def __valid_US_date_property_#{prop_name}
+            d_value = #{prop_name}
             begin
               Date.strptime(d_value, "%m/%d/%Y")
-            rescue StandardError
-              errors.add(prop_name, "invalid date: #{d_value}")
+            rescue
+              errors.add(:#{prop_name}, "invalid date: " + d_value.to_s)
             end
           end
-
-          klass.validate method_name
-
-          return if allow_blank
-
-          klass.validates_presence_of prop_name
-
+        RUBYCODE
+        # rubocop:enable Style/EvalWithLocation, Style/DocumentDynamicEvalDefinition
+        klass.class_eval do
+          validate "__valid_US_date_property_#{prop_name}".to_sym # rubocop:disable Lint/SymbolConversion
+        end
+        unless allow_blank
+          klass.class_eval do
+            validates_presence_of prop_name.to_sym
+          end
         end
       end
+      mod
     end
   end
 end
