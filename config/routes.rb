@@ -71,7 +71,6 @@ Rails.application.routes.draw do
         get :edit_force_publish
         post :force_publish
         get :broker_agency_index
-        get :general_agency_index if Settings.aca.general_agency_enabled
         get :issuer_index
         match "marketplace_plan_years/:market" => "hbx_profiles#marketplace_plan_years", as: :marketplace_plan_years, via: :get
         match "marketplace_plan_years/:market/:year" => "hbx_profiles#marketplace_plan_year", as: :marketplace_plan_year, via: :get
@@ -419,32 +418,6 @@ Rails.application.routes.draw do
     end
   end
 
-  if Settings.aca.general_agency_enabled
-    match 'general_agency_registration', to: 'general_agencies/profiles#new_agency', via: [:get]
-    namespace :general_agencies do
-      root 'profiles#new'
-      resources :profiles do
-        collection do
-          get :new_agency_staff
-          get :search_general_agency
-          get :new_agency
-          get :messages
-          get :agency_messages
-          get :inbox
-          get :edit_staff
-          post :update_staff
-        end
-        member do
-          get :employers
-          get :families
-          get :staffs
-        end
-      end
-      resources :inboxes, only: [:new, :create, :show, :destroy] do
-        get :msg_to_portal
-      end
-    end
-  end
   resources :translations
 
   ############################# TO DELETE BELOW ##############################
