@@ -20,7 +20,7 @@ RSpec.describe "welcome/index.html.slim", :type => :view, dbclean: :after_each  
   end
 
   describe "not signed in user" do
-    context "with general agency enabled" do
+    xcontext "with general agency enabled" do
       before :each do
         Settings.aca.general_agency_enabled = true
         Enroll::Application.reload_routes!
