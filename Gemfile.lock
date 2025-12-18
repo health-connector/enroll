@@ -1,11 +1,4 @@
 GIT
-  remote: https://github.com/harshared/simple_calendar
-  revision: 109781178efa26c89ba51efa496bca29bc70a565
-  specs:
-    simple_calendar (2.2.5)
-      rails (>= 3.0)
-
-GIT
   remote: https://github.com/ideacrew/aca_entities.git
   revision: d8326607d217d4a92672ef34313ebf5eb69f9a0b
   branch: trunk
@@ -2718,7 +2711,6 @@ DEPENDENCIES
   sdoc (~> 1.0)
   shakapacker (~> 7.0)
   shoulda-matchers (>= 4.0.0)
-  simple_calendar!
   simplecov (~> 0.22.0)
   sinatra (>= 4.2.0)
   slim (~> 5.2)
