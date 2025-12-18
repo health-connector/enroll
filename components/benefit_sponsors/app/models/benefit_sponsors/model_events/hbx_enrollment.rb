@@ -17,7 +17,7 @@ module BenefitSponsors
         @is_employee_waiver_confirmation = true if is_transition_matching?(to: :inactive, from: [:shopping, :coverage_selected, :auto_renewing, :renewing_coverage_selected], event: :waive_coverage)
 
         REGISTERED_EVENTS.each do |event|
-          if event_fired = instance_variable_get(:"@is_#{event}")
+          if instance_variable_get(:"@is_#{event}")
             event_options = {}
             notify_observers(ModelEvent.new(event, self, event_options))
           end
