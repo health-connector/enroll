@@ -9,8 +9,8 @@ module Insured
     # rubocop:disable Metrics/CyclomaticComplexity
     def continuous_show
       authorize @hbx_enrollment
-      # TODO: Use permit params
-      attr = strong_params.to_h.deep_symbolize_keys
+
+      attr = continuous_params.to_h.deep_symbolize_keys
       @context = Organizers::FetchProductsForShoppingEnrollment.call(health: attr[:health], dental: attr[:dental], cart: attr[:cart],
                                                                      dental_offering: attr[:dental_offering],  health_offering: attr[:health_offering],
                                                                      action: attr[:action], event: attr[:event])
@@ -49,14 +49,14 @@ module Insured
       authorize @hbx_enrollment
 
       @context = {}
-      params[:cart].each do |k, v|
+      thankyou_params[:cart].each do |k, v|
         context = Organizers::PrepareForCheckout.call(params: v, person: @person, event: params[:event])
         @context[k] = context.json
       end
 
-      @waiver_context = if params[:waiver_attrs].present?
-                          strong_params[:waiver_attrs].to_h.each_with_object({}) do |(k,v),output|
-                            context = Organizers::PrepareForWaiverCheckout.call(params: v, person: @person, event: params[:event])
+      @waiver_context = if thankyou_params[:waiver_attrs].present?
+                          thankyou_params[:waiver_attrs].to_h.each_with_object({}) do |(k,v),output|
+                            context = Organizers::PrepareForWaiverCheckout.call(params: v, person: @person, event: thankyou_params[:event])
                             output[k] = context.json
                           end
                         else
@@ -75,7 +75,7 @@ module Insured
       authorize @hbx_enrollment
 
       @context = {}
-      params.except("_method", "authenticity_token", "controller", "action", "waiver_context").each do |key, value|
+      checkout_params.each do |key, value|
         context = Organizers::Checkout.call(params: value, previous_enrollment_id: session[:pre_hbx_enrollment_id])
         @context[key] = context.json
       end
@@ -111,7 +111,7 @@ module Insured
       authorize @hbx_enrollment
 
       @context = {}
-      params.except("_method", "authenticity_token", "controller", "action", "waiver_context").each do |key, value|
+      receipt_params.each do |key, value|
         context = Organizers::Receipt.call(params: value, previous_enrollment_id: session[:pre_hbx_enrollment_id])
         @context[key] = context
       end
@@ -134,11 +134,11 @@ module Insured
       authorize @hbx_enrollment
 
       # TODO: Use permit params
-      attrs = params.permit!.to_h.deep_symbolize_keys
+      attrs = waiver_thankyou_params.to_h.deep_symbolize_keys
       enr_details = attrs.slice(:health, :dental)
 
-      health_waiver_reason = enr_details.dig(:health, :waiver_reason)
-      dentalwaiver_reason = enr_details.dig(:dental, :waiver_reason)
+      health_waiver_reason = attrs[:health][:waiver_reason]
+      dentalwaiver_reason = attrs[:dental][:waiver_reason]
       is_outside_service_area_reason = (health_waiver_reason == HbxEnrollment::OUTSIDE_SERVICE_AREA_WAIVER_REASON) || (dentalwaiver_reason == HbxEnrollment::OUTSIDE_SERVICE_AREA_WAIVER_REASON)
 
       @context = enr_details.each_with_object({}) do |(k,v),output|
@@ -162,7 +162,7 @@ module Insured
       authorize @hbx_enrollment
 
       @context = {}
-      params.except("_method", "authenticity_token", "controller", "action").each do |key, value|
+      waiver_checkout_params.each do |key, value|
         context = Organizers::WaiveEnrollment.call(hbx_enrollment_id: value[:enrollment_id], waiver_reason: value[:waiver_reason])
         @context[key] = { waiver_status: context.waiver_enrollment.inactive?, waiver_enrollment: context.waiver_enrollment }
       end
@@ -203,12 +203,106 @@ module Insured
 
     private
 
-    def set_current_person_required
-      set_current_person(required: true)
+    HEALTH_DENTAL_CONTINUOUS = %i[
+      change_plan
+      enrollment_id
+      enrollment_kind
+      market_kind
+      selected_to_waive
+      waiver_reason
+    ].freeze
+
+    HEALTH_DENTAL_CHECKOUT = %i[
+      coverage_kind
+      employee_role_id
+      enrollable
+      change_plan
+      enrollment_id
+      enrollment_kind
+      market_kind
+      selected_to_waive
+      waiver_reason
+      event
+      family_id
+      product_id
+      use_family_deductable
+      waivable
+    ].freeze
+
+    HEALTH_DENTAL_WAIVER_CHECKOUT = (HEALTH_DENTAL_CHECKOUT - %i[change_plan selected_to_waive]).freeze
+    HEALTH_DENTAL_RECEIPT = (HEALTH_DENTAL_CHECKOUT + %i[can_select_coverage employee_is_shopping_before_hire qle]).freeze
+
+    CART_ITEMS = {
+      health: %i[id product_id],
+      dental: %i[id product_id]
+    }.freeze
+
+    WAIVER_ITEMS = %i[
+      change_plan
+      enrollment_id
+      enrollment_kind
+      market_kind
+      selected_to_waive
+      waiver_reason
+    ].freeze
+
+    WAIVER_ATTR_ITEMS = {
+      health: WAIVER_ITEMS,
+      dental: WAIVER_ITEMS
+    }.freeze
+
+    def continuous_params
+      params.permit(
+        :event,
+        :action,
+        :dental_offering,
+        :health_offering,
+        health: HEALTH_DENTAL_CONTINUOUS,
+        dental: HEALTH_DENTAL_CONTINUOUS,
+        cart: [CART_ITEMS]
+      )
     end
 
-    def strong_params
-      params.permit!
+    def thankyou_params
+      params.permit(
+        :event,
+        waiver_attrs: [WAIVER_ATTR_ITEMS],
+        cart: [CART_ITEMS]
+      )
+    end
+
+    def checkout_params
+      params.permit(
+        health: HEALTH_DENTAL_CHECKOUT,
+        dental: HEALTH_DENTAL_CHECKOUT
+      )
+    end
+
+    def receipt_params
+      params.permit(
+        :event,
+        health: HEALTH_DENTAL_RECEIPT,
+        dental: HEALTH_DENTAL_RECEIPT
+      )
+    end
+
+    def waiver_thankyou_params
+      params.permit(
+        :event,
+        health: [:enrollment_id, :waiver_reason],
+        dental: [:enrollment_id, :waiver_reason]
+      )
+    end
+
+    def waiver_checkout_params
+      params.permit(
+        health: HEALTH_DENTAL_WAIVER_CHECKOUT,
+        dental: HEALTH_DENTAL_WAIVER_CHECKOUT
+      )
+    end
+
+    def set_current_person_required
+      set_current_person(required: true)
     end
 
     def set_hbx_enrollment
