@@ -99,3 +99,6 @@ yarn-debug.log*
 *.xlsx
 *.doc
 *.docx
+
+# Ignore actionlint binary
+actionlint
