@@ -181,7 +181,7 @@ jobs:
       # scan either the pushed image (for non-pr) or the local-only image (for pr)
       - name: Scan Docker image for security issues
         id: scan
-        uses: anchore/scan-action@v5
+        uses: anchore/scan-action@v6
         with:
           image: ${{ format('{0}/{1}-{2}', needs.prep.outputs.registryGhcr, needs.prep.outputs.taggedImage, env.CLIENT) }}
           fail-build: false
