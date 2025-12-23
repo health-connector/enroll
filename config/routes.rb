@@ -440,9 +440,6 @@ Rails.application.routes.draw do
           get :staffs
         end
       end
-      resources :inboxes, only: [:new, :create, :show, :destroy] do
-        get :msg_to_portal
-      end
     end
   end
   resources :translations
