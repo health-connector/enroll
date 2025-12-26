@@ -3,7 +3,7 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby '3.2.5'
+ruby '3.4.7'
 
 gem "benefit_markets",    path: "components/benefit_markets"
 gem "benefit_sponsors",   path: "components/benefit_sponsors"
@@ -64,11 +64,12 @@ gem 'openhbx_cv2', git: 'https://github.com/ideacrew/openhbx_cv2.git', branch: '
 gem 'resource_registry',  git:  'https://github.com/ideacrew/resource_registry.git', tag: 'v0.10.1'
 gem 'prawn', :git => 'https://github.com/prawnpdf/prawn.git', :ref => '8028ca0cd2'
 gem 'pundit', '~> 2.0'
-gem 'rails', '~> 7.2', '>= 7.2.3'
-gem 'rails-i18n', '7.0.9'
+gem 'rails', '~> 8.0.0'
+gem 'rails-i18n', '~> 8.0.0'
 gem 'recurring_select', '~> 3.0'
 gem "recaptcha", '~> 4.13', require: 'recaptcha/rails'
-gem 'redis-rails'
+gem 'redis', '>= 4.0'
+gem 'hiredis' # Optional but recommended for performance in Rails 8
 gem 'rack', '>= 3.2.3'
 gem 'resque'
 gem 'sinatra', '>= 4.2.0' # update sub-dependency for resque
@@ -103,6 +104,8 @@ gem 'sass-rails', '~> 6.0'
 gem 'config',                   '~> 5.5', '>= 5.5.2'
 gem 'rack-cors'
 gem 'puma', '~> 6.6.0'
+gem "observer"
+gem "openssl"
 
 #######################################################
 # Removed gems
