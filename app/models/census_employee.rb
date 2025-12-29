@@ -1002,7 +1002,6 @@ class CensusEmployee < CensusMember
 
       CSV.generate(headers: true) do |csv|
         csv << (["#{Settings.site.long_name} Employee Census Template"] + 6.times.collect{ "" } + [] + 5.times.collect{ "" } + [])
-        csv << %w[employer_assigned_family_id employee_relationship last_name first_name middle_name name_sfx email dob gender hire_date termination_date is_business_owner benefit_group plan_year kind address_1 address_2 city state zip]
         csv << columns
         census_employees_query_criteria(employer_profile_id).each do |rec|
           is_active = rec["benefit_group_assignments"].present? ? rec["benefit_group_assignments"].any?{|bga| (bga["start_on"]..bga["end_on"]).cover?(TimeKeeper.date_of_record)} : false
