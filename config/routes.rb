@@ -370,7 +370,6 @@ Rails.application.routes.draw do
   namespace :broker_agencies do
     resources :profiles, only: [] do
 
-      resources :applicants
     end
 
     resources :broker_roles do
@@ -419,32 +418,6 @@ Rails.application.routes.draw do
     end
   end
 
-  if Settings.aca.general_agency_enabled
-    match 'general_agency_registration', to: 'general_agencies/profiles#new_agency', via: [:get]
-    namespace :general_agencies do
-      root 'profiles#new'
-      resources :profiles do
-        collection do
-          get :new_agency_staff
-          get :search_general_agency
-          get :new_agency
-          get :messages
-          get :agency_messages
-          get :inbox
-          get :edit_staff
-          post :update_staff
-        end
-        member do
-          get :employers
-          get :families
-          get :staffs
-        end
-      end
-      resources :inboxes, only: [:new, :create, :show, :destroy] do
-        get :msg_to_portal
-      end
-    end
-  end
   resources :translations
 
   ############################# TO DELETE BELOW ##############################
