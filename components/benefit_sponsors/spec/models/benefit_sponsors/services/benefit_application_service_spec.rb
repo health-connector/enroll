@@ -61,17 +61,17 @@ module BenefitSponsors
       end
 
       it "should raise error for YYYY/MM/DD format (not supported)" do
-        expect {
+        expect do
           subject.send(:format_string_to_date, "2026/10/01")
-        }.to raise_error(Date::Error)
+        end.to raise_error(Date::Error)
       end
 
       it "should raise error for invalid date values" do
-        expect {
+        expect do
           subject.send(:format_string_to_date, "13/45/2026")
-        }.to raise_error(Date::Error)
+        end.to raise_error(Date::Error)
       end
-      
+
       it "should return nil for unrecognized format (no slashes or dashes)" do
         result = subject.send(:format_string_to_date, "Jan 1, 2026")
         expect(result).to be_nil
