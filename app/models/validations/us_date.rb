@@ -8,7 +8,7 @@ module Validations
           method_name = :"__valid_US_date_property_#{prop_name}"
 
           klass.define_method(method_name) do
-            d_value = send(prop_name)
+            d_value = self[prop_name]
 
             return if allow_blank && d_value.blank?
 
