@@ -311,12 +311,17 @@ module BenefitSponsors
 
       let(:admin_user) { FactoryBot.create(:user, :with_hbx_staff_role, :person => person)}
       let(:employer_profile) { abc_profile }
+      let!(:employees) do
+        FactoryBot.create_list(:census_employee, 2, employer_profile: employer_profile, benefit_sponsorship: benefit_sponsorship)
+      end
+      let(:employee_ssn) { SymmetricEncryption.decrypt(employees.first.encrypted_ssn) }
 
       it "should export cvs" do
         sign_in(admin_user)
         get :export_census_employees, params: {employer_profile_id: employer_profile}, format: :csv
         expect(response).to have_http_status(:success)
         expect(response).not_to have_content("SSN")
+        expect(response).not_to have_content(employee_ssn)
       end
     end
   end
