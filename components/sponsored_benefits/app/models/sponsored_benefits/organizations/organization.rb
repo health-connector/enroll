@@ -316,7 +316,7 @@ module SponsoredBenefits
           end
 
           if !search_params[:working_hours].blank?
-            query_params << {"broker_agency_profile.working_hours" => eval(search_params[:working_hours])}
+            query_params << {"broker_agency_profile.working_hours" => JSON.parse(search_params[:working_hours])}
           end
 
           query_params

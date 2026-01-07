@@ -6,12 +6,12 @@ module Effective
 
     # This will respond to both a GET and a POST
     def show
-      params[:custom_attributes].permit! if params[:custom_attributes].presence
-      params[:attributes].permit! if params[:attributes].presence
-      params[:scopes].permit! if params[:scopes].presence
+      datatable_params[:custom_attributes].permit! if datatable_params[:custom_attributes].presence
+      datatable_params[:attributes].permit! if datatable_params[:attributes].presence
+      datatable_params[:scopes].permit! if datatable_params[:scopes].presence
 
-      attributes = (params[:attributes].presence || {}).merge(referer: request.referer).merge(custom_attributes: params.try(:custom_attributes, []))
-      scopes = (params[:scopes].presence || params[:custom_attributes].presence || {})
+      attributes = (datatable_params[:attributes].presence || {}).merge(referer: request.referer).merge(custom_attributes: datatable_params.try(:custom_attributes, []))
+      scopes = (datatable_params[:scopes].presence || datatable_params[:custom_attributes].presence || {})
 
       @datatable = find_datatable(params[:id]).try(:new, attributes.merge(scopes).to_hash)
       @datatable.view = view_context unless @datatable.nil?
@@ -35,6 +35,29 @@ module Effective
     end
 
     private
+
+    def datatable_params
+      permitted = [
+        :draw, :start, :length, :id, :controller, :action, :format,
+        { search: [:value, :regex] }
+      ]
+
+      column_structure = [:data, :name, :searchable, :orderable, :visible, { search: [:value, :regex] }]
+
+      columns = params[:columns]&.keys || []
+      columns_permitted = columns.index_with { column_structure }
+
+      orders = params[:order]&.keys || []
+      order_permitted = orders.index_with { [:column, :dir] }
+
+      params.permit(
+        *permitted,
+        columns: columns_permitted,
+        order: order_permitted,
+        custom_attributes: {},
+        attributes: {}
+      )
+    end
 
     def find_datatable(id)
       id_plural = id.pluralize == id && id.singularize != id
