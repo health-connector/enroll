@@ -59,7 +59,7 @@ module BenefitSponsors
       end
 
       def can_create_draft_for_tp?(bas, form)
-        start_on_date = form.start_on.to_date
+        start_on_date = format_string_to_date(form.start_on)
         bas.any? { |ba| ba.effective_period.cover?(start_on_date)}
       end
 
@@ -192,9 +192,10 @@ module BenefitSponsors
 
       #TODO: FIX date format
       def format_string_to_date(date)
-        if date.split('/').first.size == 2
+        if date.include?('/')
+          # Handles both "1/1/2026" and "01/01/2026" formats
           Date.strptime(date,"%m/%d/%Y")
-        elsif date.split('-').first.size == 4
+        elsif date.include?('-')
           Date.strptime(date,"%Y-%m-%d")
         end
       end
