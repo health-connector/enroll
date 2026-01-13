@@ -33,7 +33,7 @@ function check_dependent_info_exists()
 
 function match_person()
 {
-	gender_checked = $("#person_gender_male").prop("checked") || $("#person_gender_female").prop("checked");
+	let gender_checked = $("#person_gender_male").prop("checked") || $("#person_gender_female").prop("checked");
 
 	if(check_personal_info_exists().length==0 && gender_checked)
 	{

@@ -1,21 +1,16 @@
-function set_tab_content(partial) {
-  $('.flash').remove();
+window.set_tab_content = function(partial) {
+ $('.flash').remove();
   $('#inbox > #tabContent').html(partial);
 }
 
-function set_active_ontab(tab_id) {
+window.tab_id = function(tab_id) {
   $(tab_id).siblings().each(function(){
     $(this).removeClass('active');
   });
   $(tab_id).addClass('active');
 }
 
-function set_broker_agency_content(partial) {
-  $('#broker_agency_panel > #tabContent').html(partial);
-}
-
-
-function setTabContent(partial) {
+window.setTabContent = function(partial) {
   $('.flash').remove();
   $('#myTabContent').html(partial);
 }
