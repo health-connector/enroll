@@ -370,6 +370,7 @@ Rails.application.routes.draw do
   namespace :broker_agencies do
     resources :profiles, only: [] do
 
+      resources :applicants
     end
 
     resources :broker_roles do
