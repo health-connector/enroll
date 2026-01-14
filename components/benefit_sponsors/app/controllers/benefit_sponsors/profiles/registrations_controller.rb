@@ -81,7 +81,7 @@ module BenefitSponsors
       def counties_for_zip_code
         @counties = BenefitMarkets::Locations::CountyZip.where(zip: params[:zip_code]).pluck(:county_name).uniq
 
-        render json: @counties
+        render json: @counties.to_json
       end
 
       private
