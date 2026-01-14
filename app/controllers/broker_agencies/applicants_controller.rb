@@ -8,6 +8,8 @@ module BrokerAgencies
     before_action :find_broker_applicant, only: [:edit, :update]
 
     def index
+      authorize BrokerAgencies::Applicant, :index?
+
       @people = Person.find_all_brokers_or_staff_members_by_agency(@broker_agency_profile).sans_primary_broker(@broker_agency_profile)
       @status = params.permit(:status)[:status] || 'broker_agency_pending'
       @people = Person.brokers_or_agency_staff_with_status(@people, @status) unless @status == 'all'
@@ -25,6 +27,8 @@ module BrokerAgencies
     end
 
     def edit
+      authorize BrokerAgencies::Applicant, :edit?
+
       respond_to do |format|
         format.js
         format.html
@@ -32,6 +36,8 @@ module BrokerAgencies
     end
 
     def update
+      authorize BrokerAgencies::Applicant, :update?
+
       role = @broker_applicant.broker_role
       role ||= @broker_applicant.broker_agency_staff_roles[0]
       # if params[:person] && params[:person][:broker_role_attributes] && params[:person][:broker_role_attributes][:reason]
