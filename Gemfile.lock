@@ -1953,7 +1953,7 @@ GEM
     config (5.5.2)
       deep_merge (~> 1.2, >= 1.2.1)
       ostruct
-    connection_pool (3.0.2)
+    connection_pool (2.5.4)
     crack (1.0.0)
       bigdecimal
       rexml
@@ -2616,6 +2616,7 @@ DEPENDENCIES
   coffee-rails (~> 5.0.0)
   combine_pdf
   config (~> 5.5, >= 5.5.2)
+  connection_pool (< 3)
   cucumber-rails (~> 3.0, >= 3.0.1)
   database_cleaner-mongoid (~> 2.0, >= 2.0.1)
   devise (~> 4.5)

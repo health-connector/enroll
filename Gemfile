@@ -90,6 +90,7 @@ gem 'shakapacker', '~> 7.0'
 gem 'rubyXL'
 gem 'holidays', '~> 8.6'
 gem 'thor', '>= 1.4.0'
+gem "connection_pool", "< 3"
 
 #arm64 mac support
 gem 'ffi', '1.15.5'
