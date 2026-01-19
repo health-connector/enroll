@@ -1,5 +1,4 @@
-function applyJQDatePickerSetup(ele) {
-
+window.applyJQDatePickerSetup = function(ele) {
   var el = $(ele);
 
   if (el.is(".jq_datepicker_already_applied")) {
@@ -95,7 +94,7 @@ function applyJQDatePickerSetup(ele) {
   el.addClass("jq_datepicker_already_applied");
 }
 
-function applyJQDatePickers() {
+window.applyJQDatePickers = function() {
   $(".jq-datepicker").each(function(idx, ele) {
     applyJQDatePickerSetup(ele);
     if ($(this).attr("readonly") != undefined){

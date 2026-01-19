@@ -459,7 +459,7 @@ module ApplicationHelper
   end
 
   def digest_logos
-    carrier_logo_hash = Hash.new(carriers:{})
+    carrier_logo_hash = Hash.new({ carriers: {} })
     carriers = ::BenefitSponsors::Organizations::Organization.issuer_profiles
     carriers.each do |car|
       if Rails.env == "production"

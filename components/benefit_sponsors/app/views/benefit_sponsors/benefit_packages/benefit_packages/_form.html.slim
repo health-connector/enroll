@@ -30,7 +30,7 @@ h1.heading-text Benefit Package - Set Up
   = link_to 'Cancel', profiles_employers_employer_profile_path(@benefit_package_form.service.employer_profile, :tab=>'benefits'), :class => 'btn btn-default pull-right mr-1', id:'cancelBenefitPackage'
 
 javascript:
-  var disableSelectric = false;
+    window.disableSelectric = false;
 
 - if is_new_package || is_new_package.nil?
   javascript:

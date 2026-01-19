@@ -6,7 +6,6 @@ Rails.application.configure do
 
   config.enable_reloading = true
   # Verifies that versions and hashed value of the package contents in the project's package.json
-  config.shakapacker.check_yarn_integrity = true
 
   # Settings specified here will take precedence over those in config/application.rb.
 
@@ -38,8 +37,6 @@ Rails.application.configure do
   config.active_support.disallowed_deprecation = :raise
   # Tell Active Support which deprecation messages to disallow.
   config.active_support.disallowed_deprecation_warnings = []
-
-  config.shakapacker.check_yarn_integrity = false
 
   # Raise an error on page load if there are pending migrations.
   # config.active_record.migration_error = :page_load

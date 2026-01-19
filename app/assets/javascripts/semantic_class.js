@@ -1,5 +1,4 @@
-function semantic_class() {
-	// Adds semantic class to all input fields eg. interaction-field-control-person-first-name
+window.semantic_class = function() {// Adds semantic class to all input fields eg. interaction-field-control-person-first-name
 	$('input[type="text"], input[type="email"], input[type="password"]').each(function() {
 		var element_id = $.trim($(this).attr('id'));
 

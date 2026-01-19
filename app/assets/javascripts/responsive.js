@@ -1,4 +1,4 @@
-var Responsive = ( function( window, undefined ) {
+window.Responsive = ( function( window, undefined ) {
 
 	function setSizeListeners() {
     $(window).resize(function(){

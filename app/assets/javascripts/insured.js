@@ -1,4 +1,4 @@
-var Insured = ( function( window, undefined ) {
+window.Insured = ( function( window, undefined ) {
 
 function custom_upload_init () {
   var $file_input = $('.doc-upload-file');
