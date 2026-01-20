@@ -9,21 +9,20 @@ module Validations
           method_name = :"__valid_US_date_property_#{prop_name}"
 
           klass.define_method(method_name) do
-            d_value = send(prop_name)
+            d_value = public_send(prop_name)
+
+            return if allow_blank && d_value.blank?
+            return if d_value.blank?
 
             begin
               Date.strptime(d_value, "%m/%d/%Y")
-            rescue StandardError
+            rescue ArgumentError
               errors.add(prop_name, "invalid date: #{d_value}")
             end
           end
 
           klass.validate method_name
-
-          return if allow_blank
-
-          klass.validates_presence_of prop_name
-
+          klass.validates_presence_of prop_name unless allow_blank
         end
       end
     end
