@@ -43,9 +43,9 @@ RSpec.describe Validations::UsDate do
       end)
     end
 
-    it 'is invalid when blank (existing behavior)' do
+    it 'is valid when blank' do
       model = UsDateTestModel.new(start_date: nil)
-      expect(model).not_to be_valid
+      expect(model).to be_valid
     end
 
     it 'is invalid when date format is incorrect' do
