@@ -63,10 +63,10 @@ module BenefitSponsors
           coverage_eligibility_dates[m_en.member_id] = m_en.coverage_eligibility_on
         end
         sorted_members = roster_entry.members.sort_by do |rm|
-          coverage_age = age_calculator.calc_coverage_age_for(rm, roster_coverage.product, roster_coverage.coverage_start_on, coverage_eligibility_dates, roster_coverage.previous_product)
+          coverage_age = age_calculator.calc_coverage_age_for(rm, product, roster_coverage.coverage_start_on, coverage_eligibility_dates, roster_coverage.previous_product)
           [pricing_model.map_relationship_for(rm.relationship, coverage_age, rm.is_disabled?), rm.dob]
         end
-        calc_state = CalculatorState.new(age_calculator, roster_coverage.product, pricing_model, pricing_unit_map, roster_coverage, coverage_eligibility_dates)
+        calc_state = CalculatorState.new(age_calculator, product, pricing_model, pricing_unit_map, roster_coverage, coverage_eligibility_dates)
         calc_results = sorted_members.inject(calc_state) do |calc, mem|
           calc.add(mem)
         end
@@ -75,6 +75,12 @@ module BenefitSponsors
         end
         benefit_roster_entry.group_enrollment.product_cost_total = calc_results.total
         benefit_roster_entry
+      rescue StandardError => e
+        exception_message = "Unable to calculatee price for #{pricing_model}" \
+        " for benefit roster entry #{benefit_roster_entry}. Error: #{e}"
+        Rails.logger.error(exception_message)
+        puts(exception_message)
+        nil
       end
 
       def pricing_unit_map_for(pricing_model)
