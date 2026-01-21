@@ -54,7 +54,7 @@ gem 'mongoid', '~> 9'
 gem 'mongoid-autoinc', git: 'https://github.com/suweller/mongoid-autoinc', ref: '73a3a95c6e36868cee8d28343ca218a8d60eca29'
 gem 'mongoid-history', '~> 0.8'
 # gem 'mongoid-versioning'
-gem 'mongoid_rails_migrations', '1.2.1'
+gem 'mongoid_rails_migrations', '~> 1.2'
 gem 'nokogiri', '~> 1.18.9'
 gem 'nokogiri-happymapper', '~> 0.8.0', :require => 'happymapper'
 gem 'mongoid_userstamp', '~> 0.4', :path => "./project_gems/mongoid_userstamp-0.4.0"

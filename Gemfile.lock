@@ -1858,6 +1858,7 @@ GEM
       thread_safe (~> 0.3, >= 0.3.1)
     base64 (0.3.0)
     bcrypt (3.1.20)
+    benchmark (0.5.0)
     benchmark-malloc (0.2.0)
     benchmark-perf (0.6.0)
     benchmark-trend (0.4.0)
@@ -1963,7 +1964,7 @@ GEM
     config (5.5.2)
       deep_merge (~> 1.2, >= 1.2.1)
       ostruct
-    connection_pool (2.5.4)
+    connection_pool (2.5.5)
     crack (1.0.0)
       bigdecimal
       rexml
@@ -2109,7 +2110,7 @@ GEM
       csv
       mini_mime (>= 1.0.0)
       multi_xml (>= 0.5.2)
-    i18n (1.14.7)
+    i18n (1.14.8)
       concurrent-ruby (~> 1.0)
     ice_cube (0.17.0)
     ice_nine (0.11.2)
@@ -2140,7 +2141,7 @@ GEM
       turbolinks
     jquery-ui-rails (8.0.0)
       railties (>= 3.2.16)
-    json (2.7.2)
+    json (2.18.0)
     json-schema (5.0.1)
       addressable (~> 2.8)
     jsonapi-renderer (0.2.2)
@@ -2185,7 +2186,7 @@ GEM
     mini_magick (4.13.2)
     mini_mime (1.1.5)
     mini_portile2 (2.8.9)
-    minitest (6.0.0)
+    minitest (6.0.1)
       prism (~> 1.5)
     monetize (1.13.0)
       money (~> 6.12)
@@ -2196,7 +2197,8 @@ GEM
       monetize (~> 1.9)
       money (~> 6.13)
       railties (>= 3.0)
-    mongo (2.20.1)
+    mongo (2.22.0)
+      base64
       bson (>= 4.14.1, < 6.0.0)
     mongo_session_store (3.2.1)
       actionpack (>= 4.0)
@@ -2219,10 +2221,11 @@ GEM
     mongoid-rspec (4.2.0)
       mongoid (>= 3.0, < 10.0)
       mongoid-compatibility (>= 0.5.1)
-    mongoid_rails_migrations (1.2.1)
+    mongoid_rails_migrations (1.6.2)
       activesupport (>= 4.2.0)
+      benchmark
       bundler (>= 1.0.0)
-      mongoid (>= 4.0.0)
+      mongoid (>= 5.0.0, != 9.0.2, != 9.0.1, != 9.0.0)
       rails (>= 4.2.0)
       railties (>= 4.2.0)
     mono_logger (1.1.2)
@@ -2289,7 +2292,7 @@ GEM
     pp (0.6.3)
       prettyprint
     prettyprint (0.2.0)
-    prism (1.7.0)
+    prism (1.8.0)
     pry (0.14.2)
       coderay (~> 1.1)
       method_source (~> 1.0)
@@ -2535,7 +2538,7 @@ GEM
     terrapin (0.6.0)
       climate_control (>= 0.0.3, < 1.0)
     test-prof (1.3.3.1)
-    thor (1.4.0)
+    thor (1.5.0)
     thread_safe (0.3.6)
     tilt (2.6.1)
     timeout (0.6.0)
@@ -2662,7 +2665,7 @@ DEPENDENCIES
   mongoid-autoinc!
   mongoid-history (~> 0.8)
   mongoid-rspec (~> 4.2)
-  mongoid_rails_migrations (= 1.2.1)
+  mongoid_rails_migrations (~> 1.2)
   mongoid_userstamp (~> 0.4)!
   net-imap (>= 0.4.20)
   newrelic_rpm (~> 9.6)
