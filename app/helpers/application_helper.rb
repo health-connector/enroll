@@ -518,16 +518,18 @@ module ApplicationHelper
   end
 
   def enrollment_progress_bar(plan_year, p_min, options = {:minimum => true})
+    start_time = Time.now.to_i
+    Rails.logger.debug("** Started enrollment_progress_bar with start_time - #{start_time}")
     progress_bar_width = 0
     progress_bar_class = ''
     return if plan_year.nil?
-    return if plan_year.employer_profile.census_employees.active.count > 200
+    return if plan_year.sponsor_profile.census_employees.active.count > 200
 
-    eligible = plan_year.eligible_to_enroll_count
-    enrolled = plan_year.total_enrolled_count
+    eligible = plan_year.members_eligible_to_enroll_count
+    enrolled = plan_year.all_enrolled_and_waived_member_count
     non_owner = plan_year.progressbar_enrolled_non_business_owner_members.count
     covered = plan_year.progressbar_covered_count
-    waived = plan_year.waived_count
+    waived = plan_year.waived_member_count
     p_min = 0 if p_min.nil?
 
     unless eligible.zero?
@@ -536,6 +538,8 @@ module ApplicationHelper
       progress_bar_class = condition ? 'progress-bar-success' : 'progress-bar-danger'
       progress_bar_width = (enrolled * 100)/eligible
     end
+
+    Rails.logger.debug("** Data fetch complete enrollment_progress_bar and took - #{(Time.now.to_i - start_time).to_i} seconds")
 
     content_tag(:div, class: 'progress-wrapper employer-dummy') do
       content_tag(:div, class: 'progress') do
@@ -555,6 +559,7 @@ module ApplicationHelper
         concat(content_tag(:div, class: 'progress-val') do
           concat content_tag(:strong, '0', class: 'pull-left') if (options[:minimum] == false)
           concat content_tag(:strong, (options[:minimum] == false) ? eligible : '', data: {value: "#{eligible}"}, class: 'pull-right')
+          Rails.logger.debug("** content_tag complete enrollment_progress_bar and took - #{(Time.now.to_i - start_time).to_i} seconds")
         end)
       end
     end
