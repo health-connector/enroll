@@ -17,6 +17,8 @@ Rails.application.configure do
   config.consider_all_requests_local = ENV.fetch('ENROLL_REVIEW_ENVIRONMENT', nil) == 'true'
   config.action_controller.perform_caching = true
 
+  config.active_job.queue_adapter = :resque
+
   # Enable Rack::Cache to put a simple HTTP cache in front of your application
   # Add `rack-cache` to your Gemfile before enabling this.
   # For large-scale production use, consider using a caching reverse proxy like
