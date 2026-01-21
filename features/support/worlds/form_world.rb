@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'benchmark'
+
 module FormWorld
   def fill_in_admin_create_plan_year_form
     first_element = find("#baStartDate > option:nth-child(2)").text
