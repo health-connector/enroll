@@ -95,6 +95,18 @@
     "false_positive": true,
     "ignored_at": "2025-06-24T16:31:10Z"
   },
+  "8dbb50137357262ff78f73c4560fc1c3_1": {
+    "author": "Jacob Yarborough",
+    "comment": "\"This is flagged as 'Leakage of sensitive data in a dynamic file generation [CWE-313]' but the code is expected to generate CSV files with the given data with sensitive information\"",
+    "false_positive": true,
+    "ignored_at": "2025-11-24T23:16:57Z"
+  },
+  "8dbb50137357262ff78f73c4560fc1c3_2": {
+    "author": "Jacob Yarborough",
+    "comment": "This is flagged as 'Leakage of sensitive data in a dynamic file generation [CWE-313]' but the code is expected to generate CSV files with the given data with sensitive information",
+    "false_positive": true,
+    "ignored_at": "2025-11-24T23:23:46Z"
+  },
   "9e42fed1f95e343e3929466a68ed31a9_1": {
     "author": "Hanna",
     "comment": "This is flagges as 'Leakage of sensitive data in dynamic file generation [CWE-313]' but the code is expected to generate CSV files with the given data with sensitive information.",
