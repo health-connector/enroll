@@ -11,7 +11,7 @@ class Users::PasswordsController < Devise::PasswordsController
     yield resource if block_given?
 
     if successfully_sent?(resource)
-      resource.security_question_responses.destroy_all
+      resource.security_question_responses.destroy_all if current_user&.has_role?('hbx_staff')
       show_generic_forgot_password_text
 
       respond_to do |format|
