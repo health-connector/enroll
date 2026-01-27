@@ -640,11 +640,6 @@ module BenefitSponsors
 
         context '.active_census_employees_under_py', dbclean: :after_each do
 
-          before :each do
-            renewal_application.benefit_packages.first.update_attributes!(_id: CensusEmployee.all.first.benefit_group_assignments.first.benefit_package_id)
-            census_employee.reload
-          end
-
           it 'should not return the terminated EEs' do
             expect(renewal_application.active_census_employees_under_py.count).to eq 5
             term_date = renewal_application.effective_period.min - 10.days

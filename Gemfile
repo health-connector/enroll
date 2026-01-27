@@ -3,7 +3,7 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby '3.2.5'
+ruby '3.4.7'
 
 gem "benefit_markets",    path: "components/benefit_markets"
 gem "benefit_sponsors",   path: "components/benefit_sponsors"
@@ -50,11 +50,11 @@ gem 'mail', '~> 2.7'
 gem 'maskedinput-rails'
 gem 'money-rails', '~> 1.13'
 gem 'mongo_session_store', '~> 3.1'
-gem 'mongoid', '~> 8.1.5'
-gem 'mongoid-autoinc', '~> 6.0'
+gem 'mongoid', '~> 9'
+gem 'mongoid-autoinc', git: 'https://github.com/suweller/mongoid-autoinc', ref: '73a3a95c6e36868cee8d28343ca218a8d60eca29'
 gem 'mongoid-history', '~> 0.8'
 # gem 'mongoid-versioning'
-gem 'mongoid_rails_migrations', '1.2.1'
+gem 'mongoid_rails_migrations', '~> 1.2'
 gem 'nokogiri', '~> 1.18.9'
 gem 'nokogiri-happymapper', '~> 0.8.0', :require => 'happymapper'
 gem 'mongoid_userstamp', '~> 0.4', :path => "./project_gems/mongoid_userstamp-0.4.0"
@@ -64,11 +64,12 @@ gem 'openhbx_cv2', git: 'https://github.com/ideacrew/openhbx_cv2.git', branch: '
 gem 'resource_registry',  git:  'https://github.com/ideacrew/resource_registry.git', tag: 'v0.10.1'
 gem 'prawn', :git => 'https://github.com/prawnpdf/prawn.git', :ref => '8028ca0cd2'
 gem 'pundit', '~> 2.0'
-gem 'rails', '~> 7.2', '>= 7.2.3'
-gem 'rails-i18n', '7.0.9'
+gem 'rails', '~> 8.1', '>= 8.1.2'
+gem 'rails-i18n', '~> 8.0.0'
 gem 'recurring_select', '~> 3.0'
 gem "recaptcha", '~> 4.13', require: 'recaptcha/rails'
-gem 'redis-rails'
+gem 'redis', '>= 4.0'
+gem 'hiredis' # Optional but recommended for performance in Rails 8
 gem 'rack', '>= 3.2.3'
 gem 'resque'
 gem 'sinatra', '>= 4.2.0' # update sub-dependency for resque
@@ -89,6 +90,7 @@ gem 'shakapacker', '~> 7.0'
 gem 'rubyXL'
 gem 'holidays', '~> 8.6'
 gem 'thor', '>= 1.4.0'
+gem "connection_pool", "< 3"
 
 #arm64 mac support
 gem 'ffi', '1.15.5'
@@ -103,6 +105,8 @@ gem 'sass-rails', '~> 6.0'
 gem 'config',                   '~> 5.5', '>= 5.5.2'
 gem 'rack-cors'
 gem 'puma', '~> 6.6.0'
+gem "observer"
+gem "openssl"
 
 #######################################################
 # Removed gems

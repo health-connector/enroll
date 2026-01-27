@@ -24,7 +24,10 @@ module SponsoredBenefits
           :sic_code => sic_code,
           :rating_area => rating_area,
           :estimate_group_size? => true
-        )
+        ).tap do |os|
+          # Define a no-op touch method on this specific instance
+          def os.touch(*args); false; end
+        end
       end
 
       def employee_costs_for_reference_plan(service, plan = reference_plan)
