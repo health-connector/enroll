@@ -87,7 +87,7 @@ class Employers::EmployerAttestationsController < ApplicationController
   def delete_attestation_documents
     authorize @employer_profile
     begin
-      @employer_profile.employer_attestation.employer_attestation_documents.where(:id =>params[:employer_attestation_id],:aasm_state => "submitted").delete_all
+      @employer_profile.employer_attestation.employer_attestation_documents.where(:id => params[:employer_attestation_id],:aasm_state => "submitted").delete_all
       @employer_profile.employer_attestation.revert! if @employer_profile.employer_attestation.may_revert?
       redirect_to benefit_sponsors.profiles_employers_employer_profile_path(@employer_profile.id, :tab=>'documents')
     rescue => e

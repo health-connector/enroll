@@ -27,8 +27,7 @@ module SponsoredBenefits
           :rating_area => rating_area,
           :estimate_group_size? => true
         ).tap do |_os|
-          # Define a no-op touch method on this specific instance
-          def touch(*_args) = false
+          os.define_singleton_method(:touch) { |*_args| false }
         end
       end
 
