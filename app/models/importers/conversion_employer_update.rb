@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Importers
   class ConversionEmployerUpdate < ConversionEmployer
 
@@ -33,26 +35,26 @@ module Importers
 
     def has_organization_info_changed?
       organization = find_organization
-      return unless organization.present? && (organization.updated_at - organization.created_at) > 0.5.second
+      return false unless organization.present? && (organization.updated_at - organization.created_at) > 0.5.second
 
       errors.add(:organization, "import cannot be done as organization info was updated on #{organization.updated_at}")
     end
 
     def has_employer_info_changed?
-      return unless employer_profile.present? && (employer_profile.updated_at - employer_profile.created_at) > 0.5.second
+      return false unless employer_profile.present? && (employer_profile.updated_at - employer_profile.created_at) > 0.5.second
 
       errors.add(:employer_profile, "import cannot be done as employer updated the info on #{employer_profile.updated_at}")
     end
 
     def has_broker_agency_profile_info_changed?
-      return unless broker_agency_profile.present? && (broker_agency_profile.updated_at - broker_agency_profile.created_at) > 0.5.second
+      return false unless broker_agency_profile.present? && (broker_agency_profile.updated_at - broker_agency_profile.created_at) > 0.5.second
 
       errors.add(:broker_agency_profile, "import cannot be done as broker agency profile was updated on #{employer_profile.updated_at}")
     end
 
     def has_office_locations_changed?
       organization = find_organization
-      return unless organization.present?
+      return false unless organization.present?
 
       organization.office_locations.each do |office_location|
         address = office_location.try(:address)
@@ -95,7 +97,7 @@ module Importers
               end
 
               general_agency_account.update_attributes(:aasm_state => 'active') if general_agency_account.inactive?
-            elsif new_account = assign_general_agencies.first
+            elsif (new_account = assign_general_agencies.first)
               organization.employer_profile.general_agency_accounts.each{|ac| ac.terminate! if ac.may_terminate? }
               organization.employer_profile.general_agency_accounts << new_account
             end
