@@ -15,6 +15,8 @@ module SponsoredBenefits
     class BenefitSponsorship
       include Mongoid::Document
       include Mongoid::Timestamps
+      include Mongoid::RecursiveEmbeddedValidation
+
       # include Concerns::Observable
 
       ENROLLMENT_FREQUENCY_KINDS = [ :annual, :rolling_month ]
@@ -38,7 +40,7 @@ module SponsoredBenefits
       field :enrollment_frequency, type: Symbol, default: :rolling_month
       field :contact_method, type: String, default: "Paper and Electronic communications"
 
-      embeds_many :benefit_applications, class_name: "SponsoredBenefits::BenefitApplications::BenefitApplication"
+      embeds_many :benefit_applications, class_name: "SponsoredBenefits::BenefitApplications::BenefitApplication", validate: true, cascade_callbacks: true
 
       validates_presence_of :benefit_market, :contact_method
 
