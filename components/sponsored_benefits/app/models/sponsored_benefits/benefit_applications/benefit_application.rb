@@ -3,6 +3,7 @@ module SponsoredBenefits
     class BenefitApplication
       include Mongoid::Document
       include Mongoid::Timestamps
+      include Mongoid::RecursiveEmbeddedValidation
 
       embedded_in :benefit_sponsorship, class_name: "SponsoredBenefits::BenefitSponsorships::BenefitSponsorship"
 
@@ -35,7 +36,8 @@ module SponsoredBenefits
 
       # has_one :rosterable, as: :rosterable
 
-      embeds_many :benefit_groups, class_name: "SponsoredBenefits::BenefitApplications::BenefitGroup", cascade_callbacks: true
+      embeds_many :benefit_groups, class_name: "SponsoredBenefits::BenefitApplications::BenefitGroup", cascade_callbacks: true, validate: true
+      validates_associated :benefit_groups
 
       # embeds_many :benefit_packages, as: :benefit_packageable, class_name: "SponsoredBenefits::BenefitPackages::BenefitPackage"
       # accepts_nested_attributes_for :benefit_packages
