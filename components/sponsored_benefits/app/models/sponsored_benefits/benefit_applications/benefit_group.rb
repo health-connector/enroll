@@ -26,7 +26,7 @@ module SponsoredBenefits
           :sic_code => sic_code,
           :rating_area => rating_area,
           :estimate_group_size? => true
-        ).tap do |_os|
+        ).tap do |os|
           os.define_singleton_method(:touch) { |*_args| false }
         end
       end
