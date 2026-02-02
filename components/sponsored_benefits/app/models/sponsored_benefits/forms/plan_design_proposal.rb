@@ -115,8 +115,8 @@ module SponsoredBenefits
         if @proposal.persisted?
           @proposal.assign_attributes(title: @title)
         else
-          profile = SponsoredBenefits::Organizations::AcaShopCcaEmployerProfile.new({sic_code: @sic_code})
-          @proposal = @plan_design_organization.plan_design_proposals.build({title: @title, profile: profile})
+          @proposal.assign_attributes(title: @title)
+          @proposal.profile = SponsoredBenefits::Organizations::AcaShopCcaEmployerProfile.new({sic_code: @sic_code})
         end
 
         sponsorship = @proposal.profile.benefit_sponsorships.first
