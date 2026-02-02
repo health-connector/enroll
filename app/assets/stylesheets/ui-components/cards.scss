@@ -640,13 +640,20 @@
   line-height:1.1em;
 }
 
-#estimatedEmployeeCostDetailsLink:hover {
-  color: #23527c;
-  text-decoration: underline;
-  padding: 0 3px;
-}
-
 .btn-link.btn-anchor {
   padding: 0 3px;
   vertical-align: baseline;
+}
+
+// Estimated Employee Cost
+.text-est-emp-cost {
+  margin: auto;
+  padding: 10px;
+}
+
+.heading-est-emp-cost {
+  padding-left: 5px;;
+  font-weight: bold;
+  color: $primary-orange;
+  font-size: 18px;
 }
