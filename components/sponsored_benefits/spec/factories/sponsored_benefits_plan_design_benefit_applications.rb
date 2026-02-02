@@ -7,7 +7,7 @@ FactoryBot.define do
 
     trait :with_benefit_group do
       after(:create) do |application, _evaluator|
-        FactoryBot.build(:sponsored_benefits_benefit_applications_benefit_group, benefit_application: application)
+        FactoryBot.create(:sponsored_benefits_benefit_applications_benefit_group, benefit_application: application)
       end
     end
 
