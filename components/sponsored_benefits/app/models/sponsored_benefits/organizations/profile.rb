@@ -4,6 +4,7 @@ module SponsoredBenefits
     class Profile
       include Mongoid::Document
       include Mongoid::Timestamps
+      include Mongoid::RecursiveEmbeddedValidation
 
       embedded_in :organization, class_name: "SponsoredBenefits::Organizations::Organization"
 
@@ -22,7 +23,7 @@ module SponsoredBenefits
 
 
       # Only one benefit_sponsorship may be active.  Enable many to support changes and history tracking
-      embeds_many :benefit_sponsorships, as: :benefit_sponsorable, class_name: "SponsoredBenefits::BenefitSponsorships::BenefitSponsorship"
+      embeds_many :benefit_sponsorships, as: :benefit_sponsorable, class_name: "SponsoredBenefits::BenefitSponsorships::BenefitSponsorship", validate: true, cascade_callbacks: true
       embeds_many :office_locations, class_name:"SponsoredBenefits::Organizations::OfficeLocation"
 
       def plan_design_organization

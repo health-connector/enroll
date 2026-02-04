@@ -68,7 +68,7 @@ Rails.application.configure do
   #:namespace => "cache",
   #:expires_in => 90.minutes }
 
-  config.cache_store = :redis_store, "redis://#{ENV.fetch('REDIS_HOST_ENROLL', nil)}:6379", {  }
+  config.cache_store = :redis_cache_store, { url: "redis://#{ENV.fetch('REDIS_HOST_ENROLL', nil)}:6379" }
 
   # Enable serving of images, stylesheets, and JavaScripts from an asset server.
   # config.action_controller.asset_host = 'http://assets.example.com'

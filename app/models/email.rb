@@ -4,7 +4,7 @@ class Email
 
   include Validations::Email
 
-  embedded_in :person
+  embedded_in :person, touch: false
   embedded_in :office_location
   embedded_in :census_member, class_name: "CensusMember"
 

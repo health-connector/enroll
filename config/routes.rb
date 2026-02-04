@@ -33,9 +33,22 @@ Rails.application.routes.draw do
     post "/security_question_responses/replace", controller: "users/security_question_responses", action: 'replace'
 
     member do
-      get :reset_password, :lockable, :confirm_lock, :login_history, :edit, :change_username_and_email
-      put :confirm_reset_password, :confirm_change_username_and_email, :update
-      post :unlock, :change_password
+      # GET routes
+      get :reset_password
+      get :lockable
+      get :confirm_lock
+      get :login_history
+      get :edit
+      get :change_username_and_email
+
+      # PUT routes
+      put :confirm_reset_password
+      put :confirm_change_username_and_email
+      put :update
+
+      # POST routes
+      post :unlock
+      post :change_password
     end
   end
 

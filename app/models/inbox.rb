@@ -6,7 +6,7 @@ class Inbox
   field :access_key, type: String
 
   # Enable polymorphic associations
-  embedded_in :recipient, polymorphic: true
+  embedded_in :recipient, polymorphic: true, touch: false
   embeds_many :messages
   accepts_nested_attributes_for :messages
 
