@@ -106,7 +106,7 @@ module SponsoredBenefits
     end
 
     class_methods do
-      PROFILE_KINDS = [:plan_design_profile, :employer_profile, :broker_agency_profile, :general_agency_profile]
+      PROFILE_KINDS = [:plan_design_profile, :employer_profile, :broker_agency_profile]
       ENTITY_KINDS = [
         "tax_exempt_organization",
         "c_corporation",

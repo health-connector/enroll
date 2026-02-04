@@ -60,7 +60,7 @@ class CcaEmployerProfilesMigration < Mongoid::Migration
           if existing_new_organizations.count == 0
             @old_profile = old_org.employer_profile
 
-            json_data = @old_profile.to_json(:except => [:_id,:xml_transmitted_timestamp, :entity_kind, :profile_source, :aasm_state, :registered_on, :contact_method, :employer_attestation, :broker_agency_accounts, :general_agency_accounts, :employer_profile_account, :plan_years, :updated_by_id, :workflow_state_transitions, :inbox, :documents])
+            json_data = @old_profile.to_json(:except => [:_id,:xml_transmitted_timestamp, :entity_kind, :profile_source, :aasm_state, :registered_on, :contact_method, :employer_attestation, :broker_agency_accounts, :employer_profile_account, :plan_years, :updated_by_id, :workflow_state_transitions, :inbox, :documents])
             old_profile_params = JSON.parse(json_data)
 
             @new_profile = initialize_new_profile(old_org, old_profile_params)
@@ -262,7 +262,7 @@ class CcaEmployerProfilesMigration < Mongoid::Migration
   end
 
   def self.initialize_new_organization(organization, site)
-    json_data = organization.to_json(:except => [:_id, :updated_by_id, :issuer_assigned_id, :version, :versions, :employer_profile, :broker_agency_profile, :general_agency_profile, :carrier_profile, :hbx_profile, :office_locations, :is_fake_fein, :is_active, :updated_by, :documents])
+    json_data = organization.to_json(:except => [:_id, :updated_by_id, :issuer_assigned_id, :version, :versions, :employer_profile, :broker_agency_profile, :carrier_profile, :hbx_profile, :office_locations, :is_fake_fein, :is_active, :updated_by, :documents])
     old_org_params = JSON.parse(json_data)
     general_organization = BenefitSponsors::Organizations::GeneralOrganization.new(old_org_params)
     general_organization.entity_kind = @old_profile.entity_kind.to_sym

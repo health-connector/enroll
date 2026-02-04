@@ -46,7 +46,7 @@ module BenefitSponsors
 
         def can_edit?
           if is_employer_profile?
-            return true if (service.is_broker_for_employer?(user, record) || service.is_general_agency_staff_for_employer?(user, record))
+            return true if service.is_broker_for_employer?(user, record)
           end
           service.is_staff_for_agency?(user, record)
         end

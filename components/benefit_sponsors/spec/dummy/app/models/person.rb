@@ -58,7 +58,6 @@ class Person
   embeds_one :assister_role, cascade_callbacks: true, validate: true
   embeds_one :hbx_staff_role, cascade_callbacks: true, validate: true
   embeds_many :broker_agency_staff_roles, cascade_callbacks: true, validate: true
-  embeds_many :general_agency_staff_roles, cascade_callbacks: true, validate: true
   embeds_many :employer_staff_roles, cascade_callbacks: true, validate: true
   embeds_many :addresses, cascade_callbacks: true, validate: true
   embeds_many :phones, cascade_callbacks: true, validate: true
@@ -357,7 +356,7 @@ class Person
   end
 
   def agent?
-    agent = self.csr_role || self.assister_role || self.broker_role || self.hbx_staff_role || self.general_agency_staff_roles.present?
+    agent = self.csr_role || self.assister_role || self.broker_role || self.hbx_staff_role
     !!agent
   end
 

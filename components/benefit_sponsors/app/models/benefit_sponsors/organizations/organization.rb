@@ -124,7 +124,6 @@ module BenefitSponsors
       scope :hbx_profiles,            ->{ where(:"profiles._type" => /.*HbxProfile$/) }
       scope :employer_profiles,       ->{ where(:"profiles._type" => /.*EmployerProfile$/) }
       scope :broker_agency_profiles,  ->{ where(:"profiles._type" => /.*BrokerAgencyProfile$/) }
-      scope :general_agency_profiles, ->{ where(:"profiles._type" => /.*GeneralAgencyProfile$/) }
       scope :issuer_profiles,         ->{ where(:"profiles._type" => /.*IssuerProfile$/) }
 
       scope :broker_agencies_by_market_kind,  ->(market_kind) { broker_agency_profiles.any_in(:"profiles.market_kind" => market_kind) }

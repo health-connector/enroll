@@ -7,10 +7,9 @@ class Document
   include EnrollObservable
 
   RESOURCE_LIST = %w[BenefitSponsors::Organizations::AcaShopDcEmployerProfile
-                     BenefitSponsors::Organizations::FehbEmployerProfile
-                     BenefitSponsors::Organizations::AcaShopCcaEmployerProfile
-                     BenefitSponsors::Organizations::GeneralAgencyProfile
-                     EmployeeRole Person ConsumerRole].freeze
+                    BenefitSponsors::Organizations::FehbEmployerProfile
+                    BenefitSponsors::Organizations::AcaShopCcaEmployerProfile
+                    EmployeeRole Person ConsumerRole].freeze
 
   MODEL_CLASS_MAPPING = {
     "BenefitSponsors::Organizations::AcaShopDcEmployerProfile" => BenefitSponsors::Organizations::AcaShopDcEmployerProfile,

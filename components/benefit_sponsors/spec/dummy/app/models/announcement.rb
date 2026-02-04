@@ -3,7 +3,7 @@ class Announcement
   include SetCurrentUser
   include Mongoid::Timestamps
 
-  AUDIENCE_KINDS = %W{Employer Employee IVL Broker GA Webpage}
+  AUDIENCE_KINDS = %W{Employer Employee IVL Broker Webpage}
 
   field :content, type: String
   field :start_date, type: Date
@@ -63,8 +63,6 @@ class Announcement
         announcements.concat(Announcement.current_msg_for_ivl) if person && person.has_active_consumer_role?
       when portal_path.include?("broker_agencies")
         announcements.concat(Announcement.current_msg_for_broker)
-      when portal_path.include?("general_agencies")
-        announcements.concat(Announcement.current_msg_for_ga)
       end
 
       announcements.uniq
