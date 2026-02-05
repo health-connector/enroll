@@ -16,7 +16,7 @@ module Dry
       def is_a?(klass)
         ::Object.instance_method(:is_a?).bind(self).call(klass)
       end
-      alias_method :kind_of?, :is_a?
+      alias kind_of? is_a?
 
       def instance_of?(klass)
         ::Object.instance_method(:instance_of?).bind(self).call(klass)

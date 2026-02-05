@@ -57,7 +57,7 @@ class Family
   before_save :clear_blank_fields
 
   accepts_nested_attributes_for :special_enrollment_periods, :family_members, :irs_groups,
-                               :households, :broker_agency_accounts
+                                :households, :broker_agency_accounts
 
   # index({hbx_assigned_id: 1}, {unique: true})
   index({e_case_id: 1}, { sparse: true })

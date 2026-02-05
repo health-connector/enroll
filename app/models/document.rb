@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Document
   include Mongoid::Document
   include Mongoid::Timestamps
@@ -7,9 +9,9 @@ class Document
   include EnrollObservable
 
   RESOURCE_LIST = %w[BenefitSponsors::Organizations::AcaShopDcEmployerProfile
-                    BenefitSponsors::Organizations::FehbEmployerProfile
-                    BenefitSponsors::Organizations::AcaShopCcaEmployerProfile
-                    EmployeeRole Person ConsumerRole].freeze
+                     BenefitSponsors::Organizations::FehbEmployerProfile
+                     BenefitSponsors::Organizations::AcaShopCcaEmployerProfile
+                     EmployeeRole Person ConsumerRole].freeze
 
   MODEL_CLASS_MAPPING = {
     "BenefitSponsors::Organizations::AcaShopDcEmployerProfile" => BenefitSponsors::Organizations::AcaShopDcEmployerProfile,
@@ -20,7 +22,7 @@ class Document
     "ConsumerRole" => ConsumerRole
   }.freeze
 
-  ACCESS_RIGHTS = %w(public pii_restricted)
+  ACCESS_RIGHTS = %w[public pii_restricted].freeze
 
   after_save :notify_on_save
 
@@ -79,7 +81,7 @@ class Document
   validates_presence_of :title, :creator, :publisher, :type, :format, :source, :language
 
   validates :rights,
-    allow_blank: true,
-    inclusion: { in: ACCESS_RIGHTS, message: "%{value} is not a valid access right" }
+            allow_blank: true,
+            inclusion: { in: ACCESS_RIGHTS, message: "%<value>s is not a valid access right" }
 
 end

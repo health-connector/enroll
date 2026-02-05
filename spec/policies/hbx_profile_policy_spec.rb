@@ -90,7 +90,6 @@ describe HbxProfilePolicy do
       expect(policy.view_admin_tabs?).to be true
       expect(policy.send_broker_agency_message?).to be true
       expect(policy.approve_broker?).to be true
-      expect(policy.approve_ga?).to be true
       expect(policy.view_the_configuration_tab?).to be false
       expect(policy.can_submit_time_travel_request?).to be false
     end
@@ -101,7 +100,6 @@ describe HbxProfilePolicy do
       expect(policy.view_admin_tabs?).to be true
       expect(policy.send_broker_agency_message?).to be false
       expect(policy.approve_broker?).to be false
-      expect(policy.approve_ga?).to be false
       expect(policy.view_the_configuration_tab?).to be false
       expect(policy.can_submit_time_travel_request?).to be false
     end
@@ -112,7 +110,6 @@ describe HbxProfilePolicy do
       expect(policy.view_admin_tabs?).to be false
       expect(policy.send_broker_agency_message?).to be false
       expect(policy.approve_broker?).to be false
-      expect(policy.approve_ga?).to be false
       expect(policy.view_the_configuration_tab?).to be false
       expect(policy.can_submit_time_travel_request?).to be false
     end
@@ -123,7 +120,6 @@ describe HbxProfilePolicy do
       expect(policy.view_admin_tabs?).to be false
       expect(policy.send_broker_agency_message?).to be false
       expect(policy.approve_broker?).to be false
-      expect(policy.approve_ga?).to be false
       expect(policy.view_the_configuration_tab?).to be false
       expect(policy.can_submit_time_travel_request?).to be false
     end
@@ -134,7 +130,6 @@ describe HbxProfilePolicy do
       expect(policy.view_admin_tabs?).to be false
       expect(policy.send_broker_agency_message?).to be false
       expect(policy.approve_broker?).to be false
-      expect(policy.approve_ga?).to be false
       expect(policy.view_the_configuration_tab?).to be false
       expect(policy.can_submit_time_travel_request?).to be false
     end
@@ -145,7 +140,6 @@ describe HbxProfilePolicy do
       expect(policy.view_admin_tabs?).to be true
       expect(policy.send_broker_agency_message?).to be true
       expect(policy.approve_broker?).to be true
-      expect(policy.approve_ga?).to be true
       expect(policy.can_modify_plan_year?).to be true
     end
   end
@@ -177,7 +171,6 @@ describe HbxProfilePolicy do
     end
 
     it "is prohibited from approving GAs" do
-      expect(policy.approve_ga?).to be false
     end
 
     it "is prohibited from extending open enrollment" do

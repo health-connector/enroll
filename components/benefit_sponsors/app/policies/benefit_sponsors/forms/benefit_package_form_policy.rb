@@ -11,16 +11,19 @@ module BenefitSponsors
 
       def updateable?
         return false unless user.present?
-      return true if is_broker_for_employer?
+        return true if is_broker_for_employer?
         return true unless role = user && user.person && user.person.hbx_staff_role
+
         role.permission.modify_employer
       end
 
       def is_broker_for_employer?
         broker_role = user.person.broker_role
         return false unless broker_role
+
         employer = benefit_package_form.service.employer_profile
         return false unless employer
+
         employer.broker_agency_accounts.any? { |account| account.writing_agent_id == broker_role.id }
       end
 
