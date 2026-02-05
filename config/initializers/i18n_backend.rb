@@ -1,9 +1,15 @@
 # frozen_string_literal: true
 
 require 'mongo_i18n'
-Rails.application.config.to_prepare do
-  I18n.backend = I18n::Backend::Chain.new(I18n::Backend::KeyValue.new(MongoI18n.store), I18n.backend)
+
+# Skip MongoDB I18n backend setup for console to speed up boot
+# Uses file-based I18n which is sufficient for console operations
+unless defined?(Rails::Console)
+  Rails.application.config.to_prepare do
+    I18n.backend = I18n::Backend::Chain.new(I18n::Backend::KeyValue.new(MongoI18n.store), I18n.backend)
+  end
 end
+
 module I18n
   module Backend
     module Cache
