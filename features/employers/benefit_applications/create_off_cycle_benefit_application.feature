@@ -2,7 +2,6 @@ Feature: Ability for employer to create an off-cycle benefit application and all
 
   Background: Setup site, employer, and benefit market catalogs
     Given a CCA site exists with a benefit market
-    And SAFE benefit market catalog exists for enrollment_open renewal employer with health benefits
     Given Continuous plan shopping is turned off
     And there is an employer ABC Widgets
     And ABC Widgets employer has a staff role
@@ -52,7 +51,6 @@ Feature: Ability for employer to create an off-cycle benefit application and all
       And census employee Patrick Doe has benefit group assignment of the off cycle benefit application
       And staff role person clicked on benefits tab
       When Employer clicks on publish plan year
-      And product rate caches are initialized
       And user logs out
       And employee Patrick Doe already matched with employer ABC Widgets and logged into employee portal
       When Patrick Doe clicks "Shop for Plans" on my account page
@@ -110,7 +108,6 @@ Feature: Ability for employer to create an off-cycle benefit application and all
       And census employee Patrick Doe has benefit group assignment of the off cycle benefit application
       And staff role person clicked on benefits tab
       When Employer clicks on publish plan year
-      And product rate caches are initialized
       And user logs out
       And employee Patrick Doe already matched with employer ABC Widgets and logged into employee portal
       When Patrick Doe clicks "Shop for Plans" on my account page
