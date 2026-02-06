@@ -145,7 +145,7 @@ class CcaEmployerProfilesMigration < Mongoid::Migration
           existing_organization += 1
           csv << [old_org.hbx_id, old_org.legal_name, existing_new_organizations.first.id, "Already Migrated to new model, handled MPY employer scenario"]
         end
-      rescue Exception => e
+      rescue StandardError => e
         failed += 1
         print 'F' unless Rails.env.test?
         csv << [old_org.hbx_id, old_org.legal_name, "0", "Migration Failed"]

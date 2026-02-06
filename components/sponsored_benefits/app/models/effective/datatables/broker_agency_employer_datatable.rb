@@ -9,6 +9,7 @@ module Effective
       datatable do
         if individual_market_is_enabled?
           bulk_actions_column do
+            # Bulk actions enabled for individual market
           end
         end
         table_column :legal_name, :label => 'Legal Name', :proc => proc { |row|

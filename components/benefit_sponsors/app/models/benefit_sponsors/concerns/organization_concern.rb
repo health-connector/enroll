@@ -110,6 +110,7 @@ module BenefitSponsors
         end
       end
 
+      # rubocop:disable Lint/ConstantDefinitionInBlock
       class_methods do
         PROFILE_KINDS = [:plan_design_profile, :employer_profile, :broker_agency_profile].freeze
         ENTITY_KINDS = [
@@ -127,6 +128,7 @@ module BenefitSponsors
 
         FIELD_AND_EVENT_NAMES_MAP = {"legal_name" => "name_changed", "fein" => "fein_corrected"}.freeze
       end
+      # rubocop:enable Lint/ConstantDefinitionInBlock
     end
   end
 end

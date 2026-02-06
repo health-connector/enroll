@@ -343,7 +343,7 @@ class Person
       rescue StandardError
         return false, 'Person not found'
       end
-      if (role = person.employer_staff_roles.detect{|role| role.benefit_sponsor_employer_profile_id.to_s == employer_profile_id.to_s && !role.is_closed?})
+      if (role = person.employer_staff_roles.detect{|staff_role| staff_role.benefit_sponsor_employer_profile_id.to_s == employer_profile_id.to_s && !staff_role.is_closed?})
         role.update_attributes!(:aasm_state => :is_closed)
         [true, 'Employee Staff Role is inactive']
       else

@@ -51,6 +51,7 @@ class Announcement
       end
     end
 
+    # rubocop:disable Metrics/CyclomaticComplexity
     def get_announcements_by_portal(portal_path = "", person = nil)
       announcements = []
 
@@ -69,6 +70,7 @@ class Announcement
 
       announcements.uniq
     end
+    # rubocop:enable Metrics/CyclomaticComplexity
 
     def get_announcements_for_web
       Announcement.current_msg_for_webpage

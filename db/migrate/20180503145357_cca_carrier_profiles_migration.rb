@@ -74,7 +74,7 @@ class CcaCarrierProfilesMigration < Mongoid::Migration
           existing_organization += 1
           csv << [old_org.id, existing_new_organizations.first.id, "Already Migrated to new model, no action taken"]
         end
-      rescue Exception => e
+      rescue StandardError => e
         failed += 1
         csv << [old_org.id, "0", "Migration Failed"]
         logger.error "Migration Failed for Organization HBX_ID: #{old_org.hbx_id} , #{e.inspect}" unless Rails.env.test?
