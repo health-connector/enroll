@@ -83,13 +83,13 @@
 </div>
 
 <script>
+    window.disableSelectric = true;
 
-  disableSelectric = true;
 
-  var counter= 1000;
+  let counter= 1000;
   $(".uidatepicker").datepicker({maxDate: "-1D", changeMonth: true, changeYear: true, yearRange: (new Date).getFullYear()-110 + ":" + (new Date).getFullYear()});
   $(".uidatepicker").datepicker( "option", "dateFormat", "mm/dd/yy" );
-  var date_handler = function() {
+  let date_handler = function() {
     $(this).datepicker();
     $(this).datepicker({ dateFormat: 'mm/dd/yy' , maxDate: "-1D" });
     $(this).datepicker("show");
