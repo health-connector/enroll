@@ -3,9 +3,6 @@ sponsored_benefits:
     broker_quoting:
       enabled: true
 
-    general_agencies:
-      enabled: false
-
     broker_agencies:
       enabled: true
 

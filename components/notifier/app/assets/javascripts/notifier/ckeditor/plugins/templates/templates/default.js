@@ -98,24 +98,6 @@ CKEDITOR.addTemplates( 'default', {
 "[[ end ]]" +
 "<p>___________________________________________________________________________________________________________________________________________________</p>" +
 "<p><small>This notice is being provided in accordance with &lt;Insert Legal Compliance Code&gt;.</small></p>"
-	},
-{
-		title: 'General Agency Template',
-		image: 'template1.gif',
-		description: 'Standard template for the notices received by General Agencies.',
-		html: "<p>&nbsp;</p>" +
-"<p>Email notification sent to: #{general_agency.email}</p>" +
-"<p>#{general_agency.notice_date}</p>" +
-"<p><strong>SUBJECT: &lt;Change subject&gt;</strong></p>" +
-"<p>Dear #{general_agency.legal_name}:</p>" +
-"<p>&lt;Paste Your Notice Body Here&gt;</p>" +
-"<h3>For Questions or Assistance:</h3>"+
-"<p>Please contact #{site_short_name} with any questions:</p>" +
-"<ul>" +
-	"<li>By calling #{contact_center_phone_number}</li>" +
-	"<li>TTY: #{Settings.contact_center.tty_number}</li>" +
-	"<li>Online at: <a href='#{Settings.site.home_url}'>#{Settings.site.website_name}</a></li>" +
-"</ul>"
 	}
 	]
 } );
