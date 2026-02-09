@@ -64,7 +64,7 @@ Then(/^(.*?) should be able to set up benefit aplication$/) do |_legal_name|
 end
 
 Then(/^(.*?) Employer visit the benefits page$/) do |legal_name|
-  organization = ::BenefitSponsors::Organizations::Organization.where(legal_name: legal_name).first
+  organization = BenefitSponsors::Organizations::Organization.where(legal_name: legal_name).first
   employer_profile = organization.employer_profile
   visit benefit_sponsors.profiles_employers_employer_profile_path(employer_profile.id, :tab => 'benefits')
 end
@@ -283,7 +283,7 @@ When(/^.+ clicks on terminate button for rehired census employee$/) do
   @browser.a(text: /Terminate/).wait_until_present
   @browser.execute_script("$('.interaction-click-control-terminate').last().click")
   terminated_date = (TimeKeeper.date_of_record + 60.days).strftime("%m/%d/%Y")
-  @browser.execute_script("$('.date-picker').val(\'#{terminated_date}\')")
+  @browser.execute_script("$('.date-picker').val('#{terminated_date}')")
   #click submit
   @browser.h3(text: /Employee Roster/).click
   @browser.a(text: /Submit/).wait_until_present
@@ -313,7 +313,7 @@ When(/^.+ clicks? on Rehire button for a census family on terminated tab$/) do
   @browser.a(text: /Rehire/).click
   hired_date = (TimeKeeper.date_of_record + 30.days).strftime("%m/%d/%Y")
   #@browser.text_field(class: /hasDatepicker/).set(hired_date)
-  @browser.execute_script("$('.date-picker').val(\'#{hired_date}\')")
+  @browser.execute_script("$('.date-picker').val('#{hired_date}')")
   #click submit
   @browser.h3(text: /Employee Roster/).click
   @browser.a(text: /Submit/).wait_until_present
@@ -698,6 +698,11 @@ Then(/^employer should see create plan year button disabled$/) do
   expect(find("#submitBenefitPackage").disabled? || find("#submitBenefitPackage")[:class].include?('disabled')).to eql true
 end
 
+Then(/^employer should see view employee cost details button disabled$/) do
+  sleep(3)
+  expect(find("#estimatedEmployeeCostDetailsLink").disabled? || find("#estimatedEmployeeCostDetailsLink")[:class].include?('disabled')).to eql true
+end
+
 Then(/^employer should see employer estimated montly cost$/) do
   expect(page).to have_content("Employer Estimated Monthly Cost")
 end
@@ -723,7 +728,7 @@ And(/^clicks on terminate employee$/) do
   wait_for_ajax(2,2)
 
   terminate_date = (TimeKeeper.date_of_record - 10.days).strftime("%m/%d/%Y")
-  page.execute_script("$('.date-picker').val(\'#{terminate_date}\')")
+  page.execute_script("$('.date-picker').val('#{terminate_date}')")
   expect(page).to have_content 'Employee Roster'
   first("a.delete_confirm").click
   wait_for_ajax(3,2)

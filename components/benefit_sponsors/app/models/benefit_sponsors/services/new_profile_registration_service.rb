@@ -102,23 +102,27 @@ module BenefitSponsors
       def office_locations_form_to_params(locations)
         locations.each_with_index.inject({}) do |result, (form, index_val)|
           attributes = sanitize_params(form.attributes.deep_symbolize_keys.slice(:is_primary, :id, :_destroy))
-          unless attributes[:_destroy] == "true"
-            attributes.merge!({
-                                :phone_attributes => phone_form_to_params(form.phone),
-                                :address_attributes => address_form_to_params(form.address)
-                              })
+          if form._destroy
+            result[index_val] = attributes
+            next result
           end
+          attributes[:phone_attributes] = phone_form_to_params(form.phone) if form.phone.present?
+          attributes[:address_attributes] = address_form_to_params(form.address) if form.address.present?
           result[index_val] = attributes
           result
         end
       end
 
       def phone_form_to_params(form)
+        return {} if form.blank?
+
         attrs = form.attributes.deep_symbolize_keys.slice(:kind, :area_code, :number, :extension, :id)
         sanitize_params attrs
       end
 
       def address_form_to_params(form)
+        return {} if form.blank?
+
         attrs = form.attributes.deep_symbolize_keys.slice(:address_1, :address_2, :city, :kind, :state, :zip, :county, :id)
         sanitize_params attrs
       end

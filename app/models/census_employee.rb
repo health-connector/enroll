@@ -104,6 +104,10 @@ class CensusEmployee < CensusMember
       name: "benefit_group_assignments_renewal_search_index"
     }
   )
+  index({
+    "benefit_sponsorship_id" => 1,
+    "aasm_state" => 1
+  })
 
   scope :active,            ->{ any_in(aasm_state: EMPLOYMENT_ACTIVE_STATES) }
   scope :terminated,        ->{ any_in(aasm_state: EMPLOYMENT_TERMINATED_STATES) }
