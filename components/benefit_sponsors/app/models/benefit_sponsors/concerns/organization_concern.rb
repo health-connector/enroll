@@ -48,11 +48,11 @@ module BenefitSponsors
 
         validate :office_location_kinds
 
-        index({ hbx_id: 1 }, { unique: true })
-        index({ legal_name: 1 })
-        index({ dba: 1 }, {sparse: true})
-        index({ fein: 1 }, { unique: true })
-        index({ is_active: 1 })
+      index({ hbx_id: 1 })
+      index({ legal_name: 1 })
+      index({ dba: 1 }, {sparse: true})
+      index({ fein: 1 })
+      index({ is_active: 1 })
 
         before_save :generate_hbx_id
         after_update :legal_name_or_fein_change_attributes,:if => :check_legal_name_or_fein_changed?
