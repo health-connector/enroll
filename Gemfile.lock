@@ -2630,7 +2630,6 @@ DEPENDENCIES
   loofah (~> 2.23, >= 2.23.1)
   mail (~> 2.7)
   maskedinput-rails
-  matrix
   money-rails (~> 1.13)
   mongo_session_store (~> 3.1)
   mongoid (~> 9)
