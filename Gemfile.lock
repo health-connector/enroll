@@ -2615,8 +2615,6 @@ DEPENDENCIES
   holidays (~> 8.6)
   httparty
   i18n (~> 1.5)
-  interactor (~> 3.1.2)
-  interactor-rails (= 2.2.1)
   jbuilder (~> 2.7)
   jquery-rails (~> 4.3)
   jquery-turbolinks
