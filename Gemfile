@@ -15,7 +15,6 @@ gem 'aca_entities',       git: 'https://github.com/ideacrew/aca_entities.git', b
 
 gem 'aasm', '~> 4.8.0'
 gem 'acapi', git: "https://github.com/ideacrew/acapi.git", branch: 'trunk'
-gem 'animate-rails', '~> 1.0.10'
 gem 'aws-sdk', '~> 3.2'
 gem 'bcrypt', '~> 3.1'
 gem 'bootstrap-multiselect-rails', '~> 0.9.9'
