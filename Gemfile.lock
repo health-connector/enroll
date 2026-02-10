@@ -2610,7 +2610,6 @@ DEPENDENCIES
   fakeredis
   ffi (= 1.15.5)
   forgery
-  haml
   haml-rails (~> 2.0)
   hiredis
   holidays (~> 8.6)
