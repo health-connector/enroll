@@ -57,7 +57,6 @@ gem 'prawn', :git => 'https://github.com/prawnpdf/prawn.git', :ref => '8028ca0cd
 gem 'pundit', '~> 2.0'
 gem 'rails', '~> 8.1', '>= 8.1.2'
 gem 'rails-i18n', '~> 8.0.0'
-gem 'recurring_select', '~> 3.0'
 gem "recaptcha", '~> 4.13', require: 'recaptcha/rails'
 gem 'redis', '>= 4.0'
 gem 'hiredis' # Optional but recommended for performance in Rails 8
