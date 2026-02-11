@@ -48,7 +48,7 @@ gem 'mongoid-history', '~> 0.8'
 # gem 'mongoid-versioning'
 gem 'mongoid_rails_migrations', '~> 1.2'
 gem 'nokogiri', '~> 1.19'
-gem 'nokogiri-happymapper', '~> 0.10.1', :require => 'happymapper'
+gem 'nokogiri-happymapper', '~> 0.8.0', :require => 'happymapper'
 gem 'mongoid_userstamp', '~> 0.4', :path => "./project_gems/mongoid_userstamp-0.4.0"
 
 gem 'non-stupid-digest-assets', '~> 1.0', '>= 1.0.9'
