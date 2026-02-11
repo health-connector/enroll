@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module BenefitSponsors
   module BenefitPackages
     class ProductComparisonsController < BenefitSponsors::ApplicationController
@@ -68,15 +70,15 @@ module BenefitSponsors
       end
 
       def qhps
-        @qhps ||= begin
-          return [] unless benefit_application&.start_on
-
-          ::Products::QhpCostShareVariance.find_qhp_cost_share_variances(
-            requested_plans,
-            benefit_application.start_on.year,
-            "Health"
-          )
-        end
+        @qhps ||= if benefit_application&.start_on
+                    ::Products::QhpCostShareVariance.find_qhp_cost_share_variances(
+                      requested_plans,
+                      benefit_application.start_on.year,
+                      "Health"
+                    )
+                  else
+                    []
+                  end
       end
 
       def visit_types

@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 
+# rubocop:disable Metrics/ModuleLength
 module BenefitSponsors
   RSpec.describe BenefitPackages::ProductComparisonsController, type: :controller, dbclean: :after_each do
     routes { BenefitSponsors::Engine.routes }
@@ -119,13 +120,6 @@ module BenefitSponsors
 
       context 'with missing benefit_application_id' do
         it 'raises an error when benefit_application_id is missing' do
-          invalid_params = {
-            benefit_sponsorship_id: benefit_sponsorship.id.to_s,
-            benefit_package_id: benefit_package.id.to_s,
-            plans: plan_ids,
-            format: :json
-          }
-
           expect do
             controller.send(:load_benefit_application)
           end.to raise_error(BSON::ObjectId::Invalid)
@@ -213,4 +207,5 @@ module BenefitSponsors
       end
     end
   end
+  # rubocop:enable Metrics/ModuleLength
 end

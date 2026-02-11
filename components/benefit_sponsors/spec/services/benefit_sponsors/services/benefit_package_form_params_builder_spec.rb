@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 
+# rubocop:disable Metrics/ModuleLength
 module BenefitSponsors
   module Services
     RSpec.describe BenefitPackageFormParamsBuilder, type: :model, dbclean: :after_each do
@@ -269,4 +270,5 @@ module BenefitSponsors
       end
     end
   end
+  # rubocop:enable Metrics/ModuleLength
 end

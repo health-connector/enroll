@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 
+# rubocop:disable Metrics/ModuleLength
 module BenefitSponsors
   module Services
     RSpec.describe PlanComparisonCostCalculator, type: :model, dbclean: :after_each do
@@ -102,7 +103,7 @@ module BenefitSponsors
 
           it 'calculates costs for each plan' do
             result = subject.calculate_for_plans(qhps)
-            result.values.each do |cost|
+            result.each_value do |cost|
               expect(cost).to be_a(Numeric)
               expect(cost).to be >= 0
             end
@@ -228,4 +229,5 @@ module BenefitSponsors
       end
     end
   end
+  # rubocop:enable Metrics/ModuleLength
 end
