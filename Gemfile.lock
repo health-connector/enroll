@@ -144,7 +144,7 @@ PATH
       roo (~> 2.10)
       slim (~> 5.2)
       virtus (~> 1.0.5)
-      wicked_pdf (= 2.8.0)
+      wicked_pdf (= 2.1.0)
       wkhtmltopdf-binary-edge (~> 0.12.6.0)
 
 PATH
@@ -2553,7 +2553,7 @@ GEM
       base64
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
-    wicked_pdf (2.8.0)
+    wicked_pdf (2.1.0)
       activesupport
     wkhtmltopdf-binary-edge (0.12.6.0)
     xpath (3.2.0)
@@ -2690,7 +2690,7 @@ DEPENDENCIES
   web-console (>= 3)
   webdrivers (~> 5.3.1)
   webmock
-  wicked_pdf (= 2.8.0)
+  wicked_pdf (= 2.1.0)
   wkhtmltopdf-binary-edge (~> 0.12.6.0)
   yard (~> 0.9.5)
   yard-mongoid (~> 0.1.0)
