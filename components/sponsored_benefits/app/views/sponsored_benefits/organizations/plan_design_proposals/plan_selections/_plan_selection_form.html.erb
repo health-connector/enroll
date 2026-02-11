@@ -115,11 +115,12 @@
     <div class="panel panel-default">
       <div class="panel-body">
         <div class="col-md-3">
-          <h3><%= l10n("employers.plan_years.estimated_employee_costs") %></h3>
+          <h3 class="heading-est-emp-cost"><%= l10n("employers.plan_years.estimated_employee_costs") %></h3>
+          <%= button_tag "View Employee Cost Details", id: "estimatedEmployerCostsPage", class:'button btn btn-primary btn-anchor save-action', type: 'submit' %>
         </div>
         <div class="col-md-7">
           <br />
-          <p><%= l10n("employers.plan_years.employee_cost_details_description_part1") %> <%= button_tag "details page.", id: "estimatedEmployerCostsPage", class:'button btn btn-link btn-anchor save-action', type: 'submit' %><%= l10n("employers.plan_years.employee_cost_details_description_part2") %></p>
+          <p><%= l10n("employers.plan_years.employee_cost_details_description_part1") %></p>
         </div>
       </div>
     </div>
