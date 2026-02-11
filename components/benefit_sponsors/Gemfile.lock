@@ -119,7 +119,7 @@ PATH
       dry-validation (~> 1.0)
       interactor (= 3.1.2)
       interactor-rails (= 2.2.1)
-      language_list (~> 1.2.0)
+      language_list (~> 1.1.0)
       money-rails (~> 1.13)
       mongoid (~> 9)
       mongoid-autoinc (~> 6.0)
@@ -392,7 +392,7 @@ GEM
       activerecord
       kaminari-core (= 1.2.2)
     kaminari-core (1.2.2)
-    language_list (1.2.1)
+    language_list (1.1.0)
     logger (1.7.0)
     loofah (2.25.0)
       crass (~> 1.0.2)

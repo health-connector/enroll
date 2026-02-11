@@ -30,7 +30,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'active_model_serializers'
   # s.add_dependency 'devise', '~> 3.5.4'
   s.add_dependency 'devise', '~> 4.5'
-  s.add_dependency 'language_list', '~> 1.2.0'
+  s.add_dependency 'language_list', '~> 1.1.0'
   s.add_dependency 'mongoid-autoinc', '~> 6.0'
   s.add_dependency 'interactor', '3.1.2'
   s.add_dependency 'interactor-rails', '2.2.1'
