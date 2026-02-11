@@ -511,6 +511,72 @@
     text-align: right;
   }
 
+  .checkmark-compare-container {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    text-align: left;
+    width: 100px;
+    height: 25px;
+
+    .container-compare {
+      padding-left: 30px;
+      font-size: 16px;
+      font-weight: normal;
+      color: $mhc-dark-blue;
+      display: block;
+      position: relative;
+      cursor: pointer;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+
+      /* Hide the browser's default checkbox */
+      input {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+        height: 0;
+        width: 0;
+      }
+
+      .checkmark-compare {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 20px;
+        width: 20px;
+        background-color: #eee;
+        border: 1px solid #ccc;
+      }
+      /* When the checkbox is checked, add a blue background */
+      input:checked ~ .checkmark-compare {
+        background-color: $mhc-dark-blue;
+        border: 1px solid $mhc-dark-blue;
+      }
+      /* Create the checkmark/indicator (hidden when not checked) */
+      .checkmark-compare:after {
+          content: "";
+          position: absolute;
+          display: none;
+          left: 6px;
+          top: 2px;
+          width: 6px;
+          height: 12px;
+          border: solid white;
+          border-width: 0 3px 3px 0;
+          -webkit-transform: rotate(45deg);
+          -ms-transform: rotate(45deg);
+          transform: rotate(45deg);
+      }
+      /* Show the checkmark when checked */
+      input:checked ~ .checkmark-compare:after {
+          display: block;
+      }
+    }
+  }
+
   .checkmark {
     position: relative;
     display: inline-block;
