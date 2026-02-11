@@ -240,7 +240,7 @@ module Notifier
       if notice.save
         notice
       else
-        log("ERROR: Unable to create recipient document: #{self.event_name} #{resource}", {:severity => 'error'})
+        log("ERROR: Unable to create recipient document: #{event_name} #{resource}", {:severity => 'error'})
       end
     end
 
@@ -264,7 +264,7 @@ module Notifier
       if message.save!
         message
       else
-        log("ERROR: Unable to create secure inbox message: #{self.event_name} #{resource}", {:severity => 'error'})
+        log("ERROR: Unable to create secure inbox message: #{event_name} #{resource}", {:severity => 'error'})
       end
     end
 
