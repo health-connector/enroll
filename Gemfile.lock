@@ -2625,7 +2625,6 @@ DEPENDENCIES
   mongoid-rspec (~> 4.2)
   mongoid_rails_migrations (~> 1.2)
   mongoid_userstamp (~> 0.4)!
-  net-imap (>= 0.4.20)
   newrelic_rpm (~> 9.6)
   next_rails
   nokogiri (~> 1.18.9)

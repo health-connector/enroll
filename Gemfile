@@ -63,7 +63,6 @@ gem 'hiredis' # Optional but recommended for performance in Rails 8
 gem 'rack', '>= 3.2.3'
 gem 'resque'
 gem 'sinatra', '>= 4.2.0' # update sub-dependency for resque
-gem 'net-imap', '>= 0.4.20'
 gem 'rexml',  '>= 3.3.9'
 gem 'roo', '~> 2.10'
 gem 'ruby-saml', '~> 1.18.0'
