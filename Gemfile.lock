@@ -2651,7 +2651,6 @@ DEPENDENCIES
   redis (>= 4.0)
   resource_registry!
   resque
-  rexml (>= 3.3.9)
   roo (~> 2.10)
   rspec-benchmark
   rspec-instafail
