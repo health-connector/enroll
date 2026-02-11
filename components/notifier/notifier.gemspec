@@ -21,7 +21,7 @@ Gem::Specification.new do |s|
   s.add_dependency "slim", '~> 5.2'
   s.add_dependency "mongoid", '~> 9'
   s.add_dependency "virtus", "~> 1.0.5"
-  s.add_dependency "wkhtmltopdf-binary-edge", "~> 0.12.6.0"
+  s.add_dependency "wkhtmltopdf-binary-edge", "~> 0.12.3.0"
   s.add_dependency "wicked_pdf", "2.1.0"
   s.add_dependency "combine_pdf"
   s.add_dependency "ckeditor", '4.2.4'
