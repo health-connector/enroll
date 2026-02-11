@@ -2669,7 +2669,6 @@ DEPENDENCIES
   shoulda-matchers (>= 4.0.0)
   simplecov (~> 0.22.0)
   sinatra (>= 4.2.0)
-  slim (~> 5.2)
   slim-rails
   sponsored_benefits!
   spring

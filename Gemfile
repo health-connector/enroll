@@ -65,7 +65,6 @@ gem 'resque'
 gem 'sinatra', '>= 4.2.0' # update sub-dependency for resque
 gem 'roo', '~> 2.10'
 gem 'ruby-saml', '~> 1.18.0'
-gem 'slim', '~> 5.2'
 gem 'slim-rails'
 gem 'sprockets', '~> 4.2'
 gem 'symmetric-encryption', '~> 4.6.0'
