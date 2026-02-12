@@ -16,7 +16,7 @@ Gem::Specification.new do |s|
 
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]
 
-  s.add_dependency "rails", "~> 7.2"
+  s.add_dependency "rails", "~> 7.2.3"
   s.add_dependency "slim", '~> 5.2'
   s.add_dependency "mongoid", '~> 8.1.5'
   s.add_dependency "aasm", "~> 4.8.0"
@@ -31,7 +31,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'dry-container'
   s.add_dependency 'dry-struct'
   s.add_dependency 'dry-monads'
-  s.add_dependency 'rack', '>= 2.2.14'
+  s.add_dependency 'rack', '>= 3.2.3'
   s.add_dependency 'net-imap',  '>= 0.4.20'
 
 
