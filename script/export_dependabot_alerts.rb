@@ -10,7 +10,6 @@ require 'optparse'
 # Script to export Dependabot security alerts to CSV
 class DependabotAlertsExporter
   GITHUB_API_URL = 'https://api.github.com'
-  GRAPHQL_ENDPOINT = "#{GITHUB_API_URL}/graphql"
 
   def initialize(owner:, repo:, token:, output_file: 'dependabot_alerts.csv')
     @owner = owner
@@ -126,7 +125,7 @@ class DependabotAlertsExporter
           advisory['cve_id'],
           advisory['ghsa_id'],
           advisory['summary'],
-          advisory['description']&.gsub(/\n/, ' ')&.strip,
+          advisory['description']&.gsub("\n", ' ')&.strip,
           alert['created_at'],
           alert['updated_at'],
           alert['dismissed_at'],
