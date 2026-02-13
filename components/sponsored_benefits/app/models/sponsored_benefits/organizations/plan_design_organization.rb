@@ -6,7 +6,7 @@ module SponsoredBenefits
       include Mongoid::Timestamps
       include Concerns::OrganizationConcern
       include Concerns::AcaRatingAreaConfigConcern
-      include ::Mongoid::RecursiveEmbeddedValidation
+      include Concerns::Mongoid::RecursiveEmbeddedValidation
 
       belongs_to :broker_agency_profile, class_name: "SponsoredBenefits::Organizations::BrokerAgencyProfile", inverse_of: 'plan_design_organization', optional: true
 

@@ -3,7 +3,7 @@ module SponsoredBenefits
     class BenefitApplication
       include Mongoid::Document
       include Mongoid::Timestamps
-      include ::Mongoid::RecursiveEmbeddedValidation
+      include Concerns::Mongoid::RecursiveEmbeddedValidation
 
       embedded_in :benefit_sponsorship, class_name: "SponsoredBenefits::BenefitSponsorships::BenefitSponsorship"
 

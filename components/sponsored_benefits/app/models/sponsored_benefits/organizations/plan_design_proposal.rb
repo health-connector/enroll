@@ -4,7 +4,7 @@ module SponsoredBenefits
       include Mongoid::Document
       include Mongoid::Timestamps
       include AASM
-      include ::Mongoid::RecursiveEmbeddedValidation
+      include Concerns::Mongoid::RecursiveEmbeddedValidation
 
       RENEWAL_STATES = %w(renewing_draft renewing_published renewing_claimed renewing_expired)
       EXPIRABLE_STATES = %w(draft renewing_draft)

@@ -15,7 +15,7 @@ module SponsoredBenefits
     class BenefitSponsorship
       include Mongoid::Document
       include Mongoid::Timestamps
-      include ::Mongoid::RecursiveEmbeddedValidation
+      include Concerns::Mongoid::RecursiveEmbeddedValidation
 
       # include Concerns::Observable
 

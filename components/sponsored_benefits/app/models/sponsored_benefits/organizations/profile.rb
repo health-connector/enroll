@@ -4,7 +4,7 @@ module SponsoredBenefits
     class Profile
       include Mongoid::Document
       include Mongoid::Timestamps
-      include ::Mongoid::RecursiveEmbeddedValidation
+      include Concerns::Mongoid::RecursiveEmbeddedValidation
 
       embedded_in :organization, class_name: "SponsoredBenefits::Organizations::Organization"
 
