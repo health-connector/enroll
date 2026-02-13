@@ -713,6 +713,7 @@
 
 // Estimated Employee Cost
 .text-est-emp-cost {
+  align-items: center;
   width: 100%;
   text-align: justify;
 }
@@ -721,5 +722,5 @@
   padding-left: 5px;
   font-weight: bold;
   color: $primary-orange;
-  font-size: 16px;
+  font-size: 1.1em;
 }
