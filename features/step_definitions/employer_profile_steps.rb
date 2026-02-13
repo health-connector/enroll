@@ -314,5 +314,5 @@ end
 
 AfterStep do |_scenario|
   sleep 1 if ENV['SCREENSHOTS'] == "true"
-  screenshot("")
+  screenshot("") if page
 end
