@@ -9,6 +9,6 @@
 //
 // Read Sprockets README (https://github.com/rails/sprockets#sprockets-directives) for details
 // about supported directives.
-//= require notifier/ckeditor/basepath.js
+//= require notifier/ckeditor/basepath
 //= require ckeditor/init
 //= require_tree .
