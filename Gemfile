@@ -3,7 +3,7 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby '3.2.5'
+ruby '3.4.7'
 
 gem "benefit_markets",    path: "components/benefit_markets"
 gem "benefit_sponsors",   path: "components/benefit_sponsors"
@@ -39,7 +39,6 @@ gem 'interactor', '~> 3.1.2'
 gem 'interactor-rails', '2.2.1'
 gem 'jbuilder', '~> 2.7'
 # gem 'jquery-datatables-rails', '3.4.0'
-gem 'jquery-rails', '~> 4.3'
 gem 'jquery-turbolinks'
 gem 'jquery-ui-rails', '>= 8.0.0'
 gem 'kaminari', '= 1.2.1'
@@ -85,7 +84,7 @@ gem 'uglifier', '>= 4', require: 'uglifier'
 gem 'virtus'
 gem 'wicked_pdf', '2.1.0'
 gem 'wkhtmltopdf-binary-edge', '~> 0.12.3.0'
-gem 'shakapacker', '~> 7.0'
+gem 'jsbundling-rails'
 gem 'rubyXL'
 gem 'holidays', '~> 8.6'
 gem 'thor', '>= 1.4.0'
@@ -103,6 +102,8 @@ gem 'sass-rails', '~> 6.0'
 gem 'config',                   '~> 5.5', '>= 5.5.2'
 gem 'rack-cors'
 gem 'puma', '~> 6.6.0'
+gem "observer"
+gem "openssl"
 
 #######################################################
 # Removed gems

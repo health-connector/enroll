@@ -102,3 +102,6 @@ yarn-debug.log*
 
 # Ignore actionlint binary
 actionlint
+
+/app/assets/builds/*
+!/app/assets/builds/.keep

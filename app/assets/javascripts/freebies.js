@@ -1,4 +1,6 @@
-var Freebies = ( function( window, undefined ) {
+import "../../../vendor/assets/javascripts/jq_datepicker"
+
+window.Freebies = ( function( window, undefined ) {
 
   function fadeElement(element) {
     element = element;
@@ -64,7 +66,7 @@ var Freebies = ( function( window, undefined ) {
   }
 
   function selectric() {
-    if (!disableSelectric) {
+    if (!window.disableSelectric) {
       $("select[multiple!='multiple']").not('[name*="dataTable_length"], .chosen-select, .no-selectric').selectric();
     }
     // apply selectric
