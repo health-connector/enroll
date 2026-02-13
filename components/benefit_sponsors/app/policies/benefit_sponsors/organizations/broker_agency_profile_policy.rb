@@ -45,15 +45,15 @@ module BenefitSponsors
       end
 
       def commission_statements?
-        access_to_broker_agency_profile?
+        commission_statements_access?
       end
 
       def show_commission_statement?
-        access_to_broker_agency_profile?
+        commission_statements_access?
       end
 
       def download_commission_statement?
-        access_to_broker_agency_profile?
+        commission_statements_access?
       end
 
       def general_agency_index?
@@ -95,6 +95,18 @@ module BenefitSponsors
 
         broker_role&.benefit_sponsors_broker_agency_profile_id == record.id &&
           broker_role&.active?
+      end
+
+      def commission_statements_access?
+        return true if shop_market_admin?
+        return false if broker_role_present_and_inactive?
+
+        access_to_broker_agency_profile?
+      end
+
+      def broker_role_present_and_inactive?
+        broker_role = account_holder_person&.broker_role
+        broker_role.present? && !broker_role.active?
       end
     end
   end
