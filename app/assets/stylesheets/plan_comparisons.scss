@@ -1,0 +1,67 @@
+// Plan Comparison Modal Styles
+#planComparisonModal {
+  .modal-dialog {
+    max-width: 80%;
+    margin: 15px auto;
+  }
+
+  .modal-body {
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+  }
+
+  .compare-table {
+    font-size: 10px;
+    margin-bottom: 20px;
+    table-layout: fixed;
+    width: 100%;
+
+    th, td {
+      padding: 4px 6px;
+      vertical-align: middle;
+      border: 1px solid #ddd;
+      word-wrap: break-word;
+      font-size: 10px;
+    }
+
+    .row-title {
+      font-weight: bold;
+      background-color: #f5f5f5;
+      width: 180px;
+      font-size: 11px;
+    }
+
+    .employer-cost-row {
+      th {
+        background-color: #f0f8ff;
+        font-size: 12px;
+      }
+    }
+
+    .deductible-compare-header {
+      background-color: #f9f9f9;
+    }
+  }
+
+  #comparisonLoadingSpinner {
+    padding: 40px 0;
+    
+    i {
+      color: #007bff;
+      margin-bottom: 15px;
+    }
+
+    p {
+      font-size: 16px;
+      color: #666;
+    }
+  }
+}
+
+// Compare button states
+#compareSelectedPlansButton {
+  &.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
