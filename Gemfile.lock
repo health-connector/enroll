@@ -2644,7 +2644,7 @@ DEPENDENCIES
   haml
   haml-rails (~> 2.0)
   holidays (~> 8.6)
-  httparty
+  httparty (~> 0.24)
   i18n (~> 1.5)
   interactor (~> 3.1.2)
   interactor-rails (= 2.2.1)
