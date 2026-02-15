@@ -90,6 +90,8 @@ gem 'rubyXL'
 gem 'holidays', '~> 8.6'
 gem 'thor', '>= 1.4.0'
 
+gem 'ffaker'
+
 #arm64 mac support
 gem 'ffi', '1.15.5'
 gem 'kostya-sigar', '2.0.10'
