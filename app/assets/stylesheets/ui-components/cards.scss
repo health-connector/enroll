@@ -653,8 +653,10 @@
 }
 
 .heading-est-emp-cost {
+  white-space:nowrap;
+  width: 100%;
   padding-left: 5px;
   font-weight: bold;
   color: $primary-orange;
-  font-size: 1.1em;
+  font-size: 1vw;
 }
