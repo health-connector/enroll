@@ -1,13 +1,6 @@
 GIT
-  remote: https://github.com/harshared/simple_calendar
-  revision: 109781178efa26c89ba51efa496bca29bc70a565
-  specs:
-    simple_calendar (2.2.5)
-      rails (>= 3.0)
-
-GIT
   remote: https://github.com/ideacrew/aca_entities.git
-  revision: 1b25e26dfb947487dada29d615122ccc0ffd8951
+  revision: d8326607d217d4a92672ef34313ebf5eb69f9a0b
   branch: trunk
   specs:
     aca_entities (0.10.0)
@@ -1968,7 +1961,7 @@ GEM
       bigdecimal
       rexml
     crass (1.0.6)
-    csv (3.3.0)
+    csv (3.3.5)
     cucumber (9.2.1)
       builder (~> 3.2)
       cucumber-ci-environment (> 9, < 11)
@@ -2104,7 +2097,7 @@ GEM
     hashery (2.1.2)
     holidays (8.8.0)
     htmlentities (4.3.4)
-    httparty (0.22.0)
+    httparty (0.24.2)
       csv
       mini_mime (>= 1.0.0)
       multi_xml (>= 0.5.2)
@@ -2229,7 +2222,8 @@ GEM
     msgpack (1.7.2)
     multi_json (1.15.0)
     multi_test (1.1.0)
-    multi_xml (0.6.0)
+    multi_xml (0.8.1)
+      bigdecimal (>= 3.1, < 5)
     mustermann (3.0.4)
       ruby2_keywords (~> 0.0.1)
     net-imap (0.5.9)
@@ -2718,7 +2712,6 @@ DEPENDENCIES
   sdoc (~> 1.0)
   shakapacker (~> 7.0)
   shoulda-matchers (>= 4.0.0)
-  simple_calendar!
   simplecov (~> 0.22.0)
   sinatra (>= 4.2.0)
   slim (~> 5.2)

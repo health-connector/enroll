@@ -39,6 +39,45 @@ module BenefitSponsors
       end
     end
 
+    describe "#format_string_to_date" do
+      it "should parse MM/DD/YYYY format with 2-digit month" do
+        result = subject.send(:format_string_to_date, "01/15/2026")
+        expect(result).to eq Date.new(2026, 1, 15)
+      end
+
+      it "should parse M/D/YYYY format with 1-digit month" do
+        result = subject.send(:format_string_to_date, "1/5/2026")
+        expect(result).to eq Date.new(2026, 1, 5)
+      end
+
+      it "should parse MM/DD/YYYY format with 1-digit day" do
+        result = subject.send(:format_string_to_date, "10/1/2026")
+        expect(result).to eq Date.new(2026, 10, 1)
+      end
+
+      it "should parse YYYY-MM-DD ISO format" do
+        result = subject.send(:format_string_to_date, "2026-10-01")
+        expect(result).to eq Date.new(2026, 10, 1)
+      end
+
+      it "should raise error for YYYY/MM/DD format (not supported)" do
+        expect do
+          subject.send(:format_string_to_date, "2026/10/01")
+        end.to raise_error(Date::Error)
+      end
+
+      it "should raise error for invalid date values" do
+        expect do
+          subject.send(:format_string_to_date, "13/45/2026")
+        end.to raise_error(Date::Error)
+      end
+
+      it "should return nil for unrecognized format (no slashes or dashes)" do
+        result = subject.send(:format_string_to_date, "Jan 1, 2026")
+        expect(result).to be_nil
+      end
+    end
+
     describe ".store service" do
       include_context "setup benefit market with market catalogs and product packages"
 
