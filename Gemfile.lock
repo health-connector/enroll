@@ -1969,7 +1969,7 @@ GEM
       bigdecimal
       rexml
     crass (1.0.6)
-    csv (3.3.0)
+    csv (3.3.5)
     cucumber (9.2.1)
       builder (~> 3.2)
       cucumber-ci-environment (> 9, < 11)
@@ -2106,7 +2106,7 @@ GEM
     hiredis (0.6.3)
     holidays (8.8.0)
     htmlentities (4.3.4)
-    httparty (0.22.0)
+    httparty (0.24.2)
       csv
       mini_mime (>= 1.0.0)
       multi_xml (>= 0.5.2)
@@ -2232,7 +2232,8 @@ GEM
     msgpack (1.7.2)
     multi_json (1.15.0)
     multi_test (1.1.0)
-    multi_xml (0.6.0)
+    multi_xml (0.8.1)
+      bigdecimal (>= 3.1, < 5)
     mustermann (3.0.4)
       ruby2_keywords (~> 0.0.1)
     net-imap (0.6.2)
