@@ -108,9 +108,9 @@
       <tr>
         <th><%= l10n('employers.plan_years.benefit_package.out_of_pocket_maximum') %></th>
         <% qhps.each do |qhp| %>
-          <th colspan="2">
+          <td colspan="2">
             <%= qhp.qhp_maximum_out_of_pockets.first.in_network_tier_1_family_amount %>
-          </th>
+          </td>
         <% end %>
       </tr>
 

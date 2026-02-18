@@ -191,7 +191,8 @@ javascript:
   const standardPlanTooltipValue = "#{l10n('insured.plan_shoppings.standard_plan_title_info')}";
   const compareText = "#{l10n('employers.plan_years.benefit_package.compare')}";
   const comparePlansText = "#{l10n('employers.plan_years.benefit_package.compare_plans')}";
-  const clearSelectionText = "#{l10n('employers.plan_years.benefit_package.clear_selection')}";
+  const clearAllText = "#{l10n('employers.plan_years.benefit_package.clear_all')}";
+  const isPlanComparisonEnabled = #{::EnrollRegistry.feature_enabled?(:plan_comparison_tool)};
 
   function radioSelected(element) {
     setCircle(element)
@@ -253,6 +254,12 @@ javascript:
       for(rplans of populatedReferencePlans) {
         rplans.remove()
       }
+    }
+
+    // Remove existing comparison buttons
+    var existingButtons = document.querySelector('#yourPlans .col-md-12.text-center');
+    if (existingButtons) {
+      existingButtons.remove();
     }
 
     // Build reference plans to be displayed in UI
@@ -317,6 +324,7 @@ javascript:
             </div>
             <span class="plan-label rp-view-summary" onclick="viewSummary(this)" data-plan-title="${plan.title}" data-plan-id="${plan.id}" data-plan-type="${plan.product_type}" data-plan-carrier="${plan.carrier_name}" data-plan-level="${plan.metal_level_kind}" data-plan-ded-ind="${plan.deductible_value}" data-plan-ded-fam="${plan.family_deductible_value}" data-plan-ded-rx-ind="${plan.rx_deductible_value}" data-plan-ded-rx-fam="${plan.rx_family_deductible_value}">View Summary</span>
             <input type="radio" name="benefit_package[sponsored_benefits_attributes][0][reference_plan_id]" id="${plan.id}" onclick="newContributionAmounts()" value="${plan.id}" data-plan-title="${plan.title}" data-plan-carrier="${plan.carrier_name}" data-plan-id="${plan.id}" data-plan-metal-level="${plan.metal_level_kind}" data-plan-type="${plan.product_type}" data-is-standard-plan=${plan.is_standard_plan} data-is-pvp=${plan.is_pvp_eligible}>
+            ${isPlanComparisonEnabled ? `
             <div class="checkmark-compare-container mt-1">
               <label class="container-compare">
                 ${compareText}
@@ -324,6 +332,7 @@ javascript:
                 <span class="checkmark-compare"></span>
               </label>
             </div>
+            ` : ''}
             <div class="checkmark-container mt-1">
               <span class="checkmark"></span>
               <span class="checkmark-text">Select</span>
@@ -336,11 +345,13 @@ javascript:
       rowDiv.appendChild(planDiv);
     }
 
-    document.getElementById('yourPlans').innerHTML +=
-      `<div class="col-md-12 text-center mt-3 mb-3">
-        <button type="button" class="btn btn-primary disabled" id="compareSelectedPlansButton" onclick="compareSelectedPlans(event); return false;" disabled>${comparePlansText}</button>
-        <button type="button" class="btn btn-default" id="clear-comparison-button" onclick="clearSelectedPlans()">${clearSelectionText}</button>
-      </div>`;
+    if (isPlanComparisonEnabled) {
+      document.getElementById('yourPlans').innerHTML +=
+        `<div class="col-md-12 text-center mt-3 mb-3">
+          <button type="button" class="btn btn-primary disabled" id="compareSelectedPlansButton" onclick="compareSelectedPlans(event); return false;" disabled>${comparePlansText}</button>
+          <button type="button" class="btn btn-default" id="clear-comparison-button" onclick="clearSelectedPlans()">${clearAllText}</button>
+        </div>`;
+    }
 
     setTimeout(function() {
       buildSponsorContributions(sponsorContribution)
