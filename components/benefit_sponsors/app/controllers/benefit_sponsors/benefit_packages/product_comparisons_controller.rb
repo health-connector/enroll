@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'csv'
+
 module BenefitSponsors
   module BenefitPackages
     class ProductComparisonsController < BenefitSponsors::ApplicationController
@@ -22,11 +24,40 @@ module BenefitSponsors
       end
 
       def export
-        # TODO: Implement CSV export functionality
+        load_benefit_application
+        load_comparison_data
+
+        # Use passed employer costs if available, otherwise calculate
+        @employer_costs = parse_employer_costs_param if params[:employer_costs].present?
+
+        render pdf: 'product_comparison_export',
+               template: 'benefit_sponsors/benefit_packages/product_comparisons/export',
+               disposition: 'attachment',
+               locals: {
+                 qhps: @qhps,
+                 visit_types: @visit_types,
+                 employer_costs: @employer_costs,
+                 benefit_application: @benefit_application
+               }
       end
 
       def csv
-        # TODO: Implement CSV generation functionality
+        load_benefit_application
+        load_comparison_data
+
+        # Use passed employer costs if available
+        employer_costs = params[:employer_costs].present? ? parse_employer_costs_param : @employer_costs
+
+        # Add employer costs to each QHP object for CSV generation
+        @qhps.each do |qhp|
+          qhp[:total_employee_cost] = employer_costs[qhp.product.id] || 0.00
+        end
+
+        send_data(
+          ::Products::Qhp.csv_for(@qhps, @visit_types),
+          type: csv_content_type,
+          filename: "plan_comparison_#{Time.current.strftime('%Y%m%d_%H%M%S')}.csv"
+        )
       end
 
       private
@@ -57,7 +88,8 @@ module BenefitSponsors
               employer_costs: @employer_costs
             },
             formats: [:html]
-          )
+          ),
+          employer_costs: @employer_costs
         }
       end
 
@@ -85,6 +117,15 @@ module BenefitSponsors
         @visit_types ||= ::Products::Qhp::VISIT_TYPES
       end
 
+      def csv_content_type
+        case request.user_agent
+        when /windows/i
+          'application/vnd.ms-excel'
+        else
+          'text/csv'
+        end
+      end
+
       # Calculate employer costs for the selected plans based on the form parameters
       def calculate_employer_costs
         form_params = build_form_params
@@ -102,6 +143,21 @@ module BenefitSponsors
       def build_form_params
         builder = BenefitSponsors::Services::BenefitPackageFormParamsBuilder.new(params)
         builder.build
+      end
+
+      # Parse employer costs from URL parameter (passed from modal)
+      def parse_employer_costs_param
+        return {} unless params[:employer_costs].is_a?(String)
+
+        # Parse JSON string of employer costs
+        parsed_costs = JSON.parse(params[:employer_costs])
+
+        # Convert string keys back to BSON::ObjectId and ensure values are floats
+        parsed_costs.transform_keys { |key| BSON::ObjectId.from_string(key) }
+                    .transform_values(&:to_f)
+      rescue JSON::ParserError, BSON::ObjectId::Invalid => e
+        Rails.logger.error("Error parsing employer costs: #{e.message}")
+        {}
       end
     end
   end

@@ -129,6 +129,10 @@
         modal.find('#comparisonLoadingSpinner').hide();
         if (response.success && response.html) {
           modal.find('#comparisonContent').html(response.html);
+          // Store calculated employer costs for export
+          if (response.employer_costs) {
+            modal.data('employerCosts', JSON.stringify(response.employer_costs));
+          }
         } else {
           modal.find('#comparisonContent').html('<div class="alert alert-danger">Unable to load comparison data.</div>');
         }
@@ -237,12 +241,20 @@
       var benefitApplicationId = modal.data('benefitApplicationId');
       var benefitPackageId = modal.data('benefitPackageId');
       var plansParam = modal.data('plansParam');
+      var employerCosts = modal.data('employerCosts');
       
       if (benefitSponsorshipId && benefitApplicationId && benefitPackageId && plansParam) {
+        // Build URL with plans and pre-calculated employer costs
         var exportUrl = '/benefit_sponsors/benefit_sponsorships/' + benefitSponsorshipId +
                        '/benefit_applications/' + benefitApplicationId +
                        '/benefit_packages/' + benefitPackageId +
                        '/product_comparisons/export?plans=' + plansParam;
+        
+        // Add employer costs if available
+        if (employerCosts) {
+          exportUrl += '&employer_costs=' + encodeURIComponent(employerCosts);
+        }
+        
         window.open(exportUrl, '_blank');
       }
     });
@@ -254,12 +266,20 @@
       var benefitApplicationId = modal.data('benefitApplicationId');
       var benefitPackageId = modal.data('benefitPackageId');
       var plansParam = modal.data('plansParam');
+      var employerCosts = modal.data('employerCosts');
       
       if (benefitSponsorshipId && benefitApplicationId && benefitPackageId && plansParam) {
+        // Build URL with plans and pre-calculated employer costs
         var exportUrl = '/benefit_sponsors/benefit_sponsorships/' + benefitSponsorshipId +
                        '/benefit_applications/' + benefitApplicationId +
                        '/benefit_packages/' + benefitPackageId +
                        '/product_comparisons/csv?plans=' + plansParam;
+        
+        // Add employer costs if available
+        if (employerCosts) {
+          exportUrl += '&employer_costs=' + encodeURIComponent(employerCosts);
+        }
+        
         window.location.href = exportUrl;
       }
     });
