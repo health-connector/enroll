@@ -154,7 +154,7 @@ module BenefitSponsors
 
         # Convert string keys back to BSON::ObjectId and ensure values are floats
         parsed_costs.transform_keys { |key| BSON::ObjectId.from_string(key) }
-                    .transform_values { |value| value.to_f }
+                    .transform_values(&:to_f)
       rescue JSON::ParserError, BSON::ObjectId::Invalid => e
         Rails.logger.error("Error parsing employer costs: #{e.message}")
         {}
