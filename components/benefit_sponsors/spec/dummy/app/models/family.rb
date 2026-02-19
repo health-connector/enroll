@@ -34,14 +34,13 @@ class Family
   # embeds_many :irs_groups, cascade_callbacks: true
   embeds_many :households, cascade_callbacks: true, :before_add => :reset_active_household
   embeds_many :broker_agency_accounts, class_name: "BenefitSponsors::Accounts::BrokerAgencyAccount"
-  embeds_many :general_agency_accounts
   embeds_many :documents, as: :documentable
 
   after_initialize :build_household
   before_save :clear_blank_fields
 
   accepts_nested_attributes_for :special_enrollment_periods, :family_members,
-                                :households, :broker_agency_accounts, :general_agency_accounts
+                                :households, :broker_agency_accounts
 
   # index({hbx_assigned_id: 1}, {unique: true})
   index({e_case_id: 1}, { sparse: true })
@@ -130,7 +129,6 @@ class Family
 
   scope :by_writing_agent_id,               ->(broker_id){ where(broker_agency_accounts: {:$elemMatch=> {writing_agent_id: broker_id, is_active: true}})}
   scope :by_broker_agency_profile_id,       ->(broker_agency_profile_id) { where(broker_agency_accounts: {:$elemMatch=> {is_active: true, "$or": [{benefit_sponsors_broker_agency_profile_id: broker_agency_profile_id}, {broker_agency_profile_id: broker_agency_profile_id}]}})}
-  scope :by_general_agency_profile_id,      ->(general_agency_profile_id) { where(general_agency_accounts: {:$elemMatch=> {general_agency_profile_id: general_agency_profile_id, aasm_state: "active"}})}
 
   scope :all_plan_shopping,             ->{ exists(:"households.hbx_enrollments" => true) }
 

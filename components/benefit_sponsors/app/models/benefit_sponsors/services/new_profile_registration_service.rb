@@ -256,13 +256,6 @@ module BenefitSponsors
         profile.broker_agency_accounts.any? {|acc| acc.writing_agent_id == person.broker_role.id}
       end
 
-      def is_general_agency_staff_for_employer?(user, _form)
-        return false unless user.person.general_agency_staff_roles.present?
-
-        # TODO: - check ER has this GA or not
-        true
-      end
-
       def has_broker_role_for_profile?(user, profile) # When profile is broker agency
         broker_role = user.person.broker_role
         return false unless broker_role
