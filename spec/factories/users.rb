@@ -112,10 +112,6 @@ FactoryBot.define do
     roles { ["broker_agency_staff"] }
   end
 
-  trait :general_agency_staff do
-    roles { ['general_agency_staff'] }
-  end
-
   trait :with_consumer_role do
     after :create do |user|
       FactoryBot.create :person, :with_consumer_role, :with_family, :user => user
