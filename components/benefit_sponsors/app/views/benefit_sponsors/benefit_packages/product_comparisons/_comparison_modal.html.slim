@@ -1,0 +1,21 @@
+- if ::EnrollRegistry.feature_enabled?(:plan_comparison_tool)
+  / Plan Comparison Modal
+  .modal.fade#planComparisonModal tabindex="-1" role="dialog" aria-labelledby="planComparisonModalLabel"
+    .modal-dialog.modal-xl role="document" style="width: 70%; max-width: 70%;"
+      .modal-content
+        .modal-header
+          button.close type="button" data-dismiss="modal" aria-label="Close"
+            span aria-hidden="true" &times;
+          h3.heading-text.mb-0.mt-0= l10n('employers.plan_years.benefit_package.compare_selected_plans')
+        .modal-body
+          #comparisonLoadingSpinner.text-center style="display:none;"
+            i.fa.fa-spinner.fa-spin.fa-3x
+            p Loading comparison data...
+          
+          #comparisonContent
+            / Content will be loaded via AJAX
+        
+        .modal-footer
+          button#exportComparisonPDF.btn.btn-primary type="button"= l10n('employers.plan_years.benefit_package.export_to_pdf')
+          button#exportComparisonCSV.btn.btn-primary type="button"= l10n('employers.plan_years.benefit_package.export_to_csv')
+          button.btn.btn-default type="button" data-dismiss="modal"= l10n('employers.plan_years.benefit_package.close')

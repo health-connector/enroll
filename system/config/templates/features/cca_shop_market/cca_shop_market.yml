@@ -29,3 +29,5 @@ registry:
             item: 'PVP'
           - key: :standard
             item: 'Standard'
+      - key: :plan_comparison_tool
+        is_enabled: <%= ENV['PLAN_COMPARISON_TOOL'] || false %>
