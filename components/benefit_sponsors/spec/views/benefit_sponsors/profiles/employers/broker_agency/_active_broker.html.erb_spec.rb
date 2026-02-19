@@ -68,39 +68,4 @@ RSpec.describe "views/benefit_sponsors/profiles/employers/broker_agency/_active_
     end
   end
 
-  context "can_change_broker?" do
-    let(:person) { FactoryBot.create(:person) }
-    let(:user) { FactoryBot.create(:user, person: person) }
-    context "without broker" do
-      before :each do
-        view.extend BenefitSponsors::Engine.routes.url_helpers
-        user.roles = [:general_agency_staff]
-        sign_in user
-        @employer_profile = employer_profile
-        render "benefit_sponsors/profiles/employers/broker_agency/active_broker", direct_terminate: true
-      end
-
-      it "should have disabled button" do
-        expect(rendered).to have_selector('a.disabled', text: 'Browse Brokers')
-      end
-    end
-
-    context "without broker" do
-      before :each do
-        view.extend BenefitSponsors::Engine.routes.url_helpers
-        user.roles = [:general_agency_staff]
-        sign_in user
-        @employer_profile = employer_profile
-        render "benefit_sponsors/profiles/employers/broker_agency/active_broker", direct_terminate: true
-      end
-
-      it "should have disabled button of browser brokers" do
-        expect(rendered).to have_selector('a.disabled', text: 'Browse Brokers')
-      end
-
-      it "should have disabled button of change broker" do
-        expect(rendered).to have_selector('a.disabled', text: 'Change Broker')
-      end
-    end
-  end
 end

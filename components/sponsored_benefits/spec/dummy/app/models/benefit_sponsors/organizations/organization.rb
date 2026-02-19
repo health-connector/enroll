@@ -41,8 +41,6 @@ module BenefitSponsors
       embeds_many :profiles,
                   class_name: "BenefitSponsors::Organizations::Profile", cascade_callbacks: true
 
-      scope :general_agency_profiles, ->{ where(:"profiles._type" => /.*GeneralAgencyProfile$/) }
-
       def employer_profile
         self.profiles.where(_type: /.*EmployerProfile$/).first
       end

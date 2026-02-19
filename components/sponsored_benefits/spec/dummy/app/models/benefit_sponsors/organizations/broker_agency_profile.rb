@@ -17,7 +17,6 @@ module BenefitSponsors
       field :market_kind, type: Symbol
       field :corporate_npn, type: String
       field :primary_broker_role_id, type: BSON::ObjectId
-      field :default_general_agency_profile_id, type: BSON::ObjectId
 
       field :languages_spoken, type: Array, default: ["en"] # TODO
       field :working_hours, type: Mongoid::Boolean, default: false

@@ -28,9 +28,8 @@ class UpdatingBrokerAgencyAccountOrProfile < MongoidMigrationTask
 
     if org.blank? && writing_agent.present?
       broker_agency_profile = BrokerAgencyProfile.new(market_kind: ENV['market_kind'],
-                                                          entity_kind: "s_corporation",
-                                                          primary_broker_role_id: writing_agent.id,
-                                                          default_general_agency_profile_id: ENV['defualt_general_agency_id'])
+                                                      entity_kind: "s_corporation",
+                                                      primary_broker_role_id: writing_agent.id)
       org = Organization.create(office_locations: [create_new_primary_office_location], fein: ENV['fein'], legal_name: ENV['legal_name'],
                                 is_fake_fein: true, broker_agency_profile: broker_agency_profile)
       org.broker_agency_profile.approve!

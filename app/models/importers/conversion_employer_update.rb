@@ -79,33 +79,6 @@ module Importers
             br = BrokerRole.by_npn(broker_npn).first
             organization.employer_profile.broker_agency_accounts = assign_brokers if br.present? && organization.employer_profile.broker_agency_accounts.where(:writing_agent_id => br.id).blank?
           end
-
-          broker = find_broker
-          general_agency = find_ga
-
-          if broker.present? && general_agency.present?
-
-            general_agency_account = organization.employer_profile.general_agency_accounts.where({
-              :general_agency_profile_id => general_agency.id,
-              :broker_role_id => broker.id
-              }).first
-
-            if general_agency_account.present?
-
-              organization.employer_profile.general_agency_accounts.each do |account|
-                if (account.id != general_agency_account.id && account.active?)
-                  account.terminate! if account.may_terminate?
-                end
-              end
-
-              general_agency_account.update_attributes(:aasm_state => 'active') if general_agency_account.inactive?
-            else
-              if new_account = assign_general_agencies.first
-                organization.employer_profile.general_agency_accounts.each{|ac| ac.terminate! if ac.may_terminate? }
-                organization.employer_profile.general_agency_accounts << new_account
-              end
-            end
-          end
           update_result = organization.save
         else
           update_result = false # if there are errors, then return false.
