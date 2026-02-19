@@ -142,7 +142,6 @@ aca:
   market_kinds: ["shop"]
   hbx_abbreviation: "DC Health Benefit Exchange"
   nationwide_markets: false
-  general_agency_enabled: false
   broker_carrier_appointments_enabled: true
   enrollments_reinstate_enabled: true
   past_enrollment_eligble_to_retrem:
@@ -231,7 +230,7 @@ aca:
     renewal_application:
       earliest_start_prior_to_effective_on:
         months: -2
-        day_of_month: 12
+        day_of_month: 0
       monthly_open_enrollment_end_on: 20
       publish_due_day_of_month: 15
       application_submission_soft_deadline: 10

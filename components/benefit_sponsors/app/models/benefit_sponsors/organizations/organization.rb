@@ -123,7 +123,6 @@ module BenefitSponsors
       scope :hbx_profiles,            ->{ where(:"profiles._type" => /.*HbxProfile$/) }
       scope :employer_profiles,       ->{ where(:"profiles._type" => /.*EmployerProfile$/) }
       scope :broker_agency_profiles,  ->{ where(:"profiles._type" => /.*BrokerAgencyProfile$/) }
-      scope :general_agency_profiles, ->{ where(:"profiles._type" => /.*GeneralAgencyProfile$/) }
       scope :issuer_profiles,         ->{ where(:"profiles._type" => /.*IssuerProfile$/) }
 
       scope :broker_agencies_by_market_kind,  ->(market_kind) { broker_agency_profiles.any_in(:"profiles.market_kind" => market_kind) }
@@ -154,11 +153,11 @@ module BenefitSponsors
       scope :employer_profiles_renewing,    -> {}
       scope :employer_profiles_enrolling,   -> {}
 
-      scope :employer_attestations,           -> {}
-      scope :employer_attestations_submitted, -> {}
-      scope :employer_attestations_pending,   -> {}
-      scope :employer_attestations_approved,  -> {}
-      scope :employer_attestations_denied,    -> {}
+      scope :employer_attestations,           -> { where(:"profiles.employer_attestation.aasm_state".in => ['submitted', 'pending', 'approved', 'denied']) }
+      scope :employer_attestations_submitted, -> { where(:"profiles.employer_attestation.aasm_state" => 'submitted') }
+      scope :employer_attestations_pending,   -> { where(:"profiles.employer_attestation.aasm_state" => 'pending') }
+      scope :employer_attestations_approved,  -> { where(:"profiles.employer_attestation.aasm_state" => 'approved') }
+      scope :employer_attestations_denied,    -> { where(:"profiles.employer_attestation.aasm_state" => 'denied') }
 
       scope :employer_profiles_applicants,  -> {}
       scope :employer_profiles_enrolling,   -> {}

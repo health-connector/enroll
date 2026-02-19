@@ -1,0 +1,176 @@
+<div class="container-fluid">
+  <div class="mygrid-wrapper-div">
+    <table class="table bordered compare-table" border="1" style="font-size:11px;" id="compare_plans_table">
+      <!-- Carrier Logos -->
+      <tr>
+        <th class="row-title"><%= l10n('employers.plan_years.benefit_package.plans') %></th>
+        <% qhps.each do |qhp| %>
+          <th colspan="2" style="text-align: center; vertical-align:middle; border: none; padding: 0;" class='movable'>
+            <%= hidden_field_tag "plan_id-#{qhp.product.id}", qhp.product.id, class: 'plan_id' %>
+            <% carrier_name = qhp.product.issuer_profile.organization.legal_name.gsub(/united health care/i, 'uhic') %>
+            <%= image_tag("logo/carrier/#{carrier_name.parameterize.underscore}.jpg", {width: 80}) if carrier_name.present? %>
+          </th>
+        <% end %>
+      </tr>
+
+      <!-- Plan Names -->
+      <tr>
+        <th></th>
+        <% qhps.each do |qhp| %>
+          <th colspan="2" style="text-align: center; vertical-align:middle; border: none; padding: 0;" class="ttc fourteen blue">
+            <%= qhp.product.name %>
+          </th>
+        <% end %>
+      </tr>
+
+      <!-- Metal Level & Plan Type -->
+      <tr>
+        <th></th>
+        <% qhps.each do |qhp| %>
+          <th class="fourteen lg" colspan="2" style="text-align: center; vertical-align:middle; border: none; padding: 0;">
+            <span class="<%= qhp.product.metal_level.humanize.downcase %>-icon">
+              <%= display_dental_metal_level qhp.product %>
+            </span>
+            &nbsp;&#149;&nbsp;
+            <%= qhp.product.health_plan_kind.upcase %>
+          </th>
+        <% end %>
+      </tr>
+
+      <!-- Employer Estimated Monthly Cost -->
+      <% if defined?(employer_costs) && employer_costs.present? %>
+        <tr class="employer-cost-row">
+          <th style="background-color: #e8f4f8; padding: 12px 8px;">
+            <strong style="font-size: 12px;"><%= l10n('employers.plan_years.benefit_package.estimated_monthly_cost') %></strong>
+            <br>
+            <small style="color: #666;">(<%= l10n('employers.plan_years.benefit_package.employer_contribution_label') %>)</small>
+          </th>
+          <% qhps.each do |qhp| %>
+            <th colspan="2" style="text-align: center; background-color: #e8f4f8; padding: 12px 8px;">
+              <strong style="font-size: 13px; color: #0066cc;">
+                <%= number_to_currency(employer_costs[qhp.product.id] || 0.00) %>
+              </strong>
+            </th>
+          <% end %>
+        </tr>
+      <% end %>
+
+      <!-- Deductibles Header -->
+      <tr>
+        <th><%= l10n('employers.plan_years.benefit_package.deductibles') %></th>
+        <% qhps.each do |qhp| %>
+          <th><strong><%= l10n('employers.plan_years.benefit_package.individual') %></strong></th>
+          <th><strong><%= l10n('employers.plan_years.benefit_package.family') %></strong></th>
+        <% end %>
+      </tr>  
+
+      <!-- Medical Deductible -->
+      <tr>
+        <th class="deductible-compare-header"><%= l10n('employers.plan_years.benefit_package.medical') %></th>
+        <% qhps.each do |qhp| %>
+          <% if qhp.qhp_deductibles.count > 1 %>
+            <% medical_ded = qhp.qhp_deductibles.where(deductible_type: "Medical EHB Deductible").first %>
+            <th class="deductible-compare-header"><%= medical_ded.in_network_tier_1_individual %></th>
+            <% fam_value = medical_ded.in_network_tier_1_family.match(/[|]\s([$]\d+)/) %>
+            <% family_deductible = fam_value ? fam_value[1] : "Not Applicable" %>
+            <th class="deductible-compare-header"><%= family_deductible %></th>
+          <% else %>
+            <% deductible = qhp.qhp_deductibles.first %>
+            <th class="deductible-compare-header"><%= deductible.in_network_tier_1_individual %></th>
+            <% fam_value = deductible.in_network_tier_1_family.match(/[|]\s([$]\d+)/) %>
+            <% family_deductible = fam_value ? fam_value[1] : "Not Applicable" %>
+            <th class="deductible-compare-header"><%= family_deductible %></th>
+          <% end %>
+        <% end %>
+      </tr>
+
+      <!-- Rx Deductible -->
+      <tr>
+        <th class="deductible-compare-header"><%= l10n('employers.plan_years.benefit_package.rx') %></th>
+        <% qhps.each do |qhp| %>
+          <% if qhp.qhp_deductibles.count > 1 %>
+            <% drug_ded = qhp.qhp_deductibles.where(deductible_type: "Drug EHB Deductible").first %>
+            <th class="deductible-compare-header"><%= drug_ded.in_network_tier_1_individual %></th>
+            <% fam_value = drug_ded.in_network_tier_1_family.match(/[|]\s([$]\d+)/) %>
+            <% family_deductible = fam_value ? fam_value[1] : "N/A" %>
+            <th class="deductible-compare-header"><%= family_deductible %></th>
+          <% else %>
+            <% deductible = qhp.qhp_deductibles.first %>
+            <th class="deductible-compare-header"><%= deductible.in_network_tier_1_individual %></th>
+            <% fam_value = deductible.in_network_tier_1_family.match(/[|]\s([$]\d+)/) %>
+            <% family_deductible = fam_value ? fam_value[1] : "N/A" %>
+            <th class="deductible-compare-header"><%= family_deductible %></th>
+          <% end %>
+        <% end %>
+      </tr>
+
+      <!-- Out of Pocket Maximum -->
+      <tr>
+        <th><%= l10n('employers.plan_years.benefit_package.out_of_pocket_maximum') %></th>
+        <% qhps.each do |qhp| %>
+          <td colspan="2">
+            <%= qhp.qhp_maximum_out_of_pockets.first.in_network_tier_1_family_amount %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- Provider Network -->
+      <tr>
+        <th><%= l10n('employers.plan_years.benefit_package.provider_network') %></th>
+        <% qhps.each do |qhp| %>
+          <th colspan="2">
+            <%= render partial: "shared/network_data", locals: {plan: qhp.product} %>
+          </th>
+        <% end %>
+      </tr>
+
+      <%= render partial: "shared/plan_shoppings/provider_directory_url", locals: {qhps: qhps} %>
+
+      <!-- RX Formulary URL -->
+      <% if qhps.map(&:product).map(&:rx_formulary_url).compact.present? %>
+        <tr>
+          <th><%= l10n('employers.plan_years.benefit_package.prescription_drug_formulary') %></th>
+          <% qhps.each do |qhp| %>
+            <th colspan="2">
+              <% if qhp.product.health? && qhp.product.rx_formulary_url.present? %>
+                <%= link_to l10n('employers.plan_years.benefit_package.rx_formulary_url'), qhp.product.rx_formulary_url, target: "_blank" %>
+              <% end %>
+            </th>
+          <% end %>
+        </tr>
+      <% end %>
+
+      <!-- Plan Benefits Header -->
+      <tr>
+        <th><%= l10n('employers.plan_years.benefit_package.plan_benefits') %> <br> (<%= l10n('employers.plan_years.benefit_package.in_network') %>)</th>
+        <% qhps.each do |qhp| %>
+          <th colspan="1"><%= l10n('employers.plan_years.benefit_package.co_pay') %></th>
+          <th colspan="1"><%= l10n('employers.plan_years.benefit_package.coinsurance') %></th>
+        <% end %>
+      </tr>
+
+      <!-- Service Visit Types -->
+      <%= render partial: "benefit_sponsors/benefit_packages/product_comparisons/plan_visit_types", locals: {qhps: qhps, visit_types: visit_types} %>
+
+      <tr>
+        <th></th>
+        <% qhps.each do |qhp| %>
+          <th></th><th></th>
+        <% end %>
+      </tr>
+
+       <!-- SBC Links -->
+      <tr>
+        <th></th>
+        <% qhps.each do |qhp| %>
+          <th colspan="2">
+            <div class="plan_comparison">
+              <%= render partial: "shared/plan_shoppings/sbc_link", locals: { plan: qhp.product } %>
+            </div>
+          </th>
+        <% end %>
+      </tr>
+    </table>
+  </div>
+</div>
+</div>
