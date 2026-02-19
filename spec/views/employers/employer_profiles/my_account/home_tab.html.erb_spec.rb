@@ -179,7 +179,6 @@ RSpec.describe "employers/employer_profiles/my_account/_home_tab.html.erb" do
         covered_count: 4,
         waived_count: 4,
         total_enrolled_count: 10,
-        total_enrolled_active_count: 10,
         enrollment_progress_bar: 2,
         progressbar_covered_count: 3,
         employee_participation_percent: 40,
