@@ -8,7 +8,7 @@
       <td><%= notice_recipient.full_name %></td>
     </tr>
 
-    <% if (recipient.shop? && !recipient.employee_notice? && !recipient.general_agency? && !recipient.broker?) %>
+    <% if (recipient.shop? && !recipient.employee_notice? && !recipient.broker?) %>
       <tr class="fssize1">
         <td><%= recipient.employer_name %></td>
       </tr>

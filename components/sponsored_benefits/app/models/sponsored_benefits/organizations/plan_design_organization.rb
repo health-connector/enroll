@@ -78,10 +78,6 @@ module SponsoredBenefits
         ::BrokerAgencyProfile.find(owner_profile_id) || ::BenefitSponsors::Organizations::Profile.find(owner_profile_id)
       end
 
-      def general_agency_profile
-        self.try(:employer_profile).try(:active_general_agency_account)
-      end
-
       def active_employer_benefit_sponsorship
         bs = employer_profile.active_benefit_sponsorship
         bs if (bs && bs.is_eligible?)

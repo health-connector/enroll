@@ -4,7 +4,7 @@ module Importers
   class ConversionEmployerUpdate < ConversionEmployer
 
     def initialize(opts = {})
-      super
+      super(opts)
     end
 
 # covered scenarios
@@ -78,29 +78,6 @@ module Importers
             broker_exists_if_specified
             br = BrokerRole.by_npn(broker_npn).first
             organization.employer_profile.broker_agency_accounts = assign_brokers if br.present? && organization.employer_profile.broker_agency_accounts.where(:writing_agent_id => br.id).blank?
-          end
-
-          broker = find_broker
-          general_agency = find_ga
-
-          if broker.present? && general_agency.present?
-
-            general_agency_account = organization.employer_profile.general_agency_accounts.where({
-                                                                                                   :general_agency_profile_id => general_agency.id,
-                                                                                                   :broker_role_id => broker.id
-                                                                                                 }).first
-
-            if general_agency_account.present?
-
-              organization.employer_profile.general_agency_accounts.each do |account|
-                account.terminate! if account.id != general_agency_account.id && account.active? && account.may_terminate?
-              end
-
-              general_agency_account.update_attributes(:aasm_state => 'active') if general_agency_account.inactive?
-            elsif (new_account = assign_general_agencies.first)
-              organization.employer_profile.general_agency_accounts.each{|ac| ac.terminate! if ac.may_terminate? }
-              organization.employer_profile.general_agency_accounts << new_account
-            end
           end
           update_result = organization.save
         else
