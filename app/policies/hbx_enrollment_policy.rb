@@ -77,6 +77,7 @@ class HbxEnrollmentPolicy < ApplicationPolicy
     return true if shop_market_primary_family_member?
     return true if shop_market_admin?
     return true if active_associated_shop_market_family_broker?
+    return true if active_associated_shop_market_general_agency?
 
     false
   end

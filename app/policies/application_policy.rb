@@ -89,6 +89,22 @@ class ApplicationPolicy
 
   # rubocop:enable Metrics/CyclomaticComplexity, Metrics/ParameterLists
 
+  def active_associated_shop_market_general_agency?
+    account_holder_ga_roles = account_holder_person&.active_general_agency_staff_roles
+    return false if account_holder_ga_roles.blank?
+    return false if broker_profile_ids.blank?
+
+    ::SponsoredBenefits::Organizations::PlanDesignOrganization.where(
+      :owner_profile_id.in => broker_profile_ids,
+      :general_agency_accounts => {
+        :"$elemMatch" => {
+          aasm_state: :active,
+          :benefit_sponsrship_general_agency_profile_id.in => account_holder_ga_roles.map(&:benefit_sponsors_general_agency_profile_id)
+        }
+      }
+    ).present?
+  end
+
   # @endgrop
 
   # @!group Hbx Staff Role permissions
@@ -123,6 +139,10 @@ class ApplicationPolicy
 
   def staff_approve_broker?
     permission&.approve_broker
+  end
+
+  def staff_approve_ga?
+    permission&.approve_ga
   end
 
   def staff_can_extend_open_enrollment?

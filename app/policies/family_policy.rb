@@ -24,6 +24,7 @@ class FamilyPolicy < ApplicationPolicy
     return true if shop_market_primary_family_member?
     return true if shop_market_admin?
     return true if active_associated_shop_market_family_broker?
+    return true if active_associated_shop_market_general_agency?
 
     false
   end
@@ -157,6 +158,15 @@ class FamilyPolicy < ApplicationPolicy
           er.employer_profile.active_broker_agency_account
         end.compact.map(&:benefit_sponsors_broker_agency_profile_id)
         return true if broker_agency_profile_account_ids.include?(broker_role.benefit_sponsors_broker_agency_profile_id)
+      end
+      ga_roles = user_person.active_general_agency_staff_roles
+      if ga_roles.any? && employee_roles.any?
+        general_agency_profile_account_ids = employee_roles.map do |er|
+          er.employer_profile.active_general_agency_account
+        end.compact.map(&:general_agency_profile_id)
+        ga_roles.each do |ga_role|
+          return true if general_agency_profile_account_ids.include?(ga_role.general_agency_profile_id)
+        end
       end
     end
     false

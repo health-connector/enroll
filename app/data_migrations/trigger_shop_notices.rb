@@ -14,6 +14,8 @@ class TriggerShopNotices < MongoidMigrationTask
       trigger_employee_notice
     when "broker_notice"
       trigger_broker_notice
+    when "general_agency_notice"
+      trigger_general_agency_notice
     end
   end
 
@@ -49,6 +51,9 @@ class TriggerShopNotices < MongoidMigrationTask
 
   end
 
+  def trigger_general_agency_notice
+
+  end
 end
 
 

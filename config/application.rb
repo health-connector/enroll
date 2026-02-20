@@ -102,6 +102,7 @@ module Enroll
       config.acapi.add_async_subscription("Subscribers::FamilyApplicationCompleted")
       config.acapi.add_async_subscription("Subscribers::IamAccountCreation")
       config.acapi.add_async_subscription("Subscribers::NotificationSubscriber")
+      config.acapi.add_async_subscription("Subscribers::DefaultGaChanged")
       config.acapi.add_async_subscription("Subscribers::ShopBinderEnrollmentsTransmissionAuthorized")
       config.acapi.add_async_subscription("Subscribers::ShopRenewalTransmissionAuthorized")
       config.acapi.add_async_subscription("Subscribers::ShopInitialEmployerQuietPeriodEnded")

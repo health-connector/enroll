@@ -27,7 +27,7 @@ module Services
 
     def can_be_proccessed_as_legacy?(recipient, notice_event)
       resource = Notifier::ApplicationEventMapper.map_resource(recipient.class)
-      resource_hash = {:employee => "employee_role", :employer => "employer", :broker_agency => "broker_role", :consumer_role => "consumer_role", :broker => "broker_role"}
+      resource_hash = {:employee => "employee_role", :employer => "employer", :broker_agency => "broker_role", :consumer_role => "consumer_role", :broker => "broker_role", :general_agency => "general_agent_profile"}
       # resource_name fetching on ApplicaitonEventKind and Observer pattern(ApplicationEventMapper) is different
       ApplicationEventKind.where(event_name: notice_event, resource_name: resource_hash[resource.resource_name]).present?
     end
