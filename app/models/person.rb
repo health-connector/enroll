@@ -109,6 +109,12 @@ class Person
              index: true,
              optional: true
 
+  belongs_to :general_agency_contact,
+             class_name: "GeneralAgencyProfile",
+             inverse_of: :general_agency_contacts,
+             index: true,
+             optional: true
+
   embeds_one :consumer_role, cascade_callbacks: true, validate: true
   embeds_one :resident_role, cascade_callbacks: true, validate: true
   embeds_one :broker_role, cascade_callbacks: true, validate: true
@@ -122,6 +128,8 @@ class Person
   embeds_many :employer_staff_roles, cascade_callbacks: true, validate: true
   embeds_many :broker_agency_staff_roles, cascade_callbacks: true, validate: true
   embeds_many :employee_roles, cascade_callbacks: true, validate: true
+  embeds_many :general_agency_staff_roles, cascade_callbacks: true, validate: true
+
   embeds_many :person_relationships, cascade_callbacks: true, validate: true
   embeds_many :addresses, cascade_callbacks: true, validate: true
   embeds_many :phones, cascade_callbacks: true, validate: true
@@ -232,12 +240,20 @@ class Person
   scope :unverified_persons,        -> { where(:'consumer_role.aasm_state' => { "$ne" => "fully_verified" })}
   scope :matchable,                 ->(ssn, dob, last_name) { where(encrypted_ssn: Person.encrypt_ssn(ssn), dob: dob, last_name: last_name) }
 
+  scope :general_agency_staff_applicant,     -> { where("general_agency_staff_roles.aasm_state" => { "$eq" => :applicant })}
+  scope :general_agency_staff_certified,     -> { where("general_agency_staff_roles.aasm_state" => { "$eq" => :active })}
+  scope :general_agency_staff_decertified,   -> { where("general_agency_staff_roles.aasm_state" => { "$eq" => :decertified })}
+  scope :general_agency_staff_denied,        -> { where("general_agency_staff_roles.aasm_state" => { "$eq" => :denied })}
 #  ViewFunctions::Person.install_queries
 
   validate :consumer_fields_validations
 
   after_create :notify_created
   after_update :notify_updated, if: :attributes_changed?
+
+  def active_general_agency_staff_roles
+    general_agency_staff_roles.select(&:active?)
+  end
 
   def contact_addresses
     existing_addresses = addresses.to_a
@@ -843,7 +859,7 @@ class Person
   end
 
   def agent?
-    agent = csr_role || assister_role || broker_role || hbx_staff_role
+    agent = csr_role || assister_role || broker_role || hbx_staff_role || general_agency_staff_roles.present?
     !!agent
   end
 

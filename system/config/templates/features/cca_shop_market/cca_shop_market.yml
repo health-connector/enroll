@@ -30,4 +30,4 @@ registry:
           - key: :standard
             item: 'Standard'
       - key: :plan_comparison_tool
-        is_enabled: <%= ENV['PLAN_COMPARISON_TOOL'] || false %>
+        is_enabled: <%= ENV['PLAN_COMPARISON_TOOL_IS_ENABLED'] || true %>

@@ -18,6 +18,10 @@ module Config::AcaConcern
     redirect_to root_path
   end
 
+  def general_agency_is_enabled?
+    Settings.aca.general_agency_enabled
+  end
+
   def support_for_ie_browser?
     Settings.aca.support_for_ie_browser
   end

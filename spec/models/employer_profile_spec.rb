@@ -563,6 +563,21 @@ describe EmployerProfile, "Class methods", dbclean: :after_each do
       expect(employers_with_broker7.size).to eq 1
     end
 
+    it "should send notification to GA when the broker is terminated on hiring other broker by employer" do
+      ActiveJob::Base.queue_adapter = :test
+      ActiveJob::Base.queue_adapter.enqueued_jobs = []
+      employer =  organization5.create_employer_profile(entity_kind: "partnership", sic_code: '1111');
+      employer.hire_broker_agency(broker_agency_profile7)
+      employer.save
+      FactoryBot.create(:general_agency_account, employer_profile: employer, aasm_state: 'active')
+
+      employer = Organization.find(employer.organization.id).employer_profile
+      employer.hire_broker_agency(broker_agency_profile)
+      employer.save
+      queued_job = ActiveJob::Base.queue_adapter.enqueued_jobs
+      expect(queued_job.any? {|h| (h[:args] == [employer.id.to_s, 'general_agency_terminated'] && h[:job] == ShopNoticesNotifierJob)}).to eq true
+    end
+
     it 'works with multiple broker_agency_contacts'  do
       employer = er5
       org_id = employer.organization.id
@@ -945,11 +960,92 @@ describe EmployerProfile, "Renewal Queries" do
   end
 end
 
-describe EmployerProfile, "additional behaviors", dbclean: :after_each do
+describe EmployerProfile, "For General Agency", dbclean: :after_each do
   let(:employer_profile) { FactoryBot.create(:employer_profile) }
+  let(:general_agency_profile) { FactoryBot.create(:general_agency_profile) }
+  let(:broker_role) { FactoryBot.create(:broker_role) }
 
   before :each do
     allow(EmployerProfile).to receive(:enforce_employer_attestation?).and_return(false)
+  end
+
+  context "active_general_agency_account" do
+    it "should get active general_agency_account" do
+      FactoryBot.create(:general_agency_account, employer_profile: employer_profile, aasm_state: 'inactive')
+      gaa = FactoryBot.create(:general_agency_account, employer_profile: employer_profile, aasm_state: 'active')
+      expect(employer_profile.general_agency_accounts.count).to eq 2
+      expect(employer_profile.active_general_agency_account).to eq gaa
+    end
+  end
+
+  context "active_general_agency_legal_name" do
+    it "with active general_agency_account" do
+      FactoryBot.create(:general_agency_account, employer_profile: employer_profile, aasm_state: 'inactive')
+      gaa = FactoryBot.create(:general_agency_account, employer_profile: employer_profile, aasm_state: 'active')
+      expect(employer_profile.general_agency_accounts.count).to eq 2
+      expect(employer_profile.active_general_agency_legal_name).to eq gaa.legal_name
+    end
+
+    it "without active general_agency_account" do
+      expect(employer_profile.active_general_agency_legal_name).to eq nil
+    end
+  end
+
+  context "general_agency_profile" do
+    it "with active general_agency_account" do
+      gaa = FactoryBot.create(:general_agency_account, employer_profile: employer_profile, aasm_state: 'active')
+      expect(employer_profile.general_agency_profile).to eq gaa.general_agency_profile
+    end
+
+    it "without active general_agency_account" do
+      expect(employer_profile.general_agency_profile).to eq nil
+    end
+  end
+
+  context "hire_general_agency" do
+    it "should get active general_agency_account after hire" do
+      employer_profile.hire_general_agency(general_agency_profile, broker_role.id)
+      employer_profile.save
+      expect(employer_profile.general_agency_profile).to eq general_agency_profile
+      expect(employer_profile.active_general_agency_account.present?).to eq true
+      expect(employer_profile.active_general_agency_account.broker_role).to eq broker_role
+    end
+  end
+
+  context "fire_general_agency" do
+    it "when without active_general_agency_account" do
+      employer_profile.fire_general_agency!
+      expect(employer_profile.active_general_agency_account.blank?).to eq true
+    end
+
+    it "when with active general_agency_profile" do
+      FactoryBot.create(:general_agency_account, employer_profile: employer_profile, aasm_state: 'active')
+      expect(employer_profile.active_general_agency_account.blank?).to eq false
+      employer_profile.fire_general_agency!
+      expect(employer_profile.active_general_agency_account.blank?).to eq true
+    end
+
+    it "when with multiple active general_agency_profile" do
+      FactoryBot.create(:general_agency_account, employer_profile: employer_profile, aasm_state: 'active')
+      FactoryBot.create(:general_agency_account, employer_profile: employer_profile, aasm_state: 'active')
+      expect(employer_profile.general_agency_accounts.active.count).to eq 2
+      employer_profile.fire_general_agency!
+      expect(employer_profile.active_general_agency_account.blank?).to eq true
+    end
+
+    it "when with active general agency profile must send notification on broker termination" do
+      FactoryBot.create(:general_agency_account, employer_profile: employer_profile, aasm_state: 'active')
+      expect(employer_profile.active_general_agency_account.blank?).to eq false
+
+      ActiveJob::Base.queue_adapter = :test
+      ActiveJob::Base.queue_adapter.enqueued_jobs = []
+      employer_profile.fire_general_agency!
+      queued_job = ActiveJob::Base.queue_adapter.enqueued_jobs.find do |job_info|
+        job_info[:job] == ShopNoticesNotifierJob
+      end
+      expect(queued_job[:args]).to eq [employer_profile.id.to_s, 'general_agency_terminated']
+      expect(employer_profile.active_general_agency_account.blank?).to eq true
+    end
   end
 
   describe "notify_broker_update" do
@@ -967,6 +1063,33 @@ describe EmployerProfile, "additional behaviors", dbclean: :after_each do
         expect(employer_profile).to receive(:notify).exactly(1).times
         FactoryBot.create(:broker_agency_account, employer_profile: employer_profile, is_active: 'true')
         employer_profile.fire_broker_agency
+        employer_profile.save
+      end
+    end
+  end
+
+  describe "notify_general_agent_added" do
+    context "notify update" do
+      let(:employer_profile) { FactoryBot.create(:employer_profile) }
+      let(:general_agency_profile) { FactoryBot.create(:general_agency_profile) }
+      let(:broker_role) { FactoryBot.create(:broker_role) }
+
+      it "notify if general_agent added to employer account" do
+        expect(employer_profile).to receive(:notify).exactly(1).times
+        employer_profile.hire_general_agency(general_agency_profile, broker_role.id)
+        employer_profile.save
+      end
+    end
+  end
+
+  describe "notify_general_agent_terminated" do
+    context "notify update" do
+      let(:employer_profile) { FactoryBot.create(:employer_profile) }
+
+      it "notify if general_agent terminated to employer account" do
+        expect(employer_profile).to receive(:notify).exactly(1).times
+        FactoryBot.create(:general_agency_account, employer_profile: employer_profile, aasm_state: 'active')
+        employer_profile.fire_general_agency!
         employer_profile.save
       end
     end

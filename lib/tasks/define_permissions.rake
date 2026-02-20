@@ -1,6 +1,6 @@
 require File.join(Rails.root, "app", "data_migrations", "define_permissions")
 
-#All hbx_roles can view families, employers, broker_agencies, and brokers
+#All hbx_roles can view families, employers, broker_agencies, brokers and general agencies
 #The convention for a privilege group 'x' is  'modify_x', or view 'view_x'
 
 namespace :permissions do

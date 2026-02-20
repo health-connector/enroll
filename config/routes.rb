@@ -84,6 +84,7 @@ Rails.application.routes.draw do
         get :edit_force_publish
         post :force_publish
         get :broker_agency_index
+        get :general_agency_index if Settings.aca.general_agency_enabled
         get :issuer_index
         match "marketplace_plan_years/:market" => "hbx_profiles#marketplace_plan_years", as: :marketplace_plan_years, via: :get
         match "marketplace_plan_years/:market/:year" => "hbx_profiles#marketplace_plan_year", as: :marketplace_plan_year, via: :get

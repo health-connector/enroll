@@ -25,6 +25,7 @@ class DelinkBroker < MongoidMigrationTask
       broker_agency_profile = BrokerAgencyProfile.create(market_kind: "both",
                                                       entity_kind: "s_corporation",
                                                       primary_broker_role_id: person.broker_role.id,
+                                                      default_general_agency_profile_id: BSON::ObjectId('57339b79082e761cd1000066'),
                                                       organization: org)
       org.save
       org.broker_agency_profile.approve!
