@@ -21,8 +21,8 @@ module BenefitMarkets
         BenefitMarkets::Products::Product.only(:_id, :premium_tables, :premium_ages).batch_size(100).pluck(:_id, :premium_tables, :premium_ages).each do |product|
           product_id = product[0]
           $product_rate_age_bounding_cache[product_id] = {
-            minimum: product[2]["min"],
-            maximum: product[2]["max"]
+            minimum: product[2].min,
+            maximum: product[2].max
           }
 
           next unless product[1].present?
