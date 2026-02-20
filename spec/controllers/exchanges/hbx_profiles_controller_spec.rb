@@ -710,6 +710,44 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
 
   end
 
+  describe "GET general_agency_index" do
+    let(:user) { FactoryBot.create(:user, roles: ["hbx_staff"]) }
+    before :each do
+      allow(user).to receive(:has_hbx_staff_role?).and_return(true)
+      sign_in user
+    end
+
+    context "when GA is enabled in settings" do
+      before do
+        Settings.aca.general_agency_enabled = true
+        Enroll::Application.reload_routes!
+      end
+      it "should returns http success" do
+        get :general_agency_index, format: :js
+        expect(response).to have_http_status(:success)
+      end
+
+      it "should get general_agencies" do
+        get :general_agency_index, format: :js
+        expect(assigns(:general_agency_profiles)).to eq Kaminari.paginate_array(GeneralAgencyProfile.filter_by)
+      end
+    end
+
+    context "when GA is disabled in settings" do
+      before do
+        Settings.aca.general_agency_enabled = false
+        Enroll::Application.reload_routes!
+      end
+
+      it "should returns http success" do
+        expect(get: "/exchanges/hbx_profiles/general_agency_index").not_to route_to(
+          controller: "exchanges/hbx_profiles",
+          action: "general_agency_index"
+        )
+      end
+    end
+  end
+
   describe "POST reinstate_enrollment", :dbclean => :around_each do
     include_context "setup benefit market with market catalogs and product packages"
     include_context "setup initial benefit application"

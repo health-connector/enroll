@@ -45,6 +45,8 @@ RSpec.describe SponsoredBenefits::Services::PlanCostService, type: :model, dbcle
 
   let(:owner_profile) { broker_agency_profile }
   let(:broker_agency) { owner_profile.organization }
+  let(:general_agency_profile) { ga_profile }
+
   let(:employer_profile) { sponsor_profile }
   let(:benefit_sponsor) { sponsor_profile.organization }
 

@@ -18,5 +18,8 @@ module Config
       Settings.aca.market_kinds.include? 'individual'
     end
 
+    def general_agency_is_enabled?
+      Settings.aca.general_agency_enabled
+    end
   end
 end

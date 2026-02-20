@@ -58,6 +58,21 @@ FactoryBot.define do
       aasm_state { :eligible }
     end
 
+    trait :general_agency do
+      transient do
+        general_agency_traits { [] }
+        general_agency_attributes { {} }
+      end
+
+      before :create do |organization, _evaluator|
+        organization.office_locations.push FactoryBot.build :office_location, :primary
+      end
+
+      after :create do |organization, evaluator|
+        FactoryBot.create :general_agency_profile, *Array.wrap(evaluator.general_agency_traits) + [:with_staff], evaluator.general_agency_attributes.merge(organization: organization)
+      end
+    end
+
     trait :with_active_assignment do
       after(:build) do |census_employee, evaluator|
         build(:benefit_group_assignment, benefit_group: evaluator.benefit_group, census_employee: census_employee)

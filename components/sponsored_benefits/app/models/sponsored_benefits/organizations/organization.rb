@@ -10,7 +10,7 @@ module SponsoredBenefits
       embeds_one :hbx_profile, cascade_callbacks: true, validate: true
 
       accepts_nested_attributes_for :broker_agency_profile, :carrier_profile, :hbx_profile
-      # accepts_nested_attributes_for :office_locations, :employer_profile, :broker_agency_profile, :carrier_profile, :hbx_profile
+      # accepts_nested_attributes_for :office_locations, :employer_profile, :broker_agency_profile, :carrier_profile, :hbx_profile, :general_agency_profile
 #
       validates_presence_of :legal_name, :office_locations
 
@@ -58,6 +58,7 @@ module SponsoredBenefits
              { name: "active_broker_accounts_writing_agent" })
 
 
+      index({"employer_profile.general_agency_accounts._id" => 1})
       index({"employer_profile.broker_agency_accounts.is_active" => 1,
              "employer_profile.broker_agency_accounts.broker_agency_profile_id" => 1,
              "fein" => 1, "legal_name" => 1, "dba" => 1},
@@ -70,8 +71,10 @@ module SponsoredBenefits
       scope :by_broker_role,                      ->( broker_role_id ){ where(:'employer_profile.broker_agency_accounts' => {:$elemMatch => { is_active: true, writing_agent_id: broker_role_id                   } }) }
       scope :all_employers_by_plan_year_start_on, ->( start_on ){ unscoped.where(:"employer_profile.plan_years.start_on" => start_on)  if start_on.present? }
       scope :plan_year_start_on_or_after,         ->( start_on ){ where(:"employer_profile.plan_years.start_on".gte => start_on) if start_on.present? }
+      scope :by_general_agency_profile,           ->( general_agency_profile_id ) { where(:'employer_profile.general_agency_accounts' => {:$elemMatch => { aasm_state: "active", general_agency_profile_id: general_agency_profile_id } }) }
       scope :er_invoice_data_table_order,         ->{ reorder(:"employer_profile.plan_years.start_on".asc, :"legal_name".asc)}
       scope :has_broker_agency_profile,           ->{ exists(broker_agency_profile: true) }
+      scope :has_general_agency_profile,          ->{ exists(general_agency_profile: true) }
       scope :all_employers_renewing,              ->{ unscoped.any_in(:"employer_profile.plan_years.aasm_state" => PlanYear::RENEWING) }
       scope :all_employers_renewing_published,    ->{ unscoped.any_in(:"employer_profile.plan_years.aasm_state" => PlanYear::RENEWING_PUBLISHED_STATE) }
       scope :all_employers_non_renewing,          ->{ unscoped.any_in(:"employer_profile.plan_years.aasm_state" => PlanYear::PUBLISHED) }
@@ -146,6 +149,11 @@ module SponsoredBenefits
       # Strip non-numeric characters
       def fein=(new_fein)
         write_attribute(:fein, new_fein.to_s.gsub(/\D/, ''))
+      end
+
+      def self.search_by_general_agency(search_content)
+        sanitized_search_content = Regexp.escape(search_content)
+        Organization.has_general_agency_profile.or({legal_name: /#{sanitized_search_content}/i}, {"fein" => /#{sanitized_search_content}/i})
       end
 
       def self.default_search_order

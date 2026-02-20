@@ -8,12 +8,9 @@ module Operations
     # Operation to build eligibility records based on input parameters.
     class BuildEligibility
       include Dry::Monads[:do, :result]
-
-      attr_reader :configuration
-
-      def initialize(configuration: EligibilityConfiguration.new)
-        @configuration = configuration
-      end
+      include ::Operations::Eligible::EligibilityImport[
+                configuration: "eligibility_defaults"
+              ]
 
       # Builds eligibility options for a given subject and evidence.
       #

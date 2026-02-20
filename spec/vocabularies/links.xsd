@@ -12,6 +12,43 @@
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
+	<xs:complexType name="GeneralAgencyLinkType">
+		<xs:annotation>
+			<xs:documentation>Reference to a General Agency instance</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="id" type="IdentifierType">
+				<xs:annotation>
+					<xs:documentation>General Agency NPN and HBX-assigned IDs when known</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="name" type="nonEmptyString">
+				<xs:annotation>
+					<xs:documentation>Organization formal name in free-form text</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="dba" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Doing Business As in free-form text</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="display_name" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Organization name as presesnted in UI</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="npn" type="NpnIdType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>General Agency's National Producer Number</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="fein" type="FederalTaxIdType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Federal Employer Identifier Number</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
 	<xs:complexType name="BrokerLinkType">
 		<xs:annotation>
 			<xs:documentation>Reference to a Broker instance</xs:documentation>
