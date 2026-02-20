@@ -3,6 +3,7 @@ module BenefitMarkets
     # Provides a cached, efficient lookup for referencing rate values
     # by multiple keys.
     class ProductRateCache
+      # rubocop:disable Style/GlobalVars
       def self.initialize_rate_cache!
         $product_rate_age_bounding_cache = Hash.new 
         $product_rate_calculation_cache = Hash.new do |h, k|
@@ -16,20 +17,25 @@ module BenefitMarkets
         BenefitMarkets::Locations::RatingArea.each do |ra|
           rating_area_cache[ra.id] = ra.exchange_provided_code
         end
-        BenefitMarkets::Products::Product.each do |product|
-          $product_rate_age_bounding_cache[product.id] = {
-            minimum: product.premium_ages.min, 
-            maximum: product.premium_ages.max
+
+        BenefitMarkets::Products::Product.only(:_id, :premium_tables, :premium_ages).batch_size(100).pluck(:_id, :premium_tables, :premium_ages).each do |product|
+          product_id = product[0]
+          $product_rate_age_bounding_cache[product_id] = {
+            minimum: product[2]["min"],
+            maximum: product[2]["max"]
           }
-          product.premium_tables.each do |pt|
-            r_area_tag = rating_area_cache[pt.rating_area_id]
-            pt.premium_tuples.each do |tuple|
-              $product_rate_calculation_cache[product.id][r_area_tag][tuple.age] = (
-                $product_rate_calculation_cache[product.id][r_area_tag][tuple.age] + 
+
+          next unless product[1].present?
+
+          product[1].each do |pt|
+            r_area_tag = rating_area_cache[pt["rating_area_id"]]
+            pt["premium_tuples"].each do |tuple|
+              $product_rate_calculation_cache[product_id][r_area_tag][tuple["age"]] = (
+                $product_rate_calculation_cache[product_id][r_area_tag][tuple["age"]] +
                 [{
-                  start_on: pt.effective_period.min,
-                  end_on: pt.effective_period.max,
-                  cost: tuple.cost
+                  start_on: pt["effective_period"]["min"],
+                  end_on: pt["effective_period"]["max"],
+                  cost: tuple["cost"]
                 }]
               )
             end
@@ -66,4 +72,5 @@ module BenefitMarkets
       end
     end
   end
+  # rubocop:enable Style/GlobalVars
 end
