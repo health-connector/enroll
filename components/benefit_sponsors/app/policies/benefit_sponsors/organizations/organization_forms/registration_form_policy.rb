@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 module BenefitSponsors
   module Organizations
     module OrganizationForms
@@ -17,14 +15,12 @@ module BenefitSponsors
 
         def new?
           return false if benefit_sponsor_not_logged_in?
-
           true
         end
 
         def create?
           return false if benefit_sponsor_not_logged_in?
-          return true unless (role = user&.person && user.person.hbx_staff_role)
-
+          return true unless role = user && user.person && user.person.hbx_staff_role
           role.permission.modify_employer
         end
 
@@ -32,15 +28,15 @@ module BenefitSponsors
           return false unless user&.person
           return true if admin?
           return true if can_edit?
-
           false
         end
 
         def update?
           return true if can_update?
-          return true unless (role = user&.person && user.person.hbx_staff_role)
-          return role.permission.modify_employer if is_employer_profile?
-
+          return true unless role = user && user.person && user.person.hbx_staff_role
+          if is_employer_profile?
+            return role.permission.modify_employer
+          end
           role.permission.modify_admin_tabs
         end
 
@@ -49,8 +45,9 @@ module BenefitSponsors
         end
 
         def can_edit?
-          return true if is_employer_profile? && service.is_broker_for_employer?(user, record)
-
+          if is_employer_profile?
+            return true if (service.is_broker_for_employer?(user, record) || service.is_general_agency_staff_for_employer?(user, record))
+          end
           service.is_staff_for_agency?(user, record)
         end
 
@@ -71,9 +68,9 @@ module BenefitSponsors
         end
 
         def benefit_sponsor_not_logged_in?
-          return false unless is_employer_profile?
-
-          user.blank?
+          if is_employer_profile?
+            user.blank?
+          end
         end
 
         def broker_agency_registered?
@@ -82,10 +79,13 @@ module BenefitSponsors
 
         def redirect_home?
           return false if record.portal && user.blank?
-          return service.is_benefit_sponsor_already_registered?(user, record) if is_employer_profile?
+          if is_employer_profile?
+            return service.is_benefit_sponsor_already_registered?(user, record)
+          end
 
-          return service.is_broker_agency_registered?(user, record) if is_broker_profile?
-
+          if is_broker_profile?
+            return service.is_broker_agency_registered?(user, record)
+          end
           true
         end
       end

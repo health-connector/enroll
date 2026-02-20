@@ -102,6 +102,15 @@
                                                                               active_tab: active_tab,
                                                                               glyphicon_class: 'glyphicon-phone'
                                                                             } %>
+              <% if general_agency_enabled? %>
+                <%= render partial: 'exchanges/hbx_profiles/shared/nav_link', locals: {
+                                                                              tab_name: 'general-agencies',
+                                                                              link_path: main_app.general_agency_index_exchanges_hbx_profiles_path,
+                                                                              display_name: 'General Agencies',
+                                                                              active_tab: active_tab,
+                                                                              glyphicon_class: 'glyphicon-phone'
+                                                                            } %>
+              <% end %>
             </ul>
         </li>
     <li class="admin-dropdown dropdown">

@@ -146,6 +146,7 @@ module BenefitSponsors
         if active_broker_agency_account.present?
           terminate_on = (start_on - 1.day).end_of_day
           fire_broker_agency(terminate_on) unless broker_agency_profile == new_broker_agency
+          # fire_general_agency!(terminate_on)
         end
 
         organization.employer_profile.active_benefit_sponsorship.broker_agency_accounts.create(broker_agency_profile: new_broker_agency, writing_agent_id: broker_role_id, start_on: start_on).save!
@@ -161,6 +162,10 @@ module BenefitSponsors
         # employer_broker_fired
         # notify_broker_terminated
         # broker_fired_confirmation_to_broker
+      end
+
+      def fire_general_agency!(terminate_on = TimeKeeper.datetime_of_record)
+        return true unless general_agency_enabled?
       end
 
       def broker_fired_confirmation_to_broker
