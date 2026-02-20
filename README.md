@@ -4,6 +4,10 @@
 
 Enroll App is the web-facing, transactional component of the first built-to-purpose, open source eligibility and enrollment solution for Health Benefit Exchanges. Enroll powers the [DC Health Link](https://dchealthlink.com/) site for the [DC Health Benefit Exchange](http://hbx.dc.gov/), and is developed and managed by [IdeaCrew](http://www.ideacrew.com) and HBX.
 
+## Security Tools
+
+For exporting Dependabot security alerts to CSV format, see [Dependabot Export Documentation](docs/DEPENDABOT_EXPORT.md).
+
 # License
 
 The software is available as open source under the terms of the MIT License (MIT)
