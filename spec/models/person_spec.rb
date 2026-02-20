@@ -1312,6 +1312,15 @@ describe Person, :dbclean => :after_each do
     end
   end
 
+  describe "agent?" do
+    let(:person) { FactoryBot.create(:person) }
+
+    it "should return true with general_agency_staff_roles" do
+      person.general_agency_staff_roles << FactoryBot.build(:general_agency_staff_role)
+      expect(person.agent?).to be_truthy
+    end
+  end
+
   describe "dob_change_implication_on_active_enrollments" do
 
     let(:persons_dob) { TimeKeeper.date_of_record - 19.years }

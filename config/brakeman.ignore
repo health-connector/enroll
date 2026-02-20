@@ -282,6 +282,47 @@
       "note": ""
     },
     {
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 2,
+      "fingerprint": "6da7d9920ebb17cac7e152a36ad8020219121041f815c56eefc1867fb48a4379",
+      "check_name": "CrossSiteScripting",
+      "message": "Unescaped parameter value",
+      "file": "app/views/general_agencies/profiles/_employers.html.erb",
+      "line": 5,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
+      "code": "render_datatable(Effective::Datatables::GeneralAgencyDataTable.new(:id => params[:id]), :lengthMenu => ([[10, 25, 50, -1], [10, 25, 50, \"All\"]]), :buttons => ([\"copy\", \"csv\", \"excel\", \"print\"]))",
+      "render_path": [
+        {
+          "type": "controller",
+          "class": "GeneralAgencies::ProfilesController",
+          "method": "employers",
+          "line": 94,
+          "file": "app/controllers/general_agencies/profiles_controller.rb",
+          "rendered": {
+            "name": "general_agencies/profiles/employers",
+            "file": "app/views/general_agencies/profiles/employers.js.erb"
+          }
+        },
+        {
+          "type": "template",
+          "name": "general_agencies/profiles/employers",
+          "line": 1,
+          "file": "app/views/general_agencies/profiles/employers.js.erb",
+          "rendered": {
+            "name": "general_agencies/profiles/_employers",
+            "file": "app/views/general_agencies/profiles/_employers.html.erb"
+          }
+        }
+      ],
+      "location": {
+        "type": "template",
+        "template": "general_agencies/profiles/_employers"
+      },
+      "user_input": "params[:id]",
+      "confidence": "Weak",
+      "note": ""
+    },
+    {
       "warning_type": "Mass Assignment",
       "warning_code": 70,
       "fingerprint": "6e197d419416ef96df46eb4c44a1d959d014bffae12c6938b9d7705b1e466b4d",
@@ -358,6 +399,47 @@
       },
       "user_input": null,
       "confidence": "Medium",
+      "note": ""
+    },
+    {
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 2,
+      "fingerprint": "8ae9d4dec7eeba3275a712dc24ff7b6dfad2655ac7c9b8c72643d4568dfc22e5",
+      "check_name": "CrossSiteScripting",
+      "message": "Unescaped parameter value",
+      "file": "app/views/general_agencies/profiles/_families.html.erb",
+      "line": 6,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
+      "code": "render_datatable(Effective::Datatables::GeneralAgencyFamilyDataTable.new(:id => params[:id]), :lengthMenu => ([[10, 25, 50], [10, 25, 50]]), :buttons => ([\"copy\", \"csv\", \"excel\", \"print\"]))",
+      "render_path": [
+        {
+          "type": "controller",
+          "class": "GeneralAgencies::ProfilesController",
+          "method": "families",
+          "line": 98,
+          "file": "app/controllers/general_agencies/profiles_controller.rb",
+          "rendered": {
+            "name": "general_agencies/profiles/families",
+            "file": "app/views/general_agencies/profiles/families.js.erb"
+          }
+        },
+        {
+          "type": "template",
+          "name": "general_agencies/profiles/families",
+          "line": 1,
+          "file": "app/views/general_agencies/profiles/families.js.erb",
+          "rendered": {
+            "name": "general_agencies/profiles/_families",
+            "file": "app/views/general_agencies/profiles/_families.html.erb"
+          }
+        }
+      ],
+      "location": {
+        "type": "template",
+        "template": "general_agencies/profiles/_families"
+      },
+      "user_input": "params[:id]",
+      "confidence": "Weak",
       "note": ""
     },
     {

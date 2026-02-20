@@ -42,7 +42,7 @@ module BenefitSponsors
 
         def can_edit?
           reg_service = Services::NewProfileRegistrationService.new(profile_id: record.profile_id)
-          return true if reg_service.is_broker_for_employer?(user, record)
+          return true if (reg_service.is_broker_for_employer?(user, record) || reg_service.is_general_agency_staff_for_employer?(user, record))
           return true if Person.staff_for_employer(profile).include?(user.person)
         end
 

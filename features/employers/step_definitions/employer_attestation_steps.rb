@@ -116,16 +116,11 @@ And(/^Employer should see attestation upload button disabled$/) do
 end
 
 When(/^Admin choose (.*)$/) do |state|
-  choose(state, allow_label_click: true)
-  # Trigger the JavaScript to show the rejection reason field
-  page.execute_script("$('.rejection_reason').removeClass('hidden');") if state.downcase.include?('reject') || state.downcase.include?('additional')
-  wait_for_ajax
+  find_field(state).click
 end
 
 When(/^Admin enters the information needed$/) do
   wait_for_ajax
-  # Wait for rejection_reason field to become visible after selecting Reject option
-  expect(page).to have_css('.rejection_reason:not(.hidden)', wait: 5)
   select "Unable To Open Document", :from => "reason_for_rejection"
 end
 

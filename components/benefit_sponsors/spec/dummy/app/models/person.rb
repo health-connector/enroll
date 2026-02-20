@@ -1,18 +1,16 @@
-# frozen_string_literal: true
-
 class Person
   include Mongoid::Document
   include Mongoid::Timestamps
   # include SetCurrentUser
 
-  GENDER_KINDS = %w[male female].freeze
-  IDENTIFYING_INFO_ATTRIBUTES = %w[first_name last_name ssn dob].freeze
-  ADDRESS_CHANGE_ATTRIBUTES = %w[addresses phones emails].freeze
-  RELATIONSHIP_CHANGE_ATTRIBUTES = %w[person_relationships].freeze
+  GENDER_KINDS = %W(male female)
+  IDENTIFYING_INFO_ATTRIBUTES = %w(first_name last_name ssn dob)
+  ADDRESS_CHANGE_ATTRIBUTES = %w(addresses phones emails)
+  RELATIONSHIP_CHANGE_ATTRIBUTES = %w(person_relationships)
 
   PERSON_CREATED_EVENT_NAME = "acapi.info.events.individual.created"
   PERSON_UPDATED_EVENT_NAME = "acapi.info.events.individual.updated"
-  VERIFICATION_TYPES = ['Social Security Number', 'American Indian Status', 'Citizenship', 'Immigration status'].freeze
+  VERIFICATION_TYPES = ['Social Security Number', 'American Indian Status', 'Citizenship', 'Immigration status']
 
   field :hbx_id, type: String
   field :name_pfx, type: String
@@ -60,15 +58,16 @@ class Person
   embeds_one :assister_role, cascade_callbacks: true, validate: true
   embeds_one :hbx_staff_role, cascade_callbacks: true, validate: true
   embeds_many :broker_agency_staff_roles, cascade_callbacks: true, validate: true
+  embeds_many :general_agency_staff_roles, cascade_callbacks: true, validate: true
   embeds_many :employer_staff_roles, cascade_callbacks: true, validate: true
   embeds_many :addresses, cascade_callbacks: true, validate: true
   embeds_many :phones, cascade_callbacks: true, validate: true
   embeds_many :emails, cascade_callbacks: true, validate: true
   embeds_one :inbox, as: :recipient
 
-  accepts_nested_attributes_for :phones, :reject_if => proc { |addy| Phone.new(addy).blank? }
-  accepts_nested_attributes_for :addresses, :reject_if => proc { |addy| Address.new(addy).blank? }
-  accepts_nested_attributes_for :emails, :reject_if => proc { |addy| Email.new(addy).blank? }
+  accepts_nested_attributes_for :phones, :reject_if => Proc.new { |addy| Phone.new(addy).blank? }
+  accepts_nested_attributes_for :addresses, :reject_if => Proc.new { |addy| Address.new(addy).blank? }
+  accepts_nested_attributes_for :emails, :reject_if => Proc.new { |addy| Email.new(addy).blank? }
   accepts_nested_attributes_for :broker_role
 
   validates_presence_of :first_name, :last_name
@@ -76,17 +75,17 @@ class Person
   validate :no_changing_my_user, :on => :update
 
   validates :ssn,
-            length: { minimum: 9, maximum: 9, message: "SSN must be 9 digits" },
-            numericality: true,
-            allow_blank: true
+    length: { minimum: 9, maximum: 9, message: "SSN must be 9 digits" },
+    numericality: true,
+    allow_blank: true
 
   validates :encrypted_ssn, uniqueness: true, allow_blank: true
 
   validate :is_ssn_composition_correct?
 
   validates :gender,
-            allow_blank: true,
-            inclusion: { in: Person::GENDER_KINDS, message: "%<value>s is not a valid gender" }
+    allow_blank: true,
+    inclusion: { in: Person::GENDER_KINDS, message: "%{value} is not a valid gender" }
 
   before_save :generate_hbx_id
   before_save :update_full_name
@@ -100,7 +99,7 @@ class Person
 
   def move_encrypted_ssn_errors
     deleted_messages = errors.delete(:encrypted_ssn)
-    unless deleted_messages.blank?
+    if !deleted_messages.blank?
       deleted_messages.each do |dm|
         errors.add(:ssn, dm)
       end
@@ -117,7 +116,7 @@ class Person
   end
 
   def active_employee_roles
-    employee_roles.select{|employee_role| employee_role.census_employee&.is_active? }
+    employee_roles.select{|employee_role| employee_role.census_employee && employee_role.census_employee.is_active? }
   end
 
   def is_active?
@@ -141,8 +140,12 @@ class Person
   end
 
   def strip_empty_fields
-    unset_sparse("encrypted_ssn") if encrypted_ssn.blank?
-    unset_sparse("user_id") if user_id.blank?
+    if encrypted_ssn.blank?
+      unset_sparse("encrypted_ssn")
+    end
+    if user_id.blank?
+      unset_sparse("user_id")
+    end
   end
 
   def unset_sparse(field)
@@ -151,8 +154,9 @@ class Person
   end
 
   def self.encrypt_ssn(val)
-    return nil if val.blank?
-
+    if val.blank?
+      return nil
+    end
     ssn_val = val.to_s.gsub(/\D/, '')
     SymmetricEncryption.encrypt(ssn_val)
   end
@@ -172,18 +176,20 @@ class Person
   # Strip non-numeric chars from ssn
   # SSN validation rules, see: http://www.ssa.gov/employer/randomizationfaqs.html#a0=12
   def ssn=(new_ssn)
-    if new_ssn.blank?
-      unset_sparse("encrypted_ssn")
-    else
+    if !new_ssn.blank?
       write_attribute(:encrypted_ssn, Person.encrypt_ssn(new_ssn))
+    else
+      unset_sparse("encrypted_ssn")
     end
   end
 
   def ssn
     ssn_val = read_attribute(:encrypted_ssn)
-    return if ssn_val.blank?
-
-    Person.decrypt_ssn(ssn_val)
+    if !ssn_val.blank?
+      Person.decrypt_ssn(ssn_val)
+    else
+      nil
+    end
   end
 
   def gender=(new_gender)
@@ -197,24 +203,23 @@ class Person
   def update_full_name
     full_name
   end
-
+  
   def full_name
     @full_name = [name_pfx, first_name, middle_name, last_name, name_sfx].compact.join(" ")
   end
 
   def add_work_email(email)
-    existing_email = emails.detect do |e|
+    existing_email = self.emails.detect do |e|
       (e.kind == 'work') &&
         (e.address.downcase == email.downcase)
     end
     return nil if existing_email.present?
-
-    emails << ::Email.new(:kind => 'work', :address => email)
+    self.emails << ::Email.new(:kind => 'work', :address => email)
   end
 
   def work_email_or_best
     email = emails.detect { |adr| adr.kind == "work" } || emails.first
-    email&.address || user&.email
+    (email && email.address) || (user && user.email)
   end
 
   def work_phone
@@ -233,9 +238,10 @@ class Person
     phones.detect { |phone| phone.kind == "mobile" }
   end
 
+
   def work_phone_or_best
     best_phone  = work_phone || mobile_phone || home_phone
-    best_phone&.full_phone_number
+    best_phone ? best_phone.full_phone_number : nil
   end
 
 
@@ -244,7 +250,7 @@ class Person
     def additional_exprs(clean_str)
       additional_exprs = []
       if clean_str.include?(" ")
-        parts = clean_str.split.compact
+        parts = clean_str.split(" ").compact
         first_re = ::Regexp.new(::Regexp.escape(parts.first), true)
         last_re = ::Regexp.new(::Regexp.escape(parts.last), true)
         additional_exprs << {:first_name => first_re, :last_name => last_re}
@@ -252,21 +258,20 @@ class Person
       additional_exprs
     end
 
-    def search_first_name_last_name_npn(s_str, query = self)
+    def search_first_name_last_name_npn(s_str, query=self)
       clean_str = s_str.strip
       s_rex = ::Regexp.new(::Regexp.escape(s_str.strip), true)
       query.where({
-                    "$or" => ([
-                      {"first_name" => s_rex},
-                      {"last_name" => s_rex},
-                      {"broker_role.npn" => s_rex}
-                      ] + additional_exprs(clean_str))
-                  })
+        "$or" => ([
+          {"first_name" => s_rex},
+          {"last_name" => s_rex},
+          {"broker_role.npn" => s_rex}
+          ] + additional_exprs(clean_str))
+        })
     end
 
     def match_existing_person(personish)
       return nil if personish.ssn.blank?
-
       Person.where(:encrypted_ssn => encrypt_ssn(personish.ssn), :dob => personish.dob).first
     end
 
@@ -281,41 +286,40 @@ class Person
       last_name = options[:last_name]
       first_name = options[:first_name]
 
-      raise ArgumentError, "must provide an ssn or first_name/last_name/dob or both" if ssn_query.blank? && (dob_query.blank? || last_name.blank? || first_name.blank?)
+      raise ArgumentError, "must provide an ssn or first_name/last_name/dob or both" if (ssn_query.blank? && (dob_query.blank? || last_name.blank? || first_name.blank?))
 
-      matches = []
+      matches = Array.new
       matches.concat Person.active.where(encrypted_ssn: encrypt_ssn(ssn_query), dob: dob_query).to_a unless ssn_query.blank?
       #matches.concat Person.where(last_name: last_name, dob: dob_query).active.to_a unless (dob_query.blank? || last_name.blank?)
       if first_name.present? && last_name.present? && dob_query.present?
         first_exp = /^#{first_name}$/i
         last_exp = /^#{last_name}$/i
-        matches.concat(Person.active.where(dob: dob_query, last_name: last_exp, first_name: first_exp).to_a.select{|person| person.ssn.blank? || ssn_query.blank?})
+        matches.concat Person.active.where(dob: dob_query, last_name: last_exp, first_name: first_exp).to_a.select{|person| person.ssn.blank? || ssn_query.blank?}
       end
       matches.uniq
     end
 
     def staff_for_employer(employer_profile)
-      where(:employer_staff_roles => {
-              '$elemMatch' => {
-                benefit_sponsor_employer_profile_id: employer_profile.id,
-                aasm_state: :is_active
-              }
-            }).to_a
+      self.where(:employer_staff_roles => {
+                     '$elemMatch' => {
+                         benefit_sponsor_employer_profile_id: employer_profile.id,
+                         aasm_state: :is_active}
+                 }).to_a
     end
 
     def staff_for_employer_including_pending(employer_profile)
-      where(:employer_staff_roles => {
-              '$elemMatch' => {
-                benefit_sponsor_employer_profile_id: employer_profile.id,
-                :aasm_state.ne => :is_closed
-              }
-            })
+      self.where(:employer_staff_roles => {
+                     '$elemMatch' => {
+                         benefit_sponsor_employer_profile_id: employer_profile.id,
+                         :aasm_state.ne => :is_closed
+                     }
+                 })
     end
 
     # Adds employer staff role to person
     # Returns status and message if failed
     # Returns status and person if successful
-    def add_employer_staff_role(first_name, last_name, dob, _email, employer_profile)
+    def add_employer_staff_role(first_name, last_name, dob, email, employer_profile)
       escaped_first_name = Regexp.escape(first_name)
       escaped_last_name = Regexp.escape(last_name)
 
@@ -330,7 +334,7 @@ class Person
 
       employer_staff_role = EmployerStaffRole.create(person: person.first, benefit_sponsor_employer_profile_id: employer_profile._id)
       employer_staff_role.save
-      [true, person.first]
+      return true, person.first
     end
 
     # Sets employer staff role to inactive
@@ -340,42 +344,42 @@ class Person
     def deactivate_employer_staff_role(person_id, employer_profile_id)
       begin
         person = Person.find(person_id)
-      rescue StandardError
+      rescue
         return false, 'Person not found'
       end
-      if (role = person.employer_staff_roles.detect{|staff_role| staff_role.benefit_sponsor_employer_profile_id.to_s == employer_profile_id.to_s && !staff_role.is_closed?})
+      if role = person.employer_staff_roles.detect{|role| role.benefit_sponsor_employer_profile_id.to_s == employer_profile_id.to_s && !role.is_closed?}
         role.update_attributes!(:aasm_state => :is_closed)
-        [true, 'Employee Staff Role is inactive']
+        return true, 'Employee Staff Role is inactive'
       else
-        [false, 'No matching employer staff role']
+        return false, 'No matching employer staff role'
       end
     end
   end
 
   def agent?
-    agent = csr_role || assister_role || broker_role || hbx_staff_role
+    agent = self.csr_role || self.assister_role || self.broker_role || self.hbx_staff_role || self.general_agency_staff_roles.present?
     !!agent
   end
 
   def contact_info(email_address, area_code, number, extension)
     if email_address.present?
-      email = emails.detect{|mail| mail.kind == 'work'}
+      email = emails.detect{|mail|mail.kind == 'work'}
       if email
         email.update_attributes!(address: email_address)
       else
-        email = Email.new(kind: 'work', address: email_address)
+        email= Email.new(kind: 'work', address: email_address)
         emails.append(email)
-        update_attributes!(emails: emails)
+        self.update_attributes!(emails: emails)
         save!
       end
     end
-    phone = phones.detect{|p| p.kind == 'work'}
+    phone = phones.detect{|p|p.kind == 'work'}
     if phone
       phone.update_attributes!(area_code: area_code, number: number, extension: extension)
     else
       phone = Phone.new(kind: 'work', area_code: area_code, number: number, extension: extension)
       phones.append(phone)
-      update_attributes!(phones: phones)
+      self.update_attributes!(phones: phones)
       save!
     end
   end
@@ -386,7 +390,7 @@ class Person
     welcome_subject = "Welcome to #{Settings.site.short_name}"
     welcome_body = "#{Settings.site.short_name} is the #{Settings.aca.state_name}'s on-line marketplace to shop, compare, and select health insurance that meets your health needs and budgets."
     mailbox = Inbox.create(recipient: self)
-    mailbox.messages.create(subject: welcome_subject, body: welcome_body, from: Settings.site.short_name.to_s)
+    mailbox.messages.create(subject: welcome_subject, body: welcome_body, from: "#{Settings.site.short_name}")
   end
 
   def is_ssn_composition_correct?
@@ -396,10 +400,10 @@ class Person
     #   0000 in the serial number (last four digits)
 
     if ssn.present?
-      invalid_area_numbers = %w[000 666]
+      invalid_area_numbers = %w(000 666)
       invalid_area_range = 900..999
-      invalid_group_numbers = %w[00]
-      invalid_serial_numbers = %w[0000]
+      invalid_group_numbers = %w(00)
+      invalid_serial_numbers = %w(0000)
 
       return false if ssn.to_s.blank?
       return false if invalid_area_numbers.include?(ssn.to_s[0,3])
@@ -412,12 +416,13 @@ class Person
   end
 
   def no_changing_my_user
-    return unless persisted? && user_id_changed?
-
-    old_user, new_user = user_id_change
-    return if old_user.blank?
-
-    errors.add(:base, "you may not change the user_id of a person once it has been set and saved") if old_user != new_user
+    if self.persisted? && self.user_id_changed?
+      old_user, new_user= self.user_id_change
+      return if old_user.blank?
+      if (old_user != new_user)
+        errors.add(:base, "you may not change the user_id of a person once it has been set and saved")
+      end
+    end
   end
 
   # Verify basic date rules
@@ -428,23 +433,21 @@ class Person
   end
 
   def date_of_death_is_blank_or_past
-    return unless date_of_death.present?
-
-    errors.add(:date_of_death, "future date: #{date_of_death} is invalid date of death") if TimeKeeper.date_of_record < date_of_death
+    return unless self.date_of_death.present?
+    errors.add(:date_of_death, "future date: #{self.date_of_death} is invalid date of death") if TimeKeeper.date_of_record < self.date_of_death
   end
 
   def date_of_birth_is_past
-    return unless dob.present?
-
-    errors.add(:dob, "future date: #{dob} is invalid date of birth") if TimeKeeper.date_of_record < dob
+    return unless self.dob.present?
+    errors.add(:dob, "future date: #{self.dob} is invalid date of birth") if TimeKeeper.date_of_record < self.dob
   end
 
   def date_of_death_follows_date_of_birth
-    return unless date_of_death.present? && dob.present?
+    return unless self.date_of_death.present? && self.dob.present?
 
-    return unless date_of_death < dob
-
-    errors.add(:date_of_death, "date of death cannot preceed date of birth")
-    errors.add(:dob, "date of birth cannot follow date of death")
+    if self.date_of_death < self.dob
+      errors.add(:date_of_death, "date of death cannot preceed date of birth")
+      errors.add(:dob, "date of birth cannot follow date of death")
+    end
   end
 end

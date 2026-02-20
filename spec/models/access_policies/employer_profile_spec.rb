@@ -151,6 +151,19 @@ describe AccessPolicies::EmployerProfile, :dbclean => :after_each do
       end
     end
 
+    context "have general_agency_staff of employer_profile" do
+      let(:user) { FactoryBot.create(:user, person: person, roles: ["general_agency_staff"]) }
+      let(:person) { FactoryBot.create(:person, :with_general_agency_staff_role) }
+      let(:general_agency_staff) { person.general_agency_staff_roles.last }
+      let(:general_agency_profile) { FactoryBot.create(:general_agency_profile) }
+
+      it "should authorize" do
+        allow(general_agency_staff).to receive(:general_agency_profile).and_return general_agency_profile
+        allow(general_agency_profile).to receive(:employer_clients).and_return([employer_profile])
+        expect(subject.authorize_edit(employer_profile, controller)).to be_truthy
+      end
+    end
+
     context "is staff of employer" do
       let(:person) { FactoryBot.create(:person) }
 

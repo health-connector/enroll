@@ -36,5 +36,8 @@ module PdfTemplates
       return true
     end
 
+    def general_agency?
+      false
+    end
   end
 end

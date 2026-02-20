@@ -385,6 +385,11 @@ RSpec.describe User, :type => :model, dbclean: :after_each do
       expect(user.get_announcements_by_roles_and_portal("dc.org/consumers")).to eq ["msg for IVL"]
     end
 
+    it "when general_agency_staff" do
+      user.roles = ['general_agency_staff']
+      expect(user.get_announcements_by_roles_and_portal("dc.org/general_agencies")).to eq ["msg for GA"]
+    end
+
     context "when broker_role and consumer_role" do
       it "with employer portal" do
         user.roles = ['consumer', 'broker']
@@ -538,6 +543,10 @@ RSpec.describe User, :type => :model, dbclean: :after_each do
         expect(user.can_change_broker?).to eq false
       end
 
+      it "should return false when general agency staff" do
+        user.roles = ['general_agency_staff']
+        expect(user.can_change_broker?).to eq false
+      end
     end
   end
 
