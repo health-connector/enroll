@@ -434,7 +434,7 @@ function buildBenefitGroupParams() {
 function initSlider() {
   $('.benefits-fields input.hidden-param, .dental-benefits-fields input.hidden-param').each(function() {
     $(this).closest('.form-group').find('.slider').attr('data-slider-value', $(this).val());
-    $(this).closest('.form-group').find('.slide-label').html($(this).val()+"%");
+    $(this).closest('.form-group').find('.slide-label').text($(this).val()+"%");
   });
 
   $('.benefits-fields .slider').bootstrapSlider({
