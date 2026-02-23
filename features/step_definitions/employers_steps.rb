@@ -1059,7 +1059,7 @@ end
 Then(/^employer should see Enter effective date for (.*?) Action/) do |action_name|
   case action_name
   when "Initiate cobra"
-    page_text = "After selecting ’Initiate COBRA’, the employee will resume their terminated coverage effective one day post termination effective end.  The employee will be eligible to shop, maintain or change plans as long as they are active in COBRA in regular renewal enrollment periods or special enrollment periods." # rubocop:disable Layout/LineLength
+    page_text = "After selecting ’Initiate COBRA’, the employee will resume their terminated coverage effective one day post termination effective end.  The employee will be eligible to shop, maintain or change plans as long as they are active in COBRA in regular renewal enrollment periods or special enrollment periods." # rubocop:disable Layout/LineLength
     id = 'cobra-enter-date'
   end
 
