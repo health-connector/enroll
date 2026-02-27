@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Importers
   class ConversionEmployerUpdate < ConversionEmployer
 
@@ -19,6 +21,7 @@ module Importers
 
     def find_organization
       return nil if fein.blank?
+
       Organization.where(:fein => fein).first
     end
 
@@ -32,41 +35,37 @@ module Importers
 
     def has_organization_info_changed?
       organization = find_organization
-      if organization.present? && organization.updated_at > organization.created_at
-        errors.add(:organization, "import cannot be done as organization info was updated on #{organization.updated_at}")
-      end
+      return false unless organization.present? && (organization.updated_at - organization.created_at) > 0.5.second
+
+      errors.add(:organization, "import cannot be done as organization info was updated on #{organization.updated_at}")
     end
 
     def has_employer_info_changed?
-      if employer_profile.present? && employer_profile.updated_at > employer_profile.created_at
-        errors.add(:employer_profile, "import cannot be done as employer updated the info on #{employer_profile.updated_at}")
-      end
+      return false unless employer_profile.present? && (employer_profile.updated_at - employer_profile.created_at) > 0.5.second
+
+      errors.add(:employer_profile, "import cannot be done as employer updated the info on #{employer_profile.updated_at}")
     end
 
     def has_broker_agency_profile_info_changed?
-      if broker_agency_profile.present? && broker_agency_profile.updated_at > broker_agency_profile.created_at
-        errors.add(:broker_agency_profile, "import cannot be done as broker agency profile was updated on #{employer_profile.updated_at}")
-      end
+      return false unless broker_agency_profile.present? && (broker_agency_profile.updated_at - broker_agency_profile.created_at) > 0.5.second
+
+      errors.add(:broker_agency_profile, "import cannot be done as broker agency profile was updated on #{employer_profile.updated_at}")
     end
 
     def has_office_locations_changed?
       organization = find_organization
-      if organization.present?
-        organization.office_locations.each do |office_location|
-          address = office_location.try(:address)
-          if address.present? && address.updated_at.present? && address.created_at.present? && address.updated_at > address.created_at
-            errors.add(:organization, "import cannot be done as office location was updated on #{address.updated_at}.")
-          end
-        end
+      return false unless organization.present?
+
+      organization.office_locations.each do |office_location|
+        address = office_location.try(:address)
+        errors.add(:organization, "import cannot be done as office location was updated on #{address.updated_at}.") if address.present? && address.updated_at.present? && address.created_at.present? && address.updated_at > address.created_at
       end
     end
 
     def save
       organization = find_organization
       begin
-        if organization.blank?
-          errors.add(:fein, "employer don't exists with given fein")
-        end
+        errors.add(:fein, "employer don't exists with given fein") if organization.blank?
         has_data_not_changed_since_import
 
         if errors.empty?
@@ -78,64 +77,30 @@ module Importers
           if broker_npn.present?
             broker_exists_if_specified
             br = BrokerRole.by_npn(broker_npn).first
-            if br.present? && organization.employer_profile.broker_agency_accounts.where(:writing_agent_id => br.id).blank?
-              organization.employer_profile.broker_agency_accounts = assign_brokers
-            end
-          end
-
-          broker = find_broker
-          general_agency = find_ga
-
-          if broker.present? && general_agency.present?
-
-            general_agency_account = organization.employer_profile.general_agency_accounts.where({
-              :general_agency_profile_id => general_agency.id,
-              :broker_role_id => broker.id
-              }).first
-
-            if general_agency_account.present?
-
-              organization.employer_profile.general_agency_accounts.each do |account|
-                if (account.id != general_agency_account.id && account.active?)
-                  account.terminate! if account.may_terminate?
-                end
-              end
-
-              general_agency_account.update_attributes(:aasm_state => 'active') if general_agency_account.inactive?
-            else
-              if new_account = assign_general_agencies.first
-                organization.employer_profile.general_agency_accounts.each{|ac| ac.terminate! if ac.may_terminate? }
-                organization.employer_profile.general_agency_accounts << new_account
-              end
-            end
+            organization.employer_profile.broker_agency_accounts = assign_brokers if br.present? && organization.employer_profile.broker_agency_accounts.where(:writing_agent_id => br.id).blank?
           end
           update_result = organization.save
         else
           update_result = false # if there are errors, then return false.
         end
-
       rescue Mongoid::Errors::UnknownAttribute
         organization.employer_profile.plan_years.each do |py|
           py.benefit_groups.each{|bg| bg.unset(:_type) }
         end
         update_result = errors.empty? && organization.save
       rescue Exception => e
-        puts "FAILED.....#{e.to_s}"
+        puts "FAILED.....#{e}"
       end
 
       begin
-        if update_result
-          update_poc(organization.employer_profile)
-        end
+        update_poc(organization.employer_profile) if update_result
       rescue Exception => e
-        puts "FAILED.....#{e.to_s}"
+        puts "FAILED.....#{e}"
       end
 
-      if organization
-        propagate_errors(organization)
-      end
+      propagate_errors(organization) if organization
 
-      return update_result
+      update_result
     end
   end
 end

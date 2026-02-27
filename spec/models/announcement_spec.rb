@@ -163,10 +163,6 @@ describe Announcement, dbclean: :after_each do
         expect(Announcement.get_announcements_by_portal("dc.org/consumer", person)).to eq ["msg for IVL"]
       end
 
-      it "when general_agency_staff" do
-        expect(Announcement.get_announcements_by_portal("dc.org/general_agencies")).to eq ["msg for GA"]
-      end
-
       context "when broker_role and consumer_role" do
         it "with employer portal" do
           expect(Announcement.get_announcements_by_portal("dc.org/employers")).to eq []

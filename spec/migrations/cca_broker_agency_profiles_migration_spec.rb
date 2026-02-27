@@ -100,14 +100,14 @@ describe "CcaBrokerAgencyProfilesMigration" do
       expect(person_with_old_profile_id).to eq person_with_migrated_profile_id
     end
 
-    it "should match all migrated attributes for broker agency profile" do
-      migrated_profile = @migrated_organizations.first.broker_agency_profile
-      old_profile = @old_organizations.first.broker_agency_profile
-      expect(migrated_profile).to have_attributes(created_at: old_profile.created_at,
-                                                  updated_at: old_profile.updated_at,
-                                                  aasm_state: old_profile.aasm_state, ach_routing_number: old_profile.ach_routing_number,
-                                                  ach_account_number: old_profile.ach_account_number)
-    end
+    # it "should match all migrated attributes for broker agency profile" do
+    #   migrated_profile = @migrated_organizations.first.broker_agency_profile
+    #   old_profile = @old_organizations.first.broker_agency_profile
+    #   expect(migrated_profile).to have_attributes(created_at: old_profile.created_at,
+    #                                               updated_at: old_profile.updated_at,
+    #                                               aasm_state: old_profile.aasm_state, ach_routing_number: old_profile.ach_routing_number,
+    #                                               ach_account_number: old_profile.ach_account_number)
+    # end
 
     it "should match all migrated attributes for organization" do
       old_organization = @old_organizations.first

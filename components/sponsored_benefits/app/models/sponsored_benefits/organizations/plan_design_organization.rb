@@ -6,6 +6,7 @@ module SponsoredBenefits
       include Mongoid::Timestamps
       include Concerns::OrganizationConcern
       include Concerns::AcaRatingAreaConfigConcern
+      include Concerns::Mongoid::RecursiveEmbeddedValidation
 
       belongs_to :broker_agency_profile, class_name: "SponsoredBenefits::Organizations::BrokerAgencyProfile", inverse_of: 'plan_design_organization', optional: true
 
@@ -37,7 +38,7 @@ module SponsoredBenefits
 
       field :has_active_broker_relationship, type: Mongoid::Boolean, default: false
 
-      embeds_many :plan_design_proposals, class_name: "SponsoredBenefits::Organizations::PlanDesignProposal", cascade_callbacks: true
+      embeds_many :plan_design_proposals, class_name: "SponsoredBenefits::Organizations::PlanDesignProposal", cascade_callbacks: true, validate: true
 
       validates_presence_of   :legal_name, :has_active_broker_relationship
       validates_presence_of :sic_code, if: :sic_code_exists_for_employer?
@@ -75,10 +76,6 @@ module SponsoredBenefits
 
       def broker_agency_profile
         ::BrokerAgencyProfile.find(owner_profile_id) || ::BenefitSponsors::Organizations::Profile.find(owner_profile_id)
-      end
-
-      def general_agency_profile
-        self.try(:employer_profile).try(:active_general_agency_account)
       end
 
       def active_employer_benefit_sponsorship

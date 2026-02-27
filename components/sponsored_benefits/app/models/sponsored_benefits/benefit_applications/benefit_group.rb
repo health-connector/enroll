@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module SponsoredBenefits
   module BenefitApplications
     class BenefitGroup < ::BenefitGroup
@@ -24,35 +26,37 @@ module SponsoredBenefits
           :sic_code => sic_code,
           :rating_area => rating_area,
           :estimate_group_size? => true
-        )
+        ).tap do |os|
+          os.define_singleton_method(:touch) { |*_args| false }
+        end
       end
 
       def employee_costs_for_reference_plan(service, plan = reference_plan)
-          service.employee_cost_for_plan(plan) # To initialize census_employee_costs
-          if !single_plan_type?
-            service.employee_cost_for_plan(lowest_cost_plan)
-            service.employee_cost_for_plan(highest_cost_plan)
-          end
-          employee_costs = census_employees.active.inject({}) do |census_employees, employee|
-            costs = {
-              ref_plan_cost: service.census_employee_costs[plan.id][employee.id]
-            }
+        service.employee_cost_for_plan(plan) # To initialize census_employee_costs
+        unless single_plan_type?
+          service.employee_cost_for_plan(lowest_cost_plan)
+          service.employee_cost_for_plan(highest_cost_plan)
+        end
+        employee_costs = census_employees.active.inject({}) do |census_employees, employee|
+          costs = {
+            ref_plan_cost: service.census_employee_costs[plan.id][employee.id]
+          }
 
-            if !single_plan_type?
-              costs.merge!({
-                lowest_plan_cost: service.census_employee_costs[lowest_cost_plan.id][employee.id],
-                highest_plan_cost: service.census_employee_costs[highest_cost_plan.id][employee.id]
-              })
-            end
-            census_employees[employee.id] = costs
-            census_employees
+          unless single_plan_type?
+            costs.merge!({
+                           lowest_plan_cost: service.census_employee_costs[lowest_cost_plan.id][employee.id],
+                           highest_plan_cost: service.census_employee_costs[highest_cost_plan.id][employee.id]
+                         })
           end
+          census_employees[employee.id] = costs
+          census_employees
+        end
 
-          employee_costs.merge!({
-            ref_plan_employer_cost: service.monthly_employer_contribution_amount(plan),
-            lowest_plan_employer_cost: service.monthly_employer_contribution_amount(lowest_cost_plan),
-            highest_plan_employer_cost: service.monthly_employer_contribution_amount(highest_cost_plan)
-          })
+        employee_costs.merge!({
+                                ref_plan_employer_cost: service.monthly_employer_contribution_amount(plan),
+                                lowest_plan_employer_cost: service.monthly_employer_contribution_amount(lowest_cost_plan),
+                                highest_plan_employer_cost: service.monthly_employer_contribution_amount(highest_cost_plan)
+                              })
       end
 
       def employee_costs_for_dental_reference_plan(service)
@@ -66,8 +70,8 @@ module SponsoredBenefits
         end
 
         employee_costs.merge!({
-          ref_plan_employer_cost: service.monthly_employer_contribution_amount(plan)
-          })
+                                ref_plan_employer_cost: service.monthly_employer_contribution_amount(plan)
+                              })
       end
 
       def lowest_cost_plan

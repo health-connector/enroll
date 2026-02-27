@@ -44,6 +44,7 @@ describe Importers::ConversionEmployerUpdate, :dbclean => :after_each do
     end
 
     it "should throw error if data was updated before import" do
+      sleep 1
       employer_profile.entity_kind = "partnership"
       employer_profile.save
       record = ::Importers::ConversionEmployerUpdate.new(record_attrs)

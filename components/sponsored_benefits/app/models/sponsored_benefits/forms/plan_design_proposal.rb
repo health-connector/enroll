@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module SponsoredBenefits
   module Forms
     class PlanDesignProposal
@@ -112,12 +114,8 @@ module SponsoredBenefits
       def save
         initial_enrollment_period = @effective_date..(@effective_date.next_year.prev_day)
 
-        if @proposal.persisted?
-          @proposal.assign_attributes(title: @title)
-        else
-          profile = SponsoredBenefits::Organizations::AcaShopCcaEmployerProfile.new({sic_code: @sic_code})
-          @proposal = @plan_design_organization.plan_design_proposals.build({title: @title, profile: profile})
-        end
+        @proposal.assign_attributes(title: @title)
+        @proposal.profile = SponsoredBenefits::Organizations::AcaShopCcaEmployerProfile.new({sic_code: @sic_code}) unless @proposal.persisted?
 
         sponsorship = @proposal.profile.benefit_sponsorships.first
         sponsorship.assign_attributes({initial_enrollment_period: initial_enrollment_period, annual_enrollment_period_begin_month: @effective_date.month})

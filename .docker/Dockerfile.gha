@@ -2,12 +2,12 @@
 ### Base image ###
 ############################################
 
-ARG RUBY_VERSION=3.2.5
+ARG RUBY_VERSION=3.4.7
 FROM ruby:$RUBY_VERSION-slim-bookworm AS base
 LABEL author="MHC"
 
 ARG DEBIAN_FRONTEND=noninteractive
-ARG BUNDLER_VERSION=2.5.21
+ARG BUNDLER_VERSION=2.5.23
 
 # Must be set as ENV variable to overrride the default
 ENV BUNDLER_VERSION=$BUNDLER_VERSION
