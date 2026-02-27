@@ -484,6 +484,125 @@ module BenefitSponsors
           expect(response.content_type).to include('csv')
         end
       end
+
+      context 'with dental benefit type' do
+        let(:dental_product_package) { benefit_market_catalog.product_packages.where(package_kind: :single_issuer, benefit_kind: :dental).first }
+        let(:dental_products) { dental_product_package&.products&.take(2) || [] }
+        let(:dental_plan_ids) { dental_products.map(&:id).map(&:to_s).join(',') }
+
+        let(:dental_qhps) do
+          dental_products.map do |product|
+            qhp_attrs = {}
+            qhp_double = double('DentalQhpCostShareVariance')
+            allow(qhp_double).to receive(:product).and_return(product)
+            allow(qhp_double).to receive(:hios_plan_and_variant_id).and_return(product.hios_id)
+            allow(qhp_double).to receive(:plan_marketing_name).and_return("#{product.title} Dental Plan")
+            allow(qhp_double).to receive(:metal_level).and_return('Dental')
+            allow(qhp_double).to receive(:issuer_name).and_return(issuer_profile.legal_name)
+            allow(qhp_double).to receive(:qhp_service_visits).and_return([])
+            allow(qhp_double).to receive(:qhp_deductibles).and_return([])
+            allow(qhp_double).to receive(:qhp_maximum_out_of_pockets).and_return([])
+            allow(qhp_double).to receive(:[]=) { |key, value| qhp_attrs[key] = value }
+            allow(qhp_double).to receive(:[]) { |key| qhp_attrs[key] }
+            qhp_double
+          end
+        end
+
+        before do
+          skip 'No dental products available' if dental_products.empty?
+
+          allow(controller).to receive(:load_benefit_application)
+          allow(controller).to receive(:load_comparison_data)
+          allow(::Products::QhpCostShareVariance).to receive(:find_qhp_cost_share_variances)
+            .with(anything, anything, 'Dental')
+            .and_return(dental_qhps)
+
+          controller.instance_variable_set(:@benefit_application, benefit_application)
+          controller.instance_variable_set(:@qhps, dental_qhps)
+          controller.instance_variable_set(:@visit_types, ::Products::Qhp::DENTAL_VISIT_TYPES)
+          controller.instance_variable_set(:@employer_costs, {})
+        end
+
+        let(:dental_params) do
+          {
+            benefit_sponsorship_id: benefit_sponsorship.id.to_s,
+            benefit_application_id: benefit_application.id.to_s,
+            benefit_package_id: benefit_package.id.to_s,
+            plans: dental_plan_ids,
+            benefit_type: 'dental',
+            reference_plan_id: dental_products.first.id.to_s,
+            product_package_kind: 'single_product',
+            product_option_choice: issuer_profile.id.to_s,
+            contribution_levels: {
+              '0' => {
+                contribution_factor: '55',
+                is_offered: '1',
+                display_name: 'Employee',
+                contribution_unit_id: 'employee'
+              }
+            },
+            format: :json
+          }
+        end
+
+        it 'returns success response for dental comparison' do
+          get :new, params: dental_params
+          expect(response).to have_http_status(:success)
+        end
+
+        it 'uses dental visit types' do
+          get :new, params: dental_params
+          expect(controller.instance_variable_get(:@visit_types)).to eq(::Products::Qhp::DENTAL_VISIT_TYPES)
+        end
+
+        it 'identifies benefit type as dental' do
+          allow(controller).to receive(:params).and_return(ActionController::Parameters.new(dental_params))
+          expect(controller.send(:benefit_type)).to eq('dental')
+        end
+      end
+    end
+
+    describe '#benefit_type' do
+      it 'defaults to health when not specified' do
+        allow(controller).to receive(:params).and_return(ActionController::Parameters.new({}))
+        expect(controller.send(:benefit_type)).to eq('health')
+      end
+
+      it 'returns dental when specified' do
+        allow(controller).to receive(:params).and_return(
+          ActionController::Parameters.new(benefit_type: 'dental')
+        )
+        expect(controller.send(:benefit_type)).to eq('dental')
+      end
+
+      it 'downcases the benefit type' do
+        allow(controller).to receive(:params).and_return(
+          ActionController::Parameters.new(benefit_type: 'DENTAL')
+        )
+        expect(controller.send(:benefit_type)).to eq('dental')
+      end
+    end
+
+    describe '#visit_types' do
+      before do
+        allow(controller).to receive(:benefit_type).and_return(benefit_type_value)
+      end
+
+      context 'when benefit type is dental' do
+        let(:benefit_type_value) { 'dental' }
+
+        it 'returns dental visit types' do
+          expect(controller.send(:visit_types)).to eq(::Products::Qhp::DENTAL_VISIT_TYPES)
+        end
+      end
+
+      context 'when benefit type is health' do
+        let(:benefit_type_value) { 'health' }
+
+        it 'returns health visit types' do
+          expect(controller.send(:visit_types)).to eq(::Products::Qhp::VISIT_TYPES)
+        end
+      end
     end
   end
   # rubocop:enable Metrics/ModuleLength

@@ -66,6 +66,19 @@
                           = f.radio_button :reference_plan_id, product.id, data: { plan_title: product.title, metal_level: product.metal_level_kind, carrier_name: product.carrier_name, plan_type: product.product_type,  is_standard_plan: product.is_standard_plan, is_pvp: product.is_pvp_eligible}, onclick: "newContributionAmounts(this)"
                           span.checkmark
                           span.checkmark-text Select
+                        - if ::EnrollRegistry.feature_enabled?(:plan_comparison_tool)
+                          .checkmark-compare-container style="margin-top: 10px;"
+                            label.container-compare style="display: flex; align-items: center;"
+                              input.compare-plan-checkbox type="checkbox" data-plan-id="#{product.id}" onchange="toggleComparePlan(this)"
+                              span.checkmark-compare
+                              span.checkmark-text style="top: -1px;"= l10n('employers.plan_years.benefit_package.compare')
+
+        - if ::EnrollRegistry.feature_enabled?(:plan_comparison_tool)
+          div style="text-align: center; margin-top: 20px; margin-bottom: 20px;"
+            button#compareSelectedPlansButton.btn.btn-primary type="button" onclick="compareSelectedPlans(event)" disabled="" style="margin-right: 10px;"
+              = l10n('employers.plan_years.benefit_package.compare_plans')
+            button#clear-comparison-button.btn.btn-default type="button" onclick="clearSelectedPlans()"
+              = l10n('employers.plan_years.benefit_package.clear_all')
 
 // Modal to view plan summary
 .modal.fade#viewSummaryModal tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
@@ -203,3 +216,6 @@ javascript:
             showLess = true;
         }
     }
+
+- if ::EnrollRegistry.feature_enabled?(:plan_comparison_tool)
+  = render partial: "benefit_sponsors/benefit_packages/product_comparisons/comparison_modal"
