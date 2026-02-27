@@ -135,7 +135,11 @@
       <th class="row-title">Metal Level / Plan Type</th>
       <% qhps.each do |qhp| %>
         <td class="metal-level center">
-          <%= display_dental_metal_level(qhp.product) %> &bull; <%= qhp.product.health_plan_kind.upcase %>
+          <% if qhp.product.is_a?(BenefitMarkets::Products::HealthProducts::HealthProduct) %>
+            <%= display_dental_metal_level(qhp.product) %> &bull; <%= qhp.product.health_plan_kind.upcase %>
+          <% else %>
+            <%= display_dental_metal_level(qhp.product) %> &bull; <%= qhp.product.product_type.upcase %>
+          <% end %>
         </td>
       <% end %>
     </tr>
@@ -249,7 +253,8 @@
     </tr>
 
     <!-- RX Formulary URL -->
-    <% if qhps.map(&:product).map(&:rx_formulary_url).compact.present? %>
+    <% health_products = qhps.select { |qhp| qhp.product.is_a?(BenefitMarkets::Products::HealthProducts::HealthProduct) } %>
+    <% if health_products.any? { |qhp| qhp.product.rx_formulary_url.present? } %>
       <tr>
         <th class="row-title"><%= l10n('employers.plan_years.benefit_package.prescription_drug_formulary') %></th>
         <% qhps.each do |qhp| %>
