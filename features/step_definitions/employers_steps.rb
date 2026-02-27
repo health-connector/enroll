@@ -1098,3 +1098,7 @@ end
 And(/^employer should see census employee status as (.*?)$/) do |status|
   expect(page).to have_content status
 end
+
+And(/^employer clicked on view employee cost details button$/) do
+  find(AddPlanYearPage.employee_cost_details_button).click
+end
