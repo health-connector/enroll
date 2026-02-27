@@ -63,7 +63,7 @@ class Products::QhpCostShareVariance
 
   def self.find_qhp_cost_share_variances(ids, year, coverage_kind)
     csvs = find_qhp(ids, year).map(&:qhp_cost_share_variances).flatten
-    ids = ids.map{|a| a + "-01"} if coverage_kind == "Dental"
+    ids = ids.map{|a| "#{a}-01"} if coverage_kind == "Dental"
     csvs.select{ |a| ids.include?(a.hios_plan_and_variant_id) }
   end
 
