@@ -186,13 +186,13 @@ javascript:
   var sponsorContributions = #{@benefit_package_form.catalog.sponsor_contributions(@benefit_package_form.id).to_json.html_safe};
   var minContributions = #{f.object.sponsor_contribution.min_contributions_map.to_json.html_safe};
   var productsTotal;
-  const isPvpFeatureEnabled = #{::EnrollRegistry.feature_enabled?(:premium_value_products)};
-  const pvpTooltipValue = "#{l10n('insured.plan_shoppings.pvp_title_info')}";
-  const standardPlanTooltipValue = "#{l10n('insured.plan_shoppings.standard_plan_title_info')}";
-  const compareText = "#{l10n('employers.plan_years.benefit_package.compare')}";
-  const comparePlansText = "#{l10n('employers.plan_years.benefit_package.compare_plans')}";
-  const clearAllText = "#{l10n('employers.plan_years.benefit_package.clear_all')}";
-  const isPlanComparisonEnabled = #{::EnrollRegistry.feature_enabled?(:plan_comparison_tool)};
+  var isPvpFeatureEnabled = #{::EnrollRegistry.feature_enabled?(:premium_value_products)};
+  var pvpTooltipValue = "#{l10n('insured.plan_shoppings.pvp_title_info')}";
+  var standardPlanTooltipValue = "#{l10n('insured.plan_shoppings.standard_plan_title_info')}";
+  var compareText = "#{l10n('employers.plan_years.benefit_package.compare')}";
+  var comparePlansText = "#{l10n('employers.plan_years.benefit_package.compare_plans')}";
+  var clearAllText = "#{l10n('employers.plan_years.benefit_package.clear_all')}";
+  var isPlanComparisonEnabled = #{::EnrollRegistry.feature_enabled?(:plan_comparison_tool)};
 
   function radioSelected(element) {
     setCircle(element)
@@ -260,6 +260,11 @@ javascript:
     var existingButtons = document.querySelector('#yourPlans .col-md-12.text-center');
     if (existingButtons) {
       existingButtons.remove();
+    }
+
+    // Clear selected comparison plans
+    if (typeof clearSelectedPlans === 'function') {
+      clearSelectedPlans();
     }
 
     // Build reference plans to be displayed in UI
