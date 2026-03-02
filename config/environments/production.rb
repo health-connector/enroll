@@ -92,12 +92,22 @@ Rails.application.configure do
   #  config.acapi.add_async_subscription(Subscribers::DateChange)
   config.acapi.publish_amqp_events = true
   config.acapi.app_id = "enroll"
-  config.acapi.remote_broker_uri = ENV.fetch('RABBITMQ_URL', nil)
+
   config.acapi.remote_request_exchange = "#{ENV.fetch('HBX_ID', nil)}.#{ENV.fetch('ENV_NAME', nil)}.e.fanout.requests"
   config.acapi.remote_event_queue = "#{ENV.fetch('HBX_ID', nil)}.#{ENV.fetch('ENV_NAME', nil)}.q.application.enroll.inbound_events"
   config.action_mailer.default_url_options = { :host => ENV.fetch('ENROLL_FQDN', nil).to_s }
   config.acapi.hbx_id = ENV.fetch('HBX_ID', nil).to_s
   config.acapi.environment_name = ENV.fetch('ENV_NAME', nil).to_s
+  if ENV['RABBITMQ_CLUSTER_HOSTS'].present?
+    config.acapi.cluster do |c|
+      c.hosts = JSON.parse(ENV.fetch('RABBITMQ_CLUSTER_HOSTS'))
+      c.port = ENV.fetch('RABBITMQ_CLUSTER_PORT').to_i
+      c.username = ENV.fetch('RABBITMQ_CLUSTER_USERNAME')
+      c.password = ENV.fetch('RABBITMQ_CLUSTER_PASSWORD')
+    end
+  else
+    config.acapi.remote_broker_uri = ENV.fetch('RABBITMQ_URL', nil)
+  end
 
   # Add Google Analytics tracking ID
   config.ga_tracking_id = ENV.fetch('GA_TRACKING_ID', 'dummy')
