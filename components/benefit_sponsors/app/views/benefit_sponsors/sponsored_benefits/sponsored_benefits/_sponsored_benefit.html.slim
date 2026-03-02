@@ -134,6 +134,11 @@ javascript:
     var selectedName = element.dataset.issuername;
     filteredProducts = planOptions[productOptionKind][selectedName];
     productsTotal = filteredProducts.length;
+    
+    // Clear comparison selections when switching carriers
+    if (typeof clearSelectedPlans === 'function') {
+      clearSelectedPlans();
+    }
   }
 
   function displayReferencePlanDetails(element, options) {
@@ -284,10 +289,13 @@ javascript:
   }
 
   function preventSubmissionOnEnter() {
-		document.getElementById('new_benefit_package').onkeypress = function(e) {
-			var key = e.charCode || e.keyCode || 0;
-			if (key == 13) {
-			    e.preventDefault();
-			  }
+		var form = document.getElementById('new_benefit_package');
+		if (form) {
+			form.onkeypress = function(e) {
+				var key = e.charCode || e.keyCode || 0;
+				if (key == 13) {
+					e.preventDefault();
+				}
+			}
 		}
 	}

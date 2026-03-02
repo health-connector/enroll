@@ -268,6 +268,137 @@ module BenefitSponsors
           end
         end
       end
+
+      describe 'dental benefit type support' do
+        let(:dental_product_package) { benefit_market_catalog.product_packages.where(package_kind: :single_product, benefit_kind: :dental).first }
+        let(:dental_product) { dental_product_package&.products&.first }
+
+        let(:dental_params) do
+          ActionController::Parameters.new(
+            benefit_application_id: benefit_application.id.to_s,
+            benefit_type: 'dental',
+            reference_plan_id: dental_product&.id&.to_s || BSON::ObjectId.new.to_s,
+            product_package_kind: 'single_product',
+            product_option_choice: issuer_profile.id.to_s,
+            contribution_levels: {
+              '0' => {
+                contribution_factor: '55',
+                is_offered: '1',
+                display_name: 'Employee',
+                contribution_unit_id: 'employee_unit_id'
+              }
+            }
+          )
+        end
+
+        let(:dental_builder) { described_class.new(dental_params) }
+
+        context 'when building dental benefit params' do
+          it 'sets kind to dental' do
+            result = dental_builder.build
+            expect(result[:sponsored_benefits_attributes]['0'][:kind]).to eq(:dental)
+          end
+
+          it 'returns valid params for dental' do
+            result = dental_builder.build
+            expect(result).to be_a(ActionController::Parameters)
+            expect(result).to be_permitted
+          end
+
+          it 'includes contribution levels' do
+            result = dental_builder.build
+            expect(result[:sponsored_benefits_attributes]['0'][:sponsor_contribution_attributes]).to be_present
+            expect(result[:sponsored_benefits_attributes]['0'][:sponsor_contribution_attributes][:contribution_levels_attributes]).to be_present
+          end
+        end
+
+        context 'benefit_kind method' do
+          it 'returns :dental when benefit_type is dental' do
+            expect(dental_builder.send(:benefit_kind)).to eq(:dental)
+          end
+
+          it 'returns :health when benefit_type is not specified' do
+            health_params = ActionController::Parameters.new(
+              benefit_application_id: benefit_application.id.to_s,
+              reference_plan_id: product.id.to_s
+            )
+            builder = described_class.new(health_params)
+            expect(builder.send(:benefit_kind)).to eq(:health)
+          end
+
+          it 'converts string to symbol' do
+            params_with_string = ActionController::Parameters.new(
+              benefit_application_id: benefit_application.id.to_s,
+              benefit_type: 'DENTAL',
+              reference_plan_id: dental_product&.id&.to_s || BSON::ObjectId.new.to_s
+            )
+            builder = described_class.new(params_with_string)
+            expect(builder.send(:benefit_kind)).to eq(:dental)
+          end
+        end
+      end
+
+      describe 'existing_sponsored_benefit_id for dental' do
+        let(:test_benefit_package) do
+          FactoryBot.create(
+            :benefit_sponsors_benefit_packages_benefit_package,
+            benefit_application: benefit_application,
+            product_package: product_package
+          )
+        end
+
+        let(:health_sponsored_benefit) do
+          test_benefit_package.sponsored_benefits.detect { |sb| sb.is_a?(BenefitSponsors::SponsoredBenefits::HealthSponsoredBenefit) }
+        end
+
+        context 'when looking for dental benefit in package with only health' do
+          let(:dental_params_with_package) do
+            ActionController::Parameters.new(
+              benefit_application_id: benefit_application.id.to_s,
+              benefit_package_id: test_benefit_package.id.to_s,
+              benefit_type: 'dental',
+              reference_plan_id: product.id.to_s,
+              product_package_kind: 'single_product'
+            )
+          end
+
+          let(:dental_package_builder) { described_class.new(dental_params_with_package) }
+
+          it 'returns nil when no dental benefit exists' do
+            existing_id = dental_package_builder.send(:existing_sponsored_benefit_id)
+            expect(existing_id).to be_nil
+          end
+
+          it 'does not include package ID in form attrs when adding new benefit type' do
+            result = dental_package_builder.build
+            expect(result[:id]).to be_nil
+          end
+        end
+
+        context 'when looking for health benefit in package with health' do
+          let(:health_params_with_package) do
+            ActionController::Parameters.new(
+              benefit_application_id: benefit_application.id.to_s,
+              benefit_package_id: test_benefit_package.id.to_s,
+              benefit_type: 'health',
+              reference_plan_id: product.id.to_s,
+              product_package_kind: 'single_issuer'
+            )
+          end
+
+          let(:health_package_builder) { described_class.new(health_params_with_package) }
+
+          it 'finds existing health benefit' do
+            existing_id = health_package_builder.send(:existing_sponsored_benefit_id)
+            expect(existing_id).to eq(health_sponsored_benefit.id)
+          end
+
+          it 'includes package ID when benefit type already exists' do
+            result = health_package_builder.build
+            expect(result[:id]).to eq(test_benefit_package.id.to_s)
+          end
+        end
+      end
     end
   end
   # rubocop:enable Metrics/ModuleLength

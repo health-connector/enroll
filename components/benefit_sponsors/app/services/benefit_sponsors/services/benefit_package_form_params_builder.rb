@@ -17,7 +17,6 @@ module BenefitSponsors
         return nil unless valid_params?
 
         form_attrs = base_form_attributes
-        form_attrs[:id] = package_id if package_exists? && package_id.present?
         form_attrs[:sponsored_benefits_attributes] = { "0" => sponsored_benefit_attributes }
 
         ActionController::Parameters.new(form_attrs).permit!
@@ -30,25 +29,56 @@ module BenefitSponsors
       end
 
       def base_form_attributes
-        {
+        attrs = {
           benefit_application_id: params[:benefit_application_id],
           sponsored_benefits_attributes: {}
         }
+
+        # For comparison calculations, don't include package ID if we're adding a new benefit type
+        # This allows the factory to build a temporary package without trying to update the real one
+        if package_exists? && package_id.present?
+          # Only include ID if the benefit type already exists in the package
+          existing_id = existing_sponsored_benefit_id
+          if existing_id.present?
+            attrs[:id] = package_id
+            Rails.logger.info("Including package ID for existing #{benefit_kind} benefit")
+          else
+            Rails.logger.info("Skipping package ID - adding new #{benefit_kind} benefit for comparison only")
+          end
+        end
+
+        attrs
       end
 
       def sponsored_benefit_attributes
         attrs = {
-          kind: :health,
+          kind: benefit_kind,
           reference_plan_id: params[:reference_plan_id],
           product_package_kind: params[:product_package_kind],
           product_option_choice: params[:product_option_choice]
         }.compact
 
         # Only include ID if we have a valid existing benefit package with sponsored benefits
-        attrs[:id] = existing_sponsored_benefit_id if package_exists? && existing_sponsored_benefit_id.present?
+        existing_id = existing_sponsored_benefit_id if package_exists?
+        Rails.logger.info("Existing sponsored benefit ID: #{existing_id.inspect}, package_exists: #{package_exists?}")
+
+        if existing_id.present?
+          attrs[:id] = existing_id
+          Rails.logger.info("Including sponsored benefit ID in attrs: #{existing_id}")
+        else
+          Rails.logger.info("No existing sponsored benefit ID, will create new benefit")
+        end
 
         attrs[:sponsor_contribution_attributes] = contribution_attributes if params[:contribution_levels].present?
+        Rails.logger.info("Final sponsored_benefit_attributes: #{attrs.inspect}")
         attrs
+      end
+
+      def benefit_kind
+        # Convert benefit_type param to symbol (:health or :dental)
+        # Default to :health for backward compatibility
+        kind = params[:benefit_type] || 'health'
+        kind.to_s.downcase.to_sym
       end
 
       def contribution_attributes
@@ -100,7 +130,17 @@ module BenefitSponsors
 
         benefit_application = benefit_sponsorship.benefit_applications.find(application_id)
         benefit_package = benefit_application.benefit_packages.find(package_id)
-        benefit_package.sponsored_benefits.first&.id
+
+        # Find the sponsored benefit matching the benefit kind (health or dental)
+        # Check the class type instead of 'kind' method since it doesn't exist
+        sponsored_benefit = if benefit_kind == :dental
+                              benefit_package.sponsored_benefits.detect { |sb| sb.is_a?(BenefitSponsors::SponsoredBenefits::DentalSponsoredBenefit) }
+                            else
+                              benefit_package.sponsored_benefits.detect { |sb| sb.is_a?(BenefitSponsors::SponsoredBenefits::HealthSponsoredBenefit) }
+                            end
+
+        Rails.logger.info("Found existing #{benefit_kind} sponsored benefit: #{sponsored_benefit&.id}")
+        sponsored_benefit&.id
       rescue StandardError => e
         Rails.logger.warn("Could not find existing sponsored benefit: #{e.message}")
         nil

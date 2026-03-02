@@ -118,6 +118,7 @@
     modal.data('benefitSponsorshipId', selectedBenefitSponsorsID);
     modal.data('benefitApplicationId', selectedBenefitApplicationID);
     modal.data('benefitPackageId', selectedBenefitPackageID);
+    modal.data('benefitType', formData.benefit_type || 'health');
     
     // Fetch comparison data via AJAX
     $.ajax({
@@ -158,32 +159,80 @@
   function collectBenefitPackageFormData() {
     var formData = {};
     
-    // Get reference plan ID (selected radio button)
-    var referencePlanInput = $('input[name="benefit_package[sponsored_benefits_attributes][0][reference_plan_id]"]:checked');
-    if (referencePlanInput.length > 0) {
-      formData.reference_plan_id = referencePlanInput.val();
+    // Detect benefit type (health vs dental) from form context
+    // For health benefits, the form is in benefit_packages view
+    // For dental benefits, the form is in sponsored_benefits view (has aria-controls="dentalPlan")
+    var dentalForm = $('a[aria-controls="dentalPlan"]');
+    var healthForm = $('#metal-level-select a[href="#carrier"], #metal-level-select a[href="#level"]');
+    
+    var isDental = dentalForm.length > 0;
+    
+    if (isDental) {
+      formData.benefit_type = 'dental';
+    } else if (healthForm.length > 0) {
+      formData.benefit_type = 'health';
+    } else {
+      // Default to health if can't determine
+      formData.benefit_type = 'health';
     }
     
-    // Get product package kind (stored in hidden input)
-    var ppKind = $('#ppKind').val();
-    if (ppKind) {
-      formData.product_package_kind = ppKind;
+    // Get reference plan ID (field names differ for health vs dental)
+    var referencePlanInput;
+    if (isDental) {
+      referencePlanInput = $('input[name="sponsored_benefits[reference_plan_id]"]:checked');
+    } else {
+      referencePlanInput = $('input[name="benefit_package[sponsored_benefits_attributes][0][reference_plan_id]"]:checked');
+    }
+    if (referencePlanInput.length > 0) {
+      formData.reference_plan_id = referencePlanInput.val();
+    } else {
+      // Fallback: use the first selected plan for comparison as reference plan
+      if (selectedPlansForComparison.length > 0) {
+        formData.reference_plan_id = selectedPlansForComparison[0];
+      }
+    }
+    
+    // Get product package kind
+    if (isDental) {
+      var productPackageKindInput = $('input[name="sponsored_benefits[product_package_kind]"]:checked');
+      if (productPackageKindInput.length > 0) {
+        formData.product_package_kind = productPackageKindInput.val();
+      }
+    } else {
+      var ppKind = $('#ppKind').val();
+      if (ppKind) {
+        formData.product_package_kind = ppKind;
+      }
     }
     
     // Get product option choice (the actual selected value - issuer name, metal level, or plan)
-    var productOptionChoice = $('input.product_option_choice:checked').val();
-    if (productOptionChoice) {
-      formData.product_option_choice = productOptionChoice;
+    if (isDental) {
+      var productOptionChoice = $('input[name="sponsored_benefits[product_option_choice]"]:checked').val();
+      if (productOptionChoice) {
+        formData.product_option_choice = productOptionChoice;
+      }
+    } else {
+      var productOptionChoice = $('input.product_option_choice:checked').val();
+      if (productOptionChoice) {
+        formData.product_option_choice = productOptionChoice;
+      }
     }
     
-    // Collect contribution levels
+    // Collect contribution levels (field names differ for health vs dental)
     var contributionLevels = {};
-    $('input[name^="benefit_package[sponsored_benefits_attributes][0][sponsor_contribution_attributes][contribution_levels_attributes]"]').each(function() {
+    var contributionSelector;
+    
+    if (isDental) {
+      contributionSelector = 'input[name^="sponsored_benefits[sponsor_contribution_attributes][contribution_levels_attributes]"]';
+    } else {
+      contributionSelector = 'input[name^="benefit_package[sponsored_benefits_attributes][0][sponsor_contribution_attributes][contribution_levels_attributes]"]';
+    }
+    
+    $(contributionSelector).each(function() {
       var input = $(this);
       var name = input.attr('name');
       
       // Parse the name to get index and field name
-      // Example: benefit_package[sponsored_benefits_attributes][0][sponsor_contribution_attributes][contribution_levels_attributes][0][contribution_factor]
       var matches = name.match(/\[contribution_levels_attributes\]\[(\d+)\]\[(\w+)\]/);
       if (matches) {
         var index = matches[1];
@@ -242,13 +291,15 @@
       var benefitPackageId = modal.data('benefitPackageId');
       var plansParam = modal.data('plansParam');
       var employerCosts = modal.data('employerCosts');
+      var benefitType = modal.data('benefitType') || 'health';
       
       if (benefitSponsorshipId && benefitApplicationId && benefitPackageId && plansParam) {
         // Build URL with plans and pre-calculated employer costs
         var exportUrl = '/benefit_sponsors/benefit_sponsorships/' + benefitSponsorshipId +
                        '/benefit_applications/' + benefitApplicationId +
                        '/benefit_packages/' + benefitPackageId +
-                       '/product_comparisons/export?plans=' + plansParam;
+                       '/product_comparisons/export?plans=' + plansParam +
+                       '&benefit_type=' + benefitType;
         
         // Add employer costs if available
         if (employerCosts) {
@@ -267,13 +318,15 @@
       var benefitPackageId = modal.data('benefitPackageId');
       var plansParam = modal.data('plansParam');
       var employerCosts = modal.data('employerCosts');
+      var benefitType = modal.data('benefitType') || 'health';
       
       if (benefitSponsorshipId && benefitApplicationId && benefitPackageId && plansParam) {
         // Build URL with plans and pre-calculated employer costs
         var exportUrl = '/benefit_sponsors/benefit_sponsorships/' + benefitSponsorshipId +
                        '/benefit_applications/' + benefitApplicationId +
                        '/benefit_packages/' + benefitPackageId +
-                       '/product_comparisons/csv?plans=' + plansParam;
+                       '/product_comparisons/csv?plans=' + plansParam +
+                       '&benefit_type=' + benefitType;
         
         // Add employer costs if available
         if (employerCosts) {
