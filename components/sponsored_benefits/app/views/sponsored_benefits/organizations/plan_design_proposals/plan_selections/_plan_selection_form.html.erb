@@ -81,7 +81,7 @@
         </div>
         <div class="col-md-2 plan-type-filters">
         </div>
-        <% if !plan_design_form.is_dental? %>
+        <% if !plan_design_form.is_dental? && ::EnrollRegistry.feature_enabled?(:plan_comparison_tool)  %>
           <div class="col-md-12">
             <div class="col-md-6 col-md-offset-5">
               <button class="btn btn-primary view-plans-button" 
