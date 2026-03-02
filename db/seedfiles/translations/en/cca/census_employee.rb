@@ -18,5 +18,5 @@ CENSUS_EMPLOYEE_TRANSLATIONS = {
   :'en.census_employee.update_cobra_text' => "Employee has successfully been  enrolled into COBRA coverage on selected start date.",
   :'en.census_employee.initiate_cobra' => "Initiate Cobra",
   :'en.census_employee.cobra_eligibility_text' => "Note: This is not a notice of COBRA eligibility.",
-  :'en.census_employee.initiate_cobra_notes' => "After selecting 'Initiate COBRA', the employee will be eligible to be enrolled in COBRA one day after the termination end date.",
+  :'en.census_employee.initiate_cobra_notes' => "After selecting ’Initiate COBRA’, the employee will resume their terminated coverage effective one day post termination effective end.  The employee will be eligible to shop, maintain or change plans as long as they are active in COBRA in regular renewal enrollment periods or special enrollment periods.",
 }.freeze

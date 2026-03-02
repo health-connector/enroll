@@ -241,6 +241,7 @@
       font-size:12px;
       font-weight:bold;
       padding-top: 20px;
+      padding-bottom: 40px; /* Add space for compare checkbox */
     }
     .rp-view-summary {
       display:none;
@@ -716,6 +717,7 @@
   align-items: center;
   width: 100%;
   text-align: justify;
+  padding-left: 5%;
 }
 
 .heading-est-emp-cost {
@@ -724,5 +726,5 @@
   padding-left: 5px;
   font-weight: bold;
   color: $primary-orange;
-  font-size: 1vw;
+  font-size: 1.3em;
 }
