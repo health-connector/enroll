@@ -500,7 +500,8 @@ class HbxEnrollment
   # It only provides a rating-as-of date that we feed into the sponsored pricing stack.
   def cobra_rating_start_on
     return nil unless is_shop?
-    return nil unless employee_role.present? && employee_role.respond_to?(:is_cobra_status?) && employee_role.is_cobra_status?
+    return nil unless is_cobra_status?
+    return nil unless employee_role.present?
     return nil if effective_on.blank?
 
     base_enrollment = parent_enrollment

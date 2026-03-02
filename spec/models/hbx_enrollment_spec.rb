@@ -2262,6 +2262,17 @@ RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
           hbx_enrollment.validate_for_cobra_eligiblity(employee_role)
           expect(hbx_enrollment.cobra_rating_start_on).to eq effective_on
         end
+
+        context 'when enrollment is COBRA but employee_role is not flagged as COBRA' do
+          let(:role_arg) { double(is_cobra_status?: true, census_employee: census_employee) }
+          let(:employee_role) { double(is_cobra_status?: false, census_employee: census_employee) }
+
+          it 'still derives cobra_rating_start_on from prior coverage within same plan year' do
+            hbx_enrollment.validate_for_cobra_eligiblity(role_arg)
+            expect(hbx_enrollment.kind).to eq 'employer_sponsored_cobra'
+            expect(hbx_enrollment.cobra_rating_start_on).to eq effective_on
+          end
+        end
       end
 
       context 'When Enrollment Effectve date is after cobra begin date' do
