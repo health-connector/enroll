@@ -37,7 +37,8 @@ module BenefitSponsors
                  qhps: @qhps,
                  visit_types: @visit_types,
                  employer_costs: @employer_costs,
-                 benefit_application: @benefit_application
+                 benefit_application: @benefit_application,
+                 benefit_type: benefit_type
                }
       end
 
@@ -85,7 +86,8 @@ module BenefitSponsors
             locals: {
               qhps: @qhps,
               visit_types: @visit_types,
-              employer_costs: @employer_costs
+              employer_costs: @employer_costs,
+              benefit_type: benefit_type
             },
             formats: [:html]
           ),
@@ -103,18 +105,27 @@ module BenefitSponsors
 
       def qhps
         @qhps ||= if benefit_application&.start_on
+                    benefit_kind = benefit_type.capitalize # 'Health' or 'Dental'
                     ::Products::QhpCostShareVariance.find_qhp_cost_share_variances(
                       requested_plans,
                       benefit_application.start_on.year,
-                      "Health"
+                      benefit_kind
                     )
                   else
                     []
                   end
       end
 
+      def benefit_type
+        @benefit_type ||= (params[:benefit_type] || 'health').downcase
+      end
+
       def visit_types
-        @visit_types ||= ::Products::Qhp::VISIT_TYPES
+        @visit_types ||= if benefit_type == 'dental'
+                           ::Products::Qhp::DENTAL_VISIT_TYPES
+                         else
+                           ::Products::Qhp::VISIT_TYPES
+                         end
       end
 
       def csv_content_type

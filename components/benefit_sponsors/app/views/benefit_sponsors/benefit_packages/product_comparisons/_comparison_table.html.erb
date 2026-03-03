@@ -1,4 +1,7 @@
 <div class="container-fluid">
+  <% benefit_type ||= 'health' %>
+  <% is_dental = (benefit_type == 'dental') %>
+  
   <div class="mygrid-wrapper-div">
     <table class="table bordered compare-table" border="1" style="font-size:11px;" id="compare_plans_table">
       <!-- Carrier Logos -->
@@ -32,7 +35,8 @@
               <%= display_dental_metal_level qhp.product %>
             </span>
             &nbsp;&#149;&nbsp;
-            <%= qhp.product.health_plan_kind.upcase %>
+            <%# dental_plan_kind %>
+            <%= is_dental ? qhp.product.dental_plan_kind.upcase : qhp.product.health_plan_kind.upcase %>
           </th>
         <% end %>
       </tr>
@@ -40,14 +44,14 @@
       <!-- Employer Estimated Monthly Cost -->
       <% if defined?(employer_costs) && employer_costs.present? %>
         <tr class="employer-cost-row">
-          <th style="background-color: #e8f4f8; padding: 12px 8px;">
+          <th style="background-color: #f5f5f5; padding: 12px 8px;">
             <strong style="font-size: 12px;"><%= l10n('employers.plan_years.benefit_package.estimated_monthly_cost') %></strong>
             <br>
             <small style="color: #666;">(<%= l10n('employers.plan_years.benefit_package.employer_contribution_label') %>)</small>
           </th>
           <% qhps.each do |qhp| %>
-            <th colspan="2" style="text-align: center; background-color: #e8f4f8; padding: 12px 8px;">
-              <strong style="font-size: 13px; color: #0066cc;">
+            <th colspan="2" style="text-align: center; background-color: #f5f5f5; padding: 12px 8px;">
+              <strong style="font-size: 13px; color: #000;">
                 <%= number_to_currency(employer_costs[qhp.product.id] || 0.00) %>
               </strong>
             </th>
@@ -64,10 +68,23 @@
         <% end %>
       </tr>  
 
-      <!-- Medical Deductible -->
-      <tr>
-        <th class="deductible-compare-header"><%= l10n('employers.plan_years.benefit_package.medical') %></th>
-        <% qhps.each do |qhp| %>
+      <% if is_dental %>
+        <!-- Dental Deductible -->
+        <tr>
+          <th class="deductible-compare-header"><%= l10n('employers.plan_years.benefit_package.dental') %></th>
+          <% qhps.each do |qhp| %>
+            <% deductible = qhp.qhp_deductibles.first %>
+            <th class="deductible-compare-header"><%= deductible&.in_network_tier_1_individual || 'N/A' %></th>
+            <% fam_value = deductible&.in_network_tier_1_family&.match(/[|]\s([$]\d+)/) %>
+            <% family_deductible = fam_value ? fam_value[1] : "Not Applicable" %>
+            <th class="deductible-compare-header"><%= family_deductible %></th>
+          <% end %>
+        </tr>
+      <% else %>
+        <!-- Medical Deductible -->
+        <tr>
+          <th class="deductible-compare-header"><%= l10n('employers.plan_years.benefit_package.medical') %></th>
+          <% qhps.each do |qhp| %>
           <% if qhp.qhp_deductibles.count > 1 %>
             <% medical_ded = qhp.qhp_deductibles.where(deductible_type: "Medical EHB Deductible").first %>
             <th class="deductible-compare-header"><%= medical_ded.in_network_tier_1_individual %></th>
@@ -83,26 +100,29 @@
           <% end %>
         <% end %>
       </tr>
+      <% end %>
 
-      <!-- Rx Deductible -->
-      <tr>
-        <th class="deductible-compare-header"><%= l10n('employers.plan_years.benefit_package.rx') %></th>
-        <% qhps.each do |qhp| %>
-          <% if qhp.qhp_deductibles.count > 1 %>
-            <% drug_ded = qhp.qhp_deductibles.where(deductible_type: "Drug EHB Deductible").first %>
-            <th class="deductible-compare-header"><%= drug_ded.in_network_tier_1_individual %></th>
-            <% fam_value = drug_ded.in_network_tier_1_family.match(/[|]\s([$]\d+)/) %>
-            <% family_deductible = fam_value ? fam_value[1] : "N/A" %>
-            <th class="deductible-compare-header"><%= family_deductible %></th>
-          <% else %>
-            <% deductible = qhp.qhp_deductibles.first %>
-            <th class="deductible-compare-header"><%= deductible.in_network_tier_1_individual %></th>
-            <% fam_value = deductible.in_network_tier_1_family.match(/[|]\s([$]\d+)/) %>
-            <% family_deductible = fam_value ? fam_value[1] : "N/A" %>
-            <th class="deductible-compare-header"><%= family_deductible %></th>
+      <!-- Rx Deductible (Health Only) -->
+      <% unless is_dental %>
+        <tr>
+          <th class="deductible-compare-header"><%= l10n('employers.plan_years.benefit_package.rx') %></th>
+          <% qhps.each do |qhp| %>
+            <% if qhp.qhp_deductibles.count > 1 %>
+              <% drug_ded = qhp.qhp_deductibles.where(deductible_type: "Drug EHB Deductible").first %>
+              <th class="deductible-compare-header"><%= drug_ded.in_network_tier_1_individual %></th>
+              <% fam_value = drug_ded.in_network_tier_1_family.match(/[|]\s([$]\d+)/) %>
+              <% family_deductible = fam_value ? fam_value[1] : "N/A" %>
+              <th class="deductible-compare-header"><%= family_deductible %></th>
+            <% else %>
+              <% deductible = qhp.qhp_deductibles.first %>
+              <th class="deductible-compare-header"><%= deductible.in_network_tier_1_individual %></th>
+              <% fam_value = deductible.in_network_tier_1_family.match(/[|]\s([$]\d+)/) %>
+              <% family_deductible = fam_value ? fam_value[1] : "N/A" %>
+              <th class="deductible-compare-header"><%= family_deductible %></th>
+            <% end %>
           <% end %>
-        <% end %>
-      </tr>
+        </tr>
+      <% end %>
 
       <!-- Out of Pocket Maximum -->
       <tr>
@@ -127,17 +147,19 @@
       <%= render partial: "shared/plan_shoppings/provider_directory_url", locals: {qhps: qhps} %>
 
       <!-- RX Formulary URL -->
-      <% if qhps.map(&:product).map(&:rx_formulary_url).compact.present? %>
-        <tr>
-          <th><%= l10n('employers.plan_years.benefit_package.prescription_drug_formulary') %></th>
-          <% qhps.each do |qhp| %>
-            <th colspan="2">
-              <% if qhp.product.health? && qhp.product.rx_formulary_url.present? %>
-                <%= link_to l10n('employers.plan_years.benefit_package.rx_formulary_url'), qhp.product.rx_formulary_url, target: "_blank" %>
-              <% end %>
-            </th>
-          <% end %>
-        </tr>
+      <% unless is_dental %>
+        <% if qhps.map(&:product).map(&:rx_formulary_url).compact.present? %>
+          <tr>
+            <th><%= l10n('employers.plan_years.benefit_package.prescription_drug_formulary') %></th>
+            <% qhps.each do |qhp| %>
+              <th colspan="2">
+                <% if qhp.product.health? && qhp.product.rx_formulary_url.present? %>
+                  <%= link_to l10n('employers.plan_years.benefit_package.rx_formulary_url'), qhp.product.rx_formulary_url, target: "_blank" %>
+                <% end %>
+              </th>
+            <% end %>
+          </tr>
+        <% end %>
       <% end %>
 
       <!-- Plan Benefits Header -->

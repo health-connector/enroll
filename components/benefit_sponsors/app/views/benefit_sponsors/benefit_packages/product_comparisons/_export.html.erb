@@ -3,9 +3,12 @@
 <head>
   <meta charset="utf-8">
   <title>Plan Comparison</title>
-  <%= stylesheet_link_tag 'plan_comparison_export' %>
+  <%= wicked_pdf_stylesheet_link_tag 'plan_comparison_export' %>
 </head>
 <body>
+  <% benefit_type ||= 'health' %>
+  <% is_dental = (benefit_type == 'dental') %>
+  
   <h1><%= l10n('employers.plan_years.benefit_package.compare_selected_plans') %></h1>
   
   <div class="header-info">
@@ -65,60 +68,86 @@
       <th class="row-title" colspan="<%= qhps.count + 1 %>"><%= l10n('employers.plan_years.benefit_package.deductibles') %></th>
     </tr>
 
-    <!-- Medical Deductible - Individual -->
-    <tr>
-      <th class="row-title"><%= l10n('employers.plan_years.benefit_package.medical') %> - <%= l10n('employers.plan_years.benefit_package.individual') %></th>
-      <% qhps.each do |qhp| %>
-        <td class="center">
-          <% if qhp.qhp_deductibles.count > 1 %>
-            <% medical_ded = qhp.qhp_deductibles.where(deductible_type: "Medical EHB Deductible").first %>
-            <%= medical_ded.in_network_tier_1_individual %>
-          <% else %>
+    <% if is_dental %>
+      <!-- Dental Deductible - Individual -->
+      <tr>
+        <th class="row-title"><%= l10n('employers.plan_years.benefit_package.dental') %> - <%= l10n('employers.plan_years.benefit_package.individual') %></th>
+        <% qhps.each do |qhp| %>
+          <td class="center">
             <% deductible = qhp.qhp_deductibles.first %>
-            <%= deductible.in_network_tier_1_individual %>
-          <% end %>
-        </td>
-      <% end %>
-    </tr>
+            <%= deductible&.in_network_tier_1_individual || 'N/A' %>
+          </td>
+        <% end %>
+      </tr>
 
-    <!-- Medical Deductible - Family -->
-    <tr>
-      <th class="row-title"><%= l10n('employers.plan_years.benefit_package.medical') %> - <%= l10n('employers.plan_years.benefit_package.family') %></th>
-      <% qhps.each do |qhp| %>
-        <td class="center">
-          <% if qhp.qhp_deductibles.count > 1 %>
-            <% medical_ded = qhp.qhp_deductibles.where(deductible_type: "Medical EHB Deductible").first %>
-            <% fam_value = medical_ded.in_network_tier_1_family.match(/[|]\s([$]\d+)/) %>
+      <!-- Dental Deductible - Family -->
+      <tr>
+        <th class="row-title"><%= l10n('employers.plan_years.benefit_package.dental') %> - <%= l10n('employers.plan_years.benefit_package.family') %></th>
+        <% qhps.each do |qhp| %>
+          <td class="center">
+            <% deductible = qhp.qhp_deductibles.first %>
+            <% fam_value = deductible&.in_network_tier_1_family&.match(/[|]\s([$]\d+)/) %>
             <%= fam_value ? fam_value[1] : "Not Applicable" %>
-          <% else %>
-            <% deductible = qhp.qhp_deductibles.first %>
-            <% fam_value = deductible.in_network_tier_1_family.match(/[|]\s([$]\d+)/) %>
-            <%= fam_value ? fam_value[1] : "Not Applicable" %>
-          <% end %>
-        </td>
-      <% end %>
-    </tr>
+          </td>
+        <% end %>
+      </tr>
+    <% else %>
+      <!-- Medical Deductible - Individual -->
+      <tr>
+        <th class="row-title"><%= l10n('employers.plan_years.benefit_package.medical') %> - <%= l10n('employers.plan_years.benefit_package.individual') %></th>
+        <% qhps.each do |qhp| %>
+          <td class="center">
+            <% if qhp.qhp_deductibles.count > 1 %>
+              <% medical_ded = qhp.qhp_deductibles.where(deductible_type: "Medical EHB Deductible").first %>
+              <%= medical_ded.in_network_tier_1_individual %>
+            <% else %>
+              <% deductible = qhp.qhp_deductibles.first %>
+              <%= deductible.in_network_tier_1_individual %>
+            <% end %>
+          </td>
+        <% end %>
+      </tr>
 
-    <!-- Rx Deductible - Individual -->
-    <tr>
-      <th class="row-title"><%= l10n('employers.plan_years.benefit_package.rx') %> - <%= l10n('employers.plan_years.benefit_package.individual') %></th>
-      <% qhps.each do |qhp| %>
-        <td class="center">
-          <% if qhp.qhp_deductibles.count > 1 %>
-            <% drug_ded = qhp.qhp_deductibles.where(deductible_type: "Drug EHB Deductible").first %>
-            <%= drug_ded.in_network_tier_1_individual %>
-          <% else %>
-            <% deductible = qhp.qhp_deductibles.first %>
-            <%= deductible.in_network_tier_1_individual %>
-          <% end %>
-        </td>
-      <% end %>
-    </tr>
+      <!-- Medical Deductible - Family -->
+      <tr>
+        <th class="row-title"><%= l10n('employers.plan_years.benefit_package.medical') %> - <%= l10n('employers.plan_years.benefit_package.family') %></th>
+        <% qhps.each do |qhp| %>
+          <td class="center">
+            <% if qhp.qhp_deductibles.count > 1 %>
+              <% medical_ded = qhp.qhp_deductibles.where(deductible_type: "Medical EHB Deductible").first %>
+              <% fam_value = medical_ded.in_network_tier_1_family.match(/[|]\s([$]\d+)/) %>
+              <%= fam_value ? fam_value[1] : "Not Applicable" %>
+            <% else %>
+              <% deductible = qhp.qhp_deductibles.first %>
+              <% fam_value = deductible.in_network_tier_1_family.match(/[|]\s([$]\d+)/) %>
+              <%= fam_value ? fam_value[1] : "Not Applicable" %>
+            <% end %>
+          </td>
+        <% end %>
+      </tr>
+    <% end %>
 
-    <!-- Rx Deductible - Family -->
-    <tr>
-      <th class="row-title"><%= l10n('employers.plan_years.benefit_package.rx') %> - <%= l10n('employers.plan_years.benefit_package.family') %></th>
-      <% qhps.each do |qhp| %>
+    <% unless is_dental %>
+      <!-- Rx Deductible - Individual -->
+      <tr>
+        <th class="row-title"><%= l10n('employers.plan_years.benefit_package.rx') %> - <%= l10n('employers.plan_years.benefit_package.individual') %></th>
+        <% qhps.each do |qhp| %>
+          <td class="center">
+            <% if qhp.qhp_deductibles.count > 1 %>
+              <% drug_ded = qhp.qhp_deductibles.where(deductible_type: "Drug EHB Deductible").first %>
+              <%= drug_ded.in_network_tier_1_individual %>
+            <% else %>
+              <% deductible = qhp.qhp_deductibles.first %>
+              <%= deductible.in_network_tier_1_individual %>
+            <% end %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- Rx Deductible - Family -->
+      <tr>
+        <th class="row-title"><%= l10n('employers.plan_years.benefit_package.rx') %> - <%= l10n('employers.plan_years.benefit_package.family') %></th>
+        <% qhps.each do |qhp| %>
         <td class="center">
           <% if qhp.qhp_deductibles.count > 1 %>
             <% drug_ded = qhp.qhp_deductibles.where(deductible_type: "Drug EHB Deductible").first %>
@@ -132,6 +161,7 @@
         </td>
       <% end %>
     </tr>
+    <% end %>
 
     <!-- Out of Pocket Maximum -->
     <tr>
