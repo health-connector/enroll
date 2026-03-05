@@ -89,3 +89,20 @@ Feature: Add Plan Year For Employer
     Then employer should see gold metal level type
     And employer clicked on gold metal level
     Then employer should not see pvp indicator
+
+Scenario Outline: Employer should be able to click employee cost details button
+    And ABC Widgets is logged in and on the home page
+    And staff role person clicked on benefits tab
+    And employer clicked on add plan year button
+    And employer filled all the fields on benefit application form
+    And employer clicked on continue button
+    And employer filled all the fields on benefit package form for initial application
+    And employer selected by metal level plan offerings
+    And employer clicked on gold metal level
+    And employer selected <contribution_percent> contribution percent for the application
+    When employer clicked on view employee cost details button
+    Then employer should see Benefit Package Set Up page
+
+    Examples:
+      | contribution_percent |
+      | 100                  |
