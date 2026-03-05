@@ -59,7 +59,7 @@ module Listeners
     end
 
     def self.run
-      conn = Bunny.new(Rails.application.config.acapi.remote_broker_uri, :heartbeat => 15)
+      conn = Bunny.new(Rails.application.config.acapi.to_connection_settings)
       conn.start
       ch = conn.create_channel
       ch.prefetch(1)
