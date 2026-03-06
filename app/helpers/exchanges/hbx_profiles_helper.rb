@@ -17,7 +17,6 @@ module Exchanges
       person_roles << "CSR Role" if person.csr_role.present?
       person_roles << "POC" if person.employer_staff_roles.present?
       person_roles << "Broker Agency Staff Role" if person.broker_agency_staff_roles.present?
-      person_roles << "General Agency Staff Role" if person.general_agency_staff_roles.present?
       person_roles
     end
   end

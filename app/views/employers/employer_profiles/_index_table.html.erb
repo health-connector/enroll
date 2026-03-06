@@ -11,7 +11,6 @@
     <% else %>
     <th>Broker Agency</th>
     <% end %>
-    <th>General Agency</th>
     <th>&nbsp;</th>
   </tr>
 </thead>
@@ -34,7 +33,6 @@
           <%= link_to er.active_broker.full_name, edit_path, class: "interaction-click-control-broker-show", method: :get %>
         </td>
       <% end %>
-      <td><%= er.active_general_agency_legal_name %></td>
     </tr>
   <% end %>
 </tbody>

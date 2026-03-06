@@ -149,14 +149,12 @@ module BenefitSponsors
       it_behaves_like "initialize profile for new", "benefit_sponsor"
       it_behaves_like "initialize profile for new", "broker_agency"
       # it_behaves_like "initialize profile for new", "issuer"
-      # it_behaves_like "initialize profile for new", "general_agency"
       # it_behaves_like "initialize profile for new", "contact_center"
       # it_behaves_like "initialize profile for new", "fedhb"
 
       it_behaves_like "initialize registration form", :new, {profile_type: "benefit_sponsor"}, "benefit_sponsor"
       it_behaves_like "initialize registration form", :new, {profile_type: "broker_agency"}, "broker_agency"
       # it_behaves_like "initialize profile for new", :new, { profile_type: "issuer" }
-      # it_behaves_like "initialize profile for new", :new, { profile_type: "general_agency" }
       # it_behaves_like "initialize profile for new", :new, { profile_type:  "contact_center" }
       # it_behaves_like "initialize profile for new", :new, { profile_type: "fedhb" }
 
@@ -244,14 +242,12 @@ module BenefitSponsors
         it_behaves_like "store profile for create", "benefit_sponsor"
         it_behaves_like "store profile for create", "broker_agency"
         # it_behaves_like "store profile for create", "issuer"
-        # it_behaves_like "store profile for create", "general_agency"
         # it_behaves_like "store profile for create", "contact_center"
         # it_behaves_like "store profile for create", "fedhb"
 
         it_behaves_like "initialize registration form", :create, {}, "benefit_sponsor"
         it_behaves_like "initialize registration form", :create, {}, "broker_agency"
         # it_behaves_like "initialize profile for new", :create, { profile_type: "issuer" }
-        # it_behaves_like "initialize profile for new", :create, { profile_type: "general_agency" }
         # it_behaves_like "initialize profile for new", :create, { profile_type: "contact_center" }
         # it_behaves_like "initialize profile for new", :create, { profile_type: "fedhb" }
 
@@ -282,7 +278,6 @@ module BenefitSponsors
         it_behaves_like "fail store profile for create if params invalid", "benefit_sponsor"
         it_behaves_like "fail store profile for create if params invalid", "broker_agency"
         # it_behaves_like "fail store profile for create if params invalid", "issuer"
-        # it_behaves_like "fail store profile for create if params invalid", "general_agency"
         # it_behaves_like "fail store profile for create if params invalid", "contact_center"
         # it_behaves_like "fail store profile for create if params invalid", "fedhb"
 
@@ -333,14 +328,12 @@ module BenefitSponsors
       it_behaves_like "initialize profile for edit", "benefit_sponsor"
       it_behaves_like "initialize profile for edit", "broker_agency"
       # it_behaves_like "initialize profile for new", "issuer"
-      # it_behaves_like "initialize profile for new", "general_agency"
       # it_behaves_like "initialize profile for new", "contact_center"
       # it_behaves_like "initialize profile for new", "fedhb"
 
       it_behaves_like "initialize registration form", :edit, { id: "id"}, "benefit_sponsor"
       it_behaves_like "initialize registration form", :edit, { id: "id" }, "broker_agency"
       # it_behaves_like "initialize profile for new", :edit, { profile_type: "issuer" }
-      # it_behaves_like "initialize profile for new", :edit, { profile_type: "general_agency" }
       # it_behaves_like "initialize profile for new", :edit, { profile_type: "contact_center" }
       # it_behaves_like "initialize profile for new", :edit, { profile_type: "fedhb" }
     end
@@ -412,7 +405,6 @@ module BenefitSponsors
         it_behaves_like "store profile for update", "benefit_sponsor"
         it_behaves_like "store profile for update", "broker_agency"
         # it_behaves_like "store profile for update", "issuer"
-        # it_behaves_like "store profile for update", "general_agency"
         # it_behaves_like "store profile for update", "contact_center"
         # it_behaves_like "store profile for update", "fedhb"
 
@@ -441,7 +433,6 @@ module BenefitSponsors
         it_behaves_like "fail store profile for update if params invalid", "benefit_sponsor"
         it_behaves_like "fail store profile for update if params invalid", "broker_agency"
         # it_behaves_like "fail store profile for update if params invalid", "issuer"
-        # it_behaves_like "fail store profile for update if params invalid", "general_agency"
         # it_behaves_like "fail store profile for update if params invalid", "contact_center"
         # it_behaves_like "fail store profile for update if params invalid", "fedhb"
       end
