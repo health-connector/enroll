@@ -240,7 +240,7 @@ module Notifier
       if notice.save
         notice
       else
-        # LOG ERROR
+        log("ERROR: Unable to create recipient document: #{event_name} #{resource}", {:severity => 'error'})
       end
     end
 
@@ -261,7 +261,11 @@ module Notifier
         receiver.id, 'documents', notice.id )}?content_type=#{notice.format}&filename=#{notice.title.gsub(/[^0-9a-z]/i,'')}.pdf&disposition=inline" + " target='_blank'>" + notice.title.gsub(/[^0-9a-z]/i,'') + "</a>"
 
       message = receiver.inbox.messages.build({ subject: subject, body: body, from: site_short_name })
-      message.save!
+      if message.save!
+        message
+      else
+        log("ERROR: Unable to create secure inbox message: #{event_name} #{resource}", {:severity => 'error'})
+      end
     end
 
     def sanitize_html_pdf_render
