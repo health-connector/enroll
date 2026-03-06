@@ -149,7 +149,7 @@ end
 
 Then(/^the broker selects plan offerings by metal level and enters (.*) for employee and deps$/) do |int|
   find('.interaction-click-control-select-health-benefits').click if page.has_css?('.interaction-click-control-select-health-benefits')
-  sleep(10)
+  sleep(12)
   find('label[for="forms_plan_design_proposal_plan_option_kind_metal_level"]', wait: 10).click
   expect(page).to have_content("Gold")
   find('#metal_level_for_elected_plan_gold').click
@@ -354,4 +354,16 @@ end
 Then(/^broker should not see pvp filter$/) do
   type_filters = find_all(BrokerQuotingTool.plan_type_filters).map(&:text)
   expect(type_filters).not_to include("Premium Value Plan")
+end
+
+When(/^the broker selects a Reference Health Plan$/) do
+  find(BrokerQuotingTool.reference_plan, match: :first).click
+end
+
+And(/^the broker clicks on view employee cost details button$/) do
+  find(BrokerQuotingTool.employee_cost_details_button).click
+end
+
+Then(/^.+ should see Benefit Package Set Up page$/) do
+  expect(page).to have_selector('h2', text: 'Benefit Package Set Up')
 end

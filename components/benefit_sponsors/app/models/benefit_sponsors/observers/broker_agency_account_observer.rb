@@ -21,7 +21,7 @@ module BenefitSponsors
       end
 
       def broker_fired?(account, _options = {})
-        return false unless account.persisted? && account.changed? && account.changed_attributes.include?("is_active") && account.benefit_sponsorship.present?
+        return false unless account.persisted? && account.saved_change_to_is_active? && !account.is_active && account.benefit_sponsorship.present?
 
         profile = account.benefit_sponsorship.profile
         notify(
