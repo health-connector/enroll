@@ -59,18 +59,20 @@
         <% end %>
         
         <!-- Employer Estimated Monthly Cost -->
-        <% if defined?(employer_costs) && employer_costs.present? %>
-          <tr>
-            <th style="background-color: #f5f5f5;">
-              Estimated Employer Monthly Cost<br>
-              <small>(Employer Contribution)</small>
-            </th>
-            <% qhps.each do |qhp| %>
-              <th colspan="2" style="text-align: center; vertical-align:middle; background-color: #f5f5f5; color: #000; font-weight: bold; font-size: 12pt;">
-                <%= number_to_currency(employer_costs[qhp.plan.id] || 0.00) %>
+        <% if EnrollRegistry.feature_enabled?(:plan_comparison_tool) %>
+          <% if defined?(employer_costs) && employer_costs.present? %>
+            <tr>
+              <th style="background-color: #f5f5f5;">
+                Estimated Employer Monthly Cost<br>
+                <small>(Employer Contribution)</small>
               </th>
-            <% end %>
-          </tr>
+              <% qhps.each do |qhp| %>
+                <th colspan="2" style="text-align: center; vertical-align:middle; background-color: #f5f5f5; color: #000; font-weight: bold; font-size: 12pt;">
+                  <%= number_to_currency(employer_costs[qhp.plan.id] || 0.00) %>
+                </th>
+              <% end %>
+            </tr>
+          <% end %>
         <% end %>
         
         <tr>
