@@ -3,7 +3,7 @@
 require 'rails_helper'
 require "#{SponsoredBenefits::Engine.root}/spec/shared_contexts/sponsored_benefits"
 
-module SponsoredBenefits
+module SponsoredBenefits # rubocop:disable Metrics/ModuleLength
   RSpec.describe Organizations::PlanDesignProposals::PlanComparisonsController, type: :controller, dbclean: :around_each do
     routes { SponsoredBenefits::Engine.routes }
     include_context "set up broker agency profile for BQT, by using configuration settings"
