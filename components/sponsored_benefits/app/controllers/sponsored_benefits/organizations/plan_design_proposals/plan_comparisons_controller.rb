@@ -52,44 +52,53 @@ module SponsoredBenefits
       end
 
       def calculate_employer_costs
-        active_benefit_group = plan_design_proposal.active_benefit_group
+        active_benefit_group = fetch_benefit_group_for_calculation
         return {} unless active_benefit_group
 
-        # Reload to get fresh data
-        active_benefit_group.reload
-
         qhps.each_with_object({}) do |qhp, costs|
-
           next unless qhp.plan.present?
 
-          # Build a temporary benefit group with this plan as reference
           temp_benefit_group = build_temp_benefit_group_for_plan(active_benefit_group, qhp.plan)
-
-          # Initialize service with the temporary benefit_group
           service = SponsoredBenefits::Services::PlanCostService.new(benefit_group: temp_benefit_group)
-
-          # Calculate employer cost
-          employer_cost = service.monthly_employer_contribution_amount
-
-          costs[qhp.plan.id] = employer_cost || 0.00
+          costs[qhp.plan.id] = service.monthly_employer_contribution_amount || 0.00
         rescue StandardError => e
-          Rails.logger.error "Error for plan #{qhp.plan&.id}: #{e.message}"
-          Rails.logger.error e.backtrace.first(5).join("\n")
+          Rails.logger.error "Error calculating employer cost for plan #{qhp.plan&.id}: #{e.message}"
           costs[qhp.plan.id] = 0.00 if qhp.plan.present?
         end
       end
 
-      def build_temp_benefit_group_for_plan(active_benefit_group, plan)
-        sponsorship = plan_design_proposal.profile.benefit_sponsorships.first
-        benefit_application = sponsorship.benefit_applications.first
+      # rubocop:disable Metrics/CyclomaticComplexity
+      def fetch_benefit_group_for_calculation
+        sponsorship = plan_design_proposal.profile&.benefit_sponsorships&.first
+        return nil unless sponsorship
 
-        # Build temporary benefit group with the comparison plan as reference
-        temp_bg = benefit_application.benefit_groups.build(
+        benefit_application = sponsorship.benefit_applications&.first
+        return nil unless benefit_application
+
+        active_benefit_group = benefit_application.benefit_groups&.first
+
+        # Build temporary benefit group from params if none exists
+        if active_benefit_group.nil? && benefit_group_params.present?
+          active_benefit_group = benefit_application.benefit_groups.build(benefit_group_params)
+          active_benefit_group.plan_option_kind = params[:elected_plan_kind] if params[:elected_plan_kind].present?
+          active_benefit_group.reference_plan_id = params[:reference_plan_id] if params[:reference_plan_id].present?
+
+          active_benefit_group.build_estimated_composite_rates if active_benefit_group.sole_source?
+          active_benefit_group.set_bounding_cost_plans
+        end
+
+        active_benefit_group
+      end
+      # rubocop:enable Metrics/CyclomaticComplexity
+
+      def build_temp_benefit_group_for_plan(active_benefit_group, plan)
+        temp_bg = active_benefit_group.class.new(
           reference_plan_id: plan.id,
           plan_option_kind: active_benefit_group.plan_option_kind
         )
+        temp_bg.benefit_application = active_benefit_group.benefit_application
 
-        # Copy relationship benefits from active benefit group
+        # Copy relationship benefits
         active_benefit_group.relationship_benefits.each do |rb|
           temp_bg.relationship_benefits.build(
             relationship: rb.relationship,
@@ -98,7 +107,7 @@ module SponsoredBenefits
           )
         end
 
-        # Copy composite tier contributions if sole_source
+        # Copy composite tier contributions for sole_source plans
         if active_benefit_group.sole_source?
           active_benefit_group.composite_tier_contributions.each do |ctc|
             temp_bg.composite_tier_contributions.build(
@@ -142,6 +151,22 @@ module SponsoredBenefits
         else
           'text/csv'
         end
+      end
+
+      def benefit_group_params
+        return {} unless params[:forms_plan_design_proposal].present?
+
+        benefit_group_data = params[:forms_plan_design_proposal]
+                             .dig(:profile, :benefit_sponsorship, :benefit_application, :benefit_group)
+
+        return {} unless benefit_group_data.present?
+
+        benefit_group_data.permit(
+          :reference_plan_id,
+          :plan_option_kind,
+          relationship_benefits_attributes: [:relationship, :premium_pct, :offered],
+          composite_tier_contributions_attributes: [:composite_rating_tier, :employer_contribution_percent, :offered]
+        )
       end
     end
   end
