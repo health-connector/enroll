@@ -696,11 +696,25 @@ function viewComparisons() {
   $('.view-plans-button').hide();
   $('.loading-plans-button').show();
 
+    // Serialize benefit group form data for employer cost calculation
+    var benefitGroupData = $('form').find('[name*="benefit_group]"]').serializeArray();
+    var allData = { 
+      plans: selected_rpids, 
+      sort_by: '',
+      elected_plan_kind: $('#elected_plan_kind').val(),
+      reference_plan_id: $('#reference_plan_id').val()
+    };
+    
+    // Add benefit group params to the data
+    $.each(benefitGroupData, function(i, field) {
+      allData[field.name] = field.value;
+    });
+
     $.ajax({
       type: "GET",
       url: url,
       dataType: 'script',
-      data: { plans: selected_rpids, sort_by: '' },
+      data: allData,
     }).done(function() {
       $('#compare_plans_table').dragtable({dragaccept: '.movable'});
       $('.view-plans-button').show();
