@@ -41,6 +41,7 @@ EMPLOYER_TRANSLATIONS = {
   :'en.employers.plan_years.benefit_package.individual' => "INDIVIDUAL",
   :'en.employers.plan_years.benefit_package.family' => "FAMILY",
   :'en.employers.plan_years.benefit_package.medical' => "Medical",
+  :'en.employers.plan_years.benefit_package.dental' => "Dental",
   :'en.employers.plan_years.benefit_package.rx' => "Rx",
   :'en.employers.plan_years.benefit_package.out_of_pocket_maximum' => "Out of Pocket Maximum",
   :'en.employers.plan_years.benefit_package.provider_network' => "Provider Network",
