@@ -36,6 +36,7 @@ module BenefitSponsors
 
         qhps.each do |qhp|
           product = qhp.product
+
           employer_costs[product.id] = calculate_cost_for_plan(
             product,
             sponsored_benefit,
@@ -67,7 +68,6 @@ module BenefitSponsors
       end
 
       def calculate_cost_for_plan(product, sponsored_benefit, product_package)
-        # Update reference product to current plan for accurate calculation
         sponsored_benefit.reference_product = product
 
         cost_estimator = BenefitSponsors::SponsoredBenefits::CensusEmployeeCoverageCostEstimator.new(
@@ -80,7 +80,7 @@ module BenefitSponsors
           product,
           product_package,
           rebuild_sponsor_contribution: false,
-          build_new_pricing_determination: false
+          build_new_pricing_determination: true
         )
 
         calculated_cost = employer_cost&.round(2) || 0.00
