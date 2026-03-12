@@ -2293,7 +2293,7 @@ GEM
     pundit (2.5.0)
       activesupport (>= 3.0.0)
     racc (1.8.1)
-    rack (3.2.4)
+    rack (3.2.5)
     rack-cors (2.0.2)
       rack (>= 2.0.0)
     rack-protection (4.2.1)
@@ -2683,7 +2683,7 @@ DEPENDENCIES
   pry-byebug
   puma (~> 6.6.0)
   pundit (~> 2.0)
-  rack (>= 3.2.3)
+  rack (= 3.2.5)
   rack-cors
   railroady (~> 1.5.3)
   rails (~> 7.2, >= 7.2.3)
