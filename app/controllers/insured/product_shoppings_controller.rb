@@ -135,11 +135,11 @@ module Insured
 
       # TODO: Use permit params
       attrs = waiver_thankyou_params.to_h.deep_symbolize_keys
-      enr_details = attrs.slice(:health, :dental)
+      enr_details = attrs.slice(:health, :dental).compact
 
-      health_waiver_reason = attrs[:health][:waiver_reason]
-      dentalwaiver_reason = attrs[:dental][:waiver_reason]
-      is_outside_service_area_reason = (health_waiver_reason == HbxEnrollment::OUTSIDE_SERVICE_AREA_WAIVER_REASON) || (dentalwaiver_reason == HbxEnrollment::OUTSIDE_SERVICE_AREA_WAIVER_REASON)
+      health_waiver_reason = attrs.dig(:health, :waiver_reason)
+      dentalwaiver_reason = attrs.dig(:dental, :waiver_reason)
+      is_outside_service_area_reason = [health_waiver_reason, dentalwaiver_reason].compact.include?(HbxEnrollment::OUTSIDE_SERVICE_AREA_WAIVER_REASON)
 
       @context = enr_details.each_with_object({}) do |(k,v),output|
         context = Organizers::PrepareForWaiverCheckout.call(params: v, person: @person, event: attrs[:event])

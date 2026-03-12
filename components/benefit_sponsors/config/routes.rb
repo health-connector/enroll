@@ -80,6 +80,13 @@ BenefitSponsors::Engine.routes.draw do
           get :estimated_employee_cost_details
         end
 
+        resources :product_comparisons, controller: "benefit_packages/product_comparisons", only: [:new] do
+          collection do
+            get :export
+            get :csv
+          end
+        end
+
         resources :sponsored_benefits, controller: "sponsored_benefits/sponsored_benefits" do
           member do
             get :calculate_employee_cost_details

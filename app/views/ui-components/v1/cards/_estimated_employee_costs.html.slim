@@ -1,7 +1,12 @@
-.row
-  .col-xs-12.col-md-6
-    h3.heading-text Estimated Employee Costs
-p
-  = l10n("employers.plan_years.employee_cost_details_description_part1")
-  button.btn.btn-link.btn-anchor#estimatedEmployeeCostDetailsLink type="submit" name="estimated_employee_costs" value="true" details page.
-  = l10n("employers.plan_years.employee_cost_details_description_part2")
+.panel.panel-default.panel-body
+    .row
+      .col-md-3
+          h3.heading-est-emp-cost Estimated Employee Costs
+      br
+      .col-md-9
+        .text-est-emp-cost= l10n("employers.plan_years.employee_cost_details_description_part1")
+    p
+      button.btn.btn-primary.btn-anchor#estimatedEmployeeCostDetailsLink type="submit" name="estimated_employee_costs" value="true" View Employee Cost Details
+
+
+
