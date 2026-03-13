@@ -34,6 +34,13 @@ module BenefitSponsors
         employer_costs = {}
         product_package = sponsored_benefit.product_package
 
+        # Pre-warm cache for dental products to avoid missing cache entries
+        # Check the first product since all products in comparison are the same kind
+        first_product = qhps.first&.product
+        is_dental = first_product&.kind == :dental || first_product&.dental?
+
+        ensure_product_cache_initialized(qhps.map(&:product)) if is_dental
+
         qhps.each do |qhp|
           product = qhp.product
 
@@ -89,6 +96,57 @@ module BenefitSponsors
       rescue StandardError => e
         log_error("Error calculating cost for plan #{product.id}", e)
         0.00
+      end
+
+      # Ensure product factor cache is initialized for dental products
+      # This prevents cache lookup failures when actuarial factors aren't pre-loaded
+      # rubocop:disable Style/GlobalVars
+      def ensure_product_cache_initialized(products)
+        products.each do |product|
+          cache_key = [product.issuer_profile_id, product.active_year]
+          next if $pf_cache_for_group_size&.key?(cache_key) && $pf_cache_for_group_size[cache_key].present?
+
+          load_factors_for_product(product.issuer_profile_id, product.active_year)
+        end
+      rescue StandardError => e
+        Rails.logger.error("Error initializing product cache: #{e.message}")
+      end
+
+      def load_factors_for_product(issuer_id, year)
+        $pf_cache_for_group_size ||= {}
+        $pf_cache_for_sic_code ||= {}
+        $pf_cache_for_participation_percent ||= {}
+
+        cache_key = [issuer_id, year]
+
+        # Load or create default for group size factors
+        factor = ::BenefitMarkets::Products::ActuarialFactors::GroupSizeActuarialFactor
+                 .where(issuer_profile_id: issuer_id, active_year: year)
+                 .first
+        $pf_cache_for_group_size[cache_key] = factor ? factor.cacherize! : create_default_factor_cache
+
+        # Load or create default for SIC code factors
+        factor = ::BenefitMarkets::Products::ActuarialFactors::SicActuarialFactor
+                 .where(issuer_profile_id: issuer_id, active_year: year)
+                 .first
+        $pf_cache_for_sic_code[cache_key] = factor ? factor.cacherize! : create_default_factor_cache
+
+        # Load or create default for participation rate factors
+        factor = ::BenefitMarkets::Products::ActuarialFactors::ParticipationRateActuarialFactor
+                 .where(issuer_profile_id: issuer_id, active_year: year)
+                 .first
+        $pf_cache_for_participation_percent[cache_key] = factor ? factor.cacherize! : create_default_factor_cache
+      end
+      # rubocop:enable Style/GlobalVars
+
+      # Create a default factor cache that returns 1.0 for any lookup
+      # Used when actuarial factors don't exist in the database
+      def create_default_factor_cache
+        Class.new do
+          def self.cached_lookup(_key)
+            1.0
+          end
+        end
       end
 
       def log_error(message, exception)
