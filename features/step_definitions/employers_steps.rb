@@ -681,6 +681,22 @@ And(/^employer clicked on gold metal level$/) do
   find("#benefit_package_sponsored_benefits_attributes_0_product_option_choice_gold", :visible => false).click
 end
 
+And(/employer clicks on HSA true filter/) do
+  find("[data-cuke='hsa-true']").click
+end
+
+And(/employer should see filtered product selection/) do
+  expect(find_all('.reference-plans').count).to eq 1
+end
+
+And(/employer clicks the Add Dental Benefits button/) do
+  find('#dentalBenefits').click
+end
+
+And(/employer selects the first carrier option for dental benefits/) do
+  find_all("[data-cuke='dental-carrier-select']", visible: false).first.click
+end
+
 And(/^employer (.*) (.*) contribution percent for the application$/) do |create_or_edit_ba, contribution_percent|
   fill_in "benefit_package[sponsored_benefits_attributes][0][sponsor_contribution_attributes][contribution_levels_attributes][1][contribution_factor]", with: contribution_percent.to_i
   fill_in "benefit_package[sponsored_benefits_attributes][0][sponsor_contribution_attributes][contribution_levels_attributes][2][contribution_factor]", with: contribution_percent.to_i
@@ -1105,4 +1121,8 @@ end
 
 And(/^employer clicked on view employee cost details button$/) do
   find(AddPlanYearPage.employee_cost_details_button).click
+end
+
+And(/plan comparison tool feature is enabled/) do
+  enable_feature :plan_comparison_tool
 end

@@ -151,7 +151,7 @@ module BenefitMarketWorld
       qhp = create(:products_qhp, active_year: hp.active_year, standard_component_id: hp.hios_id)
       csr = FactoryBot.build(:products_qhp_cost_share_variance, hios_plan_and_variant_id: hp.hios_id)
       qhp.qhp_cost_share_variances << csr
-      qhp_d = FactoryBot.build(:products_qhp_deductible, in_network_tier_1_individual: "$100", in_network_tier_1_family: "$100 | $200")
+      qhp_d = FactoryBot.build(:products_qhp_deductible, in_network_tier_1_individual: "$100", in_network_tier_1_family: "$100 | $200", deductible_type: 'Medical EHB Deductible')
       csr.qhp_deductibles << qhp_d
       qhp.save!
       csr.save!
@@ -160,6 +160,22 @@ module BenefitMarketWorld
       hp.sbc_document = doc
       hp.save!
       doc.save!
+    end
+    if coverage_kinds.include?(:dental)
+      BenefitMarkets::Products::DentalProducts::DentalProduct.each do |hp|
+        qhp = create(:products_qhp, active_year: hp.active_year, standard_component_id: hp.hios_id)
+        csr = FactoryBot.build(:products_qhp_cost_share_variance, hios_plan_and_variant_id: hp.hios_id)
+        qhp.qhp_cost_share_variances << csr
+        qhp_d = FactoryBot.build(:products_qhp_deductible, in_network_tier_1_individual: "$100", in_network_tier_1_family: "$100 | $200", deductible_type: 'Medical EHB Deductible')
+        csr.qhp_deductibles << qhp_d
+        qhp.save!
+        csr.save!
+        qhp_d.save!
+        doc = FactoryBot.build(:document, identifier: '1:1#1')
+        hp.sbc_document = doc
+        hp.save!
+        doc.save!
+      end
     end
     reset_product_cache
   end
@@ -170,6 +186,12 @@ module BenefitMarketWorld
       next unless qhp
 
       qhp.update!(standard_component_id: hp.hios_id[0..13])
+    end
+    BenefitMarkets::Products::DentalProducts::DentalProduct.each do |dp|
+      qhp = Products::Qhp.by_hios_ids_and_active_year([dp.hios_id], dp.active_year).first
+      next unless qhp
+
+      qhp.update!(standard_component_id: dp.hios_id[0..13])
     end
   end
 
@@ -330,4 +352,9 @@ Given(/^SAFE benefit market catalog exists for (.*) initial employer that has bo
   safe_initial_application_dates(status.to_sym)
   generate_initial_catalog_products_for(coverage_kinds)
   create_benefit_market_catalog_for(current_effective_date)
+end
+
+Given(/health and dental benefits have differing hsa values/) do
+  BenefitMarkets::Products::HealthProducts::HealthProduct.first.update_attributes!(hsa_eligibility: true)
+  BenefitMarkets::Products::DentalProducts::DentalProduct.first.update_attributes!(hsa_eligibility: true)
 end
