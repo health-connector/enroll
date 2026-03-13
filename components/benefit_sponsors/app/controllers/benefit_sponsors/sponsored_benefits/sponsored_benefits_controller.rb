@@ -11,6 +11,8 @@ module BenefitSponsors
       def new
         @sponsored_benefit_form = BenefitSponsors::Forms::SponsoredBenefitForm.for_new_benefit(params.permit(:kind, :benefit_sponsorship_id, :benefit_application_id, :benefit_package_id))
         # TODO: - add pundit policy
+        
+        @product_search_options = @sponsored_benefit_form.catalog.search_options
       end
 
       def create

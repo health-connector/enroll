@@ -14,6 +14,7 @@ module BenefitSponsors
 
       def new
         authorize @benefit_package_form, :updateable?
+        @product_search_options = @benefit_package_form.catalog.search_options
       end
 
       def create

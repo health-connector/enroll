@@ -88,6 +88,10 @@
             h2.heading-text.pull-left.pl-1
               =l10n("employers.plan_years.benefit_package.select_your_reference_plan")
           h4 =l10n("employers.plan_years.benefit_package.select_your_reference_plan.content")
+
+          - if EnrollRegistry.feature_enabled?(:plan_comparison_tool)
+            = render :partial => "/ui-components/v1/cards/employer_plan_selection_filters", :locals => { :search_options => @product_search_options }
+
           #yourPlans
             .float-right.mb-2
               #yourPlanTotals
@@ -203,7 +207,7 @@ javascript:
   }
 
   function setCircle(element) {
-    var items = document.querySelectorAll('#metal-level-select ul li')
+    var items = document.querySelectorAll('#metal-level-select ul li:not(.er-plan-filter-li)')
 
     for (item of items) {
       item.querySelector('i').classList.remove('fa-dot-circle');
@@ -233,6 +237,7 @@ javascript:
       return 0;
     })
     populateReferencePlans(filteredProducts)
+    populateSponsorContributions()
     if ( #{EnrollRegistry[:display_estimated_employee_costs].feature.is_enabled}) {
       document.getElementById('estimatedEmployeeCostDetailsNav').innerHTML = '#{(render :partial => "/ui-components/v1/cards/estimated_employee_costs", f: f )}'
     }
@@ -240,11 +245,52 @@ javascript:
     selectDefaultReferencePlan()
   }
 
-  function populateReferencePlans(plans) {
-    sponsorContribution = sponsorContributions[productOptionKind]['contribution_levels'];
+  $(document).on('click', '#employer-plan-selection-filters .plan-filter-checkbox', sortByFilter);
+  function sortByFilter() {
+    var group = "input:checkbox[data-search-type='" + $(this).data("search-type") + "']";
+    $(group).prop("checked", false);
+    $(this).prop("checked", true);
 
+    var plans = $('.reference-plan');
+    var search_types = {};
+
+    $('.plan-filter-checkbox').each(function() {
+      var option = $(this);
+      var option_is_checked = option.prop('checked');
+      if (option_is_checked) {
+        search_types[option.data('search-type')] = option.val();
+      }
+    })
+
+    var newFilteredProducts = []
+    filteredProducts.forEach(function(plan) {
+      var plan_matches = [];
+      Object.keys(search_types).forEach(function(item) {
+        var plan_value = plan[item];
+        plan_matches.push((search_types[item].toString() === plan_value.toString()));
+      });
+
+      if(plan_matches.every(function(option){ return option; })) {
+        newFilteredProducts.push(plan)
+      }
+    })
+
+    populateReferencePlans(newFilteredProducts)
+    selectDefaultReferencePlan()
+  }
+
+  function populateSponsorContributions() {
+    sponsorContribution = sponsorContributions[productOptionKind]['contribution_levels'];
     document.getElementById('yourSponsorContributions').innerHTML = '#{escape_javascript(render :partial => "/ui-components/v1/cards/sponsor_contributions_shell")}'
 
+    setTimeout(function() {
+      buildSponsorContributions(sponsorContribution)
+      disableEmployeeContributionLevel();
+      newContributionAmounts();
+    },400);
+  }
+
+  function populateReferencePlans(plansToPopulate) {
     // Makes reference plans visible
     document.getElementById('referencePlans').classList.remove('hidden');
     // Removes reference plans if metal level changes
@@ -267,12 +313,12 @@ javascript:
       clearSelectedPlans();
     }
 
-    // Build reference plans to be displayed in UI
-    for (let i = 0; i < filteredProducts.length; i++) {
-      const plan = filteredProducts[i];
-      productsTotal = filteredProducts.length;
+    document.getElementById('yourPlanTotals').innerHTML = `<span class="pull-right mr-3">Displaying: <b>${plansToPopulate.length} plans</b></span>`;
 
-      document.getElementById('yourPlanTotals').innerHTML = `<span class="pull-right mr-3">Displaying: <b>${filteredProducts.length} plans</b></span>`;
+    // Build reference plans to be displayed in UI
+    for (let i = 0; i < plansToPopulate.length; i++) {
+      const plan = plansToPopulate[i];
+      productsTotal = plansToPopulate.length;
 
       if (i % 3 === 0) {
         var rowDiv = document.createElement('div');
@@ -328,7 +374,7 @@ javascript:
               <span class="plan-label col-xs-4">Network:</span> <span class="plan-label-value col-xs-8 pl-2" id="plan-network-value">${network}</span>
             </div>
             <span class="plan-label rp-view-summary" onclick="viewSummary(this)" data-plan-title="${plan.title}" data-plan-id="${plan.id}" data-plan-type="${plan.product_type}" data-plan-carrier="${plan.carrier_name}" data-plan-level="${plan.metal_level_kind}" data-plan-ded-ind="${plan.deductible_value}" data-plan-ded-fam="${plan.family_deductible_value}" data-plan-ded-rx-ind="${plan.rx_deductible_value}" data-plan-ded-rx-fam="${plan.rx_family_deductible_value}">View Summary</span>
-            <input type="radio" name="benefit_package[sponsored_benefits_attributes][0][reference_plan_id]" id="${plan.id}" onclick="newContributionAmounts()" value="${plan.id}" data-plan-title="${plan.title}" data-plan-carrier="${plan.carrier_name}" data-plan-id="${plan.id}" data-plan-metal-level="${plan.metal_level_kind}" data-plan-type="${plan.product_type}" data-is-standard-plan=${plan.is_standard_plan} data-is-pvp=${plan.is_pvp_eligible}>
+            <input type="radio" name="benefit_package[sponsored_benefits_attributes][0][reference_plan_id]" id="${plan.id}" onclick="newContributionAmounts()" value="${plan.id}" data-plan-title="${plan.title}" data-plan-carrier="${plan.carrier_name}" data-plan-id="${plan.id}" data-plan-metal-level="${plan.metal_level_kind}" data-plan-type="${plan.product_type}" data-is-standard-plan=${plan.is_standard_plan} data-is-pvp=${plan.is_pvp_eligible} data-is-hsa=${plan.hsa_eligibility}>
             ${isPlanComparisonEnabled ? `
             <div class="checkmark-compare-container mt-1">
               <label class="container-compare">
@@ -357,12 +403,6 @@ javascript:
           <button type="button" class="btn btn-default" id="clear-comparison-button" onclick="clearSelectedPlans()">${clearAllText}</button>
         </div>`;
     }
-
-    setTimeout(function() {
-      buildSponsorContributions(sponsorContribution)
-      disableEmployeeContributionLevel();
-      newContributionAmounts();
-    },400);
 
     $(function() {
       $('[data-toggle="tooltip"]').tooltip();

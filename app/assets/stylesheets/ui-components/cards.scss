@@ -248,6 +248,20 @@
     }
     
   }
+  #employer-plan-selection-filters {
+    ul {
+      list-style: none;
+      padding-left: 10%;
+    }
+    input.plan-filter-checkbox[type=checkbox] {
+      display: inline-block;
+      height: auto;
+      margin: auto;
+    }
+    label {
+      display: block;
+    }
+  }
 }
 
 #sponsorContributions {
@@ -457,6 +471,22 @@
     font-weight: normal;
   }
 }
+
+.carrierProductsFlexContainer {
+  display: flex;
+  padding-bottom: 25px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  display: flex;
+  flex-flow: row wrap;
+}
+
+.reference-plans.reference-plan-container {
+  flex: 0 0 33.333%;
+  display: flex;
+  padding: 1px 1px 1px 1px;
+}
+
 #employee-enrollments, #employer-plan-year, #employer-benefit-groups {
   .panel-heading {
     font-weight: 600;

@@ -1,0 +1,77 @@
+<div id="employer-plan-selection-filters">
+    <strong class="filter-collapse">Filters NEW</strong>
+    <div class="row">
+        <div class="col-xs-3">
+            <ul>
+                <div>Metal Level</div>
+                <% search_options[:metal_level_kind].each do |kind| %>
+                    <li class="er-plan-filter-li">
+                        <label for="metal-level-#{kind}">
+                            <%= check_box_tag "er-metal-level-#{kind}", kind, false, class: 'checkbox plan-filter-checkbox', :'data-search-type' => 'metal_level_kind' %>
+                            <%= kind.capitalize %>
+                        </label>
+                    </li>
+                <% end %>
+            </ul>
+        </div>
+        <div class="col-xs-3">
+            <ul>
+                <div>Plan Type</div>
+                <% search_options[:product_type].each do |type| %>
+                    <li class="er-plan-filter-li">
+                        <label for="plan-type-#{type}">
+                            <%= check_box_tag "er-plan-type-#{type}", type, false, class: 'checkbox plan-filter-checkbox', :'data-search-type' => 'product_type' %>
+                            <%= type.upcase %>
+                        </label>
+                    </li>
+                <% end %>
+            </ul>
+        </div>
+        <div class="col-xs-3">
+            <ul>
+                <div>Premium Value Plan</div>
+                <% search_options[:is_pvp_eligible].each do |pvp_val| %>
+                    <% pvp_bool = pvp_val == "yes" %>
+                    <li class="er-plan-filter-li">
+                        <label for="is-pvp-#{pvp_val}">
+                            <%= check_box_tag "er-is-pvp-#{pvp_val}", pvp_bool, false, class: 'checkbox plan-filter-checkbox', :'data-search-type' => 'is_pvp_eligible' %>
+                            <%= pvp_val.capitalize %>
+                        </label>
+                    </li>
+                <% end %>
+            </ul>
+        </div>
+        <div class="col-xs-3">
+            <ul>
+                <div>HSA Compatible</div>
+                <% search_options[:hsa_eligibility].each do |hsa_val| %>
+                    <% hsa_bool = hsa_val == "yes" %>
+                    <li class="er-plan-filter-li">
+                        <label for="plan-hsa-#{hsa_val}">
+                            <%= check_box_tag "er-plan-hsa-#{hsa_val}", hsa_bool, false, class: 'checkbox plan-filter-checkbox', :'data-search-type' => 'hsa_eligibility' %>
+                            <%= hsa_val.capitalize %>
+                        </label>
+                    </li>
+                <% end %>
+            </ul>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-3">
+            <ul>
+                <div>Individual Deductible In Network</div>
+                <% search_options[:deductible_value].each do |deductible| %>
+                    <li class="er-plan-filter-li">
+                        <label for="plan-deductible-#{deductible}">
+                            <%= check_box_tag "er-plan-deductible-#{deductible}", deductible, false, class: 'checkbox plan-filter-checkbox', :'data-search-type' => 'deductible_value' %>
+                            <%= "$#{number_with_delimiter(deductible, :delimiter => ',')}"  %> 
+                        </label>
+                    </li>
+                <% end %>
+            </ul>
+        </div>
+    </div>
+</div>
+
+            
+
