@@ -1,6 +1,6 @@
 #metal-level-select
   - if EnrollRegistry.feature_enabled?(:plan_comparison_tool)
-    = render :partial => "/ui-components/v1/cards/employer_plan_selection_filters", :locals => { :search_options => @product_search_options }
+    = render :partial => "/ui-components/v1/cards/employer_plan_selection_filters", :locals => { :search_options => @sponsored_benefit_form.catalog.search_options }
 
   #yourPlans
     .float-right.mb-2

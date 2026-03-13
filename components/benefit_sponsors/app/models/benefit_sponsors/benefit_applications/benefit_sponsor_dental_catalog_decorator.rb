@@ -117,28 +117,29 @@ module BenefitSponsors
       def search_options
         plan_options unless defined? @products
         return @search_options if defined? @search_options
+
         @search_options = {
-          'product_type': [],
-          'hsa_eligibility': [],
-          'metal_level_kind': [],
-          'deductible_value': [],
-          'is_pvp_eligible': []
+          product_type: [],
+          hsa_eligibility: [],
+          metal_level_kind: [],
+          deductible_value: [],
+          is_pvp_eligible: []
         }
 
         product_packages.by_product_kind(:dental).each do |product_package|
           product_package.products.each do |product|
             hsa_bool = product.hsa_eligibility ? "yes" : "no"
             pvp_bool = product_is_pvp_eligible?(product) ? "yes" : "no"
-            @search_options[:product_type] << product.product_type unless @search_options[:product_type].include?(product.product_type)
-            @search_options[:hsa_eligibility] << hsa_bool unless @search_options[:hsa_eligibility].include?(hsa_bool)
-            @search_options[:metal_level_kind] << product.metal_level unless @search_options[:metal_level_kind].include?(product.metal_level)
-            @search_options[:deductible_value] << product.medical_individual_deductible unless @search_options[:deductible_value].include?(product.medical_individual_deductible)
-            @search_options[:is_pvp_eligible] << pvp_bool unless @search_options[:is_pvp_eligible].include?(pvp_bool)
+            @search_options[:product_type] << product.product_type
+            @search_options[:hsa_eligibility] << hsa_bool
+            @search_options[:metal_level_kind] << product.metal_level
+            @search_options[:deductible_value] << product.medical_individual_deductible
+            @search_options[:is_pvp_eligible] << pvp_bool
           end
         end
 
         @search_options.each_value do |option|
-          option.sort! unless (option == false || option == true)
+          option.uniq!.sort! unless [true, false].include?(option)
         end
 
         @search_options
