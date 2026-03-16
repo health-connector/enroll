@@ -1,62 +1,5 @@
-// This is a manifest file that'll be compiled into application.js, which will include all the files
-// listed below.
-//
-// Any JavaScript/Coffee file within this directory, lib/assets/javascripts, vendor/assets/javascripts,
-// or any plugin's vendor/assets/javascripts directory can be referenced here using a relative path.
-//
-// It's not advisable to add code directly here, but if you do, it'll appear at the bottom of the
-// compiled file.
-//
-// Read Sprockets README (https://github.com/sstephenson/sprockets#sprockets-directives) for details
-// about supported directives.
-//
-//= require jquery2
-//= require jquery-ui
-//= require jquery_ujs
-//= require bootstrap.bundle.min
-//= require bootstrap-multiselect
-//= require jquery.selectric.min
-//= require turbolinks
-//= require classie
-//= require modalEffects
-//= require jquery.mask
-//= require override_confirm
-//= require floatlabels
-//= require jq_datepicker
-//= require dob_validation.js
-//= require date
-//= require formhelpers
-//= require insured
-//= require qle
-//= require modal_actions
-//= require print
-//= require browser_issues
-//= require bowser.min
-//= require consumer_role
-//= require plan_year_selection
-//= require aptc
-//= require announcement
-//= require bootstrap-slider
-//= require bootstrap-hooks
-//= require general_agency
-//= require dataTables/jquery.dataTables
-//= require dataTables/bootstrap/3/jquery.dataTables.bootstrap
-//= require freebies
-//= require responsive
-//= require effective_datatables
-//= require recurring_select
-//= require jquery.steps
-//= require chosen-jquery
-//= require bootstrap-treeview
-//= require_tree .
 
-var disableSelectric = false;
-
-$(document).on('ready page:load turbolinks:load ajax:success', function () {
-  Freebies.fadeElement($("body"));
-  Freebies.allFreebies();
-  Responsive.setSizeListeners();
-});
+window.disableSelectric = false;
 
 function applyMultiLanguageSelect() {
   $('#broker_agency_language_select').multiselect({
@@ -131,7 +74,7 @@ $(document).on('ready turbolinks:load ajax:success', function () {
   });
 
   //warn user before exiting to gmail, ymail, or aol
-
+  // TODO comeback later
   $('.email-alert').on('click', function() {
     if ( !confirm("You are leaving the <%= Settings.site.short_name %> web site and entering a privately owned web site created, operated and maintained by a private business. The information that this private business collects and maintains as a result of your visit to its web site is different from the information that the <%= Settings.site.short_name %> collects and maintains. <%= Settings.site.short_name %> does not share information with this private company. <%= Settings.site.short_name %> cannot help you with any information regarding this website, including your username or password, or other technical issues. By linking to this private business, the <%= Settings.site.short_name %> is not endorsing its products, services, or privacy or security policies. We recommend you review the business's information collection policy or terms and conditions to fully understand what information is collected by this private business.") )
     { return false; }
@@ -373,7 +316,7 @@ $(document).on('ready turbolinks:load ajax:success', function () {
   }
 
   function check_personal_entry_progress() {
-    gender_checked = $("#person_gender_male").prop("checked") || $("#person_gender_female").prop("checked");
+    let gender_checked = $("#person_gender_male").prop("checked") || $("#person_gender_female").prop("checked");
     if(gender_checked==undefined) {
       return true;
     }

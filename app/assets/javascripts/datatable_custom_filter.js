@@ -1,4 +1,4 @@
-DT = (function() {
+window.DT = (function() {
   var clear_level = function(level) {
     level_str = String(level)
     $('.custom_level_' + level_str).addClass("hide")

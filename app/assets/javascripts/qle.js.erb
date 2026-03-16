@@ -1,44 +1,46 @@
-var QLE = ( function( window, undefined ) {
-  function initialize() {
-    $(document).on('change', 'input[type=radio][name=reason]', function() {
-      if($(this).attr('id') == 'reason_accept2')
-        $('[for="reason_accept2"]').find('span:last').popover('toggle');
-    });
-  }
-
-  function qle_question(url){
-    $.ajax({
-      type: "GET",
-      data:{date_val: $("#qle_date").val(), qle_id: $("#qle_id").val()},
-      url: "/insured/families/" + url
-    });
-  }
-
-  function check_qle_reason() {
-    switch ($('.qle-label').html()){
-      case "Coverage end date":
-        QLE.qle_question("check_insurance_reason.js");
-        test = false;
-        break;
-      case "Date of marriage":
-        QLE.qle_question("check_marriage_reason.js");
-        test = false;
-        break;
-      case "Date of move":
-        QLE.qle_question("check_move_reason.js");
-        test = false;
-        break;
-      default:
-        test = true;
+window.QLE = (function(window, undefined) {
+    function initialize() {
+        $(document).on('change', 'input[type=radio][name=reason]', function() {
+            if($(this).attr('id') == 'reason_accept2')
+                $('[for="reason_accept2"]').find('span:last').popover('toggle');
+        });
     }
-    return test;
-  }
+
+    function qle_question(url){
+        $.ajax({
+            type: "GET",
+            data:{date_val: $("#qle_date").val(), qle_id: $("#qle_id").val()},
+            url: "/insured/families/" + url
+        });
+    }
+
+    function check_qle_reason() {
+        var test = true; // Initialize local variable
+        switch ($('.qle-label').html()){
+            case "Coverage end date":
+                QLE.qle_question("check_insurance_reason.js");
+                test = false;
+                break;
+            case "Date of marriage":
+                QLE.qle_question("check_marriage_reason.js");
+                test = false;
+                break;
+            case "Date of move":
+                QLE.qle_question("check_move_reason.js");
+                test = false;
+                break;
+            default:
+                test = true;
+        }
+        return test;
+    }
+
     return {
-      initialize : initialize,
-      check_qle_reason : check_qle_reason,
-      qle_question : qle_question
+        initialize : initialize,
+        check_qle_reason : check_qle_reason,
+        qle_question : qle_question
     };
-} )( window );
+})(window);
 
 $(function () {
 	function check_qle_date() {
