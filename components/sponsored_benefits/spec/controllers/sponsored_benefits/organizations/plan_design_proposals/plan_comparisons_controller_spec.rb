@@ -188,7 +188,7 @@ module SponsoredBenefits # rubocop:disable Metrics/ModuleLength
 
       it "copies relationship benefits from active benefit group" do
         result = controller.send(:build_temp_benefit_group_for_plan, benefit_group, plan2)
-        expect(result.relationship_benefits.count).to eq(benefit_group.relationship_benefits.count)
+        expect(result.relationship_benefits.size).to eq(benefit_group.relationship_benefits.size)
       end
 
       it "does not persist the temporary benefit group" do
