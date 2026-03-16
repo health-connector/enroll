@@ -249,17 +249,31 @@
     
   }
   #employer-plan-selection-filters {
+    margin: 3% 0% 3% 0%;
+
+    .filter-collapse {
+      font-weight: bold;
+      margin-bottom: 10px;
+      padding-left: 10%;
+    }
+
     ul {
       list-style: none;
       padding-left: 10%;
-    }
-    input.plan-filter-checkbox[type=checkbox] {
-      display: inline-block;
-      height: auto;
-      margin: auto;
-    }
-    label {
-      display: block;
+
+      .filter-title {
+        color: $primary-black;
+      }
+
+      label {
+        display: block;
+
+        input.plan-filter-checkbox[type=checkbox] {
+          display: inline-block;
+          height: auto;
+          margin: auto;
+        }
+      }
     }
   }
 }

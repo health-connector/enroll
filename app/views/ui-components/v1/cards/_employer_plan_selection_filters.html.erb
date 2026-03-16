@@ -1,9 +1,13 @@
 <div id="employer-plan-selection-filters">
-    <strong class="filter-collapse">Filters</strong>
+    <div class="row">
+        <div class="col-xs-3">
+            <h4 class="filter-collapse">Filters</h4>
+        </div>
+    </div>
     <div class="row">
         <div class="col-xs-3">
             <ul>
-                <div>Metal Level</div>
+                <strong class="filter-title">Metal Level</strong>
                 <% search_options[:metal_level_kind].each do |kind| %>
                     <li class="er-plan-filter-li">
                         <label for="metal-level-<%= kind %>">
@@ -16,7 +20,7 @@
         </div>
         <div class="col-xs-3">
             <ul>
-                <div>Plan Type</div>
+                <strong class="filter-title">Plan Type</strong>
                 <% search_options[:product_type].each do |type| %>
                     <li class="er-plan-filter-li">
                         <label for="plan-type-<%= type %>">
@@ -29,7 +33,7 @@
         </div>
         <div class="col-xs-3">
             <ul>
-                <div>Premium Value Plan</div>
+                <strong class="filter-title">Premium Value Plan</strong>
                 <% search_options[:is_pvp_eligible].each do |pvp_val| %>
                     <% pvp_bool = pvp_val == "yes" %>
                     <li class="er-plan-filter-li">
@@ -43,7 +47,7 @@
         </div>
         <div class="col-xs-3">
             <ul>
-                <div>HSA Compatible</div>
+                <strong class="filter-title">HSA Compatible</strong>
                 <% search_options[:hsa_eligibility].each do |hsa_val| %>
                     <% hsa_bool = hsa_val == "yes" %>
                     <li class="er-plan-filter-li">
@@ -59,7 +63,7 @@
     <div class="row">
         <div class="col-xs-3">
             <ul>
-                <div>Individual Deductible In Network</div>
+                <strong class="filter-title">Individual Deductible In Network</strong>
                 <% search_options[:deductible_value].each do |deductible| %>
                     <li class="er-plan-filter-li">
                         <label for="plan-deductible-#{deductible}">
