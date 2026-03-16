@@ -90,7 +90,9 @@ module Enroll
       }
     ]
 
-    unless Rails.env.test?
+    # Skip AMQP subscriptions for console - they're not needed for interactive sessions
+    # and can cause significant delays due to RabbitMQ connection timeouts
+    unless Rails.env.test? || defined?(Rails::Console)
       config.acapi.add_subscription("Events::ResidencyVerificationRequestsController")
       config.acapi.add_subscription("Events::SsaVerificationRequestsController")
       config.acapi.add_subscription("Events::VlpVerificationRequestsController")
