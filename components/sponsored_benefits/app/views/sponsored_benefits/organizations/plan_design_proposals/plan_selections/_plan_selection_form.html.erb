@@ -117,7 +117,7 @@
         <% if EnrollRegistry.feature_enabled?(:plan_comparison_tool) %>
           <div class="col-md-3">
             <h3 class="heading-est-emp-cost"><%= l10n("employers.plan_years.estimated_employee_costs") %></h3>
-            <%= button_tag "View Employee Cost Details", id: "estimatedEmployerCostsPage", class:'button btn btn-primary btn-anchor save-action', type: 'submit' %>
+            <%= button_tag l10n('employers.plan_years.view_employee_cost_details'), id: "estimatedEmployerCostsPage", class:'button btn btn-primary btn-anchor save-action', type: 'submit' %>
           </div>
           <div class="col-md-9">
             <br />
