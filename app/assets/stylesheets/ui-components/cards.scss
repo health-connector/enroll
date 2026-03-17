@@ -707,6 +707,12 @@
   line-height:1.1em;
 }
 
+#estimatedEmployeeCostDetailsLink.old-cost-details:hover {
+  color: #23527c;
+  text-decoration: underline;
+  padding: 0 3px;
+}
+
 .btn-link.btn-anchor {
   padding: 0 3px;
   vertical-align: baseline;
@@ -714,7 +720,7 @@
 
 // Estimated Employee Cost
 .text-est-emp-cost {
-  align-items: center;
+  align-items: center; // TODO: revert
   width: 100%;
   text-align: justify;
   padding-left: 5%;
@@ -726,5 +732,5 @@
   padding-left: 5px;
   font-weight: bold;
   color: $primary-orange;
-  font-size: 1.3em;
+  font-size: 1.3em; // TODO: revert to font-size: 16px;
 }
