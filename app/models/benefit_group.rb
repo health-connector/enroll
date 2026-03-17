@@ -68,8 +68,9 @@ class BenefitGroup
   embeds_many :composite_tier_contributions, cascade_callbacks: true
   accepts_nested_attributes_for :composite_tier_contributions, reject_if: :all_blank, allow_destroy: true
 
-  embeds_many :relationship_benefits, cascade_callbacks: true
+  embeds_many :relationship_benefits, cascade_callbacks: true, validate: true
   accepts_nested_attributes_for :relationship_benefits, reject_if: :all_blank, allow_destroy: true
+  validates_associated :relationship_benefits
 
   embeds_many :dental_relationship_benefits, cascade_callbacks: true
   accepts_nested_attributes_for :dental_relationship_benefits, reject_if: :all_blank, allow_destroy: true

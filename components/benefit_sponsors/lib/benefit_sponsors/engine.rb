@@ -24,10 +24,6 @@ module BenefitSponsors
       g.helper true
     end
 
-    config.to_prepare do
-#      BenefitSponsors::ApplicationController.helper Rails.application.helpers
-    end
-
     initializer :benefit_sponsors_assets do |app|
       app.config.assets.precompile << "benefit_sponsors_manifest.js"
     end

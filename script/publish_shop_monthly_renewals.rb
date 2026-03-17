@@ -1,4 +1,3 @@
-remote_broker_uri = Rails.application.config.acapi.remote_broker_uri+":5672"
 environment_name = 'prod'
 target_exchange = "ma0.#{environment_name}.e.fanout.events"
 effective_on_date = "2017-05-01"
@@ -8,7 +7,7 @@ renewing_employer_feins = %w(
 
 )
 
-conn = Bunny.new(remote_broker_uri, :heartbeat => 15)
+conn = Bunny.new(Rails.application.config.acapi.to_connection_settings)
 conn.start
 chan = conn.create_channel
 chan.confirm_select

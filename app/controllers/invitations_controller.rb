@@ -20,10 +20,6 @@ class InvitationsController < ApplicationController
     # redirect_to broker_agencies_profile_path(ba_profile)
   end
 
-  def redirect_to_general_agency_profile(ga_profile)
-    redirect_to general_agencies_profile_path(ga_profile)
-  end
-
   def redirect_to_employee_match(_census_employee)
     redirect_to welcome_insured_employee_index_path
   end
