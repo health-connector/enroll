@@ -45,15 +45,19 @@ module Effective
 
         if attributes["renewal"]
           table_column :renewal_benefit_package, :label => 'Renewal Benefit Package', :proc => proc { |row|
-            title = EnrollRegistry[:employer_broker_ui_enhancements].enabled? ? row.renewal_benefit_group_assignment.benefit_package.display_title : row.renewal_benefit_group_assignment.benefit_package.title
-            title.capitalize if row.renewal_benefit_group_assignment.present?
+            if row.renewal_benefit_group_assignment.present?
+              package = row.renewal_benefit_group_assignment.benefit_package
+              EnrollRegistry[:employer_broker_ui_enhancements].enabled? ? package.display_title.capitalize : package.title.capitalize
+            end
           }, :filter => false, :sortable => false
         end
 
         if attributes["off_cycle"]
           table_column :off_cycle_benefit_package, :label => 'Off-Cycle Benefit Package', :proc => proc { |row|
-            title = EnrollRegistry[:employer_broker_ui_enhancements].enabled? ? row.off_cycle_benefit_group_assignment.benefit_package.display_title : row.off_cycle_benefit_group_assignment.benefit_package.title
-            title.capitalize if row.off_cycle_benefit_group_assignment.present?
+            if row.off_cycle_benefit_group_assignment.present?
+              package = row.off_cycle_benefit_group_assignment.benefit_package
+              EnrollRegistry[:employer_broker_ui_enhancements].enabled? ? package.display_title.capitalize : package.title.capitalize
+            end
           }, :filter => false, :sortable => false
         end
 
