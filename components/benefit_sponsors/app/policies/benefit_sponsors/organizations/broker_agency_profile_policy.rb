@@ -56,10 +56,6 @@ module BenefitSponsors
         access_to_broker_agency_profile?
       end
 
-      def general_agency_index?
-        access_to_broker_agency_profile?
-      end
-
       def messages?
         access_to_broker_agency_profile?
       end

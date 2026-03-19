@@ -72,12 +72,11 @@ class EmployerProfile
   embeds_one  :employer_attestation
   embeds_many :plan_years, class_name: 'PlanYear', cascade_callbacks: true, validate: true
   embeds_many :broker_agency_accounts, cascade_callbacks: true, validate: true
-  embeds_many :general_agency_accounts, cascade_callbacks: true, validate: true
 
   embeds_many :workflow_state_transitions, as: :transitional
   embeds_many :documents, as: :documentable
 
-  accepts_nested_attributes_for :plan_years, :inbox, :employer_profile_account, :broker_agency_accounts, :general_agency_accounts
+  accepts_nested_attributes_for :plan_years, :inbox, :employer_profile_account, :broker_agency_accounts
 
   validates_presence_of :entity_kind
 
@@ -149,7 +148,6 @@ class EmployerProfile
     if active_broker_agency_account.present?
       terminate_on = (start_on - 1.day).end_of_day
       fire_broker_agency(terminate_on)
-      fire_general_agency!(terminate_on)
     end
     broker_agency_accounts.build(broker_agency_profile: new_broker_agency, writing_agent_id: broker_role_id, start_on: start_on)
     @broker_agency_profile = new_broker_agency
@@ -209,60 +207,12 @@ class EmployerProfile
     active_broker_memo[account.broker_agency_profile.id] = active_broker
   end
 
-  # for General Agency
-  def hashed_active_general_agency_legal_name gaps
-    return  unless account = active_general_agency_account
-    gap = gaps.detect{|gap| gap.id == account.general_agency_profile_id}
-    gap && gap.legal_name
-  end
-
-  def active_general_agency_legal_name
-    if active_general_agency_account
-      active_general_agency_account.ga_name
-    end
-  end
-
-  def active_general_agency_account
-    general_agency_accounts.active.first
-  end
-
-  def general_agency_profile
-    return @general_agency_profile if defined? @general_agency_profile
-    @general_agency_profile = active_general_agency_account.general_agency_profile if active_general_agency_account.present?
-  end
-
-  def hire_general_agency(new_general_agency, broker_role_id = nil, start_on = TimeKeeper.datetime_of_record)
-
-    # commented out the start_on and terminate_on
-    # which is same as broker calculation, However it will cause problem
-    # start_on later than end_on
-    #
-    #start_on = start_on.to_date.beginning_of_day
-    #if active_general_agency_account.present?
-    #  terminate_on = (start_on - 1.day).end_of_day
-    #  fire_general_agency!(terminate_on)
-    #end
-    fire_general_agency!(TimeKeeper.datetime_of_record) if active_general_agency_account.present?
-    general_agency_accounts.build(general_agency_profile: new_general_agency, start_on: start_on, broker_role_id: broker_role_id)
-    @general_agency_profile = new_general_agency
-  end
-
-  def fire_general_agency!(terminate_on = TimeKeeper.datetime_of_record)
-    return if active_general_agency_account.blank?
-    general_agency_accounts.active.update_all(aasm_state: "inactive", end_on: terminate_on)
-    notify_general_agent_terminated
-    self.trigger_notices("general_agency_terminated")
-  end
-  alias_method :general_agency_profile=, :hire_general_agency
 
   def employee_roles
     return @employee_roles if defined? @employee_roles
     @employee_roles = EmployeeRole.find_by_employer_profile(self)
   end
 
-  def notify_general_agent_terminated
-    notify("acapi.info.events.employer.general_agent_terminated", {employer_id: self.hbx_id, event_name: "general_agent_terminated"})
-  end
 
   # TODO - turn this in to counter_cache -- see: https://gist.github.com/andreychernih/1082313
   def roster_size
@@ -560,11 +510,6 @@ class EmployerProfile
       orgs.collect(&:employer_profile)
     end
 
-    def find_by_general_agency_profile(general_agency_profile)
-      raise ArgumentError.new("expected GeneralAgencyProfile") unless general_agency_profile.is_a?(GeneralAgencyProfile)
-      orgs = Organization.by_general_agency_profile(general_agency_profile.id)
-      orgs.collect(&:employer_profile)
-    end
 
     def find_by_writing_agent(writing_agent)
       raise ArgumentError.new("expected BrokerRole") unless writing_agent.is_a?(BrokerRole)
@@ -956,7 +901,7 @@ class EmployerProfile
     end
   end
 
-  after_update :broadcast_employer_update, :notify_broker_added, :notify_general_agent_added
+  after_update :broadcast_employer_update, :notify_broker_added
 
   # after_save :notify_on_save
 
@@ -1057,12 +1002,6 @@ class EmployerProfile
     notify("acapi.info.events.employer.broker_terminated", {employer_id: self.hbx_id, event_name: "broker_terminated"})
   end
 
-  def notify_general_agent_added
-    changed_fields = general_agency_accounts.map(&:changed_attributes).map(&:keys).flatten.compact.uniq
-    if changed_fields.present? && changed_fields.include?("start_on")
-      notify("acapi.info.events.employer.general_agent_added", {employer_id: self.hbx_id, event_name: "general_agent_added"})
-    end
-  end
 
   def transmit_initial_eligible_event
     notify(INITIAL_EMPLOYER_TRANSMIT_EVENT, {employer_id: self.hbx_id, event_name: INITIAL_APPLICATION_ELIGIBLE_EVENT_TAG})

@@ -39,9 +39,6 @@
                 = render partial: 'exchanges/hbx_profiles/shared/nav_link', locals: { tab_name: 'brokers', link_path: main_app.exchanges_broker_applicants_path, display_name: 'Broker Applications', active_tab: "brokers" }
               li
                 = render partial: 'exchanges/hbx_profiles/shared/nav_link', locals: { tab_name: 'broker-agencies', link_path: main_app.broker_agency_index_exchanges_hbx_profiles_path, display_name: 'Broker Agencies', active_tab: "broker-agencies" }
-              - if general_agency_enabled?
-                li
-                  = render partial: 'exchanges/hbx_profiles/shared/nav_link', locals: { tab_name: 'general-agencies', link_path: main_app.general_agency_index_exchanges_hbx_profiles_path, display_name: 'General Agencies', active_tab: 'general-agencies'}
           li.dropdown.pl-1 role="presentation"
             a.dropdown-toggle data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" Admin
             i.fas.fa-caret-down

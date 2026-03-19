@@ -11,16 +11,14 @@ module Notifier
       "Employer" => "Notifier::MergeDataModels::EmployerProfile",
       "Employee" => "Notifier::MergeDataModels::EmployeeProfile",
       "Broker" => "Notifier::MergeDataModels::BrokerProfile",
-      "Broker Agency" => "Notifier::MergeDataModels::BrokerAgencyProfile",
-      "GeneralAgency" => "Notifier::MergeDataModels::GeneralAgency"
+      "Broker Agency" => "Notifier::MergeDataModels::BrokerAgencyProfile"
     }
 
     MODEL_CLASS_MAPPING = {
       "Notifier::MergeDataModels::EmployerProfile" => "Notifier::MergeDataModels::EmployerProfile",
       "Notifier::MergeDataModels::EmployeeProfile" => "Notifier::MergeDataModels::EmployeeProfile",
       "Notifier::MergeDataModels::BrokerProfile" => "Notifier::MergeDataModels::BrokerProfile",
-      "Notifier::MergeDataModels::BrokerAgencyProfile" => "Notifier::MergeDataModels::BrokerAgencyProfile",
-      "Notifier::MergeDataModels::GeneralAgency" => "Notifier::MergeDataModels::GeneralAgency"
+      "Notifier::MergeDataModels::BrokerAgencyProfile" => "Notifier::MergeDataModels::BrokerAgencyProfile"
     }.freeze
 
     field :title, type: String

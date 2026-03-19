@@ -19,15 +19,6 @@ RSpec.shared_context "set up broker agency profile for BQT, by using configurati
     )
   end
 
-  let(:plan_design_organization_with_assigned_ga) do
-    plan_design_organization.general_agency_accounts.create(start_on: TimeKeeper.date_of_record, broker_role_id: owner_profile.primary_broker_role.id).tap do |account|
-      account.general_agency_profile = general_agency_profile
-      account.broker_agency_profile = owner_profile
-      account.save
-    end
-    plan_design_organization
-  end
-
   let(:plan_design_proposal) do
     FactoryBot.create(:plan_design_proposal, :with_profile, plan_design_organization: plan_design_organization).tap do |proposal|
       sponsorship = proposal.profile.benefit_sponsorships.first
@@ -76,7 +67,6 @@ RSpec.shared_context "set up broker agency profile for BQT, by using configurati
 
   let(:owner_profile) { broker_agency_profile }
   let(:broker_agency) { owner_profile.organization }
-  let(:general_agency_profile) { ga_profile }
 
   let(:employer_profile) { sponsor_profile }
   let(:benefit_sponsor) { sponsor_profile.organization }
@@ -173,11 +163,4 @@ RSpec.shared_context "set up broker agency profile for BQT, by using configurati
     ).profiles.first
   end
 
-  def ga_profile
-    FactoryBot.create(
-      :benefit_sponsors_organizations_general_organization,
-      :with_site,
-      :with_general_agency_profile
-    ).profiles.first
-  end
 end

@@ -28,8 +28,6 @@ class UserPolicy < ApplicationPolicy
     return true if shop_market_admin?
     return true if account_holder_person.broker_role&.active?
     return true if account_holder_person.broker_agency_staff_roles&.active.present?
-    return true if account_holder_person.active_general_agency_staff_roles.present?
-
     false
   end
 

@@ -100,10 +100,6 @@ module Notifier
       true
     end
 
-    def general_agency?
-      false
-    end
-
     def broker?
       false
     end

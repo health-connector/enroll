@@ -27,6 +27,7 @@
       border-collapse: collapse;
       margin-bottom: 20px;
       page-break-inside: auto;
+      table-layout: fixed;
     }
     
     tr {
@@ -39,6 +40,9 @@
       padding: 8px;
       text-align: left;
       vertical-align: top;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      hyphens: auto;
     }
     
     th {
@@ -104,22 +108,10 @@
   <h1><%= l10n('employers.plan_years.benefit_package.compare_selected_plans') %></h1>
   
   <div class="header-info">
-    <strong>Generated:</strong> <%= Time.current.strftime("%B %d, %Y at %l:%M %p") %><br>
     <strong>Plan Year:</strong> <%= benefit_application.start_on.year %>
   </div>
 
   <table>
-    <!-- Carrier Logos Row -->
-    <tr>
-      <th class="row-title"><%= l10n('employers.plan_years.benefit_package.plans') %></th>
-      <% qhps.each do |qhp| %>
-        <th class="center">
-          <% carrier_name = qhp.product.issuer_profile.organization.legal_name.gsub(/united health care/i, 'uhic') %>
-          <%= image_tag("logo/carrier/#{carrier_name.parameterize.underscore}.jpg", class: 'carrier-logo') if carrier_name.present? %>
-        </th>
-      <% end %>
-    </tr>
-
     <!-- Plan Names -->
     <tr>
       <th class="row-title">Plan Name</th>

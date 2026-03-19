@@ -49,8 +49,6 @@ class BrokerRole
   field :carrier_appointments, type: Hash , default: BROKER_CARRIER_APPOINTMENTS
 
   embeds_many :workflow_state_transitions, as: :transitional
-  embeds_many :favorite_general_agencies, cascade_callbacks: true
-
   delegate :hbx_id, :hbx_id=, to: :person, allow_nil: true
 
   accepts_nested_attributes_for :person, :workflow_state_transitions
@@ -79,14 +77,6 @@ class BrokerRole
       pr.broker_role.present? &&
         (pr.broker_role.npn == broker_npn)
     end.map(&:broker_role)
-  end
-
-  def search_favorite_general_agencies(general_agency_profile_id)
-    favorite_general_agencies.where(general_agency_profile_id: general_agency_profile_id)
-  end
-
-  def included_in_favorite_general_agencies?(general_agency_profile_id)
-    favorite_general_agencies.present? && favorite_general_agencies.map(&:general_agency_profile_id).include?(general_agency_profile_id)
   end
 
   def email_address
@@ -410,8 +400,6 @@ class BrokerRole
     # Remove broker from employers
     @employers.each do |e|
       e.fire_broker_agency
-      # Remove General Agency
-      e.fire_general_agency!(TimeKeeper.datetime_of_record)
     end
     # Remove broker from families
     if has_broker_agency_profile?

@@ -44,10 +44,6 @@ module PermissionsConcern
       has_role?(:broker_agency_staff)
     end
 
-    def has_general_agency_staff_role?
-      has_role?(:general_agency_staff)
-    end
-
     def has_insured_role?
       has_employee_role? || has_consumer_role?
     end
@@ -87,7 +83,7 @@ module PermissionsConcern
     def can_change_broker?
       if has_employer_staff_role? || has_hbx_staff_role?
         true
-      elsif has_general_agency_staff_role? || has_broker_role? || has_broker_agency_staff_role?
+      elsif has_broker_role? || has_broker_agency_staff_role?
         false
       end
     end

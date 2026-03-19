@@ -707,6 +707,12 @@
   line-height:1.1em;
 }
 
+#estimatedEmployeeCostDetailsLink.old-cost-details:hover {
+  color: #23527c;
+  text-decoration: underline;
+  padding: 0 3px;
+}
+
 .btn-link.btn-anchor {
   padding: 0 3px;
   vertical-align: baseline;

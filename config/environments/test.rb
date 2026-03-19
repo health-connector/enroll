@@ -10,6 +10,8 @@ Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
   config.cache_classes = true
+
+  config.enable_reloading = false
   config.cache_store = :memory_store
 
   # Do not eager load code on boot. This avoids loading your whole application
@@ -21,7 +23,7 @@ Rails.application.configure do
   config.serve_static_files   = true
   config.static_cache_control = 'public, max-age=3600'
 
-    # Configure public file server for tests with Cache-Control for performance.
+  # Configure public file server for tests with Cache-Control for performance.
   config.public_file_server.headers = {
     'Cache-Control' => "public, max-age=#{1.hour.to_i}"
   }

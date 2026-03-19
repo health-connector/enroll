@@ -8,7 +8,8 @@ describe ::Listeners::PolicyQueryListener do
   let(:connection) { double(:create_channel => reply_channel) }
   let(:channel) { double(:connection => connection) }
   let(:reply_exchange) { double }
-  let(:queue) { double }
+  let(:queue) { double(:name => queue_name, :options => {}) }
+  let(:queue_name) { "policies_queue" }
   let(:reply_to) { "reply to key" }
   let(:properties) { double(:headers => headers, :reply_to => reply_to) }
   let(:delivery_tag) { double }
@@ -16,6 +17,10 @@ describe ::Listeners::PolicyQueryListener do
   let(:body) { "" }
 
   subject { ::Listeners::PolicyQueryListener.new(channel, queue) }
+
+  before :each do
+    allow(reply_channel).to receive(:queue).with(queue_name, {}).and_return(queue)
+  end
 
   describe "given an invalid query name" do
     let(:headers) do
