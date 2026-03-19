@@ -27,7 +27,7 @@ module SponsoredBenefits # rubocop:disable Metrics/ModuleLength
       allow_any_instance_of(SponsoredBenefits::Organizations::PlanDesignOrganization).to receive(:is_renewing_employer?).and_return(false)
       allow_any_instance_of(SponsoredBenefits::Services::PlanCostService).to receive(:monthly_employer_contribution_amount).and_return(0.0)
       allow(EnrollRegistry).to receive(:feature_enabled?).and_call_original
-      allow(EnrollRegistry).to receive(:feature_enabled?).with(:plan_comparison_tool).and_return(true)
+      allow(EnrollRegistry).to receive(:feature_enabled?).with(:employer_broker_ui_enhancements).and_return(true)
       benefit_application
       sign_in user
       allow(controller).to receive(:qhps).and_return(qhps)

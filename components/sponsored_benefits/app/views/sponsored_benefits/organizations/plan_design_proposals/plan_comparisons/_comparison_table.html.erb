@@ -59,7 +59,7 @@
         <% end %>
         
         <!-- Employer Estimated Monthly Cost -->
-        <% if EnrollRegistry.feature_enabled?(:plan_comparison_tool) %>
+        <% if EnrollRegistry.feature_enabled?(:employer_broker_ui_enhancements) %>
           <% if defined?(employer_costs) && employer_costs.present? %>
             <tr>
               <th style="background-color: #f5f5f5;">
