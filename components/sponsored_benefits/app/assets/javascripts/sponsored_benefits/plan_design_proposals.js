@@ -726,7 +726,6 @@ function viewComparisons() {
 }
 
 function viewComparisonsModal() {
-  console.log('viewComparisonsModal called')
   var url = $("#plan_comparison_url").val();
 
   var modal = $('#planComparisonModal');
@@ -763,6 +762,12 @@ function viewComparisonsModal() {
     $('.plan-comparison-container').show();
   });
 }
+
+// Export to PDF handler
+$(document).on('click', '#exportComparisonModalPDF', function() {
+  var exportUrl = $('#plan_comparison_export_pdf_url').val();
+  window.open(exportUrl, '_blank');
+});
 
 function clearComparisons() {
   $('.reference-plan').each(function() {
