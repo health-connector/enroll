@@ -1106,3 +1106,7 @@ end
 And(/^employer clicked on view employee cost details button$/) do
   find(AddPlanYearPage.employee_cost_details_button).click
 end
+
+And(/plan comparison tool feature is enabled/) do
+  enable_feature :plan_comparison_tool
+end

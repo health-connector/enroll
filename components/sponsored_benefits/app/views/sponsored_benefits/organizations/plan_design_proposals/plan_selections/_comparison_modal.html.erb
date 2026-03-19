@@ -1,0 +1,29 @@
+<% if ::EnrollRegistry.feature_enabled?(:plan_comparison_tool) %>
+  <!-- Plan Comparison Modal -->
+  <div class="modal fade" id="planComparisonModal" tabindex="-1" role="dialog" aria-labelledby="planComparisonModalLabel" >
+    <div class="modal-dialog modal-xl" role="document" style="width: 70%; max-width: 70%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="close" type="button" data-dismiss="modal" aria=label="Close">
+                    <span aria-hidden="true">&times</span>
+                </button>
+                <h3 class="heading-text mb-0 mt-0"><%= l10n('employers.plan_years.benefit_package.compare_selected_plans') %></h3>
+            </div>
+            <div class="modal-body">
+                <div id="comparisonLoadingSpinner" class="text-center" style="display:none;">
+                    <i class="fa fa-spinner fa-spin fa-3x"></i>
+                    <p>Loading comparison data...</p>
+                </div>
+                <div class="plan-comparison-container" id="pdp-pcc">
+                    <!-- Content will be loaded via AJAX -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="exportComparisonPDF" class="btn btn-primary" type="button" style="margin-top: 6px;"><%= l10n('employers.plan_years.benefit_package.export_to_pdf') %></button>
+                <button id="exportComparisonCSV" class="btn btn-primary" type="button"><%= l10n('employers.plan_years.benefit_package.export_to_csv') %></button>
+                <button class="btn btn-default" type="button" data-dismiss="modal"><%= l10n('employers.plan_years.benefit_package.close') %></button>
+            </div>
+        </div>
+    </div>
+  </div>
+<% end %>
