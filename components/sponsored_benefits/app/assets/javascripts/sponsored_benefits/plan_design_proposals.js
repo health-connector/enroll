@@ -7,6 +7,7 @@ $(document).on('click', ".plan-design li:has(label.elected_plan)", attachEmploye
 $(document).on('click', '.reference-plan input[type=checkbox]', comparisonPlans);
 $(document).on('click', '#clear-comparison', clearComparisons);
 $(document).on('click', '#view-comparison', viewComparisons);
+$(document).on('click', '#view-comparison-modal', viewComparisonsModal);
 $(document).on('click', '#hide-detail-comparisons', hideDetailComparisons);
 $(document).on('click', '.plan-type-filters .plan-search-option', sortPlans);
 
@@ -722,6 +723,45 @@ function viewComparisons() {
     });
 
     $('.plan-comparison-container').show();
+}
+
+function viewComparisonsModal() {
+  console.log('viewComparisonsModal called')
+  var url = $("#plan_comparison_url").val();
+
+  var modal = $('#planComparisonModal');
+  modal.find('#comparisonLoadingSpinner').show();
+  $('.plan-comparison-container').hide();
+  modal.modal('show');
+  $('.modal-backdrop').addClass('plan-comparison-backdrop')
+
+  // Serialize benefit group form data for employer cost calculation
+  var benefitGroupData = $('form').find('[name*="benefit_group]"]').serializeArray();
+  var allData = { 
+    plans: selected_rpids, 
+    sort_by: '',
+    elected_plan_kind: $('#elected_plan_kind').val(),
+    reference_plan_id: $('#reference_plan_id').val()
+  };
+  
+  // Add benefit group params to the data
+  $.each(benefitGroupData, function(i, field) {
+    allData[field.name] = field.value;
+  });
+
+  $.ajax({
+    type: "GET",
+    url: url,
+    dataType: 'script',
+    data: allData,
+  }).done(function() {
+    $('#compare_plans_table').dragtable({dragaccept: '.movable'});
+    $('.view-plans-button').show();
+    $('.loading-plans-button').hide();
+
+    modal.find('#comparisonLoadingSpinner').hide();
+    $('.plan-comparison-container').show();
+  });
 }
 
 function clearComparisons() {
