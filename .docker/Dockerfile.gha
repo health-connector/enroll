@@ -3,7 +3,7 @@
 ############################################
 
 ARG RUBY_VERSION=3.4.7
-FROM ruby:$RUBY_VERSION-slim-bookworm AS base
+FROM ruby:$RUBY_VERSION-slim-trixie AS base
 LABEL author="MHC"
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -15,26 +15,24 @@ ENV BUNDLER_VERSION=$BUNDLER_VERSION
 ARG NODE_MAJOR=20
 ENV NODE_MAJOR=$NODE_MAJOR
 
-# Only add packages that aren't already in the base image
-# https://github.com/docker-library/ruby/blob/cdac1ffbc959768a5b82014dbb8c8006fe6f7880/3.0/slim-bullseye/Dockerfile
+# Only add packages that aren't already in the base image.
+# Keep in sync with upstream Ruby slim-trixie image:
+# https://github.com/docker-library/ruby/blob/5a670110fb6e65afa72ee9da2c65de377f589281/3.4/slim-trixie/Dockerfile
 RUN apt-get update \
     && apt-get -yq dist-upgrade \
     && apt-get install -y \
       curl \
       fontconfig \
       libcurl4-openssl-dev \
-      libffi8 \
       libsodium23 \
       libxext6 \
       libxrender1 \
-      libyaml-cpp0.7 \
+      libyaml-cpp0.8 \
       nano \
-      openssl \
       sshpass \
       unzip \
       vim \
       zip \
-      zlib1g \
       file \
       libjemalloc2 \
     && apt-get clean \
@@ -89,9 +87,17 @@ FROM base AS builder
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-# Add Yarn to the sources list
-RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
-  && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+# Add Yarn apt repository using keyrings (apt-key is removed on Debian trixie)
+RUN apt-get update -qq \
+  && apt-get install -yq --no-install-recommends \
+    gnupg \
+  && curl -fsSL https://dl.yarnpkg.com/debian/pubkey.gpg \
+    | gpg --dearmor -o /usr/share/keyrings/yarn-archive-keyring.gpg \
+  && echo "deb [signed-by=/usr/share/keyrings/yarn-archive-keyring.gpg] https://dl.yarnpkg.com/debian/ stable main" \
+    | tee /etc/apt/sources.list.d/yarn.list \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+  && truncate -s 0 /var/log/*log
 
 RUN apt-get update -qq \
   && apt-get install -yq --no-install-recommends \
