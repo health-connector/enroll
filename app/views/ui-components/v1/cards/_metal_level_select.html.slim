@@ -89,7 +89,7 @@
               =l10n("employers.plan_years.benefit_package.select_your_reference_plan")
           h4 =l10n("employers.plan_years.benefit_package.select_your_reference_plan.content")
 
-          - if EnrollRegistry.feature_enabled?(:plan_comparison_tool)
+          - if EnrollRegistry.feature_enabled?(:employer_broker_ui_enhancements)
             = render :partial => "/ui-components/v1/cards/employer_plan_selection_filters", :locals => { :search_options => @product_search_options }
 
           #yourPlans
@@ -399,6 +399,7 @@ javascript:
       planDiv.innerHTML = innerHTML;
       rowDiv.appendChild(planDiv);
     }
+
 
     if (isPlanComparisonEnabled) {
       document.getElementById('yourPlans').innerHTML +=
@@ -715,6 +716,7 @@ javascript:
     }
     displayReferencePlanDetails(document.querySelector("input[name='benefit_package[sponsored_benefits_attributes][0][reference_plan_id]']:checked"));
   }
+  
   var selectedReferencePlanId;
   var selectedBenefitSponsorsID = "#{params[:benefit_sponsorship_id]}";
   var selectedBenefitApplicationID = "#{params[:benefit_application_id]}";

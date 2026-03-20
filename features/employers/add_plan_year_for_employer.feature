@@ -35,7 +35,7 @@ Feature: Add Plan Year For Employer
 
   Scenario Outline: Adding a new plan year with plan filters enabled
     Given health and dental benefits have differing hsa values
-    Given plan comparison tool feature is enabled
+    Given employer_broker_ui_enhancements feature is enabled
     And <minimum_contribution_factor> is updated on benefit market catalog
     When ABC Widgets is logged in and on the home page
     And staff role person clicked on benefits tab
