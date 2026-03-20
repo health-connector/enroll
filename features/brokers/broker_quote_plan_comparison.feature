@@ -1,5 +1,5 @@
 Feature: Broker creates a quote for a prospect employer and compares plans
-  When plan comparison tool feature is enabled
+  When employer_broker_ui_enhancements feature is enabled
   Broker should see the plan comparisons table displayed as a modal
 
   Background: Set up employer, broker and their relationship
@@ -16,7 +16,7 @@ Feature: Broker creates a quote for a prospect employer and compares plans
     And employer ABC Widgets hired broker Max Planck from District Brokers Inc
 
   Scenario Outline: Broker should see plan comparison displayed as a modal
-    Given plan comparison tool feature is enabled
+    Given employer_broker_ui_enhancements feature is enabled
     And Max Planck logs on to the Broker Agency Portal
     And the broker clicks on Employers tab
     And the broker clicks Actions for that Employer

@@ -35,7 +35,7 @@
             </th>
           <% end %>
         </tr>
-        <% if EnrollRegistry.feature_enabled?(:plan_comparison_tool) %>
+        <% if EnrollRegistry.feature_enabled?(:employer_broker_ui_enhancements) %>
           <!-- Employer Estimated Monthly Cost -->
           <% if defined?(employer_costs) && employer_costs.present? %>
             <tr>
@@ -156,7 +156,7 @@
             <th></th><th></th>
           <% end %>
         </tr>
-        <% unless ::EnrollRegistry.feature_enabled?(:plan_comparison_tool) %>
+        <% unless ::EnrollRegistry.feature_enabled?(:employer_broker_ui_enhancements) %>
           <tr>
             <th>DEDUCTIBLES</th>
             <% qhps.each do |qhp| %>

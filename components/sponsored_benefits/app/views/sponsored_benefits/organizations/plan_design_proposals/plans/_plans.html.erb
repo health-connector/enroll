@@ -65,7 +65,7 @@
           <div class="row plan-actions">
             <span class="col-xs-6 plan-compare">
               <% if !(kind == "dental") %>
-                <% if ::EnrollRegistry.feature_enabled?(:plan_comparison_tool) %>
+                <% if ::EnrollRegistry.feature_enabled?(:employer_broker_ui_enhancements) %>
                   <%= check_box_tag "#{@location_id}", plan.id, false, id: "plan-comparison-#{plan.id}", class: "bqt-plan-comparison", data: { planId: plan.id }, onchange:"toggleComparePlan(this)" %>
                   <label for="plan-comparison-<%= plan.id %>">Compare</label>
                 <% else %>
