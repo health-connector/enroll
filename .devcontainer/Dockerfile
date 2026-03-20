@@ -1,16 +1,14 @@
-# # Note: You can use any Debian/Ubuntu based image you want. 
+# # Note: You can use any Debian/Ubuntu based image you want.
 # FROM mcr.microsoft.com/devcontainers/base:3.4-trixie
 
-# Published devcontainers tags use $minor-trixie (e.g. 3.4-trixie), not 3.4.7-trixie
 ARG RUBY_VARIANT=3.4-trixie
 
 FROM mcr.microsoft.com/devcontainers/ruby:${RUBY_VARIANT}
 
-# Make compose-provided overrides functional (keep in sync with .ruby-version and Gemfile.lock "BUNDLED WITH")
 ARG RVM_OVERRIDE=3.4.7
 ARG BUNDLER_VERSION_OVERRIDE=2.5.23
 
-# Add Yarn apt repository using keyrings (apt-key is removed on Debian trixie)
+# Add Yarn apt repository using keyrings (apt-key was removed on Debian trixie)
 RUN apt-get update -qq \
     && apt-get install -yq --no-install-recommends gnupg \
     && curl -fsSL https://dl.yarnpkg.com/debian/pubkey.gpg \

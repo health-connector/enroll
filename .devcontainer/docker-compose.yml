@@ -5,11 +5,8 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        # Match Gemfile.lock "BUNDLED WITH" and .docker/Dockerfile.gha
         BUNDLER_VERSION_OVERRIDE: '2.5.23'
-        # nvm no longer serves ancient 12.x builds like 12.2.12; align with .docker/Dockerfile.gha (NODE_MAJOR=20)
         NODE_VERSION: '20'
-        # devcontainers/ruby uses minor+trixie tags (e.g. 3.4-trixie); exact patch comes from RVM_OVERRIDE
         RUBY_VARIANT: '3.4-trixie'
         RVM_OVERRIDE: '3.4.7'
 

@@ -87,7 +87,7 @@ FROM base AS builder
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-# Add Yarn apt repository using keyrings (apt-key is removed on Debian trixie)
+# Add Yarn apt repository using keyrings (apt-key was removed on Debian trixie)
 RUN apt-get update -qq \
   && apt-get install -yq --no-install-recommends \
     gnupg \
