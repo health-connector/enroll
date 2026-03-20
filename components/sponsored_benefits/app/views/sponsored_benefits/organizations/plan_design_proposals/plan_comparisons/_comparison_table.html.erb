@@ -1,5 +1,7 @@
 <%= hidden_field_tag 'current_sort', @sort_by  %>
 <%= hidden_field_tag 'plan_ids' %>
+<%= hidden_field_tag :plan_comparison_export_pdf_url, export_organizations_plan_design_proposal_plan_comparisons_path %>
+
 <% single_plan_displayed ||= false %>
 <div class="container-fluid">
   <% unless single_plan_displayed %><h3>Plan Comparison Chart</h3><% end %>
