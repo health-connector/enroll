@@ -2,14 +2,16 @@
 <%= hidden_field_tag 'current_sort', @sort_by  %>
 <%= hidden_field_tag 'plan_ids' %>
 <% single_plan_displayed ||= false %>
-<div class="container-fluid">
+<div class="modal" id="comparePlansTable" role="document">
+  <div class="modal-dialog">
+    <div class="modal-content">
   <% unless single_plan_displayed %><h3>Plan Comparison Chart</h3><% end %>
   <ul style="padding-left: 18px;">
     <!-- <li> Plans can be rearranged by dragging the beginning of the company name </li> -->
     <!-- <li> Use <i class='fa fa-caret-down fa-lg'></i>,<i class='fa fa-caret-up fa-lg'></i> to sort by copay </li> -->
   </ul>
   <div class="mygrid-wrapper-div">
-   <table class="table bordered compare-table", border = "1", style="font-size:11px;" id="compare_plans_table">
+   <table class="table bordered compare-table", border = "1", style="font-size:11px;">
         <tr>
           <th class="row-title">Plans</th>
           <% qhps.each do |qhp|%>
@@ -169,4 +171,6 @@
     </div>
   <% end %>
   <br><br>
+</div>
+</div>
 </div>
