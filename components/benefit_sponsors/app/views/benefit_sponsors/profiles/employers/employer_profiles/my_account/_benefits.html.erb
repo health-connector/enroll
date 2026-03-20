@@ -201,7 +201,7 @@
                   <section class="col-xs-10">
                     <header class="row">
                       <h3 class="title heading-text">
-                        <%= package.title %>
+                        <%= package.display_title  %>
                       </h3>
                       <% if package.description.present? %>
                           <h5 class="description no-buffer"><%= package.description %></h5>
@@ -246,6 +246,11 @@
                       </td>
                     </tr>
                   </table>
+                  <% if EnrollRegistry[:employer_broker_ui_enhancements].enabled?  %>
+                    <p>
+                      <%= image_tag('Status.svg', class: 'change-on-renewal-icon') %> <%= l10n('employers.plan_years.change_on_renewal') %>
+                    </p>
+                  <% end %>
                 </div>
               </div>
 

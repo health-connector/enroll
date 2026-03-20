@@ -192,7 +192,7 @@ javascript:
   var compareText = "#{l10n('employers.plan_years.benefit_package.compare')}";
   var comparePlansText = "#{l10n('employers.plan_years.benefit_package.compare_plans')}";
   var clearAllText = "#{l10n('employers.plan_years.benefit_package.clear_all')}";
-  var isPlanComparisonEnabled = #{::EnrollRegistry.feature_enabled?(:plan_comparison_tool)};
+  var isPlanComparisonEnabled = #{::EnrollRegistry.feature_enabled?(:employer_broker_ui_enhancements)};
 
   function radioSelected(element) {
     setCircle(element)

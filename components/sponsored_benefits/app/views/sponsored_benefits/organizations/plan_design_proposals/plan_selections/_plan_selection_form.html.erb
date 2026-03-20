@@ -114,7 +114,7 @@
   <div class="col-md-12">
     <div class="panel panel-default">
       <div class="panel-body">
-        <% if EnrollRegistry.feature_enabled?(:plan_comparison_tool) %>
+        <% if EnrollRegistry.feature_enabled?(:employer_broker_ui_enhancements) %>
           <div class="col-md-3">
             <h3 class="heading-est-emp-cost"><%= l10n("employers.plan_years.estimated_employee_costs") %></h3>
             <%= button_tag l10n('employers.plan_years.view_employee_cost_details'), id: "estimatedEmployerCostsPage", class:'button btn btn-primary btn-anchor save-action', type: 'submit' %>

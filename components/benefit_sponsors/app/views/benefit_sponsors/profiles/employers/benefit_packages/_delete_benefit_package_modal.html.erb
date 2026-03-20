@@ -3,11 +3,11 @@
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title"><i class='fa fa-trash-o fa-lg' aria-hidden='true'></i> Delete Benefit Package: <%= package.title %></h4>
+        <h4 class="modal-title"><i class='fa fa-trash-o fa-lg' aria-hidden='true'></i> Delete Benefit Package: <%= EnrollRegistry[:employer_broker_ui_enhancements].enabled? ? package.display_title : package.title %></h4>
       </div>
       <div class="modal-body">
 				<p>
-          Are you sure you want to delete benefit package <%= package.title %>?
+          Are you sure you want to delete benefit package <%= EnrollRegistry[:employer_broker_ui_enhancements].enabled? ? package.display_title : package.title %>?
           <br/><br/>
           <strong>Note:</strong> If employees are assigned to this benefit package you will have to reassign them to a different benefit package.
 				</p>
