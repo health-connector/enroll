@@ -153,6 +153,8 @@ module BenefitMarketWorld
       qhp.qhp_cost_share_variances << csr
       qhp_d = FactoryBot.build(:products_qhp_deductible, in_network_tier_1_individual: "$100", in_network_tier_1_family: "$100 | $200")
       csr.qhp_deductibles << qhp_d
+      qhp_max = FactoryBot.build(:products_qhp_maximum_out_of_pocket)
+      csr.qhp_maximum_out_of_pockets << qhp_max
       qhp.save!
       csr.save!
       qhp_d.save!

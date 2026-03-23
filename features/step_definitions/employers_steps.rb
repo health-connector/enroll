@@ -1106,3 +1106,7 @@ end
 And(/^employer clicked on view employee cost details button$/) do
   find(AddPlanYearPage.employee_cost_details_button).click
 end
+
+And(/employer_broker_ui_enhancements feature is enabled/) do
+  enable_feature :employer_broker_ui_enhancements
+end
