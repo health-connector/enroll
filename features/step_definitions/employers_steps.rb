@@ -1123,6 +1123,7 @@ And(/^employer clicked on view employee cost details button$/) do
   find(AddPlanYearPage.employee_cost_details_button).click
 end
 
+<<<<<<< er-benefit-package-plan-filters
 And(/^employer_broker_ui_enhancements feature is (.*?)$/) do |status|
   if status == "enabled"
     enable_feature :employer_broker_ui_enhancements
@@ -1130,3 +1131,8 @@ And(/^employer_broker_ui_enhancements feature is (.*?)$/) do |status|
     disable_feature :employer_broker_ui_enhancements
   end
 end
+=======
+And(/employer_broker_ui_enhancements feature is enabled/) do
+  enable_feature :employer_broker_ui_enhancements
+end
+>>>>>>> master
