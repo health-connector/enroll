@@ -913,6 +913,7 @@ And(/^employer clicks on (.*) button with date as (.*)$/) do |_status, date|
 end
 
 Then(/^employer should see the (.*) success flash notice$/) do |status|
+  binding.pry
   # Phantom JS starts checking before Rails Action complete
   sleep(3)
   result = case status
@@ -1123,6 +1124,10 @@ And(/^employer clicked on view employee cost details button$/) do
   find(AddPlanYearPage.employee_cost_details_button).click
 end
 
-And(/employer_broker_ui_enhancements feature is enabled/) do
-  enable_feature :employer_broker_ui_enhancements
+And(/^employer_broker_ui_enhancements feature is (.*?)$/) do |status|
+  if status == "enabled"
+    enable_feature :employer_broker_ui_enhancements
+  else
+    disable_feature :employer_broker_ui_enhancements
+  end
 end
