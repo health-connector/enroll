@@ -913,7 +913,6 @@ And(/^employer clicks on (.*) button with date as (.*)$/) do |_status, date|
 end
 
 Then(/^employer should see the (.*) success flash notice$/) do |status|
-  binding.pry
   # Phantom JS starts checking before Rails Action complete
   sleep(3)
   result = case status
