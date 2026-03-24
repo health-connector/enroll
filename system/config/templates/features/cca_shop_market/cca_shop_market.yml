@@ -29,5 +29,5 @@ registry:
             item: 'PVP'
           - key: :standard
             item: 'Standard'
-      - key: :plan_comparison_tool
-        is_enabled: <%= ENV['PLAN_COMPARISON_TOOL_IS_ENABLED'] || false %>
+      - key: :employer_broker_ui_enhancements
+        is_enabled: <%= ENV['EMPLOYER_BROKER_UI_ENHANCEMENTS_IS_ENABLED'] || true %>

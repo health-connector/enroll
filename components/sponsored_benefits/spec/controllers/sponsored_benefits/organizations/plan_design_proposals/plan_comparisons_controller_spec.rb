@@ -27,7 +27,7 @@ module SponsoredBenefits # rubocop:disable Metrics/ModuleLength
       allow_any_instance_of(SponsoredBenefits::Organizations::PlanDesignOrganization).to receive(:is_renewing_employer?).and_return(false)
       allow_any_instance_of(SponsoredBenefits::Services::PlanCostService).to receive(:monthly_employer_contribution_amount).and_return(0.0)
       allow(EnrollRegistry).to receive(:feature_enabled?).and_call_original
-      allow(EnrollRegistry).to receive(:feature_enabled?).with(:plan_comparison_tool).and_return(true)
+      allow(EnrollRegistry).to receive(:feature_enabled?).with(:employer_broker_ui_enhancements).and_return(true)
       benefit_application
       sign_in user
       allow(controller).to receive(:qhps).and_return(qhps)
@@ -188,7 +188,7 @@ module SponsoredBenefits # rubocop:disable Metrics/ModuleLength
 
       it "copies relationship benefits from active benefit group" do
         result = controller.send(:build_temp_benefit_group_for_plan, benefit_group, plan2)
-        expect(result.relationship_benefits.count).to eq(benefit_group.relationship_benefits.count)
+        expect(result.relationship_benefits.size).to eq(benefit_group.relationship_benefits.size)
       end
 
       it "does not persist the temporary benefit group" do

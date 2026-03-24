@@ -344,7 +344,7 @@ describe EmployeeRole, dbclean: :after_each do # TODO: comeback
     end
 
     it "parent updated_at should be right" do
-      expect_timestamps_equal(person.updated_at, person_updated_at)
+      expect_timestamp_greater(person.updated_at, person_updated_at)
     end
 
     it "created_at should be right" do

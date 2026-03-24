@@ -252,7 +252,6 @@ module Transcripts
     #    "first_name"=>"Bruce",
     #    "full_name"=>"Bruce Jackson",
     #    "gender"=>"male",
-    #    "general_agency_contact_id"=>nil,
     #    "hbx_id"=>"117966",
     #    "inbox"=>
     #     {"_id"=>BSON::ObjectId('57faba61fb9cdd52da000004'),
@@ -342,7 +341,6 @@ module Transcripts
     #    "first_name"=>"Bruce",
     #    "full_name"=>"Bruce Jackson",
     #    "gender"=>"male",
-    #    "general_agency_contact_id"=>nil,
     #    "hbx_id"=>"117966",
     #    "is_active"=>true,
     #    "is_disabled"=>nil,

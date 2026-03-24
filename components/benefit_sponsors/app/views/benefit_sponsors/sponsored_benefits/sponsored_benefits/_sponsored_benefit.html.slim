@@ -16,7 +16,7 @@
 					.col-xs-3.plans
 						.col-xs-12
 							label.container
-								= f.radio_button :product_option_choice, issuer_id, :data => {issuername: issuer_name}, onclick:"getPlanInfo(this); loadSingleProductSponsorContribution(this);"
+								= f.radio_button :product_option_choice, issuer_id, :data => {issuername: issuer_name, cuke: 'dental-carrier-select'}, onclick:"getPlanInfo(this); loadSingleProductSponsorContribution(this);"
 								span.checkmark
 								= issuer_name
 

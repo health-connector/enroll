@@ -84,7 +84,11 @@
         <% if !plan_design_form.is_dental? %>
           <div class="col-md-12">
             <div class="col-md-6 col-md-offset-5">
-              <button class="btn btn-primary view-plans-button" id="view-comparison">Compare Plans</button>
+              <% if ::EnrollRegistry.feature_enabled?(:employer_broker_ui_enhancements) %>
+                <button class="btn btn-primary view-plans-button" id="view-comparison-modal">Compare Plans</button>
+              <% else %>
+                <button class="btn btn-primary view-plans-button" id="view-comparison">Compare Plans</button>
+              <% end %>
               <button class="btn btn-primary loading-plans-button" id="view-comparison"><span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Loading...</button>
               <button class="btn btn-primary" id="clear-comparison">Clear All</button>
             </div>
@@ -95,7 +99,9 @@
   </div>
 </div>
 
-<div class="plan-comparison-container" id="pdp-pcc"></div>
+<% unless ::EnrollRegistry.feature_enabled?(:employer_broker_ui_enhancements) %>
+  <div class="plan-comparison-container" id="pdp-pcc"></div>
+<% end %>
 
 <div class="row">
   <div class="col-md-12">
@@ -114,14 +120,28 @@
   <div class="col-md-12">
     <div class="panel panel-default">
       <div class="panel-body">
-        <div class="col-md-3">
-          <h3 class="heading-est-emp-cost"><%= l10n("employers.plan_years.estimated_employee_costs") %></h3>
-          <%= button_tag "View Employee Cost Details", id: "estimatedEmployerCostsPage", class:'button btn btn-primary btn-anchor save-action', type: 'submit' %>
-        </div>
-        <div class="col-md-9">
-          <br />
-          <p><%= l10n("employers.plan_years.employee_cost_details_description_part1") %></p>
-        </div>
+        <% if EnrollRegistry.feature_enabled?(:employer_broker_ui_enhancements) %>
+          <div class="col-md-3">
+            <h3 class="heading-est-emp-cost"><%= l10n("employers.plan_years.estimated_employee_costs") %></h3>
+            <%= button_tag l10n('employers.plan_years.view_employee_cost_details'), id: "estimatedEmployerCostsPage", class:'button btn btn-primary btn-anchor save-action', type: 'submit' %>
+          </div>
+          <div class="col-md-9">
+            <br />
+            <p><%= l10n("employers.plan_years.employee_cost_details_description_new") %></p>
+          </div>
+        <% else %>
+          <div class="col-md-3">
+            <h3><%= l10n("employers.plan_years.estimated_employee_costs") %></h3>
+          </div>
+          <div class="col-md-7">
+            <br />
+            <p>
+              <%= l10n("employers.plan_years.employee_cost_details_description_part1") %>
+              <%= button_tag "details page.", id: "estimatedEmployerCostsPage", class:'button btn btn-link btn-anchor save-action', type: 'submit' %>
+              <%= l10n("employers.plan_years.employee_cost_details_description_part2") %>
+            </p>
+          </div>
+        <% end %>
       </div>
     </div>
   </div>

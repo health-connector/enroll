@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'active_support/concern'
 
 module SponsoredBenefits
@@ -45,11 +47,11 @@ module SponsoredBenefits
 
       validate :office_location_kinds
 
-      index({ hbx_id: 1 })
-      index({ legal_name: 1 })
-      index({ dba: 1 }, {sparse: true})
-      index({ fein: 1 })
-      index({ is_active: 1 })
+    index({ hbx_id: 1 })
+    index({ legal_name: 1 })
+    index({ dba: 1 }, {sparse: true})
+    index({ fein: 1 })
+    index({ is_active: 1 })
 
       before_save :generate_hbx_id
       # Commenting out as we implemented feature to update legal name on plan design organization after updating ER legal name.
@@ -61,9 +63,9 @@ module SponsoredBenefits
       end
 
       def office_location_kinds
-        location_kinds = self.office_locations.reject(&:marked_for_destruction?).flat_map(&:address).compact.flat_map(&:kind)
+        location_kinds = office_locations.reject(&:marked_for_destruction?).flat_map(&:address).compact.flat_map(&:kind)
         # should validate only office location which are not persisted AND kinds ie. primary, mailing, branch
-        return if location_kinds.detect {|kind| kind == 'work' || kind == 'home'}
+        return if location_kinds.detect {|kind| ['work', 'home'].include?(kind)}
 
         if location_kinds.count('primary').zero?
           errors.add(:base, "must select one primary address")
@@ -84,11 +86,10 @@ module SponsoredBenefits
       end
 
       def notify_legal_name_or_fein_change
-        return unless self.employer_profile.present?
+        return unless employer_profile.present?
+
         FIELD_AND_EVENT_NAMES_MAP.each do |feild, event_name|
-          if @changed_fields.present? && @changed_fields.include?(feild)
-            notify("acapi.info.events.employer.#{event_name}", {employer_id: self.hbx_id, event_name: "#{event_name}"})
-          end
+          notify("acapi.info.events.employer.#{event_name}", {employer_id: hbx_id, event_name: event_name.to_s}) if @changed_fields.present? && @changed_fields.include?(feild)
         end
       end
 
@@ -105,8 +106,9 @@ module SponsoredBenefits
       end
     end
 
+    # rubocop:disable Lint/ConstantDefinitionInBlock
     class_methods do
-      PROFILE_KINDS = [:plan_design_profile, :employer_profile, :broker_agency_profile, :general_agency_profile]
+      PROFILE_KINDS = [:plan_design_profile, :employer_profile, :broker_agency_profile].freeze
       ENTITY_KINDS = [
         "tax_exempt_organization",
         "c_corporation",
@@ -118,9 +120,11 @@ module SponsoredBenefits
         "household_employer",
         "governmental_employer",
         "foreign_embassy_or_consulate"
-      ]
+      ].freeze
 
-      FIELD_AND_EVENT_NAMES_MAP = {"legal_name" => "name_changed", "fein" => "fein_corrected"}
+      FIELD_AND_EVENT_NAMES_MAP = {"legal_name" => "name_changed", "fein" => "fein_corrected"}.freeze
     end
+    # rubocop:enable Lint/ConstantDefinitionInBlock
+
   end
 end

@@ -681,6 +681,22 @@ And(/^employer clicked on gold metal level$/) do
   find("#benefit_package_sponsored_benefits_attributes_0_product_option_choice_gold", :visible => false).click
 end
 
+And(/employer clicks on HSA true filter/) do
+  find("[data-cuke='hsa-true']").click
+end
+
+And(/employer should see filtered product selection/) do
+  expect(find_all('.reference-plans').count).to eq 1
+end
+
+And(/employer clicks the Add Dental Benefits button/) do
+  find('#dentalBenefits').click
+end
+
+And(/employer selects the first carrier option for dental benefits/) do
+  find_all("[data-cuke='dental-carrier-select']", visible: false).first.click
+end
+
 And(/^employer (.*) (.*) contribution percent for the application$/) do |create_or_edit_ba, contribution_percent|
   fill_in "benefit_package[sponsored_benefits_attributes][0][sponsor_contribution_attributes][contribution_levels_attributes][1][contribution_factor]", with: contribution_percent.to_i
   fill_in "benefit_package[sponsored_benefits_attributes][0][sponsor_contribution_attributes][contribution_levels_attributes][2][contribution_factor]", with: contribution_percent.to_i
@@ -1059,8 +1075,12 @@ end
 Then(/^employer should see Enter effective date for (.*?) Action/) do |action_name|
   case action_name
   when "Initiate cobra"
-    page_text = "After selecting ’Initiate COBRA’, the employee will resume their terminated coverage effective one day post termination effective end.  The employee will be eligible to shop, maintain or change plans as long as they are active in COBRA in regular renewal enrollment periods or special enrollment periods." # rubocop:disable Layout/LineLength
-    id = 'cobra-enter-date'
+    if EnrollRegistry.feature_enabled?(:employer_broker_ui_enhancements)
+      page_text = "After selecting ’Initiate COBRA’, the employee will resume their terminated coverage effective one day post termination effective end.  The employee will be eligible to shop, maintain or change plans as long as they are active in COBRA in regular renewal enrollment periods or special enrollment periods." # rubocop:disable Layout/LineLength
+    else
+      page_text = "After selecting 'Initiate COBRA', the employee will be eligible to be enrolled in COBRA one day after the termination end date." # rubocop:disable Layout/LineLength
+    end
+      id = 'cobra-enter-date'
   end
 
   find_by_id(id).visible?
@@ -1101,4 +1121,12 @@ end
 
 And(/^employer clicked on view employee cost details button$/) do
   find(AddPlanYearPage.employee_cost_details_button).click
+end
+
+And(/^employer_broker_ui_enhancements feature is (.*?)$/) do |status|
+  if status == "enabled"
+    enable_feature :employer_broker_ui_enhancements
+  else
+    disable_feature :employer_broker_ui_enhancements
+  end
 end

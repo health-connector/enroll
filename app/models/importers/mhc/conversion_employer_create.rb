@@ -47,7 +47,6 @@ module Importers::Mhc
     def employer_attributes
       {
           :broker_agency_accounts => assign_brokers,
-          :general_agency_accounts => assign_general_agencies,
           :entity_kind => "c_corporation",
           :profile_source => "conversion",
           :sic_code => sic_code,

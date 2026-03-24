@@ -1,4 +1,7 @@
 #metal-level-select
+  - if EnrollRegistry.feature_enabled?(:employer_broker_ui_enhancements)
+    = render :partial => "/ui-components/v1/cards/employer_plan_selection_filters", :locals => { :search_options => @sponsored_benefit_form.catalog.search_options }
+
   #yourPlans
     .float-right.mb-2
       div#singleProductPlans
@@ -9,11 +12,12 @@
           div id="carrierProducts#{carrier_name}" class="hidden"
             .row.mb-1
               span.pull-right.mr-3
-                strong Displaying: #{products.length} Plans
-            - products.each_slice(3) do |product_row|
-              .row
-                - product_row.each do |product|
-                  .col-xs-4.reference-plans
+                strong#plansTotalCount Displaying: #{products.length} Plans
+
+            .row.mb-1
+              div class="carrierProductsFlexContainer"
+                - products.each do |product|
+                  .col-xs-4.reference-plans.reference-plan-container data-product_type="#{product.product_type}" data-hsa_eligibility="#{product.hsa_eligibility}" data-metal_level_kind="#{product.metal_level_kind}" data-deductible_value="#{product.deductible_value}" data-is_pvp_eligible="#{product.is_pvp_eligible}"
                     .col-xs-12.p0.mb-1
                       label.container
                         p.heading-text.plan-title.mt-1
@@ -63,17 +67,17 @@
                         span.plan-label.mt-1.rp-view-summary onclick="viewSummary(this)" data-plan-title=product.title data-plan-id=product.id data-plan-type=product.product_type data-plan-carrier=product.carrier_name data-plan-level=product.metal_level_kind data-plan-ded-ind=product.deductible_value data-plan-ded-fam=product.family_deductible_value View Summary
                         br
                         div.checkmark-container
-                          = f.radio_button :reference_plan_id, product.id, data: { plan_title: product.title, metal_level: product.metal_level_kind, carrier_name: product.carrier_name, plan_type: product.product_type,  is_standard_plan: product.is_standard_plan, is_pvp: product.is_pvp_eligible}, onclick: "newContributionAmounts(this)"
+                          = f.radio_button :reference_plan_id, product.id, data: { plan_title: product.title, metal_level: product.metal_level_kind, carrier_name: product.carrier_name, plan_type: product.product_type,  is_standard_plan: product.is_standard_plan, is_pvp: product.is_pvp_eligible}, onclick: "newContributionAmounts(this)", class: "planSelectInput"
                           span.checkmark
                           span.checkmark-text Select
-                        - if ::EnrollRegistry.feature_enabled?(:plan_comparison_tool)
+                        - if ::EnrollRegistry.feature_enabled?(:employer_broker_ui_enhancements)
                           .checkmark-compare-container style="margin-top: 10px;"
                             label.container-compare style="display: flex; align-items: center;"
                               input.compare-plan-checkbox type="checkbox" data-plan-id="#{product.id}" onchange="toggleComparePlan(this)"
                               span.checkmark-compare
                               span.checkmark-text style="top: -1px;"= l10n('employers.plan_years.benefit_package.compare')
 
-        - if ::EnrollRegistry.feature_enabled?(:plan_comparison_tool)
+        - if ::EnrollRegistry.feature_enabled?(:employer_broker_ui_enhancements)
           div style="text-align: center; margin-top: 20px; margin-bottom: 20px;"
             button#compareSelectedPlansButton.btn.btn-primary type="button" onclick="compareSelectedPlans(event)" disabled="" style="margin-right: 10px;"
               = l10n('employers.plan_years.benefit_package.compare_plans')
@@ -216,6 +220,40 @@ javascript:
             showLess = true;
         }
     }
+  
+  $(document).on('click', '#employer-plan-selection-filters .plan-filter-checkbox', sortByFilter);
+  function sortByFilter() {
+    var group = "input:checkbox[data-search-type='" + $(this).data("search-type") + "']";
+    $(group).prop("checked", false);
+    $(this).prop("checked", true);
 
-- if ::EnrollRegistry.feature_enabled?(:plan_comparison_tool)
+    var search_types = {};
+    $('.plan-filter-checkbox').each(function() {
+      var option = $(this);
+      var option_is_checked = option.prop('checked');
+      if (option_is_checked) {
+        search_types[option.data('search-type')] = option.val();
+      }
+    })
+
+    var newFilteredProducts = []
+    $('.reference-plans').each(function(i, plan){
+      $(plan).hide()
+      var plan_matches = [];
+      Object.keys(search_types).forEach(function(type) {
+        var plan_value = $(plan).data(type);
+        plan_matches.push((search_types[type].toString() === plan_value.toString()));
+      });
+
+      if(plan_matches.every(function(option){ return option; })) {
+        newFilteredProducts.push(plan)
+        $(plan).show()
+      }
+    })
+
+    document.getElementById('plansTotalCount').innerHTML = `Displaying: <b>${newFilteredProducts.length} plan${newFilteredProducts.length > 1 ? 's' : ''}`;
+    $('.reference-plans input.planSelectInput:visible').first().click()
+  }
+
+- if ::EnrollRegistry.feature_enabled?(:employer_broker_ui_enhancements)
   = render partial: "benefit_sponsors/benefit_packages/product_comparisons/comparison_modal"
