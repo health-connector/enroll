@@ -5,7 +5,8 @@ module BenefitSponsors
       Product = Struct.new(
         :id, :title, :metal_level_kind, :carrier_name, :issuer_id, :sole_source, :coverage_kind,
         :product_type, :network_information, :deductible_value, :family_deductible_value,
-        :rx_deductible_value, :rx_family_deductible_value, :is_standard_plan, :is_pvp_eligible
+        :rx_deductible_value, :rx_family_deductible_value, :is_standard_plan, :is_pvp_eligible,
+        :hsa_eligibility
       )
 
       ContributionLevel = Struct.new(:id, :display_name, :contribution_factor, :is_offered, :contribution_unit_id) do
@@ -98,7 +99,8 @@ module BenefitSponsors
               product.rx_individual_deductible,
               product.rx_family_deductible,
               product.is_standard_plan,
-              product_is_pvp_eligible?(product)
+              product_is_pvp_eligible?(product),
+              product.hsa_eligibility
             )
           end
           @products[product_package.package_kind] = case product_package.package_kind
@@ -110,6 +112,37 @@ module BenefitSponsors
         end
 
         @products
+      end
+
+      def search_options
+        plan_options unless defined? @products
+        return @search_options if defined? @search_options
+
+        @search_options = {
+          product_type: [],
+          hsa_eligibility: [],
+          metal_level_kind: [],
+          deductible_value: [],
+          is_pvp_eligible: []
+        }
+
+        product_packages.by_product_kind(:dental).each do |product_package|
+          product_package.products.each do |product|
+            hsa_bool = product.hsa_eligibility ? "yes" : "no"
+            pvp_bool = product_is_pvp_eligible?(product) ? "yes" : "no"
+            @search_options[:product_type] << product.product_type
+            @search_options[:hsa_eligibility] << hsa_bool
+            @search_options[:metal_level_kind] << product.metal_level
+            @search_options[:deductible_value] << product.medical_individual_deductible
+            @search_options[:is_pvp_eligible] << pvp_bool
+          end
+        end
+
+        @search_options.each_value do |option|
+          option.uniq!.sort! unless [true, false].include?(option)
+        end
+
+        @search_options
       end
 
       def carriers
