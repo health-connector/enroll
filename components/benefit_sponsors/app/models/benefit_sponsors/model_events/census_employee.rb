@@ -4,7 +4,8 @@ module BenefitSponsors
       include DefineVariableHelper
 
       REGISTERED_EVENTS = [
-        :employee_notice_for_employee_terminated_from_roster
+        :employee_notice_for_employee_terminated_from_roster,
+        :employee_notice_for_employer_sponsored_cobra_enrollments
       ]
 
       OTHER_EVENTS = [
@@ -17,6 +18,8 @@ module BenefitSponsors
         if is_transition_matching?(to: [:employment_terminated, :employee_termination_pending], from: [:eligible, :employee_role_linked, :newly_designated_eligible, :newly_designated_linked], event: [:terminate_employee_role, :schedule_employee_termination])
           is_employee_notice_for_employee_terminated_from_roster = true
         end
+
+        is_employee_notice_for_employer_sponsored_cobra_enrollments = true if is_transition_matching?(to: [:cobra_linked, :cobra_eligible], from: [:employment_terminated], event: [:elect_cobra])
 
         REGISTERED_EVENTS.each do |event|
           next unless check_local_variable("is_#{event}", binding)
