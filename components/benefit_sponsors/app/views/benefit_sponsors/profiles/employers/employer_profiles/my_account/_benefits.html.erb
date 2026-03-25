@@ -289,9 +289,11 @@
                     </p>
                     <% reasons = package.renewal_change_reasons %>
                     <% if reasons.present? %>
-                      <p style="margin-top: -10px; font-size: 13px; color: #666;">
-                        <%= reasons.map { |r| l10n("employers.plan_years.renewal_change_#{r}") }.join(', ') %>
-                      </p>
+                      <ul style="margin-top: -5px; font-size: 13px; color: #666; padding-left: 20px;">
+                        <% reasons.each do |reason| %>
+                          <li><%= l10n("employers.plan_years.renewal_change_#{reason}") %></li>
+                        <% end %>
+                      </ul>
                     <% end %>
                   <% end %>
                 </div>
