@@ -52,7 +52,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::EmployerSponsoredCobraNoticeToEmpl
       it "should trigger model event" do
         model_instance.class.observer_peers.each_key do |observer|
           expect(observer).to receive(:notifications_send) do |_instance, model_event|
-            expect(model_event).to be_an_instance_of(::BenefitSponsors::ModelEvents::ModelEvent)
+            expect(model_event).to be_an_instance_of(BenefitSponsors::ModelEvents::ModelEvent)
             expect(model_event).to have_attributes(:event_key => :employee_notice_for_employer_sponsored_cobra_enrollments, :klass_instance => model_instance, :options => {})
           end
         end
