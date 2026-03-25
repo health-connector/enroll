@@ -48,27 +48,29 @@
   </div>
   <% if @benefit_applications.present? %>
     <% available_years = @benefit_applications.map { |ba| ba.start_on&.year }.compact.uniq.sort.reverse %>
-    <div class="row mb-3" id="plan-year-filters">
-      <div class="col-xs-12">
-        <strong><%= l10n('employers.plan_years.filters') %></strong>
+    <% if EnrollRegistry[:employer_broker_ui_enhancements].enabled? %>
+      <div class="row mb-3" id="plan-year-filters">
+        <div class="col-xs-12">
+          <strong><%= l10n('employers.plan_years.filters') %></strong>
+        </div>
+        <div class="col-xs-3 mt-1">
+          <label><%= l10n('employers.plan_years.filter_plan_years') %></label>
+          <select id="plan-year-filter" class="form-control">
+            <option value="active_and_renewal"><%= l10n('employers.plan_years.filter_active_and_renewal') %></option>
+            <% available_years.each do |year| %>
+              <option value="<%= year %>"><%= year %></option>
+            <% end %>
+          </select>
+        </div>
+        <div class="col-xs-3 mt-1">
+          <label><%= l10n('employers.plan_years.filter_sort') %></label>
+          <select id="plan-year-sort" class="form-control">
+            <option value="desc"><%= l10n('employers.plan_years.filter_sort_descending') %></option>
+            <option value="asc"><%= l10n('employers.plan_years.filter_sort_ascending') %></option>
+          </select>
+        </div>
       </div>
-      <div class="col-xs-3 mt-1">
-        <label><%= l10n('employers.plan_years.filter_plan_years') %></label>
-        <select id="plan-year-filter" class="form-control">
-          <option value="active_and_renewal"><%= l10n('employers.plan_years.filter_active_and_renewal') %></option>
-          <% available_years.each do |year| %>
-            <option value="<%= year %>"><%= year %></option>
-          <% end %>
-        </select>
-      </div>
-      <div class="col-xs-3 mt-1">
-        <label><%= l10n('employers.plan_years.filter_sort') %></label>
-        <select id="plan-year-sort" class="form-control">
-          <option value="desc"><%= l10n('employers.plan_years.filter_sort_descending') %></option>
-          <option value="asc"><%= l10n('employers.plan_years.filter_sort_ascending') %></option>
-        </select>
-      </div>
-    </div>
+    <% end %>
 
     <div id="benefit-applications-container">
     <% @benefit_applications.each do |benefit_application| %>
