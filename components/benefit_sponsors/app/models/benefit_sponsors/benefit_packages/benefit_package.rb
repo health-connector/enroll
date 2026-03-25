@@ -237,6 +237,17 @@ module BenefitSponsors
         benefit_model_changed? || reference_plan_changed? || employer_contribution_changed?
       end
 
+      # Get specific reasons for changes on renewal
+      def renewal_change_reasons
+        return [] unless predecessor.present?
+
+        reasons = []
+        reasons << :benefit_model if benefit_model_changed?
+        reasons << :reference_plan if reference_plan_changed?
+        reasons << :employer_contribution if employer_contribution_changed?
+        reasons
+      end
+
       # Check if benefit model (product_package_kind) has changed
       def benefit_model_changed?
         return false unless predecessor.present?
