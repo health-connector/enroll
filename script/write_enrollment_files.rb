@@ -9,6 +9,12 @@ ConnectionSlug = Struct.new(:policy_id) do
     self
   end
 
+  def confirm_select; end
+
+  def wait_for_confirms
+    true
+  end
+
   def default_exchange
     self
   end
