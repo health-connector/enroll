@@ -17,6 +17,10 @@ module BenefitSponsors
             if new_model_event.event_key == :employee_notice_for_employee_terminated_from_roster
               deliver(recipient: census_employee.employee_role, event_object: census_employee, notice_event: "employee_notice_for_employee_terminated_from_roster")
             end
+
+            return unless new_model_event.event_key == :employee_notice_for_employer_sponsored_cobra_enrollments
+
+            deliver(recipient: census_employee.employee_role, event_object: census_employee, notice_event: "employee_notice_for_employer_sponsored_cobra_enrollments")
           end
         end
       end
