@@ -4,7 +4,7 @@
 
 <% single_plan_displayed ||= false %>
 <div class="container-fluid">
-  <% unless single_plan_displayed %><h3>Plan Comparison Chart</h3><% end %>
+  <% unless single_plan_displayed %><h3 class="hidden-in-modal">Plan Comparison Chart</h3><% end %>
   <ul style="padding-left: 18px;">
     <!-- <li> Plans can be rearranged by dragging the beginning of the company name </li> -->
     <!-- <li> Use <i class='fa fa-caret-down fa-lg'></i>,<i class='fa fa-caret-up fa-lg'></i> to sort by copay </li> -->
@@ -231,15 +231,15 @@
   </div>
   <br>
   <% unless single_plan_displayed %>
-    <div class="col-md-offset-5">
-      <%= link_to "Export to PDF", sponsored_benefits.export_organizations_plan_design_proposal_plan_comparisons_path(plan_design_proposal, plans: params[:plans] ) , class: "btn btn-default", target: "_blank" %>
-      <%= link_to "Export to CSV",  sponsored_benefits.csv_organizations_plan_design_proposal_plan_comparisons_path(plan_design_proposal, plans: params[:plans]), class: 'btn btn-default export-csv-link', id: 'export-csv-btn', target: "_blank" %>
+    <div class="col-md-offset-5 hidden-in-modal">
+      <%= link_to "Export to PDF", sponsored_benefits.export_organizations_plan_design_proposal_plan_comparisons_path(plan_design_proposal, plans: params[:plans] ) , class: "btn btn-default", id: "export-pdf-non-modal", target: "_blank" %>
+      <%= link_to "Export to CSV",  sponsored_benefits.csv_organizations_plan_design_proposal_plan_comparisons_path(plan_design_proposal, plans: params[:plans]), class: 'btn btn-default export-csv-link', id: "export-csv-non-modal", target: "_blank" %>
       <button class="btn btn-default" id="hide-detail-comparisons">Hide Details</button>
     </div>
     <script>
       $(document).ready(function() {
         // Collect employer costs from the displayed table when CSV export is clicked
-        $('#export-csv-btn').on('click', function(e) {
+        $('#export-csv-non-modal').on('click', function(e) {
           e.preventDefault();
           var employerCosts = [];
           $('.employer-cost-cell').each(function() {
