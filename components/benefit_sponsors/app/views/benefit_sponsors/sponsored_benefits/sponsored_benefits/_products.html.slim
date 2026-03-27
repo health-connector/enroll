@@ -223,9 +223,13 @@ javascript:
   
   $(document).on('click', '#employer-plan-selection-filters .plan-filter-checkbox', sortByFilter);
   function sortByFilter() {
-    var group = "input:checkbox[data-search-type='" + $(this).data("search-type") + "']";
-    $(group).prop("checked", false);
-    $(this).prop("checked", true);
+    if($(this).is(":checked")) {
+      var group = "input:checkbox[data-search-type='" + $(this).data("search-type") + "']";
+      $(group).prop("checked", false);
+      $(this).prop("checked", true);
+    } else {
+      $(this).prop("checked", false);
+    }
 
     var search_types = {};
     $('.plan-filter-checkbox').each(function() {
