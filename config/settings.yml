@@ -23,7 +23,7 @@ site:
   long_name: "Massachusetts Health Connector"
   copyright_period_start: "2017"
   header_message: "The Right Place for the Right Plan"
-  logo_file_name: "mhc_logo.svg"
+  logo_file_name: "covered_california-logo.svg"
   make_their_premium_payments_online: "https://ww2.e-billexpress.com/ebpp/MAConnector/"
   tab_icon: 'favicon.ico'
   mailer_logo_file_name: "health_connector.png"
