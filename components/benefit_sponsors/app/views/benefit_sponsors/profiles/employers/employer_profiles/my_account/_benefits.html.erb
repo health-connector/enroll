@@ -47,9 +47,34 @@
     <% end %>
   </div>
   <% if @benefit_applications.present? %>
+    <% available_years = @benefit_applications.map { |ba| ba.start_on&.year }.compact.uniq.sort.reverse %>
+    <% if EnrollRegistry[:employer_broker_ui_enhancements].enabled? %>
+      <div class="row mb-3" id="plan-year-filters">
+        <div class="col-xs-12">
+          <strong><%= l10n('employers.plan_years.filters') %></strong>
+        </div>
+        <div class="col-xs-3 mt-1">
+          <label><%= l10n('employers.plan_years.filter_plan_years') %></label>
+          <select id="plan-year-filter" class="form-control">
+            <option value="active_and_renewal"><%= l10n('employers.plan_years.filter_active_and_renewal') %></option>
+            <% available_years.each do |year| %>
+              <option value="<%= year %>"><%= year %></option>
+            <% end %>
+          </select>
+        </div>
+        <div class="col-xs-3 mt-1">
+          <label><%= l10n('employers.plan_years.filter_sort') %></label>
+          <select id="plan-year-sort" class="form-control">
+            <option value="desc"><%= l10n('employers.plan_years.filter_sort_descending') %></option>
+            <option value="asc"><%= l10n('employers.plan_years.filter_sort_ascending') %></option>
+          </select>
+        </div>
+      </div>
+    <% end %>
 
+    <div id="benefit-applications-container">
     <% @benefit_applications.each do |benefit_application| %>
-      <div class="row no-buffer module plan-year mt-2">
+      <div class="row no-buffer module plan-year mt-2" data-year="<%= benefit_application.start_on&.year %>" data-aasm-state="<%= benefit_application.aasm_state %>">
         <div class="col-xs-6">
           <h3 class="no-buffer heading-text">
             <div class="row">
@@ -75,6 +100,18 @@
                 <% end %>
                 <strong><%= state %></strong>
               </div>
+              <% if benefit_application.is_starting_soon? %>
+                <div class="cylinder-benefit-application-state" style="border: 2px solid #D4AF37; background-color: #FFF9E6;">
+                  <i class="fa fa-exclamation-triangle" style="font-size: 14px; margin-right: 6px;"></i>
+                  <strong><%= l10n('employers.plan_years.starting_soon') %></strong>
+                </div>
+              <% end %>
+              <% if benefit_application.is_renewing? || (benefit_application.active? && benefit_application.predecessor.present?) %>
+                <% renewal_styling = benefit_application_state_styling("expired") %>
+                <div class="cylinder-benefit-application-state" style="<%= renewal_styling[:style] %>">
+                  <strong><%= l10n('employers.plan_years.renewal') %></strong>
+                </div>
+              <% end %>
               <% if benefit_application.latest_benefit_application_item&.state&.to_s == "reinstate" %>
                 <% styling_info = benefit_application_state_styling("reinstate")%>
                 <div class="cylinder-benefit-application-state" style="<%= styling_info[:style] %>">
@@ -246,10 +283,18 @@
                       </td>
                     </tr>
                   </table>
-                  <% if EnrollRegistry[:employer_broker_ui_enhancements].enabled?  %>
+                  <% if EnrollRegistry[:employer_broker_ui_enhancements].enabled? && benefit_application.has_changes_on_renewal? %>
                     <p>
                       <%= image_tag('Status.svg', class: 'change-on-renewal-icon') %> <%= l10n('employers.plan_years.change_on_renewal') %>
                     </p>
+                    <% reasons = package.renewal_change_reasons %>
+                    <% if reasons.present? %>
+                      <ul style="margin-top: -5px; font-size: 13px; color: #666; padding-left: 20px;">
+                        <% reasons.each do |reason| %>
+                          <li><%= l10n("employers.plan_years.renewal_change_#{reason}") %></li>
+                        <% end %>
+                      </ul>
+                    <% end %>
                   <% end %>
                 </div>
               </div>
@@ -278,6 +323,7 @@
         <%= render "benefit_sponsors/benefit_applications/benefit_applications/revert_application_modal", benefit_application: benefit_application %>
       </div>
     <% end %>
+    </div>
   <% else %>
       <h4>
         <%=l10n("employers.plan_years.benefits_without_plan")%>
@@ -306,7 +352,6 @@
         if (willDelete) {
           window.location.href = "<%= new_benefit_sponsorship_benefit_application_path(@benefit_sponsorship) %>"
         } else {
-          // Do nothing user clicked cancel resets Add Plan Year button back to default state
           element.innerHTML = "Add Plan Year";
           element.classList.remove('disabled');
           element.removeAttribute('disabled')
@@ -314,4 +359,78 @@
       });
     }
   }
+
+  var ACTIVE_AND_RENEWAL_STATES = [
+    'draft', 'imported', 'pending', 'assigned', 'processing', 'reviewing',
+    'information_needed', 'appealing', 'approved', 'enrollment_open',
+    'enrollment_extended', 'enrollment_closed', 'binder_paid', 'enrollment_eligible',
+    'enrollment_ineligible', 'active', 'termination_pending', 'terminated', 'reinstated'
+  ];
+
+  function applyPlanYearFilters() {
+    var filterEl = document.getElementById('plan-year-filter');
+    var sortEl = document.getElementById('plan-year-sort');
+    if (!filterEl || !sortEl) return;
+
+    var filterValue = filterEl.value;
+    var sortValue = sortEl.value;
+    var currentYear = new Date().getFullYear();
+    var container = document.getElementById('benefit-applications-container');
+    if (!container) return;
+
+    var planYears = Array.from(container.querySelectorAll('.plan-year'));
+
+    planYears.forEach(function(py) {
+      var year = parseInt(py.dataset.year);
+      var state = py.dataset.aasmState;
+      var visible = false;
+
+      if (filterValue === 'active_and_renewal') {
+        var isInValidState = ACTIVE_AND_RENEWAL_STATES.indexOf(state) !== -1;
+        var isInValidYear = year >= currentYear - 1;
+        visible = isInValidYear && isInValidState;
+      } else {
+        var filterYear = parseInt(filterValue);
+        visible = !isNaN(year) && year === filterYear;
+      }
+
+      py.style.display = visible ? '' : 'none';
+    });
+
+    var visiblePlanYears = planYears.filter(function(py) { return py.style.display !== 'none'; });
+    
+    visiblePlanYears.sort(function(a, b) {
+      var yearA = parseInt(a.dataset.year);
+      var yearB = parseInt(b.dataset.year);
+      return sortValue === 'desc' ? yearB - yearA : yearA - yearB;
+    });
+
+    visiblePlanYears.forEach(function(py) { container.appendChild(py); });
+  }
+
+  function attachFilterListeners() {
+    var filterEl = document.getElementById('plan-year-filter');
+    var sortEl = document.getElementById('plan-year-sort');
+    
+    if (filterEl) {
+      filterEl.onchange = function() {
+        applyPlanYearFilters();
+      };
+    }
+    if (sortEl) {
+      sortEl.onchange = function() {
+        applyPlanYearFilters();
+      };
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    attachFilterListeners();
+    applyPlanYearFilters();
+  });
+
+  attachFilterListeners();
+
+
+
 </script>

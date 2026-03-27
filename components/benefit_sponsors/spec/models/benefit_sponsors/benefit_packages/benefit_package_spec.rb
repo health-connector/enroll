@@ -1338,6 +1338,94 @@ module BenefitSponsors
       end
     end
 
+    describe '#renewal_change_reasons' do
+      include_context 'setup renewal application'
+
+      subject { benefit_package }
+
+      context 'when predecessor is not present' do
+        before { allow(subject).to receive(:predecessor).and_return(nil) }
+
+        it 'returns empty array' do
+          expect(subject.renewal_change_reasons).to eq([])
+        end
+      end
+
+      context 'when predecessor is present and nothing has changed' do
+        before do
+          allow(subject).to receive(:benefit_model_changed?).and_return(false)
+          allow(subject).to receive(:reference_plan_changed?).and_return(false)
+          allow(subject).to receive(:employer_contribution_changed?).and_return(false)
+        end
+
+        it 'returns empty array' do
+          expect(subject.renewal_change_reasons).to eq([])
+        end
+      end
+
+      context 'when only the benefit model has changed' do
+        before do
+          allow(subject).to receive(:benefit_model_changed?).and_return(true)
+          allow(subject).to receive(:reference_plan_changed?).and_return(false)
+          allow(subject).to receive(:employer_contribution_changed?).and_return(false)
+        end
+
+        it 'returns array with benefit_model symbol' do
+          expect(subject.renewal_change_reasons).to eq([:benefit_model])
+        end
+      end
+
+      context 'when only the reference plan has changed' do
+        before do
+          allow(subject).to receive(:benefit_model_changed?).and_return(false)
+          allow(subject).to receive(:reference_plan_changed?).and_return(true)
+          allow(subject).to receive(:employer_contribution_changed?).and_return(false)
+        end
+
+        it 'returns array with reference_plan symbol' do
+          expect(subject.renewal_change_reasons).to eq([:reference_plan])
+        end
+      end
+
+      context 'when only the employer contribution has changed' do
+        before do
+          allow(subject).to receive(:benefit_model_changed?).and_return(false)
+          allow(subject).to receive(:reference_plan_changed?).and_return(false)
+          allow(subject).to receive(:employer_contribution_changed?).and_return(true)
+        end
+
+        it 'returns array with employer_contribution symbol' do
+          expect(subject.renewal_change_reasons).to eq([:employer_contribution])
+        end
+      end
+
+      context 'when multiple changes have occurred' do
+        before do
+          allow(subject).to receive(:benefit_model_changed?).and_return(true)
+          allow(subject).to receive(:reference_plan_changed?).and_return(true)
+          allow(subject).to receive(:employer_contribution_changed?).and_return(false)
+        end
+
+        it 'returns array with multiple symbols' do
+          expect(subject.renewal_change_reasons).to include(:benefit_model, :reference_plan)
+          expect(subject.renewal_change_reasons.length).to eq(2)
+        end
+      end
+
+      context 'when all changes have occurred' do
+        before do
+          allow(subject).to receive(:benefit_model_changed?).and_return(true)
+          allow(subject).to receive(:reference_plan_changed?).and_return(true)
+          allow(subject).to receive(:employer_contribution_changed?).and_return(true)
+        end
+
+        it 'returns array with all three symbols' do
+          expect(subject.renewal_change_reasons).to include(:benefit_model, :reference_plan, :employer_contribution)
+          expect(subject.renewal_change_reasons.length).to eq(3)
+        end
+      end
+    end
+
     describe '#benefit_model_changed?' do
       include_context 'setup renewal application'
 
