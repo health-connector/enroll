@@ -2226,10 +2226,24 @@ RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
       let(:cobra_begin_date) {TimeKeeper.date_of_record.next_month.beginning_of_month}
       let(:hbx_enrollment) {HbxEnrollment.new(kind: 'employer_sponsored', effective_on: effective_on)}
       let(:employee_role) {double(is_cobra_status?: true, census_employee: census_employee)}
-      let(:census_employee) {double(cobra_begin_date: cobra_begin_date, have_valid_date_for_cobra?: true, coverage_terminated_on: cobra_begin_date - 1.day)}
+      let(:base_effective_period) { effective_on.beginning_of_year..effective_on.end_of_year }
+      let(:base_benefit_application) { double(effective_period: base_effective_period) }
+      let(:base_sponsored_benefit_package) { double(benefit_application: base_benefit_application) }
+      let(:base_enrollment) { double(effective_on: effective_on, coverage_kind: 'health', is_cobra_status?: false, sponsored_benefit_package: base_sponsored_benefit_package) }
+      let(:census_employee) {double(cobra_begin_date: cobra_begin_date, have_valid_date_for_cobra?: true, coverage_terminated_on: cobra_begin_date - 1.day, cobra_eligible_enrollments: [base_enrollment])}
+
+      let(:enrollment_member) do
+        HbxEnrollmentMember.new(
+          applicant_id: BSON::ObjectId.new,
+          is_subscriber: true,
+          eligibility_date: effective_on,
+          coverage_start_on: cobra_begin_date
+        )
+      end
 
       before do
         allow(hbx_enrollment).to receive(:employee_role).and_return(employee_role)
+        hbx_enrollment.hbx_enrollment_members = [enrollment_member]
       end
 
       context 'When Enrollment Effectve date is prior to cobra begin date' do
@@ -2237,6 +2251,27 @@ RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
           hbx_enrollment.validate_for_cobra_eligiblity(employee_role)
           expect(hbx_enrollment.kind).to eq 'employer_sponsored_cobra'
           expect(hbx_enrollment.effective_on).to eq cobra_begin_date
+        end
+
+        it 'should not change member coverage_start_on' do
+          hbx_enrollment.validate_for_cobra_eligiblity(employee_role)
+          expect(hbx_enrollment.hbx_enrollment_members.first.coverage_start_on).to eq cobra_begin_date
+        end
+
+        it 'should derive cobra_rating_start_on from prior coverage within same plan year' do
+          hbx_enrollment.validate_for_cobra_eligiblity(employee_role)
+          expect(hbx_enrollment.cobra_rating_start_on).to eq effective_on
+        end
+
+        context 'when enrollment is COBRA but employee_role is not flagged as COBRA' do
+          let(:role_arg) { double(is_cobra_status?: true, census_employee: census_employee) }
+          let(:employee_role) { double(is_cobra_status?: false, census_employee: census_employee) }
+
+          it 'still derives cobra_rating_start_on from prior coverage within same plan year' do
+            hbx_enrollment.validate_for_cobra_eligiblity(role_arg)
+            expect(hbx_enrollment.kind).to eq 'employer_sponsored_cobra'
+            expect(hbx_enrollment.cobra_rating_start_on).to eq effective_on
+          end
         end
       end
 
@@ -2257,6 +2292,129 @@ RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
           expect {hbx_enrollment.validate_for_cobra_eligiblity(employee_role)}.not_to raise_error("You may not enroll for cobra after #{Settings.aca.shop_market.cobra_enrollment_period.months} months later of coverage terminated.")
         end
       end
+    end
+  end
+
+  describe 'COBRA premium rating across birthday boundary', dbclean: :after_each do
+    include_context "setup benefit market with market catalogs and product packages"
+    include_context "setup initial benefit application"
+
+    let(:rating_area) { create_default(:benefit_markets_locations_rating_area) }
+
+    let(:employer_profile) { benefit_sponsorship.profile }
+    let(:sponsored_benefit_package) { initial_application.benefit_packages[0] }
+    let(:sponsored_benefit) { sponsored_benefit_package.health_sponsored_benefit }
+    let(:product) { sponsored_benefit.reference_product }
+
+    let(:base_effective_on) { sponsored_benefit_package.start_on }
+    let(:cobra_effective_on) { base_effective_on + 6.months }
+    let(:birthday_between) { base_effective_on + 10.days }
+    let(:dob) { Date.new((base_effective_on.year - 34), birthday_between.month, birthday_between.day) }
+
+    let(:employee_role) { create(:employee_role, employer_profile: employer_profile) }
+    let(:census_employee) do
+      FactoryBot.create(
+        :census_employee,
+        :owner,
+        benefit_sponsorship: benefit_sponsorship,
+        dob: dob,
+        employee_role_id: employee_role.id
+      )
+    end
+
+    let!(:family) do
+      employee_role.person.update!(dob: dob, ssn: census_employee.ssn)
+      employee_role.update!(census_employee: census_employee)
+      census_employee.update!(employee_role: employee_role, aasm_state: 'cobra_linked', cobra_begin_date: cobra_effective_on)
+      Family.find_or_build_from_employee_role(employee_role).tap(&:reload)
+    end
+
+    let(:family_member) { family.primary_applicant }
+    let(:base_member) do
+      HbxEnrollmentMember.new(
+        applicant_id: family_member.id,
+        is_subscriber: true,
+        eligibility_date: base_effective_on,
+        coverage_start_on: base_effective_on
+      )
+    end
+
+    let!(:base_enrollment) do
+      family.active_household.hbx_enrollments.create!(
+        coverage_kind: 'health',
+        effective_on: base_effective_on,
+        enrollment_kind: 'open_enrollment',
+        kind: 'employer_sponsored',
+        aasm_state: 'coverage_enrolled',
+        sponsored_benefit_package_id: sponsored_benefit_package.id,
+        sponsored_benefit_id: sponsored_benefit.id,
+        benefit_sponsorship_id: benefit_sponsorship.id,
+        rating_area_id: rating_area.id,
+        product_id: product.id,
+        issuer_profile_id: product.issuer_profile_id,
+        employee_role_id: employee_role.id,
+        hbx_enrollment_members: [base_member]
+      )
+    end
+
+    let(:cobra_member) do
+      HbxEnrollmentMember.new(
+        applicant_id: family_member.id,
+        is_subscriber: true,
+        eligibility_date: cobra_effective_on,
+        coverage_start_on: cobra_effective_on
+      )
+    end
+
+    let!(:cobra_enrollment) do
+      family.active_household.hbx_enrollments.create!(
+        coverage_kind: 'health',
+        effective_on: cobra_effective_on,
+        enrollment_kind: 'open_enrollment',
+        kind: 'employer_sponsored',
+        aasm_state: 'coverage_selected',
+        predecessor_enrollment_id: base_enrollment.id,
+        sponsored_benefit_package_id: sponsored_benefit_package.id,
+        sponsored_benefit_id: sponsored_benefit.id,
+        benefit_sponsorship_id: benefit_sponsorship.id,
+        rating_area_id: rating_area.id,
+        product_id: product.id,
+        issuer_profile_id: product.issuer_profile_id,
+        employee_role_id: employee_role.id,
+        hbx_enrollment_members: [cobra_member]
+      )
+    end
+
+    before do
+      allow(employee_role).to receive(:is_cobra_status?).and_return(true)
+      allow(employee_role).to receive(:census_employee).and_return(census_employee)
+
+      base_age = employee_role.person.age_on(base_effective_on)
+      cobra_age = employee_role.person.age_on(cobra_effective_on)
+      allow(BenefitMarkets::Products::ProductRateCache).to receive(:lookup_rate) do |_product, _rate_schedule_date, effective_age, _rating_area|
+        case effective_age
+        when base_age
+          100.00
+        when cobra_age
+          200.00
+        else
+          999.99
+        end
+      end
+    end
+
+    it 'does not change total premium when COBRA starts later in same plan year' do
+      expect(employee_role.person.age_on(base_effective_on)).not_to eq employee_role.person.age_on(cobra_effective_on)
+
+      cobra_enrollment.validate_for_cobra_eligiblity(employee_role)
+      cobra_enrollment.save!
+
+      expect(cobra_enrollment.effective_on).to eq cobra_effective_on
+      expect(cobra_enrollment.hbx_enrollment_members.first.coverage_start_on).to eq cobra_effective_on
+      expect(cobra_enrollment.cobra_rating_start_on).to eq base_effective_on
+
+      expect(base_enrollment.total_premium).to eq 100.00
+      expect(cobra_enrollment.total_premium).to eq 100.00
     end
   end
 
