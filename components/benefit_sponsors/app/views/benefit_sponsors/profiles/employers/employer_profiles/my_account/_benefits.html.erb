@@ -424,13 +424,14 @@
     }
   }
 
-  document.addEventListener('DOMContentLoaded', function() {
+  function initializePlanYearFilters() {
     attachFilterListeners();
     applyPlanYearFilters();
-  });
+  }
 
-  attachFilterListeners();
-
-
-
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializePlanYearFilters);
+  } else {
+    initializePlanYearFilters();
+  }
 </script>
