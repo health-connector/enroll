@@ -52,7 +52,13 @@
     
     .row-title {
       background-color: #e8f4f8;
-      width: 25%;
+      width: 18%;
+    }
+    
+    .benefit-value {
+      font-size: 8.5pt;
+      padding: 6px 4px;
+      word-break: break-word;
     }
     
     .employer-cost-row th {
@@ -286,8 +292,8 @@
           <th class="row-title"><%= visit_type %></th>
           <% qhps.each do |qhp| %>
             <% service_visit = qhp.qhp_service_visits.detect { |sv| sv.visit_type == visit_type } %>
-            <td class="center"><%= service_visit&.copay_in_network_tier_1 || 'N/A' %></td>
-            <td class="center"><%= service_visit&.co_insurance_in_network_tier_1 || 'N/A' %></td>
+            <td class="center benefit-value"><%= service_visit&.copay_in_network_tier_1 || 'N/A' %></td>
+            <td class="center benefit-value"><%= service_visit&.co_insurance_in_network_tier_1 || 'N/A' %></td>
           <% end %>
         </tr>
       <% end %>
