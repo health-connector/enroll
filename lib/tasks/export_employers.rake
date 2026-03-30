@@ -149,8 +149,6 @@ namespace :employers do
                    plan_year.fte_count plan_year.pte_count plan_year.msp_count plan_year.status plan_year.publish_date broker_agency_account.corporate_npn broker_agency_account.legal_name
                    broker.name broker.npn broker.assigned_on flexible_contributions_enabled]
       csv << headers
-
-      puts "No general agency profile for CCA Employers" unless general_agency_enabled?
       
       organizations.no_timeout.each do |organization|
 
