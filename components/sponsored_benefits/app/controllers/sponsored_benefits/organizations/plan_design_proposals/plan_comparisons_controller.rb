@@ -27,14 +27,17 @@ module SponsoredBenefits
       end
 
       def csv
-        benefit_group = plan_design_proposal.active_benefit_group
-        employer_costs_data = calculate_employer_costs
+        # Use employer costs from params if provided (from the comparison table)
+        # Otherwise recalculate them
+        employer_costs_data = if params[:employer_costs].present?
+                                parse_employer_costs_from_params
+                              else
+                                calculate_employer_costs
+                              end
+
         @qhps = qhps.each do |qhp|
-          qhp[:total_employee_cost] = if benefit_group && employer_costs_data[qhp.plan.id]
-                                        employer_costs_data[qhp.plan.id]
-                                      else
-                                        0.00
-                                      end
+          plan_id = qhp.plan.id
+          qhp[:total_employee_cost] = employer_costs_data[plan_id] || 0.00
         end
         respond_to do |format|
           format.csv do
@@ -46,6 +49,17 @@ module SponsoredBenefits
       private
 
       helper_method :plan_design_form, :plan_design_organization, :plan_design_proposal, :visit_types, :qhps, :employer_costs
+
+      def parse_employer_costs_from_params
+        # Parse employer costs from params (format: plan_id:cost,plan_id:cost)
+        params[:employer_costs].split(',').each_with_object({}) do |pair, hash|
+          plan_id, cost = pair.split(':')
+          hash[BSON::ObjectId.from_string(plan_id)] = cost.to_f
+        end
+      rescue StandardError => e
+        Rails.logger.error("Error parsing employer costs from params: #{e.message}")
+        {}
+      end
 
       def employer_costs
         @employer_costs ||= calculate_employer_costs

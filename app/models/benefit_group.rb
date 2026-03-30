@@ -574,6 +574,8 @@ class BenefitGroup
 
   # Provide the base factor for this composite rating tier.
   def composite_rating_tier_factor_for(composite_rating_tier, plan)
+    return 1.0 if plan.nil?
+    
     factor_carrier_id = plan.carrier_profile_id
     lookup_key = [factor_carrier_id, composite_rating_tier]
     @crtbf_cache ||= Hash.new do |h, k|

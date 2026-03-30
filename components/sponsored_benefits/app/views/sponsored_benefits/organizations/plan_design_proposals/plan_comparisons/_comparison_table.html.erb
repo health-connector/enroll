@@ -44,7 +44,7 @@
                 <small>(Employer Contribution)</small>
               </th>
               <% qhps.each do |qhp| %>
-                <th colspan="2" style="text-align: center; vertical-align:middle; background-color: #f5f5f5; color: #000; font-weight: bold; font-size: 12pt;">
+                <th colspan="2" style="text-align: center; vertical-align:middle; background-color: #f5f5f5; color: #000; font-weight: bold; font-size: 12pt;" class="employer-cost-cell" data-plan-id="<%= qhp.plan.id %>">
                   <%= number_to_currency(employer_costs[qhp.plan.id] || 0.00) %>
                 </th>
               <% end %>
@@ -233,9 +233,30 @@
   <% unless single_plan_displayed %>
     <div class="col-md-offset-5">
       <%= link_to "Export to PDF", sponsored_benefits.export_organizations_plan_design_proposal_plan_comparisons_path(plan_design_proposal, plans: params[:plans] ) , class: "btn btn-default", target: "_blank" %>
-      <%= link_to "Export to CSV",  sponsored_benefits.csv_organizations_plan_design_proposal_plan_comparisons_path(plan_design_proposal, plans: params[:plans]), class: 'btn btn-default', target: "_blank" %>
+      <%= link_to "Export to CSV",  sponsored_benefits.csv_organizations_plan_design_proposal_plan_comparisons_path(plan_design_proposal, plans: params[:plans]), class: 'btn btn-default export-csv-link', id: 'export-csv-btn', target: "_blank" %>
       <button class="btn btn-default" id="hide-detail-comparisons">Hide Details</button>
     </div>
+    <script>
+      $(document).ready(function() {
+        // Collect employer costs from the displayed table when CSV export is clicked
+        $('#export-csv-btn').on('click', function(e) {
+          e.preventDefault();
+          var employerCosts = [];
+          $('.employer-cost-cell').each(function() {
+            var planId = $(this).data('plan-id');
+            var cost = $(this).text().replace('$', '').replace(',', '').trim();
+            if (planId && cost) {
+              employerCosts.push(planId + ':' + cost);
+            }
+          });
+          var url = $(this).attr('href');
+          if (employerCosts.length > 0) {
+            url += '&employer_costs=' + employerCosts.join(',');
+          }
+          window.open(url, '_blank');
+        });
+      });
+    </script>
   <% end %>
   <br><br>
 </div>
