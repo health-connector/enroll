@@ -573,7 +573,7 @@ module SponsoredBenefits
       # return if benefit_application.is_conversion
 
       contribution = family_tier.first&.employer_contribution_percent || 0
-      estimated_tier_premium = family_tier.first&.estimated_tier_premium || 0.0
+      family_tier.first&.estimated_tier_premium || 0.0
       offered = family_tier.first&.offered || false
 
       (CompositeRatingTier::NAMES - CompositeRatingTier::VISIBLE_NAMES).each do |crt|

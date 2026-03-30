@@ -615,7 +615,7 @@ module BenefitSponsors
 
       def health_reference_changed?
         return false unless predecessor.present?
-        
+
         health_sb = health_sponsored_benefit
         predecessor_health_sb = predecessor.health_sponsored_benefit
 
@@ -627,7 +627,7 @@ module BenefitSponsors
 
       def dental_reference_changed?
         return false unless predecessor.present?
-        
+
         dental_sb = dental_sponsored_benefit
         predecessor_dental_sb = predecessor.dental_sponsored_benefit
 

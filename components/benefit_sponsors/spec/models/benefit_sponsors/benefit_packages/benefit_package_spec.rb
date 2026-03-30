@@ -1492,5 +1492,225 @@ module BenefitSponsors
         end
       end
     end
+
+    describe '#reference_plan_changed?' do
+      include_context 'setup renewal application'
+
+      subject { benefit_package }
+
+      context 'when predecessor is not present' do
+        before { allow(subject).to receive(:predecessor).and_return(nil) }
+
+        it 'returns false' do
+          expect(subject.send(:reference_plan_changed?)).to be false
+        end
+      end
+
+      context 'when health hios_id matches predecessor' do
+        let(:health_product) { FactoryBot.create(:benefit_markets_products_health_products_health_product, hios_id: '12345-01') }
+        let(:predecessor_health_product) { FactoryBot.create(:benefit_markets_products_health_products_health_product, hios_id: '12345-01') }
+
+        before do
+          allow(subject.health_sponsored_benefit).to receive(:reference_product).and_return(health_product)
+          allow(current_benefit_package.health_sponsored_benefit).to receive(:reference_product).and_return(predecessor_health_product)
+        end
+
+        it 'returns false' do
+          expect(subject.send(:reference_plan_changed?)).to be false
+        end
+      end
+
+      context 'when health hios_id differs from predecessor' do
+        let(:health_product) { FactoryBot.create(:benefit_markets_products_health_products_health_product, hios_id: '12345-01') }
+        let(:predecessor_health_product) { FactoryBot.create(:benefit_markets_products_health_products_health_product, hios_id: '67890-01') }
+
+        before do
+          allow(subject.health_sponsored_benefit).to receive(:reference_product).and_return(health_product)
+          allow(current_benefit_package.health_sponsored_benefit).to receive(:reference_product).and_return(predecessor_health_product)
+        end
+
+        it 'returns true' do
+          expect(subject.send(:reference_plan_changed?)).to be true
+        end
+      end
+
+      context 'when dental hios_id differs from predecessor' do
+        let(:dental_product) { FactoryBot.create(:benefit_markets_products_dental_products_dental_product, hios_id: '11111-01') }
+        let(:predecessor_dental_product) { FactoryBot.create(:benefit_markets_products_dental_products_dental_product, hios_id: '22222-01') }
+
+        before do
+          allow(subject).to receive(:dental_sponsored_benefit).and_return(double(reference_product: dental_product))
+          allow(current_benefit_package).to receive(:dental_sponsored_benefit).and_return(double(reference_product: predecessor_dental_product))
+        end
+
+        it 'returns true' do
+          expect(subject.send(:reference_plan_changed?)).to be true
+        end
+      end
+    end
+
+    describe '#health_reference_changed?' do
+      include_context 'setup renewal application'
+
+      subject { benefit_package }
+
+      context 'when predecessor is not present' do
+        subject { described_class.new }
+
+        it 'returns false' do
+          expect(subject.send(:health_reference_changed?)).to be false
+        end
+      end
+
+      context 'when health_sponsored_benefit is blank' do
+        before do
+          allow(subject).to receive(:health_sponsored_benefit).and_return(nil)
+        end
+
+        it 'returns false' do
+          expect(subject.send(:health_reference_changed?)).to be false
+        end
+      end
+
+      context 'when predecessor health_sponsored_benefit is blank' do
+        before do
+          allow(current_benefit_package).to receive(:health_sponsored_benefit).and_return(nil)
+        end
+
+        it 'returns false' do
+          expect(subject.send(:health_reference_changed?)).to be false
+        end
+      end
+
+      context 'when reference_product is blank' do
+        before do
+          allow(subject.health_sponsored_benefit).to receive(:reference_product).and_return(nil)
+        end
+
+        it 'returns false' do
+          expect(subject.send(:health_reference_changed?)).to be false
+        end
+      end
+
+      context 'when predecessor reference_product is blank' do
+        before do
+          allow(current_benefit_package.health_sponsored_benefit).to receive(:reference_product).and_return(nil)
+        end
+
+        it 'returns false' do
+          expect(subject.send(:health_reference_changed?)).to be false
+        end
+      end
+
+      context 'when hios_id matches predecessor' do
+        let(:health_product) { FactoryBot.create(:benefit_markets_products_health_products_health_product, hios_id: '12345-01') }
+        let(:predecessor_health_product) { FactoryBot.create(:benefit_markets_products_health_products_health_product, hios_id: '12345-01') }
+
+        before do
+          allow(subject.health_sponsored_benefit).to receive(:reference_product).and_return(health_product)
+          allow(current_benefit_package.health_sponsored_benefit).to receive(:reference_product).and_return(predecessor_health_product)
+        end
+
+        it 'returns false' do
+          expect(subject.send(:health_reference_changed?)).to be false
+        end
+      end
+
+      context 'when hios_id differs from predecessor' do
+        let(:health_product) { FactoryBot.create(:benefit_markets_products_health_products_health_product, hios_id: '12345-01') }
+        let(:predecessor_health_product) { FactoryBot.create(:benefit_markets_products_health_products_health_product, hios_id: '67890-01') }
+
+        before do
+          allow(subject.health_sponsored_benefit).to receive(:reference_product).and_return(health_product)
+          allow(current_benefit_package.health_sponsored_benefit).to receive(:reference_product).and_return(predecessor_health_product)
+        end
+
+        it 'returns true' do
+          expect(subject.send(:health_reference_changed?)).to be true
+        end
+      end
+    end
+
+    describe '#dental_reference_changed?' do
+      include_context 'setup renewal application'
+
+      subject { benefit_package }
+
+      context 'when predecessor is not present' do
+        subject { described_class.new }
+
+        it 'returns false' do
+          expect(subject.send(:dental_reference_changed?)).to be false
+        end
+      end
+
+      context 'when dental_sponsored_benefit is blank' do
+        before do
+          allow(subject).to receive(:dental_sponsored_benefit).and_return(nil)
+        end
+
+        it 'returns false' do
+          expect(subject.send(:dental_reference_changed?)).to be false
+        end
+      end
+
+      context 'when predecessor dental_sponsored_benefit is blank' do
+        before do
+          allow(current_benefit_package).to receive(:dental_sponsored_benefit).and_return(nil)
+        end
+
+        it 'returns false' do
+          expect(subject.send(:dental_reference_changed?)).to be false
+        end
+      end
+
+      context 'when reference_product is blank' do
+        before do
+          allow(subject).to receive(:dental_sponsored_benefit).and_return(double(reference_product: nil))
+        end
+
+        it 'returns false' do
+          expect(subject.send(:dental_reference_changed?)).to be false
+        end
+      end
+
+      context 'when predecessor reference_product is blank' do
+        before do
+          allow(current_benefit_package).to receive(:dental_sponsored_benefit).and_return(double(reference_product: nil))
+        end
+
+        it 'returns false' do
+          expect(subject.send(:dental_reference_changed?)).to be false
+        end
+      end
+
+      context 'when hios_id matches predecessor' do
+        let(:dental_product) { FactoryBot.create(:benefit_markets_products_dental_products_dental_product, hios_id: '11111-01') }
+        let(:predecessor_dental_product) { FactoryBot.create(:benefit_markets_products_dental_products_dental_product, hios_id: '11111-01') }
+
+        before do
+          allow(subject).to receive(:dental_sponsored_benefit).and_return(double(reference_product: dental_product))
+          allow(current_benefit_package).to receive(:dental_sponsored_benefit).and_return(double(reference_product: predecessor_dental_product))
+        end
+
+        it 'returns false' do
+          expect(subject.send(:dental_reference_changed?)).to be false
+        end
+      end
+
+      context 'when hios_id differs from predecessor' do
+        let(:dental_product) { FactoryBot.create(:benefit_markets_products_dental_products_dental_product, hios_id: '11111-01') }
+        let(:predecessor_dental_product) { FactoryBot.create(:benefit_markets_products_dental_products_dental_product, hios_id: '22222-01') }
+
+        before do
+          allow(subject).to receive(:dental_sponsored_benefit).and_return(double(reference_product: dental_product))
+          allow(current_benefit_package).to receive(:dental_sponsored_benefit).and_return(double(reference_product: predecessor_dental_product))
+        end
+
+        it 'returns true' do
+          expect(subject.send(:dental_reference_changed?)).to be true
+        end
+      end
+    end
   end
 end

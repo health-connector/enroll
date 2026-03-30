@@ -63,10 +63,10 @@ class CompositeRatingListBillPrecalculator < SimpleDelegator
   end
 
   def premium_for(member)
-      return 0.0 if __getobj__.nil?
-      
-      value = (Caches::PlanDetails.lookup_rate_with_area(__getobj__.id, plan_year_start_on, age_of(member), benefit_group.rating_area) * large_family_factor(member))
-      adjusted_value = value * benefit_group.sic_factor_for(plan) * benefit_group.group_size_factor_for(plan) * benefit_group.composite_participation_rate_factor_for(plan)
-      BigDecimal(adjusted_value.to_s).round(2).to_f
+    return 0.0 if __getobj__.nil?
+
+    value = (Caches::PlanDetails.lookup_rate_with_area(__getobj__.id, plan_year_start_on, age_of(member), benefit_group.rating_area) * large_family_factor(member))
+    adjusted_value = value * benefit_group.sic_factor_for(plan) * benefit_group.group_size_factor_for(plan) * benefit_group.composite_participation_rate_factor_for(plan)
+    BigDecimal(adjusted_value.to_s).round(2).to_f
   end
 end
