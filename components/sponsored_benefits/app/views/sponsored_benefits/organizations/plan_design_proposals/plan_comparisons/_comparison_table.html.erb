@@ -244,7 +244,7 @@
           var employerCosts = [];
           $('.employer-cost-cell').each(function() {
             var planId = $(this).data('plan-id');
-            var cost = $(this).text().replace('$', '').replace(',', '').trim();
+            var cost = $(this).text().trim().split('$').join('').split(',').join('');
             if (planId && cost) {
               employerCosts.push(planId + ':' + cost);
             }
