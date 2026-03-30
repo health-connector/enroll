@@ -47,7 +47,7 @@ module ApplicationHelper
   end
 
   def copyright_notice
-    copyright_attribution = "#{copyright_period_start} #{Settings.site.long_name}"
+    copyright_attribution = "#{TimeKeeper.date_of_record.year} #{Settings.site.long_name}"
     raw("<span class='copyright'><i class='far fa-copyright fa-lg' aria-hidden='true'></i> #{copyright_attribution}. All Rights Reserved. </span>")
   end
 
