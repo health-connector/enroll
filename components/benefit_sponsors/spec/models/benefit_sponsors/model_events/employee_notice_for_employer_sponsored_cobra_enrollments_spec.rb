@@ -3,9 +3,6 @@
 require 'rails_helper'
 
 RSpec.describe 'BenefitSponsors::ModelEvents::EmployerSponsoredCobraNoticeToEmployee', :dbclean => :after_each do
-
-
-  
   let!(:termination_date) {TimeKeeper.date_of_record - 1.day}
   let(:start_on) { (TimeKeeper.date_of_record - 2.months).beginning_of_month }
 
