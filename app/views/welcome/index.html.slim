@@ -7,7 +7,7 @@
     strong
       = l10n('.welcome_to_site_name', short_name: Settings.site.short_name)
   h3.text-center.mt-0.sub-text
-    = l10n('.welcome_to_site_sub_header')
+    = Settings.site.header_message
   br
   .div#welcome-nav-options
     = link_to l10n(".employee_portal"), privacy_insured_employee_index_path, class: "btn btn-default"
