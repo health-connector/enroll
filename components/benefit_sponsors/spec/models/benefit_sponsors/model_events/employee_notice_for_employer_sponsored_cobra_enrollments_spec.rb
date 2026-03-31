@@ -4,6 +4,8 @@ require 'rails_helper'
 
 RSpec.describe 'BenefitSponsors::ModelEvents::EmployerSponsoredCobraNoticeToEmployee', :dbclean => :after_each do
 
+
+  
   let!(:termination_date) {TimeKeeper.date_of_record - 1.day}
   let(:start_on) { (TimeKeeper.date_of_record - 2.months).beginning_of_month }
 
@@ -42,6 +44,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::EmployerSponsoredCobraNoticeToEmpl
 
 
   before do
+    EnrollRegistry[:employer_broker_ui_enhancements].feature.stub(:is_enabled).and_return(true)
     model_instance.update_attributes(employee_role_id: employee_role.id)
     model_instance.terminate_employment!(termination_date)
   end
