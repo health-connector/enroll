@@ -269,15 +269,15 @@ module SponsoredBenefits # rubocop:disable Metrics/ModuleLength
         end
 
         it "copies composite tier contributions" do
-          allow_any_instance_of(SponsoredBenefits::BenefitApplications::BenefitGroup).to receive(:build_estimated_composite_rates)
+          allow_any_instance_of(SponsoredBenefits::BenefitApplications::BenefitGroup).to receive(:estimate_composite_rates)
           result = controller.send(:build_temp_benefit_group_for_plan, benefit_group, plan2)
           # Verify that the result has composite_tier_contributions built
           # (Even if the builds aren't persisted, they should be present in the association)
           expect(result.composite_tier_contributions).not_to be_empty
         end
 
-        it "builds estimated composite rates" do
-          expect_any_instance_of(SponsoredBenefits::BenefitApplications::BenefitGroup).to receive(:build_estimated_composite_rates)
+        it "estimates composite rates" do
+          expect_any_instance_of(SponsoredBenefits::BenefitApplications::BenefitGroup).to receive(:estimate_composite_rates)
           controller.send(:build_temp_benefit_group_for_plan, benefit_group, plan2)
         end
       end
