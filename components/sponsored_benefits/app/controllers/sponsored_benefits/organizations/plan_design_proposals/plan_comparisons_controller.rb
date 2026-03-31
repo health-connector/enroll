@@ -91,9 +91,11 @@ module SponsoredBenefits
 
         active_benefit_group = benefit_application.benefit_groups&.first
 
-        # Build temporary benefit group from params if none exists
-        if active_benefit_group.nil? && benefit_group_params.present?
+        # Rebuild benefit group from params if params are present (for updated contributions)
+        # Otherwise use existing benefit group
+        if benefit_group_params.present?
           active_benefit_group = benefit_application.benefit_groups.build(benefit_group_params)
+          active_benefit_group.title ||= "Plan Comparison Benefit Group #{Time.now.to_i}"
           active_benefit_group.plan_option_kind = params[:elected_plan_kind] if params[:elected_plan_kind].present?
           active_benefit_group.reference_plan_id = params[:reference_plan_id] if params[:reference_plan_id].present?
 
@@ -108,7 +110,9 @@ module SponsoredBenefits
       def build_temp_benefit_group_for_plan(active_benefit_group, plan)
         temp_bg = active_benefit_group.class.new(
           reference_plan_id: plan.id,
-          plan_option_kind: active_benefit_group.plan_option_kind
+          plan_option_kind: active_benefit_group.plan_option_kind,
+          elected_plan_ids: [plan.id],
+          title: "Temp Cost Calc #{Time.now.to_i}_#{plan.id}"
         )
         temp_bg.benefit_application = active_benefit_group.benefit_application
 
@@ -130,7 +134,8 @@ module SponsoredBenefits
               offered: ctc.offered
             )
           end
-          temp_bg.build_estimated_composite_rates
+          # Build and estimate composite rates for the new plan
+          temp_bg.estimate_composite_rates
         end
 
         temp_bg.set_bounding_cost_plans
