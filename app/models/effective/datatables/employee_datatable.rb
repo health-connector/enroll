@@ -39,7 +39,10 @@ module Effective
 
         unless attributes['current_py_terminated']
           table_column :benefit_package, :proc => proc { |row|
-            row.active_benefit_group_assignment.benefit_group.title.capitalize if row.active_benefit_group_assignment.present?
+            if row.active_benefit_group_assignment.present?
+              package = row.active_benefit_group_assignment.benefit_group
+              EnrollRegistry[:employer_broker_ui_enhancements].enabled? ? package.display_title.capitalize : package.title.capitalize
+            end
           }, :sortable => false, :filter => false
         end
 
