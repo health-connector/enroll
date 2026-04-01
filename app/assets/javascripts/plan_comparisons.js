@@ -341,6 +341,21 @@
       } 
       else if ($('#export-csv-non-modal').length) {
         exportUrl = $('#export-csv-non-modal').attr('href')
+
+        if ($('.employer-cost-cell').length) {
+          var employerCosts = [];
+          $('.employer-cost-cell').each(function() {
+            var planId = $(this).data('plan-id');
+            var cost = $(this).text().trim().split('$').join('').split(',').join('');
+            if (planId && cost) {
+              employerCosts.push(planId + ':' + cost);
+            }
+          });
+          if (employerCosts.length > 0) {
+            exportUrl += '&employer_costs=' + employerCosts.join(',');
+          }
+        }
+
         window.open(exportUrl, '_blank')
       }
     });
