@@ -121,7 +121,7 @@
             </div>
           </h3>
         </div>
-        <div class="col-xs-4" style="display: flex; flex-wrap: nowrap; align-items: flex-start; gap: 5px; justify-content: flex-end; padding-right: 0;">
+        <div class="col-xs-4" style="display: flex; flex-wrap: nowrap; align-items: flex-start; gap: 5px; justify-content: flex-end; padding-right: 0; margin-bottom: 15px;">
           <%#= pundit_span EmployerProfile, :updateable? %>
           <% if benefit_application.draft? %>
               <%# if benefit_application.overlapping_published_benefit_applications.empty? %>
@@ -140,7 +140,6 @@
           <% end %>
           <span></span>
         </div>
-        <div>&nbsp;</div>
         <% if benefit_application.draft? && benefit_application.benefit_packages.empty? %>
           <div class="benefit-group">
             <div class="panel benefitgroup col-xs-12">
