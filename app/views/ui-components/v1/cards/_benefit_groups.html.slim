@@ -1,5 +1,9 @@
 .panel.panel-default#employer-benefit-groups
-  .panel-heading = bg.title.capitalize
+  .panel-heading 
+    - if EnrollRegistry[:employer_broker_ui_enhancements].enabled?
+      = bg.display_title.capitalize
+    - else
+      = bg.title.capitalize
   .panel-body
     table.table.borderless
       - if bg.description.present?

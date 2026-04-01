@@ -198,6 +198,16 @@ javascript:
   var clearAllText = "#{l10n('employers.plan_years.benefit_package.clear_all')}";
   var isPlanComparisonEnabled = #{::EnrollRegistry.feature_enabled?(:employer_broker_ui_enhancements)};
 
+  // Apply conditional padding for compare checkbox feature
+  if (isPvpFeatureEnabled && isPlanComparisonEnabled) {
+    document.addEventListener('DOMContentLoaded', function() {
+      var yourPlansElement = document.getElementById('yourPlans');
+      if (yourPlansElement) {
+        yourPlansElement.classList.add('with-compare-checkbox');
+      }
+    });
+  }
+
   function radioSelected(element) {
     setCircle(element)
     disableNewPlanYearButton()

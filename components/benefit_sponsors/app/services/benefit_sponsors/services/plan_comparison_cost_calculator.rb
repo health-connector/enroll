@@ -65,6 +65,13 @@ module BenefitSponsors
         application = form.service.send(:find_benefit_application, form)
         model_attributes = form.service.send(:form_params_to_attributes, form)
 
+        model_attributes.delete(:id)
+        if model_attributes[:sponsored_benefits_attributes].present?
+          model_attributes[:sponsored_benefits_attributes].each do |sb_attrs|
+            sb_attrs.delete(:id)
+          end
+        end
+
         BenefitSponsors::BenefitPackages::BenefitPackageFactory.call(
           application,
           model_attributes

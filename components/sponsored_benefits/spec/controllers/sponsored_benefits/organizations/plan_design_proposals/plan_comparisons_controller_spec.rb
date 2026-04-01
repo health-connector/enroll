@@ -48,23 +48,87 @@ module SponsoredBenefits # rubocop:disable Metrics/ModuleLength
     end
 
     describe "GET #csv" do
-      let(:params) { { plan_design_proposal_id: plan_design_proposal.id, plans: plan_ids } }
       let(:csv_data) { "plan,cost\nPlan 1,100.00\n" }
 
       before do
         allow(::Products::Qhp).to receive(:csv_for).and_return(csv_data)
         allow(qhp1).to receive(:[]=).with(:total_employee_cost, anything)
         allow(qhp2).to receive(:[]=).with(:total_employee_cost, anything)
-        get :csv, params: params, format: :csv
       end
 
-      it "returns CSV data" do
-        expect(response.content_type).to eq('text/csv')
+      context "without employer_costs parameter" do
+        let(:params) { { plan_design_proposal_id: plan_design_proposal.id, plans: plan_ids } }
+
+        before do
+          allow(controller).to receive(:calculate_employer_costs).and_return({})
+          get :csv, params: params, format: :csv
+        end
+
+        it "returns CSV data" do
+          expect(response.content_type).to eq('text/csv')
+        end
+
+        it "assigns employer costs to QHP data" do
+          expect(qhp1).to have_received(:[]=).with(:total_employee_cost, anything)
+          expect(qhp2).to have_received(:[]=).with(:total_employee_cost, anything)
+        end
+
+        it "calls calculate_employer_costs" do
+          expect(controller).to have_received(:calculate_employer_costs)
+        end
       end
 
-      it "assigns employer costs to QHP data" do
-        expect(qhp1).to have_received(:[]=).with(:total_employee_cost, anything)
-        expect(qhp2).to have_received(:[]=).with(:total_employee_cost, anything)
+      context "with employer_costs parameter from frontend" do
+        let(:employer_costs_param) { "#{plan1.id}:150.50,#{plan2.id}:200.75" }
+        let(:params) do
+          {
+            plan_design_proposal_id: plan_design_proposal.id,
+            plans: plan_ids,
+            employer_costs: employer_costs_param
+          }
+        end
+
+        before do
+          get :csv, params: params, format: :csv
+        end
+
+        it "returns CSV data" do
+          expect(response.content_type).to eq('text/csv')
+        end
+
+        it "assigns employer costs from params to QHP data" do
+          expect(qhp1).to have_received(:[]=).with(:total_employee_cost, 150.50)
+          expect(qhp2).to have_received(:[]=).with(:total_employee_cost, 200.75)
+        end
+
+        it "does not recalculate employer costs" do
+          expect(controller).not_to have_received(:calculate_employer_costs) if controller.respond_to?(:calculate_employer_costs)
+        end
+      end
+
+      context "with invalid employer_costs parameter" do
+        let(:params) do
+          {
+            plan_design_proposal_id: plan_design_proposal.id,
+            plans: plan_ids,
+            employer_costs: "invalid_format"
+          }
+        end
+
+        before do
+          allow(Rails.logger).to receive(:error)
+          allow(controller).to receive(:calculate_employer_costs).and_return({})
+          get :csv, params: params, format: :csv
+        end
+
+        it "handles error gracefully" do
+          expect(response.content_type).to eq('text/csv')
+        end
+
+        it "assigns default costs on parse error" do
+          expect(qhp1).to have_received(:[]=).with(:total_employee_cost, 0.0)
+          expect(qhp2).to have_received(:[]=).with(:total_employee_cost, 0.0)
+        end
       end
     end
 
@@ -205,15 +269,15 @@ module SponsoredBenefits # rubocop:disable Metrics/ModuleLength
         end
 
         it "copies composite tier contributions" do
-          allow_any_instance_of(SponsoredBenefits::BenefitApplications::BenefitGroup).to receive(:build_estimated_composite_rates)
+          allow_any_instance_of(SponsoredBenefits::BenefitApplications::BenefitGroup).to receive(:estimate_composite_rates)
           result = controller.send(:build_temp_benefit_group_for_plan, benefit_group, plan2)
           # Verify that the result has composite_tier_contributions built
           # (Even if the builds aren't persisted, they should be present in the association)
           expect(result.composite_tier_contributions).not_to be_empty
         end
 
-        it "builds estimated composite rates" do
-          expect_any_instance_of(SponsoredBenefits::BenefitApplications::BenefitGroup).to receive(:build_estimated_composite_rates)
+        it "estimates composite rates" do
+          expect_any_instance_of(SponsoredBenefits::BenefitApplications::BenefitGroup).to receive(:estimate_composite_rates)
           controller.send(:build_temp_benefit_group_for_plan, benefit_group, plan2)
         end
       end
@@ -254,6 +318,67 @@ module SponsoredBenefits # rubocop:disable Metrics/ModuleLength
 
         it "returns an empty hash" do
           result = controller.send(:calculate_employer_costs)
+          expect(result).to eq({})
+        end
+      end
+    end
+
+    describe "#parse_employer_costs_from_params" do
+      let(:plan_id_1) { BSON::ObjectId.new }
+      let(:plan_id_2) { BSON::ObjectId.new }
+      let(:employer_costs_string) { "#{plan_id_1}:150.50,#{plan_id_2}:200.75" }
+
+      before do
+        allow(controller).to receive(:params).and_return(ActionController::Parameters.new(employer_costs: employer_costs_string))
+      end
+
+      it "parses employer costs from params string" do
+        result = controller.send(:parse_employer_costs_from_params)
+        expect(result).to be_a(Hash)
+        expect(result.keys.size).to eq(2)
+      end
+
+      it "converts plan IDs to BSON::ObjectId" do
+        result = controller.send(:parse_employer_costs_from_params)
+        expect(result.keys.first).to be_a(BSON::ObjectId)
+      end
+
+      it "converts costs to floats" do
+        result = controller.send(:parse_employer_costs_from_params)
+        expect(result.values).to all(be_a(Float))
+      end
+
+      it "correctly parses cost values" do
+        result = controller.send(:parse_employer_costs_from_params)
+        expect(result[plan_id_1]).to eq(150.50)
+        expect(result[plan_id_2]).to eq(200.75)
+      end
+
+      context "with invalid format" do
+        before do
+          allow(controller).to receive(:params).and_return(ActionController::Parameters.new(employer_costs: "invalid:format:extra"))
+          allow(Rails.logger).to receive(:error)
+        end
+
+        it "returns empty hash on error" do
+          result = controller.send(:parse_employer_costs_from_params)
+          expect(result).to eq({})
+        end
+
+        it "logs the error" do
+          controller.send(:parse_employer_costs_from_params)
+          expect(Rails.logger).to have_received(:error).with(/Error parsing employer costs/)
+        end
+      end
+
+      context "with missing employer_costs param" do
+        before do
+          allow(controller).to receive(:params).and_return(ActionController::Parameters.new({}))
+          allow(Rails.logger).to receive(:error)
+        end
+
+        it "handles missing param gracefully" do
+          result = controller.send(:parse_employer_costs_from_params)
           expect(result).to eq({})
         end
       end
