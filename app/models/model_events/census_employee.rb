@@ -20,7 +20,8 @@ module ModelEvents
         is_employee_notice_for_employee_terminated_from_roster = true
       end
 
-      is_employee_notice_for_employer_sponsored_cobra_enrollments = true if is_transition_matching?(to: [:cobra_linked, :cobra_eligible], from: [:employment_terminated], event: [:elect_cobra])
+      cobra_transition_match = is_transition_matching?(to: [:cobra_linked, :cobra_eligible], from: [:employment_terminated], event: [:elect_cobra])
+      is_employee_notice_for_employer_sponsored_cobra_enrollments = true if EnrollRegistry.feature_enabled?(:employer_broker_ui_enhancements) && cobra_transition_match
 
       REGISTERED_EVENTS.each do |event|
         next unless check_local_variable("is_#{event}", binding)
