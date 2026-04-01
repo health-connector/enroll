@@ -241,8 +241,13 @@
       font-size:12px;
       font-weight:bold;
       padding-top: 20px;
-      padding-bottom: 40px; /* Add space for compare checkbox */
     }
+    
+    /* Conditionally add space for compare checkbox when feature is enabled */
+    &.with-compare-checkbox .col-xs-12:hover .rp-view-summary {
+      padding-bottom: 40px;
+    }
+    
     .rp-view-summary {
       display:none;
     }

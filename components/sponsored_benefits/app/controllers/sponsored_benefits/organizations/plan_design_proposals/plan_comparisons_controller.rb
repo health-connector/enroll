@@ -27,14 +27,17 @@ module SponsoredBenefits
       end
 
       def csv
-        benefit_group = plan_design_proposal.active_benefit_group
-        employer_costs_data = calculate_employer_costs
+        # Use employer costs from params if provided (from the comparison table)
+        # Otherwise recalculate them
+        employer_costs_data = if params[:employer_costs].present?
+                                parse_employer_costs_from_params
+                              else
+                                calculate_employer_costs
+                              end
+
         @qhps = qhps.each do |qhp|
-          qhp[:total_employee_cost] = if benefit_group && employer_costs_data[qhp.plan.id]
-                                        employer_costs_data[qhp.plan.id]
-                                      else
-                                        0.00
-                                      end
+          plan_id = qhp.plan.id
+          qhp[:total_employee_cost] = employer_costs_data[plan_id] || 0.00
         end
         respond_to do |format|
           format.csv do
@@ -46,6 +49,17 @@ module SponsoredBenefits
       private
 
       helper_method :plan_design_form, :plan_design_organization, :plan_design_proposal, :visit_types, :qhps, :employer_costs
+
+      def parse_employer_costs_from_params
+        # Parse employer costs from params (format: plan_id:cost,plan_id:cost)
+        params[:employer_costs].split(',').each_with_object({}) do |pair, hash|
+          plan_id, cost = pair.split(':')
+          hash[BSON::ObjectId.from_string(plan_id)] = cost.to_f
+        end
+      rescue StandardError => e
+        Rails.logger.error("Error parsing employer costs from params: #{e.message}")
+        {}
+      end
 
       def employer_costs
         @employer_costs ||= calculate_employer_costs
@@ -77,9 +91,11 @@ module SponsoredBenefits
 
         active_benefit_group = benefit_application.benefit_groups&.first
 
-        # Build temporary benefit group from params if none exists
-        if active_benefit_group.nil? && benefit_group_params.present?
+        # Rebuild benefit group from params if params are present (for updated contributions)
+        # Otherwise use existing benefit group
+        if benefit_group_params.present?
           active_benefit_group = benefit_application.benefit_groups.build(benefit_group_params)
+          active_benefit_group.title ||= "Plan Comparison Benefit Group #{Time.now.to_i}"
           active_benefit_group.plan_option_kind = params[:elected_plan_kind] if params[:elected_plan_kind].present?
           active_benefit_group.reference_plan_id = params[:reference_plan_id] if params[:reference_plan_id].present?
 
@@ -94,7 +110,9 @@ module SponsoredBenefits
       def build_temp_benefit_group_for_plan(active_benefit_group, plan)
         temp_bg = active_benefit_group.class.new(
           reference_plan_id: plan.id,
-          plan_option_kind: active_benefit_group.plan_option_kind
+          plan_option_kind: active_benefit_group.plan_option_kind,
+          elected_plan_ids: [plan.id],
+          title: "Temp Cost Calc #{Time.now.to_i}_#{plan.id}"
         )
         temp_bg.benefit_application = active_benefit_group.benefit_application
 
@@ -116,7 +134,8 @@ module SponsoredBenefits
               offered: ctc.offered
             )
           end
-          temp_bg.build_estimated_composite_rates
+          # Build and estimate composite rates for the new plan
+          temp_bg.estimate_composite_rates
         end
 
         temp_bg.set_bounding_cost_plans

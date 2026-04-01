@@ -75,7 +75,7 @@
     <div id="benefit-applications-container">
     <% @benefit_applications.each do |benefit_application| %>
       <div class="row no-buffer module plan-year mt-2" data-year="<%= benefit_application.start_on&.year %>" data-aasm-state="<%= benefit_application.aasm_state %>">
-        <div class="col-xs-6">
+        <div class="col-xs-8">
           <h3 class="no-buffer heading-text">
             <div class="row">
               <span data-toggle="tooltip" title="<%= benefit_application.aasm_state.to_s.humanize.titleize %>">
@@ -121,7 +121,7 @@
             </div>
           </h3>
         </div>
-        <div class="row" style="margin-right:1px">
+        <div class="col-xs-4" style="display: flex; flex-wrap: nowrap; align-items: flex-start; gap: 5px; justify-content: flex-end; padding-right: 0;">
           <%#= pundit_span EmployerProfile, :updateable? %>
           <% if benefit_application.draft? %>
               <%# if benefit_application.overlapping_published_benefit_applications.empty? %>
@@ -424,13 +424,14 @@
     }
   }
 
-  document.addEventListener('DOMContentLoaded', function() {
+  function initializePlanYearFilters() {
     attachFilterListeners();
     applyPlanYearFilters();
-  });
+  }
 
-  attachFilterListeners();
-
-
-
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializePlanYearFilters);
+  } else {
+    initializePlanYearFilters();
+  }
 </script>

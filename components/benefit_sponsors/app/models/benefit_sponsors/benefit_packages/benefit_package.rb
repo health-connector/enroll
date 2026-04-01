@@ -614,21 +614,27 @@ module BenefitSponsors
       private
 
       def health_reference_changed?
+        return false unless predecessor.present?
+
         health_sb = health_sponsored_benefit
         predecessor_health_sb = predecessor.health_sponsored_benefit
 
         return false if health_sb.blank? || predecessor_health_sb.blank?
+        return false if health_sb.reference_product.blank? || predecessor_health_sb.reference_product.blank?
 
-        health_sb.reference_product_id != predecessor_health_sb.reference_product_id
+        health_sb.reference_product.hios_id != predecessor_health_sb.reference_product.hios_id
       end
 
       def dental_reference_changed?
+        return false unless predecessor.present?
+
         dental_sb = dental_sponsored_benefit
         predecessor_dental_sb = predecessor.dental_sponsored_benefit
 
         return false if dental_sb.blank? || predecessor_dental_sb.blank?
+        return false if dental_sb.reference_product.blank? || predecessor_dental_sb.reference_product.blank?
 
-        dental_sb.reference_product_id != predecessor_dental_sb.reference_product_id
+        dental_sb.reference_product.hios_id != predecessor_dental_sb.reference_product.hios_id
       end
 
       def health_contribution_changed?
