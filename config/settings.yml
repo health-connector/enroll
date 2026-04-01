@@ -19,10 +19,10 @@ site:
   health_care_website: "www.healthcare.gov"
   health_care_website_url: "https://www.healthcare.gov"
   short_name: "Covered CA"
-  byline: "California's Health Insurance Marketplace"
+  byline: "California's Health Insurance Marketplace for Small Businesses"
   long_name: "Covered California"
   copyright_period_start: "2026"
-  header_message: "California's Health Insurance Marketplace"
+  header_message: "California's Health Insurance Marketplace for Small Businesses"
   logo_file_name: "covered_california-logo.svg"
   make_their_premium_payments_online: "https://ww2.e-billexpress.com/ebpp/MAConnector/"
   tab_icon: 'favicon.ico'
