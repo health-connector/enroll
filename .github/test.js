@@ -1683,7 +1683,7 @@ export function scenario_1() {
     )
 
     response = http.get(
-      'https://pvt-enroll.mhc.hbxshop.org/assets/ui/profilegreen_37-1d668b137aed94d77db88578dc0e5f3b.png',
+      'https://pvt-enroll.mhc.hbxshop.org/assets/ui/profileblue_37-1d668b137aed94d77db88578dc0e5f3b.png',
       {
         headers: {
           'sec-ch-ua': '"Google Chrome";v="113", "Chromium";v="113", "Not-A.Brand";v="24"',
@@ -1694,7 +1694,7 @@ export function scenario_1() {
     )
 
     response = http.get(
-      'https://pvt-enroll.mhc.hbxshop.org/assets/ui/darkgreenarrow_354-fc37a396263030172606c6a557627031.png',
+      'https://pvt-enroll.mhc.hbxshop.org/assets/ui/darkbluearrow_354-fc37a396263030172606c6a557627031.png',
       {
         headers: {
           'sec-ch-ua': '"Google Chrome";v="113", "Chromium";v="113", "Not-A.Brand";v="24"',
@@ -1705,7 +1705,7 @@ export function scenario_1() {
     )
 
     response = http.get(
-      'https://pvt-enroll.mhc.hbxshop.org/assets/ui/cartgreen_40-23767ac33e267084436cf3bf4a3a9cc8.png',
+      'https://pvt-enroll.mhc.hbxshop.org/assets/ui/cartblue_40-23767ac33e267084436cf3bf4a3a9cc8.png',
       {
         headers: {
           'sec-ch-ua': '"Google Chrome";v="113", "Chromium";v="113", "Not-A.Brand";v="24"',
@@ -1716,7 +1716,7 @@ export function scenario_1() {
     )
 
     response = http.get(
-      'https://pvt-enroll.mhc.hbxshop.org/assets/ui/lightgreenarrow_354-47807f393f358011e39dc6bef1f312b2.png',
+      'https://pvt-enroll.mhc.hbxshop.org/assets/ui/lightbluearrow_354-47807f393f358011e39dc6bef1f312b2.png',
       {
         headers: {
           'sec-ch-ua': '"Google Chrome";v="113", "Chromium";v="113", "Not-A.Brand";v="24"',
@@ -1901,7 +1901,7 @@ export function scenario_1() {
     )
 
     response = http.get(
-      'https://pvt-enroll.mhc.hbxshop.org/assets/ui/profilegreen_37-1d668b137aed94d77db88578dc0e5f3b.png',
+      'https://pvt-enroll.mhc.hbxshop.org/assets/ui/profileblue_37-1d668b137aed94d77db88578dc0e5f3b.png',
       {
         headers: {
           'sec-ch-ua': '"Google Chrome";v="113", "Chromium";v="113", "Not-A.Brand";v="24"',
@@ -1912,7 +1912,7 @@ export function scenario_1() {
     )
 
     response = http.get(
-      'https://pvt-enroll.mhc.hbxshop.org/assets/ui/darkgreenarrow_354-fc37a396263030172606c6a557627031.png',
+      'https://pvt-enroll.mhc.hbxshop.org/assets/ui/darkbluearrow_354-fc37a396263030172606c6a557627031.png',
       {
         headers: {
           'sec-ch-ua': '"Google Chrome";v="113", "Chromium";v="113", "Not-A.Brand";v="24"',
@@ -1923,7 +1923,7 @@ export function scenario_1() {
     )
 
     response = http.get(
-      'https://pvt-enroll.mhc.hbxshop.org/assets/ui/cartgreen_40-23767ac33e267084436cf3bf4a3a9cc8.png',
+      'https://pvt-enroll.mhc.hbxshop.org/assets/ui/cartblue_40-23767ac33e267084436cf3bf4a3a9cc8.png',
       {
         headers: {
           'sec-ch-ua': '"Google Chrome";v="113", "Chromium";v="113", "Not-A.Brand";v="24"',
@@ -1934,7 +1934,7 @@ export function scenario_1() {
     )
 
     response = http.get(
-      'https://pvt-enroll.mhc.hbxshop.org/assets/ui/lightgreenarrow_354-47807f393f358011e39dc6bef1f312b2.png',
+      'https://pvt-enroll.mhc.hbxshop.org/assets/ui/lightbluearrow_354-47807f393f358011e39dc6bef1f312b2.png',
       {
         headers: {
           'sec-ch-ua': '"Google Chrome";v="113", "Chromium";v="113", "Not-A.Brand";v="24"',
@@ -2118,7 +2118,7 @@ export function scenario_1() {
     )
 
     response = http.get(
-      'https://pvt-enroll.mhc.hbxshop.org/assets/ui/profilegreen_37-1d668b137aed94d77db88578dc0e5f3b.png',
+      'https://pvt-enroll.mhc.hbxshop.org/assets/ui/profileblue_37-1d668b137aed94d77db88578dc0e5f3b.png',
       {
         headers: {
           'sec-ch-ua': '"Google Chrome";v="113", "Chromium";v="113", "Not-A.Brand";v="24"',
@@ -2129,7 +2129,7 @@ export function scenario_1() {
     )
 
     response = http.get(
-      'https://pvt-enroll.mhc.hbxshop.org/assets/ui/darkgreenarrow_354-fc37a396263030172606c6a557627031.png',
+      'https://pvt-enroll.mhc.hbxshop.org/assets/ui/darkbluearrow_354-fc37a396263030172606c6a557627031.png',
       {
         headers: {
           'sec-ch-ua': '"Google Chrome";v="113", "Chromium";v="113", "Not-A.Brand";v="24"',
@@ -2140,7 +2140,7 @@ export function scenario_1() {
     )
 
     response = http.get(
-      'https://pvt-enroll.mhc.hbxshop.org/assets/ui/cartgreen_40-23767ac33e267084436cf3bf4a3a9cc8.png',
+      'https://pvt-enroll.mhc.hbxshop.org/assets/ui/cartblue_40-23767ac33e267084436cf3bf4a3a9cc8.png',
       {
         headers: {
           'sec-ch-ua': '"Google Chrome";v="113", "Chromium";v="113", "Not-A.Brand";v="24"',
@@ -2151,7 +2151,7 @@ export function scenario_1() {
     )
 
     response = http.get(
-      'https://pvt-enroll.mhc.hbxshop.org/assets/ui/lightgreenarrow_354-47807f393f358011e39dc6bef1f312b2.png',
+      'https://pvt-enroll.mhc.hbxshop.org/assets/ui/lightbluearrow_354-47807f393f358011e39dc6bef1f312b2.png',
       {
         headers: {
           'sec-ch-ua': '"Google Chrome";v="113", "Chromium";v="113", "Not-A.Brand";v="24"',
@@ -2373,7 +2373,7 @@ export function scenario_1() {
       )
 
       response = http.get(
-        'https://pvt-enroll.mhc.hbxshop.org/assets/ui/profilegreen_37-1d668b137aed94d77db88578dc0e5f3b.png',
+        'https://pvt-enroll.mhc.hbxshop.org/assets/ui/profileblue_37-1d668b137aed94d77db88578dc0e5f3b.png',
         {
           headers: {
             'sec-ch-ua': '"Google Chrome";v="113", "Chromium";v="113", "Not-A.Brand";v="24"',
@@ -2384,7 +2384,7 @@ export function scenario_1() {
       )
 
       response = http.get(
-        'https://pvt-enroll.mhc.hbxshop.org/assets/ui/darkgreenarrow_354-fc37a396263030172606c6a557627031.png',
+        'https://pvt-enroll.mhc.hbxshop.org/assets/ui/darkbluearrow_354-fc37a396263030172606c6a557627031.png',
         {
           headers: {
             'sec-ch-ua': '"Google Chrome";v="113", "Chromium";v="113", "Not-A.Brand";v="24"',
@@ -2395,7 +2395,7 @@ export function scenario_1() {
       )
 
       response = http.get(
-        'https://pvt-enroll.mhc.hbxshop.org/assets/ui/cartgreen_40-23767ac33e267084436cf3bf4a3a9cc8.png',
+        'https://pvt-enroll.mhc.hbxshop.org/assets/ui/cartblue_40-23767ac33e267084436cf3bf4a3a9cc8.png',
         {
           headers: {
             'sec-ch-ua': '"Google Chrome";v="113", "Chromium";v="113", "Not-A.Brand";v="24"',
@@ -2406,7 +2406,7 @@ export function scenario_1() {
       )
 
       response = http.get(
-        'https://pvt-enroll.mhc.hbxshop.org/assets/ui/lightgreenarrow_354-47807f393f358011e39dc6bef1f312b2.png',
+        'https://pvt-enroll.mhc.hbxshop.org/assets/ui/lightbluearrow_354-47807f393f358011e39dc6bef1f312b2.png',
         {
           headers: {
             'sec-ch-ua': '"Google Chrome";v="113", "Chromium";v="113", "Not-A.Brand";v="24"',
@@ -2586,7 +2586,7 @@ export function scenario_1() {
     )
 
     response = http.get(
-      'https://pvt-enroll.mhc.hbxshop.org/assets/ui/profilegreen_37-1d668b137aed94d77db88578dc0e5f3b.png',
+      'https://pvt-enroll.mhc.hbxshop.org/assets/ui/profileblue_37-1d668b137aed94d77db88578dc0e5f3b.png',
       {
         headers: {
           'sec-ch-ua': '"Google Chrome";v="113", "Chromium";v="113", "Not-A.Brand";v="24"',
@@ -2597,7 +2597,7 @@ export function scenario_1() {
     )
 
     response = http.get(
-      'https://pvt-enroll.mhc.hbxshop.org/assets/ui/darkgreenarrow_354-fc37a396263030172606c6a557627031.png',
+      'https://pvt-enroll.mhc.hbxshop.org/assets/ui/darkbluearrow_354-fc37a396263030172606c6a557627031.png',
       {
         headers: {
           'sec-ch-ua': '"Google Chrome";v="113", "Chromium";v="113", "Not-A.Brand";v="24"',
@@ -2608,7 +2608,7 @@ export function scenario_1() {
     )
 
     response = http.get(
-      'https://pvt-enroll.mhc.hbxshop.org/assets/ui/cartgreen_40-23767ac33e267084436cf3bf4a3a9cc8.png',
+      'https://pvt-enroll.mhc.hbxshop.org/assets/ui/cartblue_40-23767ac33e267084436cf3bf4a3a9cc8.png',
       {
         headers: {
           'sec-ch-ua': '"Google Chrome";v="113", "Chromium";v="113", "Not-A.Brand";v="24"',
@@ -2630,7 +2630,7 @@ export function scenario_1() {
     )
 
     response = http.get(
-      'https://pvt-enroll.mhc.hbxshop.org/assets/ui/lightgreenarrow_354-47807f393f358011e39dc6bef1f312b2.png',
+      'https://pvt-enroll.mhc.hbxshop.org/assets/ui/lightbluearrow_354-47807f393f358011e39dc6bef1f312b2.png',
       {
         headers: {
           'sec-ch-ua': '"Google Chrome";v="113", "Chromium";v="113", "Not-A.Brand";v="24"',
@@ -2837,7 +2837,7 @@ export function scenario_1() {
       )
 
       response = http.get(
-        'https://pvt-enroll.mhc.hbxshop.org/assets/ui/profilegreen_37-1d668b137aed94d77db88578dc0e5f3b.png',
+        'https://pvt-enroll.mhc.hbxshop.org/assets/ui/profileblue_37-1d668b137aed94d77db88578dc0e5f3b.png',
         {
           headers: {
             'sec-ch-ua': '"Google Chrome";v="113", "Chromium";v="113", "Not-A.Brand";v="24"',
@@ -2848,7 +2848,7 @@ export function scenario_1() {
       )
 
       response = http.get(
-        'https://pvt-enroll.mhc.hbxshop.org/assets/ui/darkgreenarrow_354-fc37a396263030172606c6a557627031.png',
+        'https://pvt-enroll.mhc.hbxshop.org/assets/ui/darkbluearrow_354-fc37a396263030172606c6a557627031.png',
         {
           headers: {
             'sec-ch-ua': '"Google Chrome";v="113", "Chromium";v="113", "Not-A.Brand";v="24"',
@@ -2859,7 +2859,7 @@ export function scenario_1() {
       )
 
       response = http.get(
-        'https://pvt-enroll.mhc.hbxshop.org/assets/ui/cartgreen_40-23767ac33e267084436cf3bf4a3a9cc8.png',
+        'https://pvt-enroll.mhc.hbxshop.org/assets/ui/cartblue_40-23767ac33e267084436cf3bf4a3a9cc8.png',
         {
           headers: {
             'sec-ch-ua': '"Google Chrome";v="113", "Chromium";v="113", "Not-A.Brand";v="24"',
