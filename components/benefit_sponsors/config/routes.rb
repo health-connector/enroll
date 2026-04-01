@@ -41,6 +41,7 @@ BenefitSponsors::Engine.routes.draw do
           get :inbox
           get :show_invoice if Settings.aca.autopay_enabled
           get :download_invoice
+          get :pay_now
         end
 
         resources :broker_agency, only: [:index, :show, :create] do

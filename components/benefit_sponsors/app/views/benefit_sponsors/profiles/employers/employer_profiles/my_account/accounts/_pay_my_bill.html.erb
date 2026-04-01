@@ -11,17 +11,23 @@
 <h4>
   <ol>
     <li>
-      <% if @wf_url.present? %>
-        <span class="btn btn-default" data-target="#payOnlineConfirmation_<%= @employer_profile.id %>" data-toggle="modal">Pay Online</span> <i class="fa fa-info-circle" data-toggle="tooltip" data-placement="right" title="Fastest payment option - processed in 2-3 business days."></i>
+      <% if @pay_url.present? %>
+        <% if true %>
+          <%= link_to 'Pay Online', @pay_url, class: 'btn btn-default' %>
+        <% else %>
+          <span class="btn btn-default" data-target="#payOnlineConfirmation_<%= @employer_profile.id %>" data-toggle="modal">Pay Online</span> <i class="fa fa-info-circle" data-toggle="tooltip" data-placement="right" title="Fastest payment option - processed in 2-3 business days."></i>
+        <% end %>
       <% else %>
       <div>
         <button class="btn btn-default disabled">Pay Online unavailable</button> <i class="fa fa-info-circle" data-toggle="tooltip" data-placement="right" title="Fastest payment option - processed in 2-3 business days."></i>
 
       </div>
       <% end %>
-      <div class="row col-md-offset-1">
-        <%= link_to 'How to Pay Online - Instructions', asset_path("pdf/employers_paying_your_premiums_online.pdf") , target: "_blank"%>
-      </div>
+      <% if false %>
+        <div class="row col-md-offset-1">
+          <%= link_to 'How to Pay Online - Instructions', asset_path("pdf/employers_paying_your_premiums_online.pdf") , target: "_blank"%>
+        </div>
+      <% end %>
     </li>
     <li>Pay by Phone
       <div class="row col-md-offset-1">

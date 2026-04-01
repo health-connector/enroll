@@ -3,10 +3,10 @@ module BenefitSponsors
     module Employers
       class EmployerProfilesController < ::BenefitSponsors::ApplicationController
 
-        before_action :find_employer, only: [:show, :inbox, :bulk_employee_upload, :export_census_employees, :coverage_reports, :download_invoice, :show_invoice, :estimate_cost, :run_eligibility_check]
+        before_action :find_employer, only: [:show, :inbox, :bulk_employee_upload, :export_census_employees, :coverage_reports, :download_invoice, :show_invoice, :estimate_cost, :run_eligibility_check, :pay_now]
         before_action :load_group_enrollments, only: [:coverage_reports], if: :is_format_csv?
         before_action :check_and_download_invoice, only: [:download_invoice, :show_invoice]
-        before_action :wells_fargo_sso, only: [:show]
+        before_action :setup_pay_url, only: [:show]
         layout "two_column", except: [:new]
 
         before_action :set_flash_by_announcement, only: :show
@@ -180,22 +180,31 @@ module BenefitSponsors
           render :json => estimate_hash
         end
 
+        def pay_now
+          #authorize @employer_profile
+          @benefit_sponsorship = @employer_profile.organization.active_benefit_sponsorship
+          @benefit_sponsorship_account = @benefit_sponsorship&.benefit_sponsorship_account
+        end
+
         private
 
-        def wells_fargo_sso
-          #grab url for WellsFargoSSO and store in insance variable
-          email = @employer_profile.staff_roles.first.present? ? @employer_profile.staff_roles.first.work_email_or_best : nil
+        def setup_pay_url
+          if true
+            @pay_url = pay_now_profiles_employers_employer_profile_path(@employer_profile)
+          else
+            email = @employer_profile.staff_roles.first.present? ? @employer_profile.staff_roles.first.work_email_or_best : nil
 
-          if email.present?
-            wells_fargo_sso =
-              ::WellsFargo::BillPay::SingleSignOn.new(
-                @employer_profile.hbx_id,
-                @employer_profile.hbx_id,
-                @employer_profile.dba.presence || @employer_profile.legal_name,
-                email
-              )
+            if email.present?
+              wells_fargo_sso =
+                ::WellsFargo::BillPay::SingleSignOn.new(
+                  @employer_profile.hbx_id,
+                  @employer_profile.hbx_id,
+                  @employer_profile.dba.presence || @employer_profile.legal_name,
+                  email
+                )
+            end
+            @pay_url = wells_fargo_sso.url if wells_fargo_sso.present? && wells_fargo_sso.token.present?
           end
-          @wf_url = wells_fargo_sso.url if wells_fargo_sso.present? && wells_fargo_sso.token.present?
         end
 
         def retrieve_payments_for_page(page_no)

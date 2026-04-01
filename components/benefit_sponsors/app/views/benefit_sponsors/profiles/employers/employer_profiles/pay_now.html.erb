@@ -1,0 +1,103 @@
+<div class="container">
+  <div class="row">
+    <div class="col-md-8 col-md-offset-2">
+      <h2 class="darkblue">Make a Payment</h2>
+      <p class="text-muted">Account Number: <strong><%= @employer_profile.hbx_id %></strong></p>
+      
+      <% if @benefit_sponsorship_account %>
+        <div class="alert alert-info">
+          <strong>Total Amount Due:</strong> <%= number_to_currency(@benefit_sponsorship_account.total_due) %>
+        </div>
+      <% end %>
+
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Payment Information</h3>
+        </div>
+        <div class="panel-body">
+          <form 
+            id="payment-form" 
+            class="form-horizontal" 
+            data-controller="payment-form" 
+            data-action="submit->payment-form#submit"
+            data-payment-form-account-number="<%= @employer_profile.hbx_id %>"
+            data-payment-form-employer-profile-id="<%= @employer_profile.id %>"
+            data-payment-form-api-url="<%= ENV['SOFTHEON_API_URL'] || 'https://api.softheon.com/v1' %>"
+            data-payment-form-api-key="<%= ENV['SOFTHEON_PUBLIC_KEY'] || 'pk_PLACEHOLDER' %>"
+          >
+            
+            <div class="form-group">
+              <label for="payment-amount" class="col-sm-3 control-label">Amount*</label>
+              <div class="col-sm-9">
+                <div class="input-group">
+                  <span class="input-group-addon">$</span>
+                  <input 
+                    type="number" 
+                    class="form-control" 
+                    id="payment-amount" 
+                    name="amount"
+                    placeholder="0.00"
+                    step="0.01"
+                    min="0"
+                    <% if @benefit_sponsorship_account&.total_due %>
+                      value="<%= @benefit_sponsorship_account.total_due %>"
+                    <% end %>
+                    data-target="payment-form.amount"
+                    data-action="input->payment-form#validateAmount"
+                    required
+                  >
+                </div>
+                <p class="help-block">Enter the payment amount</p>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="payment-date" class="col-sm-3 control-label">Payment Date*</label>
+              <div class="col-sm-9">
+                <input 
+                  type="date" 
+                  class="form-control" 
+                  id="payment-date" 
+                  name="payment_date"
+                  value="<%= Date.today.strftime('%Y-%m-%d') %>"
+                  data-target="payment-form.paymentDate"
+                  required
+                >
+                <p class="help-block">Select the date for this payment</p>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="payment-method" class="col-sm-3 control-label">Payment Method*</label>
+              <div class="col-sm-9">
+                <select 
+                  class="form-control" 
+                  name="payment_method" 
+                  data-target="payment-form.paymentMethod"
+                  data-action="change->payment-form#validatePaymentMethod"
+                  required>
+                  <option value="">Loading payment methods...</option>
+                </select>
+                <p class="help-block">Choose how you would like to pay</p>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="col-sm-offset-3 col-sm-9">
+                <button 
+                  type="submit" 
+                  class="btn btn-primary"
+                  data-target="payment-form.submitButton">
+                  Continue to Payment
+                </button>
+                <%= link_to 'Cancel', :back, class: 'btn btn-default' %>
+              </div>
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
