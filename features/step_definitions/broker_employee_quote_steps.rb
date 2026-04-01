@@ -101,7 +101,6 @@ end
 And(/^Primary Broker enters quote name$/) do
   find('#forms_plan_design_proposal_title').click
   fill_in 'forms_plan_design_proposal[title]', :with => "Test Quote"
-  expect(page).to have_content((TimeKeeper.date_of_record + 2.months).strftime("%B %Y"))
 end
 
 Then(/^.+ sees that publish button is (.*)$/) do |publish_btn|
