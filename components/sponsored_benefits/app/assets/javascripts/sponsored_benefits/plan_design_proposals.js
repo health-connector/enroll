@@ -754,6 +754,7 @@ function viewComparisonsModal() {
     dataType: 'script',
     data: allData,
   }).done(function() {
+    $('.hidden-in-modal').hide()
     $('#compare_plans_table').dragtable({dragaccept: '.movable'});
     $('.view-plans-button').show();
     $('.loading-plans-button').hide();
@@ -785,10 +786,12 @@ function hideDetailComparisons() {
 
 function disableCompareButton() {
   $('#view-comparison').addClass('disabled');
+  $('#view-comparison-modal').addClass('disabled');
   $('#clear-comparison').addClass('disabled');
   $('.reference-plan input[type=checkbox]').each(function() {
     if ($(this).is(":checked")) {
       $('#view-comparison').removeClass('disabled');
+      $('#view-comparison-modal').removeClass('disabled');
       $('#clear-comparison').removeClass('disabled');
     }
   });
