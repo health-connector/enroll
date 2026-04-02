@@ -1,9 +1,10 @@
-
 <%= hidden_field_tag 'current_sort', @sort_by  %>
 <%= hidden_field_tag 'plan_ids' %>
+<%= hidden_field_tag :plan_comparison_export_pdf_url, export_organizations_plan_design_proposal_plan_comparisons_path %>
+
 <% single_plan_displayed ||= false %>
 <div class="container-fluid">
-  <% unless single_plan_displayed %><h3>Plan Comparison Chart</h3><% end %>
+  <% unless single_plan_displayed %><h3 class="hidden-in-modal">Plan Comparison Chart</h3><% end %>
   <ul style="padding-left: 18px;">
     <!-- <li> Plans can be rearranged by dragging the beginning of the company name </li> -->
     <!-- <li> Use <i class='fa fa-caret-down fa-lg'></i>,<i class='fa fa-caret-up fa-lg'></i> to sort by copay </li> -->
@@ -34,6 +35,90 @@
             </th>
           <% end %>
         </tr>
+        <% if EnrollRegistry.feature_enabled?(:employer_broker_ui_enhancements) %>
+          <!-- Employer Estimated Monthly Cost -->
+          <% if defined?(employer_costs) && employer_costs.present? %>
+            <tr>
+              <th style="background-color: #f5f5f5;">
+                <%= l10n('employers.plan_years.benefit_package.estimated_monthly_cost') %><br>
+                <small>(<%= l10n('employers.plan_years.benefit_package.employer_contribution') %>)</small>
+              </th>
+              <% qhps.each do |qhp| %>
+                <th colspan="2" style="text-align: center; vertical-align:middle; background-color: #f5f5f5; color: #000; font-weight: bold; font-size: 12pt;" class="employer-cost-cell" data-plan-id="<%= qhp.plan.id %>">
+                  <%= number_to_currency(employer_costs[qhp.plan.id] || 0.00) %>
+                </th>
+              <% end %>
+            </tr>
+          <% end %>
+          <tr>
+            <th>DEDUCTIBLES</th>
+            <% qhps.each do |qhp| %>
+              <th><strong>INDIVIDUAL</strong></th>
+              <th><strong>FAMILY</strong></th>
+            <% end %>
+          </tr>
+          <tr>
+            <th class="deductible-compare-header">Medical</th>
+            <% qhps.each do |qhp| %>
+              <% if qhp.qhp_deductibles.count > 1 %>
+                <% medical_ded = qhp.qhp_deductibles.where(deductible_type: "Medical EHB Deductible").first %>
+                <th class="deductible-compare-header"><%= medical_ded.in_network_tier_1_individual %></th>
+                <% fam_value = medical_ded.in_network_tier_1_family.match(/[|]\s([$]\d+)/) %>
+                <% family_deductible = if fam_value
+                                        fam_value[1]
+                                      else
+                                        family_deductible = "Not Applicable"
+                                      end %>
+                <th class="deductible-compare-header"><%= family_deductible %></th>
+              <% else %>
+                <% deductible = qhp.qhp_deductibles.first %>
+                <th class="deductible-compare-header"><%= deductible.in_network_tier_1_individual %></th>
+                <% fam_value = deductible.in_network_tier_1_family.match(/[|]\s([$]\d+)/) %>
+                <% family_deductible = if fam_value
+                                        fam_value[1]
+                                      else
+                                        family_deductible = "Not Applicable"
+                                      end %>
+                <th class="deductible-compare-header"><%= family_deductible %></th>
+              <% end %>
+            <% end %>
+          </tr>
+          <tr>
+            <th class="deductible-compare-header">Rx</th>
+            <% qhps.each do |qhp| %>
+              <% if qhp.qhp_deductibles.count > 1 %>
+                <% drug_ded = qhp.qhp_deductibles.where(deductible_type: "Drug EHB Deductible").first %>
+                <th class="deductible-compare-header"><%= drug_ded.in_network_tier_1_individual %></th>
+                <% fam_value = drug_ded.in_network_tier_1_family.match(/[|]\s([$]\d+)/) %>
+                <% family_deductible = if fam_value
+                                        fam_value[1]
+                                      else
+                                        family_deductible = "N/A"
+                                      end %>
+                <th class="deductible-compare-header"><%= family_deductible %></th>
+              <% else %>
+                <% deductible = qhp.qhp_deductibles.first %>
+                <th class="deductible-compare-header"><%= deductible.in_network_tier_1_individual %></th>
+                <% fam_value = deductible.in_network_tier_1_family.match(/[|]\s([$]\d+)/) %>
+                <% family_deductible = if fam_value
+                                        fam_value[1]
+                                      else
+                                        family_deductible = "N/A"
+                                      end %>
+                <th class="deductible-compare-header"><%= family_deductible %></th>
+              <% end %>
+            <% end %>
+          </tr>
+          <!-- Out of Pocket Maximum -->
+          <tr>
+            <th><%= l10n('employers.plan_years.benefit_package.out_of_pocket_maximum') %></th>
+            <% qhps.each do |qhp| %>
+              <td colspan="2">
+                <%= qhp.qhp_maximum_out_of_pockets.first.in_network_tier_1_individual_amount %>
+              </td>
+            <% end %>
+          </tr>
+        <% end %>
         <tr>
           <th>Provider Network</th>
           <% qhps.each do |qhp|%>
@@ -57,24 +142,6 @@
             <% end %>
           </tr>
         <% end %>
-        
-        <!-- Employer Estimated Monthly Cost -->
-        <% if EnrollRegistry.feature_enabled?(:plan_comparison_tool) %>
-          <% if defined?(employer_costs) && employer_costs.present? %>
-            <tr>
-              <th style="background-color: #f5f5f5;">
-                Estimated Employer Monthly Cost<br>
-                <small>(Employer Contribution)</small>
-              </th>
-              <% qhps.each do |qhp| %>
-                <th colspan="2" style="text-align: center; vertical-align:middle; background-color: #f5f5f5; color: #000; font-weight: bold; font-size: 12pt;">
-                  <%= number_to_currency(employer_costs[qhp.plan.id] || 0.00) %>
-                </th>
-              <% end %>
-            </tr>
-          <% end %>
-        <% end %>
-        
         <tr>
           <th>PLAN BENEFITS <br> (In Network)</th>
           <% qhps.each do |qhp|%>
@@ -89,65 +156,67 @@
             <th></th><th></th>
           <% end %>
         </tr>
-        <tr>
-          <th>DEDUCTIBLES</th>
-          <% qhps.each do |qhp| %>
-            <th><strong>INDIVIDUAL</strong></th>
-            <th><strong>FAMILY</strong></th>
-          <% end %>
-        </tr>
-        <tr>
-          <th class="deductible-compare-header">Medical</th>
-          <% qhps.each do |qhp| %>
-            <% if qhp.qhp_deductibles.count > 1 %>
-              <% medical_ded = qhp.qhp_deductibles.where(deductible_type: "Medical EHB Deductible").first %>
-              <th class="deductible-compare-header"><%= medical_ded.in_network_tier_1_individual %></th>
-              <% fam_value = medical_ded.in_network_tier_1_family.match(/[|]\s([$]\d+)/) %>
-              <% family_deductible = if fam_value
-                                       fam_value[1]
-                                     else
-                                       family_deductible = "Not Applicable"
-                                     end %>
-              <th class="deductible-compare-header"><%= family_deductible %></th>
-            <% else %>
-              <% deductible = qhp.qhp_deductibles.first %>
-              <th class="deductible-compare-header"><%= deductible.in_network_tier_1_individual %></th>
-              <% fam_value = deductible.in_network_tier_1_family.match(/[|]\s([$]\d+)/) %>
-              <% family_deductible = if fam_value
-                                       fam_value[1]
-                                     else
-                                       family_deductible = "Not Applicable"
-                                     end %>
-              <th class="deductible-compare-header"><%= family_deductible %></th>
+        <% unless ::EnrollRegistry.feature_enabled?(:employer_broker_ui_enhancements) %>
+          <tr>
+            <th>DEDUCTIBLES</th>
+            <% qhps.each do |qhp| %>
+              <th><strong>INDIVIDUAL</strong></th>
+              <th><strong>FAMILY</strong></th>
             <% end %>
-          <% end %>
-        </tr>
-        <tr>
-          <th class="deductible-compare-header">Rx</th>
-          <% qhps.each do |qhp| %>
-            <% if qhp.qhp_deductibles.count > 1 %>
-              <% drug_ded = qhp.qhp_deductibles.where(deductible_type: "Drug EHB Deductible").first %>
-              <th class="deductible-compare-header"><%= drug_ded.in_network_tier_1_individual %></th>
-              <% fam_value = drug_ded.in_network_tier_1_family.match(/[|]\s([$]\d+)/) %>
-              <% family_deductible = if fam_value
-                                       fam_value[1]
-                                     else
-                                       family_deductible = "N/A"
-                                     end %>
-              <th class="deductible-compare-header"><%= family_deductible %></th>
-            <% else %>
-              <% deductible = qhp.qhp_deductibles.first %>
-              <th class="deductible-compare-header"><%= deductible.in_network_tier_1_individual %></th>
-              <% fam_value = deductible.in_network_tier_1_family.match(/[|]\s([$]\d+)/) %>
-              <% family_deductible = if fam_value
-                                       fam_value[1]
-                                     else
-                                       family_deductible = "N/A"
-                                     end %>
-              <th class="deductible-compare-header"><%= family_deductible %></th>
+          </tr>
+          <tr>
+            <th class="deductible-compare-header">Medical</th>
+            <% qhps.each do |qhp| %>
+              <% if qhp.qhp_deductibles.count > 1 %>
+                <% medical_ded = qhp.qhp_deductibles.where(deductible_type: "Medical EHB Deductible").first %>
+                <th class="deductible-compare-header"><%= medical_ded.in_network_tier_1_individual %></th>
+                <% fam_value = medical_ded.in_network_tier_1_family.match(/[|]\s([$]\d+)/) %>
+                <% family_deductible = if fam_value
+                                        fam_value[1]
+                                      else
+                                        family_deductible = "Not Applicable"
+                                      end %>
+                <th class="deductible-compare-header"><%= family_deductible %></th>
+              <% else %>
+                <% deductible = qhp.qhp_deductibles.first %>
+                <th class="deductible-compare-header"><%= deductible.in_network_tier_1_individual %></th>
+                <% fam_value = deductible.in_network_tier_1_family.match(/[|]\s([$]\d+)/) %>
+                <% family_deductible = if fam_value
+                                        fam_value[1]
+                                      else
+                                        family_deductible = "Not Applicable"
+                                      end %>
+                <th class="deductible-compare-header"><%= family_deductible %></th>
+              <% end %>
             <% end %>
-          <% end %>
-        </tr>
+          </tr>
+          <tr>
+            <th class="deductible-compare-header">Rx</th>
+            <% qhps.each do |qhp| %>
+              <% if qhp.qhp_deductibles.count > 1 %>
+                <% drug_ded = qhp.qhp_deductibles.where(deductible_type: "Drug EHB Deductible").first %>
+                <th class="deductible-compare-header"><%= drug_ded.in_network_tier_1_individual %></th>
+                <% fam_value = drug_ded.in_network_tier_1_family.match(/[|]\s([$]\d+)/) %>
+                <% family_deductible = if fam_value
+                                        fam_value[1]
+                                      else
+                                        family_deductible = "N/A"
+                                      end %>
+                <th class="deductible-compare-header"><%= family_deductible %></th>
+              <% else %>
+                <% deductible = qhp.qhp_deductibles.first %>
+                <th class="deductible-compare-header"><%= deductible.in_network_tier_1_individual %></th>
+                <% fam_value = deductible.in_network_tier_1_family.match(/[|]\s([$]\d+)/) %>
+                <% family_deductible = if fam_value
+                                        fam_value[1]
+                                      else
+                                        family_deductible = "N/A"
+                                      end %>
+                <th class="deductible-compare-header"><%= family_deductible %></th>
+              <% end %>
+            <% end %>
+          </tr>
+        <% end %>
         <tr>
           <th></th>
           <% qhps.each do |qhp|%>
@@ -162,11 +231,32 @@
   </div>
   <br>
   <% unless single_plan_displayed %>
-    <div class="col-md-offset-5">
-      <%= link_to "Export to PDF", sponsored_benefits.export_organizations_plan_design_proposal_plan_comparisons_path(plan_design_proposal, plans: params[:plans] ) , class: "btn btn-default", target: "_blank" %>
-      <%= link_to "Export to CSV",  sponsored_benefits.csv_organizations_plan_design_proposal_plan_comparisons_path(plan_design_proposal, plans: params[:plans]), class: 'btn btn-default', target: "_blank" %>
+    <div class="col-md-offset-5 hidden-in-modal">
+      <%= link_to "Export to PDF", sponsored_benefits.export_organizations_plan_design_proposal_plan_comparisons_path(plan_design_proposal, plans: params[:plans] ) , class: "btn btn-default", id: "export-pdf-non-modal", target: "_blank" %>
+      <%= link_to "Export to CSV",  sponsored_benefits.csv_organizations_plan_design_proposal_plan_comparisons_path(plan_design_proposal, plans: params[:plans]), class: 'btn btn-default export-csv-link', id: "export-csv-non-modal", target: "_blank" %>
       <button class="btn btn-default" id="hide-detail-comparisons">Hide Details</button>
     </div>
+    <script>
+      $(document).ready(function() {
+        // Collect employer costs from the displayed table when CSV export is clicked
+        $('#export-csv-non-modal').on('click', function(e) {
+          e.preventDefault();
+          var employerCosts = [];
+          $('.employer-cost-cell').each(function() {
+            var planId = $(this).data('plan-id');
+            var cost = $(this).text().trim().split('$').join('').split(',').join('');
+            if (planId && cost) {
+              employerCosts.push(planId + ':' + cost);
+            }
+          });
+          var url = $(this).attr('href');
+          if (employerCosts.length > 0) {
+            url += '&employer_costs=' + employerCosts.join(',');
+          }
+          window.open(url, '_blank');
+        });
+      });
+    </script>
   <% end %>
   <br><br>
 </div>

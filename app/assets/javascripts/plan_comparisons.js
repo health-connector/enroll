@@ -15,8 +15,8 @@
    * @param {HTMLInputElement} checkbox - The checkbox element that was toggled
    */
   window.toggleComparePlan = function(checkbox) {
-    var planId = checkbox.dataset.planId;
-    
+    var planId = checkbox.dataset.planId || checkbox.dataset.planid;
+
     if (checkbox.checked) {
       // Check if we've reached the maximum number of plans
       if (selectedPlansForComparison.length >= MAX_PLANS_TO_COMPARE) {
@@ -98,7 +98,7 @@
                      '/benefit_applications/' + selectedBenefitApplicationID + 
                      '/benefit_packages/' + selectedBenefitPackageID +
                      '/product_comparisons/new';
-    
+
     // Show the modal
     var modal = $('#planComparisonModal');
     if (modal.length === 0) {
@@ -308,6 +308,10 @@
         
         window.open(exportUrl, '_blank');
       }
+      else if ($('#export-pdf-non-modal').length) {
+        exportUrl = $('#export-pdf-non-modal').attr('href')
+        window.open(exportUrl, '_blank')
+      }
     });
 
     // Export to CSV handler
@@ -334,6 +338,25 @@
         }
         
         window.location.href = exportUrl;
+      } 
+      else if ($('#export-csv-non-modal').length) {
+        exportUrl = $('#export-csv-non-modal').attr('href')
+
+        if ($('.employer-cost-cell').length) {
+          var employerCosts = [];
+          $('.employer-cost-cell').each(function() {
+            var planId = $(this).data('plan-id');
+            var cost = $(this).text().trim().split('$').join('').split(',').join('');
+            if (planId && cost) {
+              employerCosts.push(planId + ':' + cost);
+            }
+          });
+          if (employerCosts.length > 0) {
+            exportUrl += '&employer_costs=' + employerCosts.join(',');
+          }
+        }
+
+        window.open(exportUrl, '_blank')
       }
     });
   });
