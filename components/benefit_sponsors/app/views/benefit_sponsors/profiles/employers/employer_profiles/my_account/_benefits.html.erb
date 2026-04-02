@@ -75,9 +75,9 @@
     <div id="benefit-applications-container">
     <% @benefit_applications.each do |benefit_application| %>
       <div class="row no-buffer module plan-year mt-2" data-year="<%= benefit_application.start_on&.year %>" data-aasm-state="<%= benefit_application.aasm_state %>">
-        <div class="col-xs-8">
+        <div class="col-xs-8" style="overflow: hidden; margin-bottom: 15px; padding-left: 0;">
           <h3 class="no-buffer heading-text">
-            <div class="row">
+            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px;">
               <span data-toggle="tooltip" title="<%= benefit_application.aasm_state.to_s.humanize.titleize %>">
                 <% if benefit_application.draft? %>
                 <i class="fa fa-file"></i>
@@ -121,7 +121,7 @@
             </div>
           </h3>
         </div>
-        <div class="col-xs-4" style="display: flex; flex-wrap: nowrap; align-items: flex-start; gap: 5px; justify-content: flex-end; padding-right: 0; margin-bottom: 15px;">
+        <div class="col-xs-4" style="position: relative; z-index: 10; white-space: nowrap; padding-left: 0; ;padding-right: 0;">
           <%#= pundit_span EmployerProfile, :updateable? %>
           <% if benefit_application.draft? %>
               <%# if benefit_application.overlapping_published_benefit_applications.empty? %>
@@ -135,10 +135,9 @@
           <% end %>
           <%#= pundit_span(EmployerProfile, :revert_application?) %>
           <% if current_user.has_hbx_staff_role? && benefit_application.may_revert_application? %>
-            <span class="btn btn-default" data-target="#revertBenefitApplication_<%= benefit_application.id %>" data-toggle="modal">Revert Application</span>
+            <span class="btn btn-default" data-target="#revertBenefitApplication_<%= benefit_application.id %>" data-toggle="modal" style="float: right;>Revert Application</span>
             <%#= link_to "Revert Application", benefit_sponsorship_benefit_application_revert_path(benefit_application.benefit_sponsorship, benefit_application), method: :post, remote: true, class: "btn btn-default pull-right"%>
           <% end %>
-          <span></span>
         </div>
         <% if benefit_application.draft? && benefit_application.benefit_packages.empty? %>
           <div class="benefit-group">
