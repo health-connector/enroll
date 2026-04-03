@@ -172,4 +172,30 @@ RSpec.describe BenefitSponsors::ApplicationHelper, type: :helper, dbclean: :afte
       it {expect(add_plan_year_button_business_rule(active_benefit_sponsorship, employer_profile.benefit_applications)).to eq false}
     end
   end
+
+  describe '#strip_year_from_title' do
+    context 'when employer_broker_ui_enhancements feature is enabled' do
+      before { allow(EnrollRegistry).to receive(:[]).with(:employer_broker_ui_enhancements).and_return(double(enabled?: true)) }
+
+      it 'strips a single year from the end of the title' do
+        expect(strip_year_from_title('My Benefits Package (2025)')).to eq('My Benefits Package')
+      end
+
+      it 'strips multiple years from the end of the title' do
+        expect(strip_year_from_title('My Benefits Package (2022)(2023)(2024)')).to eq('My Benefits Package')
+      end
+    end
+
+    context 'when employer_broker_ui_enhancements feature is disabled' do
+      before { allow(EnrollRegistry).to receive(:[]).with(:employer_broker_ui_enhancements).and_return(double(enabled?: false)) }
+
+      it 'returns the title unchanged with year suffix' do
+        expect(strip_year_from_title('My Benefits Package (2025)')).to eq('My Benefits Package (2025)')
+      end
+
+      it 'returns the title unchanged without year suffix' do
+        expect(strip_year_from_title('My Benefits Package')).to eq('My Benefits Package')
+      end
+    end
+  end
 end
