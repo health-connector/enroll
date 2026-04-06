@@ -124,14 +124,12 @@
         <div class="col-xs-4" style="position: relative; z-index: 10; white-space: nowrap; padding-left: 0; ;padding-right: 0;">
           <%#= pundit_span EmployerProfile, :updateable? %>
           <% if benefit_application.draft? %>
-              <%# if benefit_application.overlapping_published_benefit_applications.empty? %>
-              <%= link_to "Publish Plan Year &nbsp;<i class='fa fa-users' aria-hidden='true'></i>".html_safe, benefit_sponsorship_benefit_application_submit_application_path(benefit_application.benefit_sponsorship, benefit_application), method: :post, remote: true, class: "btn btn-default", disabled: product_rates_available?(benefit_application.benefit_sponsorship, benefit_application.start_on.to_date) %>
-              <%# end %>
               <% if benefit_application.benefit_packages.empty? || benefit_application.benefit_packages.count > 1 %>
                 <%= link_to "Edit Plan Year &nbsp;<i class='fas fa-pencil-alt' aria-hidden='true'></i>".html_safe, edit_benefit_sponsorship_benefit_application_path(benefit_application.benefit_sponsorship, benefit_application), class: "btn btn-default"%>
               <% else %>
                 <%= link_to "Edit Plan Year &nbsp;<i class='fas fa-pencil-alt' aria-hidden='true'></i>".html_safe, edit_benefit_sponsorship_benefit_application_benefit_package_path(benefit_application.benefit_sponsorship, benefit_application, benefit_application.benefit_packages.first, :show_benefit_application_tile => true), method: :get, class: "btn btn-default"%>
               <% end %>
+              <%= link_to "Publish Plan Year &nbsp;<i class='fa fa-users' aria-hidden='true'></i>".html_safe, benefit_sponsorship_benefit_application_submit_application_path(benefit_application.benefit_sponsorship, benefit_application), method: :post, remote: true, class: "btn btn-default", disabled: product_rates_available?(benefit_application.benefit_sponsorship, benefit_application.start_on.to_date) %>
           <% end %>
           <%#= pundit_span(EmployerProfile, :revert_application?) %>
           <% if current_user.has_hbx_staff_role? && benefit_application.may_revert_application? %>
@@ -316,12 +314,13 @@
         <br/>
 
         <div class="col-xs-12"></div>
-
-        <%= render "benefit_sponsors/benefit_applications/benefit_applications/submit_application_modal", benefit_application: benefit_application %>
-        <%= render "benefit_sponsors/benefit_applications/benefit_applications/revert_application_modal", benefit_application: benefit_application %>
       </div>
     <% end %>
     </div>
+    <% @benefit_applications.each do |benefit_application| %>
+      <%= render "benefit_sponsors/benefit_applications/benefit_applications/submit_application_modal", benefit_application: benefit_application %>
+      <%= render "benefit_sponsors/benefit_applications/benefit_applications/revert_application_modal", benefit_application: benefit_application %>
+    <% end %>
   <% else %>
       <h4>
         <%=l10n("employers.plan_years.benefits_without_plan")%>
@@ -358,6 +357,7 @@
     }
   }
 
+  <% if EnrollRegistry[:employer_broker_ui_enhancements].enabled? %>
   var ACTIVE_AND_RENEWAL_STATES = [
     'draft', 'imported', 'pending', 'assigned', 'processing', 'reviewing',
     'information_needed', 'appealing', 'approved', 'enrollment_open',
@@ -432,4 +432,5 @@
   } else {
     initializePlanYearFilters();
   }
+  <% end %>
 </script>
