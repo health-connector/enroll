@@ -41,12 +41,30 @@
   };
 
   /**
+   * Reset the selected plans array and uncheck all checkboxes
+   * Called when navigating to a different carrier or tab
+   */
+  window.resetComparisonPlans = function() {
+    selectedPlansForComparison = [];
+    
+    // Uncheck all comparison checkboxes
+    document.querySelectorAll('.bqt-plan-comparison').forEach(function(checkbox) {
+      checkbox.checked = false;
+    });
+    
+    // Uncheck all reference plan checkboxes
+    document.querySelectorAll('.reference-plan input[type=checkbox]').forEach(function(checkbox) {
+      checkbox.checked = false;
+    });
+    
+    updateCompareButtonState();
+  };
+
+  /**
    * Update the state of the compare button based on selected plans
    * Enables button if at least 2 plans are selected, disables otherwise
    */
   window.updateCompareButtonState = function() {
-    console.log('Selected ' + selectedPlansForComparison.length + ' plans for comparison:', selectedPlansForComparison);
-    
     // Enable/disable compare button based on selection count
     var compareButton = document.getElementById('compareSelectedPlansButton');
     if (compareButton) {
@@ -339,8 +357,8 @@
         
         window.location.href = exportUrl;
       } 
-      else if ($('#export-csv-non-modal').length) {
-        exportUrl = $('#export-csv-non-modal').attr('href')
+      else if ($('#export-csv-non-modal').length || $('#export-csv-dental').length) {
+        exportUrl = ($('#export-csv-non-modal').length ? $('#export-csv-non-modal') : $('#export-csv-dental')).attr('href')
 
         if ($('.employer-cost-cell').length) {
           var employerCosts = [];

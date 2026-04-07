@@ -1,0 +1,101 @@
+<%= hidden_field_tag 'current_sort', @sort_by  %>
+<%= hidden_field_tag 'plan_ids' %>
+<%= hidden_field_tag :plan_comparison_export_pdf_url, export_organizations_plan_design_proposal_plan_comparisons_path %>
+
+<% single_plan_displayed ||= false %>
+<div class="container-fluid">
+  <div class="mygrid-wrapper-div">
+    <table class="table bordered compare-table" border="1" style="font-size:11px;" id="compare_plans_table">
+        <tr>
+          <th class="row-title">Plans</th>
+          <% qhps.each do |qhp|%>
+            <th colspan="2" style="text-align: center; vertical-align:middle; border: none; padding: 0;" class='movable'>
+              <%= hidden_field_tag "plan_id-#{qhp.plan.id}", qhp.plan.id, class: 'plan_id' %>
+              <%  carrier_name = CarrierProfile.find(qhp.plan.carrier_profile_id).organization.legal_name.gsub(/united health care/i, 'uhic')%>
+              <%=  image_tag("logo/carrier/#{carrier_name.parameterize.underscore}.jpg", {width: 80}) if carrier_name.present? %>
+            </th>
+          <% end %>
+        </tr>
+        <tr>
+          <th></th>
+          <% qhps.each do |qhp|%>
+            <th colspan="2" style="text-align: center; vertical-align:middle; border: none; padding: 0;" class="ttc fourteen blue"><%= qhp.plan.name %></th>
+          <% end %>
+        </tr>
+        <tr>
+          <th></th>
+          <% qhps.each do |qhp|%>
+            <th class="fourteen lg" colspan="2" style="text-align: center; vertical-align:middle; border: none; padding: 0;"><span class="<%= qhp.plan.metal_level.humanize.downcase %>-icon"><%= display_dental_metal_level qhp.product %></span> &nbsp;&#149;&nbsp;
+            <%= qhp.plan.plan_type.upcase %>
+            </th>
+          <% end %>
+        </tr>
+        <!-- Employer Estimated Monthly Cost - COMMENTED OUT: Dental cost calculation needs refinement -->
+        <tr>
+          <th>DEDUCTIBLES</th>
+          <% qhps.each do |qhp| %>
+            <th><strong>INDIVIDUAL</strong></th>
+            <th><strong>FAMILY</strong></th>
+          <% end %>
+        </tr>
+        <tr>
+          <th class="deductible-compare-header">Dental</th>
+          <% qhps.each do |qhp| %>
+            <% deductible = qhp.qhp_deductibles.first %>
+            <th class="deductible-compare-header"><%= deductible&.in_network_tier_1_individual || 'N/A' %></th>
+            <% fam_value = deductible&.in_network_tier_1_family&.match(/[|]\s([$]\d+)/) %>
+            <% family_deductible = if fam_value
+                                    fam_value[1]
+                                  else
+                                    "Not Applicable"
+                                  end %>
+            <th class="deductible-compare-header"><%= family_deductible %></th>
+          <% end %>
+        </tr>
+        <!-- Out of Pocket Maximum -->
+        <tr>
+          <th><%= l10n('employers.plan_years.benefit_package.out_of_pocket_maximum') %></th>
+          <% qhps.each do |qhp| %>
+            <td colspan="2">
+              <%= qhp.qhp_maximum_out_of_pockets.first&.in_network_tier_1_individual_amount || 'N/A' %>
+            </td>
+          <% end %>
+        </tr>
+        <tr>
+          <th>Provider Network</th>
+          <% qhps.each do |qhp|%>
+            <th colspan="2">
+              <%= render partial: "shared/network_data", locals: {plan: qhp.plan} %>
+            </th>
+          <% end %>
+        </tr>
+
+        <%= render partial: "shared/plan_shoppings/provider_directory_url", locals: {qhps: qhps}%>
+
+        <tr>
+          <th>DENTAL PLAN BENEFITS <br> (In Network)</th>
+          <% qhps.each do |qhp|%>
+            <th colspan="1"> CO-PAY </th>
+            <th colspan="1"> COINSURANCE </th>
+          <% end %>
+        </tr>
+        <%= render partial: "sponsored_benefits/organizations/plan_design_proposals/plan_comparisons/plan_visit_types", locals: {qhps: qhps} %>
+        <tr>
+          <th></th>
+          <% qhps.each do |qhp| %>
+            <th></th><th></th>
+          <% end %>
+        </tr>
+        <tr>
+          <th></th>
+          <% qhps.each do |qhp|%>
+            <th colspan="2">
+              <div class="plan_comparison">
+                <%= render partial: "shared/plan_shoppings/sbc_link", locals: { plan: qhp.plan } %>
+              </div>
+            </th>
+          <% end %>
+        </tr>
+    </table>
+  </div>
+</div>
