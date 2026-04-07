@@ -145,39 +145,73 @@ module SponsoredBenefits # rubocop:disable Metrics/ModuleLength
         expect(controller.private_methods).to include(:calculate_employer_costs)
       end
 
+      it "has method to build fresh benefit group for calculation" do
+        expect(controller.private_methods).to include(:build_fresh_benefit_group_for_calculation)
+      end
+
       it "has method to build temporary benefit groups" do
         expect(controller.private_methods).to include(:build_temp_benefit_group_for_plan)
       end
 
-      it "has method to fetch benefit group for calculation" do
-        expect(controller.private_methods).to include(:fetch_benefit_group_for_calculation)
+      it "has method to route cost calculation per plan kind" do
+        expect(controller.private_methods).to include(:cost_for_plan)
+      end
+
+      it "has method to calculate health costs" do
+        expect(controller.private_methods).to include(:calculate_health_cost)
+      end
+
+      it "has method to calculate dental costs" do
+        expect(controller.private_methods).to include(:calculate_dental_cost_for_all_employees)
       end
 
       it "has method to extract benefit group params" do
         expect(controller.private_methods).to include(:benefit_group_params)
       end
+
+      it "has method to populate relationship benefits from dental attrs" do
+        expect(controller.private_methods).to include(:populate_relationship_benefits_from_dental_attrs)
+      end
     end
 
-    describe "#fetch_benefit_group_for_calculation" do
-      context "when benefit group already exists" do
+    describe "#build_fresh_benefit_group_for_calculation" do
+      before do
+        allow(controller).to receive(:plan_design_proposal).and_return(plan_design_proposal)
+        allow_any_instance_of(SponsoredBenefits::BenefitApplications::BenefitGroup).to receive(:set_bounding_cost_plans)
+        allow_any_instance_of(SponsoredBenefits::BenefitApplications::BenefitGroup).to receive(:build_estimated_composite_rates)
+      end
+
+      context "when benefit application is nil" do
+        it "returns nil" do
+          result = controller.send(:build_fresh_benefit_group_for_calculation, nil)
+          expect(result).to be_nil
+        end
+      end
+
+      context "when benefit application has no benefit groups" do
+        before { benefit_application.benefit_groups.delete_all }
+
+        it "returns nil" do
+          result = controller.send(:build_fresh_benefit_group_for_calculation, benefit_application)
+          expect(result).to be_nil
+        end
+      end
+
+      context "without params" do
         it "returns the existing benefit group" do
-          allow(controller).to receive(:plan_design_proposal).and_return(plan_design_proposal)
-          result = controller.send(:fetch_benefit_group_for_calculation)
+          result = controller.send(:build_fresh_benefit_group_for_calculation, benefit_application)
           expect(result).to eq(benefit_group)
         end
       end
 
-      context "when benefit group does not exist but params are provided" do
+      context "with health benefit group params" do
         let(:benefit_group_data) do
           {
             reference_plan_id: plan1.id.to_s,
-            plan_option_kind: "sole_source",
-            relationship_benefits_attributes: [
-              { relationship: "employee", premium_pct: "50", offered: "true" }
-            ],
-            composite_tier_contributions_attributes: [
-              { composite_rating_tier: "employee_only", employer_contribution_percent: "56", offered: "true" }
-            ]
+            plan_option_kind: "single_plan",
+            relationship_benefits_attributes: {
+              "0" => { relationship: "employee", premium_pct: "70", offered: "true" }
+            }
           }
         end
 
@@ -185,6 +219,106 @@ module SponsoredBenefits # rubocop:disable Metrics/ModuleLength
           {
             plan_design_proposal_id: plan_design_proposal.id,
             plans: plan_ids,
+            kind: "health",
+            elected_plan_kind: "single_plan",
+            reference_plan_id: plan1.id.to_s,
+            forms_plan_design_proposal: {
+              profile: {
+                benefit_sponsorship: {
+                  benefit_application: {
+                    benefit_group: benefit_group_data
+                  }
+                }
+              }
+            }
+          }
+        end
+
+        before do
+          allow(controller).to receive(:params).and_return(ActionController::Parameters.new(params_with_benefit_group))
+        end
+
+        it "builds a fresh in-memory benefit group" do
+          result = controller.send(:build_fresh_benefit_group_for_calculation, benefit_application)
+          expect(result).to be_present
+          expect(result.persisted?).to be_falsey
+        end
+
+        it "sets plan_option_kind from params" do
+          result = controller.send(:build_fresh_benefit_group_for_calculation, benefit_application)
+          expect(result.plan_option_kind).to eq("single_plan")
+        end
+
+        it "sets reference_plan_id from params" do
+          result = controller.send(:build_fresh_benefit_group_for_calculation, benefit_application)
+          expect(result.reference_plan_id).to eq(plan1.id)
+        end
+      end
+
+      context "with dental benefit group params" do
+        let(:dental_plan) { dental_plan_with_sbc_document rescue FactoryBot.create(:plan, :with_dental_coverage) }
+
+        let(:benefit_group_data) do
+          {
+            plan_option_kind: "single_plan",
+            dental_relationship_benefits_attributes: {
+              "0" => { relationship: "employee", premium_pct: "60", offered: "true" },
+              "1" => { relationship: "spouse", premium_pct: "50", offered: "true" }
+            }
+          }
+        end
+
+        let(:params_with_dental) do
+          {
+            plan_design_proposal_id: plan_design_proposal.id,
+            plans: plan_ids,
+            kind: "dental",
+            elected_plan_kind: "single_plan",
+            dental_reference_plan_id: plan1.id.to_s,
+            forms_plan_design_proposal: {
+              profile: {
+                benefit_sponsorship: {
+                  benefit_application: {
+                    benefit_group: benefit_group_data
+                  }
+                }
+              }
+            }
+          }
+        end
+
+        before do
+          allow(controller).to receive(:params).and_return(ActionController::Parameters.new(params_with_dental))
+        end
+
+        it "builds a fresh in-memory benefit group for dental" do
+          result = controller.send(:build_fresh_benefit_group_for_calculation, benefit_application)
+          expect(result).to be_present
+          expect(result.persisted?).to be_falsey
+        end
+
+        it "populates relationship_benefits from dental_relationship_benefits_attributes" do
+          result = controller.send(:build_fresh_benefit_group_for_calculation, benefit_application)
+          expect(result.relationship_benefits.map(&:relationship)).to include("employee", "spouse")
+        end
+      end
+
+      context "with sole_source health params" do
+        let(:benefit_group_data) do
+          {
+            plan_option_kind: "sole_source",
+            composite_tier_contributions_attributes: {
+              "0" => { composite_rating_tier: "employee_only", employer_contribution_percent: "67", offered: "true" },
+              "1" => { composite_rating_tier: "family", employer_contribution_percent: "62", offered: "true" }
+            }
+          }
+        end
+
+        let(:params_with_sole_source) do
+          {
+            plan_design_proposal_id: plan_design_proposal.id,
+            plans: plan_ids,
+            kind: "health",
             elected_plan_kind: "sole_source",
             reference_plan_id: plan1.id.to_s,
             forms_plan_design_proposal: {
@@ -200,45 +334,162 @@ module SponsoredBenefits # rubocop:disable Metrics/ModuleLength
         end
 
         before do
-          # Remove existing benefit group to simulate new quote scenario
-          benefit_application.benefit_groups.delete_all
-          allow_any_instance_of(SponsoredBenefits::BenefitApplications::BenefitGroup).to receive(:build_estimated_composite_rates)
-          allow_any_instance_of(SponsoredBenefits::BenefitApplications::BenefitGroup).to receive(:set_bounding_cost_plans)
-          allow(controller).to receive(:plan_design_proposal).and_return(plan_design_proposal)
-          allow(controller).to receive(:params).and_return(ActionController::Parameters.new(params_with_benefit_group))
+          allow(controller).to receive(:params).and_return(ActionController::Parameters.new(params_with_sole_source))
         end
 
-        it "builds a temporary benefit group from params" do
-          result = controller.send(:fetch_benefit_group_for_calculation)
-          expect(result).to be_present
-          expect(result.persisted?).to be_falsey
-        end
-
-        it "sets plan_option_kind from params" do
-          result = controller.send(:fetch_benefit_group_for_calculation)
-          expect(result.plan_option_kind).to eq("sole_source")
-        end
-
-        it "sets reference_plan_id from params" do
-          result = controller.send(:fetch_benefit_group_for_calculation)
-          expect(result.reference_plan_id).to eq(plan1.id)
-        end
-      end
-
-      context "when benefit group does not exist and no params provided" do
-        before do
-          benefit_application.benefit_groups.delete_all
-          allow(controller).to receive(:plan_design_proposal).and_return(plan_design_proposal)
-        end
-
-        it "returns nil" do
-          result = controller.send(:fetch_benefit_group_for_calculation)
-          expect(result).to be_nil
+        it "calls build_estimated_composite_rates for sole_source plans" do
+          expect_any_instance_of(SponsoredBenefits::BenefitApplications::BenefitGroup).to receive(:build_estimated_composite_rates)
+          controller.send(:build_fresh_benefit_group_for_calculation, benefit_application)
         end
       end
     end
 
+    describe "#cost_for_plan" do
+      let(:plan_double) { double("Plan", dental?: false) }
+      let(:dental_plan_double) { double("Plan", dental?: true) }
+
+      before do
+        allow(controller).to receive(:calculate_health_cost).and_return(200.00)
+        allow(controller).to receive(:calculate_dental_cost_for_all_employees).and_return(150.00)
+      end
+
+      it "routes health plans to calculate_health_cost" do
+        result = controller.send(:cost_for_plan, benefit_group, plan_double)
+        expect(controller).to have_received(:calculate_health_cost).with(benefit_group, plan_double)
+        expect(result).to eq(200.00)
+      end
+
+      it "routes dental plans to calculate_dental_cost_for_all_employees" do
+        result = controller.send(:cost_for_plan, benefit_group, dental_plan_double)
+        expect(controller).to have_received(:calculate_dental_cost_for_all_employees).with(benefit_group, dental_plan_double)
+        expect(result).to eq(150.00)
+      end
+    end
+
+    describe "#calculate_health_cost" do
+      let(:service) { double("PlanCostService", monthly_employer_contribution_amount: 175.00) }
+      let(:temp_bg) { double("BenefitGroup") }
+
+      before do
+        allow(controller).to receive(:build_temp_benefit_group_for_plan).and_return(temp_bg)
+        allow(SponsoredBenefits::Services::PlanCostService).to receive(:new).with(benefit_group: temp_bg).and_return(service)
+      end
+
+      it "uses PlanCostService to calculate health costs" do
+        result = controller.send(:calculate_health_cost, benefit_group, plan1)
+        expect(result).to eq(175.00)
+      end
+
+      it "returns 0.00 when service returns nil" do
+        allow(service).to receive(:monthly_employer_contribution_amount).and_return(nil)
+        result = controller.send(:calculate_health_cost, benefit_group, plan1)
+        expect(result).to eq(0.00)
+      end
+    end
+
+    describe "#calculate_dental_cost_for_all_employees" do
+      let(:dental_plan) { FactoryBot.create(:plan, :with_dental_coverage) }
+      let(:service) { double("PlanCostService", monthly_employer_contribution_amount: 90.00) }
+      let(:temp_bg) { double("BenefitGroup") }
+
+      before do
+        allow(controller).to receive(:build_temp_benefit_group_for_plan).and_return(temp_bg)
+        allow(SponsoredBenefits::Services::PlanCostService).to receive(:new).with(benefit_group: temp_bg).and_return(service)
+      end
+
+      it "uses PlanCostService to calculate dental costs" do
+        result = controller.send(:calculate_dental_cost_for_all_employees, benefit_group, dental_plan)
+        expect(result).to eq(90.00)
+      end
+
+      it "returns 0.00 when service returns nil" do
+        allow(service).to receive(:monthly_employer_contribution_amount).and_return(nil)
+        result = controller.send(:calculate_dental_cost_for_all_employees, benefit_group, dental_plan)
+        expect(result).to eq(0.00)
+      end
+
+      it "returns 0.00 and logs error on exception" do
+        allow(service).to receive(:monthly_employer_contribution_amount).and_raise(StandardError.new("Dental error"))
+        allow(Rails.logger).to receive(:error)
+        result = controller.send(:calculate_dental_cost_for_all_employees, benefit_group, dental_plan)
+        expect(result).to eq(0.00)
+        expect(Rails.logger).to have_received(:error).with(/Dental error/)
+      end
+    end
+
+    describe "#populate_relationship_benefits_from_dental_attrs" do
+      let(:dental_params) do
+        {
+          plan_design_proposal_id: plan_design_proposal.id,
+          kind: "dental",
+          forms_plan_design_proposal: {
+            profile: {
+              benefit_sponsorship: {
+                benefit_application: {
+                  benefit_group: {
+                    plan_option_kind: "single_plan",
+                    kind: "dental",
+                    dental_relationship_benefits_attributes: {
+                      "0" => { relationship: "employee", premium_pct: "70", offered: "true" },
+                      "1" => { relationship: "spouse", premium_pct: "50", offered: "true" },
+                      "2" => { relationship: "child_under_26", premium_pct: "50", offered: "false" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      end
+
+      before do
+        allow(controller).to receive(:params).and_return(ActionController::Parameters.new(dental_params))
+      end
+
+      it "populates relationship_benefits from dental_relationship_benefits_attributes" do
+        controller.send(:populate_relationship_benefits_from_dental_attrs, benefit_group)
+        relationships = benefit_group.relationship_benefits.map(&:relationship)
+        expect(relationships).to include("employee", "spouse", "child_under_26")
+      end
+
+      it "sets offered correctly" do
+        controller.send(:populate_relationship_benefits_from_dental_attrs, benefit_group)
+        employee_rb = benefit_group.relationship_benefits.detect { |rb| rb.relationship == "employee" }
+        child_rb = benefit_group.relationship_benefits.detect { |rb| rb.relationship == "child_under_26" }
+        expect(employee_rb.offered).to be true
+        expect(child_rb.offered).to be false
+      end
+
+      it "does not populate for health coverage_kind" do
+        allow(controller).to receive(:params).and_return(ActionController::Parameters.new(dental_params.merge(kind: "health")))
+        original_count = benefit_group.relationship_benefits.size
+        controller.send(:populate_relationship_benefits_from_dental_attrs, benefit_group)
+        expect(benefit_group.relationship_benefits.size).to eq(original_count)
+      end
+    end
+
+    describe "#coverage_kind" do
+      it "returns 'Health' when kind param is 'health'" do
+        allow(controller).to receive(:params).and_return(ActionController::Parameters.new(kind: "health"))
+        expect(controller.send(:coverage_kind)).to eq("Health")
+      end
+
+      it "returns 'Dental' when kind param is 'dental'" do
+        allow(controller).to receive(:params).and_return(ActionController::Parameters.new(kind: "dental"))
+        expect(controller.send(:coverage_kind)).to eq("Dental")
+      end
+
+      it "defaults to 'Health' when kind param is absent" do
+        allow(controller).to receive(:params).and_return(ActionController::Parameters.new({}))
+        expect(controller.send(:coverage_kind)).to eq("Health")
+      end
+    end
+
     describe "#build_temp_benefit_group_for_plan" do
+      before do
+        allow_any_instance_of(SponsoredBenefits::BenefitApplications::BenefitGroup).to receive(:set_bounding_cost_plans)
+      end
+
       it "creates a new benefit group instance with the specified plan" do
         result = controller.send(:build_temp_benefit_group_for_plan, benefit_group, plan2)
         expect(result).to be_a(SponsoredBenefits::BenefitApplications::BenefitGroup)
@@ -260,6 +511,27 @@ module SponsoredBenefits # rubocop:disable Metrics/ModuleLength
         expect(result.persisted?).to be_falsey
       end
 
+      it "calls set_bounding_cost_plans for health plans" do
+        expect_any_instance_of(SponsoredBenefits::BenefitApplications::BenefitGroup).to receive(:set_bounding_cost_plans)
+        controller.send(:build_temp_benefit_group_for_plan, benefit_group, plan2)
+      end
+
+      context "with a dental plan" do
+        let(:dental_plan) { FactoryBot.create(:plan, :with_dental_coverage) }
+
+        before { allow(dental_plan).to receive(:dental?).and_return(true) }
+
+        it "sets dental_reference_plan_id instead of reference_plan_id" do
+          result = controller.send(:build_temp_benefit_group_for_plan, benefit_group, dental_plan)
+          expect(result.dental_reference_plan_id).to eq(dental_plan.id)
+        end
+
+        it "does not call set_bounding_cost_plans for dental plans" do
+          expect_any_instance_of(SponsoredBenefits::BenefitApplications::BenefitGroup).not_to receive(:set_bounding_cost_plans)
+          controller.send(:build_temp_benefit_group_for_plan, benefit_group, dental_plan)
+        end
+      end
+
       context "when benefit group is sole_source" do
         let(:ctc_double) { double(composite_rating_tier: "employee_only", employer_contribution_percent: 56.0, offered: true) }
 
@@ -271,8 +543,6 @@ module SponsoredBenefits # rubocop:disable Metrics/ModuleLength
         it "copies composite tier contributions" do
           allow_any_instance_of(SponsoredBenefits::BenefitApplications::BenefitGroup).to receive(:estimate_composite_rates)
           result = controller.send(:build_temp_benefit_group_for_plan, benefit_group, plan2)
-          # Verify that the result has composite_tier_contributions built
-          # (Even if the builds aren't persisted, they should be present in the association)
           expect(result.composite_tier_contributions).not_to be_empty
         end
 
@@ -290,6 +560,8 @@ module SponsoredBenefits # rubocop:disable Metrics/ModuleLength
         allow(SponsoredBenefits::Services::PlanCostService).to receive(:new).and_return(service)
         allow(controller).to receive(:qhps).and_return(qhps)
         allow(controller).to receive(:plan_design_proposal).and_return(plan_design_proposal)
+        allow(qhp1.plan).to receive(:dental?).and_return(false)
+        allow(qhp2.plan).to receive(:dental?).and_return(false)
       end
 
       it "returns a hash of plan IDs to employer costs" do
@@ -304,11 +576,32 @@ module SponsoredBenefits # rubocop:disable Metrics/ModuleLength
         expect(result[plan2.id]).to eq(150.00)
       end
 
-      it "handles errors gracefully" do
-        allow(service).to receive(:monthly_employer_contribution_amount).and_raise(StandardError.new("Test error"))
+      it "creates a fresh benefit group for each plan to avoid state pollution" do
+        expect(controller).to receive(:build_fresh_benefit_group_for_calculation).exactly(qhps.size).times.and_call_original
+        controller.send(:calculate_employer_costs)
+      end
+
+      it "handles errors gracefully per plan" do
+        call_count = 0
+        allow(controller).to receive(:cost_for_plan) do
+          call_count += 1
+          raise StandardError.new("Test error") if call_count == 1
+          150.00
+        end
         result = controller.send(:calculate_employer_costs)
         expect(result[plan1.id]).to eq(0.00)
-        expect(result[plan2.id]).to eq(0.00)
+        expect(result[plan2.id]).to eq(150.00)
+      end
+
+      context "when no benefit application exists" do
+        before do
+          allow(plan_design_proposal.profile.benefit_sponsorships.first).to receive(:benefit_applications).and_return([])
+        end
+
+        it "returns an empty hash" do
+          result = controller.send(:calculate_employer_costs)
+          expect(result).to eq({})
+        end
       end
 
       context "when no benefit group exists" do
@@ -319,6 +612,22 @@ module SponsoredBenefits # rubocop:disable Metrics/ModuleLength
         it "returns an empty hash" do
           result = controller.send(:calculate_employer_costs)
           expect(result).to eq({})
+        end
+      end
+
+      context "with dental plans" do
+        let(:dental_plan1) { FactoryBot.create(:plan, :with_dental_coverage) }
+        let(:dental_qhp1) { double("Products::QhpCostShareVariance", plan: dental_plan1) }
+
+        before do
+          allow(dental_plan1).to receive(:dental?).and_return(true)
+          allow(controller).to receive(:qhps).and_return([dental_qhp1])
+          allow(controller).to receive(:calculate_dental_cost_for_all_employees).and_return(80.00)
+        end
+
+        it "routes dental plans through calculate_dental_cost_for_all_employees" do
+          result = controller.send(:calculate_employer_costs)
+          expect(result[dental_plan1.id]).to eq(80.00)
         end
       end
     end
