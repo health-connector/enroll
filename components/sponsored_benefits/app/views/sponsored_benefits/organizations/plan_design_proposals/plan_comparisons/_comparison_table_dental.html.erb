@@ -7,7 +7,7 @@
   <div class="mygrid-wrapper-div">
     <table class="table bordered compare-table" border="1" style="font-size:11px;" id="compare_plans_table">
         <tr>
-          <th class="row-title">Plans</th>
+          <th class="row-title"><%= l10n('employers.plan_years.benefit_package.plans') %></th>
           <% qhps.each do |qhp|%>
             <th colspan="2" style="text-align: center; vertical-align:middle; border: none; padding: 0;" class='movable'>
               <%= hidden_field_tag "plan_id-#{qhp.plan.id}", qhp.plan.id, class: 'plan_id' %>
@@ -32,10 +32,10 @@
         </tr>
         <!-- Employer Estimated Monthly Cost - COMMENTED OUT: Dental cost calculation needs refinement -->
         <tr>
-          <th>DEDUCTIBLES</th>
+          <th><%= l10n('employers.plan_years.benefit_package.deductibles') %></th>
           <% qhps.each do |qhp| %>
-            <th><strong>INDIVIDUAL</strong></th>
-            <th><strong>FAMILY</strong></th>
+            <th><strong><%= l10n('employers.plan_years.benefit_package.individual') %></strong></th>
+            <th><strong><%= l10n('employers.plan_years.benefit_package.family') %></strong></th>
           <% end %>
         </tr>
         <tr>
@@ -62,7 +62,7 @@
           <% end %>
         </tr>
         <tr>
-          <th>Provider Network</th>
+          <th><%= l10n('employers.plan_years.benefit_package.provider_network') %></th>
           <% qhps.each do |qhp|%>
             <th colspan="2">
               <%= render partial: "shared/network_data", locals: {plan: qhp.plan} %>
@@ -73,10 +73,10 @@
         <%= render partial: "shared/plan_shoppings/provider_directory_url", locals: {qhps: qhps}%>
 
         <tr>
-          <th>DENTAL PLAN BENEFITS <br> (In Network)</th>
+          <th><%= l10n('employers.plan_years.benefit_package.dental_plan_benefits') %> <br> (<%= l10n('employers.plan_years.benefit_package.in_network') %>)</th>
           <% qhps.each do |qhp|%>
-            <th colspan="1"> CO-PAY </th>
-            <th colspan="1"> COINSURANCE </th>
+            <th colspan="1"> <%= l10n('employers.plan_years.benefit_package.co_pay') %> </th>
+            <th colspan="1"> <%= l10n('employers.plan_years.benefit_package.coinsurance') %> </th>
           <% end %>
         </tr>
         <%= render partial: "sponsored_benefits/organizations/plan_design_proposals/plan_comparisons/plan_visit_types", locals: {qhps: qhps} %>

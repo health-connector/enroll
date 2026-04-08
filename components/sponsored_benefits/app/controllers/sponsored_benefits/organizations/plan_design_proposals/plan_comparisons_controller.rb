@@ -27,13 +27,19 @@ module SponsoredBenefits
       end
 
       def csv
-        # Use employer costs from params if provided (from the comparison table)
-        # Otherwise recalculate them
-        employer_costs_data = if params[:employer_costs].present?
-                                parse_employer_costs_from_params
-                              else
-                                calculate_employer_costs
-                              end
+        # For dental plans, skip employer cost calculation to avoid SIC code errors
+        # Employer costs only calculated for health plans
+        if coverage_kind == 'Dental'
+          employer_costs_data = {}
+        else
+          # Use employer costs from params if provided (from the comparison table)
+          # Otherwise recalculate them
+          employer_costs_data = if params[:employer_costs].present?
+                                  parse_employer_costs_from_params
+                                else
+                                  calculate_employer_costs
+                                end
+        end
 
         @qhps = qhps.each do |qhp|
           plan_id = qhp.plan.id
@@ -263,7 +269,8 @@ module SponsoredBenefits
       end
 
       def requested_plans
-        @requested_plans ||= ::Plan.where(:_id => { '$in': params[:plans].to_a }).map(&:hios_id)
+        plans_param = params[:plans].is_a?(Array) ? params[:plans] : params[:plans]&.split(',')
+        @requested_plans ||= ::Plan.where(:_id => { '$in': plans_param }).map(&:hios_id)
         @plans = @requested_plans
       end
 

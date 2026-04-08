@@ -335,46 +335,43 @@
     // Export to CSV handler
     $(document).on('click', '#exportComparisonCSV', function() {
       var modal = $('#planComparisonModal');
-      var benefitSponsorshipId = modal.data('benefitSponsorshipId');
-      var benefitApplicationId = modal.data('benefitApplicationId');
-      var benefitPackageId = modal.data('benefitPackageId');
-      var plansParam = modal.data('plansParam');
-      var employerCosts = modal.data('employerCosts');
       var benefitType = modal.data('benefitType') || 'health';
+      var plansParam = modal.data('plansParam');
+      var planDesignProposalId = $('#plan_design_proposal_id').val();
       
-      if (benefitSponsorshipId && benefitApplicationId && benefitPackageId && plansParam) {
-        // Build URL with plans and pre-calculated employer costs
-        var exportUrl = '/benefit_sponsors/benefit_sponsorships/' + benefitSponsorshipId +
-                       '/benefit_applications/' + benefitApplicationId +
-                       '/benefit_packages/' + benefitPackageId +
-                       '/product_comparisons/csv?plans=' + plansParam +
-                       '&benefit_type=' + benefitType;
+      // For sponsored_benefits modal with plan design proposal
+      if (planDesignProposalId && plansParam) {
+        // Build URL using the existing path structure but add kind parameter for dental
+        var exportUrl = window.location.pathname.replace(/\/plan_design_proposals\/[\w\/]+$/, '') + 
+                       '/plan_design_proposals/' + planDesignProposalId + 
+                       '/plan_comparisons/csv?plans=' + plansParam;
         
-        // Add employer costs if available
-        if (employerCosts) {
-          exportUrl += '&employer_costs=' + encodeURIComponent(employerCosts);
+        if (benefitType === 'dental') {
+          exportUrl += '&kind=dental';
         }
         
         window.location.href = exportUrl;
-      } 
-      else if ($('#export-csv-non-modal').length || $('#export-csv-dental').length) {
-        exportUrl = ($('#export-csv-non-modal').length ? $('#export-csv-non-modal') : $('#export-csv-dental')).attr('href')
-
-        if ($('.employer-cost-cell').length) {
-          var employerCosts = [];
-          $('.employer-cost-cell').each(function() {
-            var planId = $(this).data('plan-id');
-            var cost = $(this).text().trim().split('$').join('').split(',').join('');
-            if (planId && cost) {
-              employerCosts.push(planId + ':' + cost);
-            }
-          });
-          if (employerCosts.length > 0) {
-            exportUrl += '&employer_costs=' + employerCosts.join(',');
+      }
+      // Fallback for benefit_sponsors route
+      else {
+        var benefitSponsorshipId = modal.data('benefitSponsorshipId');
+        var benefitApplicationId = modal.data('benefitApplicationId');
+        var benefitPackageId = modal.data('benefitPackageId');
+        var employerCosts = modal.data('employerCosts');
+        
+        if (benefitSponsorshipId && benefitApplicationId && benefitPackageId && plansParam) {
+          var exportUrl = '/benefit_sponsors/benefit_sponsorships/' + benefitSponsorshipId +
+                         '/benefit_applications/' + benefitApplicationId +
+                         '/benefit_packages/' + benefitPackageId +
+                         '/product_comparisons/csv?plans=' + plansParam +
+                         '&benefit_type=' + benefitType;
+          
+          if (employerCosts) {
+            exportUrl += '&employer_costs=' + encodeURIComponent(employerCosts);
           }
+          
+          window.location.href = exportUrl;
         }
-
-        window.open(exportUrl, '_blank')
       }
     });
   });
