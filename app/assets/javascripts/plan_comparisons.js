@@ -41,12 +41,30 @@
   };
 
   /**
+   * Reset the selected plans array and uncheck all checkboxes
+   * Called when navigating to a different carrier or tab
+   */
+  window.resetComparisonPlans = function() {
+    selectedPlansForComparison = [];
+    
+    // Uncheck all comparison checkboxes
+    document.querySelectorAll('.bqt-plan-comparison').forEach(function(checkbox) {
+      checkbox.checked = false;
+    });
+    
+    // Uncheck all reference plan checkboxes
+    document.querySelectorAll('.reference-plan input[type=checkbox]').forEach(function(checkbox) {
+      checkbox.checked = false;
+    });
+    
+    updateCompareButtonState();
+  };
+
+  /**
    * Update the state of the compare button based on selected plans
    * Enables button if at least 2 plans are selected, disables otherwise
    */
   window.updateCompareButtonState = function() {
-    console.log('Selected ' + selectedPlansForComparison.length + ' plans for comparison:', selectedPlansForComparison);
-    
     // Enable/disable compare button based on selection count
     var compareButton = document.getElementById('compareSelectedPlansButton');
     if (compareButton) {
@@ -317,46 +335,44 @@
     // Export to CSV handler
     $(document).on('click', '#exportComparisonCSV', function() {
       var modal = $('#planComparisonModal');
-      var benefitSponsorshipId = modal.data('benefitSponsorshipId');
-      var benefitApplicationId = modal.data('benefitApplicationId');
-      var benefitPackageId = modal.data('benefitPackageId');
-      var plansParam = modal.data('plansParam');
-      var employerCosts = modal.data('employerCosts');
       var benefitType = modal.data('benefitType') || 'health';
+      var plansParam = modal.data('plansParam');
+      var planDesignProposalId = $('#plan_design_proposal_id').val();
       
-      if (benefitSponsorshipId && benefitApplicationId && benefitPackageId && plansParam) {
-        // Build URL with plans and pre-calculated employer costs
-        var exportUrl = '/benefit_sponsors/benefit_sponsorships/' + benefitSponsorshipId +
-                       '/benefit_applications/' + benefitApplicationId +
-                       '/benefit_packages/' + benefitPackageId +
-                       '/product_comparisons/csv?plans=' + plansParam +
-                       '&benefit_type=' + benefitType;
+      // For sponsored_benefits modal with plan design proposal
+      if (planDesignProposalId && plansParam) {
+        // Build URL using the existing path structure but add kind parameter for dental
+        var basePath = window.location.pathname.replace(/\/plan_design_proposals\/[\w\/]+$/, '');
+        var exportUrl = basePath + 
+                       '/plan_design_proposals/' + encodeURIComponent(planDesignProposalId) + 
+                       '/plan_comparisons/csv?plans=' + encodeURIComponent(plansParam);
         
-        // Add employer costs if available
-        if (employerCosts) {
-          exportUrl += '&employer_costs=' + encodeURIComponent(employerCosts);
+        if (benefitType === 'dental') {
+          exportUrl += '&kind=dental';
         }
         
-        window.location.href = exportUrl;
-      } 
-      else if ($('#export-csv-non-modal').length) {
-        exportUrl = $('#export-csv-non-modal').attr('href')
-
-        if ($('.employer-cost-cell').length) {
-          var employerCosts = [];
-          $('.employer-cost-cell').each(function() {
-            var planId = $(this).data('plan-id');
-            var cost = $(this).text().trim().split('$').join('').split(',').join('');
-            if (planId && cost) {
-              employerCosts.push(planId + ':' + cost);
-            }
-          });
-          if (employerCosts.length > 0) {
-            exportUrl += '&employer_costs=' + employerCosts.join(',');
+        window.location.assign(exportUrl);
+      }
+      // Fallback for benefit_sponsors route
+      else {
+        var benefitSponsorshipId = modal.data('benefitSponsorshipId');
+        var benefitApplicationId = modal.data('benefitApplicationId');
+        var benefitPackageId = modal.data('benefitPackageId');
+        var employerCosts = modal.data('employerCosts');
+        
+        if (benefitSponsorshipId && benefitApplicationId && benefitPackageId && plansParam) {
+          var exportUrl = '/benefit_sponsors/benefit_sponsorships/' + encodeURIComponent(benefitSponsorshipId) +
+                         '/benefit_applications/' + encodeURIComponent(benefitApplicationId) +
+                         '/benefit_packages/' + encodeURIComponent(benefitPackageId) +
+                         '/product_comparisons/csv?plans=' + encodeURIComponent(plansParam) +
+                         '&benefit_type=' + encodeURIComponent(benefitType);
+          
+          if (employerCosts) {
+            exportUrl += '&employer_costs=' + encodeURIComponent(employerCosts);
           }
+          
+          window.location.assign(exportUrl);
         }
-
-        window.open(exportUrl, '_blank')
       }
     });
   });

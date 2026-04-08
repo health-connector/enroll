@@ -28,6 +28,7 @@ document.addEventListener("turbolinks:load", pageInit);
 document.addEventListener("page:load", pageInit);
 
 function pageInit() {
+  selected_rpids = [];
   var kind = fetchBenefitKind();
   
   if(kind == "dental") {
@@ -40,6 +41,7 @@ function pageInit() {
         $('li.single-plan-tab').find('label').trigger('click');
       },600)
     }
+    disableCompareButton();
   } else {
     if ($("#reference_plan_id").val() != '') {
       calcPlanDesignContributions();
@@ -257,7 +259,6 @@ function planSelected() {
     $('.health-plan-design .selected-plan').show();
     calcPlanDesignContributions();
     $(this).siblings('input').prop('checked', true);
-    console.log($(this).siblings('input'))
   };
 
   clearComparisons();
@@ -675,20 +676,25 @@ function saveProposalAndNavigateToEstimatedEmployerCosts(event) {
 selected_rpids = [];
 
 function comparisonPlans() {
-  $(this).each(function() {
-    var value = $(this).val();
-    if ($(this).is(":checked") && $.unique(selected_rpids).length <= 3) {
-      selected_rpids.push(value)
+  var value = $(this).val();
+  var isChecked = $(this).is(":checked");
+  
+  if (isChecked) {
+    // Check if adding this plan would exceed 3
+    if (selected_rpids.length >= 3) {
+      alert("You can only compare up to 3 plans at a time.");
+      $(this).prop('checked', false);
+      return false;
     }
-    if (!$(this).is(":checked")) {
-      removeA($.unique(selected_rpids), value);
+    // Add plan only if it's not already in the array
+    if (selected_rpids.indexOf(value) === -1) {
+      selected_rpids.push(value);
     }
-    if ($.unique(selected_rpids).length > 3) {
-      alert("You can only compare up to 3 plans");
-      $(this).attr('checked', false);
-      removeA($.unique(selected_rpids), value);
-    }
-  });
+  } else {
+    // Remove plan from array
+    removeA(selected_rpids, value);
+  }
+  
   disableCompareButton();
 }
 
@@ -736,12 +742,19 @@ function viewComparisonsModal() {
 
   // Serialize benefit group form data for employer cost calculation
   var benefitGroupData = $('form').find('[name*="benefit_group]"]').serializeArray();
+  var kind = $('#benefits_kind').val();
   var allData = { 
     plans: selected_rpids, 
     sort_by: '',
     elected_plan_kind: $('#elected_plan_kind').val(),
-    reference_plan_id: $('#reference_plan_id').val()
+    reference_plan_id: $('#reference_plan_id').val(),
+    dental_reference_plan_id: selected_rpids.length > 0 ? selected_rpids[0] : $('#dental_reference_plan_id').val(),
+    kind: kind
   };
+
+  // Store kind on modal so exportComparisonCSV handler can read it
+  modal.data('benefitType', kind);
+  modal.data('plansParam', selected_rpids.join(','));
   
   // Add benefit group params to the data
   $.each(benefitGroupData, function(i, field) {
@@ -771,12 +784,12 @@ $(document).on('click', '#exportComparisonModalPDF', function() {
 });
 
 function clearComparisons() {
+  selected_rpids = [];
   $('.reference-plan').each(function() {
     var checkboxes = $(this).find('input[type=checkbox]');
-    checkboxes.attr('checked', false);
-    removeA($.unique(selected_rpids), checkboxes.val());
-    disableCompareButton();
+    checkboxes.prop('checked', false);
   });
+  disableCompareButton();
 }
 
 function hideDetailComparisons() {

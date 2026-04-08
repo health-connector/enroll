@@ -81,19 +81,19 @@
         </div>
         <div class="col-md-2 plan-type-filters">
         </div>
-        <% if !plan_design_form.is_dental? %>
-          <div class="col-md-12">
-            <div class="col-md-6 col-md-offset-5">
-              <% if ::EnrollRegistry.feature_enabled?(:employer_broker_ui_enhancements) %>
-                <button class="btn btn-primary view-plans-button" id="view-comparison-modal">Compare Plans</button>
-              <% else %>
-                <button class="btn btn-primary view-plans-button" id="view-comparison">Compare Plans</button>
-              <% end %>
+        <div class="col-md-12">
+          <div class="col-md-6 col-md-offset-5">
+            <% if ::EnrollRegistry.feature_enabled?(:employer_broker_ui_enhancements) %>
+              <button class="btn btn-primary view-plans-button" id="view-comparison-modal">Compare Plans</button>
+            <% else %>
+              <button class="btn btn-primary view-plans-button" id="view-comparison">Compare Plans</button>
+            <% end %>
+            <% if !plan_design_form.is_dental? %>
               <button class="btn btn-primary loading-plans-button" id="view-comparison"><span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Loading...</button>
-              <button class="btn btn-primary" id="clear-comparison">Clear All</button>
-            </div>
+            <% end %>
+            <button class="btn btn-primary" id="clear-comparison">Clear All</button>
           </div>
-        <% end %>
+        </div>
       </div>
     </div>
   </div>
