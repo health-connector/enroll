@@ -342,15 +342,16 @@
       // For sponsored_benefits modal with plan design proposal
       if (planDesignProposalId && plansParam) {
         // Build URL using the existing path structure but add kind parameter for dental
-        var exportUrl = window.location.pathname.replace(/\/plan_design_proposals\/[\w\/]+$/, '') + 
-                       '/plan_design_proposals/' + planDesignProposalId + 
-                       '/plan_comparisons/csv?plans=' + plansParam;
+        var basePath = window.location.pathname.replace(/\/plan_design_proposals\/[\w\/]+$/, '');
+        var exportUrl = basePath + 
+                       '/plan_design_proposals/' + encodeURIComponent(planDesignProposalId) + 
+                       '/plan_comparisons/csv?plans=' + encodeURIComponent(plansParam);
         
         if (benefitType === 'dental') {
           exportUrl += '&kind=dental';
         }
         
-        window.location.href = exportUrl;
+        window.location.assign(exportUrl);
       }
       // Fallback for benefit_sponsors route
       else {
@@ -360,17 +361,17 @@
         var employerCosts = modal.data('employerCosts');
         
         if (benefitSponsorshipId && benefitApplicationId && benefitPackageId && plansParam) {
-          var exportUrl = '/benefit_sponsors/benefit_sponsorships/' + benefitSponsorshipId +
-                         '/benefit_applications/' + benefitApplicationId +
-                         '/benefit_packages/' + benefitPackageId +
-                         '/product_comparisons/csv?plans=' + plansParam +
-                         '&benefit_type=' + benefitType;
+          var exportUrl = '/benefit_sponsors/benefit_sponsorships/' + encodeURIComponent(benefitSponsorshipId) +
+                         '/benefit_applications/' + encodeURIComponent(benefitApplicationId) +
+                         '/benefit_packages/' + encodeURIComponent(benefitPackageId) +
+                         '/product_comparisons/csv?plans=' + encodeURIComponent(plansParam) +
+                         '&benefit_type=' + encodeURIComponent(benefitType);
           
           if (employerCosts) {
             exportUrl += '&employer_costs=' + encodeURIComponent(employerCosts);
           }
           
-          window.location.href = exportUrl;
+          window.location.assign(exportUrl);
         }
       }
     });
