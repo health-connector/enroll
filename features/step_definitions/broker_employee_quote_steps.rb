@@ -163,12 +163,28 @@ end
 Then(/^.+ selects plans for comparison$/) do
   page.all(".bqt-plan-comparison")[0].click
   page.all(".bqt-plan-comparison")[1].click
+  page.all(".bqt-plan-comparison")[2].click
 
   find('#view-comparison-modal').click
 end
 
 Then(/^.+ should see plan comparison modal$/) do
   expect(find("#planComparisonModal").visible?).to be_truthy
+end
+
+Then(/^.+ closes the plan comparison modal$/) do
+  find_all('.close').first.click
+  expect(find("#planComparisonModal").visible?).to be_truthy
+end
+
+Then(/^.+ clears selections and selects new plans for comparison$/) do
+  find('#clear-comparison').click
+
+  page.all(".bqt-plan-comparison")[1].click
+  page.all(".bqt-plan-comparison")[2].click
+  page.all(".bqt-plan-comparison")[3].click
+
+  find('#view-comparison-modal').click
 end
 
 Then(/^the broker should see that the save benefits button is enabled$/) do
@@ -282,6 +298,8 @@ Given(/^the Plans exist$/) do
   start_on = open_enrollment_start_on + 2.months
   FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', is_standard_plan: true, metal_level: 'gold', active_year: start_on.year, deductible: 5000, csr_variant_id: "01", coverage_kind: 'health')
   FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', is_standard_plan: true, metal_level: 'gold', active_year: start_on.year, deductible: 3000, csr_variant_id: "01", coverage_kind: 'health')
+  FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', is_standard_plan: true, metal_level: 'gold', active_year: start_on.year, deductible: 2000, csr_variant_id: "01", coverage_kind: 'health')
+  FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', is_standard_plan: true, metal_level: 'gold', active_year: start_on.year, deductible: 1000, csr_variant_id: "01", coverage_kind: 'health')
   FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', is_standard_plan: true, dental_level: 'high', active_year: start_on.year, deductible: 4000, coverage_kind: 'dental')
   FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', is_standard_plan: true, dental_level: 'low', active_year: start_on.year, deductible: 4000, coverage_kind: 'dental')
   FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', is_standard_plan: true, metal_level: 'gold', active_year: start_on.year - 1, deductible: 5000, csr_variant_id: "01", coverage_kind: 'health')
