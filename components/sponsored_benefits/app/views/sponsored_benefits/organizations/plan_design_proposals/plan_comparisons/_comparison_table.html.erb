@@ -12,10 +12,10 @@
   <div class="mygrid-wrapper-div">
    <table class="table bordered compare-table", border = "1", style="font-size:11px;" id="compare_plans_table">
         <tr>
-          <th class="row-title">Plans</th>
+          <th>Plans</th>
           <% qhps.each do |qhp|%>
             <th colspan="2" style="text-align: center; vertical-align:middle; border: none; padding: 0;" class='movable'>
-              <%= hidden_field_tag 'plan_id-#{qhp.plan.id}', qhp.plan.id, class: 'plan_id' %>
+              <%= hidden_field_tag "plan_id-#{qhp.plan.id}", qhp.plan.id, class: 'plan_id' %>
               <%  carrier_name = CarrierProfile.find(qhp.plan.carrier_profile_id).organization.legal_name.gsub(/united health care/i, 'uhic')%>
               <%=  image_tag("logo/carrier/#{carrier_name.parameterize.underscore}.jpg", {width: 80}) if carrier_name.present? %>
             </th>
@@ -114,7 +114,7 @@
             <th><%= l10n('employers.plan_years.benefit_package.out_of_pocket_maximum') %></th>
             <% qhps.each do |qhp| %>
               <td colspan="2">
-                <%= qhp.qhp_maximum_out_of_pockets.first.in_network_tier_1_individual_amount %>
+                <%= qhp.qhp_maximum_out_of_pockets.first.in_network_tier_1_family_amount || 'N/A' %>
               </td>
             <% end %>
           </tr>

@@ -47,6 +47,7 @@ EMPLOYER_TRANSLATIONS = {
   :'en.employers.plan_years.benefit_package.compare_plans' => "Compare Plans",
   :'en.employers.plan_years.benefit_package.clear_all' => "Clear All",
   :'en.employers.plan_years.benefit_package.plans' => "Plans",
+  :'en.employers.plan_years.benefit_package.individual_deductible_filter' => "Individual Deductible In Network",
   :'en.employers.plan_years.benefit_package.estimated_monthly_cost' => "Estimated Monthly Cost",
   :'en.employers.plan_years.benefit_package.employer_contribution_label' => "Employer Contribution",
   :'en.employers.plan_years.benefit_package.deductibles' => "DEDUCTIBLES",

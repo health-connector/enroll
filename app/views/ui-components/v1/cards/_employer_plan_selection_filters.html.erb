@@ -62,19 +62,25 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-xs-3">
-                <ul>
-                    <strong class="filter-title">Individual Deductible In Network</strong>
-                    <% search_options[:deductible_value].each do |deductible| %>
+            <div class="col-xs-12">
+                <ul class="deductible-filter-section">
+                    <strong class="filter-title"><%= l10n('employers.plan_years.benefit_package.individual_deductible_filter') %></strong>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <% search_options[:deductible_value].each_with_index do |deductible, index| %>
+                <div class="col-xs-3">
+                    <ul>
                         <li class="er-plan-filter-li">
                             <label for="plan-deductible-#{deductible}">
                                 <%= check_box_tag "er-plan-deductible-#{deductible}", deductible, false, class: 'checkbox plan-filter-checkbox', :'data-search-type' => 'deductible_value' %>
                                 <%= "$#{number_with_delimiter(deductible, :delimiter => ',')}"  %> 
                             </label>
                         </li>
-                    <% end %>
-                </ul>
-            </div>
+                    </ul>
+                </div>
+            <% end %>
         </div>
     <% end %>
 </div>
