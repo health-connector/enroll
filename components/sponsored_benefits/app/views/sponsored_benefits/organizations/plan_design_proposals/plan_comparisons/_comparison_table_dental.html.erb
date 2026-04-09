@@ -7,7 +7,7 @@
   <div class="mygrid-wrapper-div">
     <table class="table bordered compare-table" border="1" style="font-size:11px;" id="compare_plans_table">
         <tr>
-          <th class="row-title"><%= l10n('employers.plan_years.benefit_package.plans') %></th>
+          <th><%= l10n('employers.plan_years.benefit_package.plans') %></th>
           <% qhps.each do |qhp|%>
             <th colspan="2" style="text-align: center; vertical-align:middle; border: none; padding: 0;" class='movable'>
               <%= hidden_field_tag "plan_id-#{qhp.plan.id}", qhp.plan.id, class: 'plan_id' %>
@@ -57,7 +57,7 @@
           <th><%= l10n('employers.plan_years.benefit_package.out_of_pocket_maximum') %></th>
           <% qhps.each do |qhp| %>
             <td colspan="2">
-              <%= qhp.qhp_maximum_out_of_pockets.first&.in_network_tier_1_individual_amount || 'N/A' %>
+              <%= qhp.qhp_maximum_out_of_pockets.first&.in_network_tier_1_family_amount || 'N/A' %>
             </td>
           <% end %>
         </tr>
@@ -73,7 +73,7 @@
         <%= render partial: "shared/plan_shoppings/provider_directory_url", locals: {qhps: qhps}%>
 
         <tr>
-          <th><%= l10n('employers.plan_years.benefit_package.dental_plan_benefits') %> <br> (<%= l10n('employers.plan_years.benefit_package.in_network') %>)</th>
+          <th><%= l10n('employers.plan_years.benefit_package.plan_benefits') %> <br> (<%= l10n('employers.plan_years.benefit_package.in_network') %>)</th>
           <% qhps.each do |qhp|%>
             <th colspan="1"> <%= l10n('employers.plan_years.benefit_package.co_pay') %> </th>
             <th colspan="1"> <%= l10n('employers.plan_years.benefit_package.coinsurance') %> </th>
