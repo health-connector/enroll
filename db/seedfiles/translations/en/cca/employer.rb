@@ -60,6 +60,7 @@ EMPLOYER_TRANSLATIONS = {
   :'en.employers.plan_years.benefit_package.prescription_drug_formulary' => "Prescription Drug Formulary",
   :'en.employers.plan_years.benefit_package.rx_formulary_url' => "RX FORMULARY URL",
   :'en.employers.plan_years.benefit_package.plan_benefits' => "PLAN BENEFITS",
+  :'en.employers.plan_years.benefit_package.dental_plan_benefits' => "DENTAL PLAN BENEFITS",
   :'en.employers.plan_years.benefit_package.in_network' => "In Network",
   :'en.employers.plan_years.benefit_package.co_pay' => "CO-PAY",
   :'en.employers.plan_years.benefit_package.coinsurance' => "COINSURANCE",
