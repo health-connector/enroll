@@ -147,8 +147,15 @@ module BenefitSponsors
           end
         end
 
-        @search_options.each_value do |option|
-          option.uniq!.sort! unless [true, false].include?(option)
+        @search_options.each do |key, option|
+          if key == :metal_level_kind
+            # Sort metal levels in proper order: bronze, silver, gold, platinum
+            metal_level_order = ['bronze', 'silver', 'gold', 'platinum']
+            option.uniq!
+            option.sort_by! { |level| metal_level_order.index(level.to_s.downcase) || 999 }
+          else
+            option.uniq!.sort! unless [true, false].include?(option)
+          end
         end
 
         @search_options
