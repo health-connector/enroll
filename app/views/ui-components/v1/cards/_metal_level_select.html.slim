@@ -96,6 +96,8 @@
             .float-right.mb-2
               #yourPlanTotals
               br
+          
+          #comparePlansButtons
 
           #yourSponsorContributions
 
@@ -204,6 +206,16 @@ javascript:
       var yourPlansElement = document.getElementById('yourPlans');
       if (yourPlansElement) {
         yourPlansElement.classList.add('with-compare-checkbox');
+      }
+    });
+  }
+
+  // Apply conditional margin for compare buttons feature
+  if (isPlanComparisonEnabled) {
+    document.addEventListener('DOMContentLoaded', function() {
+      var yourSponsorContributionsElement = document.getElementById('yourSponsorContributions');
+      if (yourSponsorContributionsElement) {
+        yourSponsorContributionsElement.classList.add('with-compare-buttons');
       }
     });
   }
@@ -412,7 +424,7 @@ javascript:
 
 
     if (isPlanComparisonEnabled) {
-      document.getElementById('yourPlans').innerHTML +=
+      document.getElementById('comparePlansButtons').innerHTML =
         `<div class="col-md-12 text-center mt-3 mb-3">
           <button type="button" class="btn btn-primary disabled" id="compareSelectedPlansButton" onclick="compareSelectedPlans(event); return false;" disabled>${comparePlansText}</button>
           <button type="button" class="btn btn-default" id="clear-comparison-button" onclick="clearSelectedPlans()">${clearAllText}</button>
