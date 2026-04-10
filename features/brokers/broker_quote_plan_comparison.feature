@@ -26,6 +26,9 @@ Feature: Broker creates a quote for a prospect employer and compares plans
     And the broker selects plan offerings by metal level and enters <contribution_pct> for employee and deps
     And broker selects plans for comparison
     Then broker should see plan comparison modal
+    Then broker closes the plan comparison modal
+    And broker clears selections and selects new plans for comparison
+    Then broker should see plan comparison modal
 
     Examples:
       | contribution_pct |
