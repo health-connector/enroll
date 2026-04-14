@@ -74,7 +74,8 @@
 
     <div id="benefit-applications-container">
     <% @benefit_applications.each do |benefit_application| %>
-      <div class="row no-buffer module plan-year mt-2" data-year="<%= benefit_application.start_on&.year %>" data-aasm-state="<%= benefit_application.aasm_state %>">
+      <% termination_date = benefit_application.terminated_on&.iso8601 %>
+      <div class="row no-buffer module plan-year mt-2" data-year="<%= benefit_application.start_on&.year %>" data-aasm-state="<%= benefit_application.aasm_state %>" data-terminated-on="<%= termination_date %>">
         <div class="col-xs-8" style="overflow: hidden; margin-bottom: 15px; padding-left: 0;">
           <h3 class="no-buffer heading-text">
             <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px;">
@@ -373,6 +374,8 @@
     var filterValue = filterEl.value;
     var sortValue = sortEl.value;
     var currentYear = new Date().getFullYear();
+    var currentDate = new Date();
+    var oneYearAgo = new Date(currentDate.getFullYear() - 1, currentDate.getMonth(), currentDate.getDate());
     var container = document.getElementById('benefit-applications-container');
     if (!container) return;
 
@@ -381,12 +384,19 @@
     planYears.forEach(function(py) {
       var year = parseInt(py.dataset.year);
       var state = py.dataset.aasmState;
+      var terminatedOn = py.dataset.terminatedOn;
       var visible = false;
 
       if (filterValue === 'active_and_renewal') {
         var isInValidState = ACTIVE_AND_RENEWAL_STATES.indexOf(state) !== -1;
         var isInValidYear = year >= currentYear - 1;
         visible = isInValidYear && isInValidState;
+        
+        // Also show terminated plan years if they were terminated within the last 12 months
+        if (!visible && state === 'terminated' && terminatedOn) {
+          var terminationDate = new Date(terminatedOn);
+          visible = terminationDate >= oneYearAgo;
+        }
       } else {
         var filterYear = parseInt(filterValue);
         visible = !isNaN(year) && year === filterYear;
