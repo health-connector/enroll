@@ -265,6 +265,8 @@ javascript:
     }
     setTempCL()
     selectDefaultReferencePlan()
+
+    applyAllFilters()
   }
 
   $(document).on('click', '#employer-plan-selection-filters .plan-filter-checkbox', sortByFilter);
@@ -277,6 +279,10 @@ javascript:
       $(this).prop("checked", false);
     }
 
+    applyAllFilters()
+  }
+
+  function applyAllFilters() {
     var plans = $('.reference-plan');
     var search_types = {};
 
