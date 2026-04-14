@@ -1007,7 +1007,7 @@ module BenefitSponsors
       end
 
       # Enrollment processed stopped due to missing binder payment
-      event :cancel do
+      event :cancel, :after => :cancel_enrollments do
         transitions from: :active, to: :retroactive_canceled,  :guard => :can_retroactive_cancel? # Enrollment cancelled after it became active
         transitions from: APPLICATION_DRAFT_STATES + ENROLLING_STATES + ENROLLMENT_ELIGIBLE_STATES + [:enrollment_ineligible, :active, :approved],
           to:     :canceled

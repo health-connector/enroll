@@ -850,6 +850,57 @@ module BenefitSponsors
           expect(initial_application.aasm_state).to eq :canceled
         end
       end
+
+      context 'when a renewing application with auto_renewing enrollments is canceled' do
+        let(:current_effective_date) { TimeKeeper.date_of_record.next_month.beginning_of_month }
+        let(:person) { create(:person, :with_family) }
+        let(:family) { person.primary_family }
+        let(:employee_role) do
+          create(
+            :benefit_sponsors_employee_role,
+            person: person,
+            employer_profile: benefit_sponsorship.profile,
+            census_employee_id: census_employee.id
+          )
+        end
+        let(:census_employee) do
+          create(
+            :census_employee,
+            employer_profile: benefit_sponsorship.profile,
+            benefit_sponsorship: benefit_sponsorship
+          )
+        end
+        let!(:hbx_enrollment) do
+          create(
+            :hbx_enrollment,
+            :with_enrollment_members, :with_product,
+            household: family.active_household,
+            aasm_state: 'auto_renewing',
+            effective_on: initial_application.start_on,
+            rating_area_id: initial_application.recorded_rating_area_id,
+            coverage_kind: 'health',
+            sponsored_benefit_id: initial_application.benefit_packages.first.health_sponsored_benefit.id,
+            sponsored_benefit_package_id: initial_application.benefit_packages.first.id,
+            benefit_sponsorship_id: initial_application.benefit_sponsorship.id,
+            employee_role_id: employee_role.id
+          )
+        end
+
+        before do
+          census_employee.update_attributes(employee_role_id: employee_role.id)
+          subject.cancel
+          initial_application.reload
+          hbx_enrollment.reload
+        end
+
+        it 'cancels the benefit application' do
+          expect(initial_application.aasm_state).to eq :canceled
+        end
+
+        it 'transitions auto_renewing enrollments to coverage_canceled' do
+          expect(hbx_enrollment.aasm_state).to eq 'coverage_canceled'
+        end
+      end
     end
 
     describe '.schedule_termination' do
