@@ -307,6 +307,12 @@ javascript:
       }
     })
 
+    if (newFilteredProducts.length) {
+      enableOrDisablePlanYearButtons()
+    } else {
+      disableNewPlanYearButton()
+    }
+
     populateReferencePlans(newFilteredProducts)
     selectDefaultReferencePlan()
   }
@@ -726,6 +732,12 @@ javascript:
         break;
       }
     })
+
+    enableOrDisablePlanYearButtons()
+    displayReferencePlanDetails(document.querySelector("input[name='benefit_package[sponsored_benefits_attributes][0][reference_plan_id]']:checked"));
+  }
+
+  function enableOrDisablePlanYearButtons() {
     if (!(document.querySelectorAll(".reference-plans input[type='radio']:checked").length)) {
       disableNewPlanYearButton()
     }
@@ -742,7 +754,6 @@ javascript:
         }
       }
     }
-    displayReferencePlanDetails(document.querySelector("input[name='benefit_package[sponsored_benefits_attributes][0][reference_plan_id]']:checked"));
   }
   
   var selectedReferencePlanId;
