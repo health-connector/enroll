@@ -64,7 +64,7 @@ module Operations
         else
           {
             title: configuration.title,
-            key: values[:evidence_key],
+            key: values[:evidence_key].to_s,
             subject_ref: values[:subject].uri
           }
         end
