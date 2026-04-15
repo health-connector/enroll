@@ -100,7 +100,6 @@ module SponsoredBenefits
         return nil unless benefit_application
 
         active_benefit_group = benefit_application.benefit_groups&.first
-        return nil unless active_benefit_group
 
         if benefit_group_params.present?
           if coverage_kind == 'Dental'
