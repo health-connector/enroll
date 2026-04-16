@@ -77,12 +77,13 @@
                               span.checkmark-compare
                               span.checkmark-text style="top: -1px;"= l10n('employers.plan_years.benefit_package.compare')
 
-        - if ::EnrollRegistry.feature_enabled?(:employer_broker_ui_enhancements)
-          div style="text-align: center; margin-top: 20px; margin-bottom: 20px;"
-            button#compareSelectedPlansButton.btn.btn-primary type="button" onclick="compareSelectedPlans(event)" disabled="" style="margin-right: 10px;"
-              = l10n('employers.plan_years.benefit_package.compare_plans')
-            button#clear-comparison-button.btn.btn-default type="button" onclick="clearSelectedPlans()"
-              = l10n('employers.plan_years.benefit_package.clear_all')
+
+  - if ::EnrollRegistry.feature_enabled?(:employer_broker_ui_enhancements)
+    div style="text-align: center; margin-top: 20px; margin-bottom: 20px;"
+      button#compareSelectedPlansButton.btn.btn-primary type="button" onclick="compareSelectedPlans(event)" disabled="" style="margin-right: 10px;"
+        = l10n('employers.plan_years.benefit_package.compare_plans')
+      button#clear-comparison-button.btn.btn-default type="button" onclick="clearSelectedPlans()"
+        = l10n('employers.plan_years.benefit_package.clear_all')
 
 // Modal to view plan summary
 .modal.fade#viewSummaryModal tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
