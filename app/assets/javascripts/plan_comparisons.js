@@ -301,7 +301,7 @@
    * Initialize export button handlers when document is ready
    */
   $(document).ready(function() {
-    $(document).on('click', '#clear-comparison', resetComparisonPlans);
+    $(document).on('click', '#clear-comparison, .reference-plan-select-btn', resetComparisonPlans);
 
     // Export to PDF handler
     $(document).on('click', '#exportComparisonPDF', function() {
