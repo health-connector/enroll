@@ -22,11 +22,21 @@ module Eligible
 
       private
 
+      ALLOWED_SUBJECT_TYPES = %w[
+        BenefitSponsors::Organizations::AcaShopCcaEmployerProfile
+        BenefitSponsors::Organizations::AcaShopDcEmployerProfile
+        BenefitMarkets::Products::HealthProducts::HealthProduct
+        BenefitMarkets::Products::DentalProducts::DentalProduct
+      ].freeze
+
       def validate_input_params(params)
         return Failure('subject is required') unless params[:subject]
         return Failure('eligibility is required') unless params[:eligibility]
 
-        params[:subject] = params[:subject].classify.constantize
+        subject_class_name = params[:subject].classify
+        return Failure("Invalid subject type: #{subject_class_name}") unless ALLOWED_SUBJECT_TYPES.include?(subject_class_name)
+
+        params[:subject] = subject_class_name.constantize
         Success(params)
       end
 
