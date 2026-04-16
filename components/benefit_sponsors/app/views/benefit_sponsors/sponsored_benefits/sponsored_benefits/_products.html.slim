@@ -232,6 +232,10 @@ javascript:
       $(this).prop("checked", false);
     }
 
+    applyAllFilters()
+  }
+
+  function applyAllFilters() {
     var search_types = {};
     $('.plan-filter-checkbox').each(function() {
       var option = $(this);
