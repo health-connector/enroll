@@ -115,7 +115,7 @@ RSpec.describe Eligible::Operations::AddEligibility do
 
     it "returns failure for invalid subject class" do
       result = described_class.new.call(params)
-      
+
       expect(result).to be_failure
       expect(result.failure).to include("Invalid subject type")
     end
