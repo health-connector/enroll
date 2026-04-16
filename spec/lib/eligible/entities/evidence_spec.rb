@@ -28,7 +28,7 @@ RSpec.describe Eligible::Entities::Evidence do
   context "with valid params" do
     it "creates a valid Evidence entity" do
       entity = described_class.new(required_params)
-      
+
       expect(entity).to be_a(described_class)
       expect(entity.key).to eq(:shop_osse_evidence)
       expect(entity.title).to eq("OSSE Evidence")
@@ -52,10 +52,10 @@ RSpec.describe Eligible::Entities::Evidence do
           )
         )
       ]
-      
+
       params = required_params.merge(state_histories: histories)
       entity = described_class.new(params)
-      
+
       expect(entity.state_histories.size).to eq(2)
       expect(entity.state_histories.last.to_state).to eq(:denied)
     end
@@ -67,7 +67,7 @@ RSpec.describe Eligible::Entities::Evidence do
         is_satisfied: false,
         current_state: :denied
       )
-      
+
       entity = described_class.new(params)
       expect(entity.is_satisfied).to eq(false)
       expect(entity.current_state).to eq(:denied)
@@ -86,7 +86,7 @@ RSpec.describe Eligible::Entities::Evidence do
       params = required_params.merge(
         timestamps: Eligible::Entities::TimeStamp.new(submitted_at: DateTime.now)
       )
-      
+
       entity = described_class.new(params)
       expect(entity.timestamps).to be_a(Eligible::Entities::TimeStamp)
     end

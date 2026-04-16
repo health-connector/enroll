@@ -52,7 +52,7 @@ RSpec.describe Eligible::Entities::Eligibility do
   context "with valid params" do
     it "creates a valid Eligibility entity" do
       entity = described_class.new(required_params)
-      
+
       expect(entity).to be_a(described_class)
       expect(entity.key).to eq(:cca_shop_pvp_eligibility)
       expect(entity.title).to eq("PVP Eligibility")
@@ -65,7 +65,7 @@ RSpec.describe Eligible::Entities::Eligibility do
   context "with evidences and grants" do
     it "contains Evidence and Grant entities" do
       entity = described_class.new(required_params)
-      
+
       expect(entity.evidences).to be_an(Array)
       expect(entity.evidences.first).to be_a(Eligible::Entities::Evidence)
       expect(entity.grants).to be_an(Array)
@@ -99,14 +99,14 @@ RSpec.describe Eligible::Entities::Eligibility do
         key: :additional_evidence,
         title: "Additional Evidence"
       )
-      
+
       params = required_params.merge(
         evidences: [
           Eligible::Entities::Evidence.new(evidence_params),
           Eligible::Entities::Evidence.new(second_evidence)
         ]
       )
-      
+
       entity = described_class.new(params)
       expect(entity.evidences.size).to eq(2)
     end
@@ -127,7 +127,7 @@ RSpec.describe Eligible::Entities::Eligibility do
           )
         ]
       )
-      
+
       entity = described_class.new(params)
       expect(entity.is_eligible).to eq(false)
       expect(entity.current_state).to eq(:ineligible)
@@ -139,7 +139,7 @@ RSpec.describe Eligible::Entities::Eligibility do
       params = required_params.merge(
         timestamps: Eligible::Entities::TimeStamp.new(submitted_at: DateTime.now)
       )
-      
+
       entity = described_class.new(params)
       expect(entity.timestamps).to be_a(Eligible::Entities::TimeStamp)
     end

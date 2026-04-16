@@ -4,7 +4,6 @@ require "rails_helper"
 
 RSpec.describe Eligible::Entities::TimeStamp do
   let(:submitted_at) { DateTime.now }
-  
   let(:required_params) do
     {
       submitted_at: submitted_at
@@ -21,7 +20,7 @@ RSpec.describe Eligible::Entities::TimeStamp do
   context "with required params only" do
     it "creates a valid TimeStamp entity" do
       entity = described_class.new(required_params)
-      
+
       expect(entity).to be_a(described_class)
       expect(entity.submitted_at).to eq(submitted_at)
       expect(entity.created_at).to be_nil
@@ -33,7 +32,7 @@ RSpec.describe Eligible::Entities::TimeStamp do
     it "creates a valid TimeStamp entity" do
       params = required_params.merge(optional_params)
       entity = described_class.new(params)
-      
+
       expect(entity).to be_a(described_class)
       expect(entity.submitted_at).to eq(submitted_at)
       expect(entity.created_at).to eq(optional_params[:created_at])

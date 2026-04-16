@@ -33,7 +33,7 @@ RSpec.describe Eligible::Entities::Grant do
   context "with valid params" do
     it "creates a valid Grant entity" do
       entity = described_class.new(required_params)
-      
+
       expect(entity).to be_a(described_class)
       expect(entity.title).to eq("PVP Eligibility Grant")
       expect(entity.key).to eq(:pvp_eligibility_grant)
@@ -51,14 +51,14 @@ RSpec.describe Eligible::Entities::Grant do
         event: :move_to_denied,
         is_eligible: false
       )
-      
+
       params = required_params.merge(
         state_histories: [
           Eligible::Entities::StateHistory.new(state_history_params),
           Eligible::Entities::StateHistory.new(second_history)
         ]
       )
-      
+
       entity = described_class.new(params)
       expect(entity.state_histories.size).to eq(2)
     end
@@ -69,7 +69,7 @@ RSpec.describe Eligible::Entities::Grant do
       params = required_params.merge(
         timestamps: Eligible::Entities::TimeStamp.new(submitted_at: DateTime.now)
       )
-      
+
       entity = described_class.new(params)
       expect(entity.timestamps).to be_a(Eligible::Entities::TimeStamp)
     end

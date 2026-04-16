@@ -22,21 +22,24 @@ module Eligible
 
       private
 
-      ALLOWED_SUBJECT_TYPES = %w[
-        BenefitSponsors::Organizations::AcaShopCcaEmployerProfile
-        BenefitSponsors::Organizations::AcaShopDcEmployerProfile
-        BenefitMarkets::Products::HealthProducts::HealthProduct
-        BenefitMarkets::Products::DentalProducts::DentalProduct
-      ].freeze
+      ALLOWED_SUBJECT_CLASSES = {
+        'BenefitSponsors::Organizations::AcaShopCcaEmployerProfile' => BenefitSponsors::Organizations::AcaShopCcaEmployerProfile,
+        'BenefitSponsors::Organizations::AcaShopDcEmployerProfile' => BenefitSponsors::Organizations::AcaShopDcEmployerProfile,
+        'BenefitMarkets::Products::HealthProducts::HealthProduct' => BenefitMarkets::Products::HealthProducts::HealthProduct,
+        'BenefitMarkets::Products::DentalProducts::DentalProduct' => BenefitMarkets::Products::DentalProducts::DentalProduct,
+        'Eligible::Entities::Eligibility' => Eligible::Entities::Eligibility,
+        'BenefitMarkets::Entities::PremiumValueProduct' => BenefitMarkets::Entities::PremiumValueProduct
+      }.freeze
 
       def validate_input_params(params)
         return Failure('subject is required') unless params[:subject]
         return Failure('eligibility is required') unless params[:eligibility]
 
         subject_class_name = params[:subject].classify
-        return Failure("Invalid subject type: #{subject_class_name}") unless ALLOWED_SUBJECT_TYPES.include?(subject_class_name)
+        subject_class = ALLOWED_SUBJECT_CLASSES[subject_class_name]
+        return Failure("Invalid subject type: #{subject_class_name}") unless subject_class
 
-        params[:subject] = subject_class_name.constantize
+        params[:subject] = subject_class
         Success(params)
       end
 

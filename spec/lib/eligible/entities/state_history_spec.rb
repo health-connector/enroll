@@ -25,7 +25,7 @@ RSpec.describe Eligible::Entities::StateHistory do
   context "with required params only" do
     it "creates a valid StateHistory entity" do
       entity = described_class.new(required_params)
-      
+
       expect(entity).to be_a(described_class)
       expect(entity.effective_on).to eq(Date.today)
       expect(entity.is_eligible).to eq(true)
@@ -39,7 +39,7 @@ RSpec.describe Eligible::Entities::StateHistory do
     it "creates a valid StateHistory entity with optional fields" do
       params = required_params.merge(optional_params)
       entity = described_class.new(params)
-      
+
       expect(entity.reason).to eq("Approved by admin")
       expect(entity.comment).to eq("All requirements met")
       expect(entity.updated_by).to eq("admin@example.com")
@@ -56,7 +56,7 @@ RSpec.describe Eligible::Entities::StateHistory do
     it "accepts TimeStamp entity" do
       params = required_params.merge(timestamp_params)
       entity = described_class.new(params)
-      
+
       expect(entity.timestamps).to be_a(Eligible::Entities::TimeStamp)
     end
   end
@@ -77,7 +77,7 @@ RSpec.describe Eligible::Entities::StateHistory do
         event: "move_to_approved"
       )
       entity = described_class.new(params)
-      
+
       # Dry::Struct with Types::Symbol coerces strings
       expect(entity.from_state).to eq(:initial)
       expect(entity.to_state).to eq(:approved)

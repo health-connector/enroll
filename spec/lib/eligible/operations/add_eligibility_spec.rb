@@ -59,14 +59,14 @@ RSpec.describe Eligible::Operations::AddEligibility do
 
     it "creates an eligibility successfully" do
       result = described_class.new.call(params)
-      
+
       expect(result).to be_success
       expect(result.success).to be_a(Eligible::Entities::Eligibility)
     end
 
     it "returns correct eligibility attributes" do
       eligibility = described_class.new.call(params).success
-      
+
       # Entities coerce string keys to symbols
       expect(eligibility.key).to eq(:cca_shop_pvp_eligibility)
       expect(eligibility.title).to eq("PVP Eligibility")
@@ -85,7 +85,7 @@ RSpec.describe Eligible::Operations::AddEligibility do
 
     it "fails with subject required error" do
       result = described_class.new.call(params)
-      
+
       expect(result).to be_failure
       expect(result.failure).to eq("subject is required")
     end
@@ -100,7 +100,7 @@ RSpec.describe Eligible::Operations::AddEligibility do
 
     it "fails with eligibility required error" do
       result = described_class.new.call(params)
-      
+
       expect(result).to be_failure
       expect(result.failure).to eq("eligibility is required")
     end
@@ -129,7 +129,7 @@ RSpec.describe Eligible::Operations::AddEligibility do
 
     it "calls CreateEligibilityType successfully" do
       result = described_class.new.call(params)
-      
+
       expect(result).to be_success
       expect(result.success).to be_a(Eligible::Entities::Eligibility)
     end

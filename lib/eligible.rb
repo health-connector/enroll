@@ -7,7 +7,6 @@ require 'dry-validation'
 # Main Eligible module
 module Eligible
   autoload :Types, 'eligible/types'
-  
   # Entities namespace to avoid collision with Mongoid models
   module Entities
     autoload :TimeStamp, 'eligible/entities/time_stamp'

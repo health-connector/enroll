@@ -13,7 +13,7 @@ RSpec.describe Eligible::Entities::Value do
   context "with valid params" do
     it "creates a valid Value entity" do
       entity = described_class.new(required_params)
-      
+
       expect(entity).to be_a(described_class)
       expect(entity.title).to eq("Premium Value Product")
       expect(entity.key).to eq("pvp_eligibility")
@@ -24,7 +24,7 @@ RSpec.describe Eligible::Entities::Value do
     it "accepts string key" do
       params = required_params.merge(key: "pvp_eligibility")
       entity = described_class.new(params)
-      
+
       expect(entity.key).to eq("pvp_eligibility")
     end
   end

@@ -59,14 +59,14 @@ RSpec.describe Eligible::Operations::CreateEligibilityType do
   context "with valid params" do
     it "creates an eligibility entity successfully" do
       result = described_class.new.call(params)
-      
+
       expect(result).to be_success
       expect(result.success).to be_a(Eligible::Entities::Eligibility)
     end
 
     it "returns an eligibility with correct attributes" do
       eligibility = described_class.new.call(params).success
-      
+
       # Entities coerce string keys to symbols
       expect(eligibility.key).to eq(:cca_shop_pvp_eligibility)
       expect(eligibility.is_eligible).to eq(true)
