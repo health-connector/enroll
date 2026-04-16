@@ -16,7 +16,7 @@ RSpec.describe Eligible::Entities::Evidence do
 
   let(:required_params) do
     {
-      key: :shop_osse_evidence,
+      key: "shop_osse_evidence",
       title: "OSSE Evidence",
       is_satisfied: true,
       current_state: :approved,
@@ -30,7 +30,7 @@ RSpec.describe Eligible::Entities::Evidence do
       entity = described_class.new(required_params)
 
       expect(entity).to be_a(described_class)
-      expect(entity.key).to eq(:shop_osse_evidence)
+      expect(entity.key).to eq("shop_osse_evidence")
       expect(entity.title).to eq("OSSE Evidence")
       expect(entity.is_satisfied).to eq(true)
       expect(entity.current_state).to eq(:approved)

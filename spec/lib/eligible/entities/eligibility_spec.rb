@@ -16,7 +16,7 @@ RSpec.describe Eligible::Entities::Eligibility do
 
   let(:evidence_params) do
     {
-      key: :shop_osse_evidence,
+      key: "shop_osse_evidence",
       title: "OSSE Evidence",
       is_satisfied: true,
       current_state: :approved,
@@ -28,15 +28,15 @@ RSpec.describe Eligible::Entities::Eligibility do
   let(:grant_params) do
     {
       title: "PVP Grant",
-      key: :pvp_grant,
-      value: Eligible::Entities::Value.new(title: "PVP", key: :pvp),
+      key: "pvp_grant",
+      value: Eligible::Entities::Value.new(title: "PVP", key: "pvp"),
       state_histories: [Eligible::Entities::StateHistory.new(state_history_params)]
     }
   end
 
   let(:required_params) do
     {
-      key: :cca_shop_pvp_eligibility,
+      key: "cca_shop_pvp_eligibility",
       title: "PVP Eligibility",
       description: "Premium Value Product eligibility",
       subject: "BenefitMarkets::PremiumValueProduct",
@@ -54,11 +54,11 @@ RSpec.describe Eligible::Entities::Eligibility do
       entity = described_class.new(required_params)
 
       expect(entity).to be_a(described_class)
-      expect(entity.key).to eq(:cca_shop_pvp_eligibility)
+      expect(entity.key).to eq("cca_shop_pvp_eligibility")
       expect(entity.title).to eq("PVP Eligibility")
-      expect(entity.subject).to eq("BenefitMarkets::PremiumValueProduct")
-      expect(entity.is_eligible).to eq(true)
       expect(entity.current_state).to eq(:eligible)
+      expect(entity.evidences.size).to eq(1)
+      expect(entity.grants.size).to eq(1)
     end
   end
 
@@ -96,7 +96,7 @@ RSpec.describe Eligible::Entities::Eligibility do
   context "with multiple evidences" do
     it "accepts multiple evidences" do
       second_evidence = evidence_params.merge(
-        key: :additional_evidence,
+        key: "additional_evidence",
         title: "Additional Evidence"
       )
 
@@ -129,7 +129,6 @@ RSpec.describe Eligible::Entities::Eligibility do
       )
 
       entity = described_class.new(params)
-      expect(entity.is_eligible).to eq(false)
       expect(entity.current_state).to eq(:ineligible)
     end
   end

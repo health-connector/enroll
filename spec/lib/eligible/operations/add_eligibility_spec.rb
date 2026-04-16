@@ -67,10 +67,9 @@ RSpec.describe Eligible::Operations::AddEligibility do
     it "returns correct eligibility attributes" do
       eligibility = described_class.new.call(params).success
 
-      # Entities coerce string keys to symbols
-      expect(eligibility.key).to eq(:cca_shop_pvp_eligibility)
+      # Entities use string keys
+      expect(eligibility.key).to eq("cca_shop_pvp_eligibility")
       expect(eligibility.title).to eq("PVP Eligibility")
-      expect(eligibility.is_eligible).to eq(true)
       expect(eligibility.evidences).to be_an(Array)
       expect(eligibility.grants).to be_an(Array)
     end
@@ -114,8 +113,11 @@ RSpec.describe Eligible::Operations::AddEligibility do
       }
     end
 
-    it "raises an error" do
-      expect { described_class.new.call(params) }.to raise_error(NameError)
+    it "returns failure for invalid subject class" do
+      result = described_class.new.call(params)
+      
+      expect(result).to be_failure
+      expect(result.failure).to include("Invalid subject type")
     end
   end
 

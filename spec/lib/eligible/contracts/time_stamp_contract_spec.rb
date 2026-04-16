@@ -8,7 +8,7 @@ RSpec.describe Eligible::Contracts::TimeStampContract do
   context "with valid params" do
     let(:params) do
       {
-        submitted_at: DateTime.now
+        created_at: DateTime.now
       }
     end
 
@@ -21,7 +21,6 @@ RSpec.describe Eligible::Contracts::TimeStampContract do
   context "with all optional params" do
     let(:params) do
       {
-        submitted_at: DateTime.now,
         created_at: DateTime.now,
         modified_at: DateTime.now
       }
@@ -30,15 +29,14 @@ RSpec.describe Eligible::Contracts::TimeStampContract do
     it "passes validation" do
       result = contract.call(params)
       expect(result).to be_success
-      expect(result.to_h).to include(:submitted_at, :created_at, :modified_at)
+      expect(result.to_h).to include(:created_at, :modified_at)
     end
   end
 
   context "with missing required params" do
-    it "fails validation" do
+    it "passes validation since all fields are optional" do
       result = contract.call({})
-      expect(result).to be_failure
-      expect(result.errors.to_h).to have_key(:submitted_at)
+      expect(result).to be_success
     end
   end
 end

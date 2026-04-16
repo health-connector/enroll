@@ -6,7 +6,7 @@ RSpec.describe Eligible::Entities::Grant do
   let(:value_params) do
     {
       title: "PVP Grant",
-      key: :pvp_grant
+      key: "pvp_grant"
     }
   end
 
@@ -24,7 +24,7 @@ RSpec.describe Eligible::Entities::Grant do
   let(:required_params) do
     {
       title: "PVP Eligibility Grant",
-      key: :pvp_eligibility_grant,
+      key: "pvp_eligibility_grant",
       value: Eligible::Entities::Value.new(value_params),
       state_histories: [Eligible::Entities::StateHistory.new(state_history_params)]
     }
@@ -36,7 +36,7 @@ RSpec.describe Eligible::Entities::Grant do
 
       expect(entity).to be_a(described_class)
       expect(entity.title).to eq("PVP Eligibility Grant")
-      expect(entity.key).to eq(:pvp_eligibility_grant)
+      expect(entity.key).to eq("pvp_eligibility_grant")
       expect(entity.value).to be_a(Eligible::Entities::Value)
       expect(entity.state_histories).to be_an(Array)
       expect(entity.state_histories.first).to be_a(Eligible::Entities::StateHistory)

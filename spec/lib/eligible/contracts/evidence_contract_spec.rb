@@ -90,11 +90,11 @@ RSpec.describe Eligible::Contracts::EvidenceContract do
       }
     end
 
-    it "converts symbols to strings" do
+    it "accepts symbols for state fields" do
       result = contract.call(params)
       expect(result).to be_success
       expect(result.to_h[:key]).to eq("test_evidence")
-      expect(result.to_h[:current_state]).to eq("approved")
+      expect(result.to_h[:current_state]).to eq(:approved)
     end
   end
 

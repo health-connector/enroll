@@ -8,7 +8,7 @@ RSpec.describe Eligible::Contracts::GrantContract do
   let(:value_params) do
     {
       title: "PVP Grant",
-      key: :pvp_grant
+      key: "pvp_grant"
     }
   end
 
@@ -27,7 +27,7 @@ RSpec.describe Eligible::Contracts::GrantContract do
     let(:params) do
       {
         title: "PVP Eligibility Grant",
-        key: :pvp_eligibility_grant,
+        key: "pvp_eligibility_grant",
         value: value_params,
         state_histories: [state_history_params]
       }
@@ -39,17 +39,17 @@ RSpec.describe Eligible::Contracts::GrantContract do
     end
   end
 
-  context "with Value entity" do
+  context "with Value hash" do
     let(:params) do
       {
         title: "Test Grant",
-        key: :test_grant,
-        value: Eligible::Entities::Value.new(value_params),
+        key: "test_grant",
+        value: value_params,
         state_histories: [state_history_params]
       }
     end
 
-    it "accepts Value entity directly" do
+    it "accepts Value hash directly" do
       result = contract.call(params)
       expect(result).to be_success
     end
@@ -59,7 +59,7 @@ RSpec.describe Eligible::Contracts::GrantContract do
     let(:params) do
       {
         title: "Test Grant",
-        key: :test_grant,
+        key: "test_grant",
         value: value_params,
         state_histories: [Eligible::Entities::StateHistory.new(state_history_params)]
       }
@@ -75,7 +75,7 @@ RSpec.describe Eligible::Contracts::GrantContract do
     let(:params) do
       {
         title: "Test Grant",
-        key: :test_grant,
+        key: "test_grant",
         value: value_params,
         state_histories: [
           state_history_params,
@@ -95,13 +95,13 @@ RSpec.describe Eligible::Contracts::GrantContract do
     let(:params) do
       {
         title: "Test Grant",
-        key: :test_grant,
+        key: "test_grant",
         value: value_params,
         state_histories: [state_history_params]
       }
     end
 
-    it "converts symbols to strings" do
+    it "accepts string keys" do
       result = contract.call(params)
       expect(result).to be_success
       expect(result.to_h[:key]).to eq("test_grant")
@@ -112,7 +112,7 @@ RSpec.describe Eligible::Contracts::GrantContract do
     it "fails when value is missing" do
       result = contract.call(
         title: "Test",
-        key: :test,
+        key: "test",
         state_histories: [state_history_params]
       )
       expect(result).to be_failure

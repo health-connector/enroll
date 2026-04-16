@@ -31,7 +31,7 @@ RSpec.describe Eligible::Contracts::EligibilityContract do
     {
       title: "PVP Grant",
       key: :pvp_grant,
-      value: { title: "PVP", key: :pvp },
+      value: { title: "PVP", key: "pvp" },
       state_histories: [state_history_params]
     }
   end
@@ -66,11 +66,12 @@ RSpec.describe Eligible::Contracts::EligibilityContract do
         description: "Test",
         subject: "BenefitMarkets::PremiumValueProduct",
         effective_date: Date.today,
-        evidences: [Eligible::Entities::Evidence.new(evidence_params)],
+        evidences: [Eligible::Entities::Evidence.new(evidence_params.merge(key: "shop_osse_evidence"))],
         grants: [
           Eligible::Entities::Grant.new(
             grant_params.merge(
-              value: Eligible::Entities::Value.new(title: "PVP", key: :pvp)
+              key: "pvp_grant",
+              value: Eligible::Entities::Value.new(title: "PVP", key: "pvp")
             )
           )
         ],
@@ -136,7 +137,7 @@ RSpec.describe Eligible::Contracts::EligibilityContract do
       result = contract.call(params)
       expect(result).to be_success
       expect(result.to_h[:key]).to eq("test_eligibility")
-      expect(result.to_h[:current_state]).to eq("eligible")
+      expect(result.to_h[:current_state]).to eq(:eligible)
     end
   end
 

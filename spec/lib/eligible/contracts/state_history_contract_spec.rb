@@ -35,12 +35,12 @@ RSpec.describe Eligible::Contracts::StateHistoryContract do
       }
     end
 
-    it "converts symbols to strings" do
+    it "accepts symbols for state fields" do
       result = contract.call(params)
       expect(result).to be_success
-      expect(result.to_h[:from_state]).to eq("initial")
-      expect(result.to_h[:to_state]).to eq("approved")
-      expect(result.to_h[:event]).to eq("move_to_approved")
+      expect(result.to_h[:from_state]).to eq(:initial)
+      expect(result.to_h[:to_state]).to eq(:approved)
+      expect(result.to_h[:event]).to eq(:move_to_approved)
     end
   end
 

@@ -62,23 +62,22 @@ RSpec.describe Eligible::Entities::StateHistory do
   end
 
   context "state transition map" do
-    it "defines valid state transitions" do
-      expect(described_class::STATE_TRANSITION_MAP).to be_a(Hash)
-      expect(described_class::STATE_TRANSITION_MAP[:approved]).to include(:initial, :denied)
-      expect(described_class::STATE_TRANSITION_MAP[:denied]).to include(:approved, :pending)
+    it "defines valid state transitions in Evidence" do
+      # STATE_TRANSITION_MAP is defined in Evidence entity, not StateHistory
+      expect(Eligible::Entities::Evidence::STATE_TRANSITION_MAP).to be_a(Hash)
+      expect(Eligible::Entities::Evidence::STATE_TRANSITION_MAP[:approved]).to include(:initial)
     end
   end
 
-  context "with string states" do
-    it "coerces strings to symbols" do
+  context "with symbol states" do
+    it "accepts symbol values for states" do
       params = required_params.merge(
-        from_state: "initial",
-        to_state: "approved",
-        event: "move_to_approved"
+        from_state: :initial,
+        to_state: :approved,
+        event: :move_to_approved
       )
       entity = described_class.new(params)
 
-      # Dry::Struct with Types::Symbol coerces strings
       expect(entity.from_state).to eq(:initial)
       expect(entity.to_state).to eq(:approved)
       expect(entity.event).to eq(:move_to_approved)

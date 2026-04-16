@@ -9,7 +9,7 @@ RSpec.describe Eligible::Contracts::ValueContract do
     let(:params) do
       {
         title: "PVP Value",
-        key: :pvp_value
+        key: "pvp_value"
       }
     end
 
@@ -27,10 +27,10 @@ RSpec.describe Eligible::Contracts::ValueContract do
       }
     end
 
-    it "converts symbol to string" do
+    it "fails validation for symbol key" do
       result = contract.call(params)
-      expect(result).to be_success
-      expect(result.to_h[:key]).to eq("test_key")
+      expect(result).to be_failure
+      expect(result.errors[:key]).to include("must be a string")
     end
   end
 

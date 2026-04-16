@@ -28,7 +28,7 @@ module Eligible
         'BenefitMarkets::Products::HealthProducts::HealthProduct' => BenefitMarkets::Products::HealthProducts::HealthProduct,
         'BenefitMarkets::Products::DentalProducts::DentalProduct' => BenefitMarkets::Products::DentalProducts::DentalProduct,
         'Eligible::Entities::Eligibility' => Eligible::Entities::Eligibility,
-        'BenefitMarkets::Entities::PremiumValueProduct' => BenefitMarkets::Entities::PremiumValueProduct
+        'BenefitMarkets::Products::PremiumValueProduct' => BenefitMarkets::Products::PremiumValueProduct
       }.freeze
 
       def validate_input_params(params)

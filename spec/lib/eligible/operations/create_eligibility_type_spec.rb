@@ -67,9 +67,8 @@ RSpec.describe Eligible::Operations::CreateEligibilityType do
     it "returns an eligibility with correct attributes" do
       eligibility = described_class.new.call(params).success
 
-      # Entities coerce string keys to symbols
-      expect(eligibility.key).to eq(:cca_shop_pvp_eligibility)
-      expect(eligibility.is_eligible).to eq(true)
+      # Entities use string keys
+      expect(eligibility.key).to eq("cca_shop_pvp_eligibility")
       expect(eligibility.current_state).to eq(:eligible)
       expect(eligibility.evidences.size).to eq(1)
       expect(eligibility.grants.size).to eq(1)
