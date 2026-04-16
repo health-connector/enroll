@@ -21,7 +21,8 @@ module SponsoredBenefits
 
       def export
         render pdf: 'plan_comparison_export',
-               template: 'sponsored_benefits/organizations/plan_design_proposals/plan_comparisons/_export.html.erb',
+               template: 'sponsored_benefits/organizations/plan_design_proposals/plan_comparisons/_export',
+               formats: [:html],
                disposition: 'attachment',
                locals: { qhps: qhps, employer_costs: calculate_employer_costs, visit_types: visit_types }
       end
