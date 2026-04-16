@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh api *)",
+      "Bash(docker run *)",
+      "Bash(sed -n '270,290p' /Users/michaelkaramanov/Desktop/health-connector/enroll/components/old_sponsored_benefits/app/assets/javascripts/sponsored_benefits/plan_design_proposals.js)",
+      "Bash(sed -n '430,450p' /Users/michaelkaramanov/Desktop/health-connector/enroll/components/sponsored_benefits/app/assets/javascripts/sponsored_benefits/plan_design_proposals.js)",
+      "Bash(sed -n '630,645p' /Users/michaelkaramanov/Desktop/health-connector/enroll/components/sponsored_benefits/app/assets/javascripts/sponsored_benefits/plan_design_proposals.js)",
+      "Bash(sed -n '5,15p' /Users/michaelkaramanov/Desktop/health-connector/enroll/app/views/employers/employer_profiles/_download_new_template.html.erb)",
+      "Bash(sed -n '1,12p' /Users/michaelkaramanov/Desktop/health-connector/enroll/app/views/employers/employer_profiles/_file_not_attached_error.html.erb)",
+      "Bash(sed -n '5,18p' /Users/michaelkaramanov/Desktop/health-connector/enroll/app/views/shared/_alph_paginate.html.erb)",
+      "Bash(sed -n '5,18p' /Users/michaelkaramanov/Desktop/health-connector/enroll/components/benefit_sponsors/app/views/benefit_sponsors/shared/_alph_paginate.html.erb)",
+      "Bash(sed -n '1,30p' /Users/michaelkaramanov/Desktop/health-connector/enroll/app/controllers/employers/employer_attestations_controller.rb)",
+      "Bash(sed -n '70,85p' /Users/michaelkaramanov/Desktop/health-connector/enroll/app/controllers/employers/employer_attestations_controller.rb)",
+      "Bash(sed -n '30,42p' /Users/michaelkaramanov/Desktop/health-connector/enroll/script/find_unlinked_employees.rb)",
+      "Bash(sed -n '100,115p' /Users/michaelkaramanov/Desktop/health-connector/enroll/script/policies_for_simulated_renewals.rb)",
+      "Bash(python3 -c \"import sys,json; data=json.load\\(sys.stdin\\); [print\\(a.get\\('tool',{}\\).get\\('name','?'\\), a.get\\('created_at','?'\\), a.get\\('results_count','?'\\)\\) for a in data]\")",
+      "Bash(python3 -c \"import sys,json; data=json.load\\(sys.stdin\\); [print\\(a.get\\('tool',{}\\).get\\('name','?'\\), a.get\\('ref','?'\\), a.get\\('created_at','?'\\), a.get\\('results_count','?'\\)\\) for a in data]\")",
+      "Bash(python3 -c \"import sys,json; data=json.load\\(sys.stdin\\); tools=set\\(a.get\\('tool',{}\\).get\\('name','?'\\) for a in data\\); print\\('Unique tools:', tools\\)\")",
+      "Bash(gh search *)",
+      "Bash(python3 -c \"import sys,json; data=json.load\\(sys.stdin\\); print\\(data[0].get\\('tool',{}\\).get\\('name'\\) if data else 'empty'\\)\")",
+      "Bash(python3 -c ' *)",
+      "Bash(python3 -c \"import sys,json; alerts=json.load\\(sys.stdin\\); [print\\(a['tool']['name'], a['number']\\) for a in alerts]\")",
+      "Bash(python3 -c \"import sys,json; alerts=json.load\\(sys.stdin\\); tools=set\\(a['tool']['name'] for a in alerts\\); print\\('\\\\n'.join\\(sorted\\(tools\\)\\)\\)\")",
+      "Bash(python3 -c \"import sys,json; alerts=json.load\\(sys.stdin\\); [print\\(json.dumps\\(a, indent=2\\)\\) for a in alerts[:1]]\")",
+      "Bash(python3 -c \"import sys,json; analyses=json.load\\(sys.stdin\\); [print\\(a['tool']['name'], a['ref'], a['created_at'][:10]\\) for a in analyses]\")",
+      "Bash(python3 -c \"import sys,json; analyses=json.load\\(sys.stdin\\); tools=set\\(a['tool']['name'] for a in analyses\\); print\\('Tools found:', sorted\\(tools\\)\\); brakeman=[a for a in analyses if 'rakeman' in a['tool']['name']]; print\\('Brakeman analyses:', len\\(brakeman\\)\\)\")",
+      "Bash(python3 -c \"import sys,json; analyses=json.load\\(sys.stdin\\); tools=set\\(a['tool']['name'] for a in analyses\\); print\\('Tools found:', sorted\\(tools\\)\\)\")",
+      "Bash(python3 -c \"import sys,json; analyses=json.load\\(sys.stdin\\); print\\(len\\(analyses\\), 'analyses'\\); tools=set\\(a['tool']['name'] for a in analyses\\); print\\('Tools:', sorted\\(tools\\)\\)\")",
+      "Bash(cat .github/workflows/*.yml)",
+      "Bash(gh run *)",
+      "Read(//tmp/**)"
+    ]
+  }
+}
