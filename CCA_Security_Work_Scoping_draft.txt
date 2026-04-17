@@ -1,5 +1,18 @@
 # CCA Security Work Scoping
 
+Remove aca_entities dependency from MA Enroll (High/Urgent) (MA only)
+  - outcome: enroll app does not include aca_entities gem; Premium Value Product (PVP) functionality is unaffected and works exactly as it did before
+
+Establish Security Baseline post ROR.v.8.1/3.2 upgrade, ongoing maintenance strategy proposal, and remediation (High) (all clients)
+  - for all repos, generate a report of all the security vulnerabilities in the codebase currently flagged by the following tools (where applicable):
+    - Bearer
+    - Brakeman
+    - CodeQL
+    - Grype
+  - break down the findings by severity and vulnerability type
+  - remediate findings in order of severity starting with critical vulnerabilities
+  - goal is to eliminate all findings, but MVP is critical and high severity findings
+
 Analysis of all Feature Flags (High) (all clients)
   - outcome: produce document that outlines all feature flags with the following information:
     - environment variable name used to enable/disable the feature flag (if applicable)
@@ -11,17 +24,13 @@ Analysis of all Feature Flags (High) (all clients)
     - a recommendation on whether to remove the feature flag or keep it
     - open questions that must be answered to make a high confidence recommendation
 
-CK Editor (Medium) (all clients)
-  - confirm alignment on agreed upon approach for upgrading/replacing CK Editor internally
-  - communicate to client impacts of the approach (e.g., licensing fee, UI may look different for notice templates, etc.)
-  - estimate lift and time to complete the agreed upon approach
-
-Datatables (Medium) (MA only; eventually all clients)
-  - implement and test POC for replacing datatables in a deployed env with prod-like data
-  - communicate to client any impacts of replacing datatables (.e.g. the tables may look different in the UI, etc.)
+Upgrade debian and node versions (High) (all clients)
+  - outcome: Debian 13 (trixie) and Node 24 used to build the images
+  - note: this may be handled by devops team
 
 Make sure all our security GHAs are in all the repos (High)
 CURRENTLY ONLY VIABLE IN IC REPOS; DC AND MA REQUIRE CLIENT COMMUNICATION AND APPROVAL
+  - need to validate how we will define "all the repos"; likely need to get a list approved by the lead engineers
   - 4 code scanning tools:
     - Bearer
     - Brakeman
@@ -43,19 +52,10 @@ CURRENTLY ONLY VIABLE IN IC REPOS; DC AND MA REQUIRE CLIENT COMMUNICATION AND AP
     - medicaid_eligibility
     - cartafact
     - glue?
-
-Establish Security Baseline post ROR.v.8.1/3.2 upgrade, ongoing maintenance strategy proposal, and remediation (High) (all clients)
-  - for all repos, generate a report of all the security vulnerabilities in the codebase currently flagged by the following tools (where applicable):
-    - Bearer
-    - Brakeman
-    - CodeQL
-    - Grype
-  - break down the findings by severity and vulnerability type
-  - remediate findings in order of severity starting with critical vulnerabilities
-  - goal is to eliminate all findings, but MVP is critical and high severity findings
+    - quoting_tool
 
 Dead code cleanup (High) (all clients)
-  - outcome (phase 1): generate a report of all the dead code in the codebase, including:
+  - outcome (phase 1): generate a report of dead code in the codebase, including:
     - description of the functionality
     - justification for why the code is dead (e.g. it was moved to a different namespace, it was replaced by a new feature, it was abandoned during development, etc.)
     - locations in the codebase and code paths
@@ -63,18 +63,22 @@ Dead code cleanup (High) (all clients)
     - open questions that must be answered to make clean up high confidence
     - notes on what should be done for regression testing to make sure removal did not break anything
   - outcome (phase 2): determine which clean up efforts are safest and most feasible given project constraints and then remove the code
-    
 
-Data anonymization of db dumps (all clients)
-  - NEED TO PRESENT THIS SOLUTION TO LEAD ENGINEERS BEFORE PROCEEDING
-  - outcome: produce an anonymized data dump that developers and QAs can use locally for testing and feature development, thus reducing reliance on remote environments.
-
+Data anonymization of db dumps (High) (all clients)
+  - First need to present and approve the technical solution to lead engineers
+  - outcome: produce an anonymized data dump that developers and QAs can use locally for testing and debugging/feature development, thus reducing reliance on remote environments.
 
 Set up local k8s cluster and test data dump for QA (High) (MA and DC only)
   - outcome: QAs can run the app locally via k8s and pre-built images along with a dump of mock data, thereby eliminating the need for QA testing against remote environments
 
-Remove aca_entities dependency from MA Enroll (High/Urgent) (MA only)
-  - outcome: enroll app does not include aca_entities gem; Premium Value Product (PVP) functionality is unaffected and works exactly as it did before
+CK Editor (Medium) (all clients)
+  - confirm alignment on agreed upon approach for upgrading/replacing CK Editor internally
+  - communicate to client impacts of the approach (e.g., licensing fee, UI may look different for notice templates, etc.)
+  - estimate lift and time to complete the agreed upon approach
+
+Datatables (Medium) (MA only for POC; eventually all clients)
+  - implement and test POC for replacing datatables in a deployed env with prod-like data
+  - communicate to client any impacts of replacing datatables (.e.g. the tables may look different in the UI, etc.)
 
 Removal of “Mongoid::Attributes::Dynamic” (Medium) (all clients)
   - outcome: no models in the codebase use the Mongoid::Attributes::Dynamic module
@@ -84,7 +88,3 @@ Clean up all our unwanted/unneeded indexes. This is slowing down the writes to t
 
 Clean up all the legacy acapi listeners that are not in use today. (Low) (all clients)
   - outcome: no legacy acapi listeners in the codebase
-
-Upgrade debian and node versions (High) (all clients)
-  - outcome: Debian 13 (trixie) and Node 24 used to build the images
-  - note: this may be handled by devops team
