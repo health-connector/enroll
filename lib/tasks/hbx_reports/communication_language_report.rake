@@ -22,25 +22,25 @@ namespace :reports do
       total       = 0
       error_count = 0
 
-      puts "Starting communication preference report at #{Time.now}"
+      puts "Starting communication preference report at #{Time.now}" unless Rails.env.test?
 
       Person.all_employee_roles.active.no_timeout.each do |person|
         person.active_employee_roles.each do |er|
-          begin
-            employer = er.employer_profile
-            next unless employer.present? && er_active_employer?(employer)
 
-            pref = communication_preference_bucket(er.contact_method)
-            lang = language_preference_bucket(er.language_preference)
+          employer = er.employer_profile
+          next unless employer.present? && er_active_employer?(employer)
 
-            pref_counts[pref] += 1
-            lang_counts[lang] += 1
-            matrix[pref][lang] += 1
-            total += 1
-          rescue Exception => e
-            error_count += 1
-            puts "Error on employee_role #{er&.id} (person #{person&.hbx_id}): #{e.message}"
-          end
+          pref = communication_preference_bucket(er.contact_method)
+          lang = language_preference_bucket(er.language_preference)
+
+          pref_counts[pref] += 1
+          lang_counts[lang] += 1
+          matrix[pref][lang] += 1
+          total += 1
+        rescue StandardError => e
+          error_count += 1
+          puts "Error on employee_role #{er&.id} (person #{person&.hbx_id}): #{e.message}" unless Rails.env.test?
+
         end
       end
 
@@ -57,8 +57,8 @@ namespace :reports do
         preferences.each { |p| csv << [p, *languages.map { |l| matrix[p][l] }] }
       end
 
-      puts "Report written to: #{file_name}"
-      puts "Total active EE rows: #{total}, Errors skipped: #{error_count}"
+      puts "Report written to: #{file_name}" unless Rails.env.test?
+      puts "Total active EE rows: #{total}, Errors skipped: #{error_count}" unless Rails.env.test?
     end
   end
 end
