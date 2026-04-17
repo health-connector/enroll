@@ -82,6 +82,21 @@ module SponsoredBenefits
         @highest_cost_plan ||= ::Plan.find(highest_cost_plan_id)
       end
 
+      def delete_benefit_group_assignments_and_enrollments
+        census_employees.each do |ce|
+          benefit_group_assignments = ce.benefit_group_assignments.where(benefit_group_id: id)
+          next if benefit_group_assignments.blank?
+
+          benefit_group_assignments.each do |bga|
+            bga.hbx_enrollments.each(&:destroy)
+            bga.destroy
+          end
+
+          remaining_benefit_group = benefit_application.benefit_groups.detect { |bg| bg.id != id }
+          ce.create_benefit_group_assignment(remaining_benefit_group) if remaining_benefit_group.present?
+        end
+      end
+
     end
   end
 end
