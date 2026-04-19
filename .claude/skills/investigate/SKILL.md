@@ -5,6 +5,9 @@ description: Debug and research issues by pulling context from ClickUp and the c
 
 ## Investigate
 
+> **Codebase knowledge:** Consult `.claude/KNOWLEDGE.md` for dev environment quirks, known model
+> behaviors, and common failure patterns before diving into the codebase.
+
 A structured investigation workflow that gathers context from ClickUp and the codebase, then synthesizes findings into an actionable report.
 
 ### Configuration

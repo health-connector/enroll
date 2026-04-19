@@ -5,6 +5,9 @@ description: Commit changes, push to feature branch, and create PR with ClickUp 
 
 ## Commit, Push, and Create PR
 
+> **Codebase knowledge:** Consult `.claude/KNOWLEDGE.md` for conventions, known model behaviors,
+> and environment-specific facts before reviewing or describing changes.
+
 ### Configuration
 
 - **ClickUp Base URL:** `https://app.clickup.com/t/`

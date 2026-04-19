@@ -5,6 +5,9 @@ description: Review code changes before creating a PR. Runs quality checks and p
 
 ## Local Code Review
 
+> **Codebase knowledge:** Consult `.claude/KNOWLEDGE.md` for dev environment facts, known model
+> behaviors, and patterns before reviewing code changes.
+
 Review the current changes and provide feedback:
 
 ### Step 1: Gather Changes

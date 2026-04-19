@@ -132,8 +132,9 @@ Screenshots should be uploaded to ClickUp before deletion. Reports are saved to 
 ---
 
 ## Remember
-1. **Snapshot before acting** - Get refs from current page state
-2. **Wait after interactions** - Turbo needs time to update
-3. **Check console errors** - JS errors indicate problems
-4. **Test mobile** - Resize to 375x667 for mobile testing
-5. **Document with screenshots** - Offer to add to PR when done
+1. **Consult `.claude/KNOWLEDGE.md`** — Playwright patterns, Enroll-specific quirks, and jQuery datepicker solutions are documented there
+2. **Snapshot before acting** - Get refs from current page state
+3. **Wait after interactions** - Turbo needs time to update
+4. **Check console errors** - JS errors indicate problems
+5. **Test mobile** - Resize to 375x667 for mobile testing
+6. **Document with screenshots** - Offer to add to PR when done
