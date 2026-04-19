@@ -1,0 +1,45 @@
+scenario:
+  name: "Admin enters invalid DOB or SSN"
+  description: "Verify that an HBX admin sees a validation error when entering an invalid SSN on the Edit DOB/SSN form"
+  tags: [validation, hbx_admin, dob_ssn]
+
+  setup:
+    auth: admin_login
+    setup_script: .aidocs/scripts/qa_seed_hbx_profiles_scenarios.rb
+    variant: invalid_ssn
+    # Background seeds: CCA site, benefit market, employer ACME Widgets Inc.,
+    # census employee Patrick Doe, enrolled employee with plan selection,
+    # and HBX staff user with HBX staff subrole.
+
+  steps:
+    - name: "Navigate to HBX Admin portal"
+      url: "/exchanges/hbx_profiles"
+      wait_for: "I'm an Admin"
+      screenshot: true
+      assertions:
+        - text_present: "I'm an Admin"
+
+    - name: "Search for employee and open Edit DOB/SSN"
+      wait_for: "Employees"
+      screenshot: true
+      actions:
+        - click: "Employees tab"
+      assertions:
+        - text_present: "Patrick Doe"
+
+    - name: "Open Edit DOB/SSN modal"
+      screenshot: true
+      actions:
+        - click: "Actions for Patrick Doe"
+        - click: "Edit DOB / SSN"
+      assertions:
+        - text_present: "Edit DOB / SSN"
+
+    - name: "Enter invalid SSN and submit"
+      screenshot: true
+      actions:
+        - type: { field: "ssn", text: "000000000" }
+        - click: "Save"
+      assertions:
+        - text_present: "SSN must"
+        - text_absent: "SSN/DOB was saved successfully"

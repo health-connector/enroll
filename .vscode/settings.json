@@ -1,0 +1,21 @@
+{
+  "chat.tools.terminal.autoApprove": {
+    "rvm": true,
+    "/^cat ~/Library/Application\\\\ Support/Code/User/settings\\.json \\| python3 -c \"import sys,json; d=json\\.load\\(sys\\.stdin\\); keys=\\[k for k in d if 'mcp' in k\\.lower\\(\\)\\]; print\\(keys\\)\" 2>/dev/null \\|\\| echo \"no mcp keys\"$/": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "/^grep hbci /etc/services 2>/dev/null \\|\\| python3 -c \"import socket; print\\(socket\\.getservbyname\\('hbci'\\)\\)\" 2>/dev/null \\|\\| echo \"hbci port unknown\"$/": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "/^source ~/\\.rvm/scripts/rvm && rvm use 3\\.4\\.7@ma && bundle exec rails runner \"\np = Person\\.where\\(first_name: 'Patrick', last_name: 'Doe'\\)\\.first\nbegin\n  ssn = p\\.ssn\n  puts 'SSN ok: ' \\+ ssn\\.to_s\nrescue => e\n  puts 'error: ' \\+ e\\.message\nend\n\" 2>&1 \\| tail -5$/": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "/^source ~/\\.rvm/scripts/rvm && rvm use 3\\.4\\.7@ma && bundle exec rails runner \"\nu = User\\.find_by\\(email: 'hbxadmin_qa@example\\.com'\\)\np = u\\.person\nsr = p\\.hbx_staff_role\nputs 'role: ' \\+ sr\\.inspect\nperm = sr\\.permission\nputs 'permission: ' \\+ perm\\.inspect\nputs 'can_update_ssn: ' \\+ perm\\.can_update_ssn\\.to_s\n\" 2>&1 \\| tail -10$/": {
+      "approve": true,
+      "matchCommandLine": true
+    }
+  }
+}
