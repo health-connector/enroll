@@ -86,6 +86,29 @@ RVM gemset: The repo's `.ruby-gemset` can override `rvm use`. Always prefix with
 
 These are copy-paste snippets for common Enroll-specific browser interactions.
 
+### Hidden radio buttons — use JS `.click()`
+Some radio buttons (e.g. gender on census employee form) are hidden behind styled labels.
+`page.click('#census_employee_gender_male')` will timeout because the element isn't visible.
+Use `page.evaluate()` instead:
+
+```javascript
+document.querySelector('#census_employee_gender_male').click();
+```
+
+### Broker modal Confirm button — it's an `<input>`, not `<a>` or `<button>`
+The broker selection confirmation modal uses `<input type="submit" value="Confirm">` with
+class `btn btn-primary mtz interaction-click-control-confirm`. Each broker row has its own
+hidden modal, so there are N Confirm buttons in the DOM. Find the visible one:
+
+```javascript
+const confirms = await page.$$('input[value="Confirm"]');
+for (const btn of confirms) {
+  if (await btn.isVisible()) { await btn.click(); break; }
+}
+```
+
+Do NOT use `a:has-text("Confirm")` or `button:has-text("Confirm")` — they won't match.
+
 ### jQuery Datepicker — set both fields
 Date inputs in Enroll use a **visible** `MM/DD/YYYY` display field AND a **hidden** `YYYY-MM-DD`
 value field. Playwright's `fill()` only updates the visible field. Always set both:
@@ -207,9 +230,10 @@ rails runner .aidocs/seeds/census_employee_enrollable.rb > /tmp/employee.json
 
 | Role | Email | Password |
 |---|---|---|
-| HBX Admin | hbxadmin_qa@example.com | aA1!aA1!aA1! |
+| HBX Admin (system) | admin@dc.gov | Password1! |
+| HBX Admin (seeded) | hbxadmin_qa@example.com | aA1!aA1!aA1! |
 | Employer (rehire test) | employer_rehire_qa@example.com | aA1!aA1!aA1! |
-| Employer (E2E) | employer_qa@example.com | aA1!aA1!aA1! |
+| Employer (ABC) | employer_qa@example.com | Password1! |
 | Employee (E2E) | john.employee@example.com | Password1! |
 
 Password rules: min 8 chars, 1 upper, 1 lower, 1 digit, 1 special.
@@ -225,3 +249,35 @@ Password rules: min 8 chars, 1 upper, 1 lower, 1 digit, 1 special.
 | Employee privacy/start | `/insured/employee/privacy` |
 | Employee signup | `/users/sign_up` |
 | Broker registration | `/benefit_sponsors/profiles/registrations/new?profile_type=broker_agency` |
+| Employer profile (admin) | `/benefit_sponsors/profiles/employers/employer_profiles/<profile_id>` |
+| Employer brokers tab | `/benefit_sponsors/profiles/employers/employer_profiles/<profile_id>?tab=brokers` |
+
+---
+
+## Census Employee Termination
+
+- Termination is done via **Actions → Terminate** on the employer roster page.
+- The termination date must be within the **past 60 days** or a flash error appears, but the termination may still process in the DB.
+- After termination, `aasm_state` becomes `employee_termination_pending`.
+- Termination date is set via jQuery datepicker (see pattern above — set both visible + hidden fields).
+
+---
+
+## Broker Assignment (Admin Portal)
+
+Flow: Employers tab → search employer → click employer → Brokers tab → Browse Brokers → Select Broker → Confirm
+
+- The **Change Broker** button opens a termination confirmation modal.
+- After termination, page shows "no active Broker" with a **Browse Brokers** button.
+- Browse Brokers lists all approved agencies in a table.
+- "Select Broker" per row opens a per-row modal with `input[value="Confirm"]` (see Playwright pattern above).
+- On success: flash "Your broker has been notified of your selection..." and the Active Broker card is shown.
+
+### Broker Agencies in Dev
+
+| Agency | Primary Broker | NPN | Profile ID |
+|---|---|---|---|
+| Maria is a Broker | M D | 8972389723 | `5e44612707f01143757de857` |
+| Sam is a Broker | Sam is a Broker Broker | 3432322333 | `5ec418cd07f01742c4cb00c` |
+| Make Billy D. Ur Broker 2Day | Billy D. Broker | 3902302932 | `60345bfd07f01177ec7c24f0` |
+| QA Broker Agency, Inc. | Bob Broker | QA123456 | `69e668638136f3dd293dd5ac` |
