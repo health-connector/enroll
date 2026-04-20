@@ -32,6 +32,8 @@ module Operations
 
       def build(values)
         grant_key = values[:grant_key]
+        # NOTE: grant_value is validated but not used in the grant structure
+        # The value hash is built from grant_key only, as per the original aca_entities implementation
 
         Success(
           {
