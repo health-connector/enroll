@@ -27,16 +27,16 @@ describe 'Communication language summary report', :dbclean => :after_each do
     end
 
     it 'includes a Preference section header row' do
-      expect(CSV.read(file_name)).to include(['Preference', ''])
+      expect(CSV.read(file_name)).to include(['EE Communication Preference', ''])
     end
 
     it 'includes a Language section header row' do
-      expect(CSV.read(file_name)).to include(['Language', ''])
+      expect(CSV.read(file_name)).to include(['EE Language Preference', ''])
     end
 
     it 'includes a cross-tab header row with all language columns' do
       expect(CSV.read(file_name)).to include(
-        ['Preference and Language', 'English', 'Spanish', 'Amharic', 'Other or Blank']
+        ['EE Preference and Language', 'English', 'Spanish', 'Amharic', 'Other or Blank']
       )
     end
 
@@ -52,6 +52,39 @@ describe 'Communication language summary report', :dbclean => :after_each do
       data = CSV.read(file_name)
       %w[English Spanish Amharic].each do |label|
         expect(data.any? { |row| row.first == label && row.size == 2 }).to be true
+      end
+    end
+  end
+
+  describe 'employer counting' do
+    context 'with multiple active ERs having different contact methods' do
+      let!(:org_one)   { FactoryBot.create(:employer) }
+      let!(:org_two)   { FactoryBot.create(:employer) }
+      let!(:org_three) { FactoryBot.create(:employer) }
+
+      before do
+        org_one.employer_profile.update_attributes(contact_method: 'Only Electronic communications')
+        org_two.employer_profile.update_attributes(contact_method: 'Only Paper communication')
+        org_three.employer_profile.update_attributes(contact_method: 'Paper and Electronic communications')
+        Rake::Task[task_name].invoke
+      end
+
+      it 'counts ER preferences correctly' do
+        data = CSV.read(file_name)
+        er_index = data.index { |r| r.first == 'ER Communication Preference' && r[1] == '' }
+        expect(er_index).not_to be_nil
+
+        # ER rows are located immediately after the ER header
+        paper_row      = data[er_index + 1]
+        electronic_row = data[er_index + 2]
+        pae_row        = data[er_index + 3]
+
+        expect(paper_row).to eq ['Paper', '1']
+        expect(electronic_row).to eq ['Electronic', '1']
+        expect(pae_row).to eq ['Paper and Electronic', '1']
+
+        total_row = data[er_index + 1 + 4]
+        expect(total_row).to eq ['Total', '3']
       end
     end
   end
