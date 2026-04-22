@@ -30,4 +30,4 @@ registry:
           - key: :standard
             item: 'Standard'
       - key: :employer_broker_ui_enhancements
-        is_enabled: <%= ENV['EMPLOYER_BROKER_UI_ENHANCEMENTS_IS_ENABLED'] || true %>
+        is_enabled: <%= ENV['EMPLOYER_BROKER_UI_ENHANCEMENTS_IS_ENABLED'] || false %>

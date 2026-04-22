@@ -72,10 +72,13 @@
                   <%= check_box_tag "#{@location_id}", plan.id, false, id: "plan-comparison-#{plan.id}" %>
                   <label for="plan-comparison-<%= plan.id %>">Compare</label>
                 <% end %>
+              <% elsif ::EnrollRegistry.feature_enabled?(:employer_broker_ui_enhancements) %>
+                <%= check_box_tag "#{@location_id}", plan.id, false, id: "plan-comparison-#{plan.id}", class: "bqt-plan-comparison", data: { planId: plan.id, kind: kind }, onchange:"toggleComparePlan(this)" %>
+                <label for="plan-comparison-<%= plan.id %>">Compare</label>
               <% end %>
             </span>
             <span class="col-xs-6 plan-select">
-                <%= radio_button_tag :reference_plan, "#{plan.id}", false, onclick: "setMyPlans(this)", data: { planId: plan.id } %>
+                <%= radio_button_tag :reference_plan, "#{plan.id}", false, onclick: "setMyPlans(this)", data: { planId: plan.id }, class: "reference-plan-select-btn" %>
               <label for="reference_plan_<%= plan.id %>">Select</label>
             </span>
           </div>

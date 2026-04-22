@@ -496,7 +496,9 @@ Then(/^.+ should see the plan year$/) do
 end
 
 When(/^.+ clicks? on publish plan year$/) do
-  find('.interaction-click-control-publish-plan-year', wait: 2).click
+  button = find('.interaction-click-control-publish-plan-year', wait: 2)
+  page.execute_script("arguments[0].scrollIntoView(true);", button)
+  page.execute_script("arguments[0].click();", button)
   sleep 2
 end
 
@@ -620,7 +622,9 @@ And(/^employer clicked on add plan year button$/) do
 end
 
 And(/^employer clicked on edit plan year button$/) do
-  find('.interaction-click-control-edit-plan-year').click
+  button = find('.interaction-click-control-edit-plan-year')
+  page.execute_script("arguments[0].scrollIntoView(true);", button)
+  page.execute_script("arguments[0].click();", button)
 end
 
 And(/^.+ should see a success message after clicking on save plan year button$/) do

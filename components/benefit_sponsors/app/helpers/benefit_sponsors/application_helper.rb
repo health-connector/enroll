@@ -18,6 +18,16 @@ module BenefitSponsors
       date_value.strftime("%m/%d/%Y") if date_value.respond_to?(:strftime)
     end
 
+    def strip_year_from_title(title)
+      if EnrollRegistry[:employer_broker_ui_enhancements].enabled?
+        # Remove appended year patterns like "(2025)", " (2025)", or multiple years like "(2022)(2023)(2024)"
+        # Matches one or more occurrences of (YYYY) at the end of the title
+        title.to_s.gsub(/(?:\s*\(\d{4}\))+\s*$/, '').strip
+      else
+        title.to_s
+      end
+    end
+
     def menu_tab_class(a_tab, current_tab)
       (a_tab == current_tab) ? raw(" class=\"active\"") : ""
     end

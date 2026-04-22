@@ -52,8 +52,8 @@
           <% if defined?(employer_costs) && employer_costs.present? %>
             <tr>
               <th style="background-color: #f5f5f5;">
-                Estimated Employer Monthly Cost<br>
-                <small>(Employer Contribution)</small>
+                <%= l10n('employers.plan_years.benefit_package.estimated_monthly_cost') %><br>
+                <small>(<%= l10n('employers.plan_years.benefit_package.employer_contribution') %>)</small>
               </th>
               <% qhps.each do |qhp| %>
                 <th colspan="2" style="text-align: center; vertical-align:middle; background-color: #f5f5f5; color: #000; font-weight: bold; font-size: 12pt;">
