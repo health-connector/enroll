@@ -260,7 +260,7 @@ javascript:
       }
     })
 
-    document.getElementById('plansTotalCount').innerHTML = `Displaying: <b>${newFilteredProducts.length} plan${newFilteredProducts.length != 1 ? 's' : ''}`;
+    document.querySelector('.dentalCarrierProductsList:not(.hidden) #plansTotalCount').innerHTML = `Displaying: <b>${newFilteredProducts.length} plan${newFilteredProducts.length != 1 ? 's' : ''}`;
     $('.reference-plans input.planSelectInput:visible').first().click()
   }
 
