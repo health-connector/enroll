@@ -9,7 +9,7 @@
         - carriers_hash.each do |carrier_arr|
           - carrier_name = carrier_arr.first
           - products = carrier_arr.last
-          div id="carrierProducts#{carrier_name}" class="hidden"
+          div id="carrierProducts#{carrier_name}" class="dentalCarrierProductsList hidden"
             .row.mb-1
               span.pull-right.mr-3
                 strong#plansTotalCount Displaying: #{products.length} Plans
@@ -77,12 +77,13 @@
                               span.checkmark-compare
                               span.checkmark-text style="top: -1px;"= l10n('employers.plan_years.benefit_package.compare')
 
-        - if ::EnrollRegistry.feature_enabled?(:employer_broker_ui_enhancements)
-          div style="text-align: center; margin-top: 20px; margin-bottom: 20px;"
-            button#compareSelectedPlansButton.btn.btn-primary type="button" onclick="compareSelectedPlans(event)" disabled="" style="margin-right: 10px;"
-              = l10n('employers.plan_years.benefit_package.compare_plans')
-            button#clear-comparison-button.btn.btn-default type="button" onclick="clearSelectedPlans()"
-              = l10n('employers.plan_years.benefit_package.clear_all')
+
+  - if ::EnrollRegistry.feature_enabled?(:employer_broker_ui_enhancements)
+    div style="text-align: center; margin-top: 20px; margin-bottom: 20px;"
+      button#compareSelectedPlansButton.btn.btn-primary type="button" onclick="compareSelectedPlans(event)" disabled="" style="margin-right: 10px;"
+        = l10n('employers.plan_years.benefit_package.compare_plans')
+      button#clear-comparison-button.btn.btn-default type="button" onclick="clearSelectedPlans()"
+        = l10n('employers.plan_years.benefit_package.clear_all')
 
 // Modal to view plan summary
 .modal.fade#viewSummaryModal tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
@@ -231,6 +232,10 @@ javascript:
       $(this).prop("checked", false);
     }
 
+    applyAllFilters()
+  }
+
+  function applyAllFilters() {
     var search_types = {};
     $('.plan-filter-checkbox').each(function() {
       var option = $(this);
@@ -241,7 +246,7 @@ javascript:
     })
 
     var newFilteredProducts = []
-    $('.reference-plans').each(function(i, plan){
+    $('.dentalCarrierProductsList:not(.hidden) .reference-plans').each(function(i, plan){
       $(plan).hide()
       var plan_matches = [];
       Object.keys(search_types).forEach(function(type) {
@@ -255,7 +260,7 @@ javascript:
       }
     })
 
-    document.getElementById('plansTotalCount').innerHTML = `Displaying: <b>${newFilteredProducts.length} plan${newFilteredProducts.length > 1 ? 's' : ''}`;
+    document.querySelector('.dentalCarrierProductsList:not(.hidden) #plansTotalCount').innerHTML = `Displaying: <b>${newFilteredProducts.length} plan${newFilteredProducts.length != 1 ? 's' : ''}`;
     $('.reference-plans input.planSelectInput:visible').first().click()
   }
 
