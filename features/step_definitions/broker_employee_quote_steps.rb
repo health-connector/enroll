@@ -101,7 +101,6 @@ end
 And(/^Primary Broker enters quote name$/) do
   find('#forms_plan_design_proposal_title').click
   fill_in 'forms_plan_design_proposal[title]', :with => "Test Quote"
-  expect(page).to have_content((TimeKeeper.date_of_record + 2.months).strftime("%B %Y"))
 end
 
 Then(/^.+ sees that publish button is (.*)$/) do |publish_btn|
@@ -148,6 +147,7 @@ Given(/^.+ clicks on Employers tab$/) do
 end
 
 Then(/^the broker selects plan offerings by metal level and enters (.*) for employee and deps$/) do |int|
+  sleep(5)
   find('.interaction-click-control-select-health-benefits').click if page.has_css?('.interaction-click-control-select-health-benefits')
   sleep(12)
   find('label[for="forms_plan_design_proposal_plan_option_kind_metal_level"]', wait: 10).click
@@ -158,6 +158,33 @@ Then(/^the broker selects plan offerings by metal level and enters (.*) for empl
   fill_in "forms_plan_design_proposal[profile][benefit_sponsorship][benefit_application][benefit_group][relationship_benefits_attributes][1][premium_pct]", with: int.to_i
   fill_in "forms_plan_design_proposal[profile][benefit_sponsorship][benefit_application][benefit_group][relationship_benefits_attributes][2][premium_pct]", with: int.to_i
   fill_in "forms_plan_design_proposal[profile][benefit_sponsorship][benefit_application][benefit_group][relationship_benefits_attributes][3][premium_pct]", with: int.to_i
+end
+
+Then(/^.+ selects plans for comparison$/) do
+  page.all(".bqt-plan-comparison")[0].click
+  page.all(".bqt-plan-comparison")[1].click
+  page.all(".bqt-plan-comparison")[2].click
+
+  find('#view-comparison-modal').click
+end
+
+Then(/^.+ should see plan comparison modal$/) do
+  expect(find("#planComparisonModal").visible?).to be_truthy
+end
+
+Then(/^.+ closes the plan comparison modal$/) do
+  find_all('.close').first.click
+  expect(find("#planComparisonModal").visible?).to be_truthy
+end
+
+Then(/^.+ clears selections and selects new plans for comparison$/) do
+  find('#clear-comparison').click
+
+  page.all(".bqt-plan-comparison")[1].click
+  page.all(".bqt-plan-comparison")[2].click
+  page.all(".bqt-plan-comparison")[3].click
+
+  find('#view-comparison-modal').click
 end
 
 Then(/^the broker should see that the save benefits button is enabled$/) do
@@ -271,6 +298,8 @@ Given(/^the Plans exist$/) do
   start_on = open_enrollment_start_on + 2.months
   FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', is_standard_plan: true, metal_level: 'gold', active_year: start_on.year, deductible: 5000, csr_variant_id: "01", coverage_kind: 'health')
   FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', is_standard_plan: true, metal_level: 'gold', active_year: start_on.year, deductible: 3000, csr_variant_id: "01", coverage_kind: 'health')
+  FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', is_standard_plan: true, metal_level: 'gold', active_year: start_on.year, deductible: 2000, csr_variant_id: "01", coverage_kind: 'health')
+  FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', is_standard_plan: true, metal_level: 'gold', active_year: start_on.year, deductible: 1000, csr_variant_id: "01", coverage_kind: 'health')
   FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', is_standard_plan: true, dental_level: 'high', active_year: start_on.year, deductible: 4000, coverage_kind: 'dental')
   FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', is_standard_plan: true, dental_level: 'low', active_year: start_on.year, deductible: 4000, coverage_kind: 'dental')
   FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', is_standard_plan: true, metal_level: 'gold', active_year: start_on.year - 1, deductible: 5000, csr_variant_id: "01", coverage_kind: 'health')

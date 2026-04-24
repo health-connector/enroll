@@ -496,7 +496,9 @@ Then(/^.+ should see the plan year$/) do
 end
 
 When(/^.+ clicks? on publish plan year$/) do
-  find('.interaction-click-control-publish-plan-year', wait: 2).click
+  button = find('.interaction-click-control-publish-plan-year', wait: 2)
+  page.execute_script("arguments[0].scrollIntoView(true);", button)
+  page.execute_script("arguments[0].click();", button)
   sleep 2
 end
 
@@ -620,7 +622,9 @@ And(/^employer clicked on add plan year button$/) do
 end
 
 And(/^employer clicked on edit plan year button$/) do
-  find('.interaction-click-control-edit-plan-year').click
+  button = find('.interaction-click-control-edit-plan-year')
+  page.execute_script("arguments[0].scrollIntoView(true);", button)
+  page.execute_script("arguments[0].click();", button)
 end
 
 And(/^.+ should see a success message after clicking on save plan year button$/) do
@@ -679,6 +683,22 @@ end
 
 And(/^employer clicked on gold metal level$/) do
   find("#benefit_package_sponsored_benefits_attributes_0_product_option_choice_gold", :visible => false).click
+end
+
+And(/employer clicks on HSA true filter/) do
+  find("[data-cuke='hsa-true']").click
+end
+
+And(/employer should see filtered product selection/) do
+  expect(find_all('.reference-plans').count).to eq 1
+end
+
+And(/employer clicks the Add Dental Benefits button/) do
+  find('#dentalBenefits').click
+end
+
+And(/employer selects the first carrier option for dental benefits/) do
+  find_all("[data-cuke='dental-carrier-select']", visible: false).first.click
 end
 
 And(/^employer (.*) (.*) contribution percent for the application$/) do |create_or_edit_ba, contribution_percent|
@@ -1105,4 +1125,12 @@ end
 
 And(/^employer clicked on view employee cost details button$/) do
   find(AddPlanYearPage.employee_cost_details_button).click
+end
+
+And(/^employer_broker_ui_enhancements feature is (.*?)$/) do |status|
+  if status == "enabled"
+    enable_feature :employer_broker_ui_enhancements
+  else
+    disable_feature :employer_broker_ui_enhancements
+  end
 end
