@@ -11,7 +11,6 @@ gem "notifier",           path: "components/notifier"
 gem "sponsored_benefits", path: "components/sponsored_benefits"
 gem "transport_gateway",  path: "components/transport_gateway"
 gem "transport_profiles", path: "components/transport_profiles"
-gem 'aca_entities',       git: 'https://github.com/ideacrew/aca_entities.git', branch: 'trunk'
 
 gem 'aasm', '~> 4.8.0'
 gem 'acapi', git: "https://github.com/ideacrew/acapi.git", branch: 'trunk'
@@ -87,6 +86,10 @@ gem 'kostya-sigar', '2.0.11'
 gem 'bigdecimal', '~> 3.0'
 gem 'loofah',     '~> 2.23', '>= 2.23.1'
 gem 'dry-container', '0.11'
+gem 'dry-monads', '~> 1.4'
+gem 'dry-struct', '~> 1.4'
+gem 'dry-types', '~> 1.5'
+gem 'dry-validation', '~> 1.7'
 gem 'haml-rails', '~> 2.0'
 gem 'sassc',                    '~> 2.0'
 gem 'sass-rails', '~> 6.0'
