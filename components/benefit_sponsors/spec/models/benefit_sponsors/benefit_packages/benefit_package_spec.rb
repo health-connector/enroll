@@ -1041,18 +1041,18 @@ module BenefitSponsors
         enrollment
       end
 
-      context 'with show_enrollments_sans_canceled including a renewal enrollment eligible for effectuation' do
+      context 'when an auto_renewing enrollment is eligible for effectuation' do
         before do
           benefit_package.effectuate_member_benefits
           auto_renewing_enrollment.reload
         end
 
-        it 'moves auto_renewing enrollment to coverage_enrolled' do
+        it 'transitions auto_renewing enrollment to coverage_enrolled' do
           expect(auto_renewing_enrollment.aasm_state).to eq 'coverage_enrolled'
         end
       end
 
-      context 'when a newer terminated enrollment exists for the same package and coverage kind' do
+      context 'when a terminated enrollment also exists for the same package and coverage kind' do
         let!(:terminated_enrollment) do
           enrollment = FactoryBot.create(:hbx_enrollment, :with_enrollment_members, :with_product,
                                          :shop,
@@ -1078,8 +1078,64 @@ module BenefitSponsors
           auto_renewing_enrollment.reload
         end
 
-        it 'still effectuates the renewal enrollment because terminated enrollments are excluded' do
+        it 'still effectuates the auto_renewing enrollment because terminated enrollments are excluded by the aasm_state filter' do
           expect(auto_renewing_enrollment.aasm_state).to eq 'coverage_enrolled'
+        end
+      end
+
+      context 'when a waived enrollment exists for the benefit package' do
+        let!(:waived_enrollment) do
+          enrollment = FactoryBot.create(:hbx_enrollment, :with_enrollment_members, :with_product,
+                                         :shop,
+                                         household: family.active_household,
+                                         aasm_state: 'inactive',
+                                         coverage_kind: 'health',
+                                         effective_on: initial_application.start_on,
+                                         rating_area_id: initial_application.recorded_rating_area_id,
+                                         sponsored_benefit_id: benefit_package.health_sponsored_benefit.id,
+                                         sponsored_benefit_package_id: benefit_package.id,
+                                         benefit_sponsorship_id: initial_application.benefit_sponsorship.id,
+                                         employee_role_id: employee_role.id)
+          enrollment.benefit_sponsorship = benefit_sponsorship
+          enrollment.save!
+          enrollment
+        end
+
+        before do
+          benefit_package.effectuate_member_benefits
+          waived_enrollment.reload
+        end
+
+        it 'does not transition the waived enrollment' do
+          expect(waived_enrollment.aasm_state).to eq 'inactive'
+        end
+      end
+
+      context 'when an unverified enrollment exists for the benefit package' do
+        let!(:unverified_enrollment) do
+          enrollment = FactoryBot.create(:hbx_enrollment, :with_enrollment_members, :with_product,
+                                         :shop,
+                                         household: family.active_household,
+                                         aasm_state: 'unverified',
+                                         coverage_kind: 'health',
+                                         effective_on: initial_application.start_on,
+                                         rating_area_id: initial_application.recorded_rating_area_id,
+                                         sponsored_benefit_id: benefit_package.health_sponsored_benefit.id,
+                                         sponsored_benefit_package_id: benefit_package.id,
+                                         benefit_sponsorship_id: initial_application.benefit_sponsorship.id,
+                                         employee_role_id: employee_role.id)
+          enrollment.benefit_sponsorship = benefit_sponsorship
+          enrollment.save!
+          enrollment
+        end
+
+        before do
+          benefit_package.effectuate_member_benefits
+          unverified_enrollment.reload
+        end
+
+        it 'transitions unverified enrollment to coverage_enrolled' do
+          expect(unverified_enrollment.aasm_state).to eq 'coverage_enrolled'
         end
       end
 
