@@ -1052,7 +1052,7 @@ module BenefitSponsors
         end
       end
 
-      context 'when show_enrollments_sans_canceled also includes a newer terminated enrollment for the same package and coverage kind' do
+      context 'when a newer terminated enrollment exists for the same package and coverage kind' do
         let!(:terminated_enrollment) do
           enrollment = FactoryBot.create(:hbx_enrollment, :with_enrollment_members, :with_product,
                                          :shop,
@@ -1078,8 +1078,8 @@ module BenefitSponsors
           auto_renewing_enrollment.reload
         end
 
-        it 'does not effectuate the renewal enrollment when first enrollment is not begin_coverage eligible' do
-          expect(auto_renewing_enrollment.aasm_state).to eq 'auto_renewing'
+        it 'still effectuates the renewal enrollment because terminated enrollments are excluded' do
+          expect(auto_renewing_enrollment.aasm_state).to eq 'coverage_enrolled'
         end
       end
 
