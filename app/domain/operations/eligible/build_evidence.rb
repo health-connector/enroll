@@ -56,18 +56,55 @@ module Operations
       end
 
       def build_default_evidence_options(values)
-        if values[:evidence_record]&.persisted?
-          options = values[:evidence_record].serializable_hash.deep_symbolize_keys
-          options[:subject_ref] = URI(options[:subject_ref]) unless options[:subject_ref].is_a? URI
-          options[:evidence_ref] = URI(options[:evidence_ref]) if options[:evidence_ref] && !(options[:evidence_ref].is_a? URI)
-          options
-        else
-          {
-            title: configuration.title,
-            key: values[:evidence_key],
-            subject_ref: values[:subject].uri
-          }
+        return build_new_evidence_options(values) unless values[:evidence_record]&.persisted?
+
+        options = values[:evidence_record].serializable_hash.deep_symbolize_keys
+        normalize_evidence_options!(options, values)
+        options
+      end
+
+      def build_new_evidence_options(values)
+        {
+          title: configuration.title,
+          key: values[:evidence_key].to_s,
+          subject_ref: values[:subject].uri
+        }
+      end
+
+      def normalize_evidence_options!(options, values)
+        convert_ids_to_strings!(options)
+        options[:subject_ref] = normalize_subject_ref(options[:subject_ref], values[:subject])
+        options[:evidence_ref] = normalize_evidence_ref(options[:evidence_ref])
+      end
+
+      def convert_ids_to_strings!(options)
+        options[:_id] = options[:_id].to_s if options[:_id]
+
+        return unless options[:state_histories].is_a?(Array)
+
+        options[:state_histories].each do |state_history|
+          state_history[:_id] = state_history[:_id].to_s if state_history[:_id]
         end
+      end
+
+      def normalize_subject_ref(subject_ref, subject)
+        return subject.uri if subject_ref.blank?
+        return subject_ref if subject_ref.is_a?(URI)
+
+        safe_uri_conversion(subject_ref, fallback: subject.uri)
+      end
+
+      def normalize_evidence_ref(evidence_ref)
+        return nil if evidence_ref.blank?
+        return evidence_ref if evidence_ref.is_a?(URI)
+
+        safe_uri_conversion(evidence_ref, fallback: nil)
+      end
+
+      def safe_uri_conversion(value, fallback:)
+        URI(value)
+      rescue URI::InvalidURIError
+        fallback
       end
 
       def build_state_history(values)
