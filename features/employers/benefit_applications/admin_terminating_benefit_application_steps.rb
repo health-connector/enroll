@@ -45,7 +45,8 @@ When(/^the user enters (mid_month|any_day|last_day) and other details for (volun
 end
 
 When(/^user clicks submit button$/) do
-  find('.plan-year-submit', text: 'Submit', wait: 5).click
+  button = find('.plan-year-submit', text: 'Submit', wait: 5)
+  page.execute_script("arguments[0].click();", button)
 end
 
 And(/^employer clicks OK in warning modal$/) do

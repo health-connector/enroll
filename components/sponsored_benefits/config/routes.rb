@@ -14,7 +14,7 @@ SponsoredBenefits::Engine.routes.draw do
 
     get "plan_design_proposals/:employer_profile_id/claim", to: "plan_design_proposals#claim", as: "plan_design_proposal_claim"
 
-    resources :broker_agency_profiles, only: :employers do
+    resources :broker_agency_profiles, only: [] do
       get :employers, on: :member
     end
 

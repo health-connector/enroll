@@ -227,6 +227,97 @@ module BenefitSponsors
           subject.send(:log_error, "Test message", exception)
         end
       end
+
+      describe 'dental product cache pre-warming' do
+        let(:dental_product_package) { benefit_market_catalog.product_packages.where(package_kind: :single_issuer, product_kind: :dental).first }
+        let(:dental_products) { dental_product_package&.products&.take(3) || [] }
+        let(:dental_qhps) do
+          dental_products.map do |product|
+            double('QhpCostShareVariance', product: product)
+          end
+        end
+
+        let(:dental_form_params) do
+          ActionController::Parameters.new(
+            benefit_application_id: benefit_application.id.to_s,
+            sponsored_benefits_attributes: {
+              '0' => {
+                kind: :dental,
+                reference_plan_id: dental_products.first&.id&.to_s,
+                product_package_kind: 'single_issuer'
+              }
+            }
+          ).permit!
+        end
+
+        before do
+          skip "No dental products available" if dental_products.empty?
+        end
+
+        describe '#ensure_product_cache_initialized' do
+          it 'initializes cache for dental products' do
+            subject.send(:ensure_product_cache_initialized, dental_products)
+
+            dental_products.each do |product|
+              cache_key = [product.issuer_profile_id, product.active_year]
+              expect($pf_cache_for_group_size[cache_key]).to be_present
+            end
+          end
+
+          it 'does not re-initialize if cache already exists' do
+            # Pre-warm cache
+            subject.send(:ensure_product_cache_initialized, dental_products)
+
+            # Should not query database again
+            expect(::BenefitMarkets::Products::ActuarialFactors::GroupSizeActuarialFactor).not_to receive(:where)
+            subject.send(:ensure_product_cache_initialized, dental_products)
+          end
+        end
+
+        describe '#load_factors_for_product' do
+          let(:product) { dental_products.first }
+
+          it 'loads all three factor types' do
+            subject.send(:load_factors_for_product, product.issuer_profile_id, product.active_year)
+
+            cache_key = [product.issuer_profile_id, product.active_year]
+            expect($pf_cache_for_group_size[cache_key]).to be_present
+            expect($pf_cache_for_sic_code[cache_key]).to be_present
+            expect($pf_cache_for_participation_percent[cache_key]).to be_present
+          end
+
+          it 'creates default cache when factors not found in database' do
+            # Use non-existent issuer/year
+            subject.send(:load_factors_for_product, 'nonexistent_issuer', 9999)
+
+            cache_key = ['nonexistent_issuer', 9999]
+            expect($pf_cache_for_group_size[cache_key]).to be_present
+            expect($pf_cache_for_group_size[cache_key].cached_lookup(1)).to eq(1.0)
+          end
+        end
+
+        describe '#create_default_factor_cache' do
+          it 'returns an object that responds to cached_lookup' do
+            cache = subject.send(:create_default_factor_cache)
+            expect(cache).to respond_to(:cached_lookup)
+          end
+
+          it 'returns 1.0 for any key' do
+            cache = subject.send(:create_default_factor_cache)
+            expect(cache.cached_lookup('any_key')).to eq(1.0)
+            expect(cache.cached_lookup(123)).to eq(1.0)
+          end
+        end
+
+        context 'when calculating costs for dental products' do
+          subject { described_class.new(benefit_application, dental_form_params) }
+
+          it 'pre-warms cache before calculating' do
+            expect(subject).to receive(:ensure_product_cache_initialized).with(dental_products)
+            subject.calculate_for_plans(dental_qhps)
+          end
+        end
+      end
     end
   end
   # rubocop:enable Metrics/ModuleLength

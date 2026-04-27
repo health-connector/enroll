@@ -1,7 +1,8 @@
 Feature: Add Plan Year For Employer
   Background: Setup site, employer, and benefit market
     Given a CCA site exists with a benefit market
-    Given benefit market catalog exists for enrollment_open initial employer with health benefits
+	  Given benefit market catalog exists for enrollment_open initial employer that has both health and dental benefits
+    And all products has correct qhps
     And there is an employer ABC Widgets
     And ABC Widgets employer has a staff role
     And staff role person logged in
@@ -32,6 +33,34 @@ Feature: Add Plan Year For Employer
       | contribution_percent | minimum_contribution_factor |
       | 100                  | 0.5                         |
 
+  Scenario Outline: Adding a new plan year with plan filters enabled
+    Given health and dental benefits have differing hsa values
+    Given employer_broker_ui_enhancements feature is enabled
+    And <minimum_contribution_factor> is updated on benefit market catalog
+    When ABC Widgets is logged in and on the home page
+    And staff role person clicked on benefits tab
+    Then employer should see add plan year button
+    And employer clicked on add plan year button
+    Then employer should see continue button disabled
+    And employer filled all the fields on benefit application form
+    And employer clicked on continue button
+    Then employer should see form for benefit package
+    And employer filled all the fields on benefit package form for initial application
+    And employer selected by metal level plan offerings
+    Then employer should see gold metal level type
+    And employer clicked on gold metal level
+    And employer clicks on HSA true filter
+    Then employer should see filtered product selection
+    And employer selected <contribution_percent> contribution percent for the application
+    Then employer should see employer estimated montly cost
+    And employer clicks the Add Dental Benefits button
+    And employer selects the first carrier option for dental benefits
+    And employer clicks on HSA true filter
+    Then employer should see filtered product selection
+
+    Examples:
+      | contribution_percent | minimum_contribution_factor |
+      | 100                  | 0.5                         |
 
   Scenario Outline: Creating a new plan year should honor contribution factor from benefit market catalogs
     When ABC Widgets is logged in and on the home page

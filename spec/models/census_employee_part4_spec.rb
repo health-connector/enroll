@@ -81,7 +81,7 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
     end
 
     it "returns true with covered employee" do
-      allow(benefit_group_assignment).to receive(:covered_families_with_benefit_assignemnt).and_return([enrolled_family_double])
+      allow(benefit_group_assignment).to receive(:covered_families_with_benefit_assignment).and_return([enrolled_family_double])
       expect(census_employee.is_employee_covered?).to be_truthy
     end
   end

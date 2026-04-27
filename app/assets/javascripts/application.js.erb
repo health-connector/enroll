@@ -38,14 +38,11 @@
 //= require announcement
 //= require bootstrap-slider
 //= require bootstrap-hooks
-//= require general_agency
 //= require dataTables/jquery.dataTables
 //= require dataTables/bootstrap/3/jquery.dataTables.bootstrap
 //= require freebies
 //= require responsive
 //= require effective_datatables
-//= require recurring_select
-//= require jquery.steps
 //= require chosen-jquery
 //= require bootstrap-treeview
 //= require_tree .
@@ -66,17 +63,6 @@ function applyMultiLanguageSelect() {
   $('#broker_agency_language_select').multiselect('select', 'en', true);
   $('#broker_agency_language_select').on('selectric-init', function(element){
     $('.language_multi_select .selectric-interaction-field-control-broker-agency-languages-spoken').hide();
-  });
-};
-
-function applyMultiLanguageSelectForGA() {
-  $('#general_agency_language_select').multiselect({
-    nonSelectedText: 'Select Language',
-    maxHeight: 300
-  });
-  $('#general_agency_language_select').multiselect('select', 'en', true);
-  $('#general_agency_language_select').on('selectric-init', function(element){
-    $('.language_multi_select .selectric-interaction-field-control-general-agency-languages-spoken').hide();
   });
 };
 

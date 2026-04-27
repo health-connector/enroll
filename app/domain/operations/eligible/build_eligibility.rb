@@ -8,9 +8,12 @@ module Operations
     # Operation to build eligibility records based on input parameters.
     class BuildEligibility
       include Dry::Monads[:do, :result]
-      include ::Operations::Eligible::EligibilityImport[
-                configuration: "eligibility_defaults"
-              ]
+
+      attr_reader :configuration
+
+      def initialize(configuration: EligibilityConfiguration.new)
+        @configuration = configuration
+      end
 
       # Builds eligibility options for a given subject and evidence.
       #
@@ -88,16 +91,74 @@ module Operations
       end
 
       def build_default_eligibility_options(values)
-        if values[:eligibility_record]&.persisted?
-          # returns existing record hash
-          return(values[:eligibility_record].serializable_hash.deep_symbolize_keys)
-        end
+        return build_new_eligibility_options unless values[:eligibility_record]&.persisted?
 
+        options = values[:eligibility_record].serializable_hash.deep_symbolize_keys
+        normalize_eligibility_options!(options, values)
+        options
+      end
+
+      def build_new_eligibility_options
         {
           title: configuration.title,
           key: configuration.key,
           grants: build_grants
         }
+      end
+
+      def normalize_eligibility_options!(options, values)
+        options[:_id] = options[:_id].to_s if options[:_id]
+        normalize_evidences!(options[:evidences]) if options[:evidences].is_a?(Array)
+        normalize_grants!(options[:grants], values[:eligibility_record]) if options[:grants].is_a?(Array)
+        convert_state_history_ids!(options[:state_histories]) if options[:state_histories].is_a?(Array)
+      end
+
+      def normalize_evidences!(evidences)
+        evidences.each do |evidence|
+          evidence[:_id] = evidence[:_id].to_s if evidence[:_id]
+          convert_state_history_ids!(evidence[:state_histories]) if evidence[:state_histories].is_a?(Array)
+        end
+      end
+
+      def normalize_grants!(grants, eligibility_record)
+        grants.each do |grant|
+          normalize_grant_fields!(grant)
+          ensure_grant_state_histories!(grant, eligibility_record)
+        end
+      end
+
+      def normalize_grant_fields!(grant)
+        grant[:_id] = grant[:_id].to_s if grant[:_id]
+        grant[:key] = grant[:key].to_s if grant[:key]
+
+        return unless grant[:value]
+
+        grant[:value][:key] = grant[:value][:key].to_s if grant[:value][:key]
+      end
+
+      def ensure_grant_state_histories!(grant, eligibility_record)
+        if grant[:state_histories].blank?
+          grant[:state_histories] = [build_default_grant_state_history(eligibility_record)]
+        elsif grant[:state_histories].is_a?(Array)
+          convert_state_history_ids!(grant[:state_histories])
+        end
+      end
+
+      def build_default_grant_state_history(eligibility_record)
+        {
+          effective_on: eligibility_record.created_at.to_date,
+          is_eligible: true,
+          from_state: :initial,
+          to_state: :approved,
+          transition_at: eligibility_record.created_at.to_datetime,
+          event: :move_to_approved
+        }
+      end
+
+      def convert_state_history_ids!(state_histories)
+        state_histories.each do |state_history|
+          state_history[:_id] = state_history[:_id].to_s if state_history[:_id]
+        end
       end
 
       def build_grants

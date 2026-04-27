@@ -23,7 +23,7 @@
       .col-xs-11.health
         .row
           .col-xs-6
-            h3.title.heading-text #{benefit_package_form.service.benefit_package.title}
+            h3.title.heading-text #{EnrollRegistry[:employer_broker_ui_enhancements].enabled? ? benefit_package_form.service.benefit_package.display_title : benefit_package_form.service.benefit_package.title}
             h6 #{benefit_package_form.service.benefit_package.description}
 
         table.table

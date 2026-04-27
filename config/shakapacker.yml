@@ -15,7 +15,7 @@ default: &default
 
   cache_manifest: false
 
-  webpack_loader: 'babel'
+  javascript_transpiler: 'babel'
 
   ensure_consistent_versioning: false
 

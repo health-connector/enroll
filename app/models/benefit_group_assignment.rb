@@ -277,7 +277,7 @@ class BenefitGroupAssignment
     end
   end
 
-  def covered_families_with_benefit_assignemnt
+  def covered_families_with_benefit_assignment
     Family.where(
       {
         "households.hbx_enrollments" => {
