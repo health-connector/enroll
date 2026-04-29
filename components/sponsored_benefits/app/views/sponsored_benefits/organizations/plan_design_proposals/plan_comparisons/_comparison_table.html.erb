@@ -1,6 +1,6 @@
 <%= hidden_field_tag 'current_sort', @sort_by  %>
 <%= hidden_field_tag 'plan_ids' %>
-<%= hidden_field_tag :plan_comparison_export_pdf_url, export_organizations_plan_design_proposal_plan_comparisons_path %>
+<%= hidden_field_tag :plan_comparison_export_pdf_url, export_organizations_plan_design_proposal_plan_comparisons_path(plan_design_proposal, plans: params[:plans], kind: 'Health' ) %>
 
 <% single_plan_displayed ||= false %>
 <div class="container-fluid">
@@ -12,10 +12,10 @@
   <div class="mygrid-wrapper-div">
    <table class="table bordered compare-table", border = "1", style="font-size:11px;" id="compare_plans_table">
         <tr>
-          <th class="row-title">Plans</th>
+          <th>Plans</th>
           <% qhps.each do |qhp|%>
             <th colspan="2" style="text-align: center; vertical-align:middle; border: none; padding: 0;" class='movable'>
-              <%= hidden_field_tag 'plan_id-#{qhp.plan.id}', qhp.plan.id, class: 'plan_id' %>
+              <%= hidden_field_tag "plan_id-#{qhp.plan.id}", qhp.plan.id, class: 'plan_id' %>
               <%  carrier_name = CarrierProfile.find(qhp.plan.carrier_profile_id).organization.legal_name.gsub(/united health care/i, 'uhic')%>
               <%=  image_tag("logo/carrier/#{carrier_name.parameterize.underscore}.jpg", {width: 80}) if carrier_name.present? %>
             </th>
@@ -114,7 +114,7 @@
             <th><%= l10n('employers.plan_years.benefit_package.out_of_pocket_maximum') %></th>
             <% qhps.each do |qhp| %>
               <td colspan="2">
-                <%= qhp.qhp_maximum_out_of_pockets.first.in_network_tier_1_individual_amount %>
+                <%= qhp.qhp_maximum_out_of_pockets.first.in_network_tier_1_family_amount || 'N/A' %>
               </td>
             <% end %>
           </tr>
@@ -232,15 +232,13 @@
   <br>
   <% unless single_plan_displayed %>
     <div class="col-md-offset-5 hidden-in-modal">
-      <%= link_to "Export to PDF", sponsored_benefits.export_organizations_plan_design_proposal_plan_comparisons_path(plan_design_proposal, plans: params[:plans] ) , class: "btn btn-default", id: "export-pdf-non-modal", target: "_blank" %>
+      <%= link_to "Export to PDF", sponsored_benefits.export_organizations_plan_design_proposal_plan_comparisons_path(plan_design_proposal, plans: params[:plans], kind: 'Health' ) , class: "btn btn-default", id: "export-pdf-non-modal", target: "_blank" %>
       <%= link_to "Export to CSV",  sponsored_benefits.csv_organizations_plan_design_proposal_plan_comparisons_path(plan_design_proposal, plans: params[:plans]), class: 'btn btn-default export-csv-link', id: "export-csv-non-modal", target: "_blank" %>
       <button class="btn btn-default" id="hide-detail-comparisons">Hide Details</button>
     </div>
     <script>
       $(document).ready(function() {
-        // Collect employer costs from the displayed table when CSV export is clicked
-        $('#export-csv-non-modal').on('click', function(e) {
-          e.preventDefault();
+        function collectEmployerCosts() {
           var employerCosts = [];
           $('.employer-cost-cell').each(function() {
             var planId = $(this).data('plan-id');
@@ -249,9 +247,27 @@
               employerCosts.push(planId + ':' + cost);
             }
           });
+          return employerCosts;
+        }
+
+        // Collect employer costs from the displayed table when CSV export is clicked
+        $('#export-csv-non-modal').on('click', function(e) {
+          e.preventDefault();
+          var employerCosts = collectEmployerCosts();
           var url = $(this).attr('href');
           if (employerCosts.length > 0) {
             url += '&employer_costs=' + employerCosts.join(',');
+          }
+          window.open(url, '_blank');
+        });
+
+        // Collect employer costs from the displayed table when PDF export is clicked
+        $('#export-pdf-non-modal').on('click', function(e) {
+          e.preventDefault();
+          var employerCosts = collectEmployerCosts();
+          var url = $(this).attr('href');
+          if (employerCosts.length > 0) {
+            url += '&employer_costs=' + encodeURIComponent(employerCosts.join(','));
           }
           window.open(url, '_blank');
         });

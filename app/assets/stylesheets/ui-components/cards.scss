@@ -280,7 +280,16 @@
         }
       }
     }
+
+    ul.deductible-filter-section {
+      margin-bottom: 0;
+      padding-left: 2%;
+    }
   }
+}
+
+#yourSponsorContributions.with-compare-buttons {
+  margin-top: 100px;
 }
 
 #sponsorContributions {

@@ -301,6 +301,8 @@
    * Initialize export button handlers when document is ready
    */
   $(document).ready(function() {
+    $(document).on('click', '#clear-comparison, .reference-plan-select-btn', resetComparisonPlans);
+
     // Export to PDF handler
     $(document).on('click', '#exportComparisonPDF', function() {
       var modal = $('#planComparisonModal');
@@ -350,7 +352,19 @@
         if (benefitType === 'dental') {
           exportUrl += '&kind=dental';
         }
-        
+
+        var employerCosts = [];
+        $('.employer-cost-cell').each(function() {
+          var planId = $(this).data('plan-id');
+          var cost = $(this).text().trim().replace(/[$,]/g, '');
+          if (planId && cost) {
+            employerCosts.push(planId + ':' + cost);
+          }
+        });
+        if (employerCosts.length > 0) {
+          exportUrl += '&employer_costs=' + encodeURIComponent(employerCosts.join(','));
+        }
+
         window.location.assign(exportUrl);
       }
       // Fallback for benefit_sponsors route
