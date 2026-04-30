@@ -1,5 +1,13 @@
 # frozen_string_literal: true
 
+# WARNING: This script generates enrollment identifier lists from production-like data.
+# Output files contain sensitive operational data (enrollment IDs linked to subscriber/family records).
+# Ensure output files are:
+# - Generated on non-production or lower environments only
+# - Handled with restricted file permissions (0600)
+# - Deleted or securely disposed after use
+# For encryption, use: `gpg --symmetric output.txt` before distribution
+
 date = Date.today
 
 if date.day > 15
@@ -80,7 +88,9 @@ end
 renewed_sponsorships = find_renewed_sponsorships(start_on_date)
 
 initial_file = File.open("policies_to_pull_ies.txt","w")
+initial_file.chmod(0o600)  # Restrict read access to current user only
 renewal_file = File.open("policies_to_pull_renewals.txt","w")
+renewal_file.chmod(0o600)  # Restrict read access to current user only
 
 renewed_sponsorships.each do |bs|
   selected_application = bs.benefit_applications.detect do |ba|
@@ -96,7 +106,7 @@ renewed_sponsorships.each do |bs|
   enrollment_ids = []
 
   benefit_packages.each do |benefit_package|
-    employer_enrollment_query = ::Queries::NamedEnrollmentQueries.find_simulated_renewal_enrollments(benefit_package.sponsored_benefits, start_on_date)
+    employer_enrollment_query = Queries::NamedEnrollmentQueries.find_simulated_renewal_enrollments(benefit_package.sponsored_benefits, start_on_date)
     employer_enrollment_query.each{|id| enrollment_ids << id}
   end
 
