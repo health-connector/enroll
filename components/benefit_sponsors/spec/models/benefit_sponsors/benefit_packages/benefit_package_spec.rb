@@ -1140,15 +1140,13 @@ module BenefitSponsors
       end
 
       context 'when begin_coverage raises an error for a family enrollment' do
-        let(:logger) { instance_double(Logger, error: nil) }
-
         before do
-          allow(Logger).to receive(:new).and_return(logger)
+          allow(Rails.logger).to receive(:tagged).and_yield
           allow_any_instance_of(HbxEnrollment).to receive(:begin_coverage!).and_raise(StandardError.new('effectuation failure'))
         end
 
         it 'rescues and logs the error without raising' do
-          expect(logger).to receive(:error).with(/error raised for family: #{family.id}/).at_least(:once)
+          expect(Rails.logger).to receive(:error).with(/error raised for family: #{family.id}/).at_least(:once)
           expect { benefit_package.effectuate_member_benefits }.not_to raise_error
         end
       end
