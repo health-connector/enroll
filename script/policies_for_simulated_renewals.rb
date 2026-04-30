@@ -115,9 +115,9 @@ renewed_sponsorships.each do |bs|
     puts "#{enrollment.hbx_id} has no plan" if enrollment.product.blank?
     case initial_or_renewal(enrollment,product_cache,selected_application.benefit_packages.first.predecessor_id)
     when 'initial'
-      initial_file.puts(enrollment_hbx_id)
+      initial_file.puts(enrollment_hbx_id) # codeql[rb/clear-text-storage-of-sensitive-data] - Internal enrollment identifiers (not direct PII) written to owner-only (0600) files, consumed by write_enrollment_files.rb in the same restricted session
     when 'renewal'
-      renewal_file.puts(enrollment_hbx_id)
+      renewal_file.puts(enrollment_hbx_id) # codeql[rb/clear-text-storage-of-sensitive-data] - Internal enrollment identifiers (not direct PII) written to owner-only (0600) files, consumed by write_enrollment_files.rb in the same restricted session
     end
   end
 end
