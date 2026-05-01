@@ -35,15 +35,67 @@ module SponsoredBenefits # rubocop:disable Metrics/ModuleLength
     end
 
     describe "GET #export" do
-      let(:params) { { plan_design_proposal_id: plan_design_proposal.id, plans: plan_ids } }
-
       before do
         allow_any_instance_of(Organizations::PlanDesignProposals::PlanComparisonsController).to receive(:render_to_string).and_return('')
-        get :export, params: params, format: :pdf
       end
 
-      it "returns a pdf response" do
-        expect(response.content_type).to eq('application/pdf')
+      context "without employer_costs parameter (health)" do
+        let(:params) { { plan_design_proposal_id: plan_design_proposal.id, plans: plan_ids, kind: 'Health' } }
+
+        before do
+          allow(controller).to receive(:calculate_employer_costs).and_return({})
+          get :export, params: params, format: :pdf
+        end
+
+        it "returns a pdf response" do
+          expect(response.content_type).to eq('application/pdf')
+        end
+
+        it "calls calculate_employer_costs" do
+          expect(controller).to have_received(:calculate_employer_costs)
+        end
+      end
+
+      context "with employer_costs parameter from frontend" do
+        let(:employer_costs_param) { "#{plan1.id}:150.50,#{plan2.id}:200.75" }
+        let(:params) do
+          {
+            plan_design_proposal_id: plan_design_proposal.id,
+            plans: plan_ids,
+            kind: 'Health',
+            employer_costs: employer_costs_param
+          }
+        end
+
+        before do
+          allow(controller).to receive(:calculate_employer_costs)
+          get :export, params: params, format: :pdf
+        end
+
+        it "returns a pdf response" do
+          expect(response.content_type).to eq('application/pdf')
+        end
+
+        it "does not recalculate employer costs when passed via params" do
+          expect(controller).not_to have_received(:calculate_employer_costs)
+        end
+      end
+
+      context "with dental coverage kind" do
+        let(:params) { { plan_design_proposal_id: plan_design_proposal.id, plans: plan_ids, kind: 'Dental' } }
+
+        before do
+          allow(controller).to receive(:calculate_employer_costs)
+          get :export, params: params, format: :pdf
+        end
+
+        it "returns a pdf response" do
+          expect(response.content_type).to eq('application/pdf')
+        end
+
+        it "skips employer cost calculation for dental" do
+          expect(controller).not_to have_received(:calculate_employer_costs)
+        end
       end
     end
 
@@ -256,7 +308,13 @@ module SponsoredBenefits # rubocop:disable Metrics/ModuleLength
       end
 
       context "with dental benefit group params" do
-        let(:dental_plan) { dental_plan_with_sbc_document rescue FactoryBot.create(:plan, :with_dental_coverage) }
+        let(:dental_plan) do
+
+          dental_plan_with_sbc_document
+        rescue StandardError
+          FactoryBot.create(:plan, :with_dental_coverage)
+
+        end
 
         let(:benefit_group_data) do
           {
@@ -586,6 +644,7 @@ module SponsoredBenefits # rubocop:disable Metrics/ModuleLength
         allow(controller).to receive(:cost_for_plan) do
           call_count += 1
           raise StandardError.new("Test error") if call_count == 1
+
           150.00
         end
         result = controller.send(:calculate_employer_costs)
