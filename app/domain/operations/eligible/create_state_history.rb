@@ -13,8 +13,8 @@ module Operations
       #
       # @param [Hash] opts Options to create state history.
       # @option opts [GlobalID] :subject (required) The subject for which state history is being created.
-      # @option opts [AcaEntities::Elgibilities::EligibilityItem] :eligibility_item (required) The associated eligibility item.
-      # @option opts [AcaEntities::Elgibilities::EvidenceItem] :evidence_item (required) The associated evidence item.
+      # @option opts [Eligible::Elgibilities::EligibilityItem] :eligibility_item (required) The associated eligibility item.
+      # @option opts [Eligible::Elgibilities::EvidenceItem] :evidence_item (required) The associated evidence item.
       # @option opts [Date] :effective_date (required) The date the state history takes effect.
       #
       # @return [Dry::Monads::Result] Success with created eligibility state history or Failure with validation errors.
@@ -28,12 +28,12 @@ module Operations
       private
 
       def validate(params)
-        contract_result = AcaEntities::Eligible::StateHistoryContract.new.call(params)
+        contract_result = Eligible::Contracts::StateHistoryContract.new.call(params)
         contract_result.success? ? Success(contract_result.to_h) : contract_result
       end
 
       def create(values)
-        Success(AcaEntities::Eligible::StateHistory.new(values))
+        Success(Eligible::Entities::StateHistory.new(values))
       end
     end
   end
