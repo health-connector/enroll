@@ -6,7 +6,9 @@
 # - Generated on non-production or lower environments only
 # - Handled with restricted file permissions (0600)
 # - Deleted or securely disposed after use
-# For encryption, use: `gpg --symmetric output.txt` before distribution
+
+env_name = ENV.fetch('ENV_NAME', '').downcase
+raise "This script is blocked in production (ENV_NAME=#{env_name}). Run only in lower environments." if %w[prod production].include?(env_name)
 
 date = Date.today
 
@@ -87,10 +89,8 @@ end
 
 renewed_sponsorships = find_renewed_sponsorships(start_on_date)
 
-initial_file = File.open("policies_to_pull_ies.txt","w")
-initial_file.chmod(0o600)  # Restrict read access to current user only
-renewal_file = File.open("policies_to_pull_renewals.txt","w")
-renewal_file.chmod(0o600)  # Restrict read access to current user only
+initial_file = File.open("policies_to_pull_ies.txt", File::CREAT | File::WRONLY | File::TRUNC, 0o600)
+renewal_file = File.open("policies_to_pull_renewals.txt", File::CREAT | File::WRONLY | File::TRUNC, 0o600)
 
 renewed_sponsorships.each do |bs|
   selected_application = bs.benefit_applications.detect do |ba|
