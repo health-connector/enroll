@@ -93,6 +93,11 @@ When(/^.+ clicks continue on waiver summary page/) do
   page.find('.interaction-click-control-continue').click
 end
 
+Then(/^the waiver receipt should show the waived date formatted as MM\/DD\/YYYY$/) do
+  expect(page).to have_content 'Waiver confirmation'
+  expect(page).to have_content(/\b\d{2}\/\d{2}\/\d{4}\b/)
+end
+
 Then("Employee should able to see Waiver tile") do
   expect(page).to have_content 'Waived'
   expect(page).to have_content 'Waived Date'
