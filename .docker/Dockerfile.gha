@@ -39,10 +39,10 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
     && truncate -s 0 /var/log/*log
 
-# Add Nodejs sources and dependencies - used both during build and at runtime (e.g,. dependency for coffeescript)
+# NodeSource repo for NODE_MAJOR (nodejs is installed in prod_gems_and_assets only; omitted from base for a smaller deploy surface)
 RUN curl -fsSL https://deb.nodesource.com/setup_$NODE_MAJOR.x | bash -
 
-# Install Nodejs
+# Python is required for node-gyp and other tooling during asset builds in later stages
 RUN apt-get update -qq \
   && apt-get install -yq --no-install-recommends \
     shared-mime-info python3 python-is-python3 \
