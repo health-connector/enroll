@@ -114,6 +114,9 @@ Style/ExpandPathArguments:
 Style/HashSyntax:
   Enabled: false
 
+Style/NumericLiterals:
+  Enabled: false
+
 Style/NumericPredicate:
   Enabled: false
 
