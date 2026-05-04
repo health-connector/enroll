@@ -321,7 +321,7 @@ var Register = ( function( window, undefined ) {
   function toggleEmail(element){
     $(element).val($.trim($(element).val()));
     var username= $(element).val();
-    var email_regexp = /^[\w\-\.\+]+\@[a-zA-Z0-9\.\-]+\.[a-zA-z0-9]{2,4}$/;
+    var email_regexp = /^[\w\-\.\+]+\@[a-zA-Z0-9\.\-]+\.[a-zA-Z0-9]{2,4}$/;
 
     if(email_regexp.test(username)) {
       $('.email_field').addClass("hidden_field");
