@@ -12,7 +12,7 @@ ARG BUNDLER_VERSION=2.5.23
 # Must be set as ENV variable to overrride the default
 ENV BUNDLER_VERSION=$BUNDLER_VERSION
 
-ARG NODE_MAJOR=20
+ARG NODE_MAJOR=24
 ENV NODE_MAJOR=$NODE_MAJOR
 
 # Only add packages that aren't already in the base image.

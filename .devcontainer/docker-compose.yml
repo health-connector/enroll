@@ -6,7 +6,7 @@ services:
       dockerfile: Dockerfile
       args:
         BUNDLER_VERSION_OVERRIDE: '2.5.23'
-        NODE_VERSION: '20'
+        NODE_VERSION: '24'
         RUBY_VARIANT: '3.4-trixie'
         RVM_OVERRIDE: '3.4.7'
 
