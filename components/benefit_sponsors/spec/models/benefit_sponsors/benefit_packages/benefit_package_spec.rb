@@ -1006,6 +1006,152 @@ module BenefitSponsors
       end
     end
 
+    describe '.effectuate_member_benefits', :dbclean => :after_each do
+
+      include_context "setup initial benefit application" do
+        let(:current_effective_date) { (TimeKeeper.date_of_record - 2.months).beginning_of_month }
+      end
+
+      let(:benefit_package) { initial_application.benefit_packages.first }
+      let(:benefit_group_assignment) { FactoryBot.build(:benefit_group_assignment, benefit_group: benefit_package) }
+      let(:employee_role) { FactoryBot.create(:benefit_sponsors_employee_role, person: person, employer_profile: benefit_sponsorship.profile, census_employee_id: census_employee.id) }
+      let(:census_employee) do
+        FactoryBot.create(:census_employee,
+                          employer_profile: benefit_sponsorship.profile,
+                          benefit_sponsorship: benefit_sponsorship,
+                          benefit_group_assignments: [benefit_group_assignment])
+      end
+      let(:person) { FactoryBot.create(:person, :with_family) }
+      let!(:family) { person.primary_family }
+
+      let!(:auto_renewing_enrollment) do
+        enrollment = FactoryBot.create(:hbx_enrollment, :with_enrollment_members, :with_product,
+                                       :shop,
+                                       household: family.active_household,
+                                       aasm_state: 'auto_renewing',
+                                       coverage_kind: 'health',
+                                       effective_on: initial_application.start_on,
+                                       rating_area_id: initial_application.recorded_rating_area_id,
+                                       sponsored_benefit_id: benefit_package.health_sponsored_benefit.id,
+                                       sponsored_benefit_package_id: benefit_package.id,
+                                       benefit_sponsorship_id: initial_application.benefit_sponsorship.id,
+                                       employee_role_id: employee_role.id)
+        enrollment.benefit_sponsorship = benefit_sponsorship
+        enrollment.save!
+        enrollment
+      end
+
+      context 'when an auto_renewing enrollment is eligible for effectuation' do
+        before do
+          benefit_package.effectuate_member_benefits
+          auto_renewing_enrollment.reload
+        end
+
+        it 'transitions auto_renewing enrollment to coverage_enrolled' do
+          expect(auto_renewing_enrollment.aasm_state).to eq 'coverage_enrolled'
+        end
+      end
+
+      context 'when a terminated enrollment also exists for the same package and coverage kind' do
+        let!(:terminated_enrollment) do
+          enrollment = FactoryBot.create(:hbx_enrollment, :with_enrollment_members, :with_product,
+                                         :shop,
+                                         household: family.active_household,
+                                         aasm_state: 'coverage_terminated',
+                                         coverage_kind: 'health',
+                                         effective_on: initial_application.start_on,
+                                         terminated_on: initial_application.start_on.end_of_month,
+                                         rating_area_id: initial_application.recorded_rating_area_id,
+                                         sponsored_benefit_id: benefit_package.health_sponsored_benefit.id,
+                                         sponsored_benefit_package_id: benefit_package.id,
+                                         benefit_sponsorship_id: initial_application.benefit_sponsorship.id,
+                                         employee_role_id: employee_role.id)
+          enrollment.benefit_sponsorship = benefit_sponsorship
+          enrollment.save!
+          enrollment
+        end
+
+        before do
+          auto_renewing_enrollment.set(created_at: 3.days.ago)
+          terminated_enrollment.set(created_at: 1.day.ago)
+          benefit_package.effectuate_member_benefits
+          auto_renewing_enrollment.reload
+        end
+
+        it 'still effectuates the auto_renewing enrollment because terminated enrollments are excluded by the aasm_state filter' do
+          expect(auto_renewing_enrollment.aasm_state).to eq 'coverage_enrolled'
+        end
+      end
+
+      context 'when a waived enrollment exists for the benefit package' do
+        let!(:waived_enrollment) do
+          enrollment = FactoryBot.create(:hbx_enrollment, :with_enrollment_members, :with_product,
+                                         :shop,
+                                         household: family.active_household,
+                                         aasm_state: 'inactive',
+                                         coverage_kind: 'health',
+                                         effective_on: initial_application.start_on,
+                                         rating_area_id: initial_application.recorded_rating_area_id,
+                                         sponsored_benefit_id: benefit_package.health_sponsored_benefit.id,
+                                         sponsored_benefit_package_id: benefit_package.id,
+                                         benefit_sponsorship_id: initial_application.benefit_sponsorship.id,
+                                         employee_role_id: employee_role.id)
+          enrollment.benefit_sponsorship = benefit_sponsorship
+          enrollment.save!
+          enrollment
+        end
+
+        before do
+          benefit_package.effectuate_member_benefits
+          waived_enrollment.reload
+        end
+
+        it 'does not transition the waived enrollment' do
+          expect(waived_enrollment.aasm_state).to eq 'inactive'
+        end
+      end
+
+      context 'when an unverified enrollment exists for the benefit package' do
+        let!(:unverified_enrollment) do
+          enrollment = FactoryBot.create(:hbx_enrollment, :with_enrollment_members, :with_product,
+                                         :shop,
+                                         household: family.active_household,
+                                         aasm_state: 'unverified',
+                                         coverage_kind: 'health',
+                                         effective_on: initial_application.start_on,
+                                         rating_area_id: initial_application.recorded_rating_area_id,
+                                         sponsored_benefit_id: benefit_package.health_sponsored_benefit.id,
+                                         sponsored_benefit_package_id: benefit_package.id,
+                                         benefit_sponsorship_id: initial_application.benefit_sponsorship.id,
+                                         employee_role_id: employee_role.id)
+          enrollment.benefit_sponsorship = benefit_sponsorship
+          enrollment.save!
+          enrollment
+        end
+
+        before do
+          benefit_package.effectuate_member_benefits
+          unverified_enrollment.reload
+        end
+
+        it 'transitions unverified enrollment to coverage_enrolled' do
+          expect(unverified_enrollment.aasm_state).to eq 'coverage_enrolled'
+        end
+      end
+
+      context 'when begin_coverage raises an error for a family enrollment' do
+        before do
+          allow(Rails.logger).to receive(:tagged).and_yield
+          allow_any_instance_of(HbxEnrollment).to receive(:begin_coverage!).and_raise(StandardError.new('effectuation failure'))
+        end
+
+        it 'rescues and logs the error without raising' do
+          expect(Rails.logger).to receive(:error).with(/error raised for family: #{family.id}/).at_least(:once)
+          expect { benefit_package.effectuate_member_benefits }.not_to raise_error
+        end
+      end
+    end
+
     describe '.expire_member_benefits', :dbclean => :after_each do
 
       include_context "setup initial benefit application" do
