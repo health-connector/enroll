@@ -353,14 +353,16 @@ module BenefitSponsors
           activate_benefit_group_assignments if predecessor.present?
 
           enrolled_families.each do |family|
-            enrollments = family.enrollments.by_benefit_package(self)
+            enrollments = family.enrollments
+                                .by_benefit_package(self)
                                 .where(:aasm_state.in => (HbxEnrollment::ENROLLED_STATUSES + HbxEnrollment::RENEWAL_STATUSES + HbxEnrollment::WAIVED_STATUSES))
+                                .order(created_at: :desc)
 
             sponsored_benefits.each do |sponsored_benefit|
               hbx_enrollment = enrollments.by_coverage_kind(sponsored_benefit.product_kind).first
               hbx_enrollment.begin_coverage! if hbx_enrollment&.may_begin_coverage?
             rescue StandardError => e
-              Rails.logger.error "error raised for family: #{family.id}, error: #{e.backtrace}"
+              Rails.logger.error "error raised for family: #{family.id}, error: #{e.message} - #{e.backtrace}"
             end
           end
         end
