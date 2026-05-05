@@ -225,3 +225,43 @@ Notes from the sinatra bugtracker state:
 
 ```
 Carefully crafted input can cause If-Match and If-None-Match header parsing in Sinatra to take an unexpected amount of time, possibly resulting in a denial of service attack vector. This header is typically involved in generating the ETag header value. Any applications that use the etag method when generating a response are impacted if they are using Ruby below version 3.2.
+
+### CodeQL Findings - Clear-text Storage of Sensitive Information
+
+#### Issue #809 and #810: Clear-text storage of enrollment IDs in policies_for_simulated_renewals.rb
+
+**Finding:**
+
+CodeQL flagged potential clear-text storage of sensitive information (enrollment IDs) in the `policies_for_simulated_renewals.rb` script, suggesting encryption with proper key management.
+
+**Analysis:**
+
+After thorough investigation, this finding is considered a **false positive** for the following reasons:
+
+1. **Limited Scope:** The script only runs in lower (non-production) environments for testing and development purposes
+2. **Short-lived Data:** The enrollment IDs written to files are immediately consumed by `write_enrollment_files.rb` and are not persisted long-term
+3. **Existing Protections:** File permissions have been locked down (chmod 0600) to restrict access to the file owner only
+4. **Proportional Response:** Adding encryption would introduce unnecessary complexity including:
+   - One-time key generation and secure storage
+   - Environment variable management across lower environments
+   - Additional encryption/decryption code in the data pipeline
+   - DevOps overhead for key rotation and management
+
+**Mitigation Applied:**
+
+The practical risk has been addressed through:
+- File permission restrictions (chmod 0600) limiting file access
+- CodeQL suppression comment documenting the risk assessment
+- Clear documentation in this security policy
+
+**Alternative Considered:**
+
+If encryption were deemed necessary, implementation would involve:
+1. Generating a symmetric encryption key (one-time)
+2. Storing it as `SIM_RENEWALS_ENCRYPTION_KEY` in lower environments
+3. Adding encryption/decryption logic in the affected scripts
+4. Updating DevOps processes for secure key management
+
+Given the limited scope, short-lived nature of the data, and existing file permission controls, the simpler approach is appropriate and sufficient for the risk level presented.
+
+**Status:** False positive - Risk adequately mitigated through file permissions and operational controls.
