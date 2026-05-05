@@ -28,11 +28,9 @@ RUN apt-get update \
       libxext6 \
       libxrender1 \
       libyaml-cpp0.7 \
-      nano \
       openssl \
       sshpass \
       unzip \
-      vim \
       zip \
       zlib1g \
       file \
