@@ -2,10 +2,9 @@
 
 require 'rails_helper'
 require 'ffaker'
-
-# Load the rake task under test. Guard against double-loading in CI environments
-# where tasks may already be defined.
-load File.expand_path('lib/tasks/data_anonymize.rake', Rails.root) unless defined?(DataAnonymizer)
+require Rails.root.join('lib/data_anonymization/fake_data')
+require Rails.root.join('lib/data_anonymization/runner')
+require Rails.root.join('lib/data_anonymization/verifier')
 
 RSpec.describe DataAnonymizer, :dbclean => :around_each do
   # ============================================================================
@@ -898,8 +897,28 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
         expect(result['city']).not_to eq('RealCity')
       end
 
-      it 'replaces zip' do
-        expect(result['zip']).not_to eq('99999')
+      it 'preserves zip' do
+        expect(result['zip']).to eq('99999')
+      end
+
+      it 'preserves county by default' do
+        expect(result['county']).to eq('RealCounty')
+      end
+
+      context 'when anonymize_zip: true' do
+        it 'replaces zip' do
+          zip_runner = DataAnonymizer::Runner.new(batch_size: 5, dry_run: false, force: true, anonymize_zip: true)
+          res = zip_runner.send(:anonymize_address_hash, addr)
+          expect(res['zip']).not_to eq('99999')
+        end
+      end
+
+      context 'when anonymize_county: true' do
+        it 'replaces county' do
+          county_runner = DataAnonymizer::Runner.new(batch_size: 5, dry_run: false, force: true, anonymize_county: true)
+          res = county_runner.send(:anonymize_address_hash, addr)
+          expect(res['county']).not_to eq('RealCounty')
+        end
       end
 
       it 'sets address_2 to nil' do
