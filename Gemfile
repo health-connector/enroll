@@ -133,6 +133,7 @@ group :development, :test do
   gem 'climate_control', '0.2.0'
   gem 'email_spec', '~> 2'
   gem 'factory_bot_rails', '~> 6.4', '>= 6.4.4'
+  gem 'ffaker'
   gem 'forgery'
   gem 'parallel_tests', '2.26.2'
   gem 'rails-controller-testing'
