@@ -93,6 +93,8 @@ This issue affects validation against untrusted XML Schemas (.xsd) and, potentia
 
 #### Suppression / dismissal justifications
 
+Note: Some findings were likely false positives due to admin/broker-only access patterns and constrained numeric sources; however, we still applied low-risk hardening changes (`.html(...)` to `.text(...)`) where feasible to reduce future alert noise and maintain a consistent secure-coding baseline.
+
 1. Slider percentage findings (`quotes/page_actions.js`, both `plan_design_proposals.js` files)
 	- Source values are numeric contribution percentages and are constrained by slider configuration (`min: 0`, `max: 100`, `step: 1`).
 	- Output is plain text with `%` suffix.
