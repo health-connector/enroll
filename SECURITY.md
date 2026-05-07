@@ -88,6 +88,35 @@ Notes from the libxml2 bugtracker state:
 
 ```
 This issue affects validation against untrusted XML Schemas (.xsd) and, potentially, validation of untrusted documents against trusted Schemas if they make use of xsd:keyref in combination with recursively defined types that have additional identity constraints. It's hard for me to judge whether this is common in practice.
+
+### CodeQL: DOM-based XSS through jQuery `.html()` (May 2026)
+
+#### Suppression / dismissal justifications
+
+1. Slider percentage findings (`quotes/page_actions.js`, both `plan_design_proposals.js` files)
+	- Source values are numeric contribution percentages and are constrained by slider configuration (`min: 0`, `max: 100`, `step: 1`).
+	- Output is plain text with `%` suffix.
+	- Remediation applied (`.text(...)`), residual DOM XSS risk is not applicable.
+
+2. HBX enrollment modal findings (`_view_hbx_enrollments.html.erb`)
+	- Source values are server-rendered into table cells via ERB escaping and read with `.text()`.
+	- Modal writes now use `.text(...)`.
+	- No HTML interpretation path remains.
+
+3. `app/views/insured/employee_roles/_employers.html.erb` (`data-url` / `.attr()` usage)
+	- Flagged line reads a URL from `data-url` and assigns it to an anchor `href`.
+	- No `.html()` sink in this flow.
+	- This is not a DOM XSS execution path.
+
+4. `components/old_sponsored_benefits/...` reachability
+	- Legacy component is not mounted through active application routing.
+	- Findings in this tree are treated as unreachable in production runtime.
+
+#### Ongoing measures
+
+1. Prefer `.text()` over `.html()` for all plain text updates.
+2. Require explicit review when `.html()` is introduced with dynamic values.
+3. Keep legacy/unmounted components out of active asset/runtime paths.
 ```
 
 **Mitigation:**
