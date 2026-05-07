@@ -122,28 +122,28 @@ QuotePageLoad = (function() {
   var _set_benefits = function() {
       $('#pct_employee').bootstrapSlider('setValue', employee_value = relationship_benefits['employee']);
       $('#employee_slide_input').val(employee_value)
-      $('#employee_slide_label').html(employee_value + '%')
+      $('#employee_slide_label').text(employee_value + '%')
       $('#pct_spouse').bootstrapSlider('setValue', spouse_value = relationship_benefits['spouse']);
       $('#spouse_input').val(spouse_value)
-      $('#spouse_label').html(spouse_value + '%')
+      $('#spouse_label').text(spouse_value + '%')
       $('#pct_domestic_partner').bootstrapSlider('setValue', domestic_value = relationship_benefits['domestic_partner']);
       $('#domestic_input').val(domestic_value)
-      $('#domestic_label').html(domestic_value + '%')
+      $('#domestic_label').text(domestic_value + '%')
       $('#pct_child_under_26').bootstrapSlider('setValue', child_value = relationship_benefits['child_under_26']);
       $('#child_input').val(child_value)
-      $('#child_label').html(child_value + '%')
+      $('#child_label').text(child_value + '%')
       $('#dental_pct_employee').bootstrapSlider('setValue',employee_value = dental_relationship_benefits['employee']);
       $('.dental #employee_slide_input').val(employee_value)
-      $('.dental #employee_slide_label').html(employee_value + '%')
+      $('.dental #employee_slide_label').text(employee_value + '%')
       $('#dental_pct_spouse').bootstrapSlider('setValue',  spouse_value = dental_relationship_benefits['spouse']);
       $('.dental #spouse_input').val(spouse_value)
-      $('.dental #spouse_label').html(spouse_value + '%')
+      $('.dental #spouse_label').text(spouse_value + '%')
       $('#dental_pct_domestic_partner').bootstrapSlider('setValue', domestic_value = dental_relationship_benefits['domestic_partner']);
       $('.dental #domestic_input').val(domestic_value)
-      $('.dental #domestic_label').html(domestic_value + '%')
+      $('.dental #domestic_label').text(domestic_value + '%')
       $('#dental_pct_child_under_26').bootstrapSlider('setValue', child_value = dental_relationship_benefits['child_under_26']);
       $('.dental #child_input').val(child_value)
-      $('.dental #child_label').html(child_value + '%')
+      $('.dental #child_label').text(child_value + '%')
   }
   var configure_benefit_group = function(quote_id, broker_role_id,benefit_group_id) {
     $.ajax({
