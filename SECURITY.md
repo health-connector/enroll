@@ -226,39 +226,31 @@ Notes from the sinatra bugtracker state:
 ```
 Carefully crafted input can cause If-Match and If-None-Match header parsing in Sinatra to take an unexpected amount of time, possibly resulting in a denial of service attack vector. This header is typically involved in generating the ETag header value. Any applications that use the etag method when generating a response are impacted if they are using Ruby below version 3.2.
 
-### CodeQL Findings - Clear-text Storage of Sensitive Information
+### CodeQL: rb/clear-text-storage-of-sensitive-data — script/policies_for_simulated_renewals.rb
 
-#### Issue #809 and #810: Clear-text storage of enrollment IDs in policies_for_simulated_renewals.rb
+**Vulnerability:**
 
-**Finding:**
+CodeQL flagged clear-text storage of sensitive information in `script/policies_for_simulated_renewals.rb`, where enrollment HBX IDs are written to plain-text output files.
 
-CodeQL flagged potential clear-text storage of sensitive information (enrollment IDs) in the `policies_for_simulated_renewals.rb` script, suggesting encryption with proper key management.
+**Mitigation:**
 
-**Analysis:**
+This finding is considered a false positive in the context of the application's operational constraints:
 
-After thorough investigation, this finding is considered a **false positive** for the following reasons:
+1. **Data Classification:** Enrollment HBX IDs are internal identifiers, not directly identifying information (SSN, name, contact details).
+2. **Scope Restriction:** Script execution is constrained to non-production environments only via `ENV_NAME` guard.
+3. **Lifetime:** Output files are short-lived (consumed immediately by `write_enrollment_files.rb`).
+4. **Access Control:** Files are created with owner-only permissions (mode `0600`).
 
-1. **Limited Scope:** The script only runs in lower (non-production) environments for testing and development purposes
-2. **Short-lived Data:** The enrollment IDs written to files are immediately consumed by `write_enrollment_files.rb` and are not persisted long-term
-3. **Existing Protections:** File permissions have been locked down (chmod 0600) to restrict access to the file owner only
-4. **Proportional Response:** Adding encryption would introduce unnecessary complexity including:
-   - One-time key generation and secure storage
-   - Environment variable management across lower environments
-   - Additional encryption/decryption code in the data pipeline
-   - DevOps overhead for key rotation and management
+**Actions Taken:**
 
-**Mitigation Applied:**
+1. Output files created with `0600` permissions, restricting read/write access to file owner.
+2. `ENV_NAME` environment guard prevents execution in production; raises exception if `ENV_NAME` is `prod` or `production`.
+3. CodeQL suppression comments added at enrollment ID write lines documenting risk assessment rationale.
 
-The practical risk has been addressed through:
-- File permission restrictions (chmod 0600) limiting file access
-- CodeQL suppression comment documenting the risk assessment
-- Clear documentation in this security policy
+**Ongoing Measures:**
 
-**Alternative Considered:**
-
-If encryption were deemed necessary, implementation would involve:
-1. Generating a symmetric encryption key (one-time)
-2. Storing it as `SIM_RENEWALS_ENCRYPTION_KEY` in lower environments
+1. Monitor for changes to CodeQL rule definitions that may require re-assessment.
+2. Document renewal workflow dependencies to ensure lower-environment-only execution remains enforced. Storing it as `SIM_RENEWALS_ENCRYPTION_KEY` in lower environments
 3. Adding encryption/decryption logic in the affected scripts
 4. Updating DevOps processes for secure key management
 
