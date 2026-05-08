@@ -85,18 +85,6 @@ FROM base AS builder
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-# Add Yarn apt repository using keyrings (apt-key was removed on Debian trixie)
-RUN apt-get update -qq \
-  && apt-get install -yq --no-install-recommends \
-    gnupg \
-  && curl -fsSL https://dl.yarnpkg.com/debian/pubkey.gpg \
-    | gpg --dearmor -o /usr/share/keyrings/yarn-archive-keyring.gpg \
-  && echo "deb [signed-by=/usr/share/keyrings/yarn-archive-keyring.gpg] https://dl.yarnpkg.com/debian/ stable main" \
-    | tee /etc/apt/sources.list.d/yarn.list \
-  && apt-get clean \
-  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
-  && truncate -s 0 /var/log/*log
-
 RUN apt-get update -qq \
   && apt-get install -yq --no-install-recommends \
     build-essential \
@@ -104,7 +92,6 @@ RUN apt-get update -qq \
     libpq-dev \
     python3 \
     python-is-python3 \
-    yarn \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
   && truncate -s 0 /var/log/*log
@@ -122,6 +109,8 @@ RUN apt-get update -qq \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /node_modules/* \
     && truncate -s 0 /var/log/*log
+
+RUN npm install -g yarn
 
 # Need all gemfiles and lockfiles
 COPY --chown=nonroot:nonroot package.json $HOME/
