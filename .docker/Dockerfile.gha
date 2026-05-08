@@ -39,13 +39,13 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
     && truncate -s 0 /var/log/*log
 
-# Add Nodejs sources and dependencies - used both during build and at runtime (e.g,. dependency for coffeescript)
+# Add Nodejs sources - needed at build time only (e.g., node-gyp during yarn install)
 RUN curl -fsSL https://deb.nodesource.com/setup_$NODE_MAJOR.x | bash -
 
-# Install Nodejs
+# Install shared-mime-info (python3/python-is-python3 removed: only needed at build time by node-gyp in prod_gems_and_assets stage)
 RUN apt-get update -qq \
   && apt-get install -yq --no-install-recommends \
-    shared-mime-info python3 python-is-python3 \
+    shared-mime-info \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /node_modules/* \
   && truncate -s 0 /var/log/*log
@@ -96,6 +96,8 @@ RUN apt-get update -qq \
     build-essential \
     git \
     libpq-dev \
+    python3 \
+    python-is-python3 \
     yarn \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
@@ -109,7 +111,7 @@ FROM builder AS prod_gems_and_assets
 
 RUN apt-get update -qq \
     && apt-get install -yq --no-install-recommends \
-      shared-mime-info python3 python-is-python3 \
+      shared-mime-info \
       nodejs \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /node_modules/* \
