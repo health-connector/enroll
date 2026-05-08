@@ -3,6 +3,7 @@
 ############################################
 
 ARG RUBY_VERSION=3.4.7
+ARG NODE_MAJOR=24
 FROM ruby:$RUBY_VERSION-slim-trixie AS base
 LABEL author="MHC"
 
@@ -11,9 +12,6 @@ ARG BUNDLER_VERSION=2.5.23
 
 # Must be set as ENV variable to overrride the default
 ENV BUNDLER_VERSION=$BUNDLER_VERSION
-
-ARG NODE_MAJOR=24
-ENV NODE_MAJOR=$NODE_MAJOR
 
 # Only add packages that aren't already in the base image.
 # Keep in sync with upstream Ruby slim-trixie image:
@@ -36,9 +34,6 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
     && truncate -s 0 /var/log/*log
-
-# NodeSource for NODE_MAJOR; nodejs is installed in prod_gems_and_assets only (smaller base/deploy surface).
-RUN curl -fsSL https://deb.nodesource.com/setup_$NODE_MAJOR.x | bash -
 
 # Install shared-mime-info in base; python3 for node-gyp stays in builder only.
 RUN apt-get update -qq \
@@ -79,7 +74,12 @@ ENV NODE_ENV=production
 
 
 ################################################################################
-### Builder. Adds Yarn. Not necessary in production. ###
+### Node runtime. Copied into builder only — not present in deploy image.   ###
+################################################################################
+FROM node:$NODE_MAJOR-trixie-slim AS node_runtime
+
+################################################################################
+### Builder. Adds Node and Yarn. Not necessary in production.               ###
 ###############################################################################
 FROM base AS builder
 
@@ -96,6 +96,13 @@ RUN apt-get update -qq \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
   && truncate -s 0 /var/log/*log
 
+COPY --from=node_runtime /usr/local/bin/node /usr/local/bin/node
+COPY --from=node_runtime /usr/local/lib/node_modules /usr/local/lib/node_modules
+
+RUN ln -sf /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
+ && ln -sf /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx \
+ && npm install -g yarn
+
 
 ########################################################
 # Bundle, precompile for production
@@ -105,12 +112,9 @@ FROM builder AS prod_gems_and_assets
 RUN apt-get update -qq \
     && apt-get install -yq --no-install-recommends \
       shared-mime-info \
-      nodejs \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /node_modules/* \
     && truncate -s 0 /var/log/*log
-
-RUN npm install -g yarn
 
 # Need all gemfiles and lockfiles
 COPY --chown=nonroot:nonroot package.json $HOME/
