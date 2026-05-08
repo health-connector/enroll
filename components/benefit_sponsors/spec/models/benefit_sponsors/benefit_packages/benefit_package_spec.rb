@@ -900,6 +900,34 @@ module BenefitSponsors
         end
       end
 
+      context 'when an auto_renewing enrollment is present' do
+        let!(:auto_renewing_enrollment) do
+          enrollment = FactoryBot.create(:hbx_enrollment, :with_enrollment_members, :with_product,
+                                         household: family.active_household,
+                                         aasm_state: 'auto_renewing',
+                                         effective_on: initial_application.start_on,
+                                         rating_area_id: initial_application.recorded_rating_area_id,
+                                         sponsored_benefit_id: initial_application.benefit_packages.first.health_sponsored_benefit.id,
+                                         sponsored_benefit_package_id: initial_application.benefit_packages.first.id,
+                                         benefit_sponsorship_id: initial_application.benefit_sponsorship.id,
+                                         employee_role_id: employee_role.id)
+          enrollment.benefit_sponsorship = benefit_sponsorship
+          enrollment.save!
+          enrollment
+        end
+
+        before do
+          initial_application.update_attributes!(aasm_state: :terminated)
+          initial_application.benefit_application_items.create(effective_period: initial_application.start_on..end_on, state: :terminated, sequence_id: 1)
+          benefit_package.terminate_member_benefits
+          auto_renewing_enrollment.reload
+        end
+
+        it 'transitions auto_renewing enrollment to coverage_terminated' do
+          expect(auto_renewing_enrollment.aasm_state).to eq 'coverage_terminated'
+        end
+      end
+
       context "terminate_benefit_group_assignments", :dbclean => :after_each do
 
         before :each do
@@ -1003,6 +1031,36 @@ module BenefitSponsors
         rbp.cancel_member_benefits(delete_benefit_package: true)
         expect(rbp.is_active).to eq false
         expect(census_employees.first.renewal_benefit_group_assignment).to eq nil
+      end
+
+      context 'when enrollment is in auto_renewing state' do
+        let!(:auto_renewing_enrollment) do
+          create(
+            :hbx_enrollment,
+            :shop,
+            household: family.active_household,
+            product: cbp.sponsored_benefits.first.reference_product,
+            coverage_kind: :health,
+            aasm_state: 'auto_renewing',
+            effective_on: ra.start_on,
+            employee_role_id: census_employee.employee_role.id,
+            sponsored_benefit_package_id: rbp.id,
+            benefit_sponsorship: bs,
+            benefit_group_assignment: renewal_bga
+          )
+        end
+        let(:auto_renewing_hbx_id) { auto_renewing_enrollment.hbx_id }
+
+        before do
+          ra.update_attributes!(aasm_state: 'canceled')
+          rbp.cancel_member_benefits
+        end
+
+        it 'cancels the auto_renewing enrollment when the renewal plan year is canceled' do
+          updated_enrollment = family.reload.active_household.hbx_enrollments.where(hbx_id: auto_renewing_hbx_id).first
+          expect(updated_enrollment).to be_present
+          expect(updated_enrollment.aasm_state).to eq 'coverage_canceled'
+        end
       end
     end
 
@@ -1227,6 +1285,38 @@ module BenefitSponsors
           expect(hbx_enrollment.aasm_state).to eq "coverage_expired"
         end
       end
+
+      context 'when an auto_renewing enrollment is present' do
+        let!(:auto_renewing_enrollment) do
+          enrollment = FactoryBot.create(:hbx_enrollment, :with_enrollment_members, :with_product,
+                                         household: family.active_household,
+                                         aasm_state: 'auto_renewing',
+                                         effective_on: initial_application.start_on,
+                                         rating_area_id: initial_application.recorded_rating_area_id,
+                                         sponsored_benefit_id: initial_application.benefit_packages.first.health_sponsored_benefit.id,
+                                         sponsored_benefit_package_id: initial_application.benefit_packages.first.id,
+                                         benefit_sponsorship_id: initial_application.benefit_sponsorship.id,
+                                         employee_role_id: employee_role.id)
+          enrollment.benefit_sponsorship = benefit_sponsorship
+          enrollment.save!
+          enrollment
+        end
+
+        before do
+          initial_application.update_attributes!(aasm_state: :expired)
+          initial_application.benefit_application_items.create(
+            effective_period: initial_application.start_on..end_on,
+            sequence_id: 1,
+            state: :expired
+          )
+          benefit_package.expire_member_benefits
+          auto_renewing_enrollment.reload
+        end
+
+        it 'does not transition auto_renewing enrollment because it is not expire_coverage-eligible' do
+          expect(auto_renewing_enrollment.aasm_state).to eq 'auto_renewing'
+        end
+      end
     end
 
     describe '.termination_pending_member_benefits' do
@@ -1376,6 +1466,38 @@ module BenefitSponsors
 
         it "should NOT update terminated_on date on enrollment if terminated_on < benefit_application end_on" do
           expect(hbx_enrollment.terminated_on).to eq hbx_enrollment_terminated_on
+        end
+      end
+
+      context 'when an auto_renewing enrollment is present' do
+        let!(:auto_renewing_enrollment) do
+          enrollment = FactoryBot.create(:hbx_enrollment, :with_enrollment_members, :with_product,
+                                         household: family.active_household,
+                                         aasm_state: 'auto_renewing',
+                                         effective_on: initial_application.start_on,
+                                         rating_area_id: initial_application.recorded_rating_area_id,
+                                         sponsored_benefit_id: initial_application.benefit_packages.first.health_sponsored_benefit.id,
+                                         sponsored_benefit_package_id: initial_application.benefit_packages.first.id,
+                                         benefit_sponsorship_id: initial_application.benefit_sponsorship.id,
+                                         employee_role_id: employee_role.id)
+          enrollment.benefit_sponsorship = benefit_sponsorship
+          enrollment.save!
+          enrollment
+        end
+
+        before do
+          initial_application.update_attributes!(aasm_state: :termination_pending)
+          initial_application.benefit_application_items.create(
+            effective_period: initial_application.start_on..end_on,
+            sequence_id: 1,
+            state: :termination_pending
+          )
+          benefit_package.termination_pending_member_benefits
+          auto_renewing_enrollment.reload
+        end
+
+        it 'transitions auto_renewing enrollment to coverage_termination_pending' do
+          expect(auto_renewing_enrollment.aasm_state).to eq 'coverage_termination_pending'
         end
       end
     end
