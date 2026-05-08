@@ -37,13 +37,13 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
     && truncate -s 0 /var/log/*log
 
-# NodeSource repo for NODE_MAJOR (nodejs is installed in prod_gems_and_assets only; omitted from base for a smaller deploy surface)
+# NodeSource for NODE_MAJOR; nodejs is installed in prod_gems_and_assets only (smaller base/deploy surface).
 RUN curl -fsSL https://deb.nodesource.com/setup_$NODE_MAJOR.x | bash -
 
-# Python is required for node-gyp and other tooling during asset builds in later stages
+# Install shared-mime-info in base; python3 for node-gyp stays in builder only.
 RUN apt-get update -qq \
   && apt-get install -yq --no-install-recommends \
-    shared-mime-info python3 python-is-python3 \
+    shared-mime-info \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /node_modules/* \
   && truncate -s 0 /var/log/*log
@@ -102,6 +102,8 @@ RUN apt-get update -qq \
     build-essential \
     git \
     libpq-dev \
+    python3 \
+    python-is-python3 \
     yarn \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
@@ -115,7 +117,7 @@ FROM builder AS prod_gems_and_assets
 
 RUN apt-get update -qq \
     && apt-get install -yq --no-install-recommends \
-      shared-mime-info python3 python-is-python3 \
+      shared-mime-info \
       nodejs \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /node_modules/* \
