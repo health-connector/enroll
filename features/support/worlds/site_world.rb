@@ -23,10 +23,6 @@ Given(/^a (.*?) site exists with a benefit market$/) do |_key|
   generate_sic_codes
 end
 
-Given(/^product rate caches are initialized$/) do
-  reset_product_cache
-end
-
 Given(/^a (.*?) site exists with a benefit market and exempt organization$/) do |_key|
   site_with_exempt_organization
   make_all_permissions
