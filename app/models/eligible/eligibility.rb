@@ -168,14 +168,17 @@ module Eligible
       # @return [Array] Array of created objects
       def create_objects(collection, type)
         collection.map do |item|
-          resource_name = send("#{type}_resource_for", item.key)
+          # Handle both object and hash inputs
+          item_key = item.is_a?(Hash) ? item[:key] : item.key
+          resource_name = send("#{type}_resource_for", item_key)
           item_class = RESOURCE_KINDS.find do |kind|
             kind.name == (resource_name.sub(/^::/, ""))
           end
 
           next unless item_class
 
-          item_class.new(item.to_h)
+          item_hash = item.is_a?(Hash) ? item : item.to_h
+          item_class.new(item_hash)
         end.compact
       end
     end

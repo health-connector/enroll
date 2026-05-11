@@ -96,6 +96,8 @@
             .float-right.mb-2
               #yourPlanTotals
               br
+          
+          #comparePlansButtons
 
           #yourSponsorContributions
 
@@ -208,6 +210,16 @@ javascript:
     });
   }
 
+  // Apply conditional margin for compare buttons feature
+  if (isPlanComparisonEnabled) {
+    document.addEventListener('DOMContentLoaded', function() {
+      var yourSponsorContributionsElement = document.getElementById('yourSponsorContributions');
+      if (yourSponsorContributionsElement) {
+        yourSponsorContributionsElement.classList.add('with-compare-buttons');
+      }
+    });
+  }
+
   function radioSelected(element) {
     setCircle(element)
     disableNewPlanYearButton()
@@ -253,6 +265,8 @@ javascript:
     }
     setTempCL()
     selectDefaultReferencePlan()
+
+    applyAllFilters()
   }
 
   $(document).on('click', '#employer-plan-selection-filters .plan-filter-checkbox', sortByFilter);
@@ -265,6 +279,10 @@ javascript:
       $(this).prop("checked", false);
     }
 
+    applyAllFilters()
+  }
+
+  function applyAllFilters() {
     var plans = $('.reference-plan');
     var search_types = {};
 
@@ -288,6 +306,12 @@ javascript:
         newFilteredProducts.push(plan)
       }
     })
+
+    if (newFilteredProducts.length) {
+      enableOrDisablePlanYearButtons()
+    } else {
+      disableNewPlanYearButton()
+    }
 
     populateReferencePlans(newFilteredProducts)
     selectDefaultReferencePlan()
@@ -412,7 +436,7 @@ javascript:
 
 
     if (isPlanComparisonEnabled) {
-      document.getElementById('yourPlans').innerHTML +=
+      document.getElementById('comparePlansButtons').innerHTML =
         `<div class="col-md-12 text-center mt-3 mb-3">
           <button type="button" class="btn btn-primary disabled" id="compareSelectedPlansButton" onclick="compareSelectedPlans(event); return false;" disabled>${comparePlansText}</button>
           <button type="button" class="btn btn-default" id="clear-comparison-button" onclick="clearSelectedPlans()">${clearAllText}</button>
@@ -708,6 +732,12 @@ javascript:
         break;
       }
     })
+
+    enableOrDisablePlanYearButtons()
+    displayReferencePlanDetails(document.querySelector("input[name='benefit_package[sponsored_benefits_attributes][0][reference_plan_id]']:checked"));
+  }
+
+  function enableOrDisablePlanYearButtons() {
     if (!(document.querySelectorAll(".reference-plans input[type='radio']:checked").length)) {
       disableNewPlanYearButton()
     }
@@ -724,7 +754,6 @@ javascript:
         }
       }
     }
-    displayReferencePlanDetails(document.querySelector("input[name='benefit_package[sponsored_benefits_attributes][0][reference_plan_id]']:checked"));
   }
   
   var selectedReferencePlanId;
