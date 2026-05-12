@@ -79,7 +79,7 @@ ENV NODE_ENV=production
 ################################################################################
 ### Node runtime. Copied into builder only — not present in deploy image.   ###
 ################################################################################
-FROM node:$NODE_MAJOR-trixie-slim AS node_runtime
+FROM --platform=$BUILDPLATFORM node:$NODE_MAJOR-trixie-slim AS node_runtime
 
 ################################################################################
 ### Builder. Adds Node and Yarn. Not necessary in production.               ###
