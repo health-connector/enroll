@@ -3,7 +3,8 @@
 ############################################
 
 ARG RUBY_VERSION=3.4.7
-FROM ruby:$RUBY_VERSION-slim-bookworm AS base
+ARG NODE_MAJOR=24
+FROM ruby:$RUBY_VERSION-slim-trixie AS base
 LABEL author="MHC"
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -12,37 +13,29 @@ ARG BUNDLER_VERSION=2.5.23
 # Must be set as ENV variable to overrride the default
 ENV BUNDLER_VERSION=$BUNDLER_VERSION
 
-ARG NODE_MAJOR=20
-ENV NODE_MAJOR=$NODE_MAJOR
-
-# Only add packages that aren't already in the base image
-# https://github.com/docker-library/ruby/blob/cdac1ffbc959768a5b82014dbb8c8006fe6f7880/3.0/slim-bullseye/Dockerfile
+# Only add packages that aren't already in the base image.
+# Keep in sync with upstream Ruby slim-trixie image:
+# https://github.com/docker-library/ruby/blob/5a670110fb6e65afa72ee9da2c65de377f589281/3.4/slim-trixie/Dockerfile
 RUN apt-get update \
     && apt-get -yq dist-upgrade \
     && apt-get install -y \
       curl \
       fontconfig \
       libcurl4-openssl-dev \
-      libffi8 \
       libsodium23 \
       libxext6 \
       libxrender1 \
-      libyaml-cpp0.7 \
-      openssl \
+      libyaml-cpp0.8 \
       sshpass \
       unzip \
       zip \
-      zlib1g \
       file \
       libjemalloc2 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
     && truncate -s 0 /var/log/*log
 
-# Add Nodejs sources - needed at build time only (e.g., node-gyp during yarn install)
-RUN curl -fsSL https://deb.nodesource.com/setup_$NODE_MAJOR.x | bash -
-
-# Install shared-mime-info (python3/python-is-python3 removed: only needed at build time by node-gyp in prod_gems_and_assets stage)
+# Install shared-mime-info in base; python3 for node-gyp stays in builder only.
 RUN apt-get update -qq \
   && apt-get install -yq --no-install-recommends \
     shared-mime-info \
@@ -81,15 +74,16 @@ ENV NODE_ENV=production
 
 
 ################################################################################
-### Builder. Adds Yarn. Not necessary in production. ###
+### Node runtime. Copied into builder only — not present in deploy image.   ###
+################################################################################
+FROM node:$NODE_MAJOR-trixie-slim AS node_runtime
+
+################################################################################
+### Builder. Adds Node and Yarn. Not necessary in production.               ###
 ###############################################################################
 FROM base AS builder
 
 ARG DEBIAN_FRONTEND=noninteractive
-
-# Add Yarn to the sources list
-RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
-  && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
 
 RUN apt-get update -qq \
   && apt-get install -yq --no-install-recommends \
@@ -98,10 +92,16 @@ RUN apt-get update -qq \
     libpq-dev \
     python3 \
     python-is-python3 \
-    yarn \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
   && truncate -s 0 /var/log/*log
+
+COPY --from=node_runtime /usr/local/bin/node /usr/local/bin/node
+COPY --from=node_runtime /usr/local/lib/node_modules /usr/local/lib/node_modules
+
+RUN ln -sf /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
+ && ln -sf /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx \
+ && npm install -g yarn
 
 
 ########################################################
@@ -112,7 +112,6 @@ FROM builder AS prod_gems_and_assets
 RUN apt-get update -qq \
     && apt-get install -yq --no-install-recommends \
       shared-mime-info \
-      nodejs \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /node_modules/* \
     && truncate -s 0 /var/log/*log
