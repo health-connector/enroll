@@ -102,3 +102,6 @@ yarn-debug.log*
 
 # Ignore actionlint binary
 actionlint
+
+# Ignore local developer environment overrides
+.env.development.local
