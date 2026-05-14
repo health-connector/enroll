@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'csv'
+require 'openssl'
+require_relative 'canonical_payloads'
 
 module DataAnonymizer
   # Samples the database after anonymization and produces a pass/fail report.
@@ -17,11 +19,20 @@ module DataAnonymizer
   # Writes a CSV report to +tmp/anonymization_report_YYYYMMDD.csv+.
   #
   # @note +dba+, +fein+, and +npn+ are not checked — they are intentionally unchanged.
+  # rubocop:disable Metrics/ClassLength
   class Verifier
-    GENERATED_EMAIL_PATTERN = /@example\.com\z/
-    SAMPLE_SIZE = 5000
+    include CanonicalPayloads
 
-    def initialize
+    GENERATED_EMAIL_PATTERN = /@(exampleanonymizer|testanonymizer)\.com\z/
+    SAMPLE_SIZE = 5000
+    SKIP_FIELDS = %w[_id encrypted_ssn].freeze
+
+    def initialize(mode: :smoke, prehash_map: nil, hmac_key: nil, run_id: nil, sample_size: SAMPLE_SIZE)
+      @mode = mode
+      @prehash_map = prehash_map
+      @hmac_key = hmac_key
+      @run_id = run_id
+      @sample_size = sample_size
       @client = Mongoid.default_client
       @db = @client.database
     end
@@ -43,6 +54,9 @@ module DataAnonymizer
       end
 
       log "Report written to: #{report_path}"
+
+      # Return results for callers that want to gate on verification
+      [results, all_passed, report_path]
     end
 
     private
@@ -50,16 +64,142 @@ module DataAnonymizer
     # Runs all verification checks and returns the results array.
     # @return [Array<Hash>]
     def collect_check_results
-      [
-        check_history_trackers,
-        check_people,
-        check_users,
-        check_census_members,
-        check_organizations,
-        check_bs_organizations,
-        check_families,
-        check_census_person_consistency
-      ]
+      checks = []
+      checks << check_history_trackers
+      checks << check_people
+      checks << check_users
+      checks << check_census_members
+      checks << check_organizations
+      checks << check_bs_organizations
+      checks << check_families
+      checks << check_census_person_consistency
+
+      # Audit-only, more expensive checks
+      if @mode.to_sym == :audit
+        # Option A: load prehash map from TTL collection when not provided in-memory
+        if @prehash_map.nil? && @hmac_key.present? && @run_id.present?
+          @prehash_map = load_prehash_map_from_ttl(@run_id)
+          log "Loaded #{@prehash_map.values.sum(&:size)} prehash digests from TTL collection (run_id=#{@run_id})."
+        end
+        checks << check_streaming_ssn_patterns
+        checks << check_name_dob_prehash
+      end
+
+      checks
+    end
+
+    # Loads prehash digests from the +data_anonymizer_prehashes+ TTL collection
+    # for a given run_id. Used for out-of-process (separate-task) verification.
+    # @param run_id [String] UUID recorded during the anonymizer run
+    # @return [Hash{Symbol => Hash{String => String}}] prehash map suitable for check_name_dob_prehash
+    def load_prehash_map_from_ttl(run_id)
+      map = Hash.new { |h, k| h[k] = {} }
+      return map unless @db.collection_names.include?('data_anonymizer_prehashes')
+
+      @db[:data_anonymizer_prehashes].find('run_id' => run_id.to_s).each do |doc|
+        scope = doc['collection'].to_sym
+        rec_id = doc['record_id'].to_s
+        map[scope][rec_id] = doc['digest']
+      end
+      map
+    end
+
+    # Streaming regex scan across all collections to find SSN-like 9-digit patterns.
+    # Recurses into nested hashes and arrays so embedded sub-documents are covered.
+    # This is expensive but provides full-coverage detection of raw 9-digit sequences.
+    def check_streaming_ssn_patterns
+      pattern = /\b\d{9}\b/
+      hits = []
+      total_checked = 0
+
+      collections = %w[people census_members families organizations benefit_sponsors_organizations_organizations users]
+      collections.each do |col|
+        next unless @db.collection_names.include?(col)
+
+        @db[col.to_sym].find.batch_size(500).each do |doc|
+          total_checked += 1
+          if doc_strings(doc).any? { |v| v.match?(pattern) }
+            snippet = doc_strings(doc).find { |v| v.match?(pattern) }
+            hits << { collection: col, id: doc['_id'].to_s, snippet: snippet.to_s[0, 120] }
+          end
+          break if hits.size >= 10
+        end
+      end
+
+      issues = []
+      issues << "#{hits.size} SSN-like patterns found" if hits.any?
+      samples = hits.map { |h| "#{h[:collection]}:#{h[:id]}=#{h[:snippet]}" }.join('; ')
+      build_result("Streaming SSN regex", total_checked, issues, samples)
+    end
+
+    # Yields every String value in a Mongo document, recursing into nested Hashes and Arrays.
+    # Skips the +_id+ field and known ciphertext fields (+encrypted_ssn+) to avoid false positives.
+    def doc_strings(value, &block)
+      return enum_for(:doc_strings, value) unless block
+
+      case value
+      when String
+        yield value
+      when Hash
+        value.each do |k, v|
+          next if SKIP_FIELDS.include?(k)
+
+          doc_strings(v, &block)
+        end
+      when Array
+        value.each { |v| doc_strings(v, &block) }
+      end
+    end
+
+    # Verifies canonical prehash map: compares pre-run HMAC (stored_hmac)
+    # with a post-run HMAC built from the same canonicalization rules. Any
+    # record whose HMAC is unchanged is treated as a failure.
+    def check_name_dob_prehash
+      return build_result("Canonical prehash", 0, [], "not provided") unless @prehash_map && @hmac_key
+
+      issues = []
+      samples = []
+      total = 0
+
+      @prehash_map.each do |collection_sym, id_map|
+        col = collection_sym.to_s
+        next unless @db.collection_names.include?(col)
+
+        id_map.each do |id_str, stored_hmac|
+          total += 1
+          begin
+            oid = BSON::ObjectId.from_string(id_str)
+          rescue StandardError
+            next
+          end
+          doc = @db[col.to_sym].find('_id' => oid).first
+          next unless doc
+
+          canon = canonical_payload_for_collection(collection_sym, doc)
+          current_hmac = OpenSSL::HMAC.hexdigest('SHA256', @hmac_key, canon)
+          if current_hmac == stored_hmac
+            issues << "Unchanged canonical payload for #{col}:#{id_str}"
+            samples << "#{col}:#{id_str}"
+          end
+        end
+      end
+
+      build_result("Canonical prehash", total, issues, samples.first(5).join(', '))
+    end
+
+    def canonical_payload_for_collection(collection_sym, doc)
+      case collection_sym.to_sym
+      when :people
+        canonical_person_payload(doc)
+      when :census_members
+        canonical_census_payload(doc)
+      when :organizations
+        canonical_org_payload(doc)
+      when :bs_organizations
+        canonical_bs_org_payload(doc)
+      else
+        ""
+      end
     end
 
     # Writes the results array to a dated CSV in tmp/ and returns the path.
@@ -296,4 +436,5 @@ module DataAnonymizer
       Rails.logger.info("[DataAnonymizer::Verifier] #{msg}")
     end
   end
+  # rubocop:enable Metrics/ClassLength
 end

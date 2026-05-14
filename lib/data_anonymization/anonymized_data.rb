@@ -14,8 +14,8 @@ module DataAnonymizer
   # Inbox messages are intentionally NOT anonymized (no PII in CCA inboxes).
   # FFaker seeding (+FFaker.seed = integer+) is supported but not enabled by default.
   #
-  # Call as module functions: +DataAnonymizer::FakeData.first_name+
-  module FakeData
+  # Call as module functions: +DataAnonymizer::AnonymizedData.first_name+
+  module AnonymizedData
     module_function
 
     # @return [String] random first name
@@ -28,15 +28,33 @@ module DataAnonymizer
       FFaker::Name.last_name
     end
 
+    # Valid SSN area-code ranges (excludes 000, 666, 900-999 per SSA rules).
+    SSN_VALID_AREAS = ([*1..665] + [*667..899]).freeze
+
     # Generates a valid-format SSN string (9 digits, no dashes).
-    # Avoids invalid area codes (000, 666, 900-999) per SSA rules.
+    #
+    # Enforces all SSA validity rules, including those checked at enrollment:
+    #   - Area code never 000, 666, or 900-999
+    #   - Group code never 00
+    #   - Serial never 0000
+    #   - Not all same digits (e.g. 111111111)
+    #   - Not in ascending sequential order (e.g. 123456789)
+    #   - Not in descending sequential order (e.g. 987654321)
+    #
     # @return [String] 9-digit numeric string
     def ssn
-      area = rand(1..665)
-      area = rand(667..899) if area == 666
-      group = rand(1..99)
-      serial = rand(1..9999)
-      format('%<area>03d%<group>02d%<serial>04d', area: area, group: group, serial: serial)
+      loop do
+        area   = SSN_VALID_AREAS.sample
+        group  = rand(1..99)
+        serial = rand(1..9999)
+        result = format('%<area>03d%<group>02d%<serial>04d', area: area, group: group, serial: serial)
+
+        next if result.chars.uniq.length == 1
+        next if result.chars.each_cons(2).all? { |l, r| l < r }
+        next if result.chars.each_cons(2).all? { |l, r| l > r }
+
+        return result
+      end
     end
 
     # Encrypts a plain SSN string using SymmetricEncryption (same algorithm as the app).
@@ -52,9 +70,9 @@ module DataAnonymizer
       encrypt_ssn(ssn)
     end
 
-    # @return [Integer] random day offset in the range [-1095, 1095] (±3 years)
+    # @return [Integer] random day offset in the range [-30, 30] (±30 days)
     def dob_shift_days
-      rand(-1095..1095) # ±3 years
+      rand(-30..30) # ±30 days
     end
 
     # Shifts a date of birth by +shift_days+ days, clamping to valid bounds.
@@ -92,11 +110,21 @@ module DataAnonymizer
       "#{FFaker::Address.city} County"
     end
 
-    # @return [String] fake email address in the form +userN@example.com+
-    # @param index [Integer, nil] sequence number for deterministic uniqueness; random hex suffix used if nil
+    # Allowed anonymized email domains — two domains for guaranteed uniqueness per record.
+    ALLOWED_EMAIL_DOMAINS = %w[exampleanonymizer.com testanonymizer.com].freeze
+
+    # @return [String] deterministic anonymized email address.
+    #   Even-indexed records use +exampleanonymizer.com+; odd-indexed use +testanonymizer.com+.
+    #   When no index is given, a random hex suffix keeps the address unique.
+    # @param index [Integer, nil] sequence number for deterministic uniqueness
     def email(index = nil)
-      prefix = index ? "user#{index}" : "user#{SecureRandom.hex(4)}"
-      "#{prefix}@example.com"
+      if index
+        domain = ALLOWED_EMAIL_DOMAINS[index % 2]
+        "user#{index}@#{domain}"
+      else
+        domain = ALLOWED_EMAIL_DOMAINS[SecureRandom.random_number(2)]
+        "user#{SecureRandom.hex(4)}@#{domain}"
+      end
     end
 
     # @return [String] random 7-digit phone number body (no area code)
@@ -112,6 +140,11 @@ module DataAnonymizer
     # @return [String] full 10-digit phone number (area code + number body)
     def full_phone
       "#{area_code}#{phone_number}"
+    end
+
+    # @return [String] random US state abbreviation (2 letters)
+    def state
+      FFaker::AddressUS.state_abbr
     end
 
     # @return [String] fake company name via FFaker

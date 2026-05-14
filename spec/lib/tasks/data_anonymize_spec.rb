@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 require 'ffaker'
-require Rails.root.join('lib/data_anonymization/fake_data')
+require Rails.root.join('lib/data_anonymization/anonymized_data')
 require Rails.root.join('lib/data_anonymization/runner')
 require Rails.root.join('lib/data_anonymization/verifier')
 
@@ -17,10 +17,10 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
   end
 
   # ============================================================================
-  # FakeData module — pure unit tests, no database required
+  # AnonymizedData module — pure unit tests, no database required
   # ============================================================================
 
-  describe DataAnonymizer::FakeData do
+  describe DataAnonymizer::AnonymizedData do
     describe '.first_name' do
       it 'returns a non-empty string' do
         expect(described_class.first_name).to be_a(String).and be_present
@@ -76,12 +76,12 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
     end
 
     describe '.email' do
-      it 'uses the @example.com domain' do
-        expect(described_class.email).to end_with('@example.com')
+      it 'uses an allowed anonymizer domain' do
+        expect(described_class.email).to match(/@(exampleanonymizer|testanonymizer)\.com\z/)
       end
 
       it 'uses user{index} prefix when index is given' do
-        expect(described_class.email(42)).to eq('user42@example.com')
+        expect(described_class.email(42)).to match(/\Auser42@(exampleanonymizer|testanonymizer)\.com\z/)
       end
 
       it 'uses a random suffix when no index is given' do
@@ -91,10 +91,10 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
     end
 
     describe '.dob_shift_days' do
-      it 'returns an integer within ±3 years (±1095 days)' do
+      it 'returns an integer within ±30 days' do
         100.times do
           shift = described_class.dob_shift_days
-          expect(shift).to be_between(-1095, 1095)
+          expect(shift).to be_between(-30, 30)
         end
       end
     end
@@ -140,10 +140,12 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
     # Use a small batch size so multiple batches are exercised even with few records
     let(:runner) { DataAnonymizer::Runner.new(batch_size: 5, dry_run: false, force: true) }
     let(:dry_runner) { DataAnonymizer::Runner.new(batch_size: 5, dry_run: true, force: true) }
+    # Runner with DOB shifting enabled — required for tests that assert DOB changes
+    let(:dob_runner) { DataAnonymizer::Runner.new(batch_size: 5, dry_run: false, force: true, anonymize_dob: true) }
 
     before { skip_confirmation }
 
-    # ── Safety ──────────────────────────────────────────────────────────────
+    # @!group Safety — environment and safety guard tests
 
     describe '#abort_if_production!' do
       context 'when Rails.env is production' do
@@ -167,7 +169,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       end
     end
 
-    # ── Idempotency ──────────────────────────────────────────────────────────
+    # @!group Idempotency — idempotency and sentinel guarding tests
 
     describe '#check_idempotency!' do
       before do
@@ -205,7 +207,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       end
     end
 
-    # ── Phase 0: history_trackers ─────────────────────────────────────────
+    # @!group Phase 0: history_trackers — history tracker cleanup tests
 
     describe '#drop_history_trackers' do
       context 'when history_trackers exists' do
@@ -245,7 +247,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       end
     end
 
-    # ── Phase 1: People ───────────────────────────────────────────────────
+    # @!group Phase 1: People — people anonymization tests
 
     describe '#anonymize_people' do
       let!(:person) do
@@ -280,12 +282,9 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
         expect(doc['tribal_id']).to be_nil
       end
 
-      it 'shifts the dob within ±3 years' do
+      it 'preserves dob when anonymize_dob is false (default)' do
         doc = raw_doc('people', person.id)
-        new_dob = doc['dob']&.to_date
-        expect(new_dob).to be_present
-        expect(new_dob).not_to eq(Date.new(1980, 3, 15))
-        expect((new_dob - Date.new(1980, 3, 15)).to_i.abs).to be <= 1095
+        expect(doc['dob']&.to_date).to eq(Date.new(1980, 3, 15))
       end
 
       it 'removes the plain-text ssn field' do
@@ -293,11 +292,11 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
         expect(doc.keys).not_to include('ssn')
       end
 
-      it 'anonymizes embedded emails to @example.com' do
+      it 'anonymizes embedded emails to an allowed anonymizer domain' do
         doc = raw_doc('people', person.id)
         emails = doc['emails'] || []
         emails.each do |em|
-          expect(em['address']).to match(/@example\.com\z/)
+          expect(em['address']).to match(/@(exampleanonymizer|testanonymizer)\.com\z/)
         end
       end
 
@@ -329,7 +328,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       end
     end
 
-    # ── Phase 1 support: build_person_update ──────────────────────────────
+    # @!group Phase 1 support: build_person_update — person update helper tests
 
     describe '#build_person_update' do
       let(:doc) do
@@ -346,7 +345,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
         }
       end
 
-      subject(:fields) { runner.send(:build_person_update, doc, shift_days: 30) }
+      subject(:fields) { dob_runner.send(:build_person_update, doc, shift_days: 30) }
 
       it 'replaces first_name' do
         expect(fields['first_name']).not_to eq('Alice')
@@ -368,8 +367,8 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
         expect(fields['date_of_death']).to eq(Date.new(2020, 1, 31))
       end
 
-      it 'replaces the embedded email address with @example.com' do
-        expect(fields['emails'].first['address']).to match(/@example\.com\z/)
+      it 'replaces the embedded email address with an anonymizer domain' do
+        expect(fields['emails'].first['address']).to match(/@(exampleanonymizer|testanonymizer)\.com\z/)
       end
 
       it 'preserves the email kind' do
@@ -433,7 +432,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       end
     end
 
-    # ── Phase 1 support: family DOB shift consistency ──────────────────────
+    # @!group Phase 1 support: family DOB shift consistency — family DOB shift mapping tests
 
     describe '#build_family_shift_map and family DOB consistency' do
       let!(:primary_person)  { FactoryBot.create(:person, dob: Date.new(1975, 4, 1)) }
@@ -453,20 +452,20 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       end
     end
 
-    # ── Phase 1 support: person not in any family ──────────────────────
+    # @!group Phase 1 support: person not in any family — orphan person anonymization tests
 
     describe 'person not in any family' do
       let!(:orphan_person) { FactoryBot.create(:person, first_name: 'Orphan', dob: Date.new(1985, 6, 15)) }
 
       it 'still gets anonymized with a random shift' do
-        runner.send(:anonymize_people)
+        dob_runner.send(:anonymize_people)
         doc = raw_doc('people', orphan_person.id)
         expect(doc['first_name']).not_to eq('Orphan')
         expect(doc['dob']&.to_date).not_to eq(Date.new(1985, 6, 15))
       end
     end
 
-    # ── Phase 2: Users ────────────────────────────────────────────────────
+    # @!group Phase 2: Users — user anonymization tests
 
     describe '#anonymize_users' do
       let!(:user) do
@@ -484,14 +483,15 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
 
       before { runner.send(:anonymize_users) }
 
-      it 'replaces email with @example.com address' do
+      it 'replaces email with an anonymizer domain address' do
         doc = raw_doc('users', user.id)
-        expect(doc['email']).to match(/@example\.com\z/)
+        expect(doc['email']).to match(/@(exampleanonymizer|testanonymizer)\.com\z/)
       end
 
-      it 'replaces oim_id with anon_user pattern' do
+      it 'syncs oim_id to the anonymized email' do
         doc = raw_doc('users', user.id)
-        expect(doc['oim_id']).to match(/\Aanon_user\d+\z/)
+        expect(doc['oim_id']).to eq(doc['email'])
+        expect(doc['oim_id']).to match(/@(exampleanonymizer|testanonymizer)\.com\z/)
       end
 
       it 'nulls idp_uuid' do
@@ -524,7 +524,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       end
     end
 
-    # ── Phase 3: Census Members ───────────────────────────────────────────
+    # @!group Phase 3: Census Members — census member anonymization tests
 
     describe '#anonymize_census_members' do
       let!(:census_employee) do
@@ -552,6 +552,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       end
 
       it 'shifts the dob' do
+        dob_runner.send(:anonymize_census_members)
         doc = raw_doc('census_members', census_employee.id)
         expect(doc['dob']&.to_date).not_to eq(Date.new(1985, 3, 10))
       end
@@ -611,7 +612,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       end
     end
 
-    # ── Phase 4 & 5: Organizations ────────────────────────────────────────
+    # @!group Phase 4 & 5: Organizations — organization anonymization tests
 
     describe '#anonymize_organizations' do
       let!(:org) do
@@ -650,7 +651,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       end
     end
 
-    # ── Phase 5: BS Organizations ──────────────────────────────────────
+    # @!group Phase 5: BS Organizations — benefit sponsor organization tests
 
     describe '#anonymize_bs_organizations' do
       before do
@@ -689,7 +690,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       end
     end
 
-    # ── Helper: anonymize_bs_profile ──────────────────────────────────────
+    # @!group Helper: anonymize_bs_profile — BS profile anonymization helper tests
 
     describe '#anonymize_bs_profile' do
       let(:profile) do
@@ -719,7 +720,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       end
     end
 
-    # ── Helper: anonymize_office_locations ─────────────────────────────────
+    # @!group Helper: anonymize_office_locations — office locations helper tests
 
     describe '#anonymize_office_locations' do
       let(:locations) do
@@ -746,7 +747,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       end
     end
 
-    # ── Helper: census_member_shift_days branches ──────────────────────────
+    # @!group Helper: census_member_shift_days — census group shift helper tests
 
     describe '#census_member_shift_days' do
       let(:doc) { { 'dob' => Date.new(1980, 1, 1), 'census_dependents' => [] } }
@@ -771,12 +772,12 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       context 'when person_vals is nil (no linked person)' do
         it 'computes a group shift from doc and dependent DOBs' do
           result = runner.send(:census_member_shift_days, doc, nil)
-          expect(result).to be_between(-1095, 1095)
+          expect(result).to be_between(-30, 30)
         end
       end
     end
 
-    # ── Helper: build_census_member_update branches ────────────────────────
+    # @!group Helper: build_census_member_update — census member update helper tests
 
     describe '#build_census_member_update' do
       let(:doc) do
@@ -788,7 +789,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       context 'with person_vals (linked to Person)' do
         let(:person_vals) { { 'first_name' => 'FakePerson', 'last_name' => 'FakeLast', 'dob' => Date.new(1985, 4, 10), 'encrypted_ssn' => 'enc_fake' } }
 
-        subject(:result) { runner.send(:build_census_member_update, doc, shift_days: 0, person_vals: person_vals) }
+        subject(:result) { dob_runner.send(:build_census_member_update, doc, shift_days: 0, person_vals: person_vals) }
 
         it 'uses the Person first_name' do
           expect(result['first_name']).to eq('FakePerson')
@@ -804,7 +805,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       end
 
       context 'without person_vals (no linked Person)' do
-        subject(:result) { runner.send(:build_census_member_update, doc, shift_days: 30, person_vals: nil) }
+        subject(:result) { dob_runner.send(:build_census_member_update, doc, shift_days: 30, person_vals: nil) }
 
         it 'generates a fresh first_name' do
           expect(result['first_name']).not_to eq('CensusOrig')
@@ -819,12 +820,12 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
         end
 
         it 'anonymizes the embedded email' do
-          expect(result['email']['address']).to match(/@example\.com\z/)
+          expect(result['email']['address']).to match(/@(exampleanonymizer|testanonymizer)\.com\z/)
         end
       end
     end
 
-    # ── Phase 6: Families ─────────────────────────────────────────────────
+    # @!group Phase 6: Families — family anonymization tests
 
     describe '#anonymize_families' do
       let!(:family_with_case)    { FactoryBot.create(:family, :with_primary_family_member) }   # e_case_id set by factory sequence
@@ -852,7 +853,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       end
     end
 
-    # ── Idempotency — sentinel written after full run ──────────────────────
+    # @!group Idempotency — sentinel written after full run tests
 
     describe 'sentinel record after full run' do
       before do
@@ -865,6 +866,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
         allow(runner).to receive(:anonymize_organizations).and_return(0)
         allow(runner).to receive(:anonymize_bs_organizations).and_return(0)
         allow(runner).to receive(:anonymize_families).and_return(0)
+        allow_any_instance_of(DataAnonymizer::Verifier).to receive(:run).and_return([[], true, '/tmp/report.csv'])
       end
 
       it 'writes a sentinel document to data_anonymizer_runs' do
@@ -879,7 +881,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       end
     end
 
-    # ── Helper: anonymize_address_hash ────────────────────────────────────
+    # @!group Helper: anonymize_address_hash — address anonymization helper tests
 
     describe '#anonymize_address_hash' do
       let(:addr) do
@@ -944,7 +946,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       end
     end
 
-    # ── Helper: anonymize_phone_hash ──────────────────────────────────────
+    # @!group Helper: anonymize_phone_hash — phone anonymization helper tests
 
     describe '#anonymize_phone_hash' do
       let(:phone) { { 'kind' => 'work', 'area_code' => '617', 'number' => '5551234', 'extension' => '99' } }
@@ -972,15 +974,15 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       end
     end
 
-    # ── Helper: anonymize_email_hash ──────────────────────────────────────
+    # @!group Helper: anonymize_email_hash — email anonymization helper tests
 
     describe '#anonymize_email_hash' do
       let(:email_doc) { { 'kind' => 'home', 'address' => 'real@personal.com' } }
 
       subject(:result) { runner.send(:anonymize_email_hash, email_doc) }
 
-      it 'replaces address with @example.com address' do
-        expect(result['address']).to match(/@example\.com\z/)
+      it 'replaces address with an anonymizer domain address' do
+        expect(result['address']).to match(/@(exampleanonymizer|testanonymizer)\.com\z/)
         expect(result['address']).not_to eq('real@personal.com')
       end
 
@@ -999,7 +1001,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       end
     end
 
-    # ── Age-band preservation ─────────────────────────────────────────────
+    # @!group Age-band preservation — age-band correctness tests
 
     describe '#age_band' do
       let(:ref) { Date.new(2026, 5, 6) }
@@ -1057,7 +1059,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       end
     end
 
-    # ── Idempotent re-run ─────────────────────────────────────────────────
+    # ── Idempotent re-run ───
 
     describe 'idempotent re-run with force: true' do
       let!(:person) { FactoryBot.create(:person, first_name: 'Original', dob: Date.new(1985, 1, 1)) }
@@ -1077,15 +1079,15 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
     end
   end
 
-  # ============================================================================
+  # ======================
   # Verifier
-  # ============================================================================
+  # ======================
 
   describe DataAnonymizer::Verifier do
     let(:verifier) { DataAnonymizer::Verifier.new }
     let(:db) { Mongoid.default_client.database }
 
-    # ── check_history_trackers ────────────────────────────────────────────
+    # ── check_history_trackers ────
 
     describe '#check_history_trackers' do
       context 'when history_trackers does not exist' do
@@ -1109,7 +1111,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       end
     end
 
-    # ── check_people ──────────────────────────────────────────────────────
+    # ── check_people ───
 
     describe '#check_people' do
       context 'when people have been properly anonymized' do
@@ -1118,7 +1120,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
         before do
           db[:people].update_one(
             { '_id' => person.id },
-            { '$set' => { 'emails' => [{ 'address' => 'user1@example.com', 'kind' => 'home' }] },
+            { '$set' => { 'emails' => [{ 'address' => 'user1@exampleanonymizer.com', 'kind' => 'home' }] },
               '$unset' => { 'ssn' => '', 'tribal_id' => '' } }
           )
         end
@@ -1171,7 +1173,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       end
     end
 
-    # ── check_users ───────────────────────────────────────────────────────
+    # ── check_users ───
 
     describe '#check_users' do
       context 'when users are fully anonymized' do
@@ -1181,7 +1183,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
           db[:users].update_one(
             { '_id' => user.id },
             { '$set' => {
-              'email' => 'user0@example.com',
+              'email' => 'user0@exampleanonymizer.com',
               'idp_uuid' => nil,
               'identity_final_decision_transaction_id' => nil,
               'current_login_token' => nil
@@ -1220,7 +1222,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       end
     end
 
-    # ── check_families ────────────────────────────────────────────────────
+    # ── check_families ───
 
     describe '#check_families' do
       context 'when all e_case_ids have been cleared' do
@@ -1245,7 +1247,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       end
     end
 
-    # ── check_census_members ────────────────────────────────────────────
+    # ── check_census_members ───
 
     describe '#check_census_members' do
       context 'when all census_members have anonymized SSNs' do
@@ -1272,7 +1274,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       end
     end
 
-    # ── check_organizations ───────────────────────────────────────────────
+    # ── check_organizations ─────
 
     describe '#check_organizations' do
       context 'when organizations have no suspicious ACH data' do
@@ -1309,7 +1311,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       end
     end
 
-    # ── check_bs_organizations ────────────────────────────────────────────
+    # ── check_bs_organizations ────
 
     describe '#check_bs_organizations' do
       context 'when no BS organizations exist' do
@@ -1351,7 +1353,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       end
     end
 
-    # ── check_census_person_consistency ──────────────────────────────────
+    # ── check_census_person_consistency ───
 
     describe '#check_census_person_consistency' do
       context 'when no census members have employee_role_id' do
@@ -1397,7 +1399,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       end
     end
 
-    # ── Full Verifier#run ─────────────────────────────────────────────────
+    # ── Full Verifier#run ────
 
     describe '#run' do
       before do

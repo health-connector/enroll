@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
-require_relative 'fake_data'
+require_relative 'anonymized_data'
+require_relative 'canonical_payloads'
+require 'openssl'
+require 'securerandom'
 
 module DataAnonymizer
   # Orchestrates all anonymization phases across CCA Mongoid collections.
@@ -14,29 +17,36 @@ module DataAnonymizer
   #   runner.run
   # rubocop:disable Metrics/ClassLength
   class Runner
+    include CanonicalPayloads
+
     attr_reader :batch_size, :client, :db
 
     # @param batch_size [Integer] documents per bulk_write batch (default 1000).
     #   Larger values improve throughput at the cost of memory.
     # @param dry_run [Boolean] when true, logs actions without writing to the database.
     # @param force [Boolean] when true, skips the idempotency guard and re-anonymizes.
-    # @param anonymize_zip [Boolean] when true, overwrites zip fields (default: preserve).
-    # @param anonymize_county [Boolean] when true, overwrites county fields (default: preserve).
+    # @param anonymize_zip [Boolean] opt in to anonymize zip; preserved by default to protect rating calculations.
+    # @param anonymize_county [Boolean] opt in to anonymize county; preserved by default to protect rating calculations.
+    # @param anonymize_dob [Boolean] opt in to shift DOB ±30 days; preserved by default to protect age-band eligibility.
+    # @param anonymize_state [Boolean] opt in to anonymize state; preserved by default to protect plan availability.
+    # rubocop:disable Metrics/ParameterLists
     def initialize(batch_size: 1000, dry_run: false, force: false,
-                   anonymize_zip: false, anonymize_county: false)
+                   anonymize_zip: false, anonymize_county: false,
+                   anonymize_dob: false, anonymize_state: false)
       @batch_size = batch_size
       @dry_run = dry_run
       @force = force
       @anonymize_zip = anonymize_zip
       @anonymize_county = anonymize_county
+      @anonymize_dob = anonymize_dob
+      @anonymize_state = anonymize_state
       @client = Mongoid.default_client
       @db = @client.database
       @reference_date = TimeKeeper.date_of_record
     end
+    # rubocop:enable Metrics/ParameterLists
 
     # Runs all anonymization phases in dependency order.
-    #
-    # Phase 0 drops +history_trackers+ (contains raw PII change history).
     # Phases 1-5 process people, users, census_members, organizations, and
     # bs_organizations. Phase 6 clears PII fields in families.
     # People must run before census_members so that
@@ -53,9 +63,42 @@ module DataAnonymizer
       log "Time: #{Time.current}"
       start_time = Time.current
 
+      # Pre-run: generate HMAC prehashes for records that lack SSN so we can
+      # verify name+dob were changed after anonymization. Kept in-memory and
+      # passed to the verifier after the run.
+      if @dry_run
+        log "Skipping prehash generation (dry run)"
+        @prehash_map = nil
+        @prehash_hmac_key = nil
+      else
+        @prehash_hmac_key = SecureRandom.hex(32)
+        @prehash_run_id = SecureRandom.uuid
+        @prehash_map = generate_prehash_map
+        persist_prehashes_to_ttl_collection(@prehash_map, @prehash_run_id)
+        log "Prehash map: people=#{@prehash_map[:people].size}, census_members=#{@prehash_map[:census_members].size}, organizations=#{@prehash_map[:organizations].size}, bs_organizations=#{@prehash_map[:bs_organizations].size}"
+      end
+
       stats = run_phases
       log_stats(stats, (Time.current - start_time).round(1))
-      record_run_sentinel unless @dry_run
+
+      # Post-run: run audit verifier (expensive) and require pass before recording sentinel
+      if @dry_run
+        log "Skipping verifier (dry run)"
+        return
+      end
+
+      verifier = DataAnonymizer::Verifier.new(mode: :audit, prehash_map: @prehash_map, hmac_key: @prehash_hmac_key)
+      _results, all_passed, report_path = verifier.run
+
+      unless all_passed
+        log "VERIFIER FAILED — report: #{report_path}"
+        log "Sentinel will NOT be recorded; investigate and remediate before sharing dumps."
+        return
+      end
+
+      record_run_sentinel
+      log "Re-verification credentials — RUN_ID=#{@prehash_run_id} HMAC_KEY=#{@prehash_hmac_key}"
+      log "Store these values to re-run: bundle exec rake data:anonymize:verify RUN_ID=<value> HMAC_KEY=<value>"
     end
 
     private
@@ -110,9 +153,10 @@ module DataAnonymizer
         'completed_at' => Time.current,
         'database' => db.name,
         'rails_env' => Rails.env,
-        'batch_size' => @batch_size
+        'batch_size' => @batch_size,
+        'prehash_run_id' => @prehash_run_id
       )
-      log "Sentinel recorded in data_anonymizer_runs."
+      log "Sentinel recorded in data_anonymizer_runs (prehash_run_id=#{@prehash_run_id})."
     end
 
     # Aborts the process if the database appears to be a production database.
@@ -181,7 +225,7 @@ module DataAnonymizer
 
       collection.find.batch_size(batch_size).each_slice(batch_size) do |batch|
         updates = batch.map do |doc|
-          shift_days = family_shifts[doc['_id']] || FakeData.dob_shift_days
+          shift_days = family_shifts[doc['_id']] || AnonymizedData.dob_shift_days
           set_fields = build_person_update(doc, shift_days: shift_days)
           {
             update_one: {
@@ -211,18 +255,18 @@ module DataAnonymizer
     # @param shift_days [Integer] days to shift this person's DOBs (from {#build_family_shift_map})
     # @return [Hash] Mongo update fields suitable for a +$set+ operation
     def build_person_update(doc, shift_days:)
-      new_first = FakeData.first_name
-      new_last  = FakeData.last_name
+      new_first = AnonymizedData.first_name
+      new_last  = AnonymizedData.last_name
       fields = {
         'first_name' => new_first,
         'last_name' => new_last,
         'full_name' => "#{new_first} #{new_last}",
-        'middle_name' => FakeData.first_name.first(1),
+        'middle_name' => AnonymizedData.first_name.first(1),
         'name_pfx' => nil,
         'name_sfx' => nil,
         'alternate_name' => nil
       }
-      fields['encrypted_ssn'] = FakeData.encrypted_ssn if doc['encrypted_ssn'].present?
+      fields['encrypted_ssn'] = AnonymizedData.encrypted_ssn if doc['encrypted_ssn'].present?
       fields['tribal_id']     = nil                    if doc['tribal_id'].present?
       fields.merge!(anonymize_person_dates(doc, shift_days))
       fields.merge!(anonymize_person_embedded(doc))
@@ -234,8 +278,10 @@ module DataAnonymizer
     # @return [Hash] date fields for +$set+
     def anonymize_person_dates(doc, shift_days)
       fields = {}
-      fields['dob']           = FakeData.shift_dob(doc['dob'].to_date, shift_days: shift_days)           if doc['dob'].present?
-      fields['date_of_death'] = FakeData.shift_dob(doc['date_of_death'].to_date, shift_days: shift_days) if doc['date_of_death'].present?
+      if @anonymize_dob
+        fields['dob']           = AnonymizedData.shift_dob(doc['dob'].to_date, shift_days: shift_days)           if doc['dob'].present?
+        fields['date_of_death'] = AnonymizedData.shift_dob(doc['date_of_death'].to_date, shift_days: shift_days) if doc['date_of_death'].present?
+      end
       fields
     end
 
@@ -306,10 +352,10 @@ module DataAnonymizer
     # @param dobs [Array<Date>] dates of birth for all members in the group
     # @return [Integer] shift in days within [-1095, 1095]
     def pick_group_shift_days(dobs)
-      return FakeData.dob_shift_days if dobs.empty?
+      return AnonymizedData.dob_shift_days if dobs.empty?
 
       ranges = dobs.map { |dob| allowed_shift_range(dob, @reference_date) }.compact
-      return FakeData.dob_shift_days if ranges.empty?
+      return AnonymizedData.dob_shift_days if ranges.empty?
 
       min_shift = ranges.map(&:first).max
       max_shift = ranges.map(&:last).min
@@ -323,6 +369,7 @@ module DataAnonymizer
     # 1. Global bounds: 1920-01-01 minimum, yesterday maximum.
     # 2. Age-band bounds: the shifted DOB must remain in the same band —
     #    under_18 (age < 18), between_18_25 (18 <= age < 26), or over_26 (age >= 26).
+    # Shift is bounded to ±30 days per policy.
     #
     # @param dob [Date] person's date of birth
     # @param reference_date [Date] system date (TimeKeeper.date_of_record)
@@ -331,8 +378,8 @@ module DataAnonymizer
       return nil unless dob.is_a?(Date)
 
       band = age_band(dob, reference_date)
-      min_shift = -1095
-      max_shift = 1095
+      min_shift = -30
+      max_shift = 30
 
       # Global bounds
       min_shift = [min_shift, (Date.new(1920, 1, 1) - dob).to_i].max
@@ -392,13 +439,14 @@ module DataAnonymizer
       collection.find.batch_size(batch_size).each_slice(batch_size) do |batch|
         updates = batch.each_with_index.map do |doc, idx|
           seq = processed + idx
+          anon_email = AnonymizedData.email(seq)
           {
             update_one: {
               filter: { '_id' => doc['_id'] },
               update: {
                 '$set' => {
-                  'email' => FakeData.email(seq),
-                  'oim_id' => "anon_user#{seq}",
+                  'email' => anon_email,
+                  'oim_id' => anon_email,
                   'authentication_token' => nil,
                   'current_login_token' => nil,
                   'identity_verified_date' => nil,
@@ -555,6 +603,7 @@ module DataAnonymizer
     # @param shift_days [Integer] DOB shift in days; used only when +person_vals+ is nil
     # @param person_vals [Hash, nil] anonymized person fields from {#build_person_values_map_for_census}
     # @return [Hash] Mongo update fields suitable for a +$set+ operation
+    # rubocop:disable Metrics/CyclomaticComplexity
     def build_census_member_update(doc, shift_days:, person_vals: nil)
       if person_vals
         fields = {
@@ -564,22 +613,23 @@ module DataAnonymizer
           'name_sfx' => nil
         }
         fields['encrypted_ssn'] = person_vals['encrypted_ssn'] if doc['encrypted_ssn'].present? && person_vals['encrypted_ssn'].present?
-        fields['dob']           = person_vals['dob']           if doc['dob'].present? && person_vals['dob'].present?
+        fields['dob']           = person_vals['dob']           if @anonymize_dob && doc['dob'].present? && person_vals['dob'].present?
       else
         fields = {
-          'first_name' => FakeData.first_name,
-          'last_name' => FakeData.last_name,
+          'first_name' => AnonymizedData.first_name,
+          'last_name' => AnonymizedData.last_name,
           'middle_name' => nil,
           'name_sfx' => nil
         }
-        fields['encrypted_ssn'] = FakeData.encrypted_ssn if doc['encrypted_ssn'].present?
-        fields['dob']           = FakeData.shift_dob(doc['dob'].to_date, shift_days: shift_days) if doc['dob'].present?
+        fields['encrypted_ssn'] = AnonymizedData.encrypted_ssn if doc['encrypted_ssn'].present?
+        fields['dob']           = AnonymizedData.shift_dob(doc['dob'].to_date, shift_days: shift_days) if @anonymize_dob && doc['dob'].present?
       end
 
       fields['address'] = anonymize_address_hash(doc['address']) if doc['address'].present?
       fields['email']   = anonymize_email_hash(doc['email'])     if doc['email'].present?
       fields
     end
+    # rubocop:enable Metrics/CyclomaticComplexity
 
     # Anonymizes a single census_dependent embedded hash.
     #
@@ -588,12 +638,12 @@ module DataAnonymizer
     # @return [Hash] anonymized copy of the dependent hash
     def anonymize_census_dependent_hash(dep, shift_days:)
       dep = dep.dup
-      dep['first_name'] = FakeData.first_name
-      dep['last_name'] = FakeData.last_name
+      dep['first_name'] = AnonymizedData.first_name
+      dep['last_name'] = AnonymizedData.last_name
       dep['middle_name'] = nil
       dep['name_sfx'] = nil
-      dep['encrypted_ssn'] = FakeData.encrypted_ssn if dep['encrypted_ssn'].present?
-      dep['dob'] = FakeData.shift_dob(dep['dob'].to_date, shift_days: shift_days) if dep['dob'].present?
+      dep['encrypted_ssn'] = AnonymizedData.encrypted_ssn if dep['encrypted_ssn'].present?
+      dep['dob'] = AnonymizedData.shift_dob(dep['dob'].to_date, shift_days: shift_days) if @anonymize_dob && dep['dob'].present?
       dep['address'] = anonymize_address_hash(dep['address']) if dep['address'].present?
       dep['email']   = anonymize_email_hash(dep['email'])     if dep['email'].present?
       dep
@@ -633,12 +683,12 @@ module DataAnonymizer
     # @param doc [Hash] raw organization document
     # @return [Hash] fields for +$set+
     def build_org_update(doc)
-      set_fields = { 'legal_name' => FakeData.company_name }
+      set_fields = { 'legal_name' => AnonymizedData.company_name }
 
       if doc['broker_agency_profile'].present?
         bap = doc['broker_agency_profile'].dup
-        bap['ach_routing_number'] = FakeData.routing_number if bap['ach_routing_number'].present?
-        bap['ach_account_number'] = FakeData.account_number if bap['ach_account_number'].present?
+        bap['ach_routing_number'] = AnonymizedData.routing_number if bap['ach_routing_number'].present?
+        bap['ach_account_number'] = AnonymizedData.account_number if bap['ach_account_number'].present?
         set_fields['broker_agency_profile'] = bap
       end
 
@@ -675,7 +725,7 @@ module DataAnonymizer
 
       collection.find.batch_size(batch_size).each_slice(batch_size) do |batch|
         updates = batch.map do |doc|
-          set_fields = { 'legal_name' => FakeData.company_name }
+          set_fields = { 'legal_name' => AnonymizedData.company_name }
           set_fields['profiles'] = doc['profiles'].map { |p| anonymize_bs_profile(p) } if doc['profiles'].present?
           { update_one: { filter: { '_id' => doc['_id'] }, update: { '$set' => set_fields } } }
         end
@@ -697,8 +747,8 @@ module DataAnonymizer
     # @return [Hash] anonymized copy
     def anonymize_bs_profile(profile)
       profile = profile.dup
-      profile['ach_routing_number'] = FakeData.routing_number if profile['ach_routing_number'].present?
-      profile['ach_account_number'] = FakeData.account_number if profile['ach_account_number'].present?
+      profile['ach_routing_number'] = AnonymizedData.routing_number if profile['ach_routing_number'].present?
+      profile['ach_account_number'] = AnonymizedData.account_number if profile['ach_account_number'].present?
       profile['office_locations']   = anonymize_office_locations(profile['office_locations']) if profile['office_locations'].present?
       profile
     end
@@ -741,12 +791,13 @@ module DataAnonymizer
       return addr if addr.nil?
 
       addr = addr.dup
-      addr['address_1'] = FakeData.address_1
+      addr['address_1'] = AnonymizedData.address_1
       addr['address_2'] = nil
       addr['address_3'] = nil if addr.key?('address_3')
-      addr['city'] = FakeData.city
-      addr['zip']    = FakeData.zip    if @anonymize_zip
-      addr['county'] = FakeData.county if addr.key?('county') && @anonymize_county
+      addr['city'] = AnonymizedData.city
+      addr['state']  = AnonymizedData.state  if addr.key?('state') && @anonymize_state
+      addr['zip']    = AnonymizedData.zip    if @anonymize_zip
+      addr['county'] = AnonymizedData.county if addr.key?('county') && @anonymize_county
       addr
     end
 
@@ -758,8 +809,8 @@ module DataAnonymizer
       return phone if phone.nil?
 
       phone = phone.dup
-      phone['area_code'] = FakeData.area_code
-      phone['number'] = FakeData.phone_number
+      phone['area_code'] = AnonymizedData.area_code
+      phone['number'] = AnonymizedData.phone_number
       phone['full_phone_number'] = "#{phone['area_code']}#{phone['number']}"
       phone['extension'] = nil
       phone
@@ -773,8 +824,94 @@ module DataAnonymizer
       return email_hash if email_hash.nil?
 
       email_hash = email_hash.dup
-      email_hash['address'] = FakeData.email
+      email_hash['address'] = AnonymizedData.email
       email_hash
+    end
+
+    # Build a prehash map of canonical HMACs for records that should be
+    # deterministically proven changed. Excludes DOB per policy decision.
+    # Returns a hash with keys :people, :census_members, :organizations, :bs_organizations
+    # where each value is a map of id_str => hmac.
+    def generate_prehash_map
+      map = { people: {}, census_members: {}, organizations: {}, bs_organizations: {} }
+      generate_prehash_for_people(map)
+      generate_prehash_for_census_members(map)
+      generate_prehash_for_organizations(map)
+      generate_prehash_for_bs_organizations(map)
+      map
+    end
+
+    def generate_prehash_for_people(map)
+      no_ssn_filter = { '$or' => [{ 'ssn' => { '$exists' => false } }, { 'ssn' => nil }, { 'ssn' => '' }] }
+      cursor = db[:people].find(no_ssn_filter).projection('first_name' => 1, 'last_name' => 1, 'addresses' => 1, 'phones' => 1)
+      cursor.batch_size(batch_size).each do |p|
+        next if p['first_name'].to_s.strip.empty? || p['last_name'].to_s.strip.empty?
+
+        map[:people][p['_id'].to_s] = OpenSSL::HMAC.hexdigest('SHA256', @prehash_hmac_key, canonical_person_payload(p))
+      end
+    end
+
+    def generate_prehash_for_census_members(map)
+      no_ssn_filter = { '$or' => [{ 'ssn' => { '$exists' => false } }, { 'ssn' => nil }, { 'ssn' => '' }] }
+      cursor = db[:census_members].find(no_ssn_filter).projection('first_name' => 1, 'last_name' => 1, 'address' => 1, 'phone' => 1)
+      cursor.batch_size(batch_size).each do |c|
+        next if c['first_name'].to_s.strip.empty? || c['last_name'].to_s.strip.empty?
+
+        map[:census_members][c['_id'].to_s] = OpenSSL::HMAC.hexdigest('SHA256', @prehash_hmac_key, canonical_census_payload(c))
+      end
+    end
+
+    def generate_prehash_for_organizations(map)
+      cursor = db[:organizations].find.projection('legal_name' => 1, 'broker_agency_profile' => 1)
+      cursor.batch_size(batch_size).each do |o|
+        next if o['legal_name'].to_s.strip.empty?
+
+        map[:organizations][o['_id'].to_s] = OpenSSL::HMAC.hexdigest('SHA256', @prehash_hmac_key, canonical_org_payload(o))
+      end
+    end
+
+    def generate_prehash_for_bs_organizations(map)
+      cursor = db[:benefit_sponsors_organizations_organizations].find.projection('legal_name' => 1, 'profiles' => 1)
+      cursor.batch_size(batch_size).each do |b|
+        next if b['legal_name'].to_s.strip.empty?
+
+        map[:bs_organizations][b['_id'].to_s] = OpenSSL::HMAC.hexdigest('SHA256', @prehash_hmac_key, canonical_bs_org_payload(b))
+      end
+    end
+
+    # Persist prehash digests to a temporary TTL collection for crash tolerance.
+    # Documents expire after 7 days.
+    def persist_prehashes_to_ttl_collection(map, run_id)
+      col = db[:data_anonymizer_prehashes]
+      # ensure TTL index exists
+      begin
+        col.indexes.create_one({ created_at: 1 }, expire_after_seconds: 7 * 24 * 3600)
+      rescue Mongo::Error => e
+        log "TTL index on data_anonymizer_prehashes already exists or failed to create: #{e.message}"
+      end
+
+      inserts = []
+      map.each do |collection_sym, id_map|
+        collection_name = collection_sym.to_s
+        id_map.each do |id_str, digest|
+          rec_id = begin
+            BSON::ObjectId.from_string(id_str)
+          rescue StandardError
+            id_str
+          end
+          inserts << {
+            'run_id' => run_id,
+            'collection' => collection_name,
+            'record_id' => rec_id,
+            'scope' => 'canonical_prehash',
+            'digest' => digest,
+            'created_at' => Time.current
+          }
+        end
+      end
+
+      col.insert_many(inserts) unless inserts.empty?
+      log "Persisted #{inserts.size} prehash digests to data_anonymizer_prehashes (TTL 7d, run_id=#{run_id})."
     end
 
     def log(msg)
