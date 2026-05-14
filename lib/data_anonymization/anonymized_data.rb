@@ -8,8 +8,7 @@ module DataAnonymizer
   #
   # Re-identification is prevented by combination improbability — each attribute
   # (name, DOB, SSN, address) is independently randomized, making it negligible
-  # probability the result maps to any real person. Satisfies HIPAA Safe Harbor
-  # (45 CFR §164.514).
+  # probability the result maps to any real person.
   #
   # Inbox messages are intentionally NOT anonymized (no PII in CCA inboxes).
   # FFaker seeding (+FFaker.seed = integer+) is supported but not enabled by default.
@@ -31,6 +30,10 @@ module DataAnonymizer
     # Valid SSN area-code ranges (excludes 000, 666, 900-999 per SSA rules).
     SSN_VALID_AREAS = ([*1..665] + [*667..899]).freeze
 
+    # Maximum loop iterations when generating a valid SSN. The probability of
+    # reaching this limit is negligible; the guard exists only as a defensive safeguard.
+    MAX_SSN_ATTEMPTS = 1_000
+
     # Generates a valid-format SSN string (9 digits, no dashes).
     #
     # Enforces all SSA validity rules, including those checked at enrollment:
@@ -42,8 +45,9 @@ module DataAnonymizer
     #   - Not in descending sequential order (e.g. 987654321)
     #
     # @return [String] 9-digit numeric string
+    # @raise [RuntimeError] if a valid SSN cannot be generated (should never happen in practice)
     def ssn
-      loop do
+      MAX_SSN_ATTEMPTS.times do
         area   = SSN_VALID_AREAS.sample
         group  = rand(1..99)
         serial = rand(1..9999)
@@ -55,6 +59,7 @@ module DataAnonymizer
 
         return result
       end
+      raise "Failed to generate a valid SSN after #{MAX_SSN_ATTEMPTS} attempts"
     end
 
     # Encrypts a plain SSN string using SymmetricEncryption (same algorithm as the app).
@@ -75,7 +80,7 @@ module DataAnonymizer
       rand(-30..30) # ±30 days
     end
 
-    # Shifts a date of birth by +shift_days+ days, clamping to valid bounds.
+    # The shift is deterministic when +shift_days+ is provided, or random within ±30 days when nil.
     # The shifted date will never be before 1920-01-01 and never be today or in the future.
     # @param original_dob [Date] the original date of birth
     # @param shift_days [Integer, nil] days to shift; a random offset is used if nil

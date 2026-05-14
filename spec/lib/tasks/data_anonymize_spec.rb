@@ -879,6 +879,12 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
         dry_runner.run
         expect(dry_runner.db[:data_anonymizer_runs].count_documents({})).to eq(0)
       end
+
+      it 'does not record sentinel when verifier fails' do
+        allow_any_instance_of(DataAnonymizer::Verifier).to receive(:run).and_return([[], false, '/tmp/report.csv'])
+        runner.run
+        expect(runner.db[:data_anonymizer_runs].count_documents({})).to eq(0)
+      end
     end
 
     # @!group Helper: anonymize_address_hash — address anonymization helper tests

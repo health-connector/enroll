@@ -128,9 +128,9 @@ module DataAnonymizer
 
     # Aborts (or warns in force mode) if this database has already been anonymized.
     #
-    # Writes a sentinel document to the +data_anonymizer_runs+ collection on
-    # successful completion. If the sentinel exists, re-running aborts unless
-    # +force: true+ was passed.
+    # Reads the +data_anonymizer_runs+ sentinel collection. If a prior run is found,
+    # aborts unless +force: true+, in which case a warning is logged and the run continues.
+    # The sentinel itself is written only after a successful run by {#record_run_sentinel}.
     #
     # @raise [SystemExit] if already anonymized and force is false
     def check_idempotency!
@@ -241,7 +241,7 @@ module DataAnonymizer
         if @dry_run
           log "  [DRY RUN] Would update #{updates.size} people in this batch"
         else
-          collection.bulk_write(updates, ordered: false) unless updates.empty?
+          bulk_write_batch(collection, updates)
         end
         processed += batch.size
         log "  #{processed}/#{total} people" if (processed % (batch_size * 5)).zero? || processed >= total
@@ -350,7 +350,7 @@ module DataAnonymizer
     # across all supplied DOBs. Returns 0 when no common range exists.
     #
     # @param dobs [Array<Date>] dates of birth for all members in the group
-    # @return [Integer] shift in days within [-1095, 1095]
+    # @return [Integer] shift in days within the ±30-day policy window, or 0 if ranges do not intersect
     def pick_group_shift_days(dobs)
       return AnonymizedData.dob_shift_days if dobs.empty?
 
@@ -423,7 +423,8 @@ module DataAnonymizer
 
     # Anonymizes all documents in the +users+ collection.
     #
-    # Emails are deterministic (+userN@example.com+) using a sequence number.
+    # Emails are generated as +userN@exampleanonymizer.com+ or +userN@testanonymizer.com+
+    # (alternating by sequence number). +oim_id+ is synced to the same anonymized email.
     # The following fields are nulled: authentication_token, current_login_token,
     # identity_verified_date, idp_uuid, identity_response_code,
     # identity_final_decision_code, identity_final_decision_transaction_id,
@@ -464,7 +465,7 @@ module DataAnonymizer
         if @dry_run
           log "  [DRY RUN] Would update #{updates.size} users in this batch"
         else
-          collection.bulk_write(updates, ordered: false) unless updates.empty?
+          bulk_write_batch(collection, updates)
         end
         processed += batch.size
         log "  #{processed}/#{total} users" if (processed % (batch_size * 5)).zero? || processed >= total
@@ -525,7 +526,7 @@ module DataAnonymizer
         if @dry_run
           log "  [DRY RUN] Would update #{updates.size} census members in this batch"
         else
-          collection.bulk_write(updates, ordered: false) unless updates.empty?
+          bulk_write_batch(collection, updates)
         end
         processed += batch.size
         log "  #{processed}/#{total} census members" if (processed % (batch_size * 5)).zero? || processed >= total
@@ -670,7 +671,7 @@ module DataAnonymizer
         if @dry_run
           log "  [DRY RUN] Would update #{updates.size} organizations in this batch"
         else
-          collection.bulk_write(updates, ordered: false) unless updates.empty?
+          bulk_write_batch(collection, updates)
         end
         processed += batch.size
         log "  #{processed}/#{total} organizations" if (processed % (batch_size * 5)).zero? || processed >= total
@@ -733,7 +734,7 @@ module DataAnonymizer
         if @dry_run
           log "  [DRY RUN] Would update #{updates.size} BS organizations in this batch"
         else
-          collection.bulk_write(updates, ordered: false) unless updates.empty?
+          bulk_write_batch(collection, updates)
         end
         processed += batch.size
         log "  #{processed}/#{total} BS organizations" if (processed % (batch_size * 5)).zero? || processed >= total
@@ -912,6 +913,20 @@ module DataAnonymizer
 
       col.insert_many(inserts) unless inserts.empty?
       log "Persisted #{inserts.size} prehash digests to data_anonymizer_prehashes (TTL 7d, run_id=#{run_id})."
+    end
+
+    # Executes a bulk write and re-raises any +BulkWriteError+ after logging context.
+    # Fails loudly so partial anonymization is never silently accepted.
+    # @param collection [Mongo::Collection]
+    # @param updates [Array<Hash>] bulk write operations
+    # @return [Mongo::BulkWriteResult, nil]
+    def bulk_write_batch(collection, updates)
+      return if updates.empty?
+
+      collection.bulk_write(updates, ordered: false)
+    rescue Mongo::Error::BulkWriteError => e
+      log "  ERROR: Bulk write failed: #{e.message}"
+      raise
     end
 
     def log(msg)

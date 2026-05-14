@@ -8,7 +8,7 @@ module DataAnonymizer
   # Samples the database after anonymization and produces a pass/fail report.
   #
   # Checks each anonymized collection for signs of residual PII:
-  #   - Real email domains (anything not matching +@example.com+)
+  #   - Real email domains (anything not matching anonymizer domains +exampleanonymizer.com+ / +testanonymizer.com+)
   #   - Plain-text +ssn+ fields
   #   - Non-nil +idp_uuid+, +tribal_id+, or +e_case_id+
   #   - Non-nil RIDP transaction IDs or session tokens
@@ -104,9 +104,9 @@ module DataAnonymizer
       map
     end
 
-    # Streaming regex scan across all collections to find SSN-like 9-digit patterns.
+    # Streaming regex scan across all collections for SSN-like 9-digit patterns.
+    # Samples up to +@sample_size+ documents per collection (audit mode only).
     # Recurses into nested hashes and arrays so embedded sub-documents are covered.
-    # This is expensive but provides full-coverage detection of raw 9-digit sequences.
     def check_streaming_ssn_patterns
       pattern = /\b\d{9}\b/
       hits = []
@@ -116,7 +116,7 @@ module DataAnonymizer
       collections.each do |col|
         next unless @db.collection_names.include?(col)
 
-        @db[col.to_sym].find.batch_size(500).each do |doc|
+        @db[col.to_sym].find.limit(@sample_size).batch_size(500).each do |doc|
           total_checked += 1
           if doc_strings(doc).any? { |v| v.match?(pattern) }
             snippet = doc_strings(doc).find { |v| v.match?(pattern) }
