@@ -172,7 +172,7 @@ class Insured::FamilyMembersController < ApplicationController
       return
     end
     consumer_role = @dependent.family_member.try(:person).try(:consumer_role)
-    consumer_role.check_for_critical_changes(sanitized_dependent_params, @family) if consumer_role
+    consumer_role&.check_for_critical_changes(sanitized_dependent_params, @family)
     if @dependent.update_attributes(sanitized_dependent_params) && update_vlp_documents(consumer_role, 'dependent', @dependent)
       if @family.present?
         active_family_members_count = @family.active_family_members.count
