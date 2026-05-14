@@ -83,7 +83,7 @@ class Insured::FamilyMembersController < ApplicationController
   def create
     authorize @family, :create?
 
-    @dependent = ::Forms::FamilyMember.new(params[:dependent])
+    @dependent = ::Forms::FamilyMember.new(dependent_person_params.to_h)
 
     if Family.find(@dependent.family_id).primary_applicant.person.resident_role?
       if @dependent.save
@@ -161,8 +161,9 @@ class Insured::FamilyMembersController < ApplicationController
 
   def update
     authorize @family, :update?
+    sanitized_dependent_params = dependent_person_params.to_h
     if Family.find(@dependent.family_id).primary_applicant.person.resident_role?
-      if @dependent.update_attributes(params.require(:dependent))
+      if @dependent.update_attributes(sanitized_dependent_params)
         respond_to do |format|
           format.html { render 'show_resident' }
           format.js { render 'show_resident' }
@@ -171,8 +172,8 @@ class Insured::FamilyMembersController < ApplicationController
       return
     end
     consumer_role = @dependent.family_member.try(:person).try(:consumer_role)
-    consumer_role.check_for_critical_changes(params[:dependent], @family) if consumer_role
-    if @dependent.update_attributes(dependent_person_params.to_h) && update_vlp_documents(consumer_role, 'dependent', @dependent)
+    consumer_role.check_for_critical_changes(sanitized_dependent_params, @family) if consumer_role
+    if @dependent.update_attributes(sanitized_dependent_params) && update_vlp_documents(consumer_role, 'dependent', @dependent)
       if @family.present?
         active_family_members_count = @family.active_family_members.count
         household = @family.active_household
