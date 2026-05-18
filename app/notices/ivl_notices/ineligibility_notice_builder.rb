@@ -6,7 +6,7 @@ class IvlNotices::IneligibilityNoticeBuilder < IvlNotice
     args[:market_kind] = 'individual'
     args[:recipient_document_store]= consumer_role.person.families.first.primary_applicant.person
     args[:to] = consumer_role.person.families.first.primary_applicant.person.work_email_or_best
-    self.header = "notices/shared/header_ivl.html.erb"
+    self.header = "notices/shared/header_ivl"
     super(args)
   end
 

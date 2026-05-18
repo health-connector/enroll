@@ -1,5 +1,5 @@
 <% content_for :horizontal_status do %>
-  <%= render :partial => 'insured/families/horizontal_status.html.erb', locals: {step: 1} %>
+  <%= render :partial => 'insured/families/horizontal_status', locals: {step: 1} %>
 <% end %>
 <div class="container">
   <div id="dependents_info_wrapper">
@@ -7,7 +7,7 @@
       <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12 bottom-pd">
 
         <% if @change_plan.present? %>
-           <h3 class="blue-text"><%= params[:change_plan] %>, on: <%= @change_plan_date %></h3>
+           <h3 class="blue-text"><%= params[:change_plan] %>, on: <%= @change_plan_date&.strftime("%m/%d/%Y") %></h3>
         <% end %>
 
         <h1 class="darkblue"><%= l10n("household_info") %>: <%= l10n("family_members") %></h1>

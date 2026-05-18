@@ -10,7 +10,7 @@ RSpec.describe BenefitMarkets::Operations::ContributionModels::Assign, dbclean: 
   let(:effective_period)        { effective_date.beginning_of_year..effective_date.end_of_year }
   let(:application_period)      { effective_date..(effective_date + 1.year).prev_day }
   let(:market_kind)             { :aca_shop }
-  let(:service_areas)           { create(:benefit_markets_locations_service_area).to_a }
+  let(:service_areas)           { [create(:benefit_markets_locations_service_area)] }
   let(:pricing_units)           { [{name: 'name', display_name: 'Employee Only', order: 1}] }
   let(:premium_tuples)          { {_id: BSON::ObjectId.new, age: 12, cost: 227.07} }
   let(:premium_tables)          { [{_id: BSON::ObjectId.new, effective_period: effective_period, rating_area_id: BSON::ObjectId.new, premium_tuples: [premium_tuples]}] }

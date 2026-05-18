@@ -6,8 +6,8 @@ class UpdateOpenEnrollmentDatesForBcp < MongoidMigrationTask
       benefit_sponsorship = HbxProfile.current_hbx.benefit_sponsorship
       
       bcp = benefit_sponsorship.benefit_coverage_periods.where(title: ENV['title']).first
-      new_oe_start_date = Date.strptime((ENV['new_oe_start_date']).to_s, "%m/%d/%Y")
-      new_oe_end_date = Date.strptime((ENV['new_oe_end_date']).to_s, "%m/%d/%Y")
+      new_oe_start_date = ENV['new_oe_start_date'].to_date
+      new_oe_end_date = ENV['new_oe_end_date'].to_date
      
       bcp.update_attributes!(open_enrollment_start_on: new_oe_start_date, open_enrollment_end_on: new_oe_end_date)
 

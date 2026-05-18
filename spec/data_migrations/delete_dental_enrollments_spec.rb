@@ -3,9 +3,9 @@
 require "rails_helper"
 require File.join(Rails.root, "app", "data_migrations", "delete_dental_enrollments")
 
-describe DeleteDentalEnrollment, dbclean: :after_each do
+describe DeleteDentalEnrollments, dbclean: :after_each do
   describe "Delete dental enrollments" do
-    subject { DeleteDentalEnrollment.new }
+    subject { DeleteDentalEnrollments.new }
 
     context "a family with 2 dental and 2 health enrollments" do
       let(:family) { FactoryBot.create(:family, :with_primary_family_member)}
@@ -21,7 +21,7 @@ describe DeleteDentalEnrollment, dbclean: :after_each do
         expect(family.active_household.hbx_enrollments).to include health_enrollment2
         family.primary_applicant.person.update_attribute(:hbx_id, "1234567890")
         expect(family.primary_applicant.person.hbx_id).to eq "1234567890"
-        DeleteDentalEnrollment.migrate("1234567890")
+        DeleteDentalEnrollments.migrate("1234567890")
         p = Person.where(hbx_id: "1234567890").first
         expect(p.primary_family.active_household.hbx_enrollments.where(coverage_kind: "health").size).to eq 2
         expect(p.primary_family.active_household.hbx_enrollments.where(coverage_kind: "dental").size).to eq 0

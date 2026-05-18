@@ -54,7 +54,7 @@ RSpec.describe "employers/census_employees/show.html.erb", dbclean: :after_each 
   end
   let(:decorated_hbx_enrollment) { double(member_enrollments: [member_enrollment], product_cost_total: '', sponsor_contribution_total: '', employee_cost_total: 100.00) }
   let(:user) { FactoryBot.create(:user) }
-  let(:product) { FactoryBot.create(:benefit_markets_products_health_products_health_product) }
+  let(:product) { FactoryBot.create(:benefit_markets_products_health_products_health_product, :with_issuer_profile) }
   let(:benefit_package) { double(is_congress: false) } #FIX ME: remove this when is_congress attribute added to benefit package
 
   context 'show' do
@@ -94,7 +94,7 @@ RSpec.describe "employers/census_employees/show.html.erb", dbclean: :after_each 
 
     it "should show the address of census employee" do
       allow(census_employee).to receive(:address).and_return(address)
-      render template: "employers/census_employees/show.html.erb"
+      render template: "employers/census_employees/show"
       expect(rendered).to match(/#{address.address_1}/)
       expect(rendered).to match(/#{address.address_2}/)
       expect(rendered).to match(/#{address.city}/)
@@ -104,7 +104,7 @@ RSpec.describe "employers/census_employees/show.html.erb", dbclean: :after_each 
 
     it "should show the address feild of census employee if address not present" do
       allow(census_employee).to receive(:address).and_return([])
-      render template: "employers/census_employees/show.html.erb"
+      render template: "employers/census_employees/show"
       expect(rendered).to match(/Address/)
       expect(rendered).to match(/ADDRESS LINE 2/)
       expect(rendered).to match(/ADDRESS LINE 1/)
@@ -117,7 +117,7 @@ RSpec.describe "employers/census_employees/show.html.erb", dbclean: :after_each 
     it "should not show the plan" do
       allow(benefit_group_assignment).to receive(:active_and_waived_enrollments).and_return([])
       assign(:hbx_enrollments, [])
-      render template: "employers/census_employees/show.html.erb"
+      render template: "employers/census_employees/show"
       expect(rendered).to_not match(/Plan/)
       expect(rendered).to_not have_selector('p', text: 'Benefit Group: plan name')
     end
@@ -126,7 +126,7 @@ RSpec.describe "employers/census_employees/show.html.erb", dbclean: :after_each 
       hbx_enrollment.update_attributes(:aasm_state => 'inactive')
       allow(census_employee).to receive(:enrollments_for_display).and_return([hbx_enrollment])
       allow(benefit_group_assignment).to receive(:hbx_enrollments).and_return([hbx_enrollment])
-      render template: "employers/census_employees/show.html.erb"
+      render template: "employers/census_employees/show"
       expect(rendered).to match(/Waived Date/i)
       expect(rendered).to match(/#{hbx_enrollment.waiver_reason}/)
     end
@@ -135,7 +135,7 @@ RSpec.describe "employers/census_employees/show.html.erb", dbclean: :after_each 
       allow(census_employee).to receive(:enrollments_for_display).and_return([hbx_enrollment])
       allow(hbx_enrollment).to receive(:benefit_group).and_return nil
       allow(benefit_group_assignment).to receive(:hbx_enrollments).and_return([hbx_enrollment])
-      render template: "employers/census_employees/show.html.erb"
+      render template: "employers/census_employees/show"
       expect(rendered).to match(/#{hbx_enrollment.product.name}/)
     end
 
@@ -143,7 +143,7 @@ RSpec.describe "employers/census_employees/show.html.erb", dbclean: :after_each 
       allow(census_employee).to receive(:enrollments_for_display).and_return([hbx_enrollment])
       allow(benefit_group_assignment).to receive(:hbx_enrollments).and_return([hbx_enrollment])
       allow(census_employee).to receive(:active_benefit_group_assignment).and_return(benefit_group_assignment)
-      render template: "employers/census_employees/show.html.erb"
+      render template: "employers/census_employees/show"
       expect(rendered).to match(/Employer Contribution/)
       expect(rendered).to match(/You Pay/)
     end
@@ -151,7 +151,7 @@ RSpec.describe "employers/census_employees/show.html.erb", dbclean: :after_each 
     it "should not show the health enrollment if it is external" do
       hbx_enrollment.update_attributes(:external_enrollment => true)
       allow(benefit_group_assignment).to receive(:hbx_enrollments).and_return([hbx_enrollment])
-      render template: "employers/census_employees/show.html.erb"
+      render template: "employers/census_employees/show"
       expect(rendered).to_not match(/Plan/)
       expect(rendered).to_not have_selector('p', text: 'Benefit Group: plan name')
     end
@@ -159,14 +159,14 @@ RSpec.describe "employers/census_employees/show.html.erb", dbclean: :after_each 
     it "should not show the dental enrollment if it is external" do
       hbx_enrollment_two.update_attributes(:external_enrollment => true)
       allow(benefit_group_assignment).to receive(:active_and_waived_enrollments).and_return([hbx_enrollment_two])
-      render template: "employers/census_employees/show.html.erb"
+      render template: "employers/census_employees/show"
       expect(rendered).to_not match(/Plan/)
       expect(rendered).to_not have_selector('p', text: 'Benefit Group: plan name')
     end
 
     context 'drop down menu at different cases' do
       it "should have BENEFIT PACKAGE and benefit plan" do
-        render template: "employers/census_employees/show.html.erb"
+        render template: "employers/census_employees/show"
         expect(rendered).to have_selector('div', text: 'SELECT BENEFIT PACKAGE')
         expect(rendered).to have_selector('div', text: current_benefit_package.title)
       end
@@ -179,7 +179,7 @@ RSpec.describe "employers/census_employees/show.html.erb", dbclean: :after_each 
       end
 
       it "should only have BENIFIT PACKAGE" do
-        render template: "employers/census_employees/show.html.erb"
+        render template: "employers/census_employees/show"
         expect(rendered).to have_selector('div', text: 'SELECT BENEFIT PACKAGE')
       end
     end
@@ -187,14 +187,14 @@ RSpec.describe "employers/census_employees/show.html.erb", dbclean: :after_each 
     context 'with no email linked with census employee' do
       it "should create a blank email record if there was no email for census employees" do
         census_employee = FactoryBot.create(:census_employee, :blank_email)
-        render template: "employers/census_employees/show.html.erb"
+        render template: "employers/census_employees/show"
         expect(census_employee.email).to eq nil
       end
 
       it "should return the existing one if email was already present" do
         census_employee = FactoryBot.create(:census_employee)
         address = census_employee.email.address
-        render template: "employers/census_employees/show.html.erb"
+        render template: "employers/census_employees/show"
         expect(census_employee.email.kind).to eq 'home'
         expect(census_employee.email.address).to eq address
       end
@@ -216,7 +216,7 @@ RSpec.describe "employers/census_employees/show.html.erb", dbclean: :after_each 
       before do
         hbx_enrollment_two.update_attributes(:aasm_state => :inactive)
         assign(:hbx_enrollments, [hbx_enrollment_three, hbx_enrollment_two])
-        render template: 'employers/census_employees/show.html.erb'
+        render template: 'employers/census_employees/show'
       end
 
       it "doesn't show the waived coverage" do
@@ -248,26 +248,26 @@ RSpec.describe "employers/census_employees/show.html.erb", dbclean: :after_each 
       end
 
       it "should get dependents title" do
-        render template: "employers/census_employees/show.html.erb"
+        render template: "employers/census_employees/show"
         expect(rendered).to match(/Dependents/)
       end
 
       it "should get child relationship when child_under_26" do
         allow(view).to receive(:link_to_add_fields).and_return(true)
         allow(census_employee).to receive(:census_dependents).and_return([census_dependent1])
-        render template: "employers/census_employees/show.html.erb"
+        render template: "employers/census_employees/show"
         expect(rendered).to match(/child/)
       end
 
       it "should get the Owner info" do
-        render template: "employers/census_employees/show.html.erb"
+        render template: "employers/census_employees/show"
         expect(rendered).to match(/Owner?/i)
       end
     end
 
     context "with health, dental, and past enrollments" do
       let(:decorated_dental_hbx_enrollment) { double(member_enrollments: [member_enrollment], product_cost_total: '',sponsor_contribution_total: '') }
-      let(:dental_plan) {FactoryBot.create(:benefit_markets_products_dental_products_dental_product)}
+      let(:dental_plan) {FactoryBot.create(:benefit_markets_products_dental_products_dental_product, :with_issuer_profile)}
       let(:dental_hbx_enrollment) do
         FactoryBot.create(
           :hbx_enrollment, :with_product,
@@ -308,7 +308,7 @@ RSpec.describe "employers/census_employees/show.html.erb", dbclean: :after_each 
         allow(past_enrollments).to receive(:employer_profile).and_return(abc_profile)
         allow(past_enrollments).to receive(:decorated_hbx_enrollment).and_return(decorated_hbx_enrollment)
         allow(dental_hbx_enrollment).to receive(:total_employee_cost).and_return 0
-        render template: "employers/census_employees/show.html.erb"
+        render template: "employers/census_employees/show"
         expect(rendered).to match(/#{hbx_enrollment.coverage_year} Health Coverage/i)
         expect(rendered).to match(/#{hbx_enrollment.coverage_year} dental Coverage/i)
         expect(rendered).to match(/Past Enrollments/i)
@@ -322,7 +322,7 @@ RSpec.describe "employers/census_employees/show.html.erb", dbclean: :after_each 
         it "should display past enrollments" do
           allow(census_employee).to receive(:enrollments_for_display).and_return([dental_hbx_enrollment])
           allow(dental_hbx_enrollment).to receive(:total_employee_cost).and_return 1.0
-          render template: "employers/census_employees/show.html.erb"
+          render template: "employers/census_employees/show"
           expect(rendered).not_to match(/#{hbx_enrollment.coverage_year} health Coverage/i)
           expect(rendered).to match(/#{hbx_enrollment.coverage_year} dental Coverage/i)
           expect(rendered).to match(/Past Enrollments/i)
@@ -338,7 +338,7 @@ RSpec.describe "employers/census_employees/show.html.erb", dbclean: :after_each 
           allow(census_employee).to receive_message_chain("active_benefit_group_assignment.hbx_enrollments").and_return([hbx_enrollment, dental_hbx_enrollment])
         end
         it "should not display past enrollments" do
-          render template: "employers/census_employees/show.html.erb"
+          render template: "employers/census_employees/show"
           expect(rendered).to match(/#{hbx_enrollment.coverage_year} health Coverage/i)
         end
       end
@@ -352,7 +352,7 @@ RSpec.describe "employers/census_employees/show.html.erb", dbclean: :after_each 
           allow(census_employee).to receive_message_chain("active_benefit_group_assignment.hbx_enrollments").and_return([dental_hbx_enrollment])
         end
         it "should not display past enrollments" do
-          render template: "employers/census_employees/show.html.erb"
+          render template: "employers/census_employees/show"
           expect(rendered).to match(/#{hbx_enrollment.coverage_year} dental Coverage/i)
         end
       end
@@ -370,12 +370,12 @@ RSpec.describe "employers/census_employees/show.html.erb", dbclean: :after_each 
         end
 
         it "should display the rehired date and not the hired date" do
-          render template: "employers/census_employees/show.html.erb"
+          render template: "employers/census_employees/show"
           expect(rendered).to match(/Rehired/i)
         end
 
         it "if rehired then it shouldnot display the termination date" do
-          render template: "employers/census_employees/show.html.erb"
+          render template: "employers/census_employees/show"
           expect(rendered).not_to match(/Terminated:/i)
         end
       end
@@ -392,7 +392,7 @@ RSpec.describe "employers/census_employees/show.html.erb", dbclean: :after_each 
           allow(hbx_enrollment).to receive(:benefit_group).and_return(benefit_package)
           allow(census_employee).to receive(:address).and_return(address)
 
-          render template: "employers/census_employees/show.html.erb"
+          render template: "employers/census_employees/show"
           expect(rendered).not_to match(/#{address.address_1}/)
           expect(rendered).not_to match(/#{address.address_2}/)
           expect(rendered).not_to match(/#{address.city}/)
@@ -420,7 +420,7 @@ RSpec.describe "employers/census_employees/show.html.erb", dbclean: :after_each 
       bga.reload
       census_employee.reload
       assign(:census_employee, census_employee)
-      render template: "employers/census_employees/show.html.erb"
+      render template: "employers/census_employees/show"
     end
 
     it 'should render template' do

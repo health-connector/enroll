@@ -12,8 +12,8 @@
     <% @announcements.each do |announcement| %>
       <tr>
         <td><%= announcement.content %></td>
-        <td><%= announcement.start_date %></td>
-        <td><%= announcement.end_date %></td>
+        <td><%= format_date(announcement.start_date) %></td>
+        <td><%= format_date(announcement.end_date) %></td>
         <td><%= announcement.audiences_for_display %></td>
         <td><%= link_to 'Destroy', exchanges_announcement_path(announcement), method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>

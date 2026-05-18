@@ -9,7 +9,7 @@ def load_cca_benefit_market_catalogs_seed
       loaded_class_5 = ::BenefitMarkets::ContributionModels::ContributionModel
       loaded_class_6 = ::BenefitMarkets::ContributionModels::FixedPercentContributionUnit
       yaml_str = File.read(f_name)
-      data = YAML.load(yaml_str)
+      data = YAML.unsafe_load(yaml_str)
       data.new_record = true
       data.save!
     end

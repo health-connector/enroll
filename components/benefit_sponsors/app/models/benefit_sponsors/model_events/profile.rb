@@ -1,6 +1,7 @@
 module BenefitSponsors
   module ModelEvents
     module Profile
+      include DefineVariableHelper
 
       REGISTERED_EVENTS = []
 
@@ -11,22 +12,20 @@ module BenefitSponsors
       ]
 
       def trigger_model_event(event_name, event_options = {})
-        if OTHER_EVENTS.include?(event_name)
-          BenefitSponsors::Organizations::AcaShopCcaEmployerProfile.add_observer(BenefitSponsors::Observers::EmployerProfileObserver.new, [:update, :notifications_send])
-          notify_observers(ModelEvent.new(event_name, self, event_options))
-        end
+        return unless OTHER_EVENTS.include?(event_name)
+
+        BenefitSponsors::Organizations::AcaShopCcaEmployerProfile.add_observer(BenefitSponsors::Observers::EmployerProfileObserver.new, [:update, :notifications_send])
+        notify_observers(ModelEvent.new(event_name, self, event_options))
       end
 
       def notify_on_save
-        if aasm_state_changed?
+        return unless saved_change_to_aasm_state?
 
-          REGISTERED_EVENTS.each do |event|
-            if event_fired = instance_eval("is_" + event.to_s)
-              # event_name = ("on_" + event.to_s).to_sym
-              event_options = {} # instance_eval(event.to_s + "_options") || {}
-              notify_observers(ModelEvent.new(event, self, event_options))
-            end
-          end
+        REGISTERED_EVENTS.each do |event|
+          next unless check_local_variable("is_#{event}", binding)
+
+          event_options = {}
+          notify_observers(ModelEvent.new(event, self, event_options))
         end
       end
 

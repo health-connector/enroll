@@ -14,7 +14,7 @@ class BuildIvlEnrollment < MongoidMigrationTask
         puts "this person don't have a consumer role" unless Rails.env.test?
         return
       end
-      effective_on = Date.strptime(ENV['effective_on'].to_s, "%m/%d/%Y")
+      effective_on = Date.strptime(ENV['effective_on'].to_s, "%Y-%m-%d")
       new_hbx_id = ENV['new_hbx_id'].to_s
       hios_id = ENV['hios_id'].to_s
       active_year = ENV['active_year']

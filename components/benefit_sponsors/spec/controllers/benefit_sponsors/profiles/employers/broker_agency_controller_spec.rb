@@ -111,7 +111,7 @@ module BenefitSponsors
         end
 
         it 'should assign page_alphabets variable' do
-          expect(assigns(:filter_criteria)).to eq ({"q"=>broker_agency_profile1.legal_name[0]})
+          expect(assigns(:filter_criteria).to_h).to eq({"q" => broker_agency_profile1.legal_name[0]})
         end
 
         it 'should assign employer_profile variable' do
@@ -307,7 +307,7 @@ module BenefitSponsors
           allow_any_instance_of(HbxStaffRole).to receive(:permission).and_return(double(modify_family: true))
           employer_profile.hire_broker_agency(broker_agency_profile1)
           sign_in(user_with_hbx_staff_role)
-          get :terminate, params: { employer_profile_id: employer_profile.id, direct_terminate: 'true', broker_agency_id: broker_agency_profile1.id, termination_date: TimeKeeper.date_of_record.strftime('%m/%d/%Y') }
+          get :terminate, params: {employer_profile_id: employer_profile.id, direct_terminate: 'true', broker_agency_id: broker_agency_profile1.id, termination_date: TimeKeeper.date_of_record.to_s}
         end
 
         it 'should initialize broker management form' do

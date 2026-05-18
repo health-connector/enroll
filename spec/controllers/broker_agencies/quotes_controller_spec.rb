@@ -6,10 +6,10 @@ RSpec.describe BrokerAgencies::QuotesController, type: :controller, dbclean: :af
   let(:person){create(:person, :with_broker_role)}
   let(:user){create(:user, person: person)}
   let(:quote){create :quote, :with_household_and_members}
-  let(:quote_benefit_group){build_stubbed :quote_benefit_group}
-  let(:quote_attributes){FactoryBot.attributes_for(:quote)}
-  let(:quote_household_attributes){FactoryBot.attributes_for(:quote_household)}
-  let(:quote_member_attributes){FactoryBot.attributes_for(:quote_member)}
+  let(:quote_benefit_group) { build_stubbed :quote_benefit_group }
+  let(:quote_attributes) { FactoryBot.attributes_for(:quote) }
+  let(:quote_household_attributes) { FactoryBot.attributes_for(:quote_household) }
+  let(:quote_member_attributes) { FactoryBot.attributes_for(:quote_member) }
 
   before do
     person.broker_role.aasm_state = 'active'
@@ -37,8 +37,8 @@ RSpec.describe BrokerAgencies::QuotesController, type: :controller, dbclean: :af
       end
       it "should save quote" do
         expect do
-          post :create,  params: {  broker_role_id: person.broker_role.id, quote: quote_attributes }
-        end.to change(Quote,:count).by(1)
+          post :create, params: {  broker_role_id: person.broker_role.id, quote: quote_attributes }
+        end.to change(Quote, :count).by(1)
       end
       it "should save household info" do
         post :create, params: {  broker_role_id: person.broker_role.id, quote: quote_attributes }

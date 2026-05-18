@@ -3,8 +3,8 @@
 # load Rails.root + "db/seeds.rb"
 When(/I use unique values/) do
   require 'test/unique_value_stash'
-  include UniqueValueStash
-  @u = UniqueValueStash::UniqueValues.new unless defined?(@u)
+  include Test::UniqueValueStash
+  @u = Test::UniqueValueStash::UniqueValues.new unless defined?(@u)
 end
 
 def people
@@ -587,6 +587,8 @@ Then(/^(?:.+) should be logged on as an unlinked employee$/) do
 end
 
 When(/^(.*) logs? out$/) do |_someone|
+  wait_for_ajax
+  screenshot("Logout")
   click_link "Logout"
   visit "/"
 end
@@ -611,8 +613,9 @@ Then(/^.+ should see the employee privacy text$/) do
 end
 
 When(/^(.*) creates an HBX account$/) do |named_person|
+  wait_for_ajax
   screenshot("start")
-
+  sleep 1
   person = people[named_person]
 
   fill_in "user[oim_id]", :with => person[:email]
@@ -794,7 +797,7 @@ When(/^.+ enters? the dependent info of .+ daughter$/) do
   fill_in 'dependent[first_name]', with: 'Cynthia'
   fill_in 'dependent[last_name]', with: 'White'
   date = TimeKeeper.date_of_record - 28.years
-  dob = date.to_s
+  dob = date.strftime('%m/%d/%Y')
   find(:xpath, "//p[@class='label'][contains(., 'This Person Is')]").click
   find(:xpath, "//li[@data-index='3'][contains(., 'Child')]").click
   find(:xpath, "//label[@for='radio_female']").click
@@ -828,6 +831,7 @@ When(/^.+ clicks? continue on the dependents page$/) do
 end
 
 Then(/^.+ should see the group selection page$/) do
+  wait_for_ajax
   find('#group-selection-form', :wait => 10)
   expect(page).to have_css('form')
 end

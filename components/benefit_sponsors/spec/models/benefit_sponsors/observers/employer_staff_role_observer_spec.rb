@@ -13,6 +13,7 @@ module BenefitSponsors
 
       context 'when staff role not changed' do
         before do
+          staff_role.save
           subject.contact_changed?(staff_role)
         end
 

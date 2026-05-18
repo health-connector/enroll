@@ -2,15 +2,14 @@
 
 Then(/(.*) should see active and renewing enrollments/) do |named_person|
   visit "/families/home"
+  wait_for_ajax
   person = people[named_person]
 
   ce = CensusEmployee.where(:first_name => /#{person[:first_name]}/i, :last_name => /#{person[:last_name]}/i).first
   renewal_effective_date = ce.benefit_sponsorship.renewal_benefit_application.start_on
   effective_date = ce.benefit_sponsorship.active_benefit_application.start_on
 
-  wait_for_condition_until(5) do
-    find_all('.enrollment-tile').count { |n| n.find_all("h3", :text => /Coverage/i).any? } > 1
-  end
+  find_all('.enrollment-tile').count { |n| n.find_all("h3", :text => /Coverage/i).any? }
 
   expect(
     page.find_all('.enrollment-tile').any? do |e|
@@ -92,6 +91,11 @@ end
 
 When(/^.+ clicks continue on waiver summary page/) do
   page.find('.interaction-click-control-continue').click
+end
+
+Then(%r{^the waiver receipt should show the waived date formatted as MM/DD/YYYY$}) do
+  expect(page).to have_content 'Waiver confirmation'
+  expect(page).to have_content(%r{\b\d{2}/\d{2}/\d{4}\b})
 end
 
 Then("Employee should able to see Waiver tile") do

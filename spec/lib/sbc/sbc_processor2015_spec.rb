@@ -3,7 +3,7 @@
 require 'rails_helper'
 require Rails.root.join("lib", "sbc", "sbc_processor2015")
 
-describe SbcProcessor2015, dbclean: :after_each do
+describe SbcProcessor2015, dbclean: :around_each do
   let(:csv_path) { Dir.glob(File.join(Rails.root, 'spec/test_data/plan_data/sbc/*.csv')).first }
   let(:pdf_path) { Dir.glob(File.join(Rails.root, 'spec/test_data/plan_data/sbc/pdf/')).first }
   let!(:product) do
@@ -14,7 +14,7 @@ describe SbcProcessor2015, dbclean: :after_each do
       sbc_document: nil
     )
   end
-  let!(:plan) do
+  let(:plan) do
     FactoryBot.create(
       :plan,
       active_year: product.active_year,
@@ -23,8 +23,11 @@ describe SbcProcessor2015, dbclean: :after_each do
     )
   end
 
-  context "should initialize " do
+  before :all do
+    DatabaseCleaner.clean
+  end
 
+  context "should initialize " do
     before(:each) do
       sbc_processor = SbcProcessor2015.new(csv_path, pdf_path)
       sbc_processor.run

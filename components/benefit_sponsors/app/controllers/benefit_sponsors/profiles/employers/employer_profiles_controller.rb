@@ -55,7 +55,7 @@ module BenefitSponsors
             @broker_agency_account = @employer_profile.active_broker_agency_account
           when 'inbox'
           when 'families'
-            @employees = EmployeeRole.find_by_employer_profile(@employer_profile).select { |ee| CensusEmployee::EMPLOYMENT_ACTIVE_STATES.include?(ee.census_employee.aasm_state)}
+            @employees = EmployeeRole.find_by_employer_profile(@employer_profile).compact.select { |ee| CensusEmployee::EMPLOYMENT_ACTIVE_STATES.include?(ee.census_employee.aasm_state)}
           else
             @broker_agency_account = @employer_profile.active_broker_agency_account
             @benefit_sponsorship = @employer_profile.latest_benefit_sponsorship
@@ -78,7 +78,7 @@ module BenefitSponsors
 
         def coverage_reports
           authorize @employer_profile
-          @billing_date = Date.strptime(params[:billing_date], "%m/%d/%Y") if params[:billing_date]
+          @billing_date = DateParser.smart_parse(params[:billing_date]) if params[:billing_date]
           @datatable = ::Effective::Datatables::BenefitSponsorsCoverageReportsDataTable.new({ id: params.require(:employer_profile_id), billing_date: @billing_date})
 
           respond_to do |format|
@@ -156,10 +156,10 @@ module BenefitSponsors
         def download_invoice
           authorize @employer_profile
 
-          options={}
+          options = {}
           options[:content_type] = @invoice.type
           options[:filename] = @invoice.title
-          send_data Aws::S3Storage.find(@invoice.identifier) , options
+          send_data Aws::S3Storage.find(@invoice.identifier), options
         end
 
         def generate_sic_tree

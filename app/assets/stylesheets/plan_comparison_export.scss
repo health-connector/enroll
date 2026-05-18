@@ -1,0 +1,100 @@
+/* Plan Comparison PDF Export Styles */
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+  margin: 20px;
+}
+
+h1 {
+  color: #333;
+  font-size: 18pt;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+h2 {
+  margin-top: 20px;
+}
+
+.header-info {
+  margin-bottom: 20px;
+  font-size: 9pt;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  page-break-inside: auto;
+}
+
+tr {
+  page-break-inside: avoid;
+  page-break-after: auto;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+  vertical-align: top;
+}
+
+th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+.row-title {
+  background-color: #e8f4f8;
+  width: 25%;
+}
+
+.employer-cost-row th {
+  background-color: #e8f4f8;
+}
+
+.cost-value {
+  color: #0066cc;
+  font-weight: bold;
+  font-size: 11pt;
+}
+
+.plan-name {
+  color: #0052CC;
+  font-weight: bold;
+  font-size: 11pt;
+}
+
+.carrier-logo {
+  max-width: 80px;
+  height: auto;
+}
+
+.metal-level {
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.footer {
+  margin-top: 30px;
+  font-size: 8pt;
+  color: #666;
+  text-align: center;
+  page-break-before: avoid;
+}
+
+.center {
+  text-align: center;
+}
+
+@media print {
+  body {
+    margin: 15px;
+  }
+  
+  .page-break {
+    page-break-before: always;
+  }
+}

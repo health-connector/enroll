@@ -2,7 +2,7 @@ class IvlNotices::EligibilityDenialNoticeBuilder < IvlNotices::NoticeBuilder
 
   def initialize(consumer)
     super(PdfTemplates::ConditionalEligibilityNotice, {
-      template: "notices/ivl/11_individual_total_ineligibility.html.erb"
+      template: "notices/ivl/11_individual_total_ineligibility"
     })
   end
 

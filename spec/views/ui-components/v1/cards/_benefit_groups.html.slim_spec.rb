@@ -27,19 +27,19 @@ RSpec.describe "_benefit_groups.html.slim", :type => :view, dbclean: :after_each
     end
 
     it "should display one carrier for plans by row" do
-      render :partial => "ui-components/v1/cards/benefit_groups.html.slim", :locals => {:bg => benefit_group}
+      render :partial => "ui-components/v1/cards/benefit_groups", :locals => {:bg => benefit_group}
       expect(rendered).to have_selector('td', text: /One Carrier/i)
     end
 
     it "should display A single plan for plans by row" do
       allow(benefit_group.sponsored_benefits.first).to receive(:product_package_kind).and_return(:single_product)
-      render :partial => "ui-components/v1/cards/benefit_groups.html.slim", :locals => {:bg => benefit_group}
+      render :partial => "ui-components/v1/cards/benefit_groups", :locals => {:bg => benefit_group}
       expect(rendered).to have_selector('td', text: /A Single Plan/i)
     end
 
     it "should display one level for plans by row" do
       allow(benefit_group.sponsored_benefits.first).to receive(:product_package_kind).and_return(:metal_level)
-      render :partial => "ui-components/v1/cards/benefit_groups.html.slim", :locals => {:bg => benefit_group}
+      render :partial => "ui-components/v1/cards/benefit_groups", :locals => {:bg => benefit_group}
       expect(rendered).to have_selector(:xpath, './/*[@id="employer-benefit-groups"]/div[2]/div/table')
       expect(rendered).to have_selector('td', text: /One Level/i)
     end

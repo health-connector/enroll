@@ -1,7 +1,10 @@
 class Exchanges::AnnouncementsController < ApplicationController
   before_action :check_hbx_staff_role, except: [:dismiss]
   before_action :updateable?, :only => [:create, :destroy]
+
   def dismiss
+    authorize :announcement
+
     if params[:content].present?
       dismiss_announcements = JSON.parse(session[:dismiss_announcements] || "[]") rescue []
       dismiss_announcements << params[:content].strip
@@ -12,11 +15,15 @@ class Exchanges::AnnouncementsController < ApplicationController
   end
 
   def index
+    authorize :announcement
+
     @filter = params[:filter] || 'current'
     @announcements = @filter == 'all' ? Announcement.all : Announcement.current
   end
 
   def create
+    authorize :announcement
+
     @announcement = Announcement.new(announcement_params)
     if @announcement.save
       redirect_to exchanges_announcements_path, notice: 'Create Announcement Successful.'
@@ -27,6 +34,8 @@ class Exchanges::AnnouncementsController < ApplicationController
   end
 
   def destroy
+    authorize :announcement
+
     @announcement = Announcement.find_by(id: params[:id])
     @announcement.destroy
     redirect_to exchanges_announcements_path, notice: 'Destroy Announcement Successful.'

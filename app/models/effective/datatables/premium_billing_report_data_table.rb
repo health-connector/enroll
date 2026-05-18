@@ -2,7 +2,7 @@ module Effective
   module Datatables
     class PremiumBillingReportDataTable < Effective::MongoidDatatable
       include Employers::PremiumStatementHelper
-      include Pundit
+      include Pundit::Authorization
       attr_reader :hbx_cache, :hbx_enrollment_ids
 
       datatable do

@@ -5,14 +5,16 @@ module BenefitSponsors
     class BenefitPackagesController < ApplicationController
 
       before_action :check_for_late_rates, only: [:new]
+      # CSRF is skipped for create
       skip_before_action :verify_authenticity_token, only: :create
 
-      include Pundit
+      include Pundit::Authorization
 
       layout "two_column", except: :estimated_employee_cost_details
 
       def new
         authorize @benefit_package_form, :updateable?
+        @product_search_options = @benefit_package_form.catalog.search_options
       end
 
       def create
@@ -39,6 +41,7 @@ module BenefitSponsors
 
       def edit
         @benefit_package_form = BenefitSponsors::Forms::BenefitPackageForm.for_edit(params.permit(:id, :benefit_application_id), true)
+        @product_search_options = @benefit_package_form.catalog.search_options
         authorize @benefit_package_form, :updateable?
       end
 

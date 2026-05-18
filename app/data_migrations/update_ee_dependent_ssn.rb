@@ -1,6 +1,6 @@
 require File.join(Rails.root, "lib/mongoid_migration_task")
 
-class UpdateEeDependentSSN < MongoidMigrationTask
+class UpdateEeDependentSsn < MongoidMigrationTask
   def migrate
     census_employee = CensusEmployee.where(_id: ENV['ce_id']).first
     if census_employee.census_dependents.present?

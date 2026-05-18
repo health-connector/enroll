@@ -5,7 +5,7 @@ def load_cca_products_seed
     loaded_class_1 = ::BenefitMarkets::Products::HealthProducts::HealthProduct
     loaded_class_2 = ::BenefitMarkets::Products::DentalProducts::DentalProduct
     yaml_str = File.read(f_name)
-    data = YAML.load(yaml_str)
+    data = YAML.unsafe_load(yaml_str)
     data.new_record = true
     data.save!
   end

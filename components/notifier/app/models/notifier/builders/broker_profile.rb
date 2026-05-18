@@ -73,7 +73,7 @@ module Notifier
 
     def termination_date
       if terminated_broker_agency_account.present?
-        merge_model.termination_date = terminated_broker_agency_account.end_on
+        merge_model.termination_date = format_date(terminated_broker_agency_account.end_on)
       end
     end
 

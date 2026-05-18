@@ -16,7 +16,7 @@
 					.col-xs-3.plans
 						.col-xs-12
 							label.container
-								= f.radio_button :product_option_choice, issuer_id, :data => {issuername: issuer_name}, onclick:"getPlanInfo(this); loadSingleProductSponsorContribution(this);"
+								= f.radio_button :product_option_choice, issuer_id, :data => {issuername: issuer_name, cuke: 'dental-carrier-select'}, onclick:"getPlanInfo(this); loadSingleProductSponsorContribution(this);"
 								span.checkmark
 								= issuer_name
 
@@ -68,7 +68,7 @@
         span.hidden.edit_flow
           = f.radio_button :reference_plan_id, f.object.reference_plan_id, :data => {plan_title: f.object.reference_product.title, metal_level: f.object.reference_product.metal_level_kind, carrier_name: f.object.reference_product.issuer_name, plan_type: f.object.reference_product.plan_kind}
         = render "reference_plan", f: f
-        = render "./ui-components/v1/cards/estimated_employee_costs", f: f
+        = render "/ui-components/v1/cards/estimated_employee_costs", f: f
     #estimatedEmployerCostDetailsLink
 
 - if !is_new_benefit && !is_new_benefit.nil?
@@ -134,6 +134,11 @@ javascript:
     var selectedName = element.dataset.issuername;
     filteredProducts = planOptions[productOptionKind][selectedName];
     productsTotal = filteredProducts.length;
+    
+    // Clear comparison selections when switching carriers
+    if (typeof clearSelectedPlans === 'function') {
+      clearSelectedPlans();
+    }
   }
 
   function displayReferencePlanDetails(element, options) {
@@ -160,8 +165,8 @@ javascript:
       }
     }
 
-    document.getElementById('yourReferencePlanDetails').innerHTML = '#{escape_javascript(render :partial => "./ui-components/v1/cards/reference_plan_details_shell")}'
-    document.getElementById('estimatedEmployerCostDetailsLink').innerHTML = '#{escape_javascript(render :partial => "./ui-components/v1/cards/estimated_employee_costs", f: f)}'
+    document.getElementById('yourReferencePlanDetails').innerHTML = '#{escape_javascript(render :partial => "/ui-components/v1/cards/reference_plan_details_shell")}'
+    document.getElementById('estimatedEmployerCostDetailsLink').innerHTML = '#{escape_javascript(render :partial => "/ui-components/v1/cards/estimated_employee_costs", f: f)}'
 
       if (element.parentElement.classList.contains('edit_flow')) {
       document.getElementById('changeReferencePlan').classList.remove('hidden');
@@ -284,10 +289,13 @@ javascript:
   }
 
   function preventSubmissionOnEnter() {
-		document.getElementById('new_benefit_package').onkeypress = function(e) {
-			var key = e.charCode || e.keyCode || 0;
-			if (key == 13) {
-			    e.preventDefault();
-			  }
+		var form = document.getElementById('new_benefit_package');
+		if (form) {
+			form.onkeypress = function(e) {
+				var key = e.charCode || e.keyCode || 0;
+				if (key == 13) {
+					e.preventDefault();
+				}
+			}
 		}
 	}

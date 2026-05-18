@@ -109,12 +109,6 @@ class Person
              index: true,
              optional: true
 
-  belongs_to :general_agency_contact,
-             class_name: "GeneralAgencyProfile",
-             inverse_of: :general_agency_contacts,
-             index: true,
-             optional: true
-
   embeds_one :consumer_role, cascade_callbacks: true, validate: true
   embeds_one :resident_role, cascade_callbacks: true, validate: true
   embeds_one :broker_role, cascade_callbacks: true, validate: true
@@ -128,8 +122,6 @@ class Person
   embeds_many :employer_staff_roles, cascade_callbacks: true, validate: true
   embeds_many :broker_agency_staff_roles, cascade_callbacks: true, validate: true
   embeds_many :employee_roles, cascade_callbacks: true, validate: true
-  embeds_many :general_agency_staff_roles, cascade_callbacks: true, validate: true
-
   embeds_many :person_relationships, cascade_callbacks: true, validate: true
   embeds_many :addresses, cascade_callbacks: true, validate: true
   embeds_many :phones, cascade_callbacks: true, validate: true
@@ -150,9 +142,7 @@ class Person
 
   validates :encrypted_ssn, uniqueness: true, allow_blank: true
 
-  validates :gender,
-            allow_blank: true,
-            inclusion: { in: Person::GENDER_KINDS, message: "%<value>s is not a valid gender" }
+  validate :validate_gender_format
 
   before_save :generate_hbx_id
   before_save :update_full_name
@@ -242,20 +232,12 @@ class Person
   scope :unverified_persons,        -> { where(:'consumer_role.aasm_state' => { "$ne" => "fully_verified" })}
   scope :matchable,                 ->(ssn, dob, last_name) { where(encrypted_ssn: Person.encrypt_ssn(ssn), dob: dob, last_name: last_name) }
 
-  scope :general_agency_staff_applicant,     -> { where("general_agency_staff_roles.aasm_state" => { "$eq" => :applicant })}
-  scope :general_agency_staff_certified,     -> { where("general_agency_staff_roles.aasm_state" => { "$eq" => :active })}
-  scope :general_agency_staff_decertified,   -> { where("general_agency_staff_roles.aasm_state" => { "$eq" => :decertified })}
-  scope :general_agency_staff_denied,        -> { where("general_agency_staff_roles.aasm_state" => { "$eq" => :denied })}
 #  ViewFunctions::Person.install_queries
 
   validate :consumer_fields_validations
 
   after_create :notify_created
   after_update :notify_updated, if: :attributes_changed?
-
-  def active_general_agency_staff_roles
-    general_agency_staff_roles.select(&:active?)
-  end
 
   def contact_addresses
     existing_addresses = addresses.to_a
@@ -653,7 +635,7 @@ class Person
       #       change is all within the 0-20 age range or all within the 61+ age range (20 >= age <= 61)
       active_enrolled_hbxs.each do |hbx|
         new_temp_person = person.dup
-        new_temp_person.dob = Date.strptime(new_dob.to_s, '%m/%d/%Y')
+        new_temp_person.dob = Date.strptime(new_dob.to_s, "%Y-%m-%d")
         new_age     = new_temp_person.age_on(hbx.effective_on)  # age with the new DOB on the day coverage started
         current_age = person.age_on(hbx.effective_on)           # age with the current DOB on the day coverage started
 
@@ -861,7 +843,7 @@ class Person
   end
 
   def agent?
-    agent = csr_role || assister_role || broker_role || hbx_staff_role || general_agency_staff_roles.present?
+    agent = csr_role || assister_role || broker_role || hbx_staff_role
     !!agent
   end
 
@@ -900,7 +882,11 @@ class Person
 
   def attributes_changed?
     # Check if there are meaningful changes in the person attributes or embedded documents
-    meaningful_changes?(changed_attributes) || embedded_attributes_changed?
+    meaningful_changes?(changed_attributes.merge(previous_changes)) || embedded_attributes_changed?
+  end
+
+  def employee_role_id
+    employee_roles.detect(&:is_active)&.id
   end
 
   private
@@ -918,7 +904,9 @@ class Person
   #
   # @return [Boolean] true if there are changes in embedded documents, false otherwise
   def embedded_attributes_changed?
-    addresses.any?(&:address_changed?) || phones.any?(&:phone_changed?) || emails.any?(&:email_changed?)
+    addresses.any? { |addr| addr.previous_changes.merge(addr.changed_attributes).except('updated_at').present? } ||
+      phones.any? { |phone| phone.previous_changes.merge(phone.changed_attributes).except('updated_at').present? } ||
+      emails.any? { |email| email.previous_changes.merge(email.changed_attributes).except('updated_at').present? }
   end
 
   def update_census_dependent_relationship(existing_relationship)
@@ -930,7 +918,9 @@ class Person
   def create_inbox
     welcome_subject = "Welcome to #{site_short_name}"
     welcome_body = "#{site_short_name} is the #{aca_state_name}'s on-line marketplace to shop, compare, and select health insurance that meets your health needs and budgets."
-    mailbox = Inbox.create(recipient: self)
+    self.inbox = Inbox.new
+    save!
+    mailbox = inbox
     mailbox.messages.create(subject: welcome_subject, body: welcome_body, from: site_short_name.to_s)
   end
 
@@ -999,5 +989,13 @@ class Person
 
   def incarceration_validation
     errors.add(:base, "Incarceration status is required.") if is_incarcerated.to_s.blank?
+  end
+
+  def validate_gender_format
+    return if gender.blank?
+
+    return if GENDER_KINDS.include?(gender)
+
+    errors.add(:gender, "#{gender} is not a valid gender")
   end
 end

@@ -37,7 +37,7 @@ RSpec.describe "insured/families/_navigation.html.erb" do
         allow(user).to receive(:person).and_return(person)
         allow(view).to receive(:enrollment_group_unverified?).and_return true
         allow(view).to receive(:verification_needed?).and_return true
-        render partial: "insured/families/navigation.html.erb"
+        render partial: "insured/families/navigation"
       end
 
       it "should match the side bar tabs info on family home page" do
@@ -72,7 +72,7 @@ RSpec.describe "insured/families/_navigation.html.erb" do
       before :each do
         allow(view).to receive(:enrollment_group_unverified?).and_return false
         allow(view).to receive(:verification_needed?).and_return false
-        render partial: "insured/families/navigation.html.erb"
+        render partial: "insured/families/navigation"
       end
 
       it "should match the side bar tabs info on family home page" do
@@ -109,7 +109,7 @@ RSpec.describe "insured/families/_navigation.html.erb" do
         allow(view).to receive(:enrollment_group_unverified?).and_return false
         allow(view).to receive(:verification_needed?).and_return true
         allow(view).to receive(:documents_uploaded).and_return true
-        render partial: "insured/families/navigation.html.erb"
+        render partial: "insured/families/navigation"
       end
 
       it "should match the side bar tabs info on family home page" do
@@ -146,7 +146,7 @@ RSpec.describe "insured/families/_navigation.html.erb" do
     before :each do
       allow(view).to receive(:enrollment_group_unverified?).and_return(false)
       allow(view).to receive(:verification_needed?).and_return(false)
-      render partial: "insured/families/navigation.html.erb"
+      render partial: "insured/families/navigation"
     end
 
     it "should match the side bar tabs info on family home page" do

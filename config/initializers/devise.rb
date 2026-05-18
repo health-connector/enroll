@@ -3,7 +3,7 @@
 Devise.setup do |config|
   unless Rails.env.production?
     # custom path for expired warden sessions
-    require "custom_failure_app"
+    Rails.application.config.to_prepare { require "custom_failure_app" }
 
     config.warden do |manager|
       manager.failure_app = CustomFailureApp

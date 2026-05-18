@@ -18,7 +18,7 @@ RSpec.describe "_new_benefit_application.html.slim", :type => :view, dbclean: :a
   before :each do
     form = ::BenefitSponsors::Forms::BenefitApplicationForm.for_new(new_ba_params)
     assign(:ba_form, form)
-    render template: "exchanges/hbx_profiles/_new_benefit_application.html.slim"
+    render template: "exchanges/hbx_profiles/_new_benefit_application"
   end
 
   context 'for texts' do

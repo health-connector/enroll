@@ -14,5 +14,24 @@ module SponsoredBenefits
       g.assets false
       g.helper false
     end
+
+    initializer :sponsored_benefits_assets do |app|
+      # This is automatically done by Rails::Engine
+      # app.config.assets.paths << root.join("app/assets/stylesheets")
+      # so you can just require files without extra config
+      #
+      #   /* =require my_engine/application.css */
+
+      # If you want to link directly:
+      #
+      #   <%= stylesheet_link_tag "sponsored_benefits/application.css" %>
+      #
+      # add that file to be precompiled
+      # app.config.assets.precompile << "sponsored_benefits/application.css"
+      #
+      # or use manifest
+      # ('app/assets/config' is automatically added to assets paths)
+      app.config.assets.precompile << "sponsored_benefits_manifest.js"
+    end
   end
 end

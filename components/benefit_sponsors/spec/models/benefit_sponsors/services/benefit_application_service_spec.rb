@@ -39,6 +39,45 @@ module BenefitSponsors
       end
     end
 
+    describe "#format_string_to_date" do
+      it "should parse MM/DD/YYYY format with 2-digit month" do
+        result = subject.send(:format_string_to_date, "01/15/2026")
+        expect(result).to eq Date.new(2026, 1, 15)
+      end
+
+      it "should parse M/D/YYYY format with 1-digit month" do
+        result = subject.send(:format_string_to_date, "1/5/2026")
+        expect(result).to eq Date.new(2026, 1, 5)
+      end
+
+      it "should parse MM/DD/YYYY format with 1-digit day" do
+        result = subject.send(:format_string_to_date, "10/1/2026")
+        expect(result).to eq Date.new(2026, 10, 1)
+      end
+
+      it "should parse YYYY-MM-DD ISO format" do
+        result = subject.send(:format_string_to_date, "2026-10-01")
+        expect(result).to eq Date.new(2026, 10, 1)
+      end
+
+      it "should raise error for YYYY/MM/DD format (not supported)" do
+        expect do
+          subject.send(:format_string_to_date, "2026/10/01")
+        end.to raise_error(Date::Error)
+      end
+
+      it "should raise error for invalid date values" do
+        expect do
+          subject.send(:format_string_to_date, "13/45/2026")
+        end.to raise_error(Date::Error)
+      end
+
+      it "should return nil for unrecognized format (no slashes or dashes)" do
+        result = subject.send(:format_string_to_date, "Jan 1, 2026")
+        expect(result).to be_nil
+      end
+    end
+
     describe ".store service" do
       include_context "setup benefit market with market catalogs and product packages"
 
@@ -267,10 +306,10 @@ module BenefitSponsors
 
       it "should assign the form attributes from benefit application" do
         form = subject.load_form_params_from_resource(benefit_application_form)
-        expect(form[:start_on]).to eq benefit_application.start_on.to_date.to_s
-        expect(form[:end_on]).to eq benefit_application.end_on.to_date.to_s
-        expect(form[:open_enrollment_start_on]).to eq benefit_application.open_enrollment_start_on.to_date.to_s
-        expect(form[:open_enrollment_end_on]).to eq benefit_application.open_enrollment_end_on.to_date.to_s
+        expect(form[:start_on]).to eq benefit_application.start_on.strftime("%m/%d/%Y")
+        expect(form[:end_on]).to eq benefit_application.end_on.strftime("%m/%d/%Y")
+        expect(form[:open_enrollment_start_on]).to eq benefit_application.open_enrollment_start_on.strftime("%m/%d/%Y")
+        expect(form[:open_enrollment_end_on]).to eq benefit_application.open_enrollment_end_on.strftime("%m/%d/%Y")
         expect(form[:pte_count]).to eq benefit_application.pte_count
         expect(form[:msp_count]).to eq benefit_application.msp_count
       end
@@ -477,7 +516,7 @@ module BenefitSponsors
           benefit_market: benefit_market,
           issuer_profile: issuer_profile,
           title: "SHOP Benefits for #{new_ba_start_on.prev_year.year}",
-          application_period: (new_ba_start_on.prev_year.beginning_of_year...new_ba_start_on.prev_year.end_of_year)
+          application_period: (new_ba_start_on.prev_year.beginning_of_year..new_ba_start_on.prev_year.end_of_year)
         )
       end
       let!(:current_benefit_market_catalog) do

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class ConsumerRole
   RESIDENCY_VERIFICATION_REQUEST_EVENT_NAME = "local.enroll.residency.verification_request"
 

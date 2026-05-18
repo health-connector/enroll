@@ -54,6 +54,11 @@ describe "qhp builder" do
         expect(Products::Qhp.all.where(:'qhp_cost_share_variances.hios_plan_and_variant_id' => product.hios_id).count).to eq 1
       end
     end
+
+    it "should populate hsa_eligibility field on BenefitMarkets::Products" do
+      expect(BenefitMarkets::Products::Product.all.count).to eq 2
+      expect(BenefitMarkets::Products::Product.all.select(&:hsa_eligibility).size).to eq(1)
+    end
   end
 
   context "new model having product with qhp" do

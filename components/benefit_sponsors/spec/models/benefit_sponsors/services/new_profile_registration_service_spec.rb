@@ -86,5 +86,39 @@ module BenefitSponsors
         end
       end
     end
+
+    describe "office_locations_form_to_params" do
+      let(:service) { subject.new(profile_id: employer_profile.id) }
+
+      it "keeps only _destroy and id when location deleted" do
+        location_form = BenefitSponsors::Organizations::OrganizationForms::OfficeLocationForm.new(
+          id: "69838aa69829eba9ac87df3b",
+          _destroy: "true"
+        )
+
+        result = service.send(:office_locations_form_to_params, [location_form])
+
+        expect(result[0]).to include(_destroy: true, id: "69838aa69829eba9ac87df3b")
+        expect(result[0]).not_to have_key(:phone_attributes)
+        expect(result[0]).not_to have_key(:address_attributes)
+      end
+
+      it "adds nested phone and address only when present" do
+        phone = BenefitSponsors::Organizations::OrganizationForms::PhoneForm.new(kind: "work", area_code: "617", number: "234-8712")
+        address = BenefitSponsors::Organizations::OrganizationForms::AddressForm.new(kind: "primary", address_1: "1 St", city: "Anywhere", state: "MA", zip: "01101")
+        location_form = BenefitSponsors::Organizations::OrganizationForms::OfficeLocationForm.new(
+          id: "5b79cf1a07f0110380fd16d4",
+          is_primary: true,
+          phone: phone,
+          address: address
+        )
+
+        result = service.send(:office_locations_form_to_params, [location_form])
+
+        expect(result[0]).to include(:phone_attributes, :address_attributes)
+        expect(result[0][:phone_attributes]).to include(:kind, :area_code, :number)
+        expect(result[0][:address_attributes]).to include(:address_1, :city, :state, :zip, :kind)
+      end
+    end
   end
 end

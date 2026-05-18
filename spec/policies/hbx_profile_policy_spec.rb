@@ -90,7 +90,6 @@ describe HbxProfilePolicy do
       expect(policy.view_admin_tabs?).to be true
       expect(policy.send_broker_agency_message?).to be true
       expect(policy.approve_broker?).to be true
-      expect(policy.approve_ga?).to be true
       expect(policy.view_the_configuration_tab?).to be false
       expect(policy.can_submit_time_travel_request?).to be false
     end
@@ -101,7 +100,6 @@ describe HbxProfilePolicy do
       expect(policy.view_admin_tabs?).to be true
       expect(policy.send_broker_agency_message?).to be false
       expect(policy.approve_broker?).to be false
-      expect(policy.approve_ga?).to be false
       expect(policy.view_the_configuration_tab?).to be false
       expect(policy.can_submit_time_travel_request?).to be false
     end
@@ -112,7 +110,6 @@ describe HbxProfilePolicy do
       expect(policy.view_admin_tabs?).to be false
       expect(policy.send_broker_agency_message?).to be false
       expect(policy.approve_broker?).to be false
-      expect(policy.approve_ga?).to be false
       expect(policy.view_the_configuration_tab?).to be false
       expect(policy.can_submit_time_travel_request?).to be false
     end
@@ -123,7 +120,6 @@ describe HbxProfilePolicy do
       expect(policy.view_admin_tabs?).to be false
       expect(policy.send_broker_agency_message?).to be false
       expect(policy.approve_broker?).to be false
-      expect(policy.approve_ga?).to be false
       expect(policy.view_the_configuration_tab?).to be false
       expect(policy.can_submit_time_travel_request?).to be false
     end
@@ -134,7 +130,6 @@ describe HbxProfilePolicy do
       expect(policy.view_admin_tabs?).to be false
       expect(policy.send_broker_agency_message?).to be false
       expect(policy.approve_broker?).to be false
-      expect(policy.approve_ga?).to be false
       expect(policy.view_the_configuration_tab?).to be false
       expect(policy.can_submit_time_travel_request?).to be false
     end
@@ -145,7 +140,6 @@ describe HbxProfilePolicy do
       expect(policy.view_admin_tabs?).to be true
       expect(policy.send_broker_agency_message?).to be true
       expect(policy.approve_broker?).to be true
-      expect(policy.approve_ga?).to be true
       expect(policy.can_modify_plan_year?).to be true
     end
   end
@@ -177,7 +171,6 @@ describe HbxProfilePolicy do
     end
 
     it "is prohibited from approving GAs" do
-      expect(policy.approve_ga?).to be false
     end
 
     it "is prohibited from extending open enrollment" do
@@ -209,7 +202,7 @@ describe HbxProfilePolicy do
     subject { described_class.new(user, HbxProfile) }
 
     shared_examples_for 'access without role' do |def_name, result|
-      let(:user) { double(User, person: double(hbx_staff_role: nil, consumer_role: nil, csr_role: nil, broker_role: nil, active_general_agency_staff_roles: [], broker_agency_staff_roles: nil, resident_role: nil, primary_family: nil)) }
+      let(:user) { double(User, person: double(hbx_staff_role: nil, consumer_role: nil, csr_role: nil, broker_role: nil, broker_agency_staff_roles: nil, resident_role: nil, primary_family: nil)) }
 
       it "#{def_name} returns #{result}" do
         expect(subject.send(def_name)).to eq result
@@ -225,7 +218,7 @@ describe HbxProfilePolicy do
     it_behaves_like 'access without role', :login_history?
 
     shared_examples_for 'with role and permission' do |def_name, permission_name, permission_val, result|
-      let(:user) { double(User, person: double(hbx_staff_role: staff_role, consumer_role: nil, csr_role: nil, broker_role: nil, active_general_agency_staff_roles: [], broker_agency_staff_roles: nil, resident_role: nil, primary_family: nil)) }
+      let(:user) { double(User, person: double(hbx_staff_role: staff_role, consumer_role: nil, csr_role: nil, broker_role: nil, broker_agency_staff_roles: nil, resident_role: nil, primary_family: nil)) }
       let(:staff_role) { double(permission: permission) }
       let(:permission) { double(:permission) }
 

@@ -1,15 +1,17 @@
+# frozen_string_literal: true
+
 class Exchanges::HbxProfilesController < ApplicationController
   include Exchanges::HbxProfilesHelper
   include ::DataTablesAdapter
   include ::DataTablesSearch
-  include ::Pundit
+  include Pundit::Authorization
   include ::SepAll
   include ::Config::AcaHelper
   include HtmlScrubberUtil
   include StringScrubberUtil
 
-  before_action :check_hbx_staff_role, except: [:request_help, :configuration, :show, :assister_index, :family_index, :update_cancel_enrollment, :update_terminate_enrollment]
-  before_action :set_hbx_profile, only: [:edit, :update, :destroy]
+  before_action :check_hbx_staff_role, except: [:configuration, :show, :assister_index, :family_index, :update_cancel_enrollment, :update_terminate_enrollment]
+  before_action :set_hbx_profile, only: :edit
   before_action :view_the_configuration_tab?, only: [:set_date]
   before_action :can_submit_time_travel_request?, only: [:set_date]
   before_action :find_hbx_profile, only: [:employer_index, :configuration, :broker_agency_index, :inbox, :show, :binder_index]
@@ -43,7 +45,7 @@ class Exchanges::HbxProfilesController < ApplicationController
   def extend_open_enrollment
     authorize HbxProfile, :can_extend_open_enrollment?
     @benefit_application = @benefit_sponsorship.benefit_applications.find(params[:id])
-    open_enrollment_end_date = Date.strptime(params["open_enrollment_end_date"], "%m/%d/%Y")
+    open_enrollment_end_date = DateParser.smart_parse(params["open_enrollment_end_date"])
     ::BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(@benefit_application).extend_open_enrollment(open_enrollment_end_date)
     redirect_to exchanges_hbx_profiles_root_path, :flash => { :success => "Successfully extended employer(s) open enrollment." }
   end
@@ -135,8 +137,8 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   def generate_invoice
-    @benfit_sponsorships = ::BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(:_id.in => params[:ids])
-    @organizations = @benfit_sponsorships.map(&:organization)
+    @benefit_sponsorships = ::BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(:_id.in => params[:ids])
+    @organizations = @benefit_sponsorships.map(&:organization)
     @employer_profiles = @organizations.flat_map(&:employer_profile)
     @employer_profiles.each do |employer_profile|
       employer_profile.trigger_model_event(:generate_initial_employer_invoice)
@@ -190,7 +192,7 @@ class Exchanges::HbxProfilesController < ApplicationController
     last_visited_url = current_user.try(:last_portal_visited) || root_path if current_user.present?
     @datatable = Effective::Datatables::BenefitSponsorsEmployerDatatable.new
     respond_to do |format|
-      format.html { redirect_to(last_visited_url) }
+      format.html { redirect_to(last_visited_url, allow_other_host: true) }
       format.js
     end
   end
@@ -219,52 +221,6 @@ class Exchanges::HbxProfilesController < ApplicationController
              else
                @staff.where(last_name: @q)
              end
-  end
-
-  def find_email(agent, role)
-    if role == 'Broker'
-      agent.try(:broker_role).try(:email).try(:address)
-    else
-      agent.try(:user).try(:email)
-    end
-  end
-
-  def request_help
-    @person = Person.find(params[:person])
-    authorize @person.primary_family, :request_help?
-
-    role = nil
-    if params[:type]
-      cac_flag = params[:type] == 'CAC'
-      match = CsrRole.find_by_name(params[:firstname], params[:lastname], cac_flag)
-      if match.count > 0
-        agent = match.first
-        role = cac_flag ? 'Certified Applicant Counselor' : 'Customer Service Representative'
-      end
-    elsif params[:broker].present?
-      agent = Person.find(params[:broker])
-      broker_role_id = agent.broker_role.id
-      consumer = Person.find(params[:person])
-      family = consumer.primary_family
-      family.hire_broker_agency(broker_role_id)
-      role = 'Broker'
-    else
-      agent = Person.find(params[:assister])
-      role = 'In-Person Assister'
-    end
-    if role
-      status_text = 'Message sent to ' + role + ' ' + agent.full_name + ' <br>'
-      if find_email(agent, role)
-        agent_assistance_messages(params,agent,role)
-      else
-
-        status_text = "Agent has no email.   Please select another"
-      end
-    else
-      status_text = call_customer_service params[:firstname].strip, params[:lastname].strip
-    end
-    broker_view = render_to_string 'insured/families/_consumer_brokers_widget', :layout => false
-    render :text => {broker: broker_view, status: status_text}.to_json, layout: false
   end
 
   def family_index
@@ -298,7 +254,7 @@ class Exchanges::HbxProfilesController < ApplicationController
     @datatable = Effective::Datatables::UserAccountDatatable.new
     respond_to do |format|
       format.js
-      format.html { render '/exchanges/hbx_profiles/user_account_index_datatable.html.erb' }
+      format.html { render '/exchanges/hbx_profiles/user_account_index_datatable' }
     end
   end
 
@@ -353,12 +309,12 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   def add_new_sep
-    return unless params[:qle_id].present?
+    return unless sep_params[:qle_id].present?
 
-    @element_to_replace_id = params[:family_actions_id]
+    @element_to_replace_id = sep_params[:family_actions_id]
     createSep
     respond_to do |format|
-      format.js { render "sep/approval/add_sep_result.js.erb", name: @name }
+      format.js { render "sep/approval/add_sep_result", name: @name }
     end
   end
 
@@ -379,7 +335,7 @@ class Exchanges::HbxProfilesController < ApplicationController
     @family_id = params_parser.family_id
     params_parser.cancel_enrollments
     respond_to do |format|
-      format.js { render "datatables/cancel_enrollment_result.js.erb"}
+      format.js { render "datatables/cancel_enrollment_result"}
     end
   end
 
@@ -400,7 +356,7 @@ class Exchanges::HbxProfilesController < ApplicationController
     @family_id = params_parser.family_id
     params_parser.terminate_enrollments
     respond_to do |format|
-      format.js { render "datatables/terminate_enrollment_result.js.erb"}
+      format.js { render "datatables/terminate_enrollment_result"}
     end
   end
 
@@ -416,7 +372,7 @@ class Exchanges::HbxProfilesController < ApplicationController
     begin
       enrollment = HbxEnrollment.find(params[:enrollment_id])
       @row = params[:family_actions_id]
-      termination_date = Date.strptime(params["new_termination_date"], "%m/%d/%Y")
+      termination_date = DateParser.smart_parse(params["new_termination_date"])
       message = if enrollment.present? && enrollment.reterm_enrollment_with_earlier_date(termination_date, params["edi_required"].present?)
                   {notice: "Enrollment Updated Successfully."}
                 else
@@ -437,21 +393,6 @@ class Exchanges::HbxProfilesController < ApplicationController
 
     respond_to do |format|
       format.js {}
-    end
-  end
-
-  def general_agency_index
-    page_string = params.permit(:gas_page)[:gas_page]
-    page_no = page_string.blank? ? nil : page_string.to_i
-
-    status_params = params.permit(:status)
-    @status = status_params[:status] || 'is_applicant'
-    @general_agency_profiles = GeneralAgencyProfile.filter_by(@status)
-    @general_agency_profiles = Kaminari.paginate_array(@general_agency_profiles).page(page_no)
-
-    respond_to do |format|
-      format.html { render 'general_agency' }
-      format.js
     end
   end
 
@@ -694,7 +635,6 @@ class Exchanges::HbxProfilesController < ApplicationController
   # GET /exchanges/hbx_profiles/1
   # GET /exchanges/hbx_profiles/1.json
   def show
-    @employers_tab_active = (params[:employers_tab] == "true")
     if current_user.has_csr_role? || current_user.try(:has_assister_role?)
       redirect_to home_exchanges_agents_path
       return
@@ -829,9 +769,13 @@ class Exchanges::HbxProfilesController < ApplicationController
     eligible_pvp_ras.reduce({}) { |acc, hash| acc.merge(hash) }.sort
   end
 
+  def sep_params
+    params.except(:utf8, :commit).permit(:family_actions_id, :qle_id)
+  end
+
   def fetch_products_data_by_years
     product_ids_by_year = BenefitMarkets::Products::Product.pluck(:application_period, :id).each_with_object({ }) do |data, result|
-      (result[data[0]['min'].year] ||= []) << data[1]
+      (result[data[0].min.year] ||= []) << data[1]
     end.sort.reverse.to_h
 
     all_product_ids = BenefitMarkets::Products::Product.pluck(:id)
@@ -1027,42 +971,6 @@ class Exchanges::HbxProfilesController < ApplicationController
     params.require(:setting).permit(:name, :value)
   end
 
-  def agent_assistance_messages(params, agent, role)
-    if params[:person].present?
-      insured = Person.find(params[:person])
-      first_name = insured.first_name
-      last_name = insured.last_name
-      name = insured.full_name
-      insured_email = insured.emails.last.try(:address) || insured.try(:user).try(:email)
-      root = "http://#{request.env['HTTP_HOST']}/exchanges/agents/resume_enrollment?person_id=#{params[:person]}&original_application_type:"
-      body =
-        "Please contact #{insured.first_name} #{insured.last_name}. <br> " +
-        "Plan shopping help has been requested by #{insured_email}<br>" +
-        "<a href='" + root + "phone'>Assist Customer</a>  <br>"
-    else
-      first_name = params[:first_name]
-      last_name = params[:last_name]
-      name = first_name.to_s + ' ' + last_name.to_s
-      insured_email = params[:email]
-      body =  "Please contact #{first_name} #{last_name}. <br>" +
-              "Plan shopping help has been requested by #{insured_email}<br>"
-    end
-    hbx_profile = HbxProfile.find_by_state_abbreviation(aca_state_abbreviation)
-    message_params = {
-      sender_id: hbx_profile.id,
-      parent_message_id: hbx_profile.id,
-      from: 'Plan Shopping Web Portal',
-      to: "Agent Mailbox",
-      subject: "Please contact #{first_name} #{last_name}. ",
-      body: body
-    }
-    create_secure_message message_params, hbx_profile, :sent
-    create_secure_message message_params, agent, :inbox
-    result = UserMailer.new_client_notification(find_email(agent,role), first_name, name, role, insured_email, params[:person].present?)
-    result.deliver_now
-    puts result.to_s if Rails.env.development?
-  end
-
   def find_hbx_profile
     @profile = current_user.person.try(:hbx_staff_role).try(:hbx_profile)
   end
@@ -1101,10 +1009,6 @@ class Exchanges::HbxProfilesController < ApplicationController
 
   def authorize_for_instance
     authorize @hbx_profile, "#{action_name}?".to_sym
-  end
-
-  def call_customer_service(first_name, last_name)
-    "No match found for #{first_name} #{last_name}.  Please call Customer Service at: (855)532-5465 for assistance.<br/>"
   end
 
   def find_benefit_sponsorship

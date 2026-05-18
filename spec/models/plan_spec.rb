@@ -210,7 +210,7 @@ RSpec.describe Plan, dbclean: :after_each do
 
     context "with improper metal_level" do
       def params
-        valid_params.deep_merge({metal_level: bad_metal_level})
+        valid_params.deep_merge!({metal_level: bad_metal_level})
       end
 
       it "should fail validation with improper metal_level" do
@@ -221,7 +221,7 @@ RSpec.describe Plan, dbclean: :after_each do
 
     context "with invalid active_year" do
       def params
-        valid_params.deep_merge({active_year: bad_active_year})
+        valid_params.deep_merge!({active_year: bad_active_year})
       end
 
       it "should fail active_year validation" do
@@ -244,7 +244,7 @@ RSpec.describe Plan, dbclean: :after_each do
     context "with empty dental metal level for coverage_kind = dental" do
 
       def params
-        valid_params.deep_merge({dental_level: "", coverage_kind: "dental"})
+        valid_params.deep_merge!({dental_level: "", coverage_kind: "dental"})
       end
 
       it "should not save plan object" do
@@ -256,7 +256,7 @@ RSpec.describe Plan, dbclean: :after_each do
     context "with invalid dental metal level for coverage_kind = dental" do
 
       def params
-        valid_params.deep_merge({dental_level: "invalid", coverage_kind: "dental"})
+        valid_params.deep_merge!({dental_level: "invalid", coverage_kind: "dental"})
       end
 
       it "should not save plan object" do

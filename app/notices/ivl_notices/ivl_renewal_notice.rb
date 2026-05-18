@@ -11,7 +11,7 @@ class IvlNotices::IvlRenewalNotice < IvlNotice
     self.open_enrollment_start_on = args[:open_enrollment_start_on]
     self.open_enrollment_end_on = args[:open_enrollment_end_on]
     self.data = args[:data]
-    self.header = "notices/shared/header_ivl.html.erb"
+    self.header = "notices/shared/header_ivl"
     super(args)
   end
 

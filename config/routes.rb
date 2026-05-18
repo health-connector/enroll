@@ -33,9 +33,22 @@ Rails.application.routes.draw do
     post "/security_question_responses/replace", controller: "users/security_question_responses", action: 'replace'
 
     member do
-      get :reset_password, :lockable, :confirm_lock, :login_history, :edit, :change_username_and_email
-      put :confirm_reset_password, :confirm_change_username_and_email, :update
-      post :unlock, :change_password
+      # GET routes
+      get :reset_password
+      get :lockable
+      get :confirm_lock
+      get :login_history
+      get :edit
+      get :change_username_and_email
+
+      # PUT routes
+      put :confirm_reset_password
+      put :confirm_change_username_and_email
+      put :update
+
+      # POST routes
+      post :unlock
+      post :change_password
     end
   end
 
@@ -71,7 +84,6 @@ Rails.application.routes.draw do
         get :edit_force_publish
         post :force_publish
         get :broker_agency_index
-        get :general_agency_index if Settings.aca.general_agency_enabled
         get :issuer_index
         match "marketplace_plan_years/:market" => "hbx_profiles#marketplace_plan_years", as: :marketplace_plan_years, via: :get
         match "marketplace_plan_years/:market/:year" => "hbx_profiles#marketplace_plan_year", as: :marketplace_plan_year, via: :get
@@ -84,7 +96,6 @@ Rails.application.routes.draw do
         post :update_setting
         get :staff_index
         get :assister_index
-        get :request_help
         get :aptc_csr_family_index
         get :binder_index
         get :binder_index_datatable
@@ -298,6 +309,7 @@ Rails.application.routes.draw do
       get 'verify_attestation'
       delete 'delete_attestation_documents'
       #get 'revert_attestation'
+      post 'edit', on: :member # This POST request hides sensitive data per security review
     end
 
     resources :employer_profiles do
@@ -422,32 +434,6 @@ Rails.application.routes.draw do
     end
   end
 
-  if Settings.aca.general_agency_enabled
-    match 'general_agency_registration', to: 'general_agencies/profiles#new_agency', via: [:get]
-    namespace :general_agencies do
-      root 'profiles#new'
-      resources :profiles do
-        collection do
-          get :new_agency_staff
-          get :search_general_agency
-          get :new_agency
-          get :messages
-          get :agency_messages
-          get :inbox
-          get :edit_staff
-          post :update_staff
-        end
-        member do
-          get :employers
-          get :families
-          get :staffs
-        end
-      end
-      resources :inboxes, only: [:new, :create, :show, :destroy] do
-        get :msg_to_portal
-      end
-    end
-  end
   resources :translations
 
   ############################# TO DELETE BELOW ##############################
@@ -590,6 +576,12 @@ Rails.application.routes.draw do
         resources :agents do
           collection do
             get :begin_consumer_enrollment
+          end
+        end
+
+        resources :hbx_profiles do
+          collection do
+            get :request_help
           end
         end
 

@@ -20,7 +20,7 @@ describe "shared/inboxes/_message_list.html.erb" do
     assign(:sent_box, true)
     assign(:provider,mock_provider)
     allow(view).to receive(:policy_helper).and_return(double("PersonPolicy", updateable?: true))
-    render "insured/families/inbox.html.erb"
+    render "insured/families/inbox"
   end
 
   it "should have text From" do

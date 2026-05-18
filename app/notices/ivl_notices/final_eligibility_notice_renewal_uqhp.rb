@@ -10,7 +10,7 @@ class IvlNotices::FinalEligibilityNoticeRenewalUqhp < IvlNotice
     args[:to] = consumer_role.person.families.first.primary_applicant.person.work_email_or_best
     self.person = args[:person]
     self.data = args[:data]
-    self.header = "notices/shared/header_ivl.html.erb"
+    self.header = "notices/shared/header_ivl"
     super(args)
   end
 

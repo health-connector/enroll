@@ -1,36 +1,38 @@
-### Master Redmine ticket
-* (Required!)
+# PR Checklist
 
-### Child Redmine ticket(s)
-* ()
-* ()
+Please check if your PR fulfills the following requirements
+- [ ] The title follows our [guidelines](https://github.com/health-connector/enroll/blob/master/CONTRIBUTING.md#commit
+)
+- [ ] Tests for the changes have been added (for bugfixes/features)
 
-### Local build result
+# PR Type
+What kind of change does this PR introduce?
 
-```
-bundle exec rake parallel:spec[4]
-bundle exec cucumber
-```
+- [ ] Bugfix
+- [ ] Feature (requires Feature flag)
+- [ ] Inert code (no impact until run, e.g. data fix or migration, manually triggered bulk process, etc.)
+- [ ] Refactoring (no functional changes, no API changes)
+- [ ] Build related changes
+- [ ] CI related changes
+- [ ] Dependency updates (e.g., add a new gem or update to a version)
+- [ ] Release (Prepares code for a release, e.g., version bumps, changelog updates, tagging, deployment scripts)
 
-### Latest rebase/merge tag
-*
+# What is the ticket # detailing the issue?
 
----
+Ticket: 
 
-### Data ticket(s) Followup
-* (redmine links here - optional)
+# A brief description of the changes
 
-### Related Pull Requests
-* (github links here - optional)
+Current behavior:
 
----
+New behavior:
 
-### TODOs / Notes
-#### Peer Review
-* (For code review)
+# Feature Flag
 
-#### Functional Testing
-* (For testing locally)
+For all new feature development, a feature flag is required to control the exposure of the feature to our end users. A feature flag needs a corresponding environment variable to initialize the state of the flag. Please share the name of the environment variable below that would enable/disable the feature and which client(s) it applies to.
 
-#### Deployment
-* (for release manager and/or build manager)
+Variable name:
+
+
+# Additional Context
+Include any additional context that may be relevant to the peer review process.

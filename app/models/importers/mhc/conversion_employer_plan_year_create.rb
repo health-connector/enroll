@@ -43,7 +43,12 @@ module Importers::Mhc
     end
 
     def tier_offered?(preference)
-      (preference.present? && eval(preference.downcase)) ? true : false
+      return false unless preference.present?
+
+      return true if instance_variable_defined?(preference) && instance_variable_get(preference)
+      return true if respond_to?(preference) && send(preference)
+
+      false
     end
 
     def build_employee_rating_tier(benefit_group)
@@ -63,13 +68,22 @@ module Importers::Mhc
       rating_tier_names = CompositeRatingTier::NAMES.reject{|rating_tier| rating_tier == 'employee_only'}
 
       rating_tier_names.each do |rating_tier|
+        offered_value = send("#{rating_tier}_rt_offered") if respond_to?("#{rating_tier}_rt_offered")
+        offered_value ||= instance_variable_get("@#{rating_tier}_rt_offered") if instance_variable_defined?("@#{rating_tier}_rt_offered")
+
+        contribution_value = send("#{rating_tier}_rt_contribution") if respond_to?("#{rating_tier}_rt_contribution")
+        contribution_value ||= instance_variable_get("@#{rating_tier}_rt_contribution") if instance_variable_defined?("@#{rating_tier}_rt_contribution")
+
+        premium_value = send("#{rating_tier}_rt_premium") if respond_to?("#{rating_tier}_rt_premium")
+        premium_value ||= instance_variable_get("@#{rating_tier}_rt_premium") if instance_variable_defined?("@#{rating_tier}_rt_premium")
+
         composite_tiers << benefit_group.composite_tier_contributions.build({
-          composite_rating_tier: rating_tier, 
-          offered: tier_offered?(eval("#{rating_tier}_rt_offered").to_s),
-          employer_contribution_percent: eval("#{rating_tier}_rt_contribution"),
-          estimated_tier_premium: eval("#{rating_tier}_rt_premium"),
-          final_tier_premium: eval("#{rating_tier}_rt_premium")
-        })
+                                                                              composite_rating_tier: rating_tier,
+                                                                              offered: tier_offered?(offered_value.to_s),
+                                                                              employer_contribution_percent: contribution_value,
+                                                                              estimated_tier_premium: premium_value,
+                                                                              final_tier_premium: premium_value
+                                                                            })
       end
 
       composite_tiers
@@ -77,6 +91,7 @@ module Importers::Mhc
 
     def save
       return false unless valid?
+
       record = map_plan_year
       save_result = record.save
       propagate_errors(record)

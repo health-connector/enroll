@@ -14,7 +14,7 @@ namespace :seed do
       loaded_class_2 = ::BenefitMarkets::PricingModels::TieredPricingUnit
       loaded_class_3 = ::BenefitMarkets::PricingModels::RelationshipPricingUnit
       yaml_str = File.read(f_name)
-      data = YAML.load(yaml_str)
+      data = YAML.unsafe_load(yaml_str)
 
       next unless data.price_calculator_kind.gsub(/^.*::/, '') == "ShopSimpleListBillPricingCalculator"
       data.new_record = true
@@ -30,7 +30,7 @@ namespace :seed do
       loaded_class_1 = ::BenefitMarkets::ContributionModels::ContributionModel
       loaded_class_2 = ::BenefitMarkets::ContributionModels::FixedPercentContributionUnit
       yaml_str = File.read(f_name)
-      data = YAML.load(yaml_str)
+      data = YAML.unsafe_load(yaml_str)
 
       next unless data.contribution_calculator_kind.gsub(/^.*::/, '') == "SimpleShopReferencePlanContributionCalculator"
       data.new_record = true

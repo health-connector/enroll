@@ -8,7 +8,7 @@ module BenefitSponsors
 
     def import_employer(in_file)
       begin
-        config = YAML.load_file("#{Rails.root}/conversions.yml")
+        config = YAML.unsafe_load(File.read("#{Rails.root}/conversions.yml"))
         result_file = File.open(File.join(Rails.root, "conversion_employer_results", "RESULT_" + File.basename(in_file) + ".csv"), 'wb')
         
         if BenefitSponsors::Site.by_site_key(:cca).present?

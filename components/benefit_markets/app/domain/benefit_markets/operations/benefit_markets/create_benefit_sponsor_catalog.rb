@@ -77,6 +77,8 @@ module BenefitMarkets
           benefit_sponsor_catalog = ::BenefitMarkets::Operations::BenefitSponsorCatalogs::Create.new.call(sponsor_catalog_params: sponsor_catalog_params.merge(product_packages: product_packages))
 
           if benefit_sponsor_catalog.success?
+            ::BenefitMarkets::Operations::Products::Find.reset_data
+
             Success(benefit_sponsor_catalog.value!)
           else
             Failure(benefit_sponsor_catalog.failure)

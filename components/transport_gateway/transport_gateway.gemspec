@@ -16,13 +16,16 @@ Gem::Specification.new do |s|
 
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]
 
-  s.add_dependency 'rails', '~> 6.1.7.8'
+  s.add_dependency 'rails', '~> 8.1', '>= 8.1.2'
   s.add_dependency 'net-sftp', '~> 2.1', '>= 2.1.2'
   s.add_dependency 'net-ssh', '4.2.0'
   s.add_dependency 'aws-sdk', '~> 3.2'
+  s.add_dependency 'rack', '>= 2.2.14'
+  s.add_dependency 'net-imap',  '>= 0.4.20'
 
   s.add_development_dependency 'rspec-rails', '~> 5.0.1'
   s.add_development_dependency 'shoulda-matchers'
   s.add_development_dependency 'webmock'
   s.add_development_dependency 'rspec'
+  s.metadata['rubygems_mfa_required'] = 'true'
 end

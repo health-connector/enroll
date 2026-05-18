@@ -99,8 +99,9 @@ class Employers::CensusEmployeesController < ApplicationController
     status = params[:status]
     termination_date = params["termination_date"]
 
+    # I didn't find where we use termination_date for this endpoint
     if termination_date.present?
-      termination_date = DateTime.strptime(termination_date, '%m/%d/%Y').try(:to_date)
+      termination_date = DateParser.smart_parse(termination_date).try(:to_date)
       if termination_date >= (TimeKeeper.date_of_record - 60.days)
         @fa = @census_employee.terminate_employment(termination_date)
         notify_employee_of_termination
@@ -130,7 +131,7 @@ class Employers::CensusEmployeesController < ApplicationController
     status = params[:status]
     rehiring_date = params["rehiring_date"]
     if rehiring_date.present?
-      rehiring_date = DateTime.strptime(rehiring_date, '%m/%d/%Y').try(:to_date)
+      rehiring_date = DateParser.smart_parse(rehiring_date).try(:to_date)
     else
       rehiring_date = ""
     end
@@ -169,7 +170,7 @@ class Employers::CensusEmployeesController < ApplicationController
     cobra_date = params["cobra_date"]
 
     if cobra_date.present?
-      @cobra_date = DateTime.strptime(cobra_date, '%m/%d/%Y').try(:to_date)
+      @cobra_date = DateParser.smart_parse(cobra_date).try(:to_date)
     else
       @cobra_date = ""
       flash[:error] = "Please enter cobra date."

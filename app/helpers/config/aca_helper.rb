@@ -34,10 +34,7 @@ module Config::AcaHelper
   end
 
   def flexible_contribution_model_enabled_for_bqt_for_period
-    application_period = ::EnrollRegistry[:flexible_contribution_model_for_bqt].setting(:initial_application_period).item.split('..')
-    min = Date.strptime(application_period[0], '%m/%d/%Y')
-    max = Date.strptime(application_period[1], '%m/%d/%Y')
-    min..max
+    ::EnrollRegistry[:flexible_contribution_model_for_bqt].setting(:initial_application_period).item
   end
 
   def retrive_date(val)
@@ -90,14 +87,6 @@ module Config::AcaHelper
 
   def aca_shop_market_coverage_start_period
     @aca_shop_market_coverage_start_period ||= Settings.aca.shop_market.coverage_start_period
-  end
-
-  # Allows us to conditionally display General Agency related links and information
-  # This can be enabled or disabled in config/settings.yml
-  # @return { True } if Settings.aca.general_agency_enabled
-  # @return { False } otherwise
-  def general_agency_enabled?
-    Settings.aca.general_agency_enabled
   end
 
   def enrollments_reinstate_enabled?

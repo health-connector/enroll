@@ -7,12 +7,8 @@ describe "shared/census_dependent_fields.html.erb", dbclean: :after_each do
   let(:census_employee) { CensusEmployee.new }
 
   before :each do
-    helper = Object.new.extend ActionView::Helpers::FormHelper
-    helper.extend ActionDispatch::Routing::PolymorphicRoutes
-    helper.extend ActionView::Helpers::FormOptionsHelper
-    helper.extend ActionView::Context
     census_dependent = census_employee.census_dependents.build
-    mock_form = ActionView::Helpers::FormBuilder.new(:census_dependent, census_dependent, helper, {})
+    mock_form = ActionView::Helpers::FormBuilder.new(:census_dependent, census_dependent, view, {})
     render "shared/census_dependent_fields", :f => mock_form
   end
 

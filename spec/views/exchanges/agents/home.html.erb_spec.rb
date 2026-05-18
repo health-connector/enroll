@@ -8,7 +8,7 @@ describe "exchanges/agents/home.erb" do
   let(:cac_role) {FactoryBot.build(:csr_role, cac: true)}
   let(:current_user) { FactoryBot.create(:user, :person => person)}
   before :each do
-    stub_template "exchanges/agents/_primary_nav.html.erb" => 'nav_bar'
+    stub_template "exchanges/agents/_primary_nav" => 'nav_bar'
     @title = 'CAC or Assister'
     allow(current_user).to receive(:person).and_return(person)
   end

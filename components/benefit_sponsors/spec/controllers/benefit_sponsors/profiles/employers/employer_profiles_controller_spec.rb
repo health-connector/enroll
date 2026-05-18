@@ -109,9 +109,29 @@ module BenefitSponsors
       end
 
       context "tab: families" do
+        let(:person) {FactoryBot.create(:person)}
+        let(:employee_role1) {FactoryBot.create(:benefit_sponsors_employee_role, person: person, employer_profile: employer_profile, benefit_sponsors_employer_profile_id: employer_profile.id)}
+        let(:census_employee) do
+          census_employee = FactoryBot.create(:census_employee, :with_active_assignment,
+                                              first_name: person.first_name,
+                                              last_name: person.last_name,
+                                              benefit_sponsorship: benefit_sponsorship,
+                                              employer_profile: benefit_sponsorship.profile,
+                                              benefit_group: current_benefit_package,
+                                              employee_role_id: employee_role1.id)
+          census_employee.update_attributes(ssn: person.ssn, dob: person.dob)
+          employee_role1.update_attributes(census_employee_id: census_employee.id)
+          census_employee
+        end
+
         before do
+          allow(person).to receive(:active_employee_roles).and_return [employee_role1]
+          allow(employee_role1).to receive(:census_employee).and_return census_employee
+          benefit_sponsorship.save!
+          allow(controller).to receive(:authorize).and_return(true)
           sign_in user
-          get :show, params: { id: benefit_sponsor.profiles.first.id, tab: 'families' }
+          get :show, params: {id: benefit_sponsor.profiles.first.id.to_s, tab: 'families'}
+          allow(employer_profile).to receive(:active_benefit_sponsorship).and_return benefit_sponsorship
         end
 
         it "should render show template" do
@@ -121,29 +141,73 @@ module BenefitSponsors
         it "should return http success" do
           expect(response).to have_http_status(:success)
         end
+
+        it "should return valid families" do
+          expect(assigns(:employees)).to eq([employee_role1])
+          expect(response).to render_template("show")
+        end
       end
     end
 
 
     describe "GET coverage_reports" do
-      let!(:employees) {
-        FactoryBot.create_list(:census_employee, 2, employer_profile: employer_profile, benefit_sponsorship: benefit_sponsorship)
-      }
+      context "without today's date billing_date param" do
+        let!(:employees) do
+          FactoryBot.create_list(:census_employee, 2, employer_profile: employer_profile, benefit_sponsorship: benefit_sponsorship)
+        end
 
-      before do
-        benefit_sponsorship.save!
-        allow(controller).to receive(:authorize).and_return(true)
-        sign_in user
-        get :coverage_reports, params: { employer_profile_id: benefit_sponsor.profiles.first.id, billing_date: TimeKeeper.date_of_record.next_month.beginning_of_month.strftime("%m/%d/%Y") }
-        allow(employer_profile).to receive(:active_benefit_sponsorship).and_return benefit_sponsorship
+        before do
+          benefit_sponsorship.save!
+          allow(controller).to receive(:authorize).and_return(true)
+          sign_in user
+          get :coverage_reports, params: { employer_profile_id: benefit_sponsor.profiles.first.id, billing_date: TimeKeeper.date_of_record.next_month.beginning_of_month.strftime("%m/%d/%Y") }
+          allow(employer_profile).to receive(:active_benefit_sponsorship).and_return benefit_sponsorship
+        end
+
+        it "should render coverage_reports template" do
+          expect(response).to render_template("coverage_reports")
+        end
+
+        it "should return http success" do
+          expect(response).to have_http_status(:success)
+        end
+
+        it "uses the default billing date" do
+          datatable = assigns(:datatable)
+
+          expect(:billing_date).to be_present
+          expect(datatable).to be_a(Effective::Datatables::BenefitSponsorsCoverageReportsDataTable)
+          expect(datatable.attributes[:billing_date].strftime("%m/%d/%Y")).to eq(TimeKeeper.date_of_record.next_month.beginning_of_month.strftime("%m/%d/%Y"))
+        end
       end
 
-      it "should render coverage_reports template" do
-        expect(response).to render_template("coverage_reports")
-      end
+      context "with billing_date parameter" do
+        let(:selected_date) { "2025-10-01" }
+        let(:parsed_date) { Date.parse(selected_date) }
 
-      it "should return http success" do
-        expect(response).to have_http_status(:success)
+        before do
+          benefit_sponsorship.save!
+          allow(controller).to receive(:authorize).and_return(true)
+          sign_in user
+          get :coverage_reports, params: { employer_profile_id: employer_profile.id, billing_date: selected_date }
+          allow(employer_profile).to receive(:active_benefit_sponsorship).and_return benefit_sponsorship
+          allow(DateParser).to receive(:smart_parse).with(selected_date).and_return(parsed_date)
+        end
+
+        it "parses and uses the provided billing date" do
+          get :coverage_reports, params: { employer_profile_id: employer_profile.id, billing_date: selected_date }
+
+          expect(response).to have_http_status(:success)
+          expect(DateParser).to have_received(:smart_parse).with(selected_date)
+          expect(assigns(:billing_date)).to eq(parsed_date)
+        end
+
+        it "passes billing_date to the datatable" do
+          get :coverage_reports, params: { employer_profile_id: employer_profile.id, billing_date: selected_date }
+
+          datatable = assigns(:datatable)
+          expect(datatable.attributes[:billing_date]).to eq(parsed_date)
+        end
       end
     end
 

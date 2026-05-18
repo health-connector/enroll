@@ -8,8 +8,8 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
   NOT_ACCEPTABLE_STATES = %w[undocumented_immigrant non_native_not_lawfully_present_in_us ssn_pass_citizenship_fails_with_SSA non_native_citizen].freeze
   STATES_TO_FIX = ["not_lawfully_present_in_us", "non_native_not_lawfully_present_in_us", "ssn_pass_citizenship_fails_with_SSA", nil].freeze
 
-  describe UpdateCitizenStatus, dbclean: :after_each do
-    subject { UpdateCitizenStatus.new("fix_citizen_for_hub_responses", double(:current_scope => nil)) }
+  describe UpdateCitizenStatusForHubResponses, dbclean: :after_each do
+    subject { UpdateCitizenStatusForHubResponses.new("fix_citizen_for_hub_responses", double(:current_scope => nil)) }
     let(:person) { FactoryBot.create(:person, :with_consumer_role) }
     let(:person1) { FactoryBot.create(:person, :with_consumer_role) }
     let(:person2) { FactoryBot.create(:person, :with_consumer_role) }

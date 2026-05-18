@@ -24,8 +24,8 @@
                 <td><%=hbx.try(:plan).try(:name)%></td>
                 <td><%=number_to_currency(hbx.total_premium)%></td>
                 <td><%=number_to_currency(hbx.applied_aptc_amount.to_f)%></td>
-                <td><%=hbx.effective_on%></td>
-                <td><%=hbx.terminated_on || "--"%></td>
+                <td><%= format_date(hbx.effective_on) %></td>
+                <td><%= format_date(hbx.terminated_on) || "--" %></td>
                 <td><%=hbx.aasm_state.titleize%></td>
 
               </tr>

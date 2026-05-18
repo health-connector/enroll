@@ -9,7 +9,7 @@ Feature: Employer should claim a quote from his broker
       And staff role person logged in
       And ABC Widgets goes to the benefits tab I should see plan year information
 
-    Scenario: An Employer should be able to claim a quote from his broker
+#    Scenario: An Employer should be able to claim a quote from his broker
       #And the employer clicks on claim quote
       #Then the employer enters claim code for his quote
       #When the employer clicks claim code

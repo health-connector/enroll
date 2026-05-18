@@ -6,7 +6,7 @@ RSpec.describe "_footer.html.slim", :type => :view, dbclean: :after_each  do
 
   describe "footer content" do
     before :each do
-      render "ui-components/v1/layouts/footer.html.slim"
+      render "ui-components/v1/layouts/footer"
     end
 
     it "should display email link" do

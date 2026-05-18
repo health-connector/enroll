@@ -4,6 +4,7 @@ module SponsoredBenefits
       include Mongoid::Document
       include Mongoid::Timestamps
       include AASM
+      include Concerns::Mongoid::RecursiveEmbeddedValidation
 
       RENEWAL_STATES = %w(renewing_draft renewing_published renewing_claimed renewing_expired)
       EXPIRABLE_STATES = %w(draft renewing_draft)
@@ -18,14 +19,14 @@ module SponsoredBenefits
       field :published_on, type: Date
       field :aasm_state, type: String
 
-      embeds_one :profile, class_name: "SponsoredBenefits::Organizations::AcaShopCcaEmployerProfile"
+      embeds_one :profile, class_name: "SponsoredBenefits::Organizations::AcaShopCcaEmployerProfile", validate: true, cascade_callbacks: true
       delegate :effective_date, to: :profile
       validates_uniqueness_of :claim_code, :case_sensitive => false, :allow_nil => true
 
       scope :datatable_search, ->(query) { self.where({"$or" => ([{"title" => ::Regexp.compile(::Regexp.escape(query), true)}])}) }
       ## TODO: how are we defining 'initial' vs 'renewing'?
       scope :initial, -> { not_in(aasm_state: RENEWAL_STATES) }
-      scope :renewing, ->{ any_in(aasm_state: RENEWAL_STATES) }
+      scope :renewing, -> { any_in(aasm_state: RENEWAL_STATES) }
       scope :draft, -> { any_in(aasm_state: %w(draft renewing_draft)) }
       scope :published, -> { any_in(aasm_state: %w(published renewing_published)) }
       scope :expired, -> { any_in(aasm_state: %w(expired renewing_expired)) }
@@ -115,9 +116,7 @@ module SponsoredBenefits
       end
 
       def set_employer_claim_code
-        self.claim_code = employer_claim_code
-        self.published_on = TimeKeeper.date_of_record
-        self.save!
+        update_attributes(claim_code: employer_claim_code, published_on: TimeKeeper.date_of_record)
       end
 
       aasm do

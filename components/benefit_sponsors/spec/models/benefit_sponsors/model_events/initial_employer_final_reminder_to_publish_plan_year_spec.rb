@@ -32,7 +32,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployerFinalRemainderToPub
 
         expect(observer).to receive(:notifications_send) do |instance, model_event|
           expect(model_event).to be_an_instance_of(BenefitSponsors::ModelEvents::ModelEvent)
-          expect(model_event).to have_attributes(:event_key => :initial_employer_final_reminder_to_publish_plan_year, :klass_instance => model_instance, :options => {})
+          expect(model_event).to have_attributes(:event_key => :initial_employer_final_reminder_to_publish_plan_year, :klass_instance => model_instance.class, :options => {})
         end
       end
       BenefitSponsors::BenefitApplications::BenefitApplication.date_change_event(date_mock_object)
@@ -43,7 +43,7 @@ RSpec.describe 'BenefitSponsors::ModelEvents::InitialEmployerFinalRemainderToPub
     context "2 days prior to publishing dead line" do
       subject { BenefitSponsors::Observers::BenefitApplicationObserver.new }
 
-      let(:model_event) { BenefitSponsors::ModelEvents::ModelEvent.new(:initial_employer_final_reminder_to_publish_plan_year, model_instance, {}) }
+      let(:model_event) { BenefitSponsors::ModelEvents::ModelEvent.new(:initial_employer_final_reminder_to_publish_plan_year, model_instance.class, {}) }
 
       it "should trigger notice event" do
         expect(subject.notifier).to receive(:notify) do |event_name, payload|

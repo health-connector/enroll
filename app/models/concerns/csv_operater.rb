@@ -1,5 +1,5 @@
 module CsvOperater 
-  extend ActiveSupport::Concern 
+  extend ActiveSupport::Concern
 
   module ClassMethods
     def convert_csv(arr)

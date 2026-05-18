@@ -39,9 +39,9 @@ module BenefitSponsors
       default_scope { where(:source_kind.ne => :conversion) }
 
       def product_package_exists
-        if product_package.blank? && source_kind == :benefit_sponsor_catalog
-          self.errors.add(:base => "Unable to find mappable product package")
-        end
+        return unless product_package.blank? && source_kind == :benefit_sponsor_catalog
+
+        errors.add(:base, "Unable to find mappable product package")
       end
 
       def product_kind
@@ -67,20 +67,22 @@ module BenefitSponsors
 
       def lookup_package_products(coverage_date)
         return [reference_product] if product_package_kind == :single_product
+
         BenefitMarkets::Products::Product.by_coverage_date(product_package.products_for_plan_option_choice(product_option_choice).by_service_areas(recorded_service_area_ids), coverage_date)
       end
 
       def product_package
-        return nil if self.product_package_kind.blank?
+        return nil if product_package_kind.blank?
+
         @product_package ||= benefit_sponsor_catalog.product_package_for(self)
       end
 
       # Changing the package kind should clear the package
       def product_package_kind=(pp_kind)
-        if pp_kind != self.product_package_kind
-          @product_package = nil
-          write_attribute(:product_package_kind, pp_kind)
-        end
+        return unless pp_kind != product_package_kind
+
+        @product_package = nil
+        write_attribute(:product_package_kind, pp_kind)
       end
 
       def issuers_offered

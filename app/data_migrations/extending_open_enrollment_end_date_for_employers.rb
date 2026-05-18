@@ -3,8 +3,8 @@ require File.join(Rails.root, "lib/mongoid_migration_task")
 
 class ExtendingOpenEnrollmentEndDateForEmployers < MongoidMigrationTask
   def migrate
-    plan_year_start_on = Date.strptime((ENV['py_start_on']).to_s, "%m/%d/%Y")
-    new_open_enrollment_end_on_date = Date.strptime((ENV['new_oe_end_date']).to_s, "%m/%d/%Y")
+    plan_year_start_on = ENV['py_start_on'].to_date
+    new_open_enrollment_end_on_date = ENV['new_oe_end_date'].to_date
     organizations = Organization.where(:"employer_profile.plan_years" => {:$elemMatch => {:start_on => plan_year_start_on, :aasm_state.in => PlanYear::RENEWING}})
     count = 0
     organizations.each do |org|

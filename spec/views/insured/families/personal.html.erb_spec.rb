@@ -5,15 +5,15 @@ require 'rails_helper'
 RSpec.describe "insured/families/personal.html.erb" do
   before :each do
     stub_template "ui-components/v1/navs/families_navigation" => ''
-    stub_template "insured/families/_profile_submenu.html.erb" => ''
-    stub_template 'devise/passwords/_edit.html.erb' => ''
-    stub_template 'users/security_question_responses/_edit_modal.html.erb' => ''
+    stub_template "insured/families/_profile_submenu" => ''
+    stub_template 'devise/passwords/_edit' => ''
+    stub_template 'users/security_question_responses/_edit_modal' => ''
     assign(:person, person)
     assign(:employee_role, employee_role)
     sign_in(current_user)
     allow(person).to receive(:employee_roles).and_return([employee_role])
     allow(view).to receive(:policy_helper).and_return(double("Policy", updateable?: true))
-    render template: "insured/families/personal.html.erb"
+    render template: "insured/families/personal"
   end
 
   shared_examples_for "display_heading" do

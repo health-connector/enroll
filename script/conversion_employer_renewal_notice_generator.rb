@@ -1,9 +1,7 @@
 require 'csv'
 
 def create_directory(path)
-  if Dir.exists?(path)
-    FileUtils.rm_rf(path)
-  end
+  FileUtils.rm_rf(path)
   Dir.mkdir path
 end
 
@@ -15,7 +13,5 @@ CSV.foreach("ConversionMailing7_28_16.csv", headers: :true) do |row|
   notice_builder = ShopEmployerNotices::ConversionEmployerRenewalNotice.new(data_row)
   notice_builder.deliver
   count += 1
-  if count > 10
-    break
-  end
+  break if count > 10
 end

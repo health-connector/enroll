@@ -2,7 +2,7 @@ class Insured::GroupSelectionController < ApplicationController
   include Insured::GroupSelectionHelper
   include L10nHelper
 
-  before_action :initialize_common_vars, only: [:new, :create, :terminate_selection]
+  before_action :initialize_common_vars, only: [:new, :create, :terminate_selection, :terminate_confirm]
   # before_action :set_vars_for_market, only: [:new]
   # before_action :is_under_open_enrollment, only: [:new]
 
@@ -141,7 +141,7 @@ class Insured::GroupSelectionController < ApplicationController
   end
 
   def terminate
-    term_date = Date.strptime(params.require(:term_date),"%m/%d/%Y")
+    term_date = Date.strptime(params.require(:term_date), "%Y-%m-%d")
     hbx_enrollment = HbxEnrollment.find(params.require(:hbx_enrollment_id))
     if hbx_enrollment.may_terminate_coverage? && term_date >= TimeKeeper.date_of_record
       hbx_enrollment.termination_submitted_on = TimeKeeper.datetime_of_record

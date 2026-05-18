@@ -1,5 +1,5 @@
 require File.join(Rails.root,"lib/mongoid_migration_task")
-class MoveEnrollmentBetweenTwoAccount < MongoidMigrationTask
+class MoveEnrollmentBetweenTwoAccounts < MongoidMigrationTask
   def migrate
     new_account_hbx_id = ENV['new_account_hbx_id']
     old_account_hbx_id = ENV['old_account_hbx_id']

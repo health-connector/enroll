@@ -6,7 +6,7 @@ class IvlNotices::DocumentsVerification < IvlNotice
     super(args)
     @consumer = consumer
     # @to = (@consumer.home_email || @consumer.work_email).address
-    @template = args[:template] || "notices/ivl/documents_verification_reminder1.html.erb"
+    @template = args[:template] || "notices/ivl/documents_verification_reminder1"
     build
   end
 

@@ -6,11 +6,13 @@ require 'dry-types'
 
 Dry::Types.load_extensions(:maybe)
 
-module Types
-  send(:include, Dry.Types())
-  include Dry::Logic
+module BenefitMarkets
+  module Types
+    send(:include, Dry.Types())
+    include Dry::Logic
 
-  # Emails              = Array.of(Types::Email)
-  PositiveInteger     = Coercible::Integer.constrained(gteq: 0)
-  Bson                = Types.Constructor(BSON::ObjectId) { |val| BSON::ObjectId val } unless Types.const_defined?('Bson')
+    # Emails              = Array.of(Types::Email)
+    PositiveInteger     = Coercible::Integer.constrained(gteq: 0)
+    Bson                = Types.Constructor(BSON::ObjectId) { |val| BSON::ObjectId val } unless Types.const_defined?('Bson')
+  end
 end

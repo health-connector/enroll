@@ -4,7 +4,7 @@ require "rails_helper"
 
 require File.join(Rails.root, "app", "data_migrations", "products", "mark_premium_value_products_in_rating_areas")
 
-describe MarkPremiumValueProductsInRatingAreas, dbclean: :after_each do
+describe Products::MarkPremiumValueProductsInRatingAreas, dbclean: :after_each do
   before :all do
     DatabaseCleaner.clean
   end
@@ -23,7 +23,7 @@ describe MarkPremiumValueProductsInRatingAreas, dbclean: :after_each do
     r
   end
 
-  subject { MarkPremiumValueProductsInRatingAreas.new(given_task_name, double(:current_scope => nil)) }
+  subject { Products::MarkPremiumValueProductsInRatingAreas.new(given_task_name, double(:current_scope => nil)) }
 
   let(:file_name) { File.expand_path("#{Rails.root}/spec/test_data/pvp_plans.csv") }
 

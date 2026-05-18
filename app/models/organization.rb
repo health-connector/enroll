@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+
+require_dependency 'plan_year'
 class Organization
   include Mongoid::Document
   include SetCurrentUser
@@ -8,6 +11,7 @@ class Organization
   extend Acapi::Notifiers
 
   extend Mongorder
+
 
   ENTITY_KINDS = [
     "tax_exempt_organization",
@@ -46,13 +50,12 @@ class Organization
   field :updated_by, type: BSON::ObjectId
 
   embeds_many :office_locations, cascade_callbacks: true, validate: true
-  embeds_one :general_agency_profile, cascade_callbacks: true, validate: true
   embeds_one :employer_profile, cascade_callbacks: true, validate: true
   embeds_one :broker_agency_profile, cascade_callbacks: true, validate: true
   embeds_one :carrier_profile, cascade_callbacks: true, validate: true
   embeds_one :hbx_profile, cascade_callbacks: true, validate: true
   embeds_many :documents, as: :documentable
-  accepts_nested_attributes_for :office_locations, :employer_profile, :broker_agency_profile, :carrier_profile, :hbx_profile, :general_agency_profile
+  accepts_nested_attributes_for :office_locations, :employer_profile, :broker_agency_profile, :carrier_profile, :hbx_profile
 
   validates_presence_of :legal_name, :fein, :office_locations #, :updated_by
 
@@ -104,7 +107,6 @@ class Organization
         { name: "active_broker_accounts_writing_agent" })
 
 
-  index({"employer_profile.general_agency_accounts._id" => 1})
   index({"employer_profile.broker_agency_accounts.is_active" => 1,
          "employer_profile.broker_agency_accounts.broker_agency_profile_id" => 1,
          "fein" => 1, "legal_name" => 1, "dba" => 1},
@@ -121,10 +123,8 @@ class Organization
   scope :broker_agencies_by_market_kind,      ->(market_kind) { any_in("broker_agency_profile.market_kind" => market_kind) }
   scope :all_employers_by_plan_year_start_on, ->(start_on){ unscoped.where(:"employer_profile.plan_years.start_on" => start_on)  if start_on.present? }
   scope :plan_year_start_on_or_after,         ->(start_on){ where(:"employer_profile.plan_years.start_on".gte => start_on) if start_on.present? }
-  scope :by_general_agency_profile,           ->(general_agency_profile_id) { where(:'employer_profile.general_agency_accounts' => {:$elemMatch => { aasm_state: "active", general_agency_profile_id: general_agency_profile_id } }) }
   scope :er_invoice_data_table_order,         ->{ reorder(:"employer_profile.plan_years.start_on".asc, :legal_name.asc)}
   scope :has_broker_agency_profile,           ->{ exists(broker_agency_profile: true) }
-  scope :has_general_agency_profile,          ->{ exists(general_agency_profile: true) }
   scope :all_employers_renewing,              ->{ unscoped.any_in(:"employer_profile.plan_years.aasm_state" => PlanYear::RENEWING) }
   scope :all_employers_renewing_published,    ->{ unscoped.any_in(:"employer_profile.plan_years.aasm_state" => PlanYear::RENEWING_PUBLISHED_STATE) }
   scope :all_employers_non_renewing,          ->{ unscoped.any_in(:"employer_profile.plan_years.aasm_state" => PlanYear::PUBLISHED) }
@@ -222,11 +222,6 @@ class Organization
     office_locations.map(&:address).detect{|add| add.kind == "mailing"}
   end
 
-  def self.search_by_general_agency(search_content)
-    sanitized_search_content = Regexp.escape(search_content)
-    Organization.has_general_agency_profile.or({legal_name: /#{sanitized_search_content}/i}, {"fein" => /#{sanitized_search_content}/i})
-  end
-
   def self.default_search_order
     [[:legal_name, 1]]
   end
@@ -290,7 +285,7 @@ class Organization
     return get_dental_carriers(office_location, quote_effective_date) if filters[:kind] == "dental"
     return valid_health_carrier_names unless constrain_service_areas?
 
-    cache_string = "load-carriers"
+    cache_string = +"load-carriers"
     cache_string << "-for-#{filters[:selected_carrier_level]}" if filters[:selected_carrier_level].present?
     cache_string << "-#{office_location.address.zip}-#{office_location.address.county}" if office_location.present?
     cache_string << "-carrier-names-at-#{filters[:quote_effective_date]}" if filters[:quote_effective_date].present?
@@ -313,9 +308,9 @@ class Organization
 
 
     cache_string = if filters[:selected_carrier_level].present?
-                     "for-#{filters[:selected_carrier_level]}"
+                     String.new("for-#{filters[:selected_carrier_level]}")
                    else
-                     ""
+                     String.new("")
                    end
 
     if filters[:primary_office_location].present?
@@ -324,9 +319,9 @@ class Organization
     end
 
     cache_string << if filters[:active_year].present?
-                      "-carrier-names-at-#{filters[:active_year]}"
+                      String.new("-carrier-names-at-#{filters[:active_year]}")
                     else
-                      "-carrier-names-at-#{TimeKeeper.date_of_record.year}"
+                      String.new("-carrier-names-at-#{TimeKeeper.date_of_record.year}")
                     end
 
     Rails.cache.fetch(cache_string, expires_in: 2.hour) do
@@ -546,12 +541,12 @@ class Organization
   end
 
   def check_legal_name_or_fein_changed?
-    fein_changed? || legal_name_changed?
+    fein_previously_changed? || legal_name_previously_changed?
   end
 
   def legal_name_or_fein_change_attributes
-    @changed_fields = changed_attributes.keys
-    notify_legal_name_or_fein_change if changed_attributes.keys.include?("fein")
+    @changed_fields = previous_changes.keys
+    notify_legal_name_or_fein_change if previous_changes.keys.include?("fein")
   end
 
   def notify_legal_name_or_fein_change

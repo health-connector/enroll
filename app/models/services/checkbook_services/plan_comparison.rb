@@ -2,7 +2,7 @@ require 'nokogiri'
 
 module Services
   module CheckbookServices
-    class PlanComparision
+    class PlanComparison
 
       attr_accessor :hbx_enrollment,:is_congress
 

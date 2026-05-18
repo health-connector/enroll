@@ -11,11 +11,11 @@ module ValueParsers
         end
       end
       method_names.each do |method_name|
-      new_mod.class_eval(<<-RUBYCODE)
-        def #{method_name}=(val)
-          @#{method_name} = __parse_ssn_value(val)
+        new_mod.module_eval do
+          define_method("#{method_name}=") do |val|
+            instance_variable_set("@#{method_name}", __parse_ssn_value(val))
+          end
         end
-      RUBYCODE
       end
       new_mod
     end

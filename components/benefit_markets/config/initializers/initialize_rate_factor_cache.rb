@@ -1,3 +1,5 @@
 unless Rails.env.test?
-  ::BenefitMarkets::Products::ProductFactorCache.initialize_factor_cache!
+  Rails.application.config.after_initialize do
+    BenefitMarkets::Products::ProductFactorCache.initialize_factor_cache!
+  end
 end

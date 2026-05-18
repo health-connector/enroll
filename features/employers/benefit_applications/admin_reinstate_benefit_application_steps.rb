@@ -42,14 +42,16 @@ end
 
 Then(/^Admin will see Reinstate Start Date for (.*) benefit application$/) do |aasm_state|
   ben_app = ::BenefitSponsors::Organizations::Organization.find_by(legal_name: /ABC Widgets/).active_benefit_sponsorship.benefit_applications.first
+  wait_for_ajax
+  screenshot("Admin will see Reinstate Start Date")
   expect(page.all('tr').detect { |tr| tr[:id] == ben_app.id.to_s }.present?).to eq true
   if ['terminated','termination_pending'].include?(aasm_state)
     element = find('input.uidatepicker.form-control.date.py-end-date')
     reinstate_start_date = element['reinstate_start_date']
     expect(reinstate_start_date.present?).to eq true
-    expect(reinstate_start_date).to eq ben_app.end_on.to_date.next_day.to_s
+    expect(reinstate_start_date).to eq ben_app.end_on.to_date.next_day.strftime("%m/%d/%Y")
   else
-    expect(page).to have_content(ben_app.start_on.to_date.to_s)
+    expect(page).to have_content(ben_app.start_on.to_date.strftime("%m/%d/%Y"))
   end
 end
 

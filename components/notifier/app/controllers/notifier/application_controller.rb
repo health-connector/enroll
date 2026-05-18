@@ -1,6 +1,6 @@
 module Notifier
   class ApplicationController < ActionController::Base
-    include Pundit
+    include Pundit::Authorization
     include ::L10nHelper
     include ::FileUploadHelper
     layout "notifier/single_column"

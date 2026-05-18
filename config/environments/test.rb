@@ -4,10 +4,14 @@
 # test suite. You never need to work with it otherwise. Remember that
 # your test database is "scratch space" for the test suite and is wiped
 # and recreated between test runs. Don't rely on the data there!
+require "active_support/core_ext/integer/time"
+
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
   config.cache_classes = true
+
+  config.enable_reloading = false
   config.cache_store = :memory_store
 
   # Do not eager load code on boot. This avoids loading your whole application
@@ -19,8 +23,7 @@ Rails.application.configure do
   config.serve_static_files   = true
   config.static_cache_control = 'public, max-age=3600'
 
-    # Configure public file server for tests with Cache-Control for performance.
-  config.public_file_server.enabled = true
+  # Configure public file server for tests with Cache-Control for performance.
   config.public_file_server.headers = {
     'Cache-Control' => "public, max-age=#{1.hour.to_i}"
   }
@@ -34,6 +37,8 @@ Rails.application.configure do
 
   # Disable request forgery protection in test environment.
   config.action_controller.allow_forgery_protection = true
+
+  config.action_controller.raise_on_missing_callback_actions = true
 
   # Tell Action Mailer not to deliver emails to the real world.
   # The :test delivery method accumulates sent emails in the

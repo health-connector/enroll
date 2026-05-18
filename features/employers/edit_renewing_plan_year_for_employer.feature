@@ -1,6 +1,7 @@
 Feature: As a renewing employer I should not be able to set contribution percentage less than 50 percent for employees
 
   Background: Setup site, employer, and benefit application
+    Given employer_broker_ui_enhancements feature is disabled
     Given a CCA site exists with a benefit market
     Given benefit market catalog exists for open_enrollment renewal employer with health benefits
     And there is an employer ABC Widgets

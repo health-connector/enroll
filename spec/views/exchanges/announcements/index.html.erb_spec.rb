@@ -6,11 +6,11 @@ describe "exchanges/announcements/index.html.erb" do
   let(:person) { FactoryBot.create(:person)}
   let(:user) { FactoryBot.create(:user, :person => person)}
   before :each do
-    stub_template "exchanges/hbx_profiles/shared/_primary_nav.html.erb" => 'nav_bar'
+    stub_template "exchanges/hbx_profiles/shared/_primary_nav" => 'nav_bar'
     sign_in user
     assign(:announcements, Announcement.current)
     allow(view).to receive(:policy_helper).and_return(double("FamilyPolicy", modify_admin_tabs?: true))
-    render template: "exchanges/announcements/index.html.erb"
+    render template: "exchanges/announcements/index"
   end
 
   it "should display announcements area" do

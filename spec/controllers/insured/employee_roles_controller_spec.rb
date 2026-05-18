@@ -35,18 +35,24 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
 
     describe "given valid person parameters" do
       let(:save_result) { true }
-      it "should redirect to dependent_details" do
+
+      it "should securely store employee_role_id in session and redirect to insured_family_members_path" do
         put :update, params: { person: person_parameters, id: person_id }
+
+        # Verify the employee_role_id is stored in session
+        expect(session[:employee_role_id]).to eq(employee_role_id)
+
+        # Verify the redirect path
         expect(response).to have_http_status(:redirect)
-        expect(response).to redirect_to(insured_family_members_path(:employee_role_id => employee_role_id))
+        expect(response).to redirect_to(insured_family_members_path)
       end
 
-      context "to verify new addreses not created on updating the existing address" do
+      context "to verify new addresses are not created when updating existing address" do
         before :each do
-          put :update, params: { :person => person_parameters, :id => person_id }
+          put :update, params: { person: person_parameters, id: person_id }
         end
 
-        it "should not empty the person's addresses on update" do
+        it "should not remove the person's existing addresses" do
           expect(person.addresses).not_to eq []
         end
 
@@ -58,6 +64,7 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
 
     describe "given invalid person parameters" do
       let(:save_result) { false }
+
       it "should render edit" do
         put :update, params: { :person => person_parameters, :id => person_id }
         expect(response).to have_http_status(:success)
@@ -70,6 +77,18 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
         put :update, params: { :person => person_parameters, :id => person_id }
         expect(response).to have_http_status(:success)
         expect(response).to render_template(:edit)
+      end
+    end
+
+    describe "handling save_and_exit parameter" do
+      let(:save_result) { true }
+
+      it "should log out the user if save_and_exit is true" do
+        put :update, params: { person: person_parameters, id: person_id, exit_after_method: 'true' }
+
+        # Verify redirect to destroy_user_session_path
+        expect(response).to have_http_status(:redirect)
+        expect(response).to redirect_to(destroy_user_session_path)
       end
     end
   end
@@ -126,8 +145,6 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
     let(:address) { double("Address") }
     let(:addresses) { [address] }
     let(:employee_role) { double("EmployeeRole", id: double("id"), employer_profile_id: "3928392", :person => person) }
-    let(:general_agency_staff_role) { double("GeneralAgencyStaffRole", id: double("id"), employer_profile_id: "3928392", :person => person) }
-    let(:general_agency_profile) { double "GeneralAgencyProfile", id: double("id")}
     let(:employer_profile) { double "EmployerProfile", id: double("id")}
     let(:family) { double("Family") }
     let(:email){ double("Email", address: "test@example.com", kind: "home") }
@@ -148,10 +165,6 @@ RSpec.describe Insured::EmployeeRolesController, :dbclean => :after_each do
       allow(email).to receive(:address=).and_return("test@example.com")
       allow(controller).to receive(:build_nested_models).and_return(true)
       allow(user).to receive(:has_hbx_staff_role?).and_return(false)
-      allow(person).to receive(:general_agency_staff_roles).and_return([general_agency_staff_role])
-      allow(general_agency_staff_role).to receive(:general_agency_profile).and_return(general_agency_staff_role)
-      allow(general_agency_staff_role).to receive(:employer_clients).and_return([employer_profile])
-      allow(general_agency_profile).to receive(:employer_clients).and_return([employer_profile])
       allow(employer_profile).to receive(:_id).and_return(employer_profile.id)
       allow(user).to receive(:has_csr_subrole?).and_return(false)
       allow(person).to receive(:employee_roles).and_return([employee_role])

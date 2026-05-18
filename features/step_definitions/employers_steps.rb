@@ -64,7 +64,7 @@ Then(/^(.*?) should be able to set up benefit aplication$/) do |_legal_name|
 end
 
 Then(/^(.*?) Employer visit the benefits page$/) do |legal_name|
-  organization = ::BenefitSponsors::Organizations::Organization.where(legal_name: legal_name).first
+  organization = BenefitSponsors::Organizations::Organization.where(legal_name: legal_name).first
   employer_profile = organization.employer_profile
   visit benefit_sponsors.profiles_employers_employer_profile_path(employer_profile.id, :tab => 'benefits')
 end
@@ -72,6 +72,7 @@ end
 Then(/^.+ uploads an attestation document/) do
   if Settings.aca.enforce_employer_attestation.to_s == "true"
     find('#uic-employers-right-menu > li:nth-child(5) > a').click
+    screenshot("employer_portal_document_upload")
     wait_for_ajax
     find('.upload-document-location').click
     wait_for_ajax
@@ -282,7 +283,7 @@ When(/^.+ clicks on terminate button for rehired census employee$/) do
   @browser.a(text: /Terminate/).wait_until_present
   @browser.execute_script("$('.interaction-click-control-terminate').last().click")
   terminated_date = (TimeKeeper.date_of_record + 60.days).strftime("%m/%d/%Y")
-  @browser.execute_script("$('.date-picker').val(\'#{terminated_date}\')")
+  @browser.execute_script("$('.date-picker').val('#{terminated_date}')")
   #click submit
   @browser.h3(text: /Employee Roster/).click
   @browser.a(text: /Submit/).wait_until_present
@@ -312,7 +313,7 @@ When(/^.+ clicks? on Rehire button for a census family on terminated tab$/) do
   @browser.a(text: /Rehire/).click
   hired_date = (TimeKeeper.date_of_record + 30.days).strftime("%m/%d/%Y")
   #@browser.text_field(class: /hasDatepicker/).set(hired_date)
-  @browser.execute_script("$('.date-picker').val(\'#{hired_date}\')")
+  @browser.execute_script("$('.date-picker').val('#{hired_date}')")
   #click submit
   @browser.h3(text: /Employee Roster/).click
   @browser.a(text: /Submit/).wait_until_present
@@ -495,7 +496,9 @@ Then(/^.+ should see the plan year$/) do
 end
 
 When(/^.+ clicks? on publish plan year$/) do
-  find('.interaction-click-control-publish-plan-year', wait: 2).click
+  button = find('.interaction-click-control-publish-plan-year', wait: 2)
+  page.execute_script("arguments[0].scrollIntoView(true);", button)
+  page.execute_script("arguments[0].click();", button)
   sleep 2
 end
 
@@ -619,7 +622,9 @@ And(/^employer clicked on add plan year button$/) do
 end
 
 And(/^employer clicked on edit plan year button$/) do
-  find('.interaction-click-control-edit-plan-year').click
+  button = find('.interaction-click-control-edit-plan-year')
+  page.execute_script("arguments[0].scrollIntoView(true);", button)
+  page.execute_script("arguments[0].click();", button)
 end
 
 And(/^.+ should see a success message after clicking on save plan year button$/) do
@@ -680,6 +685,22 @@ And(/^employer clicked on gold metal level$/) do
   find("#benefit_package_sponsored_benefits_attributes_0_product_option_choice_gold", :visible => false).click
 end
 
+And(/employer clicks on HSA true filter/) do
+  find("[data-cuke='hsa-true']").click
+end
+
+And(/employer should see filtered product selection/) do
+  expect(find_all('.reference-plans').count).to eq 1
+end
+
+And(/employer clicks the Add Dental Benefits button/) do
+  find('#dentalBenefits').click
+end
+
+And(/employer selects the first carrier option for dental benefits/) do
+  find_all("[data-cuke='dental-carrier-select']", visible: false).first.click
+end
+
 And(/^employer (.*) (.*) contribution percent for the application$/) do |create_or_edit_ba, contribution_percent|
   fill_in "benefit_package[sponsored_benefits_attributes][0][sponsor_contribution_attributes][contribution_levels_attributes][1][contribution_factor]", with: contribution_percent.to_i
   fill_in "benefit_package[sponsored_benefits_attributes][0][sponsor_contribution_attributes][contribution_levels_attributes][2][contribution_factor]", with: contribution_percent.to_i
@@ -695,6 +716,11 @@ end
 
 Then(/^employer should see create plan year button disabled$/) do
   expect(find("#submitBenefitPackage").disabled? || find("#submitBenefitPackage")[:class].include?('disabled')).to eql true
+end
+
+Then(/^employer should see view employee cost details button disabled$/) do
+  sleep(3)
+  expect(find("#estimatedEmployeeCostDetailsLink").disabled? || find("#estimatedEmployeeCostDetailsLink")[:class].include?('disabled')).to eql true
 end
 
 Then(/^employer should see employer estimated montly cost$/) do
@@ -722,7 +748,7 @@ And(/^clicks on terminate employee$/) do
   wait_for_ajax(2,2)
 
   terminate_date = (TimeKeeper.date_of_record - 10.days).strftime("%m/%d/%Y")
-  page.execute_script("$('.date-picker').val(\'#{terminate_date}\')")
+  page.execute_script("$('.date-picker').val('#{terminate_date}')")
   expect(page).to have_content 'Employee Roster'
   first("a.delete_confirm").click
   wait_for_ajax(3,2)
@@ -813,9 +839,8 @@ And(/^employer populates the address field$/) do
   fill_in 'census_employee[address_attributes][address_1]', :with => "1026 Potomac"
   fill_in 'census_employee[address_attributes][address_2]', :with => "Apt ABC"
   fill_in 'census_employee[address_attributes][city]', :with => "Alpharetta"
-  find(:xpath, "//p[@class='label'][contains(., 'SELECT STATE')]").click
-  find(:xpath, "//li[contains(., 'GA')]").click
-
+  find('#address_info .address-row.active .selectric > p').click
+  find('.selectric-items li', text: 'GA').click
   fill_in 'census_employee[address_attributes][zip]', :with => "30228"
 end
 
@@ -829,7 +854,7 @@ And(/^employer clicks on non-linked employee with address$/) do
 end
 
 And(/^employer clicks on non-linked employee without address$/) do
-  @census_employees.first.address.delete
+  @census_employees.first.address&.delete
   @census_employees.first.update_attributes(aasm_state: "eligible")
   click_link @census_employees.first.full_name
 end
@@ -886,7 +911,7 @@ end
 
 And(/^employer clicks on (.*) button with date as (.*)$/) do |_status, date|
   date = date == 'pastdate' ? TimeKeeper.date_of_record - 1.day : TimeKeeper.date_of_record - 3.months
-  find('input.text-center.date-picker').set date
+  find('input.text-center.date-picker').set date.strftime('%m/%d/%Y')
   find('#home').click
   find("a", :text => "Terminate Employee").click
 end
@@ -1016,7 +1041,7 @@ end
 
 And(/^employer clicks on submit button by entering todays date$/) do
   date = TimeKeeper.date_of_record
-  find('input.text-center.date-picker').set date
+  find('input.text-center.date-picker').set date.strftime('%m/%d/%Y')
   terminated_id = @census_employees.first.id.to_s
   find(:xpath, "//*[@id='rehire_#{terminated_id}']/strong").click
 end
@@ -1054,8 +1079,12 @@ end
 Then(/^employer should see Enter effective date for (.*?) Action/) do |action_name|
   case action_name
   when "Initiate cobra"
-    page_text = "After selecting 'Initiate COBRA', the employee will be eligible to be enrolled in COBRA one day after the termination end date."
-    id = 'cobra-enter-date'
+    if EnrollRegistry.feature_enabled?(:employer_broker_ui_enhancements)
+      page_text = "After selecting ’Initiate COBRA’, the employee will resume their terminated coverage effective one day post termination effective end.  The employee will be eligible to shop, maintain or change plans as long as they are active in COBRA in regular renewal enrollment periods or special enrollment periods." # rubocop:disable Layout/LineLength
+    else
+      page_text = "After selecting 'Initiate COBRA', the employee will be eligible to be enrolled in COBRA one day after the termination end date." # rubocop:disable Layout/LineLength
+    end
+      id = 'cobra-enter-date'
   end
 
   find_by_id(id).visible?
@@ -1076,8 +1105,8 @@ end
 
 
 And(/^employer should see default cobra start date$/) do
-  terminated_on = @census_employees.first.employment_terminated_on.next_month.beginning_of_month.to_s
-  expect(find('input.text-center.date-picker').value).to eq terminated_on
+  terminated_on = @census_employees.first.employment_terminated_on.next_month.beginning_of_month
+  expect(find('input.text-center.date-picker').value).to eq terminated_on.strftime("%m/%d/%Y")
 end
 
 And(/^employer sets cobra start date to two months after termination date$/) do
@@ -1092,4 +1121,16 @@ end
 
 And(/^employer should see census employee status as (.*?)$/) do |status|
   expect(page).to have_content status
+end
+
+And(/^employer clicked on view employee cost details button$/) do
+  find(AddPlanYearPage.employee_cost_details_button).click
+end
+
+And(/^employer_broker_ui_enhancements feature is (.*?)$/) do |status|
+  if status == "enabled"
+    enable_feature :employer_broker_ui_enhancements
+  else
+    disable_feature :employer_broker_ui_enhancements
+  end
 end

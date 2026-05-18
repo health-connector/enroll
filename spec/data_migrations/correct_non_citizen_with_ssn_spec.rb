@@ -26,7 +26,7 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
     end
   end
 
-  describe CorrectNonCitizenStatus, dbclean: :after_each do
+  describe CorrectNonCitizenWithSsn, dbclean: :after_each do
     let(:threshold_date) { Time.mktime(2016,7,5,8,0,0) }
     let(:body_ssn_true_citizenship_true) do
       "<ssa_verification_result xmlns=\"http://openhbx.org/api/terms/1.0\"
@@ -135,7 +135,7 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
 
 
     describe "given a NON citizen with ssn, ssa_response after July 5", :dbclean => :after_each do
-      subject { CorrectNonCitizenStatus.new("fix me task", double(:current_scope => nil)) }
+      subject { CorrectNonCitizenWithSsn.new("fix me task", double(:current_scope => nil)) }
 
       context "ssn response true" do
         describe "citizenship true" do

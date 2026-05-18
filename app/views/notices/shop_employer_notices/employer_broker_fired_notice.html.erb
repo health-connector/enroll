@@ -20,10 +20,10 @@
 </table>
 
 <%= render partial: 'notices/shared/paragraph', :locals =>
-    { content: "This notice is to confirm that you successfully removed <strong>#{notice.broker.first_name} #{notice.broker.last_name}</strong> from <strong> #{notice.broker.organization} </strong> as the broker for <strong> #{notice.employer_name}</strong> as of <strong>#{notice.broker.terminated_on}.</strong>",  top_margin: '10px'} %>
+  { content: "This notice is to confirm that you successfully removed <strong>#{notice.broker.first_name} #{notice.broker.last_name}</strong> from <strong> #{notice.broker.organization} </strong> as the broker for <strong> #{notice.employer_name}</strong> as of <strong>#{format_date(notice.broker.terminated_on)}.</strong>",  top_margin: '10px'} %>
 
 <%= render partial: 'notices/shared/paragraph', :locals =>
-    { content: "This  broker no will longer have access to your #{Settings.site.short_name} account, effective  #{notice.broker.terminated_on}.", top_margin: '10px'} %>
+  { content: "This  broker no will longer have access to your #{Settings.site.short_name} account, effective  #{format_date(notice.broker.terminated_on)}.", top_margin: '10px'} %>
 
 <%= render partial: 'notices/shared/paragraph', :locals =>
     { content: "If you would like to select a new broker, you may do so at anytime by logging in to your #{Settings.site.short_name} employer account, clicking “Broker” and selecting a new broker.", top_margin: '10px'} %>

@@ -26,8 +26,8 @@ class BenefitGroupAssignment
   embeds_many :workflow_state_transitions, as: :transitional
 
   validates_presence_of :start_on
-  validates_presence_of :benefit_group_id, :if => Proc.new {|obj| obj.benefit_package_id.blank? }
-  validates_presence_of :benefit_package_id, :if => Proc.new {|obj| obj.benefit_group_id.blank? }
+  validates_presence_of :benefit_group_id, if: -> { benefit_package_id.blank? }
+  validates_presence_of :benefit_package_id, if: -> { benefit_group_id.blank? }
   validate :date_guards, :model_integrity
 
   scope :renewing,       -> { any_in(aasm_state: RENEWING) }
@@ -277,7 +277,7 @@ class BenefitGroupAssignment
     end
   end
 
-  def covered_families_with_benefit_assignemnt
+  def covered_families_with_benefit_assignment
     Family.where(
       {
         "households.hbx_enrollments" => {
@@ -420,7 +420,10 @@ class BenefitGroupAssignment
     return false if start_on.blank? || canceled?
 
     end_date = end_on || start_on.next_year.prev_day
-    (start_on..end_date).cover?(date)
+    # if the benefit application is enrolling, then the start_on date should be the start_on date of the benefit application
+    start_date = benefit_application&.is_enrolling? ? benefit_application.start_on : start_on
+
+    (start_date..end_date).cover?(date)
   end
 
   def make_active

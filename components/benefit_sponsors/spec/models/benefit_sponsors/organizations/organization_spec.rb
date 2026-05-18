@@ -129,14 +129,18 @@ module BenefitSponsors
       end
 
       it "should update legal name on plan design organization" do
-        organization.update_attributes(legal_name: 'ABC Company Changed')
+        organization.update(legal_name: 'ABC Company Changed')
+        organization.update_plan_design_organization
         plan_design_organization.reload
+
         expect(plan_design_organization.legal_name).to eq('ABC Company Changed')
       end
 
       it "should update fein on plan design organization" do
-        organization.update_attributes(fein: '123456789')
+        organization.update(fein: '123456789')
+        organization.update_plan_design_organization
         plan_design_organization.reload
+
         expect(plan_design_organization.fein).to eq('123456789')
       end
     end

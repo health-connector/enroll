@@ -19,7 +19,7 @@ RSpec.describe "insured/_plan_filters.html.erb" do
       allow(benefit_group).to receive(:plan_option_kind).and_return("single_carrier")
       allow(view).to receive(:offers_nationwide_plans?).and_return(offers_nationwide_plans)
       allow(hbx_enrollment).to receive(:is_shop?).and_return(false)
-      render :template => "insured/plan_shoppings/_plan_filters.html.erb"
+      render :template => "insured/plan_shoppings/_plan_filters"
     end
 
     it 'should display find your doctor link' do
@@ -132,7 +132,7 @@ RSpec.describe "insured/_plan_filters.html.erb" do
 
     it "should display metal level filters if plan_option_kind is single_carrier" do
       allow(benefit_group).to receive(:plan_option_kind).and_return("single_carrier")
-      render :template => "insured/plan_shoppings/_plan_filters.html.erb"
+      render :template => "insured/plan_shoppings/_plan_filters"
       metal_levels.each do |metal_level|
         expect(rendered).to have_selector("input[id='plan-metal-level-#{metal_level}']")
       end
@@ -141,7 +141,7 @@ RSpec.describe "insured/_plan_filters.html.erb" do
 
     it "should not display metal level filters if plan_option_kind is single_plan" do
       allow(benefit_group).to receive(:plan_option_kind).and_return("single_plan")
-      render :template => "insured/plan_shoppings/_plan_filters.html.erb"
+      render :template => "insured/plan_shoppings/_plan_filters"
       metal_levels.each do |metal_level|
         expect(rendered).not_to have_selector("input[id='plan-metal-level-#{metal_level}']")
       end
@@ -150,7 +150,7 @@ RSpec.describe "insured/_plan_filters.html.erb" do
 
     it "should not display metal level filters if plan_option_kind is metal_level" do
       allow(benefit_group).to receive(:plan_option_kind).and_return("metal_level")
-      render :template => "insured/plan_shoppings/_plan_filters.html.erb"
+      render :template => "insured/plan_shoppings/_plan_filters"
       metal_levels.each do |metal_level|
         expect(rendered).not_to have_selector("input[id='plan-metal-level-#{metal_level}']")
       end
@@ -176,7 +176,7 @@ RSpec.describe "insured/_plan_filters.html.erb" do
       assign(:selected_aptc_pct, 0.85)
       assign(:elected_aptc, 280.50)
       allow(benefit_group).to receive(:plan_option_kind).and_return("single_carrier")
-      render :template => "insured/plan_shoppings/_plan_filters.html.erb"
+      render :template => "insured/plan_shoppings/_plan_filters"
     end
 
     it "should have aptc area" do
@@ -219,7 +219,7 @@ RSpec.describe "insured/_plan_filters.html.erb" do
       assign(:selected_aptc_pct, 0.85)
       assign(:elected_aptc, 280.50)
       allow(benefit_group).to receive(:plan_option_kind).and_return("single_carrier")
-      render :template => "insured/plan_shoppings/_plan_filters.html.erb"
+      render :template => "insured/plan_shoppings/_plan_filters"
     end
 
     it "should not have aptc area in shop market" do
@@ -243,7 +243,7 @@ RSpec.describe "insured/_plan_filters.html.erb" do
       assign(:benefit_group, benefit_group)
       assign(:tax_household, nil)
       allow(benefit_group).to receive(:plan_option_kind).and_return("single_carrier")
-      render :template => "insured/plan_shoppings/_plan_filters.html.erb"
+      render :template => "insured/plan_shoppings/_plan_filters"
     end
 
     it "should not have aptc area" do

@@ -32,7 +32,7 @@ class SamlInformation
   # TODO: I have a feeling we may be using this pattern
   #       A LOT.  Look into extracting it if we repeat.
   def initialize
-    @config = YAML.safe_load(ERB.new(File.read(File.join(Rails.root,'config', 'saml.yml'))).result(binding))
+    @config = YAML.unsafe_load(ERB.new(File.read(File.join(Rails.root,'config', 'saml.yml'))).result(binding))
     ensure_configuration_values(@config)
   end
 
@@ -48,11 +48,9 @@ class SamlInformation
     define_method(key.to_sym) do
       config[key.to_s]
     end
-    self.instance_eval(<<-RUBYCODE)
-      def self.#{key.to_s}
-        self.instance.#{key.to_s}
-      end
-    RUBYCODE
+    define_singleton_method(key.to_sym) do
+      instance.send(key.to_sym)
+    end
   end
 
   REQUIRED_KEYS.each do |k|

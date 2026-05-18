@@ -6,7 +6,7 @@ RSpec.describe "_create_benefit_application.html.erb", :type => :view, dbclean: 
 
   context "it should successfully create draft application" do
     before do
-      render template: 'exchanges/hbx_profiles/_create_benefit_application.html.erb'
+      render template: 'exchanges/hbx_profiles/_create_benefit_application'
     end
 
     it { expect(rendered).to have_text(/Successfully created a draft plan year/) }

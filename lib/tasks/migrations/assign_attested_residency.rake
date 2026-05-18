@@ -5,5 +5,5 @@ require File.join(Rails.root, "app", "data_migrations", "assign_attested_residen
 
 namespace :migrations do
   desc "assign_attested_residency_state"
-  AssignAttestedResidency.define_task :assign_attested_residency_state => :environment
+  AssignAttestedResidencyState.define_task :assign_attested_residency_state => :environment
 end

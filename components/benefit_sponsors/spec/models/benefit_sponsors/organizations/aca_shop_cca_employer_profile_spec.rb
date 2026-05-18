@@ -94,6 +94,23 @@ module BenefitSponsors
           end
         end
       end
+
+      context "with attestation" do
+        # let!(:employer_attestation) { FactoryBot.create(:employer_attestation, employer_profile: subject) }
+        let!(:employer_attestation) { FactoryBot.build(:employer_attestation, aasm_state: 'unsubmitted') }
+        let!(:status) { employer_attestation.aasm_state.titleize }
+
+
+        before do
+          subject.employer_attestation = employer_attestation
+          subject.save
+        end
+
+        it "should not be valid" do
+          expect(subject.attestation_status).to eq status
+        end
+      end
+
     end
 
     context "A BenefitSponsorship association", dbclean: :after_each do
@@ -199,7 +216,7 @@ module BenefitSponsors
         sponsorship.save
         sponsorship
       end
-      let(:broker_agency_profile) { FactoryBot.create(:benefit_sponsors_organizations_broker_agency_profile, assigned_site: site) }
+      let(:broker_agency_profile) { FactoryBot.create(:benefit_sponsors_organizations_broker_agency_profile) }
       let!(:broker_agency_account) { FactoryBot.build(:benefit_sponsors_accounts_broker_agency_account, benefit_sponsorship: benefit_sponsorship100, broker_agency_profile: broker_agency_profile) }
 
       it "should return person record" do

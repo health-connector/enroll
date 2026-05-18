@@ -124,7 +124,7 @@ module TransportGateway
 
     def provide_source_for(message)
       unless message.body.blank?
-        return Sources::StringIOSource.new(message.body)
+        return Sources::StringIoSource.new(message.body)
       end
       gateway.receive_message(message)
     end

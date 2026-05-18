@@ -14,18 +14,18 @@ module BenefitSponsors
       end
     end
 
-    def flash_messages(opts = {})
-      flash.each do |msg_type, message|
-        concat(content_tag(:div, message, class: "alert #{bootstrap_class_for(msg_type)} alert-dismissible fade show") do
-          concat content_tag(:button, 'x', class: "close", data: { dismiss: 'alert' })
-          concat message
-        end)
-      end
-      nil
-    end
-
     def format_date(date_value)
       date_value.strftime("%m/%d/%Y") if date_value.respond_to?(:strftime)
+    end
+
+    def strip_year_from_title(title)
+      if EnrollRegistry[:employer_broker_ui_enhancements].enabled?
+        # Remove appended year patterns like "(2025)", " (2025)", or multiple years like "(2022)(2023)(2024)"
+        # Matches one or more occurrences of (YYYY) at the end of the title
+        title.to_s.gsub(/(?:\s*\(\d{4}\))+\s*$/, '').strip
+      else
+        title.to_s
+      end
     end
 
     def menu_tab_class(a_tab, current_tab)
@@ -130,14 +130,12 @@ module BenefitSponsors
           #TODO fix it for HBX profile
         when "BrokerAgencyProfile"
           inbox_profiles_broker_agencies_broker_agency_profile_path(id: provider.id.to_s, folder: folder)
-        when "GeneralAgencyProfile"
-          #TODO FIX IT for GA
       end
     end
 
     def benefit_sponsor_display_families_tab(user,profile_id)
       if user.present?
-        user.has_broker_agency_staff_role? || user.has_general_agency_staff_role? || user.is_benefit_sponsor_active_broker?(profile_id)
+        user.has_broker_agency_staff_role? || user.is_benefit_sponsor_active_broker?(profile_id)
       end
     end
 

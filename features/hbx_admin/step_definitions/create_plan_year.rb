@@ -38,14 +38,23 @@ Given('the user has a valid input for all required fields') do
 end
 
 When(/the admin clicks (.*)$/) do |btn|
+  sleep 2
+  wait_for_ajax
+  screenshot('the admin clicks submit')
   find('.btn', :text => /#{btn}/i).click
 end
 
 When("the user clicks on Confirm button") do
+  sleep 2
+  wait_for_ajax
+  screenshot('the admin clicks submit')
   find('.btn', :text => 'Confirm').click
 end
 
 Then(/the user will see a (.*) message/) do |message|
+  sleep 2
+  wait_for_ajax
+  screenshot('the user will see a message')
   expect(page).to have_content(message)
 end
 
@@ -54,7 +63,7 @@ Then('the draft application will be created') do
 end
 
 Then(/the existing applications for ABC Widgets will be (.*)$/) do |state|
-  expect(page).to have_content(state)
+  expect(page).to have_css('.plan-year', text: state, visible: true)
 end
 
 Then('the user will see a pop up modal with "Confirm" or "Cancel" action') do

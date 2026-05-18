@@ -22,7 +22,7 @@ describe "insured/employee_roles/_new_message_form.html.erb" do
     before :each do
       assign :broker, broker
       assign :hbx_enrollment, hbx_enrollment
-      render "insured/employee_roles/new_message_form.html.erb"
+      render "insured/employee_roles/new_message_form"
     end
 
     it "should display the plan name" do

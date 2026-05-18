@@ -31,9 +31,9 @@ module BenefitSponsors
 
     let(:benefit_sponsor_catalog_2) do
       FactoryBot.create(:benefit_markets_benefit_sponsor_catalog,
-                         service_areas: [service_area],
-                         effective_period: Date.new(application_period_next_year.min.year,6,1)..(Date.new(application_period_next_year.min.year,6,1) + 1.year - 1.day),
-                         open_enrollment_period: (Date.new(application_period_next_year.min.year,6,1) - 1.month)..(Date.new(application_period_next_year.min.year,6,1) - 1.month + 9.days))
+                        service_areas: [service_area],
+                        effective_period: Date.new(application_period_next_year.min.year,6,1)..(Date.new(application_period_next_year.min.year,6,1) + 1.year - 1.day),
+                        open_enrollment_period: (Date.new(application_period_next_year.min.year,6,1) - 1.month)..(Date.new(application_period_next_year.min.year,6,1) - 1.month + 9.days))
     end
 
     let(:params) do
@@ -247,11 +247,11 @@ module BenefitSponsors
 
       let(:march_sponsors)                 do
         FactoryBot.create_list(:benefit_sponsors_benefit_application, 3,
-                                default_effective_period: (march_effective_date..(march_effective_date + 1.year - 1.day)))
+                               default_effective_period: (march_effective_date..(march_effective_date + 1.year - 1.day)))
       end
       let(:april_sponsors)                 do
         FactoryBot.create_list(:benefit_sponsors_benefit_application, 2,
-                                default_effective_period: (april_effective_date..(april_effective_date + 1.year - 1.day)))
+                               default_effective_period: (april_effective_date..(april_effective_date + 1.year - 1.day)))
       end
 
       before { TimeKeeper.set_date_of_record_unprotected!(Date.today) }
@@ -582,10 +582,10 @@ module BenefitSponsors
           before do
             renewal_application.save
             renewal_bga
+            census_employee.reload
           end
 
           it "should create renewal benefit group assignment" do
-            #expect(census_employee.active_benefit_group_assignment.benefit_application).to eq initial_application
             expect(census_employee.renewal_benefit_group_assignment.benefit_application).to eq renewal_application
           end
 
@@ -603,12 +603,14 @@ module BenefitSponsors
             renewal_application.recorded_service_areas = [service_area]
             renewal_application.recorded_sic_code = sic_code
             renewal_application.save!
+            census_employee.reload
           end
 
           it "should not update benefit group assignments" do
             expect(renewal_application.aasm_state).to eq :enrollment_open
 
-            expect(census_employee.renewal_benefit_group_assignment.benefit_application).to eq renewal_application
+            renewal_assignment = census_employee.benefit_group_assignments.detect { |bga| bga.benefit_package.id == renewal_application.benefit_packages.first.id }
+            expect(renewal_assignment.benefit_application).to eq renewal_application
 
             expect(census_employee.active_benefit_group_assignment.benefit_application).to eq initial_application
           end
@@ -626,6 +628,7 @@ module BenefitSponsors
             renewal_application.renew_benefit_package_assignments
             renewal_application.save!
             renewal_application.activate_enrollment!
+            census_employee.reload
           end
 
           it "should activate renewal benefit group assignment" do
@@ -636,10 +639,6 @@ module BenefitSponsors
         end
 
         context '.active_census_employees_under_py', dbclean: :after_each do
-
-          before :each do
-            renewal_application.benefit_packages.first.update_attributes!(_id: CensusEmployee.all.first.benefit_group_assignments.first.benefit_package_id)
-          end
 
           it 'should not return the terminated EEs' do
             expect(renewal_application.active_census_employees_under_py.count).to eq 5
@@ -1224,6 +1223,271 @@ module BenefitSponsors
         initial_application.cancel!
 
         expect(initial_application.aasm_state).to eq :retroactive_canceled
+      end
+    end
+
+    describe '#active_benefit_package' do
+      let(:initial_application) do
+        create(:benefit_sponsors_benefit_application,
+               benefit_sponsor_catalog: benefit_sponsor_catalog,
+               benefit_sponsorship: benefit_sponsorship,
+               aasm_state: :active,
+               default_effective_period: effective_period)
+      end
+
+      let(:active_benefit_package) { initial_application.benefit_packages.where(is_active: true).first }
+
+      context "active benefit package present" do
+        before do
+          create(:benefit_sponsors_benefit_packages_benefit_package, benefit_application: initial_application, is_active: true)
+          create(:benefit_sponsors_benefit_packages_benefit_package, benefit_application: initial_application, is_active: false)
+        end
+
+        it 'returns the first active benefit package' do
+          expect(initial_application.active_benefit_package).to eq(active_benefit_package)
+        end
+      end
+
+      it 'returns nil if no active benefit package is found' do
+        expect(initial_application.active_benefit_package).to be_nil
+      end
+    end
+
+    describe '#enrolled_families_active_only and #total_enrolled_active_count' do
+      let(:current_effective_date) { TimeKeeper.date_of_record.next_month.beginning_of_month }
+      let(:benefit_application) do
+        create(:benefit_sponsors_benefit_application,
+               benefit_sponsor_catalog: benefit_sponsor_catalog,
+               benefit_sponsorship: benefit_sponsorship,
+               aasm_state: :active,
+               default_effective_period: current_effective_date..(current_effective_date + 1.year - 1.day))
+      end
+      let!(:benefit_package) { create(:benefit_sponsors_benefit_packages_benefit_package, benefit_application: benefit_application) }
+
+      let(:benefit_group_assignment_1) { build(:benefit_sponsors_benefit_group_assignment, benefit_group: benefit_package, start_on: current_effective_date) }
+      let(:benefit_group_assignment_2) { build(:benefit_sponsors_benefit_group_assignment, benefit_group: benefit_package, start_on: current_effective_date) }
+      let(:benefit_group_assignment_3) { build(:benefit_sponsors_benefit_group_assignment, benefit_group: benefit_package, start_on: current_effective_date) }
+
+      let!(:active_employee_1) do
+        create(:census_employee,
+               employer_profile: benefit_sponsorship.profile,
+               benefit_sponsorship: benefit_sponsorship,
+               benefit_group_assignments: [benefit_group_assignment_1])
+      end
+
+      let!(:active_employee_2) do
+        create(:census_employee,
+               employer_profile: benefit_sponsorship.profile,
+               benefit_sponsorship: benefit_sponsorship,
+               benefit_group_assignments: [benefit_group_assignment_2])
+      end
+
+      let!(:terminated_employee) do
+        ce = create(:census_employee,
+                    employer_profile: benefit_sponsorship.profile,
+                    benefit_sponsorship: benefit_sponsorship,
+                    benefit_group_assignments: [benefit_group_assignment_3])
+        ce.aasm_state = 'employment_terminated'
+        ce.employment_terminated_on = TimeKeeper.date_of_record - 10.days
+        ce.save(validate: false)
+        ce
+      end
+
+      let!(:family_active_1) { create(:family, :with_primary_family_member) }
+      let!(:family_active_2) { create(:family, :with_primary_family_member) }
+      let!(:family_terminated) { create(:family, :with_primary_family_member) }
+
+      let!(:enrollment_active_1) do
+        create(:hbx_enrollment,
+               household: family_active_1.latest_household,
+               sponsored_benefit_package_id: benefit_package.id,
+               benefit_group_assignment_id: active_employee_1.benefit_group_assignments.first.id,
+               benefit_sponsorship_id: benefit_sponsorship.id,
+               aasm_state: 'coverage_selected',
+               kind: 'employer_sponsored',
+               coverage_kind: 'health')
+      end
+
+      let!(:enrollment_active_2) do
+        create(:hbx_enrollment,
+               household: family_active_2.latest_household,
+               sponsored_benefit_package_id: benefit_package.id,
+               benefit_group_assignment_id: active_employee_2.benefit_group_assignments.first.id,
+               benefit_sponsorship_id: benefit_sponsorship.id,
+               aasm_state: 'coverage_selected',
+               kind: 'employer_sponsored',
+               coverage_kind: 'health')
+      end
+
+      let!(:enrollment_terminated) do
+        create(:hbx_enrollment,
+               household: family_terminated.latest_household,
+               sponsored_benefit_package_id: benefit_package.id,
+               benefit_group_assignment_id: terminated_employee.benefit_group_assignments.first.id,
+               benefit_sponsorship_id: benefit_sponsorship.id,
+               aasm_state: 'coverage_selected',
+               kind: 'employer_sponsored',
+               coverage_kind: 'health')
+      end
+
+      before do
+        # Create a double for census employees query that handles both .terminated and .active
+        census_employees_relation = double('census_employees_relation')
+        allow(census_employees_relation).to receive(:terminated).and_return([terminated_employee])
+        allow(census_employees_relation).to receive(:active).and_return([active_employee_1, active_employee_2])
+        allow(benefit_application).to receive(:find_census_employees).and_return(census_employees_relation)
+        allow(terminated_employee).to receive(:family).and_return(family_terminated)
+      end
+
+      context 'when counting enrolled families' do
+        it 'enrolled_families includes all families with enrollments' do
+          expect(benefit_application.enrolled_families.count).to eq 3
+        end
+
+        it 'enrolled_families_active_only excludes terminated employee families' do
+          expect(benefit_application.enrolled_families_active_only.count).to eq 2
+        end
+
+        it 'total_enrolled_active_count returns correct count' do
+          expect(benefit_application.total_enrolled_active_count).to eq 2
+        end
+      end
+
+      context 'when no terminated employees' do
+        before do
+          terminated_employee.destroy
+          census_employees_relation = double('census_employees_relation')
+          allow(census_employees_relation).to receive(:terminated).and_return([])
+          allow(census_employees_relation).to receive(:active).and_return([active_employee_1, active_employee_2])
+          allow(benefit_application).to receive(:find_census_employees).and_return(census_employees_relation)
+        end
+
+        it 'enrolled_families_active_only equals enrolled_families' do
+          expect(benefit_application.enrolled_families_active_only.count).to eq benefit_application.enrolled_families.count
+        end
+      end
+
+      context 'when all employees are terminated' do
+        before do
+          active_employee_1.update_attributes(aasm_state: :employment_terminated, employment_terminated_on: TimeKeeper.date_of_record - 5.days)
+          active_employee_2.update_attributes(aasm_state: :employment_terminated, employment_terminated_on: TimeKeeper.date_of_record - 3.days)
+          census_employees_relation = double('census_employees_relation')
+          allow(census_employees_relation).to receive(:terminated).and_return([active_employee_1, active_employee_2, terminated_employee])
+          allow(census_employees_relation).to receive(:active).and_return([])
+          allow(benefit_application).to receive(:find_census_employees).and_return(census_employees_relation)
+          allow(active_employee_1).to receive(:family).and_return(family_active_1)
+          allow(active_employee_2).to receive(:family).and_return(family_active_2)
+        end
+
+        it 'enrolled_families_active_only returns empty' do
+          expect(benefit_application.enrolled_families_active_only.count).to eq 0
+        end
+
+        it 'total_enrolled_active_count returns 0' do
+          expect(benefit_application.total_enrolled_active_count).to eq 0
+        end
+      end
+
+      context 'when exceeding small market limit' do
+        before do
+          allow(benefit_application).to receive_message_chain(:active_census_employees, :count).and_return(Settings.aca.shop_market.small_market_active_employee_limit + 1)
+        end
+
+        it 'total_enrolled_active_count returns 0' do
+          expect(benefit_application.total_enrolled_active_count).to eq 0
+        end
+      end
+    end
+  end
+
+  describe '#has_changes_on_renewal?', :dbclean => :after_each do
+    include_context 'setup benefit market with market catalogs and product packages'
+    include_context 'setup renewal application'
+
+    subject { renewal_application }
+
+    context 'when the application is not renewing' do
+      before { allow(subject).to receive(:is_renewing?).and_return(false) }
+
+      it 'returns false' do
+        expect(subject.has_changes_on_renewal?).to be false
+      end
+    end
+
+    context 'when there is no predecessor' do
+      before do
+        allow(subject).to receive(:is_renewing?).and_return(true)
+        allow(subject).to receive(:predecessor).and_return(nil)
+      end
+
+      it 'returns false' do
+        expect(subject.has_changes_on_renewal?).to be false
+      end
+    end
+
+    context 'when the predecessor is canceled' do
+      before do
+        allow(subject).to receive(:is_renewing?).and_return(true)
+        allow(subject.predecessor).to receive(:active?).and_return(false)
+        allow(subject.predecessor).to receive(:expired?).and_return(false)
+      end
+
+      it 'returns false' do
+        expect(subject.has_changes_on_renewal?).to be false
+      end
+    end
+
+    context 'when the renewal start year is not one year after the predecessor start year' do
+      before do
+        allow(subject).to receive(:is_renewing?).and_return(true)
+        allow(subject.predecessor).to receive(:active?).and_return(true)
+        allow(subject).to receive(:start_on).and_return(Date.new(2026, 1, 1))
+        allow(subject.predecessor).to receive(:start_on).and_return(Date.new(2024, 1, 1))
+      end
+
+      it 'returns false' do
+        expect(subject.has_changes_on_renewal?).to be false
+      end
+    end
+
+    context 'when the application is renewing with an active predecessor from the prior year' do
+      before do
+        allow(subject).to receive(:is_renewing?).and_return(true)
+        allow(subject.predecessor).to receive(:active?).and_return(true)
+        allow(subject.predecessor).to receive(:expired?).and_return(false)
+        allow(subject).to receive(:start_on).and_return(Date.new(2026, 1, 1))
+        allow(subject.predecessor).to receive(:start_on).and_return(Date.new(2025, 1, 1))
+      end
+
+      context 'and no benefit packages have changes' do
+        before { allow(subject).to receive(:benefit_packages).and_return([double(has_changes_on_renewal?: false)]) }
+
+        it 'returns false' do
+          expect(subject.has_changes_on_renewal?).to be false
+        end
+      end
+
+      context 'and at least one benefit package has changes' do
+        before { allow(subject).to receive(:benefit_packages).and_return([double(has_changes_on_renewal?: true)]) }
+
+        it 'returns true' do
+          expect(subject.has_changes_on_renewal?).to be true
+        end
+      end
+    end
+
+    context 'when the predecessor is expired from the prior year' do
+      before do
+        allow(subject).to receive(:is_renewing?).and_return(true)
+        allow(subject.predecessor).to receive(:active?).and_return(false)
+        allow(subject.predecessor).to receive(:expired?).and_return(true)
+        allow(subject).to receive(:start_on).and_return(Date.new(2026, 1, 1))
+        allow(subject.predecessor).to receive(:start_on).and_return(Date.new(2025, 1, 1))
+        allow(subject).to receive(:benefit_packages).and_return([double(has_changes_on_renewal?: true)])
+      end
+
+      it 'returns true' do
+        expect(subject.has_changes_on_renewal?).to be true
       end
     end
   end

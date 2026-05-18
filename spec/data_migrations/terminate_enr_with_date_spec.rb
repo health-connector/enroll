@@ -22,12 +22,12 @@ describe TerminateEnrWithDate do
     it "should terminate the enrollment with given terminated on date" do
       ClimateControl.modify enr_hbx_id: hbx_enrollment.hbx_id, termination_date: "02/28/2017" do
         expect(family.active_household.hbx_enrollments).to include hbx_enrollment
-        expect(hbx_enrollment.effective_on.to_s).to eq "02/01/2017"
+        expect(hbx_enrollment.effective_on.to_s).to eq "2017-02-01"
         expect(hbx_enrollment.terminated_on).to eq nil
         expect(hbx_enrollment.aasm_state).to eq "coverage_selected"
         subject.migrate
         hbx_enrollment.reload
-        expect(hbx_enrollment.terminated_on.to_s).to eq "02/28/2017"
+        expect(hbx_enrollment.terminated_on.to_s).to eq "2017-02-28"
         expect(hbx_enrollment.aasm_state).to eq "coverage_terminated"
       end
     end

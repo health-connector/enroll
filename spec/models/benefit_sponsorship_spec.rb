@@ -59,7 +59,7 @@ RSpec.describe BenefitSponsorship, :type => :model do
 
           context "when system date is during open enrollment period" do
             before do
-              benefit_sponsorship.benefit_coverage_periods = benefit_coverage_period.to_a
+              benefit_sponsorship.benefit_coverage_periods = [benefit_coverage_period]
             end
 
             it 'is_under_open_enrollment should return true' do
@@ -71,7 +71,7 @@ RSpec.describe BenefitSponsorship, :type => :model do
             let(:benefit_coverage_period) { FactoryBot.build(:benefit_coverage_period, open_enrollment_start_on: TimeKeeper.date_of_record + 10.days, open_enrollment_end_on: TimeKeeper.date_of_record + 40.days) }
 
             before do
-              benefit_sponsorship.benefit_coverage_periods = benefit_coverage_period.to_a
+              benefit_sponsorship.benefit_coverage_periods = [benefit_coverage_period]
             end
 
             it 'is_under_open_enrollment should return false' do

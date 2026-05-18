@@ -99,25 +99,25 @@ end
 describe TransportProfiles::TransportCredentials::SftpTransportCredential do
   it "is invalid without a user" do
     subject.valid?
-    expect(subject.errors.keys).to include(:user)
+    expect(subject.errors.attribute_names).to include(:user)
   end
 
   it "is invalid without a host" do
     subject.valid?
-    expect(subject.errors.keys).to include(:host)
+    expect(subject.errors.attribute_names).to include(:host)
   end
 
   it "is invalid without a password or key_pem" do
     subject.valid?
-    expect(subject.errors.keys).to include(:password)
-    expect(subject.errors.keys).to include(:key_pem)
+    expect(subject.errors.attribute_names).to include(:password)
+    expect(subject.errors.attribute_names).to include(:key_pem)
   end
 
   describe "given a password" do
     it "does not require a key_pem" do
       subject.password = "some_password"
       subject.valid?
-      expect(subject.errors.keys).not_to include(:key_pem)
+      expect(subject.errors.attribute_names).not_to include(:key_pem)
     end
   end
 
@@ -125,7 +125,7 @@ describe TransportProfiles::TransportCredentials::SftpTransportCredential do
     it "does not require a password" do
       subject.key_pem = "some_key_pem"
       subject.valid?
-      expect(subject.errors.keys).not_to include(:password)
+      expect(subject.errors.attribute_names).not_to include(:password)
     end
   end
 end

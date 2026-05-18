@@ -87,7 +87,7 @@ RSpec.describe BrokerAgencyProfile, dbclean: :after_each do
     end
 
     context "with invalid market_kind" do
-      let(:params) {valid_params.deep_merge({market_kind: bad_market_kind})}
+      let(:params) { valid_params.deep_merge!({market_kind: bad_market_kind}) }
 
       it "should fail validation" do
         expect(BrokerAgencyProfile.create(**params).errors[:market_kind]).to eq [market_kind_error_message]

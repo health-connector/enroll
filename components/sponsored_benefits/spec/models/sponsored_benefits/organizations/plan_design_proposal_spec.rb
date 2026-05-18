@@ -6,10 +6,8 @@ module SponsoredBenefits
     let(:profile) { SponsoredBenefits::Organizations::AcaShopCcaEmployerProfile.new }
 
     describe "#instance methods" do
-      let(:organization){ SponsoredBenefits::Organizations::PlanDesignOrganization.new }
-      let(:plan_design_proposals){
-        [organization.plan_design_proposals.build({title: "new proposal for new client", profile: profile})]
-      }
+      let(:organization) { FactoryBot.create(:sponsored_benefits_plan_design_organization, :with_profile, legal_name: "ABC Company", sic_code: "0345") }
+      let(:plan_design_proposals) { [organization.plan_design_proposals.build({title: "new proposal for new client", profile: profile})] }
       let(:plan_design_proposal){ plan_design_proposals[0] }
 
       context "when instantiated" do

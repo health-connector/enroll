@@ -15,7 +15,7 @@
   <div id="<%='enrollment_' + hbx_id.to_s%>" class="collapse in">
 
     <div class="panel-body">
-      <%= render 'enrollment_header.html.erb', :hbx_id => hbx_id, :hbx_values => hbx_values, :enrollment_count => enrollment_count%>
+      <%= render 'enrollment_header', :hbx_id => hbx_id, :hbx_values => hbx_values, :enrollment_count => enrollment_count%>
 
       <hr style="margin:  2px 2px;"/>
       <table class="table table-border module edit-aptc-csr-table">

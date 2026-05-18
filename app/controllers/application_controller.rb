@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class ApplicationController < ActionController::Base
-  include Pundit
+  include Pundit::Authorization
   include Config::SiteConcern
   include Config::AcaConcern
   include Config::ContactCenterConcern
@@ -97,6 +97,15 @@ class ApplicationController < ActionController::Base
     yield
   end
 
+  # allow open redirect
+  def redirect_to(options = {}, response_status = {})
+    if options.is_a?(String) && options =~ URI::DEFAULT_PARSER.make_regexp
+      super(options, response_status.merge(allow_other_host: true))
+    else
+      super
+    end
+  end
+
   private
 
   def check_concurrent_sessions
@@ -115,7 +124,7 @@ class ApplicationController < ActionController::Base
   end
 
   def strong_params
-    params.permit!
+    params.permit(:_, :controller, :action, :format)
   end
 
   def secure_message(from_provider, to_provider, subject, body)

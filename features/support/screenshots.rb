@@ -2,16 +2,15 @@
 
 Before do |scenario|
   @count = 0
-  case scenario
-  when Cucumber::RunningTestCase::ScenarioOutlineExample
-    @scenario_name = scenario.scenario_outline.name.downcase.gsub(' ', '_')
-    @feature_name = scenario.scenario_outline.feature.name.downcase.gsub(' ', '_')
-  when Cucumber::RunningTestCase::Scenario
-    @scenario_name = scenario.name.downcase.gsub(' ', '_')
-    @feature_name = scenario.feature.name.downcase.gsub(' ', '_')
-  else
-    raise("Unhandled class, look in features/support/screenshots.rb")
-  end
+
+  # Get scenario name
+  @scenario_name = scenario.name.downcase.gsub(' ', '_')
+
+  # Get feature name (it's in file path)
+  location = scenario.location.to_s
+  file_path = location.split(':').first
+  file_name = File.basename(file_path, '.feature')
+  @feature_name = file_name.downcase.gsub(' ', '_')
 end
 
 module Screenshots

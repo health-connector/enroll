@@ -1,6 +1,6 @@
 module Importers
   class ConversionEmployeeSet
-  
+
     def headers
       default_headers = [
         "Action",
@@ -35,7 +35,7 @@ module Importers
         "Subscriber State",
         "Subscriber Zip",
         "SELF (only one option)"
-      ]  
+      ]
       dep_headers = []
       @dependents.times do |i|
         ["SSN", "DOB", "Gender", "Premium", "First Name", "Middle Name", "Last Name", "Email", "Phone", "Address 1", "Address 2", "City", "State", "Zip", "Relationship"].each do |h|

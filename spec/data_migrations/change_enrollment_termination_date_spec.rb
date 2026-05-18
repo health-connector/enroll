@@ -9,7 +9,7 @@ describe ChangeEnrollmentTerminationDate, dbclean: :after_each do
   subject { ChangeEnrollmentTerminationDate.new(given_task_name, double(:current_scope => nil)) }
   let(:family) { FactoryBot.create(:family, :with_primary_family_member)}
   let(:hbx_enrollment) { FactoryBot.create(:hbx_enrollment,terminated_on: Date.today,household: family.active_household)}
-  let!(:py_params) {{hbx_id: hbx_enrollment.hbx_id, new_termination_date: (hbx_enrollment.terminated_on + 1.month).to_s }}
+  let!(:py_params) {{hbx_id: hbx_enrollment.hbx_id, termination_date: (hbx_enrollment.terminated_on + 1.month).to_s }}
 
   describe 'given a task name' do
     it 'has the given task name' do
@@ -23,7 +23,7 @@ describe ChangeEnrollmentTerminationDate, dbclean: :after_each do
     end
   end
 
-  describe 'changing enrollment termiantion date' do
+  describe 'changing enrollment termination date' do
     it 'should change effective on date' do
       terminated_on = hbx_enrollment.terminated_on
       subject.migrate

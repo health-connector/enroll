@@ -28,8 +28,8 @@
         <tr>
           <td><%= hbx.hbx_id %></td>
           <td><%= hbx.product.title %></td>
-          <td><%= hbx.effective_on %></td>
-          <td><%= hbx.effective_on %></td>
+          <td><%= format_date(hbx.effective_on) %></td>
+          <td><%= format_date(hbx.effective_on) %></td>
           <td><%= check_box_tag "cancel_hbx_#{hbx.id}", hbx.id %></td>
           <td><%= check_box_tag "transmit_hbx_#{hbx.id}", hbx.id, false,  disabled: true%></td>
         </tr>
@@ -46,6 +46,6 @@
       </table>
     <% end %>
   <%else%>
-    <h4 class='title'>No Enrollments to cancel</h3>
+    <h4 class='title'>No Enrollments to cancel</h4>
   <%end%>
 </td>

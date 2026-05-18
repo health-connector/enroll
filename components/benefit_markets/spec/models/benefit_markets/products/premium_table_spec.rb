@@ -66,10 +66,18 @@ module BenefitMarkets
     end
 
     context "Comparing PremiumTables" do
-      let(:base_premium_table)      { described_class.new(**params) }
+      let!(:base_premium_table) do
+        table = described_class.new(effective_period: effective_period, rating_area: rating_area)
+        table.premium_tuples << premium_tuples.map(&:clone)
+        table
+      end
 
       context "and they are the same" do
-        let(:compare_premium_table) { described_class.new(**params) }
+        let!(:compare_premium_table) do
+          table = described_class.new(effective_period: effective_period, rating_area: rating_area)
+          table.premium_tuples << premium_tuples.map(&:clone)
+          table
+        end
 
         it "they should be different instances" do
           expect(base_premium_table.id).to_not eq compare_premium_table.id

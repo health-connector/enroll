@@ -32,17 +32,27 @@ module Operations
 
       def build(values)
         grant_key = values[:grant_key]
-        grant_value = values[:grant_value]
+        # NOTE: grant_value is validated but not used in the grant structure
+        # The value hash is built from grant_key only, as per the original aca_entities implementation
 
         Success(
           {
             title: grant_key.to_s.titleize,
-            key: grant_key.to_sym,
+            key: grant_key.to_s,
             value: {
               title: grant_key.to_s.titleize,
-              key: grant_key.to_sym,
-              item: grant_value
-            }
+              key: grant_key.to_s
+            },
+            state_histories: [
+              {
+                effective_on: Date.today,
+                is_eligible: true,
+                from_state: :initial,
+                to_state: :approved,
+                transition_at: DateTime.now,
+                event: :approve
+              }
+            ]
           }
         )
       end

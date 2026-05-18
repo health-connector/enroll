@@ -1,6 +1,6 @@
 require File.join(Rails.root, "lib/mongoid_migration_task")
 
-class UpdateBookMarkUrlForEmployeerole < MongoidMigrationTask
+class UpdateBookMarkUrlForEmployeeRole < MongoidMigrationTask
   def migrate
     begin
       id = ENV["employee_role_id"].to_s

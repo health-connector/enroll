@@ -314,6 +314,52 @@ RSpec.describe Insured::ProductShoppingsController, type: :controller, dbclean: 
       end
     end
 
+    context '#success with only health present' do
+      let!(:params) do
+        {"event" => "shop_for_plans",
+         "health" => {"change_plan" => "change_plan", "enrollment_id" => health_enrollment.id, "enrollment_kind" => "", "market_kind" => "employer_sponsored"},
+         "health_offering" => "true"}
+      end
+
+      before do
+        sign_in user
+        get :waiver_thankyou, params: params
+      end
+
+      it "returns http success" do
+        expect(response).to have_http_status(:success)
+      end
+
+      it "context object should have only health" do
+        expect(assigns(:context)).not_to be_nil
+        expect(assigns(:context).key?(:health)).to be_truthy
+        expect(assigns(:context).key?(:dental)).to be_falsey
+      end
+    end
+
+    context '#success with only dental present' do
+      let!(:params) do
+        {"event" => "shop_for_plans",
+         "dental" => {"change_plan" => "change_plan", "enrollment_id" => dental_enrollment.id, "enrollment_kind" => "", "market_kind" => "employer_sponsored"},
+         "dental_offering" => "true"}
+      end
+
+      before do
+        sign_in user
+        get :waiver_thankyou, params: params
+      end
+
+      it "returns http success" do
+        expect(response).to have_http_status(:success)
+      end
+
+      it "context object should have only dental" do
+        expect(assigns(:context)).not_to be_nil
+        expect(assigns(:context).key?(:dental)).to be_truthy
+        expect(assigns(:context).key?(:health)).to be_falsey
+      end
+    end
+
     context 'outside service area waiver reason' do
       let!(:params) do
         {"dental" => {"change_plan" => "change_plan", "enrollment_id" => dental_enrollment.id, "enrollment_kind" => "", "market_kind" => "employer_sponsored"},

@@ -14,7 +14,7 @@
         <strong><%= @enrollment.employer_profile.legal_name %></strong><br>
       <% end %>
       <strong><%= @plan.name %></strong><br>
-      <%= l10n("starting_on") %> : <%= @enrollment.effective_on.strftime("%m/%d/%Y") %>
+      <%= l10n("starting_on") %> : <%= format_date(@enrollment.effective_on) %>
     </p>
 
     <br>

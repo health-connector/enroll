@@ -56,12 +56,12 @@ class CreateRenewalPlanYearAndEnrollment < MongoidMigrationTask
                                                                                           :benefit_applications =>
                                                                        { :$elemMatch =>
                                                                              {
-                                                                               :'benefit_application_items.0.effective_period.min' => Date.strptime(ENV['start_on'].to_s, "%m/%d/%Y"),
+                                                                               :'benefit_application_items.0.effective_period.min' => ENV['start_on'].to_date,
                                                                                :aasm_state.in => [:active]
                                                                              }})
 
     benefit_sponsorships.each do |benefit_sponsorship|
-      benefit_application = benefit_sponsorship.benefit_applications.where(:aasm_state => :active).select { |application| application.start_on.to_date == Date.strptime(ENV['start_on'].to_s, "%m/%d/%Y").to_date  }.first
+      benefit_application = benefit_sponsorship.benefit_applications.where(:aasm_state => :active).select { |application| application.start_on.to_date == ENV['start_on'].to_date  }.first
       if benefit_application.present? && benefit_sponsorship.benefit_applications.detect{|b| b.is_renewing?}.blank?
         organization = benefit_application.sponsor_profile.organization
         create_renewal_plan_year(organization)
@@ -77,7 +77,7 @@ class CreateRenewalPlanYearAndEnrollment < MongoidMigrationTask
                                                                                             { :$elemMatch =>
                                                                                                 {
                                                                                                   :predecessor_id => { :$exists => true, :$ne => nil },
-                                                                                                  :'effective_period.min' => Date.strptime(ENV['start_on'].to_s, "%m/%d/%Y"),
+                                                                                                  :'effective_period.min' => ENV['start_on'].to_date,
                                                                                                   :aasm_state.in => [:enrollment_open]
                                                                                                 }})
 

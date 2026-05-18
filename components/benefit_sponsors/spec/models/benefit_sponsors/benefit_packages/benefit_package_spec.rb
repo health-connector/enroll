@@ -166,7 +166,8 @@ module BenefitSponsors
 
         it "should renew benefit package" do
           expect(renewal_benefit_package).to be_present
-          expect(renewal_benefit_package.title).to eq current_benefit_package.title + "(#{renewal_benefit_package.start_on.year})"
+          expected_title = EnrollRegistry[:employer_broker_ui_enhancements].enabled? ? current_benefit_package.title : current_benefit_package.title + "(#{renewal_benefit_package.start_on.year})"
+          expect(renewal_benefit_package.title).to eq expected_title
           expect(renewal_benefit_package.description).to eq current_benefit_package.description
           expect(renewal_benefit_package.probation_period_kind).to eq current_benefit_package.probation_period_kind
           expect(renewal_benefit_package.is_default).to eq current_benefit_package.is_default
@@ -899,6 +900,34 @@ module BenefitSponsors
         end
       end
 
+      context 'when an auto_renewing enrollment is present' do
+        let!(:auto_renewing_enrollment) do
+          enrollment = FactoryBot.create(:hbx_enrollment, :with_enrollment_members, :with_product,
+                                         household: family.active_household,
+                                         aasm_state: 'auto_renewing',
+                                         effective_on: initial_application.start_on,
+                                         rating_area_id: initial_application.recorded_rating_area_id,
+                                         sponsored_benefit_id: initial_application.benefit_packages.first.health_sponsored_benefit.id,
+                                         sponsored_benefit_package_id: initial_application.benefit_packages.first.id,
+                                         benefit_sponsorship_id: initial_application.benefit_sponsorship.id,
+                                         employee_role_id: employee_role.id)
+          enrollment.benefit_sponsorship = benefit_sponsorship
+          enrollment.save!
+          enrollment
+        end
+
+        before do
+          initial_application.update_attributes!(aasm_state: :terminated)
+          initial_application.benefit_application_items.create(effective_period: initial_application.start_on..end_on, state: :terminated, sequence_id: 1)
+          benefit_package.terminate_member_benefits
+          auto_renewing_enrollment.reload
+        end
+
+        it 'transitions auto_renewing enrollment to coverage_terminated' do
+          expect(auto_renewing_enrollment.aasm_state).to eq 'coverage_terminated'
+        end
+      end
+
       context "terminate_benefit_group_assignments", :dbclean => :after_each do
 
         before :each do
@@ -1003,6 +1032,182 @@ module BenefitSponsors
         expect(rbp.is_active).to eq false
         expect(census_employees.first.renewal_benefit_group_assignment).to eq nil
       end
+
+      context 'when enrollment is in auto_renewing state' do
+        let!(:auto_renewing_enrollment) do
+          create(
+            :hbx_enrollment,
+            :shop,
+            household: family.active_household,
+            product: cbp.sponsored_benefits.first.reference_product,
+            coverage_kind: :health,
+            aasm_state: 'auto_renewing',
+            effective_on: ra.start_on,
+            employee_role_id: census_employee.employee_role.id,
+            sponsored_benefit_package_id: rbp.id,
+            benefit_sponsorship: bs,
+            benefit_group_assignment: renewal_bga
+          )
+        end
+        let(:auto_renewing_hbx_id) { auto_renewing_enrollment.hbx_id }
+
+        before do
+          ra.update_attributes!(aasm_state: 'canceled')
+          rbp.cancel_member_benefits
+        end
+
+        it 'cancels the auto_renewing enrollment when the renewal plan year is canceled' do
+          updated_enrollment = family.reload.active_household.hbx_enrollments.where(hbx_id: auto_renewing_hbx_id).first
+          expect(updated_enrollment).to be_present
+          expect(updated_enrollment.aasm_state).to eq 'coverage_canceled'
+        end
+      end
+    end
+
+    describe '.effectuate_member_benefits', :dbclean => :after_each do
+
+      include_context "setup initial benefit application" do
+        let(:current_effective_date) { (TimeKeeper.date_of_record - 2.months).beginning_of_month }
+      end
+
+      let(:benefit_package) { initial_application.benefit_packages.first }
+      let(:benefit_group_assignment) { FactoryBot.build(:benefit_group_assignment, benefit_group: benefit_package) }
+      let(:employee_role) { FactoryBot.create(:benefit_sponsors_employee_role, person: person, employer_profile: benefit_sponsorship.profile, census_employee_id: census_employee.id) }
+      let(:census_employee) do
+        FactoryBot.create(:census_employee,
+                          employer_profile: benefit_sponsorship.profile,
+                          benefit_sponsorship: benefit_sponsorship,
+                          benefit_group_assignments: [benefit_group_assignment])
+      end
+      let(:person) { FactoryBot.create(:person, :with_family) }
+      let!(:family) { person.primary_family }
+
+      let!(:auto_renewing_enrollment) do
+        enrollment = FactoryBot.create(:hbx_enrollment, :with_enrollment_members, :with_product,
+                                       :shop,
+                                       household: family.active_household,
+                                       aasm_state: 'auto_renewing',
+                                       coverage_kind: 'health',
+                                       effective_on: initial_application.start_on,
+                                       rating_area_id: initial_application.recorded_rating_area_id,
+                                       sponsored_benefit_id: benefit_package.health_sponsored_benefit.id,
+                                       sponsored_benefit_package_id: benefit_package.id,
+                                       benefit_sponsorship_id: initial_application.benefit_sponsorship.id,
+                                       employee_role_id: employee_role.id)
+        enrollment.benefit_sponsorship = benefit_sponsorship
+        enrollment.save!
+        enrollment
+      end
+
+      context 'when an auto_renewing enrollment is eligible for effectuation' do
+        before do
+          benefit_package.effectuate_member_benefits
+          auto_renewing_enrollment.reload
+        end
+
+        it 'transitions auto_renewing enrollment to coverage_enrolled' do
+          expect(auto_renewing_enrollment.aasm_state).to eq 'coverage_enrolled'
+        end
+      end
+
+      context 'when a terminated enrollment also exists for the same package and coverage kind' do
+        let!(:terminated_enrollment) do
+          enrollment = FactoryBot.create(:hbx_enrollment, :with_enrollment_members, :with_product,
+                                         :shop,
+                                         household: family.active_household,
+                                         aasm_state: 'coverage_terminated',
+                                         coverage_kind: 'health',
+                                         effective_on: initial_application.start_on,
+                                         terminated_on: initial_application.start_on.end_of_month,
+                                         rating_area_id: initial_application.recorded_rating_area_id,
+                                         sponsored_benefit_id: benefit_package.health_sponsored_benefit.id,
+                                         sponsored_benefit_package_id: benefit_package.id,
+                                         benefit_sponsorship_id: initial_application.benefit_sponsorship.id,
+                                         employee_role_id: employee_role.id)
+          enrollment.benefit_sponsorship = benefit_sponsorship
+          enrollment.save!
+          enrollment
+        end
+
+        before do
+          auto_renewing_enrollment.set(created_at: 3.days.ago)
+          terminated_enrollment.set(created_at: 1.day.ago)
+          benefit_package.effectuate_member_benefits
+          auto_renewing_enrollment.reload
+        end
+
+        it 'still effectuates the auto_renewing enrollment because terminated enrollments are excluded by the aasm_state filter' do
+          expect(auto_renewing_enrollment.aasm_state).to eq 'coverage_enrolled'
+        end
+      end
+
+      context 'when a waived enrollment exists for the benefit package' do
+        let!(:waived_enrollment) do
+          enrollment = FactoryBot.create(:hbx_enrollment, :with_enrollment_members, :with_product,
+                                         :shop,
+                                         household: family.active_household,
+                                         aasm_state: 'inactive',
+                                         coverage_kind: 'health',
+                                         effective_on: initial_application.start_on,
+                                         rating_area_id: initial_application.recorded_rating_area_id,
+                                         sponsored_benefit_id: benefit_package.health_sponsored_benefit.id,
+                                         sponsored_benefit_package_id: benefit_package.id,
+                                         benefit_sponsorship_id: initial_application.benefit_sponsorship.id,
+                                         employee_role_id: employee_role.id)
+          enrollment.benefit_sponsorship = benefit_sponsorship
+          enrollment.save!
+          enrollment
+        end
+
+        before do
+          benefit_package.effectuate_member_benefits
+          waived_enrollment.reload
+        end
+
+        it 'does not transition the waived enrollment' do
+          expect(waived_enrollment.aasm_state).to eq 'inactive'
+        end
+      end
+
+      context 'when an unverified enrollment exists for the benefit package' do
+        let!(:unverified_enrollment) do
+          enrollment = FactoryBot.create(:hbx_enrollment, :with_enrollment_members, :with_product,
+                                         :shop,
+                                         household: family.active_household,
+                                         aasm_state: 'unverified',
+                                         coverage_kind: 'health',
+                                         effective_on: initial_application.start_on,
+                                         rating_area_id: initial_application.recorded_rating_area_id,
+                                         sponsored_benefit_id: benefit_package.health_sponsored_benefit.id,
+                                         sponsored_benefit_package_id: benefit_package.id,
+                                         benefit_sponsorship_id: initial_application.benefit_sponsorship.id,
+                                         employee_role_id: employee_role.id)
+          enrollment.benefit_sponsorship = benefit_sponsorship
+          enrollment.save!
+          enrollment
+        end
+
+        before do
+          benefit_package.effectuate_member_benefits
+          unverified_enrollment.reload
+        end
+
+        it 'transitions unverified enrollment to coverage_enrolled' do
+          expect(unverified_enrollment.aasm_state).to eq 'coverage_enrolled'
+        end
+      end
+
+      context 'when begin_coverage raises an error for a family enrollment' do
+        before do
+          allow(Rails.logger).to receive(:tagged).and_yield
+          allow_any_instance_of(HbxEnrollment).to receive(:begin_coverage!).and_raise(StandardError.new('effectuation failure'))
+        end
+
+        it 'rescues and logs the error without raising' do
+          expect(Rails.logger).to receive(:error).with(/error raised for family: #{family.id}/).at_least(:once)
+          expect { benefit_package.effectuate_member_benefits }.not_to raise_error
+        end
+      end
     end
 
     describe '.expire_member_benefits', :dbclean => :after_each do
@@ -1078,6 +1283,38 @@ module BenefitSponsors
         it 'should move enrollments that linked with conversion sponsored benefit to expired state' do
           expect(benefit_package.sponsored_benefits.unscoped.first.source_kind).to eq :conversion
           expect(hbx_enrollment.aasm_state).to eq "coverage_expired"
+        end
+      end
+
+      context 'when an auto_renewing enrollment is present' do
+        let!(:auto_renewing_enrollment) do
+          enrollment = FactoryBot.create(:hbx_enrollment, :with_enrollment_members, :with_product,
+                                         household: family.active_household,
+                                         aasm_state: 'auto_renewing',
+                                         effective_on: initial_application.start_on,
+                                         rating_area_id: initial_application.recorded_rating_area_id,
+                                         sponsored_benefit_id: initial_application.benefit_packages.first.health_sponsored_benefit.id,
+                                         sponsored_benefit_package_id: initial_application.benefit_packages.first.id,
+                                         benefit_sponsorship_id: initial_application.benefit_sponsorship.id,
+                                         employee_role_id: employee_role.id)
+          enrollment.benefit_sponsorship = benefit_sponsorship
+          enrollment.save!
+          enrollment
+        end
+
+        before do
+          initial_application.update_attributes!(aasm_state: :expired)
+          initial_application.benefit_application_items.create(
+            effective_period: initial_application.start_on..end_on,
+            sequence_id: 1,
+            state: :expired
+          )
+          benefit_package.expire_member_benefits
+          auto_renewing_enrollment.reload
+        end
+
+        it 'does not transition auto_renewing enrollment because it is not expire_coverage-eligible' do
+          expect(auto_renewing_enrollment.aasm_state).to eq 'auto_renewing'
         end
       end
     end
@@ -1229,6 +1466,517 @@ module BenefitSponsors
 
         it "should NOT update terminated_on date on enrollment if terminated_on < benefit_application end_on" do
           expect(hbx_enrollment.terminated_on).to eq hbx_enrollment_terminated_on
+        end
+      end
+
+      context 'when an auto_renewing enrollment is present' do
+        let!(:auto_renewing_enrollment) do
+          enrollment = FactoryBot.create(:hbx_enrollment, :with_enrollment_members, :with_product,
+                                         household: family.active_household,
+                                         aasm_state: 'auto_renewing',
+                                         effective_on: initial_application.start_on,
+                                         rating_area_id: initial_application.recorded_rating_area_id,
+                                         sponsored_benefit_id: initial_application.benefit_packages.first.health_sponsored_benefit.id,
+                                         sponsored_benefit_package_id: initial_application.benefit_packages.first.id,
+                                         benefit_sponsorship_id: initial_application.benefit_sponsorship.id,
+                                         employee_role_id: employee_role.id)
+          enrollment.benefit_sponsorship = benefit_sponsorship
+          enrollment.save!
+          enrollment
+        end
+
+        before do
+          initial_application.update_attributes!(aasm_state: :termination_pending)
+          initial_application.benefit_application_items.create(
+            effective_period: initial_application.start_on..end_on,
+            sequence_id: 1,
+            state: :termination_pending
+          )
+          benefit_package.termination_pending_member_benefits
+          auto_renewing_enrollment.reload
+        end
+
+        it 'transitions auto_renewing enrollment to coverage_termination_pending' do
+          expect(auto_renewing_enrollment.aasm_state).to eq 'coverage_termination_pending'
+        end
+      end
+    end
+
+    describe '#display_title' do
+      context 'when title has no appended year' do
+        subject { described_class.new(title: 'Gold Benefits') }
+
+        it 'returns the title unchanged' do
+          expect(subject.display_title).to eq 'Gold Benefits'
+        end
+      end
+
+      context 'when title has a single appended year' do
+        subject { described_class.new(title: 'Gold Benefits(2025)') }
+
+        it 'strips the appended year' do
+          expect(subject.display_title).to eq 'Gold Benefits'
+        end
+      end
+
+      context 'when title has a space before the appended year' do
+        subject { described_class.new(title: 'Gold Benefits (2025)') }
+
+        it 'strips the appended year and trailing space' do
+          expect(subject.display_title).to eq 'Gold Benefits'
+        end
+      end
+
+      context 'when title has multiple appended years' do
+        subject { described_class.new(title: 'Gold Benefits(2023)(2024)(2025)') }
+
+        it 'strips all appended years' do
+          expect(subject.display_title).to eq 'Gold Benefits'
+        end
+      end
+
+      context 'when title is nil' do
+        subject { described_class.new(title: nil) }
+
+        it 'returns an empty string' do
+          expect(subject.display_title).to eq ''
+        end
+      end
+    end
+
+    describe '#has_changes_on_renewal?' do
+      include_context 'setup renewal application'
+
+      subject { benefit_package }
+
+      context 'when predecessor is not present' do
+        before { allow(subject).to receive(:predecessor).and_return(nil) }
+
+        it 'returns false' do
+          expect(subject.has_changes_on_renewal?).to be false
+        end
+      end
+
+      context 'when predecessor is present and nothing has changed' do
+        before do
+          allow(subject).to receive(:benefit_model_changed?).and_return(false)
+          allow(subject).to receive(:reference_plan_changed?).and_return(false)
+          allow(subject).to receive(:employer_contribution_changed?).and_return(false)
+        end
+
+        it 'returns false' do
+          expect(subject.has_changes_on_renewal?).to be false
+        end
+      end
+
+      context 'when the benefit model has changed' do
+        before do
+          allow(subject).to receive(:benefit_model_changed?).and_return(true)
+          allow(subject).to receive(:reference_plan_changed?).and_return(false)
+          allow(subject).to receive(:employer_contribution_changed?).and_return(false)
+        end
+
+        it 'returns true' do
+          expect(subject.has_changes_on_renewal?).to be true
+        end
+      end
+
+      context 'when the reference plan has changed' do
+        before do
+          allow(subject).to receive(:benefit_model_changed?).and_return(false)
+          allow(subject).to receive(:reference_plan_changed?).and_return(true)
+          allow(subject).to receive(:employer_contribution_changed?).and_return(false)
+        end
+
+        it 'returns true' do
+          expect(subject.has_changes_on_renewal?).to be true
+        end
+      end
+
+      context 'when the employer contribution has changed' do
+        before do
+          allow(subject).to receive(:benefit_model_changed?).and_return(false)
+          allow(subject).to receive(:reference_plan_changed?).and_return(false)
+          allow(subject).to receive(:employer_contribution_changed?).and_return(true)
+        end
+
+        it 'returns true' do
+          expect(subject.has_changes_on_renewal?).to be true
+        end
+      end
+    end
+
+    describe '#renewal_change_reasons' do
+      include_context 'setup renewal application'
+
+      subject { benefit_package }
+
+      context 'when predecessor is not present' do
+        before { allow(subject).to receive(:predecessor).and_return(nil) }
+
+        it 'returns empty array' do
+          expect(subject.renewal_change_reasons).to eq([])
+        end
+      end
+
+      context 'when predecessor is present and nothing has changed' do
+        before do
+          allow(subject).to receive(:benefit_model_changed?).and_return(false)
+          allow(subject).to receive(:reference_plan_changed?).and_return(false)
+          allow(subject).to receive(:employer_contribution_changed?).and_return(false)
+        end
+
+        it 'returns empty array' do
+          expect(subject.renewal_change_reasons).to eq([])
+        end
+      end
+
+      context 'when only the benefit model has changed' do
+        before do
+          allow(subject).to receive(:benefit_model_changed?).and_return(true)
+          allow(subject).to receive(:reference_plan_changed?).and_return(false)
+          allow(subject).to receive(:employer_contribution_changed?).and_return(false)
+        end
+
+        it 'returns array with benefit_model symbol' do
+          expect(subject.renewal_change_reasons).to eq([:benefit_model])
+        end
+      end
+
+      context 'when only the reference plan has changed' do
+        before do
+          allow(subject).to receive(:benefit_model_changed?).and_return(false)
+          allow(subject).to receive(:reference_plan_changed?).and_return(true)
+          allow(subject).to receive(:employer_contribution_changed?).and_return(false)
+        end
+
+        it 'returns array with reference_plan symbol' do
+          expect(subject.renewal_change_reasons).to eq([:reference_plan])
+        end
+      end
+
+      context 'when only the employer contribution has changed' do
+        before do
+          allow(subject).to receive(:benefit_model_changed?).and_return(false)
+          allow(subject).to receive(:reference_plan_changed?).and_return(false)
+          allow(subject).to receive(:employer_contribution_changed?).and_return(true)
+        end
+
+        it 'returns array with employer_contribution symbol' do
+          expect(subject.renewal_change_reasons).to eq([:employer_contribution])
+        end
+      end
+
+      context 'when multiple changes have occurred' do
+        before do
+          allow(subject).to receive(:benefit_model_changed?).and_return(true)
+          allow(subject).to receive(:reference_plan_changed?).and_return(true)
+          allow(subject).to receive(:employer_contribution_changed?).and_return(false)
+        end
+
+        it 'returns array with multiple symbols' do
+          expect(subject.renewal_change_reasons).to include(:benefit_model, :reference_plan)
+          expect(subject.renewal_change_reasons.length).to eq(2)
+        end
+      end
+
+      context 'when all changes have occurred' do
+        before do
+          allow(subject).to receive(:benefit_model_changed?).and_return(true)
+          allow(subject).to receive(:reference_plan_changed?).and_return(true)
+          allow(subject).to receive(:employer_contribution_changed?).and_return(true)
+        end
+
+        it 'returns array with all three symbols' do
+          expect(subject.renewal_change_reasons).to include(:benefit_model, :reference_plan, :employer_contribution)
+          expect(subject.renewal_change_reasons.length).to eq(3)
+        end
+      end
+    end
+
+    describe '#benefit_model_changed?' do
+      include_context 'setup renewal application'
+
+      subject { benefit_package }
+
+      context 'when predecessor is not present' do
+        before { allow(subject).to receive(:predecessor).and_return(nil) }
+
+        it 'returns false' do
+          expect(subject.benefit_model_changed?).to be false
+        end
+      end
+
+      context 'when product_package_kind matches predecessor' do
+        before do
+          allow(subject.health_sponsored_benefit).to receive(:product_package_kind).and_return(:single_issuer)
+          allow(current_benefit_package.health_sponsored_benefit).to receive(:product_package_kind).and_return(:single_issuer)
+        end
+
+        it 'returns false' do
+          expect(subject.benefit_model_changed?).to be false
+        end
+      end
+
+      context 'when product_package_kind differs from predecessor' do
+        before do
+          allow(subject.health_sponsored_benefit).to receive(:product_package_kind).and_return(:metal_level)
+          allow(current_benefit_package.health_sponsored_benefit).to receive(:product_package_kind).and_return(:single_issuer)
+        end
+
+        it 'returns true' do
+          expect(subject.benefit_model_changed?).to be true
+        end
+      end
+    end
+
+    describe '#employer_contribution_changed?' do
+      include_context 'setup renewal application'
+
+      subject { benefit_package }
+
+      context 'when predecessor is not present' do
+        before { allow(subject).to receive(:predecessor).and_return(nil) }
+
+        it 'returns false' do
+          expect(subject.employer_contribution_changed?).to be false
+        end
+      end
+
+      context 'when health contribution factors match predecessor' do
+        it 'returns false' do
+          expect(subject.employer_contribution_changed?).to be false
+        end
+      end
+
+      context 'when a health contribution factor differs from predecessor' do
+        before do
+          renewal_level = subject.health_sponsored_benefit.sponsor_contribution.contribution_levels.first
+          renewal_level.update_attributes!(contribution_factor: 0.50)
+        end
+
+        it 'returns true' do
+          expect(subject.employer_contribution_changed?).to be true
+        end
+      end
+    end
+
+    describe '#reference_plan_changed?' do
+      include_context 'setup renewal application'
+
+      subject { benefit_package }
+
+      context 'when predecessor is not present' do
+        before { allow(subject).to receive(:predecessor).and_return(nil) }
+
+        it 'returns false' do
+          expect(subject.send(:reference_plan_changed?)).to be false
+        end
+      end
+
+      context 'when health hios_id matches predecessor' do
+        let(:health_product) { FactoryBot.create(:benefit_markets_products_health_products_health_product, hios_id: '12345-01') }
+        let(:predecessor_health_product) { FactoryBot.create(:benefit_markets_products_health_products_health_product, hios_id: '12345-01') }
+
+        before do
+          allow(subject.health_sponsored_benefit).to receive(:reference_product).and_return(health_product)
+          allow(current_benefit_package.health_sponsored_benefit).to receive(:reference_product).and_return(predecessor_health_product)
+        end
+
+        it 'returns false' do
+          expect(subject.send(:reference_plan_changed?)).to be false
+        end
+      end
+
+      context 'when health hios_id differs from predecessor' do
+        let(:health_product) { FactoryBot.create(:benefit_markets_products_health_products_health_product, hios_id: '12345-01') }
+        let(:predecessor_health_product) { FactoryBot.create(:benefit_markets_products_health_products_health_product, hios_id: '67890-01') }
+
+        before do
+          allow(subject.health_sponsored_benefit).to receive(:reference_product).and_return(health_product)
+          allow(current_benefit_package.health_sponsored_benefit).to receive(:reference_product).and_return(predecessor_health_product)
+        end
+
+        it 'returns true' do
+          expect(subject.send(:reference_plan_changed?)).to be true
+        end
+      end
+
+      context 'when dental hios_id differs from predecessor' do
+        let(:dental_product) { FactoryBot.create(:benefit_markets_products_dental_products_dental_product, hios_id: '11111-01') }
+        let(:predecessor_dental_product) { FactoryBot.create(:benefit_markets_products_dental_products_dental_product, hios_id: '22222-01') }
+
+        before do
+          allow(subject).to receive(:dental_sponsored_benefit).and_return(double(reference_product: dental_product))
+          allow(current_benefit_package).to receive(:dental_sponsored_benefit).and_return(double(reference_product: predecessor_dental_product))
+        end
+
+        it 'returns true' do
+          expect(subject.send(:reference_plan_changed?)).to be true
+        end
+      end
+    end
+
+    describe '#health_reference_changed?' do
+      include_context 'setup renewal application'
+
+      subject { benefit_package }
+
+      context 'when predecessor is not present' do
+        subject { described_class.new }
+
+        it 'returns false' do
+          expect(subject.send(:health_reference_changed?)).to be false
+        end
+      end
+
+      context 'when health_sponsored_benefit is blank' do
+        before do
+          allow(subject).to receive(:health_sponsored_benefit).and_return(nil)
+        end
+
+        it 'returns false' do
+          expect(subject.send(:health_reference_changed?)).to be false
+        end
+      end
+
+      context 'when predecessor health_sponsored_benefit is blank' do
+        before do
+          allow(current_benefit_package).to receive(:health_sponsored_benefit).and_return(nil)
+        end
+
+        it 'returns false' do
+          expect(subject.send(:health_reference_changed?)).to be false
+        end
+      end
+
+      context 'when reference_product is blank' do
+        before do
+          allow(subject.health_sponsored_benefit).to receive(:reference_product).and_return(nil)
+        end
+
+        it 'returns false' do
+          expect(subject.send(:health_reference_changed?)).to be false
+        end
+      end
+
+      context 'when predecessor reference_product is blank' do
+        before do
+          allow(current_benefit_package.health_sponsored_benefit).to receive(:reference_product).and_return(nil)
+        end
+
+        it 'returns false' do
+          expect(subject.send(:health_reference_changed?)).to be false
+        end
+      end
+
+      context 'when hios_id matches predecessor' do
+        let(:health_product) { FactoryBot.create(:benefit_markets_products_health_products_health_product, hios_id: '12345-01') }
+        let(:predecessor_health_product) { FactoryBot.create(:benefit_markets_products_health_products_health_product, hios_id: '12345-01') }
+
+        before do
+          allow(subject.health_sponsored_benefit).to receive(:reference_product).and_return(health_product)
+          allow(current_benefit_package.health_sponsored_benefit).to receive(:reference_product).and_return(predecessor_health_product)
+        end
+
+        it 'returns false' do
+          expect(subject.send(:health_reference_changed?)).to be false
+        end
+      end
+
+      context 'when hios_id differs from predecessor' do
+        let(:health_product) { FactoryBot.create(:benefit_markets_products_health_products_health_product, hios_id: '12345-01') }
+        let(:predecessor_health_product) { FactoryBot.create(:benefit_markets_products_health_products_health_product, hios_id: '67890-01') }
+
+        before do
+          allow(subject.health_sponsored_benefit).to receive(:reference_product).and_return(health_product)
+          allow(current_benefit_package.health_sponsored_benefit).to receive(:reference_product).and_return(predecessor_health_product)
+        end
+
+        it 'returns true' do
+          expect(subject.send(:health_reference_changed?)).to be true
+        end
+      end
+    end
+
+    describe '#dental_reference_changed?' do
+      include_context 'setup renewal application'
+
+      subject { benefit_package }
+
+      context 'when predecessor is not present' do
+        subject { described_class.new }
+
+        it 'returns false' do
+          expect(subject.send(:dental_reference_changed?)).to be false
+        end
+      end
+
+      context 'when dental_sponsored_benefit is blank' do
+        before do
+          allow(subject).to receive(:dental_sponsored_benefit).and_return(nil)
+        end
+
+        it 'returns false' do
+          expect(subject.send(:dental_reference_changed?)).to be false
+        end
+      end
+
+      context 'when predecessor dental_sponsored_benefit is blank' do
+        before do
+          allow(current_benefit_package).to receive(:dental_sponsored_benefit).and_return(nil)
+        end
+
+        it 'returns false' do
+          expect(subject.send(:dental_reference_changed?)).to be false
+        end
+      end
+
+      context 'when reference_product is blank' do
+        before do
+          allow(subject).to receive(:dental_sponsored_benefit).and_return(double(reference_product: nil))
+        end
+
+        it 'returns false' do
+          expect(subject.send(:dental_reference_changed?)).to be false
+        end
+      end
+
+      context 'when predecessor reference_product is blank' do
+        before do
+          allow(current_benefit_package).to receive(:dental_sponsored_benefit).and_return(double(reference_product: nil))
+        end
+
+        it 'returns false' do
+          expect(subject.send(:dental_reference_changed?)).to be false
+        end
+      end
+
+      context 'when hios_id matches predecessor' do
+        let(:dental_product) { FactoryBot.create(:benefit_markets_products_dental_products_dental_product, hios_id: '11111-01') }
+        let(:predecessor_dental_product) { FactoryBot.create(:benefit_markets_products_dental_products_dental_product, hios_id: '11111-01') }
+
+        before do
+          allow(subject).to receive(:dental_sponsored_benefit).and_return(double(reference_product: dental_product))
+          allow(current_benefit_package).to receive(:dental_sponsored_benefit).and_return(double(reference_product: predecessor_dental_product))
+        end
+
+        it 'returns false' do
+          expect(subject.send(:dental_reference_changed?)).to be false
+        end
+      end
+
+      context 'when hios_id differs from predecessor' do
+        let(:dental_product) { FactoryBot.create(:benefit_markets_products_dental_products_dental_product, hios_id: '11111-01') }
+        let(:predecessor_dental_product) { FactoryBot.create(:benefit_markets_products_dental_products_dental_product, hios_id: '22222-01') }
+
+        before do
+          allow(subject).to receive(:dental_sponsored_benefit).and_return(double(reference_product: dental_product))
+          allow(current_benefit_package).to receive(:dental_sponsored_benefit).and_return(double(reference_product: predecessor_dental_product))
+        end
+
+        it 'returns true' do
+          expect(subject.send(:dental_reference_changed?)).to be true
         end
       end
     end

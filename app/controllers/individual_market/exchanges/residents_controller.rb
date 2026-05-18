@@ -4,7 +4,7 @@ module IndividualMarket
   module Exchanges
     class ResidentsController < ApplicationController
       include ApplicationHelper
-      include Pundit
+      include Pundit::Authorization
       include VlpDoc
       include ErrorBubble
 

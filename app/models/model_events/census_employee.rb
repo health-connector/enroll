@@ -1,8 +1,12 @@
+# frozen_string_literal: true
+
 module ModelEvents
   module CensusEmployee
+    include DefineVariableHelper
 
     REGISTERED_EVENTS = [
-      :employee_notice_for_employee_terminated_from_roster
+      :employee_notice_for_employee_terminated_from_roster,
+      :employee_notice_for_employer_sponsored_cobra_enrollments
     ]
 
     OTHER_EVENTS = [
@@ -16,12 +20,15 @@ module ModelEvents
         is_employee_notice_for_employee_terminated_from_roster = true
       end
 
+      cobra_transition_match = is_transition_matching?(to: [:cobra_linked, :cobra_eligible], from: [:employment_terminated], event: [:elect_cobra])
+      is_employee_notice_for_employer_sponsored_cobra_enrollments = true if EnrollRegistry.feature_enabled?(:employer_broker_ui_enhancements) && cobra_transition_match
+
       REGISTERED_EVENTS.each do |event|
-        if event_fired = instance_eval("is_" + event.to_s)
-          # event_name = ("on_" + event.to_s).to_sym
-          event_options = {} # instance_eval(event.to_s + "_options") || {}
-          notify_observers(ModelEvent.new(event, self, event_options))
-        end
+        next unless check_local_variable("is_#{event}", binding)
+
+        # event_name = ("on_" + event.to_s).to_sym
+        event_options = {} # instance_eval(event.to_s + "_options") || {}
+        notify_observers(ModelEvent.new(event, self, event_options))
       end
     end
 

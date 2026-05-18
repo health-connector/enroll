@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
   let(:user) { instance_double("User", :primary_family => test_family, :person => person) }
   let(:qle) { FactoryBot.create(:qualifying_life_event_kind) }
-  let(:test_family) { FactoryBot.build(:family, :with_primary_family_member) }
+  let(:test_family) { FactoryBot.create(:family, :with_primary_family_member) }
   let(:person) { test_family.primary_family_member.person }
   let(:published_plan_year)  { FactoryBot.build(:plan_year, aasm_state: :published)}
   let(:employer_profile) { FactoryBot.create(:employer_profile) }
@@ -17,6 +17,7 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
     employer_profile.plan_years << published_plan_year
     employer_profile.save
     allow(controller).to receive(:authorize).and_return(true)
+    allow(person).to receive(:employee_roles).and_return([employee_role])
   end
 
   describe "GET index" do
@@ -24,10 +25,16 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
       before(:each) do
         allow(person).to receive(:broker_role).and_return(nil)
         allow(user).to receive(:person).and_return(person)
+        allow(person).to receive(:primary_family).and_return(test_family)
         allow(Family).to receive(:find).and_return(test_family)
+        allow(test_family).to receive(:hire_broker_agency).and_return(true)
         sign_in(user)
+
+        # Simulate employee_role_id stored in session
+        session[:employee_role_id] = employee_role_id
+
         allow(controller.request).to receive(:referer).and_return('http://dchealthlink.com/insured/interactive_identity_verifications')
-        get :index, params: { :employee_role_id => employee_role_id, family_id: test_family.id }
+        get :index, params: { family_id: test_family.id }
       end
 
       it "renders the 'index' template" do
@@ -40,7 +47,11 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
       end
 
       it "assigns the family" do
-        expect(assigns(:family)).to eq nil
+        expect(assigns(:family)).to eq test_family
+      end
+
+      it "assigns the employee_role from session" do
+        expect(assigns(:employee_role)).to eq(employee_role)
       end
     end
 
@@ -48,10 +59,16 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
       before(:each) do
         allow(person).to receive(:broker_role).and_return(nil)
         allow(user).to receive(:person).and_return(person)
+        allow(person).to receive(:primary_family).and_return(test_family)
         allow(Family).to receive(:find).and_return(test_family)
+        allow(test_family).to receive(:hire_broker_agency).and_return(true)
         sign_in(user)
+
+        # Simulate employee_role_id stored in session
+        session[:employee_role_id] = employee_role_id
+
         allow(controller.request).to receive(:referer).and_return(nil)
-        get :index, params: { :employee_role_id => employee_role_id, family_id: test_family.id }
+        get :index, params: { family_id: test_family.id }
       end
 
       it "renders the 'index' template" do
@@ -64,23 +81,28 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
       end
 
       it "assigns the family" do
-        expect(assigns(:family)).to eq nil
+        expect(assigns(:family)).to eq test_family
+      end
+
+      it "assigns the employee_role from session" do
+        expect(assigns(:employee_role)).to eq(employee_role)
       end
     end
 
     # Some times Effective dates vary even for the next day. So creating a new SEP & re-calculating effective on dates
     context "with sep_id in params" do
-
       subject { Observers::NoticeObserver.new }
 
-      let(:sep) { FactoryBot.create :special_enrollment_period, family: test_family }
-      let(:dup_sep) { double("SpecialEnrPeriod", qle_on: TimeKeeper.date_of_record - 5.days) }
+      let(:sep) { FactoryBot.create(:special_enrollment_period, family: test_family) }
+      let(:dup_sep) { double("SpecialEnrollmentPeriod", qle_on: TimeKeeper.date_of_record - 5.days) }
 
       before :each do
         allow(person).to receive(:broker_role).and_return(nil)
         allow(user).to receive(:person).and_return(person)
         allow(Family).to receive(:find).and_return(test_family)
+        allow(test_family).to receive(:hire_broker_agency).and_return(true)
         sign_in(user)
+
         allow(controller.request).to receive(:referer).and_return(nil)
       end
 
@@ -90,14 +112,12 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
       end
 
       context "when using old active sep" do
-
         before do
-          allow(Family).to receive(:find).and_return(test_family)
           sep.update_attributes(submitted_at: TimeKeeper.datetime_of_record - 1.day)
         end
 
-        it "should not get assign with old sep" do
-          get :index, params: { :sep_id => sep.id, qle_id: sep.qualifying_life_event_kind_id, family_id: test_family.id }
+        it "should not get assigned with old sep" do
+          get :index, params: { sep_id: sep.id, qle_id: sep.qualifying_life_event_kind_id, family_id: test_family.id }
           expect(assigns(:sep)).not_to eq sep
         end
 
@@ -107,23 +127,24 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
           expect(assigns(:sep)).to eq dup_sep
         end
 
-        it "should have the today's date as submitted_at" do
-          get :index, params: { :sep_id => sep.id, qle_id: sep.qualifying_life_event_kind_id, family_id: test_family.id }
+        it "should have today's date as submitted_at" do
+          get :index, params: { sep_id: sep.id, qle_id: sep.qualifying_life_event_kind_id, family_id: test_family.id }
           expect(assigns(:sep).submitted_at.to_date).to eq TimeKeeper.date_of_record
         end
       end
     end
 
-    it "with qle_id" do
+    it "creates a new SEP when qle_id is present" do
       allow(person).to receive(:primary_family).and_return(test_family)
       allow(person).to receive(:broker_role).and_return(nil)
       allow(employee_role).to receive(:save!).and_return(true)
       allow(employer_profile).to receive(:published_plan_year).and_return(published_plan_year)
       allow(Family).to receive(:find).and_return(test_family)
-      sign_in user
-      allow(controller.request).to receive(:referer).and_return('http://dchealthlink.com/insured/interactive_identity_verifications')
+      allow(test_family).to receive(:hire_broker_agency).and_return(true)
+      sign_in(user)
+
       expect do
-        get :index, params: { employee_role_id: employee_role_id, family_id: test_family.id, qle_id: qle.id, effective_on_kind: 'date_of_event', qle_date: '10/10/2015', published_plan_year: '10/10/2015' }
+        get :index, params: { family_id: test_family.id, qle_id: qle.id, effective_on_kind: 'date_of_event', qle_date: '10/10/2015' }
       end.to change(test_family.special_enrollment_periods, :count).by(1)
     end
   end
@@ -311,7 +332,7 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
     before(:each) do
       sign_in(user)
       allow(Forms::FamilyMember).to receive(:find).with(dependent_id).and_return(dependent)
-      allow(dependent).to receive(:update_attributes).with(dependent_properties).and_return(update_result)
+      allow(dependent).to receive(:update_attributes).with(kind_of(Hash)).and_return(update_result)
       allow(dependent).to receive(:family_id).and_return(test_family.id)
       allow(Family).to receive(:find).with(test_family.id).and_return(test_family)
       allow(address).to receive(:is_a?).and_return(true)
@@ -349,6 +370,40 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
         put :update, params: {:id => dependent_id, :dependent => dependent_properties}
         expect(response).to have_http_status(:success)
         expect(response).to render_template("edit")
+      end
+
+      context "with address updates" do
+        let(:dependent_properties_with_addresses) do
+          {
+            "first_name" => "John",
+            "addresses" => {
+              "0" => {"kind" => "home", "address_1" => "123 Main St", "city" => "Boston", "state" => "MA", "zip" => "02101"}
+            }
+          }
+        end
+
+        it "should update dependent address fields including zip code" do
+          allow(controller).to receive(:update_vlp_documents).and_return(true)
+          put :update, params: {:id => dependent_id, :dependent => dependent_properties_with_addresses}
+          expect(response).to have_http_status(:success)
+          expect(response).to render_template("show")
+        end
+
+        it "should convert ActionController::Parameters addresses to plain hashes" do
+          allow(controller).to receive(:update_vlp_documents).and_return(true)
+
+          # Verify that the sanitized params passed to update_attributes contain plain hashes, not ActionController::Parameters
+          expect(dependent).to receive(:update_attributes) do |attrs|
+            expect(attrs[:addresses]).to be_a(Hash)
+            attrs[:addresses].each_value do |address|
+              expect(address).to be_a(Hash)
+              expect(address).not_to be_a(ActionController::Parameters)
+            end
+            true
+          end
+
+          put :update, params: {:id => dependent_id, :dependent => dependent_properties_with_addresses}
+        end
       end
     end
   end

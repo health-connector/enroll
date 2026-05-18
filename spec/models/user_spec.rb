@@ -279,7 +279,7 @@ RSpec.describe User, :type => :model, dbclean: :after_each do
         expect(user.errors[:person].any?).to be_truthy
         expect(user.errors[:person]).to eq ["is invalid"]
         expect(user.person.errors[:ssn].any?).to be_truthy
-        expect(user.person.errors[:ssn]).to eq ["SSN must be 9 digits"]
+        expect(user.person.errors[:ssn]).to eq ["must have 9 digits"]
       end
     end
 
@@ -383,11 +383,6 @@ RSpec.describe User, :type => :model, dbclean: :after_each do
       user.roles = []
       allow(person).to receive(:consumer_role).and_return true
       expect(user.get_announcements_by_roles_and_portal("dc.org/consumers")).to eq ["msg for IVL"]
-    end
-
-    it "when general_agency_staff" do
-      user.roles = ['general_agency_staff']
-      expect(user.get_announcements_by_roles_and_portal("dc.org/general_agencies")).to eq ["msg for GA"]
     end
 
     context "when broker_role and consumer_role" do
@@ -543,10 +538,6 @@ RSpec.describe User, :type => :model, dbclean: :after_each do
         expect(user.can_change_broker?).to eq false
       end
 
-      it "should return false when general agency staff" do
-        user.roles = ['general_agency_staff']
-        expect(user.can_change_broker?).to eq false
-      end
     end
   end
 

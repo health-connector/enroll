@@ -9,7 +9,7 @@ describe "shared/custom_dental_offered_plans_modal.html.erb" do
   let(:plan) { FactoryBot.build_stubbed(:plan) }
 
   before :each do
-    render :partial => "shared/custom_dental_offered_plans_modal.html.erb", :locals => {:bg => benefit_group}
+    render :partial => "shared/custom_dental_offered_plans_modal", :locals => {:bg => benefit_group}
   end
 
   it "should display the modal title" do

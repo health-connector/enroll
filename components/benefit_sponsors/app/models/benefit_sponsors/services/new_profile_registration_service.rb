@@ -101,25 +101,29 @@ module BenefitSponsors
 
       def office_locations_form_to_params(locations)
         locations.each_with_index.inject({}) do |result, (form, index_val)|
-          attributes = sanitize_params(form.attributes.slice(:is_primary, :id, :_destroy))
-          unless attributes[:_destroy] == "true"
-            attributes.merge!({
-                                :phone_attributes => phone_form_to_params(form.phone),
-                                :address_attributes => address_form_to_params(form.address)
-                              })
+          attributes = sanitize_params(form.attributes.deep_symbolize_keys.slice(:is_primary, :id, :_destroy))
+          if form._destroy
+            result[index_val] = attributes
+            next result
           end
+          attributes[:phone_attributes] = phone_form_to_params(form.phone) if form.phone.present?
+          attributes[:address_attributes] = address_form_to_params(form.address) if form.address.present?
           result[index_val] = attributes
           result
         end
       end
 
       def phone_form_to_params(form)
-        attrs = form.attributes.slice(:kind, :area_code, :number, :extension, :id)
+        return {} if form.blank?
+
+        attrs = form.attributes.deep_symbolize_keys.slice(:kind, :area_code, :number, :extension, :id)
         sanitize_params attrs
       end
 
       def address_form_to_params(form)
-        attrs = form.attributes.slice(:address_1, :address_2, :city, :kind, :state, :zip, :county, :id)
+        return {} if form.blank?
+
+        attrs = form.attributes.deep_symbolize_keys.slice(:address_1, :address_2, :city, :kind, :state, :zip, :county, :id)
         sanitize_params attrs
       end
 
@@ -128,17 +132,17 @@ module BenefitSponsors
       end
 
       def organization_attributes(form)
-        form.attributes.slice(:entity_kind, :fein, :dba, :legal_name)
+        form.attributes.deep_symbolize_keys.slice(:entity_kind, :fein, :dba, :legal_name)
       end
 
       def profile_attributes(form)
         if is_broker_profile?
-          form.attributes.slice(:id, :market_kind, :home_page, :accept_new_clients, :languages_spoken, :working_hours, :ach_routing_number, :ach_account_number)
+          form.attributes.deep_symbolize_keys.slice(:id, :market_kind, :home_page, :accept_new_clients, :languages_spoken, :working_hours, :ach_routing_number, :ach_account_number)
         elsif is_sponsor_profile?
           if is_cca_sponsor_profile?
-            form.attributes.slice(:contact_method, :id, :sic_code, :referred_by, :referred_reason)
+            form.attributes.deep_symbolize_keys.slice(:contact_method, :id, :sic_code, :referred_by, :referred_reason)
           else
-            form.attributes.slice(:contact_method, :id)
+            form.attributes.deep_symbolize_keys.slice(:contact_method, :id)
           end
         end
       end
@@ -202,8 +206,11 @@ module BenefitSponsors
       end
 
       def map_errors_for(factory_obj, onto:)
-        factory_obj.errors.each do |att, err|
-          onto.errors.add(map_model_error_attribute(att), err)
+        factory_obj.errors.each do |error|
+          onto.errors.add(
+            map_model_error_attribute(error.attribute),
+            error.message
+          )
         end
       end
 
@@ -247,13 +254,6 @@ module BenefitSponsors
 
         profile = load_profile
         profile.broker_agency_accounts.any? {|acc| acc.writing_agent_id == person.broker_role.id}
-      end
-
-      def is_general_agency_staff_for_employer?(user, _form)
-        return false unless user.person.general_agency_staff_roles.present?
-
-        # TODO: - check ER has this GA or not
-        true
       end
 
       def has_broker_role_for_profile?(user, profile) # When profile is broker agency

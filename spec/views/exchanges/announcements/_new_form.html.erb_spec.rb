@@ -7,7 +7,7 @@ describe "exchanges/announcements/_new_form.html.erb" do
   before :each do
     sign_in user
     allow(view).to receive(:policy_helper).and_return(double("FamilyPolicy", modify_admin_tabs?: true))
-    render template: "exchanges/announcements/_new_form.html.erb"
+    render template: "exchanges/announcements/_new_form"
   end
 
   it "should display the form of announcement" do

@@ -186,6 +186,7 @@ RSpec.describe "components/benefit_sponsors/app/views/benefit_sponsors/profiles/
         covered_count: 4,
         waived_count: 4,
         total_enrolled_count: 10,
+        total_enrolled_active_count: 10,
         enrollment_progress_bar: 2,
         progressbar_covered_count: 3,
         employee_participation_percent: 40,
@@ -323,11 +324,12 @@ RSpec.describe "components/benefit_sponsors/app/views/benefit_sponsors/profiles/
       before do
         allow(mock_user).to receive(:has_hbx_staff_role?).and_return(true)
         allow(view).to receive(:current_user).and_return(mock_user)
+        allow(employer_profile.published_plan_year).to receive(:open_enrollment_contains?).and_return(true)
         render "benefit_sponsors/profiles/employers/employer_profiles/my_account/home_tab"
       end
 
       it "renders the 'Run Eligibility Check' button" do
-        expect(rendered).to have_selector('input#eligibilityCheckButton')
+        expect(rendered).to have_selector('button#eligibilityCheckButton')
       end
     end
 
@@ -347,11 +349,12 @@ RSpec.describe "components/benefit_sponsors/app/views/benefit_sponsors/profiles/
       before do
         allow(mock_user).to receive(:has_hbx_staff_role?).and_return(true)
         allow(view).to receive(:current_user).and_return(mock_user)
+        allow(employer_profile.published_plan_year).to receive(:open_enrollment_contains?).and_return(true)
         render "benefit_sponsors/profiles/employers/employer_profiles/my_account/home_tab"
       end
 
       it "renders the 'Run Eligibility Check' button" do
-        expect(rendered).to have_selector('input#eligibilityCheckButton')
+        expect(rendered).to have_selector('button#eligibilityCheckButton')
       end
     end
   end

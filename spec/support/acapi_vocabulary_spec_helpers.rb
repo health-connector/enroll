@@ -56,8 +56,8 @@ module AcapiVocabularySpecHelpers
   end
 
   def validate_with_schema(document)
-    schema_location = File.join(Rails.root, "spec", "vocabularies", "vocabulary.xsd")
-    schema = Nokogiri::XML::Schema(File.open(schema_location))
+    schema_location = File.open("./spec/vocabularies/vocabulary.xsd")
+    schema = Nokogiri::XML::Schema(schema_location)
     schema.validate(document).map(&:message)
   end
 end

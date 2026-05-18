@@ -4,7 +4,6 @@ require 'rails_helper'
 
 describe "insured/family_members/_dependent_form.html.erb" do
   let(:person) { FactoryBot.create(:person) }
-  let(:consumer_role) { FactoryBot.create(:consumer_role)}
   let(:user) { FactoryBot.create(:user, person: person) }
   let(:family) { Family.new }
   let(:family_member) { family.family_members.new }
@@ -12,9 +11,9 @@ describe "insured/family_members/_dependent_form.html.erb" do
   let(:individual_market_is_enabled) { true }
 
   context "with consumer_role_id" do
+    let(:person) { FactoryBot.create(:person, :with_consumer_role)}
+
     before :each do
-      person.consumer_role = consumer_role
-      person.save
       sign_in user
       @request.env['HTTP_REFERER'] = 'consumer_role_id'
       allow(person).to receive(:has_active_consumer_role?).and_return true

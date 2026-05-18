@@ -40,7 +40,7 @@ module BenefitSponsors
           params = {
             market_kind: benefit_sponsorship.market_kind,
             benefit_sponsorship_id: benefit_sponsorship._id,
-            effective_date: effective_date,
+            effective_date: effective_date.to_date,
             benefit_application_kind: application_type(effective_date, benefit_sponsorship),
             service_areas: service_areas_entities.as_json
           }

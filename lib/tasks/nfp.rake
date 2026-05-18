@@ -5,7 +5,7 @@ namespace :nfp do
   desc "Upload invoice to and associate with employer"
   task :invoice_upload, [:invoice_path] => :environment do |task, args|
     absolute_folder_path = args.invoice_path
-    if Dir.exists?(absolute_folder_path)
+    if Dir.exist?(absolute_folder_path)
       Dir.entries(absolute_folder_path).each do |file|
         next if File.directory?(file) #skipping directories
         puts "uploading file #{absolute_folder_path}/#{file}" unless Rails.env.test?

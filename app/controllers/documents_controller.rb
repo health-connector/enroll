@@ -12,7 +12,7 @@ class DocumentsController < ApplicationController
       relation_id = params[:relation_id]
       documents = @record.documents
       uri = documents.find(relation_id).identifier
-      send_data Aws::S3Storage.find(uri), get_options(params)
+      send_binary_data Aws::S3Storage.find(uri), get_options(params)
     rescue => e
       redirect_to(:back, :flash => {error: e.message})
     end
@@ -50,7 +50,7 @@ class DocumentsController < ApplicationController
       bucket = env_bucket_name("templates")
       key = EnrollRegistry[:enroll_app].setting(:census_employees_template_file).item
       uri = "urn:openhbx:terms:v1:file_storage:s3:bucket:#{bucket}##{key}"
-      send_data Aws::S3Storage.find(uri), get_options(params)
+      send_binary_data Aws::S3Storage.find(uri), get_options(params)
     rescue StandardError => e
       Rails.logger.error { "Error while downloading: #{e}" }
       redirect_to :back, :flash => { :error => l10n('exchange.download_failed') }
@@ -63,7 +63,7 @@ class DocumentsController < ApplicationController
     begin
       sbc_document = fetch_product_sbc_document || fetch_plan_sbc_document
       uri = sbc_document.identifier
-      send_data Aws::S3Storage.find(uri), get_options(params)
+      send_binary_data Aws::S3Storage.find(uri), get_options(params)
     rescue StandardError => e
       Rails.logger.error { "Error while downloading: #{e}" }
       redirect_to :back, :flash => { :error => l10n('exchange.download_failed') }
@@ -80,7 +80,7 @@ class DocumentsController < ApplicationController
     begin
       attestation_document = fetch_employer_profile_attestation_document(employer_profile)
       uri = attestation_document&.identifier
-      send_data Aws::S3Storage.find(uri), get_options(params)
+      send_binary_data Aws::S3Storage.find(uri), get_options(params)
     rescue StandardError => e
       Rails.logger.error { "Error while downloading: #{e}" }
       redirect_to :back, :flash => { :error => l10n('exchange.download_failed') }
@@ -88,6 +88,11 @@ class DocumentsController < ApplicationController
   end
 
   private
+
+  def send_binary_data(data, options)
+    binary_data = data.force_encoding(Encoding::BINARY)
+    send_data(binary_data, options)
+  end
 
   def env_bucket_name(bucket_name)
     aws_env = ENV['AWS_ENV'] || "qa"
@@ -127,7 +132,7 @@ class DocumentsController < ApplicationController
 
   def get_options(params)
     options = {}
-    options[:content_type] = params[:content_type] if params[:content_type]
+    options[:type] = params[:content_type] if params[:content_type]
     options[:filename] = params[:filename] if params[:filename]
     options[:disposition] = params[:disposition] if params[:disposition]
     options

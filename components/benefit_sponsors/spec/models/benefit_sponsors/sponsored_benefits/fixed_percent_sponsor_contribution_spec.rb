@@ -19,7 +19,7 @@ module BenefitSponsors
 
       it "has invalid contribution levels" do
         subject.valid?
-        expect(subject.errors.keys.include?(:contribution_levels)).to be_truthy
+        expect(subject.errors.attribute_names.include?(:contribution_levels)).to be_truthy
       end
     end
 

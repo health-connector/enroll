@@ -6,5 +6,5 @@ require File.join(Rails.root, "app", "data_migrations", "products", "mark_premiu
 
 namespace :migrations do
   desc "mark premium value products in given rating areas"
-  MarkPremiumValueProductsInRatingAreas.define_task :mark_premium_value_products_in_rating_areas => :environment
+  Products::MarkPremiumValueProductsInRatingAreas.define_task :mark_premium_value_products_in_rating_areas => :environment
 end

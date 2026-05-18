@@ -1,4 +1,3 @@
-require 'services/checkbook_services'
 
 class CensusEmployee < CensusMember
   include AASM
@@ -105,6 +104,10 @@ class CensusEmployee < CensusMember
       name: "benefit_group_assignments_renewal_search_index"
     }
   )
+  index({
+    "benefit_sponsorship_id" => 1,
+    "aasm_state" => 1
+  })
 
   scope :active,            ->{ any_in(aasm_state: EMPLOYMENT_ACTIVE_STATES) }
   scope :terminated,        ->{ any_in(aasm_state: EMPLOYMENT_TERMINATED_STATES) }
@@ -1003,7 +1006,6 @@ class CensusEmployee < CensusMember
 
       CSV.generate(headers: true) do |csv|
         csv << (["#{Settings.site.long_name} Employee Census Template"] + 6.times.collect{ "" } + [] + 5.times.collect{ "" } + [])
-        csv << %w[employer_assigned_family_id employee_relationship last_name first_name middle_name name_sfx email dob gender hire_date termination_date is_business_owner benefit_group plan_year kind address_1 address_2 city state zip]
         csv << columns
         census_employees_query_criteria(employer_profile_id).each do |rec|
           is_active = rec["benefit_group_assignments"].present? ? rec["benefit_group_assignments"].any?{|bga| (bga["start_on"]..bga["end_on"]).cover?(TimeKeeper.date_of_record)} : false
@@ -1027,7 +1029,6 @@ class CensusEmployee < CensusMember
         rec["middle_name"],
         rec["name_sfx"],
         rec["email"].present? ? rec["email"]["address"] : nil,
-        SymmetricEncryption.decrypt(rec["encrypted_ssn"]),
         rec["dob"].present? ? rec["dob"].strftime("%m/%d/%Y") : nil,
         rec["gender"]
       ]
@@ -1327,7 +1328,6 @@ class CensusEmployee < CensusMember
       transitions from: :cobra_terminated, to: :cobra_linked, :guard => :has_employee_role_linked?
       transitions from: :cobra_terminated, to: :cobra_eligible
     end
-
   end
 
   def self.roster_import_fallback_match(f_name, l_name, dob, bg_id)
@@ -1496,7 +1496,10 @@ class CensusEmployee < CensusMember
 
   def is_employee_covered?
     bga = renewal_benefit_group_assignment || active_benefit_group_assignment
-    bga.covered_families_with_benefit_assignemnt.present?
+    # some census employees have embedded benefit_group_assignments that are not marked active/renewal
+    return false if bga.nil?
+
+    bga.covered_families_with_benefit_assignment.present?
   end
 
   # Enrollments with current active and renewal benefit applications

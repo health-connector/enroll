@@ -10,7 +10,7 @@ class BuildShopEnrollment < MongoidMigrationTask
       end
       person = people.first
 
-      effective_on = Date.strptime(ENV['effective_on'].to_s, "%m/%d/%Y")
+      effective_on = Date.strptime(ENV['effective_on'].to_s, "%Y-%m-%d")
       plan_year_state = ENV['plan_year_state'].to_s
       new_hbx_id = ENV['new_hbx_id'].to_s
       fein = ENV['fein'].to_s

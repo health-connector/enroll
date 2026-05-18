@@ -4,7 +4,7 @@ require "rails_helper"
 require 'csv'
 require File.join(Rails.root, "app", "reports", "hbx_reports", "generate_2017_ehb_report")
 
-describe Generate2017EhbReport do
+describe HbxReports::Generate2017EhbReport do
 
   let(:given_task_name) { "generate_2017_ehb_report" }
   let(:person) do
@@ -22,7 +22,7 @@ describe Generate2017EhbReport do
                       plan: plan,
                       applied_aptc_amount: 550.98)
   end
-  subject { Generate2017EhbReport.new(given_task_name, double(:current_scope => nil)) }
+  subject { HbxReports::Generate2017EhbReport.new(given_task_name, double(:current_scope => nil)) }
 
   describe "correct data input" do
     it "has the given task name" do

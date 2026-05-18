@@ -69,7 +69,7 @@ RSpec.describe BenefitMarkets::Operations::ProductPackages::Create, dbclean: :af
       pricing_model: pricing_model, description: 'description', assigned_contribution_model: contribution_model.to_h
     }
   end
-  let(:service_areas)          { create(:benefit_markets_locations_service_area).to_a }
+  let(:service_areas)          { [create(:benefit_markets_locations_service_area)] }
   let(:params)                 { {product_package_params: product_package_params, enrollment_eligibility: double(effective_date: effective_date, market_kind: :aca_shop, benefit_application_kind: :initial, service_areas: service_areas)} }
 
   context 'sending required parameters' do

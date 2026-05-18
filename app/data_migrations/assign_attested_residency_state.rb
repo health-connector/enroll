@@ -1,6 +1,6 @@
 require File.join(Rails.root, "lib/mongoid_migration_task")
 
-class AssignAttestedResidency < MongoidMigrationTask
+class AssignAttestedResidencyState < MongoidMigrationTask
   def families
     Family.by_enrollment_individual_market.all_enrollments.by_enrollment_effective_date_range(TimeKeeper.date_of_record.beginning_of_year, TimeKeeper.date_of_record.end_of_year)
   end

@@ -9,10 +9,7 @@ describe "shared/_edit_reference_plans_list.html.erb" do
   let(:carrier_profile2) {double(:id => "carrier_2", :legal_name => "org_name_2")}
 
   before :each do
-    helper = Object.new.extend ActionView::Helpers::FormHelper
-    helper.extend ActionDispatch::Routing::PolymorphicRoutes
-    helper.extend ActionView::Helpers::FormOptionsHelper
-    mock_form = ActionView::Helpers::FormBuilder.new(:benefit_group, mock_benefit_group, helper, {})
+    mock_form = ActionView::Helpers::FormBuilder.new(:benefit_group, mock_benefit_group, view, {})
     assign :carriers_array, [[carrier_profile1.legal_name, carrier_profile1.id], [carrier_profile2.legal_name, carrier_profile2.id]]
     assign :carrier_names, {}
     assign :plan_year, mock_plan_year

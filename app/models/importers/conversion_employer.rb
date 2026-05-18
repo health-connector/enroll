@@ -171,20 +171,16 @@ module Importers
     end
 
     ["primary", "mailing"].each do |item|
-      class_eval(<<-RUBY_CODE)
-      def #{item}_location_zip=(val)
+      define_method("#{item}_location_zip=") do |val|
         if val.blank?
-          @#{item}_location_zip = nil
+          instance_variable_set("@#{item}_location_zip", nil)
           return val
+        elsif val.strip.length == 9
+          instance_variable_set("@#{item}_location_zip", val[0..4])
         else
-          if val.strip.length == 9
-            @#{item}_location_zip = val[0..4]
-          else
-            @#{item}_location_zip = val.strip.rjust(5, "0")
-          end
+          instance_variable_set("@#{item}_location_zip", val.strip.rjust(5, "0"))
         end
       end
-      RUBY_CODE
     end
 
     def assign_brokers

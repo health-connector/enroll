@@ -124,7 +124,7 @@ RSpec.describe ApplicationHelper, :type => :helper do
     let(:plan){ Maybe.new(FactoryBot.build(:plan, hios_id: "94506DC0350001-01", carrier_profile: carrier_profile)) }
 
     it "should return the named logo" do
-      expect(helper.display_carrier_logo(plan)).to match(%r{<img width="50" src="/assets/logo/carrier/kaiser-\w+\.jpg" />})
+      expect(helper.display_carrier_logo(plan)).to match(%r{<img width="50" alt="Kaiser logo" src="/assets/logo/carrier/kaiser-\w+\.jpg" />})
     end
   end
 
@@ -483,27 +483,6 @@ RSpec.describe ApplicationHelper, :type => :helper do
     end
   end
 
-  describe "show_default_ga?", dbclean: :after_each do
-    let(:general_agency_profile) { FactoryBot.create(:general_agency_profile, :shop_agency) }
-    let(:broker_agency_profile) { FactoryBot.create(:broker_agency_profile, :shop_agency) }
-
-    it "should return false without broker_agency_profile" do
-      expect(helper.show_default_ga?(general_agency_profile, nil)).to eq false
-    end
-
-    it "should return false without general_agency_profile" do
-      expect(helper.show_default_ga?(nil, broker_agency_profile)).to eq false
-    end
-
-    it "should return true" do
-      broker_agency_profile.default_general_agency_profile = general_agency_profile
-      expect(helper.show_default_ga?(general_agency_profile, broker_agency_profile)).to eq true
-    end
-
-    it "should return false when the default_general_agency_profile of broker_agency_profile is not general_agency_profile" do
-      expect(helper.show_default_ga?(general_agency_profile, broker_agency_profile)).to eq false
-    end
-  end
   describe "#show_oop_pdf_link", dbclean: :after_each do
     context 'valid aasm_state' do
       it "should return true" do
@@ -601,6 +580,57 @@ RSpec.describe ApplicationHelper, :type => :helper do
         display_text =
           EnrollRegistry.feature_enabled?("aca_shop_fetch_enrollment_minimum_participation_#{start_on.year}".to_sym) ? "1. 2/3 Rule Met? : Yes" : '1. 2/3 Rule Met? : No (4 more required)'
         expect(helper.participation_rule(employer)).to eq display_text
+      end
+    end
+  end
+
+  describe 'bulk_action_eligible_plan_years', :dbclean => :after_each do
+    include_context 'setup benefit market with market catalogs and product packages'
+    include_context 'setup initial benefit application'
+
+    let!(:employer) {abc_profile}
+
+    context 'for terminated state' do
+      before do
+        initial_application.aasm_state = :terminated
+        initial_application.save
+      end
+
+      it 'should return Ineligible' do
+        expect(helper.bulk_action_eligible_plan_years(employer)).to eq "Ineligible"
+      end
+    end
+
+    context 'for canceled state' do
+      before do
+        initial_application.aasm_state = :canceled
+        initial_application.save
+      end
+
+      it 'should return Ineligible' do
+        expect(helper.bulk_action_eligible_plan_years(employer)).to eq "Ineligible"
+      end
+    end
+
+    context 'for expired state' do
+      before do
+        initial_application.aasm_state = :expired
+        initial_application.save
+      end
+
+      it 'should return Ineligible' do
+        expect(helper.bulk_action_eligible_plan_years(employer)).to eq "Ineligible"
+      end
+    end
+
+    context 'for active state' do
+      before do
+        initial_application.aasm_state = :active
+        initial_application.save
+      end
+
+      it 'should return Eligible' do
+        expect(helper.bulk_action_eligible_plan_years(employer)).to eq "Eligible"
       end
     end
   end

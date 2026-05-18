@@ -10,7 +10,7 @@ describe "exchanges/announcements/_list.html.erb" do
     sign_in user
     assign(:announcements, [announcement])
     allow(view).to receive(:policy_helper).and_return(double("FamilyPolicy", modify_admin_tabs?: true))
-    render template: "exchanges/announcements/_list.html.erb"
+    render template: "exchanges/announcements/_list"
   end
 
   it "display announcements table" do

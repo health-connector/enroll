@@ -34,7 +34,7 @@ RSpec.describe QualifyingLifeEventKind, :type => :model do
     end
 
     context "should return a individual event kind" do
-      let(:params){ valid_params.deep_merge(market_kind: "individual") }
+      let(:params){ valid_params.deep_merge!(market_kind: "individual") }
       let(:qlek){ QualifyingLifeEventKind.create(**params)}
       before do
         qlek.valid?

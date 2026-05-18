@@ -4,7 +4,7 @@ class ChangeDateOfHire < MongoidMigrationTask
     begin
       ENV['hbx_id'].split(",").each do |hbx_id|
         person=Person.where(hbx_id: hbx_id).first
-        doh = Date.strptime(ENV['new_doh'].to_s, "%m/%d/%Y")
+        doh = ENV['new_doh'].to_date
         employer_profile = EmployerProfile.find(ENV['employer_profile_id'])
         if person.nil? || employer_profile.nil?
           puts "No Person / Employer was found with the given id #{hbx_id}" unless Rails.env.test?

@@ -9,7 +9,7 @@ Mongoid::Migration.say_with_time("Load MA employer Profiles") do
     hbx_id = yaml_str.split("\n")[10].split("hbx_id: ").last
     org = BenefitSponsors::Organizations::Organization.where(hbx_id: hbx_id)
     org.destroy if org.present?
-    organization = YAML.load(yaml_str)
+    organization = YAML.unsafe_load(yaml_str)
     organization.new_record = true
     organization.site = site
     benefit_sponsorship = organization.employer_profile.add_benefit_sponsorship

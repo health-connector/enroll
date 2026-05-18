@@ -32,12 +32,12 @@
               <td class="text-center">N/A</td>
             <% end %>
             
-            <td class="text-center"><%=f.qle_on%></td>
-            <td class="text-center"><%=f.start_on%></td>
-            <td class="text-center"><%=f.end_on%></td>
+            <td class="text-center"><%=format_date(f.qle_on)%></td>
+            <td class="text-center"><%=format_date(f.start_on)%></td>
+            <td class="text-center"><%=format_date(f.end_on)%></td>
             
             <% if f.next_poss_effective_date.present? %>
-              <td class="text-center"><%=f.next_poss_effective_date %></td>
+              <td class="text-center"><%=format_date(f.next_poss_effective_date) %></td>
             <% else %>
               <td class="text-center">N/A</td>
             <% end %>

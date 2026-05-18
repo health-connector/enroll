@@ -359,7 +359,7 @@ module Importers
 
       if enrollments.renewing.size > 1
         errors.add(:base, "duplicate passive renewals found!")
-        return false        
+        return false
       end
 
       if enrollments.renewing.blank?
@@ -367,7 +367,7 @@ module Importers
       else
         if renewal_plan.blank?
           errors.add(:base, "renewal plan missing!")
-          return false  
+          return false
         end
         enrollments.renewing.first.update_attributes(plan_id: renewal_plan.id)
         return true

@@ -18,14 +18,16 @@ RSpec.describe "app/views/insured/group_selection/terminate_confirm.html.erb" do
     let(:benefit_application) { benefit_sponsorship.benefit_applications.first }
     let(:employer_profile) { benefit_sponsorship.organization.employer_profile }
     let(:employee_names) { ["fname1 sname1", "fname2 sname2"] }
-
     let(:current_user) {FactoryBot.create(:user)}
+    let(:plan) { FactoryBot.build(:plan) }
 
     before(:each) do
       allow(hbx_enrollment).to receive(:covered_members_first_names).and_return(employee_names)
       allow(hbx_enrollment).to receive(:total_employee_cost).and_return(100.00)
+      allow(hbx_enrollment).to receive(:plan).and_return(plan)
+
       @hbx_enrollment = hbx_enrollment
-      render :template => "insured/group_selection/terminate_confirm.html.erb"
+      render :template => "insured/group_selection/terminate_confirm"
     end
 
     it "should show the DCHL ID as hbx_enrollment.hbx_id" do

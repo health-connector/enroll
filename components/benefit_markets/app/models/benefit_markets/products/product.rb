@@ -56,10 +56,12 @@ module BenefitMarkets
     index({ service_area_id: 1}, {name: "products_service_area_index"})
 
     index({ "kind" => 1 }, {name: "products_kind_index"})
-
+    index({ "product_package_kinds" => 1 }, {name: "products_product_package_kinds_index"})
+    index({ "benefit_market_kind" => 1,
+            "kind" => 1},
+          {name: "product_market_kind_index"})
     index({ "application_period.min" => 1,
-            "application_period.max" => 1,
-            },
+            "application_period.max" => 1},
             {name: "products_application_period_index"}
           )
 
@@ -96,6 +98,12 @@ module BenefitMarkets
                 :"product_package_kinds".in     => [product_package.package_kind]
               )
             }
+
+    scope :by_product_package_kinds,    lambda { |product_package|
+      where(
+        :product_package_kinds.in => [product_package.package_kind]
+      )
+    }
 
     scope :aca_shop_market,             ->{ where(benefit_market_kind: :aca_shop) }
     scope :aca_individual_market,       ->{ where(benefit_market_kind: :aca_individual) }
@@ -263,7 +271,7 @@ module BenefitMarkets
 
     def issuer_profile
       return @issuer_profile if defined?(@issuer_profile)
-      @issuer_profile = ::BenefitSponsors::Organizations::IssuerProfile.find(self.issuer_profile_id)
+      @issuer_profile = ::BenefitSponsors::Organizations::IssuerProfile.find(issuer_profile_id)
     end
 
     def issuer_profile=(new_issuer_profile)
@@ -325,8 +333,8 @@ module BenefitMarkets
     end
 
     def create_copy_for_embedding
-      self.class.new(self.attributes.except(:premium_tables)).tap do |new_product|
-        new_product.premium_tables = self.premium_tables.map { |pt| pt.create_copy_for_embedding }
+      self.class.new(attributes.except("premium_tables")).tap do |new_product|
+        new_product.premium_tables = premium_tables.map(&:create_copy_for_embedding)
       end
     end
 

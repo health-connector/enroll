@@ -13,7 +13,7 @@ RSpec.describe "employers/plan_years/_plan_options.html.erb" do
 
     assign(:plans, [plan])
     assign(:carrier_names, carriers)
-    render :template => "employers/plan_years/_plan_options.html.erb"
+    render :template => "employers/plan_years/_plan_options"
   end
 
   it "should show default option" do

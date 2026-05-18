@@ -218,7 +218,7 @@ Style/RedundantRegexpCharacterClass: # (new in 0.85)
 Style/RedundantRegexpEscape: # (new in 0.85)
   Enabled: true
 Style/RedundantSelfAssignment: # (new in 0.90)
-  Enabled: true
+  Enabled: false
 Style/SingleArgumentDig: # (new in 0.89)
   Enabled: true
 Style/SlicingWithRange: # (new in 0.83)
@@ -348,7 +348,7 @@ Style/RedundantArgument: # new in 1.4
 Style/RedundantInitialize: # new in 1.27
   Enabled: true
 Style/RedundantSelfAssignmentBranch: # new in 1.19
-  Enabled: true
+  Enabled: false
 Style/SelectByRegexp: # new in 1.22
   Enabled: true
 Style/StringChars: # new in 1.12
@@ -396,8 +396,6 @@ Style/FileEmpty: # new in 1.48
 Style/MagicCommentFormat: # new in 1.35
   Enabled: true
 Style/MapIntoArray: # new in 1.63
-  Enabled: true
-Style/MapToSet: # new in 1.42
   Enabled: true
 Style/MinMaxComparison: # new in 1.42
   Enabled: true

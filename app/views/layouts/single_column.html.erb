@@ -35,7 +35,7 @@
   </head>
   <body class="font">
 
-    <%= render partial: './ui-components/v1/navs/header' %>
+    <%= render partial: 'ui-components/v1/navs/header' %>
     <%= yield :horizontal_menu %>
     <%= render_flash %>
     <%= render 'users/security_question_responses/modal' %>
@@ -44,6 +44,6 @@
       <%= content_for?(:exchanges_layout) ? yield(:exchanges_layout) : yield %>
     </div>
 
-    <%= render partial: './ui-components/v1/layouts/footer' %>
+    <%= render partial: 'ui-components/v1/layouts/footer' %>
   </body>
  </html>

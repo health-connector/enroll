@@ -3,5 +3,5 @@
 require File.join(Rails.root, "app", "reports", "hbx_reports", "generate_2017_ehb_report")
 namespace :reports do
 	desc "Updating APTC Amount if Applied APTC Greater than Premium"
-	Generate2017EhbReport.define_task :generate_2017_ehb_report => :environment
+	HbxReports::Generate2017EhbReport.define_task :generate_2017_ehb_report => :environment
 end

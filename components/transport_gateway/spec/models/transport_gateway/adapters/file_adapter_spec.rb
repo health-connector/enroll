@@ -111,7 +111,7 @@ module TransportGateway
         to_uri
       end
       let(:gateway) { instance_double(TransportGateway::Gateway) }
-      let(:message_source) { TransportGateway::Sources::StringIOSource.new(body_data) }
+      let(:message_source) { TransportGateway::Sources::StringIoSource.new(body_data) }
 
       before :each do
         FileUtils.rm_f(out_file_path)

@@ -9,7 +9,8 @@ development:   &development_defaults
   key:         1234567890ABCDEF
   iv:          1234567890ABCDEF
   cipher_name: aes-128-cbc
-  encoding:    :base64strict
+  encoding: :base64
+  always_add_header: true
 
 test:
   <<: *development_defaults
@@ -22,3 +23,5 @@ production:
       iv: 1234567890ABCDEF
       cipher_name: aes-128-cbc
       version: 1
+      encoding: :base64
+      always_add_header: true

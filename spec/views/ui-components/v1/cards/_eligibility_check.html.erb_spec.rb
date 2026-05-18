@@ -24,7 +24,7 @@ RSpec.describe "ui-components/v1/cards/_eligibility_check.html.slim" do
     end
 
     it "displays the 'Run Eligibility Check' button" do
-      expect(rendered).to have_selector('input#eligibilityCheckButton')
+      expect(rendered).to have_selector('button#eligibilityCheckButton')
     end
 
     it "contains the loading icon with the appropriate classes" do

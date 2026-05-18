@@ -242,11 +242,54 @@
       font-weight:bold;
       padding-top: 20px;
     }
+    
+    /* Conditionally add space for compare checkbox when feature is enabled */
+    &.with-compare-checkbox .col-xs-12:hover .rp-view-summary {
+      padding-bottom: 40px;
+    }
+    
     .rp-view-summary {
       display:none;
     }
     
   }
+  #employer-plan-selection-filters {
+    margin: 3% 0% 3% 0%;
+
+    .filter-collapse {
+      font-weight: bold;
+      margin-bottom: 10px;
+      padding-left: 10%;
+    }
+
+    ul {
+      list-style: none;
+      padding-left: 10%;
+
+      .filter-title {
+        color: $primary-black;
+      }
+
+      label {
+        display: block;
+
+        input.plan-filter-checkbox[type=checkbox] {
+          display: inline-block;
+          height: auto;
+          margin: auto;
+        }
+      }
+    }
+
+    ul.deductible-filter-section {
+      margin-bottom: 0;
+      padding-left: 2%;
+    }
+  }
+}
+
+#yourSponsorContributions.with-compare-buttons {
+  margin-top: 100px;
 }
 
 #sponsorContributions {
@@ -456,6 +499,22 @@
     font-weight: normal;
   }
 }
+
+.carrierProductsFlexContainer {
+  display: flex;
+  padding-bottom: 25px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  display: flex;
+  flex-flow: row wrap;
+}
+
+.reference-plans.reference-plan-container {
+  flex: 0 0 33.333%;
+  display: flex;
+  padding: 1px 1px 1px 1px;
+}
+
 #employee-enrollments, #employer-plan-year, #employer-benefit-groups {
   .panel-heading {
     font-weight: 600;
@@ -509,6 +568,72 @@
     bottom: 10px;
     right: 10px;
     text-align: right;
+  }
+
+  .checkmark-compare-container {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    text-align: left;
+    width: 100px;
+    height: 25px;
+
+    .container-compare {
+      padding-left: 30px;
+      font-size: 16px;
+      font-weight: normal;
+      color: $mhc-dark-blue;
+      display: block;
+      position: relative;
+      cursor: pointer;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+
+      /* Hide the browser's default checkbox */
+      input {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+        height: 0;
+        width: 0;
+      }
+
+      .checkmark-compare {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 20px;
+        width: 20px;
+        background-color: #eee;
+        border: 1px solid #ccc;
+      }
+      /* When the checkbox is checked, add a blue background */
+      input:checked ~ .checkmark-compare {
+        background-color: $mhc-dark-blue;
+        border: 1px solid $mhc-dark-blue;
+      }
+      /* Create the checkmark/indicator (hidden when not checked) */
+      .checkmark-compare:after {
+          content: "";
+          position: absolute;
+          display: none;
+          left: 6px;
+          top: 2px;
+          width: 6px;
+          height: 12px;
+          border: solid white;
+          border-width: 0 3px 3px 0;
+          -webkit-transform: rotate(45deg);
+          -ms-transform: rotate(45deg);
+          transform: rotate(45deg);
+      }
+      /* Show the checkmark when checked */
+      input:checked ~ .checkmark-compare:after {
+          display: block;
+      }
+    }
   }
 
   .checkmark {
@@ -640,7 +765,7 @@
   line-height:1.1em;
 }
 
-#estimatedEmployeeCostDetailsLink:hover {
+#estimatedEmployeeCostDetailsLink.old-cost-details:hover {
   color: #23527c;
   text-decoration: underline;
   padding: 0 3px;
@@ -649,4 +774,21 @@
 .btn-link.btn-anchor {
   padding: 0 3px;
   vertical-align: baseline;
+}
+
+// Estimated Employee Cost
+.text-est-emp-cost {
+  align-items: center;
+  width: 100%;
+  text-align: justify;
+  padding-left: 5%;
+}
+
+.heading-est-emp-cost {
+  white-space:nowrap;
+  width: 100%;
+  padding-left: 5px;
+  font-weight: bold;
+  color: $primary-orange;
+  font-size: 1.3em;
 }

@@ -4,8 +4,8 @@ require "rails_helper"
 require 'csv'
 require File.join(Rails.root, "app", "reports", "hbx_reports", "shop_enrollment_report")
 
-describe ShopEnrollmentReport do
-  subject { ShopEnrollmentReport.new("shop_enrollment_report", double(:current_scope => nil)) }
+describe HbxReports::ShopEnrollmentReport do
+  subject { HbxReports::ShopEnrollmentReport.new("shop_enrollment_report", double(:current_scope => nil)) }
 
   before(:each) do
     subject.migrate

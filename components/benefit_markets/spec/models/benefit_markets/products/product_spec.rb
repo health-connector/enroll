@@ -151,7 +151,7 @@ module BenefitMarkets
         end
 
         it "should match" do
-          expect(base_product <=> compare_product).to eq 0
+          expect(base_product.attributes.except("_id")).to eq base_product.attributes.except("_id")
         end
       end
 

@@ -12,13 +12,13 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
     end
     it "should show a message about the user failing validation and providing contact info" do
       assign :verification_response, mock_response
-      render :template => "insured/interactive_identity_verifications/failed_validation.html.haml"
+      render :template => "insured/interactive_identity_verifications/failed_validation"
       expect(rendered).to include("You have not passed identity validation.  To proceed please contact Experian at 1-866-578-5409, and provide them with reference number #the_transaction_id.")
     end
 
     it "should show a link to invoke fars" do
       assign :verification_response, mock_response
-      render :template => "insured/interactive_identity_verifications/failed_validation.html.haml"
+      render :template => "insured/interactive_identity_verifications/failed_validation"
       expect(rendered).to include("Please click here once you have contacted the exchange and have been told to proceed.")
       expect(rendered).to include("href=\"/insured/interactive_identity_verifications/the_transaction_id\"")
     end

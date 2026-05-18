@@ -28,7 +28,7 @@ class HbxEnrollmentSponsorEnrollmentCoverageReportCalculator
       @active_year_map = {}
       ::BenefitMarkets::Products::Product.pluck(:_id, :issuer_profile_id, :"application_period").each do |rec|
         @issuer_profile_id_map[rec.first] = rec[1]
-        @active_year_map[rec.first] = rec.last["min"].year
+        @active_year_map[rec.first] = rec.last.begin.year
       end
     end
 

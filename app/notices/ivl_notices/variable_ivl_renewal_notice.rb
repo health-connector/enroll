@@ -10,7 +10,7 @@ class IvlNotices::VariableIvlRenewalNotice < IvlNotice
     self.data = args[:data]
     self.enrollment_group_ids = args[:enrollment_group_ids]
     self.plan_data_2016 = args[:plan_data_2016]
-    self.header = "notices/shared/header_with_page_numbers.html.erb"
+    self.header = "notices/shared/header_with_page_numbers"
     super(args)
   end
 

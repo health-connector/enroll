@@ -8,7 +8,7 @@ class RevertTerminationForEmployee < MongoidMigrationTask
         census_employee.reinstate_eligibility!
       else
         from_state = census_employee.aasm_state
-        census_employee.update_attributes(aasm_state:"employee_role_linked")
+        census_employee.update_attributes(aasm_state: "employee_role_linked")
         census_employee.workflow_state_transitions << WorkflowStateTransition.new(from_state: from_state, to_state: census_employee.aasm_state)
       end
       census_employee.unset(:employment_terminated_on, :coverage_terminated_on)
@@ -16,7 +16,7 @@ class RevertTerminationForEmployee < MongoidMigrationTask
 
 
       hbx_ids = "#{ENV['enrollment_hbx_id']}".split(',').uniq
-      @enrollments= []
+      @enrollments = []
       hbx_ids.each do |hbx_id|
         if HbxEnrollment.by_hbx_id(hbx_id.to_s).size != 1
           raise "Found no (OR) more than 1 enrollments with the #{hbx_id}" unless Rails.env.test?

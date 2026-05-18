@@ -5,7 +5,7 @@ def load_cca_benefit_markets_seed
     force_loaded_config = ::BenefitMarkets::Configurations::AcaShopConfiguration
     loaded_class = ::BenefitMarkets::BenefitMarket
     yaml_str = File.read(f_name)
-    data = YAML.load(yaml_str)
+    data = YAML.unsafe_load(yaml_str)
     data.new_record = true
     data.save!(validate: false)
   end

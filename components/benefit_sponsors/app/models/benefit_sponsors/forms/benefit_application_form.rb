@@ -36,6 +36,7 @@ module BenefitSponsors
 
       def service
         return @service if defined? @service
+
         @service = BenefitSponsors::Services::BenefitApplicationService.new
       end
 
@@ -83,6 +84,7 @@ module BenefitSponsors
         save_result, persisted_object = service.submit_application(self)
         @show_page_model = persisted_object
         return false unless save_result
+
         true
       end
 
@@ -96,13 +98,16 @@ module BenefitSponsors
         save_result, persisted_object = service.revert(self)
         @show_page_model = persisted_object
         return false unless save_result
+
         true
       end
 
       def persist(update: false)
         return false unless self.valid?
+
         save_result, persisted_object = (update ? service.update(self) : service.save(self))
         return false unless save_result
+
         @show_page_model = persisted_object
         true
       end
@@ -121,7 +126,30 @@ module BenefitSponsors
       end
 
       def validate_oe_dates
-        errors.add(:base, "Open Enrollment Start Date can't be later than the Open Enrollment End Date") if admin_datatable_action && Date.strptime(open_enrollment_end_on,'%m/%d/%Y') <= Date.strptime(open_enrollment_start_on,'%m/%d/%Y')
+        return false unless open_enrollment_start_on.present? && open_enrollment_end_on.present?
+
+        oe_start = parse_date_from_string(open_enrollment_start_on)
+        oe_end = parse_date_from_string(open_enrollment_end_on)
+        if admin_datatable_action && oe_end <= oe_start
+          errors.add(:base, "Open Enrollment Start Date can't be later than the Open Enrollment End Date")
+        elsif id.nil? && oe_start >= oe_end
+          errors.add(:base, "Open Enrollment Dates are not valid")
+        end
+      end
+
+      def parse_date_from_string(string)
+        return string if string.is_a?(Date)
+
+        if string.to_s.split('/').first.size == 2
+          Date.strptime(string.to_s, "%m/%d/%Y")
+        elsif string.to_s.split('-').first.size == 4
+          Date.strptime(string.to_s, "%Y-%m-%d")
+        else
+          Date.parse(string.to_s)
+        end
+      rescue Date::Error
+        errors.add(:base, "Invalid date format. Please use MM/DD/YYYY format for open enrollment dates.")
+        nil
       end
 
       def validate_application_dates

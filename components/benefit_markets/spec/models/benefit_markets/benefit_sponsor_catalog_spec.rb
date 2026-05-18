@@ -10,7 +10,7 @@ module BenefitMarkets
     let(:effective_period)        { effective_date..(effective_date + 1.year - 1.day) }
     let(:open_enrollment_period)  { (effective_date - 1.month)..(effective_date - 1.month + 9.days) }
     let(:probation_period_kinds)  { [:first_of_month, :first_of_month_after_30_days, :first_of_month_after_60_days] }
-    let(:service_areas)           { FactoryBot.build(:benefit_markets_locations_service_area).to_a }
+    let(:service_areas)           { [FactoryBot.build(:benefit_markets_locations_service_area)] }
     let(:sponsor_market_policy)   { BenefitMarkets::MarketPolicies::SponsorMarketPolicy.new }
     let(:member_market_policy)    { BenefitMarkets::MarketPolicies::MemberMarketPolicy.new }
     let(:product_packages)        { [FactoryBot.build(:benefit_markets_products_product_package)] }
@@ -139,8 +139,7 @@ module BenefitMarkets
         end
 
         it "should match" do
-          expect(base_catalog <=> compare_catalog).to eq 0
-          # expect(base_catalog.attributes.except(:_id)).to eq compare_catalog.attributes.except(:_id)
+          expect(base_catalog.attributes.except("_id")).to eq compare_catalog.attributes.except("_id")
         end
       end
 

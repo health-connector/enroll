@@ -14,19 +14,19 @@ namespace :notice do
       case
       when @employer_ids
         @employer_ids.split(' ').each do |employer_id|
-          employer_profile = EmployerProfile.find(employer_id)
+          employer_profile = BenefitSponsors::Organizations::Profile.find(employer_id)
           trigger_notice(employer_profile) if employer_profile
           puts "#{@event_name} - notice triggered successfully for employer_id - #{employer_id}" unless Rails.env.test?
         end
       when @hbx_ids
         @hbx_ids.split(' ').each do |hbx_id|
-          employer_profile = Organization.where(hbx_id: hbx_id).first.employer_profile
+          employer_profile = BenefitSponsors::Organizations::Organization.where(hbx_id: hbx_id).first.employer_profile
           trigger_notice(employer_profile) if employer_profile
           puts "#{@event_name} - notice triggered successfully for #{hbx_id}" unless Rails.env.test?
         end
       when @feins
         @feins.split(' ').each do |fein_id|
-          employer_profile = Organization.where(fein: fein_id).first.employer_profile
+          employer_profile = BenefitSponsors::Organizations::Organization.where(fein: fein_id).first.employer_profile
           trigger_notice(employer_profile) if employer_profile
           puts "#{@event_name} - notice triggered successfully for fein_id - #{fein_id}" unless Rails.env.test?
         end
@@ -38,7 +38,7 @@ namespace :notice do
 
   def trigger_notice(employer_profile)
     observer = Observers::NoticeObserver.new
-    plan_year = employer_profile.plan_years.first
+    plan_year = employer_profile.benefit_applications.last
     observer.deliver(recipient: employer_profile, event_object: plan_year, notice_event: @event_name)
   end
 end

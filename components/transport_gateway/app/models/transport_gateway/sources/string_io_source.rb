@@ -1,6 +1,6 @@
 module TransportGateway
   module Sources
-    class StringIOSource
+    class StringIoSource
       attr_reader :stream, :size
       def initialize(string)
         @size = string.bytesize

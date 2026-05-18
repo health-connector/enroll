@@ -53,7 +53,7 @@ Then(/^Hbx Admin update the question title$/) do
 end
 
 When(/^Hbx Admin submit the question form$/) do
-  page.find_button('submit').click
+  page.find_button(type: 'submit').click
 end
 
 Then(/^there (is|are) (\d+) preloaded security questions$/) do |_text, num|
@@ -101,6 +101,8 @@ end
 
 # Old one, doesn't seem to be working for choosing the questions
 Then(/^I select the all security question and give the answer$/) do
+  sleep 2
+  wait_for_ajax
   (0..2).each do |num|
     within all('div.selectric-wrapper.selectric-security-question-select', visible: false)[num] do
       sleep 1

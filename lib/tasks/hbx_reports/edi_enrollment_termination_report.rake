@@ -9,5 +9,5 @@ include Config::AcaHelper
 
 namespace :reports do
   desc "List of people with terminated hbx_enrollment"
-  TerminatedHbxEnrollments.define_task :enrollment_termination_on => :environment
+  HbxReports::EdiEnrollmentTerminationReport.define_task :enrollment_termination_on => :environment
 end

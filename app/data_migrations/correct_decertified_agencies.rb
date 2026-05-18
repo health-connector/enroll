@@ -1,6 +1,6 @@
 require File.join(Rails.root, "lib/mongoid_migration_task")
 
-class CorrectDecertifiedAgency < MongoidMigrationTask
+class CorrectDecertifiedAgencies < MongoidMigrationTask
   def broker_feins
     #fein:"521698168" is General Agency Profile of 'Insurance Marketing Center'
     fein = ENV['fein'] ? ENV['fein'].to_s : "521698168"

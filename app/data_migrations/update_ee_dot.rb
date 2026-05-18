@@ -7,12 +7,12 @@ class UpdateEeDot < MongoidMigrationTask
       ce = CensusEmployee.where(id: id).first
 
       if ENV['employment_terminated_on'].present?
-        employment_terminated_on = Date.strptime(ENV['employment_terminated_on'].to_s, "%m/%d/%Y")
+        employment_terminated_on = ENV['employment_terminated_on'].to_date
         ce.employment_terminated_on = employment_terminated_on
       end
 
       if ENV['coverage_terminated_on'].present?
-        coverage_terminated_on = Date.strptime(ENV['coverage_terminated_on'].to_s, "%m/%d/%Y")
+        coverage_terminated_on = ENV['coverage_terminated_on'].to_date
         ce.coverage_terminated_on = coverage_terminated_on
       end
       ce.save!

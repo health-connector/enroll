@@ -16,12 +16,12 @@ Gem::Specification.new do |s|
 
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]
 
-  s.add_dependency "rails", "~> 6.1.7.8"
-  s.add_dependency "slim", "~> 3.0.8"
-  s.add_dependency "mongoid", '~> 7.5.4'
+  s.add_dependency 'rails', '~> 8.1', '>= 8.1.2'
+  s.add_dependency "slim", '~> 5.2'
+  s.add_dependency "mongoid", '~> 9'
   s.add_dependency "aasm", "~> 4.8.0"
-  s.add_dependency 'config'
-  s.add_dependency 'symmetric-encryption', '~> 3.6.0'
+  s.add_dependency 'config', '~> 5.5', '>= 5.5.2'
+  s.add_dependency 'symmetric-encryption', '~> 4.6.0'
   s.add_dependency 'roo', '~> 2.10'
   s.add_dependency 'dry-types'
   s.add_dependency 'dry-schema', '~> 1.0'
@@ -31,8 +31,9 @@ Gem::Specification.new do |s|
   s.add_dependency 'dry-container'
   s.add_dependency 'dry-struct'
   s.add_dependency 'dry-monads'
+  s.add_dependency 'rack', '>= 2.2.14'
+  s.add_dependency 'net-imap',  '>= 0.4.20'
 
-  s.test_files = Dir["spec/**/*"]
 
   s.add_development_dependency "rspec-rails", '5.0.1'
   s.add_development_dependency 'shoulda-matchers'
@@ -41,4 +42,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'factory_bot_rails',         '~> 4'
   s.add_development_dependency 'forgery'
   s.add_development_dependency "rspec-benchmark"
+  s.metadata['rubygems_mfa_required'] = 'true'
 end

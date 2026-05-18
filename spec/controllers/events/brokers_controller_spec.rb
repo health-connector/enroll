@@ -8,7 +8,7 @@ describe Events::BrokersController do
     let(:broker_id) { "the hbx id for this broker" }
     let(:rendered_template) { double }
     let(:di) { double }
-    let(:channel) { double(:default_exchange => exchange, :close => nil) }
+    let(:channel) { double(:default_exchange => exchange, :close => nil, :confirm_select => true, :wait_for_confirms => true) }
     let(:reply_to_key) { "some queue name" }
     let(:exchange) { double }
     let(:connection) { double(:create_channel => channel) }

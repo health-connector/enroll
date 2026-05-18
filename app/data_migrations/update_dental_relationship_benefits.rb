@@ -4,7 +4,7 @@ class UpdateDentalRelationshipBenefits< MongoidMigrationTask
 
   def migrate
     begin
-      plan_year_start_on = Date.strptime(ENV['plan_year_start_on'].to_s, "%m/%d/%Y")
+      plan_year_start_on = ENV['plan_year_start_on'].to_date
       organization = Organization.where(:'employer_profile'.exists=>true, fein: ENV['fein']).first
       if organization.present?
         benefit_group = organization.employer_profile.plan_years.where(start_on: plan_year_start_on).first.benefit_groups.where(id:ENV['benefit_group_id']).first

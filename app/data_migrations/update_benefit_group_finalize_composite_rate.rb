@@ -6,7 +6,7 @@ class UpdateBenefitGroupFinalizeCompositeRate < MongoidMigrationTask
       organization = Organization.where(fein: ENV['fein']).first
       if organization.present?
         return unless ENV['plan_year_start_on'].present?
-        plan_year_start_on = Date.strptime(ENV['plan_year_start_on'].to_s, "%m/%d/%Y")
+        plan_year_start_on = ENV['plan_year_start_on'].to_date
         plan_year = organization.employer_profile.plan_years.where(:start_on => plan_year_start_on, :aasm_state.in => PlanYear::PUBLISHED + PlanYear::RENEWING_PUBLISHED_STATE).first
         if plan_year.present?
           plan_year.benefit_groups.each do |bg|
