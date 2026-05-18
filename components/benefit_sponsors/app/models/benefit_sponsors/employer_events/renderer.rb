@@ -165,7 +165,10 @@ module BenefitSponsors
       end
 
       def has_previous_plan_year_for_carrier?(employer_profile, plan_year, carrier)
-        previous_plan_years = employer_profile.benefit_applications.where(:'benefit_application_items.effective_period.max' => (plan_year.start_on - 1.day))
+        target_end_date = plan_year.start_on.to_date - 1
+        previous_plan_years = employer_profile.benefit_applications.select do |ba|
+          ba.benefit_application_items.any? { |item| item.effective_period.max.to_date == target_end_date }
+        end
         return false if previous_plan_years.empty?
 
         non_canceled_plan_years = previous_plan_years.reject do |py|
@@ -190,7 +193,11 @@ module BenefitSponsors
       end
 
       def find_employer_plan_year_by_date(employer_profile, start_date, end_date)
-        found_py = employer_profile.benefit_applications.where(:'benefit_application_items.effective_period.min' => start_date, :'benefit_application_items.effective_period.max' => end_date).first
+        found_py = employer_profile.benefit_applications.detect do |ba|
+          ba.benefit_application_items.any? do |item|
+            item.effective_period.min.to_date == start_date && item.effective_period.max.to_date == end_date
+          end
+        end
         ::BenefitSponsors::EmployerEvents::Errors::EmployerPlanYearNotFound.new("No plan year found for: #{employer_event.employer_profile_id}, Start: #{start_date}, End: #{end_date}") if found_py.nil?
         found_py
       end
