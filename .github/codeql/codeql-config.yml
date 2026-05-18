@@ -1,0 +1,14 @@
+# Exclude ERB template files from CodeQL analysis.
+#
+# *.js.erb and app/views/**/*.erb files contain embedded Ruby (ERB) tags like
+# <%= ... %> mixed into JavaScript or HTML. CodeQL's JS/TS and Ruby parsers both
+# trip on these with "Unexpected token" parse errors because the ERB syntax is
+# not valid in either language on its own.
+#
+# It is safe to exclude these files: they are Rails server-side view templates
+# that are rendered and interpolated before reaching the browser. Any JavaScript
+# inside them is never executed as-is, so static analysis of the raw source
+# would not produce meaningful security findings anyway.
+paths-ignore:
+  - '**/*.js.erb'
+  - '**/views/**/*.erb'
