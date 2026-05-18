@@ -234,4 +234,72 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
       File.delete(path) if path && File.exist?(path)
     end
   end
+
+  # @!group SKIP_FIELDS — constant membership tests
+
+  describe 'SKIP_FIELDS' do
+    subject(:skip_fields) { described_class::SKIP_FIELDS }
+
+    it 'is frozen' do
+      expect(skip_fields).to be_frozen
+    end
+
+    it 'includes _id to avoid scanning Mongo ObjectId strings' do
+      expect(skip_fields).to include('_id')
+    end
+
+    it 'includes encrypted_ssn to avoid false positives from ciphertext' do
+      expect(skip_fields).to include('encrypted_ssn')
+    end
+
+    it 'includes fein — 9-digit EIN intentionally left unchanged per policy' do
+      expect(skip_fields).to include('fein')
+    end
+
+    it 'includes ach_routing_number — ABA routing numbers are always 9 digits and validated separately' do
+      expect(skip_fields).to include('ach_routing_number')
+    end
+  end
+
+  # @!group doc_strings — recursive string extractor tests
+
+  describe '#doc_strings' do
+    it 'yields plain string values' do
+      expect(verifier.send(:doc_strings, 'hello').to_a).to eq(['hello'])
+    end
+
+    it 'recurses into nested hashes and yields leaf strings' do
+      doc = { 'name' => 'Alice', 'address' => { 'city' => 'Boston' } }
+      expect(verifier.send(:doc_strings, doc).to_a).to contain_exactly('Alice', 'Boston')
+    end
+
+    it 'recurses into arrays' do
+      doc = { 'emails' => [{ 'address' => 'a@b.com' }, { 'address' => 'x@y.com' }] }
+      expect(verifier.send(:doc_strings, doc).to_a).to contain_exactly('a@b.com', 'x@y.com')
+    end
+
+    it 'skips the fein key so 9-digit EINs are not yielded' do
+      doc = { 'fein' => '123456789', 'legal_name' => 'Acme' }
+      expect(verifier.send(:doc_strings, doc).to_a).to eq(['Acme'])
+    end
+
+    it 'skips ach_routing_number so valid 9-digit routing numbers are not yielded' do
+      doc = { 'ach_routing_number' => '021000021', 'name' => 'Bank' }
+      expect(verifier.send(:doc_strings, doc).to_a).to eq(['Bank'])
+    end
+
+    it 'skips encrypted_ssn to avoid ciphertext false positives' do
+      doc = { 'encrypted_ssn' => 'AaBbCcDd123456789', 'first_name' => 'Bob' }
+      expect(verifier.send(:doc_strings, doc).to_a).to eq(['Bob'])
+    end
+
+    it 'returns an enumerator when no block is given' do
+      expect(verifier.send(:doc_strings, 'test')).to be_a(Enumerator)
+    end
+
+    it 'ignores non-string scalar values (integers, booleans, nil)' do
+      doc = { 'count' => 42, 'active' => true, 'note' => nil, 'tag' => 'yes' }
+      expect(verifier.send(:doc_strings, doc).to_a).to eq(['yes'])
+    end
+  end
 end

@@ -711,8 +711,12 @@ module DataAnonymizer
 
     # Anonymizes all documents in the +benefit_sponsors_organizations_organizations+ collection.
     #
-    # Replaces: legal_name, and for each embedded profile: ACH fields
+    # Replaces: legal_name (broker/employer orgs only), and for each embedded profile: ACH fields
     # (ach_routing_number, ach_account_number) and office location addresses and phones.
+    #
+    # Issuer profile organizations (+BenefitSponsors::Organizations::IssuerProfile+) are excluded
+    # from +legal_name+ anonymization because downstream code (e.g. +carrier_logo+) relies on
+    # the real carrier name to resolve logo assets.
     #
     # @note +dba+, +fein+, and +npn+ are intentionally NOT anonymized.
     # @return [Integer] number of BS organization documents processed
@@ -726,9 +730,7 @@ module DataAnonymizer
 
       collection.find.batch_size(batch_size).each_slice(batch_size) do |batch|
         updates = batch.map do |doc|
-          set_fields = { 'legal_name' => AnonymizedData.company_name }
-          set_fields['profiles'] = doc['profiles'].map { |p| anonymize_bs_profile(p) } if doc['profiles'].present?
-          { update_one: { filter: { '_id' => doc['_id'] }, update: { '$set' => set_fields } } }
+          { update_one: { filter: { '_id' => doc['_id'] }, update: { '$set' => build_bs_org_update(doc) } } }
         end
 
         if @dry_run
@@ -742,16 +744,59 @@ module DataAnonymizer
       processed
     end
 
+    # Builds the +$set+ hash for a single BS organization document.
+    #
+    # Issuer profile organizations are detected by checking the embedded +profiles+ array for
+    # +_type == 'BenefitSponsors::Organizations::IssuerProfile'+. Their +legal_name+ is preserved
+    # because downstream code (e.g. +carrier_logo+) resolves logo assets by carrier name.
+    # Non-issuer organizations (employers, broker agencies) have +legal_name+ replaced.
+    #
+    # @param doc [Hash] raw BS organization document
+    # @return [Hash] fields for +$set+
+    def build_bs_org_update(doc)
+      issuer_org = doc['profiles']&.any? { |p| p['_type'] == 'BenefitSponsors::Organizations::IssuerProfile' }
+      set_fields = issuer_org ? {} : { 'legal_name' => AnonymizedData.company_name }
+      set_fields['profiles'] = doc['profiles'].map { |p| anonymize_bs_profile(p) } if doc['profiles'].present?
+      set_fields
+    end
+
     # Anonymizes a single BenefitSponsors organization profile sub-document.
-    # Replaces ACH fields and office location addresses/phones.
+    # Replaces ACH fields, office location addresses/phones, and employer
+    # attestation document filenames (which can embed numeric document IDs).
     # @param profile [Hash] raw profile sub-document
     # @return [Hash] anonymized copy
     def anonymize_bs_profile(profile)
       profile = profile.dup
-      profile['ach_routing_number'] = AnonymizedData.routing_number if profile['ach_routing_number'].present?
-      profile['ach_account_number'] = AnonymizedData.account_number if profile['ach_account_number'].present?
-      profile['office_locations']   = anonymize_office_locations(profile['office_locations']) if profile['office_locations'].present?
+      profile['ach_routing_number']  = AnonymizedData.routing_number if profile['ach_routing_number'].present?
+      profile['ach_account_number']  = AnonymizedData.account_number if profile['ach_account_number'].present?
+      profile['office_locations']    = anonymize_office_locations(profile['office_locations']) if profile['office_locations'].present?
+      profile['employer_attestation'] = anonymize_employer_attestation(profile['employer_attestation']) if profile['employer_attestation'].present?
       profile
+    end
+
+    # Replaces sensitive fields on each employer attestation document with safe
+    # placeholders. Specifically:
+    #   - +title+ / +subject+: original filenames may embed numeric document IDs
+    #     that look like 9-digit SSNs to the streaming regex scanner.
+    #   - +identifier+: a URN that encodes the real S3 bucket name and document UUID;
+    #     the bucket name reveals internal infrastructure and the UUID can be used
+    #     to retrieve the original file if S3 credentials are available.
+    # @param attestation [Hash] raw employer_attestation sub-document
+    # @return [Hash] anonymized copy
+    def anonymize_employer_attestation(attestation)
+      attestation = attestation.dup
+      docs = attestation['employer_attestation_documents']
+      return attestation unless docs.present?
+
+      attestation['employer_attestation_documents'] = docs.each_with_index.map do |doc, idx|
+        doc = doc.dup
+        ext = File.extname(doc['title'].to_s).presence || '.pdf'
+        doc['title']   = "document_#{idx + 1}#{ext}"
+        doc['subject'] = "document_#{idx + 1}#{ext}"
+        doc['identifier'] = "urn:openhbx:terms:v1:file_storage:s3:bucket:anonymized##{SecureRandom.uuid}" if doc['identifier'].present?
+        doc
+      end
+      attestation
     end
 
     # Clears the +e_case_id+ field on all family documents.

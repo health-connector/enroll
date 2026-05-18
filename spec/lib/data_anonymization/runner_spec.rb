@@ -281,4 +281,213 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
       expect(result).to eq('acme corp|021000021|9876543210')
     end
   end
+
+  # @!group BS profile anonymization — anonymize_bs_profile tests
+
+  describe '#anonymize_bs_profile' do
+    let(:base_profile) do
+      {
+        'ach_routing_number' => '021000021',
+        'ach_account_number' => 'abc123def456',
+        'office_locations' => []
+      }
+    end
+
+    it 'replaces ach_routing_number with a 9-digit fake' do
+      result = runner.send(:anonymize_bs_profile, base_profile)
+      expect(result['ach_routing_number']).not_to eq('021000021')
+      expect(result['ach_routing_number']).to match(/\A[1-9]\d{8}\z/)
+    end
+
+    it 'replaces ach_account_number with a hex string' do
+      result = runner.send(:anonymize_bs_profile, base_profile)
+      expect(result['ach_account_number']).not_to eq('abc123def456')
+      expect(result['ach_account_number']).to match(/\A[0-9a-f]{12}\z/)
+    end
+
+    it 'does not change ach_routing_number when absent' do
+      result = runner.send(:anonymize_bs_profile, {})
+      expect(result).not_to have_key('ach_routing_number')
+    end
+
+    it 'does not mutate the original profile hash' do
+      original = base_profile.dup
+      runner.send(:anonymize_bs_profile, base_profile)
+      expect(base_profile['ach_routing_number']).to eq(original['ach_routing_number'])
+    end
+
+    context 'when employer_attestation is present' do
+      let(:profile_with_attestation) do
+        base_profile.merge(
+          'employer_attestation' => {
+            'employer_attestation_documents' => [
+              { 'title' => '185956434.pdf', 'subject' => '185956434.pdf' }
+            ]
+          }
+        )
+      end
+
+      it 'scrubs employer_attestation_documents filenames' do
+        result = runner.send(:anonymize_bs_profile, profile_with_attestation)
+        doc = result.dig('employer_attestation', 'employer_attestation_documents', 0)
+        expect(doc['title']).to eq('document_1.pdf')
+        expect(doc['subject']).to eq('document_1.pdf')
+      end
+    end
+
+    context 'when employer_attestation is absent' do
+      it 'does not add an employer_attestation key' do
+        result = runner.send(:anonymize_bs_profile, base_profile)
+        expect(result).not_to have_key('employer_attestation')
+      end
+    end
+  end
+
+  # @!group Employer attestation anonymization — anonymize_employer_attestation tests
+
+  describe '#anonymize_employer_attestation' do
+    let(:attestation) do
+      {
+        'aasm_state' => 'approved',
+        'employer_attestation_documents' => [
+          { 'title' => '185956434.pdf', 'subject' => '185956434.pdf', 'created_at' => '2023-01-01' },
+          { 'title' => '002310942.pdf', 'subject' => '002310942.pdf', 'created_at' => '2023-02-01' }
+        ]
+      }
+    end
+
+    it 'replaces title of first document with document_1.pdf' do
+      result = runner.send(:anonymize_employer_attestation, attestation)
+      expect(result['employer_attestation_documents'][0]['title']).to eq('document_1.pdf')
+    end
+
+    it 'replaces subject of first document with document_1.pdf' do
+      result = runner.send(:anonymize_employer_attestation, attestation)
+      expect(result['employer_attestation_documents'][0]['subject']).to eq('document_1.pdf')
+    end
+
+    it 'increments the index for multiple documents' do
+      result = runner.send(:anonymize_employer_attestation, attestation)
+      expect(result['employer_attestation_documents'][1]['title']).to eq('document_2.pdf')
+      expect(result['employer_attestation_documents'][1]['subject']).to eq('document_2.pdf')
+    end
+
+    it 'preserves the file extension from the original title' do
+      attestation_other_ext = {
+        'employer_attestation_documents' => [{ 'title' => 'scan.docx', 'subject' => 'scan.docx' }]
+      }
+      result = runner.send(:anonymize_employer_attestation, attestation_other_ext)
+      expect(result['employer_attestation_documents'][0]['title']).to eq('document_1.docx')
+    end
+
+    it 'preserves other fields on the attestation document' do
+      result = runner.send(:anonymize_employer_attestation, attestation)
+      expect(result['employer_attestation_documents'][0]['created_at']).to eq('2023-01-01')
+    end
+
+    it 'preserves top-level attestation fields (e.g. aasm_state)' do
+      result = runner.send(:anonymize_employer_attestation, attestation)
+      expect(result['aasm_state']).to eq('approved')
+    end
+
+    it 'does not mutate the original attestation hash' do
+      original_title = attestation['employer_attestation_documents'][0]['title']
+      runner.send(:anonymize_employer_attestation, attestation)
+      expect(attestation['employer_attestation_documents'][0]['title']).to eq(original_title)
+    end
+
+    context 'when identifier is present' do
+      let(:attestation_with_identifier) do
+        {
+          'employer_attestation_documents' => [
+            {
+              'title' => 'scan.pdf',
+              'subject' => 'scan.pdf',
+              'identifier' => 'urn:openhbx:terms:v1:file_storage:s3:bucket:mhc-enroll-attestations-cpr#2289fb11-c44e-41d2-bae6-9d474b6458c6'
+            }
+          ]
+        }
+      end
+
+      it 'replaces the identifier with an anonymized URN preserving the urn structure' do
+        result = runner.send(:anonymize_employer_attestation, attestation_with_identifier)
+        new_id = result['employer_attestation_documents'][0]['identifier']
+        expect(new_id).to start_with('urn:openhbx:terms:v1:file_storage:s3:bucket:anonymized#')
+      end
+
+      it 'generates a fresh UUID so the real document cannot be retrieved from S3' do
+        result = runner.send(:anonymize_employer_attestation, attestation_with_identifier)
+        new_id = result['employer_attestation_documents'][0]['identifier']
+        original_uuid = '2289fb11-c44e-41d2-bae6-9d474b6458c6'
+        expect(new_id).not_to include(original_uuid)
+        expect(new_id).not_to include('mhc-enroll-attestations-cpr')
+      end
+    end
+
+    context 'when identifier is absent' do
+      it 'does not add an identifier key' do
+        result = runner.send(:anonymize_employer_attestation, attestation)
+        expect(result['employer_attestation_documents'][0]).not_to have_key('identifier')
+      end
+    end
+
+    context 'when employer_attestation_documents is absent' do
+      it 'returns the attestation unchanged' do
+        att = { 'aasm_state' => 'pending' }
+        result = runner.send(:anonymize_employer_attestation, att)
+        expect(result).to eq({ 'aasm_state' => 'pending' })
+      end
+    end
+  end
+
+  # @!group BS org update builder — build_bs_org_update tests
+
+  describe '#build_bs_org_update' do
+    let(:non_issuer_profile) { { '_type' => 'BenefitSponsors::Organizations::BrokerAgencyProfile' } }
+    let(:issuer_profile)     { { '_type' => 'BenefitSponsors::Organizations::IssuerProfile' } }
+
+    context 'when the org has no issuer profile (employer / broker)' do
+      let(:doc) { { 'legal_name' => 'Real Employer LLC', 'profiles' => [non_issuer_profile] } }
+
+      it 'includes legal_name in set fields (will be replaced)' do
+        result = runner.send(:build_bs_org_update, doc)
+        expect(result).to have_key('legal_name')
+        expect(result['legal_name']).not_to eq('Real Employer LLC')
+      end
+
+      it 'includes a processed profiles array' do
+        result = runner.send(:build_bs_org_update, doc)
+        expect(result).to have_key('profiles')
+        expect(result['profiles']).to be_an(Array)
+      end
+    end
+
+    context 'when the org has an issuer profile (carrier)' do
+      let(:doc) { { 'legal_name' => 'Blue Cross Blue Shield MA', 'profiles' => [issuer_profile] } }
+
+      it 'does NOT replace legal_name (carriers must keep their real name for downstream logo resolution)' do
+        result = runner.send(:build_bs_org_update, doc)
+        expect(result).not_to have_key('legal_name')
+      end
+
+      it 'still includes a processed profiles array' do
+        result = runner.send(:build_bs_org_update, doc)
+        expect(result).to have_key('profiles')
+      end
+    end
+
+    context 'when the org has no profiles' do
+      let(:doc) { { 'legal_name' => 'No Profile Org' } }
+
+      it 'replaces legal_name' do
+        result = runner.send(:build_bs_org_update, doc)
+        expect(result).to have_key('legal_name')
+      end
+
+      it 'does not include a profiles key' do
+        result = runner.send(:build_bs_org_update, doc)
+        expect(result).not_to have_key('profiles')
+      end
+    end
+  end
 end

@@ -25,7 +25,11 @@ module DataAnonymizer
 
     GENERATED_EMAIL_PATTERN = /@(exampleanonymizer|testanonymizer)\.com\z/
     SAMPLE_SIZE = 5000
-    SKIP_FIELDS = %w[_id encrypted_ssn].freeze
+    # Fields excluded from the streaming SSN regex scan.
+    # +fein+ is a 9-digit EIN intentionally left unchanged per anonymization policy.
+    # +ach_routing_number+ is an ABA routing number — always exactly 9 digits by spec;
+    # it is validated separately by +check_organizations+ / +check_bs_organizations+.
+    SKIP_FIELDS = %w[_id encrypted_ssn fein ach_routing_number].freeze
 
     def initialize(mode: :smoke, prehash_map: nil, hmac_key: nil, run_id: nil, sample_size: SAMPLE_SIZE)
       @mode = mode
