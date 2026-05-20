@@ -8,6 +8,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
   def new
     build_resource({})
     resource.invitation_id = params[:invitation_id] if params[:invitation_id].present?
+    yield resource if block_given?
     respond_with resource
   end
 
