@@ -4,6 +4,31 @@ require 'rails_helper'
 
 RSpec.describe Users::RegistrationsController, dbclean: :after_each do
 
+  context "new" do
+    before(:each) do
+      @request.env["devise.mapping"] = Devise.mappings[:user]
+    end
+
+    context "when invitation_id is present in params" do
+      it "populates invitation_id on the resource" do
+        get :new, params: { invitation_id: "abc123" }
+        expect(assigns(:user).invitation_id).to eq "abc123"
+      end
+
+      it "renders the sign up form" do
+        get :new, params: { invitation_id: "abc123" }
+        expect(response).to be_successful
+      end
+    end
+
+    context "when invitation_id is absent" do
+      it "leaves invitation_id blank on the resource" do
+        get :new
+        expect(assigns(:user).invitation_id).to be_blank
+      end
+    end
+  end
+
   context "create" do
     let(:curam_user){ double("CuramUser") }
     let(:email){ "test@example.com" }
@@ -46,6 +71,54 @@ RSpec.describe Users::RegistrationsController, dbclean: :after_each do
       end
 
       it "should complete sign up and redirect" do
+        post :create, params: { user: { oim_id: email, password: password, password_confirmation: password } }
+        expect(response).to redirect_to(root_path)
+      end
+    end
+
+    context "with invitation_id in params and session[:portal] set" do
+      let(:email) { "invited_portal@test.com" }
+      let(:invitation_id) { "inv_abc123" }
+
+      before do
+        @request.env["devise.mapping"] = Devise.mappings[:user]
+        allow(CuramUser).to receive(:match_unique_login).and_return([])
+        session[:portal] = "/invitations/#{invitation_id}/claim"
+      end
+
+      it "redirects to session[:portal] rather than claim_invitation_url" do
+        post :create, params: { user: { oim_id: email, password: password, password_confirmation: password, invitation_id: invitation_id } }
+        expect(response).to redirect_to("/invitations/#{invitation_id}/claim")
+      end
+    end
+
+    context "with invitation_id in params but session[:portal] missing (Safari session loss scenario)" do
+      let(:email) { "safari_broker@test.com" }
+      let(:invitation_id) { "inv_safari456" }
+
+      before do
+        @request.env["devise.mapping"] = Devise.mappings[:user]
+        allow(CuramUser).to receive(:match_unique_login).and_return([])
+        # Simulate session[:portal] being absent (dropped by Safari SameSite behaviour)
+        session.delete(:portal)
+      end
+
+      it "falls back to claim_invitation_url using invitation_id from form params" do
+        post :create, params: { user: { oim_id: email, password: password, password_confirmation: password, invitation_id: invitation_id } }
+        expect(response).to redirect_to(claim_invitation_url(id: invitation_id))
+      end
+    end
+
+    context "without invitation_id and without session[:portal]" do
+      let(:email) { "plain_signup@test.com" }
+
+      before do
+        @request.env["devise.mapping"] = Devise.mappings[:user]
+        allow(CuramUser).to receive(:match_unique_login).and_return([])
+        session.delete(:portal)
+      end
+
+      it "falls back to after_sign_in_path_for (root path)" do
         post :create, params: { user: { oim_id: email, password: password, password_confirmation: password } }
         expect(response).to redirect_to(root_path)
       end
