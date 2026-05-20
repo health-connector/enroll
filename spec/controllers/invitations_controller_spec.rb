@@ -37,4 +37,25 @@ RSpec.describe InvitationsController do
     end
 
   end
+
+  describe "GET claim when not logged in (require_login_and_allow_new_account)" do
+    before(:each) do
+      sign_out :user
+    end
+
+    it "stores the claim URL in session[:portal]" do
+      get :claim, params: { id: invitation_id }
+      expect(session[:portal]).to eq claim_invitation_url(id: invitation_id)
+    end
+
+    it "redirects to the sign up page with invitation_id as a query param" do
+      get :claim, params: { id: invitation_id }
+      expect(response).to redirect_to(new_user_registration_url(invitation_id: invitation_id))
+    end
+
+    it "does not attempt to find the invitation" do
+      expect(Invitation).not_to receive(:find)
+      get :claim, params: { id: invitation_id }
+    end
+  end
 end
