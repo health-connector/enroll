@@ -5,9 +5,11 @@ class Users::RegistrationsController < Devise::RegistrationsController
   # before_action :configure_account_update_params, only: [:update]
 
   # GET /resource/sign_up
-  # def new
-  #   super
-  # end
+  def new
+    build_resource({})
+    resource.invitation_id = params[:invitation_id] if params[:invitation_id].present?
+    respond_with resource
+  end
 
   # POST /resource
   def create
@@ -40,7 +42,9 @@ class Users::RegistrationsController < Devise::RegistrationsController
       if resource.active_for_authentication?
         set_flash_message :notice, :signed_up, site_name: Settings.site.short_name if is_flashing_format?
         sign_up(resource_name, resource)
-        location = after_sign_in_path_for(resource)
+        location = session[:portal].presence ||
+                   (resource.invitation_id.present? ? claim_invitation_url(id: resource.invitation_id) : nil) ||
+                   after_sign_in_path_for(resource)
         flash[:warning] = current_user.get_announcements_by_roles_and_portal(location) if current_user.present?
         respond_with resource, location: location
       else
@@ -84,7 +88,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
 
   # You can put the params you want to permit in the empty array.
   def configure_sign_up_params
-    devise_parameter_sanitizer.permit(:sign_up, keys: [:oim_id])
+    devise_parameter_sanitizer.permit(:sign_up, keys: [:oim_id, :invitation_id])
   end
 
   def handle_recaptcha
