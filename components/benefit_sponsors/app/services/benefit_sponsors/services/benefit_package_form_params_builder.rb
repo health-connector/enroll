@@ -84,7 +84,7 @@ module BenefitSponsors
         Rails.logger.info("Existing sponsored benefit ID: #{existing_id.inspect}, package_exists: #{package_exists?}")
 
         if existing_id.present?
-          attrs[:id] = existing_id
+          attrs[:id] = existing_id.to_s
           Rails.logger.info("Including sponsored benefit ID in attrs: #{existing_id}")
         else
           Rails.logger.info("No existing sponsored benefit ID, will create new benefit")
