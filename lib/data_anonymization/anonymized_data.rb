@@ -17,14 +17,41 @@ module DataAnonymizer
   module AnonymizedData
     module_function
 
-    # @return [String] random first name
-    def first_name
-      FFaker::Name.first_name
+    # Characters allowed in anonymized name fields.
+    # Permits Unicode letters, combining marks, and spaces only.
+    # Strips apostrophes, hyphens, digits, commas, periods, ampersands, and all
+    # other punctuation so that anonymized names pass downstream name-format
+    # checks and XML/EDI output without encoding issues.
+    SAFE_NAME_PATTERN = /[^\p{L}\p{M} ]/u
+
+    # Fallback values used when sanitisation collapses a generated name to blank.
+    # This is defensive only — FFaker names never collapse in practice.
+    SAFE_NAME_FALLBACK    = 'Anon'
+    SAFE_COMPANY_FALLBACK = 'Anon Corp'
+
+    # Strips characters outside the safe name set and collapses whitespace.
+    # Logs a warning and returns +fallback+ when the result would be blank.
+    # @param str [String] raw generated name
+    # @param fallback [String] value to use when sanitisation yields blank
+    # @return [String] sanitised name
+    def sanitize_name(str, fallback: SAFE_NAME_FALLBACK)
+      cleaned = str.to_s.gsub(SAFE_NAME_PATTERN, '').squish
+      return cleaned if cleaned.present?
+
+      Rails.logger.warn(
+        "[DataAnonymizer::AnonymizedData] sanitize_name: '#{str}' collapsed to blank — using fallback '#{fallback}'"
+      )
+      fallback
     end
 
-    # @return [String] random last name
+    # @return [String] random first name containing only Unicode letters, spaces, and hyphens
+    def first_name
+      sanitize_name(FFaker::Name.first_name)
+    end
+
+    # @return [String] random last name containing only Unicode letters, spaces, and hyphens
     def last_name
-      FFaker::Name.last_name
+      sanitize_name(FFaker::Name.last_name)
     end
 
     # Valid SSN area-code ranges (excludes 000, 666, 900-999 per SSA rules).
@@ -152,20 +179,23 @@ module DataAnonymizer
       FFaker::AddressUS.state_abbr
     end
 
-    # @return [String] fake company name via FFaker
+    # @return [String] fake company name containing only Unicode letters, spaces, and hyphens.
+    #   Commas, ampersands, and other punctuation from FFaker are stripped so the
+    #   value passes any downstream name-format validation.
     def company_name
-      FFaker::Company.name
+      sanitize_name(FFaker::Company.name, fallback: SAFE_COMPANY_FALLBACK)
     end
 
-    # @return [String] fake 9-digit ABA routing number (100000000–999999999).
-    #   Generated values never start with 0, matching real ABA routing number format.
+    # @return [String] 9-digit routing number string (never starts with 0).
+    #   Length satisfies +AchRecord+'s +validates :routing_number, length: { is: 9 }+.
     def routing_number
       rand(100_000_000..999_999_999).to_s
     end
 
-    # @return [String] random 12-character hex string used as a fake ACH account number
+    # @return [String] 16-digit numeric string used as a fake ACH account number.
+    #   First digit is always 1–9 so the value never has a leading zero.
     def account_number
-      SecureRandom.hex(6)
+      rand(1_000_000_000_000_000..9_999_999_999_999_999).to_s
     end
   end
 end

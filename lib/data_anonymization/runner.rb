@@ -712,7 +712,11 @@ module DataAnonymizer
 
       if doc['broker_agency_profile'].present?
         bap = doc['broker_agency_profile'].dup
-        bap['ach_routing_number'] = AnonymizedData.routing_number if bap['ach_routing_number'].present?
+        if bap['ach_routing_number'].present?
+          fake_rn = AnonymizedData.routing_number
+          bap['ach_routing_number']              = fake_rn
+          bap['ach_routing_number_confirmation'] = fake_rn
+        end
         bap['ach_account_number'] = AnonymizedData.account_number if bap['ach_account_number'].present?
         set_fields['broker_agency_profile'] = bap
       end
@@ -791,7 +795,11 @@ module DataAnonymizer
     # @return [Hash] anonymized copy
     def anonymize_bs_profile(profile)
       profile = profile.dup
-      profile['ach_routing_number']  = AnonymizedData.routing_number if profile['ach_routing_number'].present?
+      if profile['ach_routing_number'].present?
+        fake_rn = AnonymizedData.routing_number
+        profile['ach_routing_number']              = fake_rn
+        profile['ach_routing_number_confirmation'] = fake_rn
+      end
       profile['ach_account_number']  = AnonymizedData.account_number if profile['ach_account_number'].present?
       profile['office_locations']    = anonymize_office_locations(profile['office_locations']) if profile['office_locations'].present?
       profile['employer_attestation'] = anonymize_employer_attestation(profile['employer_attestation']) if profile['employer_attestation'].present?

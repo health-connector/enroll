@@ -13,11 +13,69 @@ RSpec.describe DataAnonymizer::AnonymizedData, dbclean: :around_each do
     it 'returns a non-empty string' do
       expect(described_module.first_name).to be_a(String).and be_present
     end
+
+    it 'contains only Unicode letters and spaces (no apostrophes, hyphens, or punctuation)' do
+      100.times do
+        name = described_module.first_name
+        expect(name).to match(/\A[\p{L}\p{M} ]+\z/u), "expected '#{name}' to match safe-name pattern"
+      end
+    end
   end
 
   describe '.last_name' do
     it 'returns a non-empty string' do
       expect(described_module.last_name).to be_a(String).and be_present
+    end
+
+    it 'contains only Unicode letters and spaces (no apostrophes, hyphens, or punctuation)' do
+      100.times do
+        name = described_module.last_name
+        expect(name).to match(/\A[\p{L}\p{M} ]+\z/u), "expected '#{name}' to match safe-name pattern"
+      end
+    end
+  end
+
+  describe '.company_name' do
+    it 'returns a non-empty string' do
+      expect(described_module.company_name).to be_a(String).and be_present
+    end
+
+    it 'contains only Unicode letters and spaces (no apostrophes, hyphens, or punctuation)' do
+      100.times do
+        name = described_module.company_name
+        expect(name).to match(/\A[\p{L}\p{M} ]+\z/u), "expected '#{name}' to match safe-name pattern"
+      end
+    end
+  end
+
+  describe '.sanitize_name' do
+    it 'strips apostrophes' do
+      expect(described_module.sanitize_name("O'Brien")).to eq('OBrien')
+    end
+
+    it 'strips commas, periods, and ampersands' do
+      expect(described_module.sanitize_name('Smith & Jones, LLC.')).to eq('Smith Jones LLC')
+    end
+
+    it 'strips hyphens' do
+      expect(described_module.sanitize_name('Mary-Jane')).to eq('MaryJane')
+    end
+
+    it 'collapses multiple spaces after stripping' do
+      expect(described_module.sanitize_name('A  B   C')).to eq('A B C')
+    end
+
+    it 'preserves Unicode letters' do
+      expect(described_module.sanitize_name('Renée')).to eq('Renée')
+    end
+
+    it 'returns the fallback when sanitisation collapses to blank' do
+      result = described_module.sanitize_name("'''")
+      expect(result).to eq(DataAnonymizer::AnonymizedData::SAFE_NAME_FALLBACK)
+    end
+
+    it 'accepts a custom fallback' do
+      expect(described_module.sanitize_name("'''", fallback: 'Custom')).to eq('Custom')
     end
   end
 
@@ -221,8 +279,8 @@ RSpec.describe DataAnonymizer::AnonymizedData, dbclean: :around_each do
   end
 
   describe '.account_number' do
-    it 'is a 12-character hex string' do
-      expect(described_module.account_number).to match(/\A[0-9a-f]{12}\z/)
+    it 'is a 16-digit numeric string not starting with 0' do
+      expect(described_module.account_number).to match(/\A[1-9]\d{15}\z/)
     end
   end
 end

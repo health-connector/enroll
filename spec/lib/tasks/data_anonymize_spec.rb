@@ -70,8 +70,8 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
     end
 
     describe '.account_number' do
-      it 'returns a 12-character hex string' do
-        expect(described_class.account_number).to match(/\A[0-9a-f]{12}\z/)
+      it 'is a 16-digit numeric string not starting with 0' do
+        expect(described_class.account_number).to match(/\A[1-9]\d{15}\z/)
       end
     end
 

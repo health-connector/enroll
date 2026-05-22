@@ -351,10 +351,15 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
       expect(result['ach_routing_number']).to match(/\A[1-9]\d{8}\z/)
     end
 
-    it 'replaces ach_account_number with a hex string' do
+    it 'sets ach_routing_number_confirmation to the same value as ach_routing_number' do
+      result = runner.send(:anonymize_bs_profile, base_profile)
+      expect(result['ach_routing_number_confirmation']).to eq(result['ach_routing_number'])
+    end
+
+    it 'replaces ach_account_number with a 16-digit numeric string' do
       result = runner.send(:anonymize_bs_profile, base_profile)
       expect(result['ach_account_number']).not_to eq('abc123def456')
-      expect(result['ach_account_number']).to match(/\A[0-9a-f]{12}\z/)
+      expect(result['ach_account_number']).to match(/\A[1-9]\d{15}\z/)
     end
 
     it 'does not change ach_routing_number when absent' do
