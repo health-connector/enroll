@@ -44,12 +44,12 @@ module DataAnonymizer
       fallback
     end
 
-    # @return [String] random first name containing only Unicode letters, spaces, and hyphens
+    # @return [String] random first name containing only Unicode letters and spaces
     def first_name
       sanitize_name(FFaker::Name.first_name)
     end
 
-    # @return [String] random last name containing only Unicode letters, spaces, and hyphens
+    # @return [String] random last name containing only Unicode letters and spaces
     def last_name
       sanitize_name(FFaker::Name.last_name)
     end
@@ -179,7 +179,7 @@ module DataAnonymizer
       FFaker::AddressUS.state_abbr
     end
 
-    # @return [String] fake company name containing only Unicode letters, spaces, and hyphens.
+    # @return [String] fake company name containing only Unicode letters and spaces.
     #   Commas, ampersands, and other punctuation from FFaker are stripped so the
     #   value passes any downstream name-format validation.
     def company_name

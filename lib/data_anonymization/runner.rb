@@ -873,7 +873,17 @@ module DataAnonymizer
       addr['address_2'] = nil
       addr['address_3'] = nil if addr.key?('address_3')
       addr['city'] = AnonymizedData.city
-      addr['state']  = AnonymizedData.state  if addr.key?('state') && @anonymize_state
+      if addr.key?('state') && @anonymize_state
+        original_state = addr['state']
+        new_state = AnonymizedData.state
+        attempts = 0
+        # Try a few times to avoid returning the same state by chance
+        while new_state == original_state && attempts < 10
+          new_state = AnonymizedData.state
+          attempts += 1
+        end
+        addr['state'] = new_state
+      end
       addr['zip']    = AnonymizedData.zip    if @anonymize_zip
       addr['county'] = AnonymizedData.county if addr.key?('county') && @anonymize_county
       addr
