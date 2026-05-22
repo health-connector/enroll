@@ -19,7 +19,28 @@ module BenefitSponsors
         form_attrs = base_form_attributes
         form_attrs[:sponsored_benefits_attributes] = { "0" => sponsored_benefit_attributes }
 
-        ActionController::Parameters.new(form_attrs).permit!
+        ActionController::Parameters.new(form_attrs).permit(
+          :id,
+          :benefit_application_id,
+          sponsored_benefits_attributes: [
+            :id,
+            :kind,
+            :reference_plan_id,
+            :product_package_kind,
+            :product_option_choice,
+            {
+              sponsor_contribution_attributes: [
+                contribution_levels_attributes: [
+                  :id,
+                  :contribution_factor,
+                  :is_offered,
+                  :display_name,
+                  :contribution_unit_id
+                ]
+              ]
+            }
+          ]
+        )
       end
 
       private
