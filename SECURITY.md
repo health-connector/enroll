@@ -255,3 +255,35 @@ Notes from the sinatra bugtracker state:
 
 ```
 Carefully crafted input can cause If-Match and If-None-Match header parsing in Sinatra to take an unexpected amount of time, possibly resulting in a denial of service attack vector. This header is typically involved in generating the ETag header value. Any applications that use the etag method when generating a response are impacted if they are using Ruby below version 3.2.
+
+### CodeQL: rb/clear-text-storage-of-sensitive-data — script/policies_for_simulated_renewals.rb
+
+**Vulnerability:**
+
+CodeQL flagged clear-text storage of sensitive information in `script/policies_for_simulated_renewals.rb`, where enrollment HBX IDs are written to plain-text output files.
+
+**Mitigation:**
+
+This finding is considered a false positive in the context of the application's operational constraints:
+
+1. **Data Classification:** Enrollment HBX IDs are internal identifiers, not directly identifying information (SSN, name, contact details).
+2. **Scope Restriction:** Script execution is constrained to non-production environments only via `ENV_NAME` guard.
+3. **Lifetime:** Output files are short-lived (consumed immediately by `write_enrollment_files.rb`).
+4. **Access Control:** Files are created with owner-only permissions (mode `0600`).
+
+**Actions Taken:**
+
+1. Output files created with `0600` permissions, restricting read/write access to file owner.
+2. `ENV_NAME` environment guard prevents execution in production; raises exception if `ENV_NAME` is `prod` or `production`.
+3. CodeQL suppression comments added at enrollment ID write lines documenting risk assessment rationale.
+
+**Ongoing Measures:**
+
+1. Monitor for changes to CodeQL rule definitions that may require re-assessment.
+2. Document renewal workflow dependencies to ensure lower-environment-only execution remains enforced. Storing it as `SIM_RENEWALS_ENCRYPTION_KEY` in lower environments
+3. Adding encryption/decryption logic in the affected scripts
+4. Updating DevOps processes for secure key management
+
+Given the limited scope, short-lived nature of the data, and existing file permission controls, the simpler approach is appropriate and sufficient for the risk level presented.
+
+**Status:** False positive - Risk adequately mitigated through file permissions and operational controls.

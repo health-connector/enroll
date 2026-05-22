@@ -30,7 +30,7 @@
         <tr>
           <th><%= l10n("languages") %>:</th>
           <td>
-            <%= broker_or_staff_role.broker_agency_profile.languages_spoken.map do |lang| lang.upcase end.to_sentence %>
+            <%= humanized_language_list_for(broker_or_staff_role) %>
           </td>
         </tr>
         <tr>
