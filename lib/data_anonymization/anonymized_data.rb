@@ -91,7 +91,7 @@ module DataAnonymizer
       shift_days ||= dob_shift_days
       new_dob = original_dob + shift_days
       new_dob = Date.new(1920, 1, 1) if new_dob.year < 1920
-      new_dob = Date.today - 1 if new_dob >= Date.today
+      new_dob = TimeKeeper.date_of_record - 1 if new_dob >= TimeKeeper.date_of_record
       new_dob
     end
 

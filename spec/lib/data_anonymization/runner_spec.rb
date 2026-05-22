@@ -282,6 +282,58 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
     end
   end
 
+  # @!group apply_family_shifts — DOB shift assignment tests
+
+  describe '#apply_family_shifts' do
+    let(:id_a) { BSON::ObjectId.new }
+    let(:id_b) { BSON::ObjectId.new }
+    let(:id_c) { BSON::ObjectId.new }
+    let(:dob_lookup) do
+      {
+        id_a => Date.new(1980, 1, 1),
+        id_b => Date.new(1982, 6, 15),
+        id_c => Date.new(1990, 3, 10)
+      }
+    end
+
+    it 'assigns a shift to each person in each family' do
+      shift_map = {}
+      runner.send(:apply_family_shifts, shift_map, [[id_a, id_b]], dob_lookup)
+      expect(shift_map).to have_key(id_a)
+      expect(shift_map).to have_key(id_b)
+    end
+
+    it 'assigns the same shift to all members of one family' do
+      shift_map = {}
+      runner.send(:apply_family_shifts, shift_map, [[id_a, id_b]], dob_lookup)
+      expect(shift_map[id_a]).to eq(shift_map[id_b])
+    end
+
+    context 'when a person belongs to two families (shared family member)' do
+      # Family 1: {A, B}; Family 2: {A, C}
+      # Person A should keep the shift from Family 1 (first-family-wins).
+      it 'does not overwrite an already-assigned shift for the shared member' do
+        shift_map = {}
+        runner.send(:apply_family_shifts, shift_map, [[id_a, id_b], [id_a, id_c]], dob_lookup)
+
+        # A's shift is locked in after Family 1; B must share that same shift.
+        expect(shift_map[id_a]).to eq(shift_map[id_b])
+      end
+
+      it 'still assigns a shift to the non-shared member of the second family' do
+        shift_map = {}
+        runner.send(:apply_family_shifts, shift_map, [[id_a, id_b], [id_a, id_c]], dob_lookup)
+        expect(shift_map).to have_key(id_c)
+      end
+    end
+
+    it 'skips empty person_ids arrays without raising' do
+      shift_map = {}
+      expect { runner.send(:apply_family_shifts, shift_map, [[]], dob_lookup) }.not_to raise_error
+      expect(shift_map).to be_empty
+    end
+  end
+
   # @!group BS profile anonymization — anonymize_bs_profile tests
 
   describe '#anonymize_bs_profile' do
@@ -487,6 +539,124 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
       it 'does not include a profiles key' do
         result = runner.send(:build_bs_org_update, doc)
         expect(result).not_to have_key('profiles')
+      end
+    end
+  end
+
+  # @!group abort_if_production! — production guard tests
+
+  describe '#abort_if_production!' do
+    let(:fake_db) { instance_double(Mongo::Database, name: 'mhc_enroll_test') }
+
+    before do
+      allow(runner).to receive(:db).and_return(fake_db)
+      ENV.delete('ENV_NAME')
+      ENV.delete('ENROLL_REVIEW_ENVIRONMENT')
+    end
+
+    after do
+      ENV.delete('ENV_NAME')
+      ENV.delete('ENROLL_REVIEW_ENVIRONMENT')
+    end
+
+    context "when ENV_NAME is a lower-env value like 'pvt' (Rails.env=test)" do
+      before { ENV['ENV_NAME'] = 'pvt' }
+
+      it 'does not abort' do
+        expect { runner.send(:abort_if_production!) }.not_to raise_error
+      end
+    end
+
+    context "when in a lower k8s env like 'preprod' (Rails.env=production, ENROLL_REVIEW_ENVIRONMENT=true)" do
+      before do
+        ENV['ENV_NAME'] = 'preprod'
+        ENV['ENROLL_REVIEW_ENVIRONMENT'] = 'true'
+        allow(Rails).to receive(:env).and_return(ActiveSupport::StringInquirer.new('production'))
+      end
+
+      it 'does not abort' do
+        expect { runner.send(:abort_if_production!) }.not_to raise_error
+      end
+    end
+
+    context 'when ENV_NAME is not set' do
+      it 'aborts' do
+        expect { runner.send(:abort_if_production!) }.to raise_error(SystemExit)
+      end
+    end
+
+    context 'when ENV_NAME is blank' do
+      before { ENV['ENV_NAME'] = '' }
+
+      it 'aborts' do
+        expect { runner.send(:abort_if_production!) }.to raise_error(SystemExit)
+      end
+    end
+
+    context "when ENV_NAME is 'prod'" do
+      before { ENV['ENV_NAME'] = 'prod' }
+
+      it 'aborts' do
+        expect { runner.send(:abort_if_production!) }.to raise_error(SystemExit)
+      end
+    end
+
+    context 'when Rails.env=production and ENROLL_REVIEW_ENVIRONMENT is not set' do
+      before do
+        ENV['ENV_NAME'] = 'pvt'
+        allow(Rails).to receive(:env).and_return(ActiveSupport::StringInquirer.new('production'))
+      end
+
+      it 'aborts' do
+        expect { runner.send(:abort_if_production!) }.to raise_error(SystemExit)
+      end
+    end
+
+    context "when Rails.env=production and ENROLL_REVIEW_ENVIRONMENT is not 'true'" do
+      before do
+        ENV['ENV_NAME'] = 'preprod'
+        ENV['ENROLL_REVIEW_ENVIRONMENT'] = 'false'
+        allow(Rails).to receive(:env).and_return(ActiveSupport::StringInquirer.new('production'))
+      end
+
+      it 'aborts' do
+        expect { runner.send(:abort_if_production!) }.to raise_error(SystemExit)
+      end
+    end
+
+    context 'when database name ends in _prod' do
+      let(:fake_db) { instance_double(Mongo::Database, name: 'mhc_enroll_prod') }
+
+      before { ENV['ENV_NAME'] = 'pvt' }
+
+      it 'aborts' do
+        expect { runner.send(:abort_if_production!) }.to raise_error(SystemExit)
+      end
+    end
+
+    context 'when database name contains production' do
+      let(:fake_db) { instance_double(Mongo::Database, name: 'mhc_production_enroll') }
+
+      before { ENV['ENV_NAME'] = 'pvt' }
+
+      it 'aborts' do
+        expect { runner.send(:abort_if_production!) }.to raise_error(SystemExit)
+      end
+    end
+
+    context 'when multiple signals fire' do
+      let(:fake_db) { instance_double(Mongo::Database, name: 'mhc_production_enroll') }
+
+      it 'includes all reasons in the abort message' do
+        # ENV_NAME nil + db name contains "production" — both signals should fire
+        err = nil
+        begin
+          runner.send(:abort_if_production!)
+        rescue SystemExit => e
+          err = e
+        end
+        expect(err).not_to be_nil
+        expect(err.message).to include('ENV_NAME is not set')
       end
     end
   end

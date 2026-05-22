@@ -148,21 +148,65 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
     # @!group Safety — environment and safety guard tests
 
     describe '#abort_if_production!' do
-      context 'when Rails.env is production' do
+      around do |example|
+        ENV.delete('ENV_NAME')
+        ENV.delete('ENROLL_REVIEW_ENVIRONMENT')
+        example.run
+        ENV.delete('ENV_NAME')
+        ENV.delete('ENROLL_REVIEW_ENVIRONMENT')
+      end
+
+      context 'when ENV_NAME is not set' do
         it 'aborts' do
+          expect { runner.send(:abort_if_production!) }.to raise_error(SystemExit)
+        end
+      end
+
+      context "when ENV_NAME is 'prod'" do
+        before { ENV['ENV_NAME'] = 'prod' }
+
+        it 'aborts' do
+          expect { runner.send(:abort_if_production!) }.to raise_error(SystemExit)
+        end
+      end
+
+      context 'when Rails.env=production and ENROLL_REVIEW_ENVIRONMENT is not true' do
+        before do
+          ENV['ENV_NAME'] = 'pvt'
           allow(Rails).to receive(:env).and_return(ActiveSupport::StringInquirer.new('production'))
-          expect { runner.send(:abort_if_production!) }.to raise_error(SystemExit)
         end
-      end
 
-      context 'when database name contains "production"' do
         it 'aborts' do
-          allow(runner.db).to receive(:name).and_return('myapp_production')
           expect { runner.send(:abort_if_production!) }.to raise_error(SystemExit)
         end
       end
 
-      context 'in test environment' do
+      context 'when database name matches a production pattern' do
+        before do
+          ENV['ENV_NAME'] = 'pvt'
+          allow(runner.db).to receive(:name).and_return('mhc_enroll_prod')
+        end
+
+        it 'aborts' do
+          expect { runner.send(:abort_if_production!) }.to raise_error(SystemExit)
+        end
+      end
+
+      context 'in a local dev environment (ENV_NAME=pvt, Rails.env=test)' do
+        before { ENV['ENV_NAME'] = 'pvt' }
+
+        it 'does not abort' do
+          expect { runner.send(:abort_if_production!) }.not_to raise_error
+        end
+      end
+
+      context "in a lower k8s env (ENV_NAME=preprod, Rails.env=production, ENROLL_REVIEW_ENVIRONMENT=true)" do
+        before do
+          ENV['ENV_NAME'] = 'preprod'
+          ENV['ENROLL_REVIEW_ENVIRONMENT'] = 'true'
+          allow(Rails).to receive(:env).and_return(ActiveSupport::StringInquirer.new('production'))
+        end
+
         it 'does not abort' do
           expect { runner.send(:abort_if_production!) }.not_to raise_error
         end

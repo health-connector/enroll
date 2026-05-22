@@ -9,24 +9,31 @@ require_relative '../data_anonymization/verifier'
 # Anonymizes all PII in the current CCA database. Restore a production backup
 # into a lower environment, run the anonymizer, verify, then dump and share.
 #
-# @example Standard run
-#   bundle exec rake data:anonymize
+# @example Standard run (local dev — ENV_NAME required by the production guard)
+#   ENV_NAME=pvt bundle exec rake data:anonymize
 #
 # @example Dry-run (preview counts without writing)
-#   bundle exec rake data:anonymize DRY_RUN=true
+#   ENV_NAME=pvt bundle exec rake data:anonymize DRY_RUN=true
 #
 # @example CI/CD pipeline (skip interactive prompt, larger batch)
-#   bundle exec rake data:anonymize SKIP_CONFIRMATION=true BATCH_SIZE=2000
+#   ENV_NAME=pvt bundle exec rake data:anonymize SKIP_CONFIRMATION=true BATCH_SIZE=2000
 #
 # @example Re-run on an already-anonymized database
-#   bundle exec rake data:anonymize FORCE_REANONYMIZE=true SKIP_CONFIRMATION=true
+#   ENV_NAME=pvt bundle exec rake data:anonymize FORCE_REANONYMIZE=true SKIP_CONFIRMATION=true
+#
+# @example Lower k8s env (ENV_NAME and ENROLL_REVIEW_ENVIRONMENT are injected by configmaps)
+#   bundle exec rake data:anonymize SKIP_CONFIRMATION=true
 #
 # @example Verify after anonymization
 #   bundle exec rake data:anonymize:verify
 #
 # @example Opt in to anonymizing sensitive location and DOB fields
-#   bundle exec rake data:anonymize ANONYMIZE_ZIP=true ANONYMIZE_COUNTY=true ANONYMIZE_STATE=true ANONYMIZE_DOB=true
+#   ENV_NAME=pvt bundle exec rake data:anonymize ANONYMIZE_ZIP=true ANONYMIZE_COUNTY=true ANONYMIZE_STATE=true ANONYMIZE_DOB=true
 #
+# @env ENV_NAME                  [String]  k8s environment name (from mhc_k8s configmap). Must be
+#   set and must NOT equal 'prod'. Use 'pvt' or 'preprod' locally; injected by configmap in k8s.
+# @env ENROLL_REVIEW_ENVIRONMENT [Boolean] Must be 'true' in deployed lower envs (Rails.env=production).
+#   Set by k8s configmap to distinguish lower envs from real prod. Not required locally (Rails.env=test).
 # @env BATCH_SIZE        [Integer] Documents per bulk_write batch (default: 1000)
 # @env DRY_RUN           [Boolean] Set to 'true' to preview without writing
 # @env SKIP_CONFIRMATION [Boolean] Set to 'true' to skip the YES_ANONYMIZE prompt

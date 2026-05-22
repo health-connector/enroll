@@ -159,7 +159,7 @@ module DataAnonymizer
     # with a post-run HMAC built from the same canonicalization rules. Any
     # record whose HMAC is unchanged is treated as a failure.
     def check_name_dob_prehash
-      return build_result("Canonical prehash", 0, [], "not provided") unless @prehash_map && @hmac_key
+      return build_result("Canonical prehash", 0, ["prehash_map or hmac_key not provided - check skipped"], "not provided") unless @prehash_map && @hmac_key
 
       issues = []
       samples = []

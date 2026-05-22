@@ -90,10 +90,25 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
 
   describe '#check_name_dob_prehash' do
     context 'when prehash_map or hmac_key is missing' do
-      it 'returns a result indicating not provided' do
+      it 'fails with a descriptive issue message when both are nil' do
         result = verifier.send(:check_name_dob_prehash)
-        expect(result[:passed]).to be true
+        expect(result[:passed]).to be false
+        expect(result[:issues]).to include('not provided')
         expect(result[:samples]).to eq('not provided')
+      end
+
+      it 'fails when only hmac_key is nil' do
+        v = described_class.new(mode: :audit, prehash_map: { people: {} }, hmac_key: nil)
+        result = v.send(:check_name_dob_prehash)
+        expect(result[:passed]).to be false
+        expect(result[:issues]).to include('not provided')
+      end
+
+      it 'fails when only prehash_map is nil' do
+        v = described_class.new(mode: :audit, prehash_map: nil, hmac_key: 'somekey')
+        result = v.send(:check_name_dob_prehash)
+        expect(result[:passed]).to be false
+        expect(result[:issues]).to include('not provided')
       end
     end
 

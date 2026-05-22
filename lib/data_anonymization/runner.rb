@@ -159,16 +159,38 @@ module DataAnonymizer
       log "Sentinel recorded in data_anonymizer_runs (prehash_run_id=#{@prehash_run_id})."
     end
 
-    # Aborts the process if the database appears to be a production database.
-    # Checks both Rails.env and the database name.
-    # @raise [SystemExit] always, when the guard condition is triggered
+    # Aborts unless every available signal agrees this is a non-prod lower environment.
+    # Fail-closed: if ENV_NAME is unset (unknown env), we abort rather than guess.
+    #
+    # Signals checked:
+    #   - ENV_NAME must be set and must NOT equal 'prod' (sourced from mhc_k8s configmaps)
+    #   - When Rails.env=production (all deployed envs), ENROLL_REVIEW_ENVIRONMENT must be 'true'
+    #   - Mongo database name must not match production patterns (_prod suffix, "production" substring)
+    #
+    # @raise [SystemExit] if any signal indicates this is, or might be, real production
     def abort_if_production!
-      return unless Rails.env.production? || db.name =~ /production/i
+      env_name = ENV.fetch('ENV_NAME', nil)
+      enroll_review_env = ENV.fetch('ENROLL_REVIEW_ENVIRONMENT', nil)
+      reasons = []
+
+      if env_name.nil? || env_name.strip.empty?
+        reasons << "ENV_NAME is not set — refusing to run without an explicit non-prod environment signal"
+      elsif env_name == 'prod'
+        reasons << "ENV_NAME='prod' indicates real production"
+      end
+
+      reasons << "Rails.env=production and ENROLL_REVIEW_ENVIRONMENT=#{enroll_review_env.inspect} (expected 'true' in lower envs)" if Rails.env.production? && enroll_review_env != 'true'
+
+      reasons << "database name '#{db.name}' ends in _prod (production pattern)" if db.name =~ /_prod\z/i
+      reasons << "database name '#{db.name}' contains 'production'"              if db.name =~ /production/i
+
+      return if reasons.empty?
 
       abort(
         "*** SAFETY ABORT ***\n" \
         "Refusing to run anonymization.\n" \
-        "Rails.env=#{Rails.env}, database=#{db.name}\n" \
+        "Rails.env=#{Rails.env}, ENV_NAME=#{env_name.inspect}, database=#{db.name}\n" \
+        "Reasons:\n  - #{reasons.join("\n  - ")}\n" \
         "This task must NOT run against a production database."
       )
     end
@@ -340,7 +362,9 @@ module DataAnonymizer
 
         dobs = person_ids.map { |pid| dob_lookup[pid] }.compact
         shift_days = pick_group_shift_days(dobs)
-        person_ids.each { |person_id| shift_map[person_id] = shift_days }
+        # Use ||= so a person shared across two families keeps the shift assigned
+        # by the first family encountered, preserving DOB alignment within that group.
+        person_ids.each { |person_id| shift_map[person_id] ||= shift_days }
       end
     end
 
