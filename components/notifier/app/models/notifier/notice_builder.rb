@@ -33,7 +33,11 @@ module Notifier
           elements[date_ele_index] = date_element.scan(/[a-zA-Z_]+/).first
         end
         element_retriver = elements.reject{|ele| ele == recipient_klass_name.to_s}.join('_')
-        builder.instance_eval(element_retriver)
+        next if element_retriver.blank?
+        next unless element_retriver.match?(/\A[a-z_][a-z0-9_!?]*\z/i)
+        next unless builder.respond_to?(element_retriver)
+
+        builder.public_send(element_retriver)
       end
       builder.merge_model
     end
