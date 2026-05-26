@@ -6,6 +6,72 @@ require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_applicatio
 
 module BenefitSponsors
   RSpec.describe Concerns::EmployerProfileConcern, type: :model, dbclean: :after_each do
+    describe "#enrollments_for_billing" do
+      include_context "setup benefit market with market catalogs and product packages"
+
+      let(:aasm_state) { :enrollment_eligible }
+
+      include_context "setup initial benefit application"
+
+      let(:person) { FactoryBot.create(:person, :with_family) }
+      let(:family) { person.primary_family }
+      let(:benefit_package) { initial_application.benefit_packages.first }
+      let(:profile) { abc_profile }
+
+      let!(:health_enrollment) do
+        FactoryBot.create(
+          :hbx_enrollment,
+          household: family.active_household,
+          coverage_kind: 'health',
+          effective_on: initial_application.start_on,
+          aasm_state: 'coverage_selected',
+          sponsored_benefit_package_id: benefit_package.id,
+          benefit_sponsorship_id: initial_application.benefit_sponsorship.id
+        )
+      end
+
+      context "when enrollment has sponsored_benefit_package_id set" do
+        it "returns the enrollment for billing" do
+          expect(profile.enrollments_for_billing).to include(health_enrollment)
+        end
+
+        it "does not return enrollments without a matching sponsored_benefit_package_id" do
+          other_enrollment = FactoryBot.create(
+            :hbx_enrollment,
+            household: family.active_household,
+            coverage_kind: 'health',
+            effective_on: initial_application.start_on,
+            aasm_state: 'coverage_selected'
+          )
+          expect(profile.enrollments_for_billing).not_to include(other_enrollment)
+        end
+      end
+
+      context "after an enrollment change to a different carrier" do
+        let!(:updated_enrollment) do
+          FactoryBot.create(
+            :hbx_enrollment,
+            household: family.active_household,
+            coverage_kind: 'health',
+            effective_on: initial_application.start_on,
+            aasm_state: 'coverage_selected',
+            sponsored_benefit_package_id: benefit_package.id,
+            benefit_sponsorship_id: initial_application.benefit_sponsorship.id
+          )
+        end
+
+        before { health_enrollment.update_attributes!(aasm_state: 'coverage_canceled') }
+
+        it "returns the updated enrollment" do
+          expect(profile.enrollments_for_billing).to include(updated_enrollment)
+        end
+
+        it "does not return the canceled original enrollment" do
+          expect(profile.enrollments_for_billing).not_to include(health_enrollment)
+        end
+      end
+    end
+
     describe "#billing_benefit_application" do
       let(:organization) do
         FactoryBot.build(:benefit_sponsors_organizations_general_organization,

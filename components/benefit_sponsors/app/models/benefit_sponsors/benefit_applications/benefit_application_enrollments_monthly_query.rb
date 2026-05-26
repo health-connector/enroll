@@ -10,13 +10,13 @@ module BenefitSponsors
 
       def call(date)
         families = Family.where({
-          :"households.hbx_enrollments.benefit_group_id".in => benefit_package_ids,
+          :"households.hbx_enrollments.sponsored_benefit_package_id".in => benefit_package_ids,
           :"households.hbx_enrollments.aasm_state".in => (HbxEnrollment::ENROLLED_STATUSES + HbxEnrollment::RENEWAL_STATUSES + HbxEnrollment::TERMINATED_STATUSES)
           }).limit(100)
 
         families.inject([]) do |enrollments, family|
           valid_enrollments = family.active_household.hbx_enrollments.where({
-            :benefit_group_id.in => benefit_package_ids,
+            :sponsored_benefit_package_id.in => benefit_package_ids,
             :effective_on.lte => date.end_of_month,
             :aasm_state.in => (HbxEnrollment::ENROLLED_STATUSES + HbxEnrollment::RENEWAL_STATUSES + HbxEnrollment::TERMINATED_STATUSES)
             }).order_by(:'submitted_at'.desc)

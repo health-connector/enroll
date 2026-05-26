@@ -121,8 +121,8 @@ module Effective
 
       end
 
-      def generate_invoice_link_type(row)
-        row.current_month_invoice.present? ? 'disabled' : 'post_ajax'
+      def generate_invoice_link_type(_row)
+        'post_ajax'
       end
 
       def get_latest_draft_benefit_application(benefit_sponsorship)
