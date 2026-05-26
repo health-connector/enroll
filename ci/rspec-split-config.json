@@ -88,6 +88,7 @@
   },
   {
     "files": [
+      "spec/notices/shop_employee_notices/ee_plan_selection_confirmation_sep_new_hire_spec.rb",
       "spec/models/consumer_role_spec.rb",
       "spec/data_migrations/change_enrollment_details_spec.rb",
       "components/benefit_markets/spec/domain/benefit_markets/operations/contribution_models/create_spec.rb",
@@ -118,8 +119,7 @@
       "components/benefit_sponsors/spec/models/benefit_sponsors/sponsored_benefits/sponsor_contribution_spec.rb",
       "spec/views/employers/employer_profiles/_billing.html.erb_spec.rb",
       "spec/data_migrations/update_hbx_id_spec.rb",
-      "components/benefit_sponsors/spec/models/benefit_sponsors/organizations/aca_shop_dc_employer_profile_spec.rb",
-      "spec/notices/shop_employee_notices/ee_plan_selection_confirmation_sep_new_hire_spec.rb"
+      "components/benefit_sponsors/spec/models/benefit_sponsors/organizations/aca_shop_dc_employer_profile_spec.rb"
     ]
   },
   {
@@ -448,8 +448,8 @@
   },
   {
     "files": [
-      "spec/controllers/insured/families_controller_spec.rb",
       "spec/interactors/assign_change_plan_for_shop_spec.rb",
+      "spec/controllers/insured/families_controller_spec.rb",
       "components/benefit_sponsors/spec/models/benefit_sponsors/organizations/plan_design_proposal_spec.rb",
       "spec/notices/shop_employer_notices/initial_employer_denial_notice_spec.rb",
       "spec/data_migrations/remove_employer_staff_role_from_person_spec.rb",
@@ -1149,9 +1149,9 @@
   },
   {
     "files": [
+      "spec/domain/operations/eligible/build_evidence_spec.rb",
       "components/sponsored_benefits/spec/models/sponsored_benefits/benefit_packages/benefit_package_spec.rb",
       "spec/views/exchanges/hbx_profiles/_edit_enrollment.html.erb_spec.rb",
-      "spec/domain/operations/eligible/build_evidence_spec.rb",
       "components/benefit_sponsors/spec/models/benefit_sponsors/organizations/exempt_organization_spec.rb",
       "spec/notices/shop_employee_notices/employee_open_enrollment_reminder_notice_spec.rb",
       "spec/data_migrations/move_user_account_between_two_people_accounts_spec.rb",
