@@ -97,4 +97,6 @@ jobs:
       - name: Install Test boosters gem
         run: gem install treye-semaphore_test_boosters --version '2.5.2'
       - name: Run tests
+        env:
+          CUCUMBER_SPLIT_CONFIGURATION_PATH: 'ci/cucumber-split-config.json'
         run: cucumber_booster --job ${{ matrix.group }}/${{ strategy.job-total }}
