@@ -1,6 +1,22 @@
 [
-    { "files": ["spec/models/census_employee_spec.rb"]},
-    { "files": ["spec/models/census_employee_part2_spec.rb"]},
-    { "files": ["spec/models/census_employee_part3_spec.rb"]},
-    { "files": ["spec/models/census_employee_part4_spec.rb"]}
-]  
+  { "files": ["spec/models/hbx_enrollment_spec.rb"] },
+  { "files": ["spec/models/plan_year_spec.rb"] },
+  { "files": ["components/benefit_sponsors/spec/models/benefit_sponsors/benefit_packages/benefit_package_spec.rb"] },
+  { "files": ["components/benefit_sponsors/spec/models/benefit_sponsors/benefit_applications/benefit_application_spec.rb"] },
+  { "files": ["spec/models/family_spec.rb"] },
+  { "files": ["spec/models/person_spec.rb"] },
+  { "files": ["spec/controllers/exchanges/hbx_profiles_controller_spec.rb"] },
+  { "files": ["spec/models/employer_profile_spec.rb"] },
+  { "files": ["components/benefit_sponsors/spec/models/benefit_sponsors/benefit_sponsorships/benefit_sponsorship_spec.rb"] },
+  { "files": ["spec/data_migrations/permissions_spec.rb"] },
+  { "files": ["components/benefit_sponsors/spec/models/benefit_sponsors/benefit_applications/benefit_application_enrollment_service_spec.rb"] },
+  { "files": ["spec/controllers/insured/families_controller_spec.rb"] },
+  { "files": ["spec/models/consumer_role_spec.rb"] },
+  { "files": ["spec/controllers/employers/census_employees_controller_spec.rb"] },
+  { "files": ["spec/models/census_employee_part3_spec.rb"] },
+  { "files": ["spec/views/insured/group_selection/new.html.erb_spec.rb"] },
+  { "files": ["spec/helpers/application_helper_spec.rb"] },
+  { "files": ["spec/models/census_employee_part4_spec.rb"] },
+  { "files": ["spec/helpers/insured/group_selection_helper_spec.rb"] },
+  { "files": ["spec/models/employee_role_spec.rb"] }
+]
