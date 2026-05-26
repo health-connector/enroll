@@ -105,3 +105,4 @@ end
 Capybara.default_driver = :selenium_chrome_custom
 Capybara.use_default_driver
 Capybara.current_driver = :selenium_chrome_custom
+Capybara.default_max_wait_time = 5

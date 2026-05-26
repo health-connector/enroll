@@ -1,10 +1,10 @@
 function getCostDetails(min,max,cost) {
-  document.getElementById('employerCostTitle').innerHTML = '';
+  document.getElementById('employerCostTitle').textContent = '';
   document.getElementById('employerCostTitle').append(`Employer Lowest/Reference/Highest - $${min}/$${cost}/$${max}`);
 }
 
 function showCostDetails(cost,min,max) {
-  document.getElementById('rpEstimatedMonthlyCost').innerHTML = ('$ '+cost);
+  document.getElementById('rpEstimatedMonthlyCost').textContent = '$ ' + cost;
 
   if (min == 'NaN') {
     min = "0.00"
@@ -14,16 +14,16 @@ function showCostDetails(cost,min,max) {
     max = "0.00"
   }
 
-  document.getElementById('rpMin').innerHTML = ('$ '+ min);
-  document.getElementById('rpMax').innerHTML = ('$ '+ max);
+  document.getElementById('rpMin').textContent = '$ ' + min;
+  document.getElementById('rpMax').textContent = '$ ' + max;
   if (document.getElementById('estimatedEEMin')) {
-    document.getElementById('estimatedEEMin').innerHTML = '$ '+ min;
+    document.getElementById('estimatedEEMin').textContent = '$ ' + min;
   }
   if (document.getElementById('estimatedEEMax')) {
-    document.getElementById('estimatedEEMax').innerHTML = '$ '+ max;
+    document.getElementById('estimatedEEMax').textContent = '$ ' + max;
   }
   if (document.getElementById('estimatedERCost')) {
-    document.getElementById('estimatedERCost').innerHTML = '$ '+ cost;
+    document.getElementById('estimatedERCost').textContent = '$ ' + cost;
   }
   getCostDetails(min,max,cost)
 }
@@ -39,17 +39,36 @@ function showEmployeeCostDetails(employees_cost) {
   //modal.appendChild(row)
 
   for (var employee in employees_cost) {
-    var tr = document.createElement('tr')
+    var tr = document.createElement('tr');
     estimate = employees_cost[employee];
-    tr.innerHTML =
-    `
-      <td class="text-center">${estimate.name}</td>
-      <td class="text-center">${estimate.dependent_count}</td>
-      <td class="text-center">$ ${estimate.lowest_cost_estimate}</td>
-      <td class="text-center">$ ${estimate.reference_estimate}</td>
-      <td class="text-center">$ ${estimate.highest_cost_estimate}</td>
-    `
-    table.appendChild(tr)
+
+    var tdName = document.createElement('td');
+    tdName.className = 'text-center';
+    tdName.textContent = estimate.name;
+
+    var tdCount = document.createElement('td');
+    tdCount.className = 'text-center';
+    tdCount.textContent = estimate.dependent_count;
+
+    var tdLowest = document.createElement('td');
+    tdLowest.className = 'text-center';
+    tdLowest.textContent = '$ ' + estimate.lowest_cost_estimate;
+
+    var tdReference = document.createElement('td');
+    tdReference.className = 'text-center';
+    tdReference.textContent = '$ ' + estimate.reference_estimate;
+
+    var tdHighest = document.createElement('td');
+    tdHighest.className = 'text-center';
+    tdHighest.textContent = '$ ' + estimate.highest_cost_estimate;
+
+    tr.appendChild(tdName);
+    tr.appendChild(tdCount);
+    tr.appendChild(tdLowest);
+    tr.appendChild(tdReference);
+    tr.appendChild(tdHighest);
+
+    table.appendChild(tr);
   }
 }
 

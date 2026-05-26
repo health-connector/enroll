@@ -6,7 +6,6 @@ $(document).on('ready turbolinks:load', function () {
     var employee_role_id = this.value;
     var event = $("#event").val();
 
-    console.log('here')
     $.ajax({
       type: 'GET',
       data: {
@@ -18,11 +17,8 @@ $(document).on('ready turbolinks:load', function () {
       },
       url: '/insured/members_selections/fetch',
       success: function (data) {
-        console.log(data)
-
       },
       error: function (data) {
-        console.log(data)
       }
     });
   });
