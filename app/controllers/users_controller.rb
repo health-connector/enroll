@@ -3,8 +3,7 @@ class UsersController < ApplicationController
 
   def confirm_lock
     authorize HbxProfile, :confirm_lock?
-    params.permit!
-    @user_id  = params[:user_action_id]
+    @user_id = params.permit(:user_action_id)[:user_action_id]
   end
 
   def lockable
@@ -67,7 +66,7 @@ class UsersController < ApplicationController
       begin
         @user.modifier = current_user
         @user.save!
-      rescue => e
+      rescue StandardError => e
         @errors = @user.errors.messages
       end
     end
@@ -87,6 +86,7 @@ class UsersController < ApplicationController
   end
 
   private
+
   helper_method :user
 
   def email_update_params
