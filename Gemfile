@@ -163,7 +163,7 @@ group :test do
   gem 'test-prof', '~> 1.3'
   gem 'warden'
   gem 'watir',                        '~> 6.18.0'
-  gem 'webdrivers', '~> 5.3.1'
+  gem 'selenium-webdriver', '~> 4.11'
   gem 'webmock'
 end
 
