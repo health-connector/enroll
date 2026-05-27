@@ -88,6 +88,36 @@ Notes from the libxml2 bugtracker state:
 
 ```
 This issue affects validation against untrusted XML Schemas (.xsd) and, potentially, validation of untrusted documents against trusted Schemas if they make use of xsd:keyref in combination with recursively defined types that have additional identity constraints. It's hard for me to judge whether this is common in practice.
+
+### CodeQL: DOM-based XSS via jQuery `.html()` — May 2026
+
+**Vulnerability:**
+
+CodeQL flagged DOM-based cross-site scripting (XSS) patterns where values read from the DOM via jQuery (`.text()`, `.val()`, `.attr()`) were written back into the DOM via `.html()`, which does not escape HTML entities. The affected locations were:
+
+- `app/views/exchanges/hbx_profiles/_view_hbx_enrollments.html.erb` — reinstate enrollment modal warning messages
+- `app/assets/javascripts/quotes/page_actions.js` — slider percentage labels
+- `components/sponsored_benefits/app/assets/javascripts/sponsored_benefits/plan_design_proposals.js` — slider percentage labels
+- `components/old_sponsored_benefits/app/assets/javascripts/sponsored_benefits/plan_design_proposals.js` — slider percentage labels
+
+An additional finding flagged `app/assets/javascripts/employee_dependent.js`, where a DOM attribute value was used as a jQuery selector without format validation.
+
+**Mitigation:**
+
+All findings were remediated without functional impact. In each affected location, content written was plain text; `.text()` is semantically equivalent to `.html()` for plain text and auto-escapes HTML entities. No in-source suppression comments were added. Low-risk false-positive findings are documented here as accepted risk.
+
+**Actions Taken:**
+
+1. Replaced `.html(...)` with `.text(...)` in all four files listed above.
+2. Hardened the `data-target` selector in `app/assets/javascripts/employee_dependent.js`: switched from `.attr("data-target")` to `.data("target")` and added a strict CSS ID format check (`/^#[A-Za-z][A-Za-z0-9_:\-\.]*$/`) before passing the value to `$(selector).remove()`.
+3. Remaining CodeQL findings in admin- and broker-only views were assessed as low-risk false positives due to constrained numeric slider sources and restricted access surfaces. These are not suppressed but are documented here as accepted risk.
+
+**Ongoing Measures:**
+
+1. Prefer `.text()` over `.html()` for all plain text updates (enforce via code review).
+2. Require explicit justification when `.html()` is introduced with dynamic values.
+3. Periodically audit admin/broker-only endpoints for XSS — restricted access does not eliminate risk.
+4. Keep legacy/unmounted components out of active asset/runtime paths.
 ```
 
 **Mitigation:**
