@@ -124,7 +124,7 @@ module BenefitSponsors
       flash[:error] = "Access not allowed for #{exception.query}, (Pundit policy)" unless broker_agency_profile?
       respond_to do |format|
         format.json { render nothing: true, status: :forbidden }
-        format.html { redirect_to(session[:custom_url] || request.referrer || main_app.root_path)}
+        format.html { redirect_to(url_from(session[:custom_url]) || url_from(request.referrer) || main_app.root_path) }
         format.js   { render nothing: true, status: :forbidden }
       end
     end
