@@ -190,22 +190,27 @@ class HbxEnrollment
   scope :with_in,             ->(time_limit){ where(:created_at.gte => time_limit) }
   scope :shop_market,         ->{ where(:kind.in => ["employer_sponsored", "employer_sponsored_cobra"]) }
   scope :individual_market,   ->{ where(:kind.nin => ["employer_sponsored", "employer_sponsored_cobra"]) }
-  scope :verification_needed, ->{ where(:aasm_state => "enrolled_contingent").or({:terminated_on => nil }, {:terminated_on.gt => TimeKeeper.date_of_record}).order(created_at: :desc) }
+  scope :verification_needed, -> {
+    where(
+      :aasm_state => "enrolled_contingent",
+      "$or" => [{ terminated_on: nil }, { :terminated_on.gt => TimeKeeper.date_of_record }]
+    ).order(created_at: :desc)
+  }
 
   scope :canceled, -> { where(:aasm_state.in => CANCELED_STATUSES) }
   #scope :terminated, -> { where(:aasm_state.in => TERMINATED_STATUSES, :terminated_on.gte => TimeKeeper.date_of_record.beginning_of_day) }
   scope :terminated, -> { where(:aasm_state.in => TERMINATED_STATUSES) }
   scope :canceled_and_terminated, -> { where(:aasm_state.in => (CANCELED_STATUSES + TERMINATED_STATUSES)) }
-  scope :enrolled_and_waived, -> { any_of([enrolled.selector, waived.selector]).order(created_at: :desc) }
-  scope :enrolled_waived_terminated_and_expired, -> { any_of([enrolled.selector, waived.selector, terminated.selector, expired.selector]).order(created_at: :desc) }
-  scope :show_enrollments, -> { any_of([enrolled.selector, renewing.selector, terminated.selector, canceled.selector, waived.selector]) }
-  scope :show_enrollments_sans_canceled, -> { any_of([enrolled.selector, renewing.selector, terminated.selector, waived.selector]).order(created_at: :desc) }
+  scope :enrolled_and_waived, -> { where(:aasm_state.in => (ENROLLED_STATUSES + WAIVED_STATUSES)).order(created_at: :desc) }
+  scope :enrolled_waived_terminated_and_expired, -> { where(:aasm_state.in => (ENROLLED_STATUSES + WAIVED_STATUSES + TERMINATED_STATUSES + ['coverage_expired'])).order(created_at: :desc) }
+  scope :show_enrollments, -> { where(:aasm_state.in => (ENROLLED_STATUSES + RENEWAL_STATUSES + TERMINATED_STATUSES + CANCELED_STATUSES + WAIVED_STATUSES)) }
+  scope :show_enrollments_sans_canceled, -> { where(:aasm_state.in => (ENROLLED_STATUSES + RENEWAL_STATUSES + TERMINATED_STATUSES + WAIVED_STATUSES)).order(created_at: :desc) }
   scope :enrollments_for_cobra, -> { where(:aasm_state.in => ['coverage_terminated', 'coverage_termination_pending', 'auto_renewing']).order(created_at: :desc) }
   scope :with_plan, -> { where(:plan_id.ne => nil) }
   scope :coverage_selected_and_waived, -> {where(:aasm_state.in => SELECTED_AND_WAIVED).order(created_at: :desc)}
   scope :non_terminated, -> { where(:aasm_state.ne => 'coverage_terminated') }
   scope :non_external, -> { where(:external_enrollment => false) }
-  scope :non_expired_and_non_terminated,  -> { any_of([enrolled.selector, renewing.selector, waived.selector]).order(created_at: :desc) }
+  scope :non_expired_and_non_terminated,  -> { where(:aasm_state.in => (ENROLLED_STATUSES + RENEWAL_STATUSES + WAIVED_STATUSES)).order(created_at: :desc) }
   scope :by_benefit_sponsorship,   ->(benefit_sponsorship) { where(:benefit_sponsorship_id => benefit_sponsorship.id) }
   scope :by_benefit_package,       ->(benefit_package) { where(:sponsored_benefit_package_id => benefit_package.id) }
   scope :by_enrollment_period,     ->(enrollment_period) { where(:effective_on.gte => enrollment_period.min, :effective_on.lte => enrollment_period.max) }

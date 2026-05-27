@@ -189,7 +189,7 @@ class CensusEmployee < CensusMember
     )
   }
 
-  scope :enrolled, -> { any_of([covered.selector, waived.selector]) }
+  scope :enrolled, -> { where(:_id.in => (covered.pluck(:_id) + waived.pluck(:_id)).uniq) }
 
 
   scope :employee_name, -> (employee_name) { any_of({first_name: /#{employee_name}/i}, {last_name: /#{employee_name}/i}, first_name: /#{employee_name.split[0]}/i, last_name: /#{employee_name.split[1]}/i) }

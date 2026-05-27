@@ -22,7 +22,7 @@ class GroupConversionEmployersMigration < MongoidMigrationTask
           id_list = plan_year.benefit_groups.map(&:id)
           families = Family.where(:"households.hbx_enrollments.benefit_group_id".in => id_list)
           enrollments = families.inject([]) do |enrollments, family|
-            enrollments += family.active_household.hbx_enrollments.where(:benefit_group_id.in => id_list).any_of([HbxEnrollment::enrolled.selector]).to_a
+            enrollments += family.active_household.hbx_enrollments.where(:benefit_group_id.in => id_list, :aasm_state.in => HbxEnrollment::ENROLLED_STATUSES).to_a
           end
           enrollments.each do |enrollment|
             enrollment.update_attribute(:aasm_state, "coverage_canceled") if enrollment.effective_on.strftime("%m/%d/%Y") == "10/01/2016" 
