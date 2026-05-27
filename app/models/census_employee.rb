@@ -1257,13 +1257,13 @@ class CensusEmployee < CensusMember
       action = s_rex.strip.split.size > 1 ? "$and" : "$or"
       search_rex = Regexp.compile(clean_str, true)
       {
-          "$or" => [
-              {action => [
-                  {"first_name" => search_rex},
-                  {"last_name" => search_rex}
-              ]},
-              {"encrypted_ssn" => encrypt_ssn(clean_str)}
-          ]
+        "$or" => [
+          {action => [
+            {"first_name" => search_rex},
+            {"last_name" => search_rex}
+          ]},
+          {"encrypted_ssn" => encrypt_ssn(clean_str)}
+        ]
       }
     end
   end

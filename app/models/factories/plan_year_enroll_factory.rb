@@ -9,7 +9,7 @@ module Factories
     end
 
     def enroll
-      published_plan_years = @employer_profile.plan_years.where(:"start_on" => start_on, :aasm_state.in => (PlanYear::PUBLISHED + PlanYear::RENEWING_PUBLISHED_STATE))
+      published_plan_years = @employer_profile.plan_years.where(:start_on => start_on, :aasm_state.in => (PlanYear::PUBLISHED + PlanYear::RENEWING_PUBLISHED_STATE))
 
       if published_plan_years.size == 0
         raise PlanYearPublishFactoryError, "Found zero Renewal/Published Plan Years for Employer #{@employer_profile.legal_name}"
