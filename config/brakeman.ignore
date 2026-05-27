@@ -680,7 +680,45 @@
       "user_input": null,
       "confidence": "High",
       "note": ""
-     }
+     },
+    {
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 2,
+      "fingerprint": "77c855742aad234cc230133dc3b922b2e15e377a9026906a0be2643306c4dc74",
+      "check_name": "CrossSiteScripting",
+      "message": "Unescaped parameter",
+      "file": "components/benefit_sponsors/app/views/benefit_sponsors/profiles/employers/employer_profiles/_coverage_reports.html.erb",
+      "line": 8,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
+      "code": "render_datatable(@datatable, ...)",
+      "render_path": null,
+      "location": {
+        "type": "template",
+        "template": "benefit_sponsors/profiles/employers/employer_profiles/_coverage_reports"
+      },
+      "user_input": null,
+      "confidence": "Weak",
+      "note": "False positive: params[:employer_profile_id] is validated via BSON::ObjectId.from_string before reaching the view (non-hex value raises an exception), and params[:billing_date] is parsed by DateParser.smart_parse into a Date object so the raw string never reaches HTML output. render_datatable (effective_datatables gem) generates its own escaped HTML structure and does not interpolate param values directly into attributes or cell content."
+    },
+    {
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 2,
+      "fingerprint": "c368ce851ab0d5214b6e152a4c59233efbb4efca02baa3dd9dde0ea4a598dabc",
+      "check_name": "LinkToHref",
+      "message": "Unescaped model attribute in link_to href",
+      "file": "components/benefit_sponsors/app/views/benefit_sponsors/profiles/employers/employer_profiles/my_account/accounts/_pay_online_confirmation_modal.html.erb",
+      "line": 14,
+      "link": "https://brakemanscanner.org/docs/warning_types/link_to_href",
+      "code": "link_to(l10n('pay_online'), @wf_url, ...)",
+      "render_path": null,
+      "location": {
+        "type": "template",
+        "template": "benefit_sponsors/profiles/employers/employer_profiles/my_account/accounts/_pay_online_confirmation_modal"
+      },
+      "user_input": null,
+      "confidence": "Weak",
+      "note": "False positive: @wf_url is generated server-side by WellsFargo::BillPay::SingleSignOn#url which always produces an https:// URL. The employer profile attributes (hbx_id, dba, legal_name) used to compose the URL are set by the enrollment system, not via free-text user input. Rails link_to HTML-escapes the href attribute by default, making a javascript: scheme injection impossible through normal enrollment flows."
+    }
   ],
   "updated": "2021-02-23 13:18:32 -0500",
   "brakeman_version": "5.0.0"

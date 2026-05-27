@@ -43,8 +43,8 @@ class TranscriptGenerator
     # transcript.shop = false
     transcript.find_or_build(external_obj)
 
-    File.open("#{TRANSCRIPT_PATH}/#{@count}_#{transcript.transcript[:identifier]}_#{Time.now.to_i}.bin", 'wb') do |file|
-      file.write Marshal.dump(transcript.transcript)
+    File.open("#{TRANSCRIPT_PATH}/#{@count}_#{transcript.transcript[:identifier]}_#{Time.now.to_i}.bin", 'w') do |file|
+      file.write JSON.dump(transcript.transcript)
     end
   end
 
@@ -177,7 +177,7 @@ class TranscriptGenerator
           # rows = Transcripts::ComparisonResult.new(Marshal.load(File.open(file_path))).csv_row
 
           person_importer = Importers::Transcripts::PersonTranscript.new
-          person_importer.transcript = Marshal.load(File.open(file_path))
+          person_importer.transcript = JSON.load(File.open(file_path))
           person_importer.market = @market
           person_importer.process
 
