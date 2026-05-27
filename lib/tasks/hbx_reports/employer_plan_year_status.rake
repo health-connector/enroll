@@ -55,11 +55,32 @@ namespace :reports do
                 end
               end
 
+              field_map = {
+                'fein'             => -> { fein },
+                'legal_name'       => -> { legal_name },
+                'dba'              => -> { dba },
+                'employer_status'  => -> { employer_status },
+                'plan_year_start_on' => -> { plan_year_start_on },
+                'plan_year_status' => -> { plan_year_status },
+                'benefit_package'  => -> { benefit_package },
+                'plan_option'      => -> { plan_option },
+                'ref_plan_year'    => -> { ref_plan_year },
+                'ref_plan_name'    => -> { ref_plan_name },
+                'ref_plan_hios_id' => -> { ref_plan_hios_id },
+                'staff_name'       => -> { staff_name },
+                'staff_phone'      => -> { staff_phone },
+                'staff_email'      => -> { staff_email },
+                'broker_name'      => -> { broker_name },
+                'broker_phone'     => -> { broker_phone },
+                'broker_email'     => -> { broker_email }
+              }
+
               csv << field_names.map do |field_name| 
+                value = field_map[field_name]&.call
                 if field_name == "fein"
-                  '="' + eval(field_name) + '"'
+                  '="' + value.to_s + '"'
                 else
-                  eval("#{field_name}")
+                  value
                 end
               end
             end
