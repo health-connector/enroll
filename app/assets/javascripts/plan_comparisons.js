@@ -100,7 +100,6 @@
     var selectedBenefitPackageID = window.selectedBenefitPackageID || '';
     
     if (!selectedBenefitApplicationID) {
-      console.error('Missing benefit application ID');
       alert('Unable to load comparison. Please try again.');
       return false;
     }
@@ -120,7 +119,6 @@
     // Show the modal
     var modal = $('#planComparisonModal');
     if (modal.length === 0) {
-      console.error('Plan comparison modal not found');
       alert('Unable to display comparison. Please refresh the page.');
       return false;
     }
@@ -157,7 +155,6 @@
         }
       },
       error: function(xhr, status, error) {
-        console.error('Error loading comparison:', error);
         modal.find('#comparisonLoadingSpinner').hide();
         modal.find('#comparisonContent').html(
           '<div class="alert alert-danger">' +
