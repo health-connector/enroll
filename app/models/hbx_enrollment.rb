@@ -202,6 +202,8 @@ class HbxEnrollment
   scope :terminated, -> { where(:aasm_state.in => TERMINATED_STATUSES) }
   scope :canceled_and_terminated, -> { where(:aasm_state.in => (CANCELED_STATUSES + TERMINATED_STATUSES)) }
   scope :enrolled_and_waived, -> { where(:aasm_state.in => (ENROLLED_STATUSES + WAIVED_STATUSES)).order(created_at: :desc) }
+  scope :enrolled_renewal_and_waived, -> { where(:aasm_state.in => (ENROLLED_STATUSES + RENEWAL_STATUSES + WAIVED_STATUSES)).order(created_at: :desc) }
+  scope :enrolled_renewal_waived_terminated_and_expired, -> { where(:aasm_state.in => (ENROLLED_STATUSES + RENEWAL_STATUSES + WAIVED_STATUSES + TERMINATED_STATUSES + ['coverage_expired'])).order(created_at: :desc) }
   scope :enrolled_waived_terminated_and_expired, -> { where(:aasm_state.in => (ENROLLED_STATUSES + WAIVED_STATUSES + TERMINATED_STATUSES + ['coverage_expired'])).order(created_at: :desc) }
   scope :show_enrollments, -> { where(:aasm_state.in => (ENROLLED_STATUSES + RENEWAL_STATUSES + TERMINATED_STATUSES + CANCELED_STATUSES + WAIVED_STATUSES)) }
   scope :show_enrollments_sans_canceled, -> { where(:aasm_state.in => (ENROLLED_STATUSES + RENEWAL_STATUSES + TERMINATED_STATUSES + WAIVED_STATUSES)).order(created_at: :desc) }

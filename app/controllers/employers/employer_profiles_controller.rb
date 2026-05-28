@@ -310,7 +310,7 @@ module Employers
                          end
       if params["employee_search"].present?
         query_string = CensusEmployee.search_hash(params["employee_search"])
-        census_employees = census_employees.where(query_string)
+        census_employees = census_employees.any_of(query_string)
       end
       @page_alphabets = page_alphabets(census_employees, "last_name")
 
