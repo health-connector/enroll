@@ -281,6 +281,55 @@ module BenefitSponsors
         # it_behaves_like "fail store profile for create if params invalid", "contact_center"
         # it_behaves_like "fail store profile for create if params invalid", "fedhb"
 
+        context "when request includes unpermitted agency keys" do
+          let(:benefit_sponsor_params) do
+            {
+              profile_type: "benefit_sponsor",
+              staff_roles_attributes: staff_roles_attributes.merge(
+                1 => {
+                  first_name: "Injected",
+                  last_name: "User",
+                  dob: "01/01/1990",
+                  status: "hacked_status"
+                }
+              ),
+              organization: benefit_sponsor_organization.merge(
+                profile_attributes: employer_profile_attributes.merge(
+                  office_locations_attributes: office_locations_attributes.merge(
+                    1 => {
+                      is_primary: false,
+                      unknown_office_key: "drop_me",
+                      address_attributes: address_attributes.merge(unknown_address_key: "drop_me"),
+                      phone_attributes: phone_attributes.merge(unknown_phone_key: "drop_me")
+                    }
+                  ),
+                  unknown_profile_key: "drop_me"
+                ),
+                unknown_org_key: "drop_me"
+              ),
+              unknown_top_level_key: "drop_me"
+            }
+          end
+
+          before do
+            sign_in benefit_sponsor_user
+            allow(agency_class).to receive(:for_create).and_call_original
+            post :create, params: { agency: benefit_sponsor_params }
+          end
+
+          it "filters unpermitted keys before building the registration form" do
+            expect(agency_class).to have_received(:for_create) do |attrs|
+              expect(attrs[:unknown_top_level_key]).to be_nil
+              expect(attrs.dig(:organization, :unknown_org_key)).to be_nil
+              expect(attrs.dig(:organization, :profile_attributes, :unknown_profile_key)).to be_nil
+              expect(attrs.dig(:organization, :profile_attributes, :office_locations_attributes, "1", :unknown_office_key)).to be_nil
+              expect(attrs.dig(:organization, :profile_attributes, :office_locations_attributes, "1", :address_attributes, :unknown_address_key)).to be_nil
+              expect(attrs.dig(:organization, :profile_attributes, :office_locations_attributes, "1", :phone_attributes, :unknown_phone_key)).to be_nil
+              expect(attrs.dig(:staff_roles_attributes, "1", :status)).to be_nil
+            end
+          end
+        end
+
       end
     end
 

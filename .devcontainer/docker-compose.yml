@@ -81,7 +81,7 @@ services:
     healthcheck:
       test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
   mongodb:
-    image: mongo:4.2
+    image: mongo:7.0
     hostname: mongodb
     # mem_limit: 4000m #trying to replicate mongo memory on prod
     volumes:

@@ -1,0 +1,22 @@
+[
+  { "files": ["features/group_selection/ee_plan_shopping.feature"] },
+  { "files": ["features/employee/conversion_employee.feature"] },
+  { "files": ["features/group_selection/member_plan_shopping.feature"] },
+  { "files": ["features/employers/employer_attestation.feature"] },
+  { "files": ["features/employers/add_plan_year_for_employer.feature"] },
+  { "files": ["features/brokers/create_broker_agency_profiles_individual_disabled.feature"] },
+  { "files": ["features/insured/individual_sep_signup.feature"] },
+  { "files": ["features/employee/manage_family.feature"] },
+  { "files": ["features/employers/benefit_applications/create_off_cycle_benefit_application.feature"] },
+  { "files": ["features/brokers/fake_fein.feature"] },
+  { "files": ["features/brokers/create_broker_agency_profiles.feature"] },
+  { "files": ["features/insured/individual_signup.feature"] },
+  { "files": ["features/employee/employee_plan_shopping.feature"] },
+  { "files": ["features/insured/individual_curam_document.feature"] },
+  { "files": ["features/employers/create_employer.feature"] },
+  { "files": ["features/user_accounts/update_username_email.feature"] },
+  { "files": ["features/hbx_admin/create_plan_year.feature"] },
+  { "files": ["features/brokers/create_quote.feature"] },
+  { "files": ["features/employers/add_deductible_display_under_plan_year.feature"] },
+  { "files": ["features/integration/employee_sign_up.feature"] }
+]
