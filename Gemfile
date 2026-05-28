@@ -14,8 +14,8 @@ gem "transport_profiles", path: "components/transport_profiles"
 
 gem 'aasm', '~> 4.8.0'
 gem 'acapi', git: "https://github.com/ideacrew/acapi.git", branch: 'trunk'
-gem 'aws-sdk-s3'
-gem 'aws-sdk-core'
+gem 'aws-sdk-s3', '~> 1.208'
+gem 'aws-sdk-core', '~> 3.3'
 gem 'bcrypt', '~> 3.1'
 gem 'bootstrap-multiselect-rails', '~> 0.9.9'
 # TODO: Validate this gem if it's being used.
@@ -26,7 +26,7 @@ gem 'chosen-rails'
 gem 'ckeditor', '4.2.4'
 gem 'coffee-rails', '~> 5.0.0'
 gem 'combine_pdf'
-gem 'devise',  '~> 4.5'
+gem 'devise',  '~> 5.0', '>= 5.0.3'
 gem 'effective_datatables', path: './project_gems/effective_datatables-2.6.14'
 gem 'httparty'
 gem 'i18n', '~> 1.5'
@@ -164,7 +164,7 @@ group :test do
   gem 'test-prof', '~> 1.3'
   gem 'warden'
   gem 'watir',                        '~> 6.18.0'
-  gem 'webdrivers', '~> 5.3.1'
+  gem 'selenium-webdriver', '~> 4.11'
   gem 'webmock'
 end
 
