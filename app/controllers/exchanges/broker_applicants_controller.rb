@@ -45,7 +45,7 @@ class Exchanges::BrokerApplicantsController < ApplicationController
       permitted_params = params.require(:person).require(:broker_role_attributes).permit(:carrier_appointments => {}).to_h
       all_carrier_appointments.merge!(permitted_params[:carrier_appointments]) if permitted_params[:carrier_appointments]
       params[:person][:broker_role_attributes][:carrier_appointments] = all_carrier_appointments
-      broker_role.update(params.require(:person).require(:broker_role_attributes).permit!.except(:id))
+      broker_role.update(broker_role_update_params.except(:id))
     elsif params['decertify']
       broker_role.decertify!
       flash[:notice] = "Broker applicant decertified."
@@ -54,12 +54,12 @@ class Exchanges::BrokerApplicantsController < ApplicationController
       flash[:notice] = "Broker applicant is now approved."
     elsif params['pending']
       broker_carrier_appointments
-      broker_role.update(params.require(:person).require(:broker_role_attributes).permit!.except(:id))
+      broker_role.update(broker_role_update_params.except(:id))
       broker_role.pending!
       flash[:notice] = "Broker applicant is now pending."
     else
       broker_carrier_appointments
-      broker_role.update(params.require(:person).require(:broker_role_attributes).permit!.except(:id))
+      broker_role.update(broker_role_update_params.except(:id))
       broker_role.approve!
       broker_role.reload
 
@@ -99,6 +99,16 @@ class Exchanges::BrokerApplicantsController < ApplicationController
     subject = "Received new broker application - #{broker_role.person.full_name}"
     body = "<br><p>Following are broker details<br>Broker Name : #{broker_role.person.full_name}<br>Broker NPN  : #{broker_role.npn}</p>"
     secure_message(hbx_admin, broker_agency, subject, body)
+  end
+
+  def broker_role_update_params
+    params.require(:person).require(:broker_role_attributes).permit(
+      :id,
+      :reason,
+      :license,
+      :training,
+      carrier_appointments: {}
+    )
   end
 
   def find_broker_applicant
