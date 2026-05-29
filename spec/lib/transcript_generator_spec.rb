@@ -66,7 +66,7 @@ RSpec.describe TranscriptGenerator do
 
     it 'persists all transcript keys and values' do
       file_path = Dir.glob("#{tmp_path}/*.bin").first
-      loaded = JSON.load(File.open(file_path))
+      loaded = JSON.parse(File.read(file_path))
       expect(loaded['identifier']).to eq('abc123')
       expect(loaded['name']).to eq('Jane Doe')
       expect(loaded['changes'].first['field']).to eq('email')
