@@ -79,6 +79,40 @@ module BenefitSponsors
             expect(result).to be_permitted
           end
 
+          it 'filters unpermitted keys from built payload' do
+            unpermitted_attrs = {
+              id: BSON::ObjectId.new.to_s,
+              kind: :health,
+              reference_plan_id: product.id.to_s,
+              product_package_kind: 'single_issuer',
+              product_option_choice: 'single_issuer',
+              ignored_key: 'drop_me',
+              sponsor_contribution_attributes: {
+                contribution_levels_attributes: {
+                  '0' => {
+                    id: BSON::ObjectId.new.to_s,
+                    contribution_factor: '0.75',
+                    is_offered: 'true',
+                    display_name: 'Employee Only',
+                    contribution_unit_id: 'employee_only',
+                    ignored_nested_key: 'drop_me_too'
+                  }
+                }
+              }
+            }
+
+            allow(subject).to receive(:sponsored_benefit_attributes).and_return(unpermitted_attrs)
+
+            result = subject.build
+            sponsored_benefit_attrs = result[:sponsored_benefits_attributes]['0']
+
+            expect(sponsored_benefit_attrs[:ignored_key]).to be_nil
+            expect(
+              sponsored_benefit_attrs
+                .dig(:sponsor_contribution_attributes, :contribution_levels_attributes, '0', :ignored_nested_key)
+            ).to be_nil
+          end
+
           it 'includes benefit_application_id' do
             result = subject.build
             expect(result[:benefit_application_id]).to eq(benefit_application.id.to_s)
@@ -172,7 +206,7 @@ module BenefitSponsors
             sponsored_benefit = benefit_package.sponsored_benefits.first
             if sponsored_benefit
               result = subject.build
-              expect(result[:sponsored_benefits_attributes]['0'][:id]).to eq(sponsored_benefit.id)
+              expect(result[:sponsored_benefits_attributes]['0'][:id]).to eq(sponsored_benefit.id.to_s)
             end
           end
         end
