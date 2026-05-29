@@ -182,6 +182,48 @@ module BenefitSponsors
           expect(flash[:error]).to match /Role was not added because Person does not exist on the HBX Exchange/
         end
       end
+
+      context "when request includes unpermitted staff keys" do
+        let(:staff_payload) do
+          {
+            first_name: new_person_for_staff.first_name,
+            last_name: new_person_for_staff.last_name,
+            dob: new_person_for_staff.dob,
+            email: new_person_for_staff.work_email_or_best,
+            npn: '123456',
+            status: 'hacked_status',
+            profile_type: 'hacked_profile_type'
+          }
+        end
+
+        let(:staff_params) do
+          {
+            profile_id: employer_profile.id,
+            person_id: new_person_for_staff.id,
+            staff: staff_payload
+          }
+        end
+
+        before do
+          sign_in user
+          allow(staff_class).to receive(:for_create).and_call_original
+          post :create, params: staff_params
+        end
+
+        it "passes only allowlisted keys and merged ids to the form object" do
+          expect(staff_class).to have_received(:for_create) do |attrs|
+            expect(attrs[:first_name]).to eq(new_person_for_staff.first_name)
+            expect(attrs[:last_name]).to eq(new_person_for_staff.last_name)
+            expect(attrs[:dob]).to be_present
+            expect(attrs[:email]).to eq(new_person_for_staff.work_email_or_best)
+            expect(attrs[:npn]).to eq('123456')
+            expect(attrs[:profile_id].to_s).to eq(employer_profile.id.to_s)
+            expect(attrs[:person_id].to_s).to eq(new_person_for_staff.id.to_s)
+            expect(attrs[:status]).to be_nil
+            expect(attrs[:profile_type]).to be_nil
+          end
+        end
+      end
     end
 
     describe "GET approve", dbclean: :after_each do
