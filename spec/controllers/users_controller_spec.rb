@@ -123,6 +123,12 @@ describe UsersController do
       get :confirm_lock, params: { id: user_id, format: :js }
     end
     it { expect(response).to render_template('confirm_lock') }
+
+    it 'assigns user_action_id from permitted params only' do
+      get :confirm_lock, params: { id: user_id, user_action_id: 'action-123', unexpected: 'drop_me', format: :js }
+
+      expect(assigns(:user_id)).to eq('action-123')
+    end
   end
 
   describe ".lockable" do

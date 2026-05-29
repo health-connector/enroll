@@ -35,11 +35,24 @@ namespace :reports do
             active_states = BenefitSponsors::BenefitSponsorships::BenefitSponsorship::ACTIVE_STATES + BenefitSponsors::BenefitSponsorships::BenefitSponsorship::ENROLLED_STATES
 
             if active_states.include? census_employee.employer_profile.active_benefit_sponsorship.aasm_state
+              field_map = {
+                'employee_name'             => -> { employee_name },
+                'employee_hbx_id'           => -> { employee_hbx_id },
+                'employer_legal_name'       => -> { employer_legal_name },
+                'employer_hbx_id'           => -> { employer_hbx_id },
+                'date_of_hire'              => -> { date_of_hire },
+                'date_added_to_roster'      => -> { date_added_to_roster },
+                'employment_status'         => -> { employment_status },
+                'date_of_termination'       => -> { date_of_termination },
+                'date_terminated_on_roster' => -> { date_terminated_on_roster }
+              }
+
               csv << field_names.map do |field_name|
-                if eval(field_name).to_s.blank? || field_name != "ssn"
-                  eval("#{field_name}")
+                value = field_map[field_name]&.call
+                if value.to_s.blank? || field_name != "ssn"
+                  value
                 elsif field_name == "ssn"
-                  '="' + eval(field_name) + '"'
+                  '="' + value.to_s + '"'
                 end
               end
               processed_count += 1
