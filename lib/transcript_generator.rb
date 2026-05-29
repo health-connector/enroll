@@ -43,9 +43,7 @@ class TranscriptGenerator
     # transcript.shop = false
     transcript.find_or_build(external_obj)
 
-    File.open("#{TRANSCRIPT_PATH}/#{@count}_#{transcript.transcript[:identifier]}_#{Time.now.to_i}.bin", 'w') do |file|
-      file.write JSON.dump(transcript.transcript)
-    end
+    File.write("#{TRANSCRIPT_PATH}/#{@count}_#{transcript.transcript[:identifier]}_#{Time.now.to_i}.bin", JSON.dump(transcript.transcript))
   end
 
   def display_enrollment_transcripts
