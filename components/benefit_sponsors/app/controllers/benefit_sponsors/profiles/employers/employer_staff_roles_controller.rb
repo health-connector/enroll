@@ -63,9 +63,14 @@ module BenefitSponsors
         private
 
         def staff_params
-          params[:staff].present? ? params[:staff] :  params[:staff] = {}
-          params[:staff].merge!({profile_id: params["profile_id"] || params["id"], person_id: params["person_id"]})
-          params[:staff].permit!
+          staff_attributes = params.fetch(:staff, ActionController::Parameters.new).permit(
+            :first_name, :last_name, :dob, :email, :npn, :area_code, :number, :extension
+          )
+
+          staff_attributes.merge(
+            profile_id: params["profile_id"] || params["id"],
+            person_id: params["person_id"]
+          )
         end
       end
     end
