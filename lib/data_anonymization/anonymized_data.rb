@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 require 'securerandom'
-require 'ffaker'
+# ffaker is a development/test-only gem; require it lazily inside each method
+# so it is never loaded during assets:precompile in the production Docker image.
 
 module DataAnonymizer
   # Generates synthetic PII values using FFaker and SecureRandom.
@@ -46,11 +47,13 @@ module DataAnonymizer
 
     # @return [String] random first name containing only Unicode letters and spaces
     def first_name
+      require 'ffaker'
       sanitize_name(FFaker::Name.first_name)
     end
 
     # @return [String] random last name containing only Unicode letters and spaces
     def last_name
+      require 'ffaker'
       sanitize_name(FFaker::Name.last_name)
     end
 
@@ -108,7 +111,6 @@ module DataAnonymizer
     end
 
     # The shift is deterministic when +shift_days+ is provided, or random within ±30 days when nil.
-    # The shifted date will never be before 1920-01-01 and never be today or in the future.
     # @param original_dob [Date] the original date of birth
     # @param shift_days [Integer, nil] days to shift; a random offset is used if nil
     # @return [Date, nil] the shifted date, or nil if +original_dob+ is nil
@@ -124,21 +126,25 @@ module DataAnonymizer
 
     # @return [String] fake street address line 1 (house number + street name)
     def address_1
+      require 'ffaker'
       "#{rand(100..9999)} #{FFaker::Address.street_name}"
     end
 
     # @return [String] fake city name via FFaker
     def city
+      require 'ffaker'
       FFaker::Address.city
     end
 
     # @return [String] fake US ZIP code via FFaker
     def zip
+      require 'ffaker'
       FFaker::AddressUS.zip_code
     end
 
     # @return [String] fake county name derived from a random FFaker city
     def county
+      require 'ffaker'
       "#{FFaker::Address.city} County"
     end
 
@@ -150,13 +156,9 @@ module DataAnonymizer
     #   When no index is given, a random hex suffix keeps the address unique.
     # @param index [Integer, nil] sequence number for deterministic uniqueness
     def email(index = nil)
-      if index
-        domain = ALLOWED_EMAIL_DOMAINS[index % 2]
-        "user#{index}@#{domain}"
-      else
-        domain = ALLOWED_EMAIL_DOMAINS[SecureRandom.random_number(2)]
-        "user#{SecureRandom.hex(4)}@#{domain}"
-      end
+      domain = ALLOWED_EMAIL_DOMAINS[(index || SecureRandom.random_number(2)) % 2]
+      prefix = index ? "user#{index}" : "user#{SecureRandom.hex(4)}"
+      "#{prefix}@#{domain}"
     end
 
     # @return [String] random 7-digit phone number body (no area code)
@@ -176,6 +178,7 @@ module DataAnonymizer
 
     # @return [String] random US state abbreviation (2 letters)
     def state
+      require 'ffaker'
       FFaker::AddressUS.state_abbr
     end
 
@@ -183,6 +186,7 @@ module DataAnonymizer
     #   Commas, ampersands, and other punctuation from FFaker are stripped so the
     #   value passes any downstream name-format validation.
     def company_name
+      require 'ffaker'
       sanitize_name(FFaker::Company.name, fallback: SAFE_COMPANY_FALLBACK)
     end
 

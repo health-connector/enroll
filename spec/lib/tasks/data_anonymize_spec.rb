@@ -902,6 +902,8 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
     describe 'sentinel record after full run' do
       before do
         runner.db[:data_anonymizer_runs].drop
+        allow(runner).to receive(:abort_if_production!)
+        allow(dry_runner).to receive(:abort_if_production!)
         # stub heavy phases to keep the test fast
         allow(runner).to receive(:drop_history_trackers).and_return(0)
         allow(runner).to receive(:anonymize_people).and_return(0)
