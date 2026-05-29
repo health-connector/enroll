@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
 require 'securerandom'
-# ffaker is a development/test-only gem; require it lazily inside each method
-# so it is never loaded during assets:precompile in the production Docker image.
+require 'ffaker'
 
 module DataAnonymizer
   # Generates synthetic PII values using FFaker and SecureRandom.
@@ -47,13 +46,11 @@ module DataAnonymizer
 
     # @return [String] random first name containing only Unicode letters and spaces
     def first_name
-      require 'ffaker'
       sanitize_name(FFaker::Name.first_name)
     end
 
     # @return [String] random last name containing only Unicode letters and spaces
     def last_name
-      require 'ffaker'
       sanitize_name(FFaker::Name.last_name)
     end
 
@@ -126,25 +123,21 @@ module DataAnonymizer
 
     # @return [String] fake street address line 1 (house number + street name)
     def address_1
-      require 'ffaker'
       "#{rand(100..9999)} #{FFaker::Address.street_name}"
     end
 
     # @return [String] fake city name via FFaker
     def city
-      require 'ffaker'
       FFaker::Address.city
     end
 
     # @return [String] fake US ZIP code via FFaker
     def zip
-      require 'ffaker'
       FFaker::AddressUS.zip_code
     end
 
     # @return [String] fake county name derived from a random FFaker city
     def county
-      require 'ffaker'
       "#{FFaker::Address.city} County"
     end
 
@@ -178,7 +171,6 @@ module DataAnonymizer
 
     # @return [String] random US state abbreviation (2 letters)
     def state
-      require 'ffaker'
       FFaker::AddressUS.state_abbr
     end
 
@@ -186,7 +178,6 @@ module DataAnonymizer
     #   Commas, ampersands, and other punctuation from FFaker are stripped so the
     #   value passes any downstream name-format validation.
     def company_name
-      require 'ffaker'
       sanitize_name(FFaker::Company.name, fallback: SAFE_COMPANY_FALLBACK)
     end
 

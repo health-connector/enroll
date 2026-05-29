@@ -78,6 +78,7 @@ gem 'rubyXL'
 gem 'holidays', '~> 8.6'
 gem 'thor', '>= 1.4.0'
 gem "connection_pool", "< 3"
+gem 'ffaker'
 
 #arm64 mac support
 gem 'ffi', '1.17.3'
@@ -133,7 +134,6 @@ group :development, :test do
   gem 'climate_control', '0.2.0'
   gem 'email_spec', '~> 2'
   gem 'factory_bot_rails', '~> 6.4', '>= 6.4.4'
-  gem 'ffaker'
   gem 'forgery'
   gem 'parallel_tests', '2.26.2'
   gem 'rails-controller-testing'
