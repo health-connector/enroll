@@ -175,8 +175,8 @@ module DataAnonymizer
 
       if env_name.nil? || env_name.strip.empty?
         reasons << "ENV_NAME is not set — refusing to run without an explicit non-prod environment signal"
-      elsif env_name == 'prod'
-        reasons << "ENV_NAME='prod' indicates real production"
+      elsif env_name.strip.downcase == 'prod'
+        reasons << "ENV_NAME=#{env_name.inspect} indicates real production"
       end
 
       reasons << "Rails.env=production and ENROLL_REVIEW_ENVIRONMENT=#{enroll_review_env.inspect} (expected 'true' in lower envs)" if Rails.env.production? && enroll_review_env != 'true'
@@ -242,7 +242,7 @@ module DataAnonymizer
       collection = db[:people]
       total = collection.count_documents({})
       log "\n--- Phase 1: Anonymizing People (#{total}) ---"
-      family_shifts = build_family_shift_map
+      family_shifts = @anonymize_dob ? build_family_shift_map : {}
       processed = 0
 
       collection.find.batch_size(batch_size).each_slice(batch_size) do |batch|

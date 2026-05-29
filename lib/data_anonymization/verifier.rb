@@ -29,7 +29,7 @@ module DataAnonymizer
     # +fein+ is a 9-digit EIN intentionally left unchanged per anonymization policy.
     # +ach_routing_number+ is an ABA routing number — always exactly 9 digits by spec;
     # it is validated separately by +check_organizations+ / +check_bs_organizations+.
-    SKIP_FIELDS = %w[_id encrypted_ssn fein ach_routing_number].freeze
+    SKIP_FIELDS = %w[_id encrypted_ssn fein ach_routing_number ach_routing_number_confirmation].freeze
 
     def initialize(mode: :smoke, prehash_map: nil, hmac_key: nil, run_id: nil, sample_size: SAMPLE_SIZE)
       @mode = mode
@@ -111,6 +111,8 @@ module DataAnonymizer
     # Streaming regex scan across all collections for SSN-like 9-digit patterns.
     # Samples up to +@sample_size+ documents per collection (audit mode only).
     # Recurses into nested hashes and arrays so embedded sub-documents are covered.
+    PER_COLLECTION_HIT_CAP = 5
+
     def check_streaming_ssn_patterns
       pattern = /\b\d{9}\b/
       hits = []
@@ -120,13 +122,15 @@ module DataAnonymizer
       collections.each do |col|
         next unless @db.collection_names.include?(col)
 
+        collection_hits = 0
         @db[col.to_sym].find.limit(@sample_size).batch_size(500).each do |doc|
           total_checked += 1
           if doc_strings(doc).any? { |v| v.match?(pattern) }
             snippet = doc_strings(doc).find { |v| v.match?(pattern) }
             hits << { collection: col, id: doc['_id'].to_s, snippet: snippet.to_s[0, 120] }
+            collection_hits += 1
           end
-          break if hits.size >= 10
+          break if collection_hits >= PER_COLLECTION_HIT_CAP
         end
       end
 
@@ -170,7 +174,6 @@ module DataAnonymizer
         next unless @db.collection_names.include?(col)
 
         id_map.each do |id_str, stored_hmac|
-          total += 1
           begin
             oid = BSON::ObjectId.from_string(id_str)
           rescue StandardError
@@ -178,6 +181,8 @@ module DataAnonymizer
           end
           doc = @db[col.to_sym].find('_id' => oid).first
           next unless doc
+
+          total += 1
 
           canon = canonical_payload_for_collection(collection_sym, doc)
           current_hmac = OpenSSL::HMAC.hexdigest('SHA256', @hmac_key, canon)
