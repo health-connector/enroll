@@ -83,10 +83,10 @@ RSpec.describe TranscriptGenerator do
   describe '#display_transcripts — JSON deserialisation round-trip' do
     let(:transcript_data) do
       {
-        'hbx_id'  => 'xyz789',
-        'ssn'     => '123456789',
-        'source'  => { '_id' => 'abc', 'name' => 'test' },
-        'other'   => { '_id' => 'def', 'name' => 'other' },
+        'hbx_id' => 'xyz789',
+        'ssn' => '123456789',
+        'source' => { '_id' => 'abc', 'name' => 'test' },
+        'other' => { '_id' => 'def', 'name' => 'other' },
         'compare' => {}
       }
     end
