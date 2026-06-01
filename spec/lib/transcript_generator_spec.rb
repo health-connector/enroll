@@ -83,60 +83,52 @@ RSpec.describe TranscriptGenerator do
   describe '#display_transcripts — JSON deserialisation round-trip' do
     let(:transcript_data) do
       {
-        'hbx_id' => 'xyz789',
-        'last_name' => 'Smith',
-        'first_name' => 'Bob',
-        'ssn' => '123456789'
+        'hbx_id'  => 'xyz789',
+        'ssn'     => '123456789',
+        'source'  => { '_id' => 'abc', 'name' => 'test' },
+        'other'   => { '_id' => 'def', 'name' => 'other' },
+        'compare' => {}
       }
     end
 
     let(:bin_file) { File.join(tmp_path, '1_xyz789_123456789.bin') }
+    let(:loaded_transcript) { [] }
 
     let(:mock_importer) do
       instance_double(
         Importers::Transcripts::PersonTranscript,
-        transcript: nil,
-        market: nil,
-        process: nil,
-        csv_row: [[
-          'xyz789', '123456789', 'Smith', 'Bob',
-          'match', 'match:ssn', '', 'Matched'
-        ]]
+        transcript: nil, market: nil, process: nil,
+        csv_row: [['xyz789', '123456789', '', '', 'match', 'match:ssn', '', 'Matched']]
       )
     end
 
     before do
-      # Write a JSON .bin file as build_transcript now produces
       File.write(bin_file, JSON.dump(transcript_data))
-
       allow(Importers::Transcripts::PersonTranscript).to receive(:new).and_return(mock_importer)
-      allow(mock_importer).to receive(:transcript=) do |val|
-        # Verify that what was loaded is a Hash with string keys (JSON round-trip)
-        expect(val).to be_a(Hash)
-        expect(val['hbx_id']).to eq('xyz789')
-      end
+      allow(mock_importer).to receive(:transcript=) { |val| loaded_transcript << val }
       allow(mock_importer).to receive(:market=)
+      described_class.new.display_transcripts
     end
 
-    it 'reads the JSON file without raising' do
-      generator = described_class.new
-      expect { generator.display_transcripts }.not_to raise_error
+    after { FileUtils.rm_f('person_change_sets.csv') }
+
+    subject(:loaded) { loaded_transcript.first }
+
+    it 'outer keys are symbol-keyed (required by transcript[:source_is_new] etc.)' do
+      expect(loaded[:hbx_id]).to eq('xyz789')
     end
 
-    it 'loads the transcript as a Hash with the correct keys' do
-      generator = described_class.new
-      generator.display_transcripts
-      expect(mock_importer).to have_received(:transcript=).once
+    it 'inner sub-hashes support string key access (required by source["_id"] etc.)' do
+      expect(loaded[:source]['_id']).to eq('abc')
+      expect(loaded[:other]['_id']).to eq('def')
+    end
+
+    it 'inner sub-hashes support symbol key access (HashWithIndifferentAccess)' do
+      expect(loaded[:source][:name]).to eq('test')
     end
 
     it 'produces a CSV output file' do
-      generator = described_class.new
-      generator.display_transcripts
       expect(File.exist?('person_change_sets.csv')).to be true
-    end
-
-    after do
-      FileUtils.rm_f('person_change_sets.csv')
     end
   end
 

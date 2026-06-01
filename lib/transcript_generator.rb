@@ -175,7 +175,14 @@ class TranscriptGenerator
           # rows = Transcripts::ComparisonResult.new(Marshal.load(File.open(file_path))).csv_row
 
           person_importer = Importers::Transcripts::PersonTranscript.new
-          person_importer.transcript = JSON.parse(File.read(file_path))
+          raw = JSON.parse(File.read(file_path), symbolize_names: true)
+          # Outer keys are accessed with symbols (e.g. transcript[:source_is_new]).
+          # Inner sub-hashes were originally HashWithIndifferentAccess (see Transcripts::Base#transcript_template).
+          # JSON round-trip loses that, so restore indifferent access for all inner hash keys.
+          [:source, :other, :compare, :source_errors, :other_errors].each do |key|
+            raw[key] = HashWithIndifferentAccess.new(raw[key]) if raw[key].is_a?(Hash)
+          end
+          person_importer.transcript = raw
           person_importer.market = @market
           person_importer.process
 
