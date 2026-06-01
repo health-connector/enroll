@@ -127,6 +127,15 @@ RSpec.describe TranscriptGenerator do
       expect(loaded[:source][:name]).to eq('test')
     end
 
+    it 'wraps every key listed in INNER_HASH_KEYS with HashWithIndifferentAccess' do
+      TranscriptGenerator::INNER_HASH_KEYS.each do |key|
+        next unless loaded[key]
+
+        expect(loaded[key]).to be_a(HashWithIndifferentAccess),
+          "expected loaded[#{key.inspect}] to be HashWithIndifferentAccess"
+      end
+    end
+
     it 'produces a CSV output file' do
       expect(File.exist?('person_change_sets.csv')).to be true
     end
