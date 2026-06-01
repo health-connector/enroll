@@ -1139,5 +1139,80 @@ RSpec.describe BenefitSponsors::EmployerEvents::Renderer, dbclean: :after_each d
         expect(subject.update_event_name(old_carrier, first_time_employer_event)).to eq first_time_employer_event_name
       end
     end
+
+    context "when no employer profile is found in the database", :dbclean => :after_each do
+      let(:unknown_employer_event) do
+        instance_double(BenefitSponsors::Services::EmployerEvent,
+                        { event_time: event_time,
+                          event_name: renewal_successful_event,
+                          resource_body: source_document,
+                          employer_profile_id: "nonexistent-hbx-id-000",
+                          id: "some-event-id" })
+      end
+
+      subject do
+        BenefitSponsors::EmployerEvents::Renderer.new(unknown_employer_event)
+      end
+
+      it "raises EmployerNotFound when updating the event name" do
+        allow(carrier).to receive(:hbx_carrier_id).and_return(hbx_carrier_id)
+
+        expect do
+          subject.update_event_name(carrier, unknown_employer_event)
+        end.to raise_error(BenefitSponsors::EmployerEvents::Errors::EmployerNotFound)
+      end
+    end
+
+    context "when the employer is found but no matching plan year exists in the database", :dbclean => :after_each do
+      let(:mismatched_source_document) do
+        <<-XMLCODE
+        <organization xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://openhbx.org/api/terms/1.0" xsi:type="EmployerOrganizationType">
+          <id><id>#{employer.hbx_id}</id></id>
+          <name>#{employer.legal_name}</name>
+          <fein>#{employer.fein}</fein>
+          <employer_profile>
+            <plan_years>
+              <plan_year>
+                <plan_year_start>20991201</plan_year_start>
+                <plan_year_end>20991130</plan_year_end>
+                <benefit_groups>
+                  <benefit_group>
+                    <elected_plans>
+                      <elected_plan>
+                        <carrier>
+                          <id><id>#{hbx_carrier_id}</id></id>
+                        </carrier>
+                      </elected_plan>
+                    </elected_plans>
+                  </benefit_group>
+                </benefit_groups>
+              </plan_year>
+            </plan_years>
+          </employer_profile>
+        </organization>
+        XMLCODE
+      end
+
+      let(:mismatched_employer_event) do
+        instance_double(BenefitSponsors::Services::EmployerEvent,
+                        { event_time: event_time,
+                          event_name: renewal_successful_event,
+                          resource_body: mismatched_source_document,
+                          employer_profile_id: employer_profile_hbx_id,
+                          id: "some-event-id" })
+      end
+
+      subject do
+        BenefitSponsors::EmployerEvents::Renderer.new(mismatched_employer_event)
+      end
+
+      it "raises EmployerPlanYearNotFound when updating the event name" do
+        allow(carrier).to receive(:hbx_carrier_id).and_return(hbx_carrier_id)
+
+        expect do
+          subject.update_event_name(carrier, mismatched_employer_event)
+        end.to raise_error(BenefitSponsors::EmployerEvents::Errors::EmployerPlanYearNotFound)
+      end
+    end
   end
 end

@@ -386,6 +386,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
 
         expect(assigns(:success_message)).to eq('V2 XML downloaded successfully.')
         expect(assigns(:file_path)).to eq('/path/to/file.zip')
+        expect(assigns(:employer_actions_id)).to eq(employer_actions_id)
         expect(response).to have_http_status(:ok)
       end
     end
@@ -405,6 +406,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
 
         expect(assigns(:error_message)).to eq('No files to download')
         expect(assigns(:file_path)).to be_nil
+        expect(assigns(:employer_actions_id)).to eq(employer_actions_id)
         expect(response).to have_http_status(:ok)
       end
     end
@@ -424,6 +426,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
 
         expect(assigns(:error_message)).to eq('An error occurred during download')
         expect(assigns(:file_path)).to be_nil
+        expect(assigns(:employer_actions_id)).to eq(employer_actions_id)
         expect(response).to have_http_status(:ok)
       end
     end

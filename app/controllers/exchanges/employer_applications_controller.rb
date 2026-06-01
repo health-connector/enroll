@@ -81,6 +81,7 @@ module Exchanges
     end
 
     def download_v2_xml
+      @employer_actions_id = params[:employer_actions_id]
       result = BenefitSponsors::Operations::BenefitApplications::DownloadV2Xml.new.call(
         selected_event: params[:selected_event],
         employer_application_id: params[:employer_application_id],
