@@ -144,6 +144,32 @@ RSpec.describe Exchanges::BrokerApplicantsController do
         end
       end
 
+      context 'when update includes unpermitted broker role keys' do
+        before :each do
+          broker_role.update_attributes({ broker_agency_profile_id: @broker_agency_profile.id })
+          broker_role.approve!
+          put :update,
+              params: {
+                id: broker_role.person.id,
+                update: true,
+                person: {
+                  broker_role_attributes: {
+                    training: true,
+                    aasm_state: 'denied',
+                    carrier_appointments: {}
+                  }
+                }
+              },
+              format: :js
+          broker_role.reload
+        end
+
+        it 'does not mass-assign unpermitted keys' do
+          expect(broker_role.aasm_state).to eq 'active'
+          expect(broker_role.training).to eq true
+        end
+      end
+
       context 'when broker carrier appointments enabled and application is pending' do
         context 'when application is pending' do
           before :each do

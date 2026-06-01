@@ -79,6 +79,9 @@ namespace :employers do
         profile.referred_by,
         profile.referred_reason,
         benefit_sponsorship.aasm_state,
+        "", # GA related TODO for DC
+        "", # GA related TODO for DC
+        "", # GA related TODO for DC
         primary_ol.try(:is_primary),
         primary_address.try(:address_1),
         primary_address.try(:address_2),
@@ -135,7 +138,7 @@ namespace :employers do
     CSV.open(file_name, "w") do |csv|
 
       headers = %w[employer.legal_name employer.dba employer.fein employer.hbx_id employer.entity_kind employer.sic_code employer_profile.profile_source employer.referred_by employer.referred_reason employer.status
-                   office_location.is_primary office_location.address.address_1 office_location.address.address_2
+                   ga_fein ga_agency_name ga_start_on office_location.is_primary office_location.address.address_1 office_location.address.address_2
                    office_location.address.city office_location.address.state office_location.address.zip mailing_location.address_1 mailing_location.address_2 mailing_location.city mailing_location.state mailing_location.zip employer.rating_area
                    office_location.phone.full_phone_number staff.name staff.phone staff.email
                    employee offered spouce offered domestic_partner offered child_under_26 offered child_26_and_over
@@ -146,7 +149,7 @@ namespace :employers do
                    plan_year.fte_count plan_year.pte_count plan_year.msp_count plan_year.status plan_year.publish_date broker_agency_account.corporate_npn broker_agency_account.legal_name
                    broker.name broker.npn broker.assigned_on flexible_contributions_enabled]
       csv << headers
-
+      
       organizations.no_timeout.each do |organization|
 
         profile = organization.employer_profile

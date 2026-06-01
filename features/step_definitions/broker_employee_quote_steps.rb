@@ -396,3 +396,37 @@ end
 Then(/^.+ should see Benefit Package Set Up page$/) do
   expect(page).to have_selector('h2', text: 'Benefit Package Set Up')
 end
+
+When(/^the broker visits the prospect employer new page for (.*)$/) do |broker_agency_name|
+  profile = broker_agency_profile(broker_agency_name)
+  # Use the engine path directly to avoid missing route helper in Cucumber world
+  visit "/sponsored_benefits/organizations/plan_design_organizations/new?broker_agency_id=#{profile.id}"
+end
+
+Then(/^the broker should see the Add Prospect Employer form$/) do
+  expect(page).to have_content("Employer Information")
+end
+
+And(/^the broker should see the SIC code question mark link$/) do
+  expect(page).to have_css('#sicHelperToggle', visible: true)
+end
+
+When(/^the broker clicks on the SIC code question mark$/) do
+  find('#sicHelperToggle', visible: true).click
+  wait_for_ajax(3, 0.5)
+end
+
+Then(/^the broker should see the SIC code helper panel$/) do
+  wrapper = find('#sicHelperWrapper', visible: :all)
+  expect(wrapper[:class].to_s.split).not_to include('hidden')
+end
+
+And(/^the broker should see the SIC code search input$/) do
+  expect(page).to have_css('#sic_search', visible: true)
+  expect(page).to have_content('Search for your matching SIC Code')
+end
+
+Then(/^the broker should not see the SIC code helper panel$/) do
+  wrapper = find('#sicHelperWrapper', visible: :all)
+  expect(wrapper[:class].to_s.split).to include('hidden')
+end

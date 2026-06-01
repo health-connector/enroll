@@ -10,6 +10,7 @@ module Forms
     include ::Forms::ConsumerFields
     include ::Forms::SsnField
     RELATIONSHIPS = ::PersonRelationship::Relationships + ::BenefitEligibilityElementGroup::INDIVIDUAL_MARKET_RELATIONSHIP_CATEGORY_KINDS
+    ADDRESS_ATTRIBUTE_KEYS = %i[kind address_1 address_2 city state zip county id _destroy].freeze
     #include ::Forms::DateOfBirthField
     #include Validations::USDate.on(:date_of_birth)
 
@@ -141,7 +142,7 @@ module Forms
         mailing_address = person.has_mailing_address? ? person.mailing_address : nil
 
         addresses.each_value do |address|
-          address_attrs = address.is_a?(Hash) ? address : address.permit!
+          address_attrs = sanitize_address_attributes(address)
 
           current_address = case address_attrs["kind"]
                             when "home"
@@ -167,6 +168,14 @@ module Forms
       true
     rescue StandardError
       false
+    end
+
+    def sanitize_address_attributes(address)
+      if address.respond_to?(:permit)
+        address.permit(*ADDRESS_ATTRIBUTE_KEYS).to_h.stringify_keys
+      else
+        address.to_h.stringify_keys.slice(*ADDRESS_ATTRIBUTE_KEYS.map(&:to_s))
+      end
     end
 
     def extract_consumer_role_params

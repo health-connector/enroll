@@ -22,6 +22,10 @@ RSpec.describe "_footer.html.slim", :type => :view, dbclean: :after_each  do
       expect(rendered).to have_selector(:xpath, "//*[@id='footer-uic']/div/div[2]/div/ul/li[2]/a/span/i")
     end
 
+    it "should link to the FAQs page on MA Health Connector" do
+      expect(rendered).to have_link('FAQs', href: Settings.site.faqs_url)
+    end
+
   end
 
 end
