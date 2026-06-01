@@ -131,8 +131,7 @@ RSpec.describe TranscriptGenerator do
       TranscriptGenerator::INNER_HASH_KEYS.each do |key|
         next unless loaded[key]
 
-        expect(loaded[key]).to be_a(HashWithIndifferentAccess),
-          "expected loaded[#{key.inspect}] to be HashWithIndifferentAccess"
+        expect(loaded[key]).to be_a(HashWithIndifferentAccess)
       end
     end
 
