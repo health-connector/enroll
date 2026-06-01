@@ -111,16 +111,60 @@ module SponsoredBenefits
     end
 
     describe "GET #new" do
+      let(:new_params) { { plan_design_organization_id: prospect_plan_design_organization.id, broker_agency_id: broker_agency_profile.id } }
       USER_ROLES.each do |role|
         context "for user #{role}" do
           before do
             allow(subject).to receive(:init_organization).and_return(prospect_plan_design_organization)
-            allow(active_user).to receive(:has_hbx_staff_role?).and_return( role == :with_hbx_staff_role ? true : false)
+            allow(active_user).to receive(:has_hbx_staff_role?).and_return(role == :with_hbx_staff_role)
           end
 
           it "returns a success response" do
-            get :new, params: { plan_design_organization_id: prospect_plan_design_organization.id, broker_agency_id:  broker_agency_profile.id}
+            get :new, params: new_params
             expect(response).to be_successful
+          end
+
+          it "renders the new template" do
+            get :new, params: new_params
+            expect(response).to render_template(:new)
+          end
+
+          it "calls init_organization to set up sic codes and organization form" do
+            expect(subject).to receive(:init_organization)
+            get :new, params: new_params
+          end
+        end
+      end
+
+      context "sic code data setup" do
+        before do
+          allow(active_user).to receive(:has_hbx_staff_role?).and_return(false)
+          allow(SicCode).to receive(:all).and_return([])
+        end
+
+        it "assigns grouped_options as a Hash for the sic code select" do
+          get :new, params: new_params
+          expect(assigns(:grouped_options)).to be_a(Hash)
+        end
+
+        it "assigns a new organization signup form object" do
+          get :new, params: new_params
+          expect(assigns(:organization)).to be_a(SponsoredBenefits::Forms::PlanDesignOrganizationSignup)
+        end
+      end
+    end
+
+    describe "GET #generate_sic_tree" do
+      context "SIC tree data is available from the benefit_sponsors engine" do
+        it "exposes a reachable generate_sic_tree endpoint" do
+          helpers = Rails.application.routes.url_helpers
+
+          if helpers.respond_to?(:generate_sic_tree_profiles_employers_employer_profiles_path, true)
+            expect(helpers).to respond_to(:generate_sic_tree_profiles_employers_employer_profiles_path)
+          else
+            expect do
+              Rails.application.routes.recognize_path("/benefit_sponsors/profiles/employers/employer_profiles/generate_sic_tree", method: :get)
+            end.not_to raise_error
           end
         end
       end

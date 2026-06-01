@@ -1,8 +1,10 @@
 $(document).ready(function() {
   $('.remove-new-employee-dependent').each(function(idx, ele) {
     $(ele).click(function() {
-    var targetElementId = $(ele).attr("data-target");
-    $(targetElementId).remove();
+    var targetElementId = $(ele).data("target");
+    if (typeof targetElementId === 'string' && /^#[A-Za-z][A-Za-z0-9_:\-\.]*$/.test(targetElementId)) {
+      $(targetElementId).remove();
+    }
     $("#dependent_buttons").removeClass('hidden');
     return false;
     });
