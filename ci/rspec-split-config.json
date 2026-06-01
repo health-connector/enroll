@@ -1321,5 +1321,18 @@
       "spec/views/shared/my_portal_links.html.erb_spec.rb",
       "spec/views/ui-components/v1/cards/_summary.html.slim_spec.rb"
     ]
+  },
+  {
+    "files": [
+      "spec/lib/tasks/data_anonymize_spec.rb"
+    ]
+  },
+  {
+    "files": [
+      "spec/lib/data_anonymization/anonymized_data_spec.rb",
+      "spec/lib/data_anonymization/canonical_payloads_spec.rb",
+      "spec/lib/data_anonymization/runner_spec.rb",
+      "spec/lib/data_anonymization/verifier_spec.rb"
+    ]
   }
 ]
