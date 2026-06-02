@@ -640,10 +640,15 @@ function saveProposalAndPublish(event) {
 
 function AddDentalToPlanDesignProposal(event) {
   saveProposal(event);
-  var url = $("#add_dental_url").val();
-  // Only navigate to same-origin relative paths (must start with a single "/").
-  if (/^\/(?!\/)/.test(url)) {
-    window.location.href = url;
+  var rawUrl = $("#add_dental_url").val();
+  if (typeof rawUrl !== 'string') { return; }
+  rawUrl = rawUrl.trim();
+  try {
+    var parsedUrl = new URL(rawUrl, window.location.origin);
+    if (parsedUrl.origin === window.location.origin && parsedUrl.pathname.charAt(0) === '/') {
+      window.location.href = parsedUrl.pathname + parsedUrl.search + parsedUrl.hash;
+    }
+  } catch (e) {
   }
 }
 
