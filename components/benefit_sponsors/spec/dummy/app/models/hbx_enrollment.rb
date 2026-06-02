@@ -245,9 +245,9 @@ class HbxEnrollment
 
   def generate_hbx_signature
     if self.subscriber
-      self.enrollment_signature = Digest::MD5.hexdigest(self.subscriber.applicant_id.to_s)
+      self.enrollment_signature = Digest::SHA256.hexdigest(self.subscriber.applicant_id.to_s)
     elsif self.subscriber.nil?
-      self.enrollment_signature =  Digest::MD5.hexdigest(applicant_ids.sort.map(&:to_s).join)
+      self.enrollment_signature = Digest::SHA256.hexdigest(applicant_ids.sort.map(&:to_s).join)
     end
   end
 
