@@ -250,12 +250,13 @@ module DataAnonymizer
       total = collection.count_documents({})
       log "\n--- Phase 1: Anonymizing People (#{total}) ---"
       family_shifts = @anonymize_dob ? build_family_shift_map : {}
+      used_ssns = Set.new
       processed = 0
 
       collection.find.batch_size(batch_size).each_slice(batch_size) do |batch|
         updates = batch.map do |doc|
           shift_days = family_shifts[doc['_id']] || AnonymizedData.dob_shift_days
-          set_fields = build_person_update(doc, shift_days: shift_days)
+          set_fields = build_person_update(doc, shift_days: shift_days, used_ssns: used_ssns)
           {
             update_one: {
               filter: { '_id' => doc['_id'] },
@@ -286,8 +287,11 @@ module DataAnonymizer
     #
     # @param doc [Hash] raw Mongo person document
     # @param shift_days [Integer] days to shift this person's DOBs (from {#build_family_shift_map})
+    # @param used_ssns [Set, nil] set of already-assigned encrypted SSN ciphertexts within this run;
+    #   when provided, guarantees the generated value is unique across all people in Phase 1,
+    #   preventing duplicate key errors on the encrypted_ssn unique index.
     # @return [Hash] Mongo update fields suitable for a +$set+ operation
-    def build_person_update(doc, shift_days:)
+    def build_person_update(doc, shift_days:, used_ssns: nil)
       new_first = AnonymizedData.first_name
       new_last  = AnonymizedData.last_name
       fields = {
@@ -299,8 +303,15 @@ module DataAnonymizer
         'name_sfx' => nil,
         'alternate_name' => nil
       }
-      fields['encrypted_ssn'] = AnonymizedData.encrypted_ssn if doc['encrypted_ssn'].present?
-      fields['tribal_id']     = nil                    if doc['tribal_id'].present?
+      if doc['encrypted_ssn'].present?
+        enc_ssn = loop do
+          candidate = AnonymizedData.encrypted_ssn
+          break candidate unless used_ssns&.include?(candidate)
+        end
+        used_ssns&.add(enc_ssn)
+        fields['encrypted_ssn'] = enc_ssn
+      end
+      fields['tribal_id'] = nil if doc['tribal_id'].present?
       fields.merge!(anonymize_person_dates(doc, shift_days))
       fields.merge!(anonymize_person_embedded(doc))
     end
