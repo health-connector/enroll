@@ -698,11 +698,7 @@
       },
       "user_input": null,
       "confidence": "Weak",
-      "note": "False positive: 'raw' is used deliberately because effective_datatables generates its own HTML structure that Rails would otherwise double-escape; the gem does not 
-        interpolate param values into attributes or cell content without its own escaping. The two params Brakeman traces are both sanitised before the view is reached: 
-        params[:employer_profile_id] is passed through BSON::ObjectId.from_string in the find_employer before_action (employer_profiles_controller.rb), which raises on any non-hex value and 
-        renders a 404 before the action runs; params[:billing_date] is converted to a Date object by DateParser.smart_parse in the coverage_reports action, so the raw string is never present at
-        render time."
+      "note": "False positive: 'raw' is used deliberately because effective_datatables generates its own HTML structure that Rails would otherwise double-escape; the gem does not interpolate param values into attributes or cell content without its own escaping. The two params Brakeman traces are both sanitised before the view is reached: params[:employer_profile_id] is passed through BSON::ObjectId.from_string in the find_employer before_action (employer_profiles_controller.rb), which raises on any non-hex value and renders a 404 before the action runs; params[:billing_date] is converted to a Date object by DateParser.smart_parse in the coverage_reports action, so the raw string is never present at render time."
     },
     {
       "warning_type": "Cross-Site Scripting",
@@ -721,10 +717,7 @@
       },
       "user_input": null,
       "confidence": "Weak",
-      "note": "False positive: @wf_url is assigned only when WellsFargo::BillPay::SingleSignOn#token returns HTTP 200, and its value is extracted directly from the Wells Fargo API response 
-        body (response_body[\"Url\"]). It is not constructed from employer attributes — hbx_id, dba, legal_name, and email are only POST parameters sent to the Wells Fargo API and are not 
-        reflected in the URL it returns. On any API error the SSO object is not assigned and @wf_url is never set, so the link degrades to href=\"\" rather than a user-controlled value. The 
-        attack surface for a javascript: injection therefore requires compromising the Wells Fargo API endpoint itself, which is outside the application threat model."
+      "note": "False positive: @wf_url is assigned only when WellsFargo::BillPay::SingleSignOn#token returns HTTP 200, and its value is extracted directly from the Wells Fargo API response body (response_body[\"Url\"]). It is not constructed from employer attributes — hbx_id, dba, legal_name, and email are only POST parameters sent to the Wells Fargo API and are not reflected in the URL it returns. On any API error the SSO object is not assigned and @wf_url is never set, so the link degrades to href=\"\" rather than a user-controlled value. The attack surface for a javascript: injection therefore requires compromising the Wells Fargo API endpoint itself, which is outside the application threat model."
     }
   ],
   "updated": "2026-06-02 14:35:00 -0400",
