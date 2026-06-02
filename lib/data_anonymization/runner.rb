@@ -104,6 +104,12 @@ module DataAnonymizer
     private
 
     # Executes all anonymization phases in dependency order and returns a stats hash.
+    #
+    # +history_trackers+ is dropped twice: once up-front (Phase 0) so that no
+    # tracker reads occur against stale PII during the run, and once at the end
+    # so any tracker docs written by save callbacks during anonymization phases
+    # are also removed before verification.
+    #
     # @return [Hash{Symbol => Integer}]
     def run_phases
       {
@@ -113,7 +119,8 @@ module DataAnonymizer
         census_members: anonymize_census_members,
         organizations: anonymize_organizations,
         bs_organizations: anonymize_bs_organizations,
-        families: anonymize_families
+        families: anonymize_families,
+        history_trackers_final: drop_history_trackers
       }
     end
 
@@ -267,6 +274,10 @@ module DataAnonymizer
         end
         processed += batch.size
         log "  #{processed}/#{total} people" if (processed % (batch_size * 5)).zero? || processed >= total
+      end
+      unless @dry_run
+        log "  Clearing embedded version history from people..."
+        collection.update_many({}, { '$unset' => { 'versions' => '' } })
       end
       processed
     end
@@ -699,6 +710,10 @@ module DataAnonymizer
         end
         processed += batch.size
         log "  #{processed}/#{total} organizations" if (processed % (batch_size * 5)).zero? || processed >= total
+      end
+      unless @dry_run
+        log "  Clearing embedded version history from organizations..."
+        collection.update_many({}, { '$unset' => { 'versions' => '' } })
       end
       processed
     end

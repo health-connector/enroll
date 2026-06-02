@@ -548,6 +548,51 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
     end
   end
 
+  # @!group Version history clearing — versions unset behavior tests
+
+  describe 'version history clearing' do
+    let(:live_runner) { described_class.new(batch_size: batch_size, dry_run: false, force: true) }
+    let(:collection_double) { instance_double(Mongo::Collection) }
+    let(:db_double) { instance_double(Mongo::Database) }
+
+    before do
+      allow(live_runner).to receive(:db).and_return(db_double)
+      allow(db_double).to receive(:collection_names).and_return(%w[people organizations])
+    end
+
+    it 'unsets versions from people after anonymizing the batch loop' do
+      allow(db_double).to receive(:[]).with(:people).and_return(collection_double)
+      allow(collection_double).to receive(:count_documents).and_return(0)
+      allow(collection_double).to receive(:find).and_return(double('cursor', batch_size: double('sized_cursor', each_slice: [])))
+
+      expect(collection_double).to receive(:update_many).with({}, { '$unset' => { 'versions' => '' } })
+
+      live_runner.send(:anonymize_people)
+    end
+
+    it 'unsets versions from organizations after anonymizing the batch loop' do
+      allow(db_double).to receive(:[]).with(:organizations).and_return(collection_double)
+      allow(collection_double).to receive(:count_documents).and_return(0)
+      allow(collection_double).to receive(:find).and_return(double('cursor', batch_size: double('sized_cursor', each_slice: [])))
+
+      expect(collection_double).to receive(:update_many).with({}, { '$unset' => { 'versions' => '' } })
+
+      live_runner.send(:anonymize_organizations)
+    end
+
+    it 'skips the versions unset when dry_run is true' do
+      dry_runner = described_class.new(batch_size: batch_size, dry_run: true, force: true)
+      allow(dry_runner).to receive(:db).and_return(db_double)
+      allow(db_double).to receive(:[]).with(:people).and_return(collection_double)
+      allow(collection_double).to receive(:count_documents).and_return(0)
+      allow(collection_double).to receive(:find).and_return(double('cursor', batch_size: double('sized_cursor', each_slice: [])))
+
+      expect(collection_double).not_to receive(:update_many)
+
+      dry_runner.send(:anonymize_people)
+    end
+  end
+
   # @!group abort_if_production! — production guard tests
 
   describe '#abort_if_production!' do

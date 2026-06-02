@@ -73,5 +73,27 @@ namespace :data do
       verifier_opts[:hmac_key] = ENV['HMAC_KEY'] if ENV['HMAC_KEY'].present?
       DataAnonymizer::Verifier.new(**verifier_opts).run
     end
+
+    desc "Drop the history_trackers collection. Use to clean up tracker docs
+          written by app/sidekiq activity after an anonymization run, before
+          re-running data:anonymize:verify. Honors the same production-safety
+          guard as data:anonymize."
+    task :drop_history_trackers => :environment do
+      # Reuse Runner's production-safety guard rather than duplicating the
+      # multi-signal check here. The +force: true+ flag bypasses idempotency,
+      # which is not consulted by abort_if_production!.
+      DataAnonymizer::Runner.new(force: true).send(:abort_if_production!)
+
+      db = Mongoid.default_client.database
+      if db.collection_names.include?('history_trackers')
+        count = db[:history_trackers].count_documents({})
+        db[:history_trackers].drop
+        Rails.logger.info "[data:anonymize:drop_history_trackers] Dropped history_trackers (#{count} documents) from #{db.name}"
+        puts "Dropped history_trackers (#{count} documents) from #{db.name}"
+      else
+        Rails.logger.info "[data:anonymize:drop_history_trackers] history_trackers not present in #{db.name}; nothing to drop"
+        puts "history_trackers not present in #{db.name}; nothing to drop"
+      end
+    end
   end
 end

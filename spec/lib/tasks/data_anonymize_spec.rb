@@ -291,6 +291,28 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       end
     end
 
+    describe '#run_phases' do
+      before do
+        allow(runner).to receive(:anonymize_people).and_return(0)
+        allow(runner).to receive(:anonymize_users).and_return(0)
+        allow(runner).to receive(:anonymize_census_members).and_return(0)
+        allow(runner).to receive(:anonymize_organizations).and_return(0)
+        allow(runner).to receive(:anonymize_bs_organizations).and_return(0)
+        allow(runner).to receive(:anonymize_families).and_return(0)
+      end
+
+      it 'invokes drop_history_trackers twice — once before phases and once after' do
+        expect(runner).to receive(:drop_history_trackers).twice.and_return(0)
+        runner.send(:run_phases)
+      end
+
+      it 'returns a stats hash containing both the initial and final tracker drops' do
+        allow(runner).to receive(:drop_history_trackers).and_return(0)
+        stats = runner.send(:run_phases)
+        expect(stats).to include(:history_trackers, :history_trackers_final)
+      end
+    end
+
     # @!group Phase 1: People — people anonymization tests
 
     describe '#anonymize_people' do
