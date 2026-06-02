@@ -100,7 +100,6 @@
     var selectedBenefitPackageID = window.selectedBenefitPackageID || '';
     
     if (!selectedBenefitApplicationID) {
-      console.error('Missing benefit application ID');
       alert('Unable to load comparison. Please try again.');
       return false;
     }
@@ -120,7 +119,6 @@
     // Show the modal
     var modal = $('#planComparisonModal');
     if (modal.length === 0) {
-      console.error('Plan comparison modal not found');
       alert('Unable to display comparison. Please refresh the page.');
       return false;
     }
@@ -157,7 +155,6 @@
         }
       },
       error: function(xhr, status, error) {
-        console.error('Error loading comparison:', error);
         modal.find('#comparisonLoadingSpinner').hide();
         modal.find('#comparisonContent').html(
           '<div class="alert alert-danger">' +
@@ -301,7 +298,7 @@
    * Initialize export button handlers when document is ready
    */
   $(document).ready(function() {
-    $(document).on('click', '#clear-comparison', resetComparisonPlans);
+    $(document).on('click', '#clear-comparison, .reference-plan-select-btn', resetComparisonPlans);
 
     // Export to PDF handler
     $(document).on('click', '#exportComparisonPDF', function() {
@@ -352,7 +349,19 @@
         if (benefitType === 'dental') {
           exportUrl += '&kind=dental';
         }
-        
+
+        var employerCosts = [];
+        $('.employer-cost-cell').each(function() {
+          var planId = $(this).data('plan-id');
+          var cost = $(this).text().trim().replace(/[$,]/g, '');
+          if (planId && cost) {
+            employerCosts.push(planId + ':' + cost);
+          }
+        });
+        if (employerCosts.length > 0) {
+          exportUrl += '&employer_costs=' + encodeURIComponent(employerCosts.join(','));
+        }
+
         window.location.assign(exportUrl);
       }
       // Fallback for benefit_sponsors route

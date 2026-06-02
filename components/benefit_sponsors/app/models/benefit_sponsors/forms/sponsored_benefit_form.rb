@@ -36,7 +36,21 @@ module BenefitSponsors
       validates_presence_of :product_package_kind, :product_option_choice, :reference_plan_id, :sponsor_contribution
 
       def sponsor_contribution_attributes=(attributes)
-        attributes.permit! if attributes.is_a?(ActionController::Parameters)
+        if attributes.is_a?(ActionController::Parameters)
+          attributes = attributes.permit(
+            contribution_levels_attributes: [
+              :id,
+              :display_name,
+              :contribution_unit_id,
+              :is_offered,
+              :order,
+              :contribution_factor,
+              :min_contribution_factor,
+              :contribution_cap,
+              :flat_contribution_amount
+            ]
+          )
+        end
         @sponsor_contribution = SponsorContributionForm.new(attributes)
       end
 

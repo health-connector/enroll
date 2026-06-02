@@ -352,7 +352,14 @@ function calcPlanDesignContributions() {
     dataType: 'script',
     data: data
   }).done(function() {
-    // do something on completion?
+    // If the comparison table is currently visible, re-render it with updated contribution
+    if ($('.plan-comparison-container').is(':visible') && selected_rpids.length > 0) {
+      if ($('#planComparisonModal').hasClass('in')) {
+        viewComparisonsModal();
+      } else {
+        viewComparisons();
+      }
+    }
   });
 
 }
@@ -436,7 +443,7 @@ function buildBenefitGroupParams() {
 function initSlider() {
   $('.benefits-fields input.hidden-param, .dental-benefits-fields input.hidden-param').each(function() {
     $(this).closest('.form-group').find('.slider').attr('data-slider-value', $(this).val());
-    $(this).closest('.form-group').find('.slide-label').html($(this).val()+"%");
+    $(this).closest('.form-group').find('.slide-label').text($(this).val()+"%");
   });
 
   $('.benefits-fields .slider').bootstrapSlider({
@@ -780,6 +787,17 @@ function viewComparisonsModal() {
 // Export to PDF handler
 $(document).on('click', '#exportComparisonModalPDF', function() {
   var exportUrl = $('#plan_comparison_export_pdf_url').val();
+  var employerCosts = [];
+  $('.employer-cost-cell').each(function() {
+    var planId = $(this).data('plan-id');
+    var cost = $(this).text().trim().replace(/[$,]/g, '');
+    if (planId && cost) {
+      employerCosts.push(planId + ':' + cost);
+    }
+  });
+  if (employerCosts.length > 0) {
+    exportUrl += '&employer_costs=' + encodeURIComponent(employerCosts.join(','));
+  }
   window.open(exportUrl, '_blank');
 });
 

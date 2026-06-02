@@ -20,26 +20,36 @@ module SponsoredBenefits
       end
 
       def export
+        # For dental plans, skip employer cost calculation to avoid SIC code errors
+        # Employer costs only calculated for health plans
+        employer_costs_data = if coverage_kind == 'Dental'
+                                {}
+                              elsif params[:employer_costs].present?
+                                # Use employer costs passed from the UI (same values displayed in comparison table)
+                                parse_employer_costs_from_params
+                              else
+                                calculate_employer_costs
+                              end
+
         render pdf: 'plan_comparison_export',
-               template: 'sponsored_benefits/organizations/plan_design_proposals/plan_comparisons/_export.html.erb',
+               template: 'sponsored_benefits/organizations/plan_design_proposals/plan_comparisons/_export',
+               formats: [:html],
                disposition: 'attachment',
-               locals: { qhps: qhps, employer_costs: calculate_employer_costs, visit_types: visit_types }
+               locals: { qhps: qhps, employer_costs: employer_costs_data, visit_types: visit_types }
       end
 
       def csv
         # For dental plans, skip employer cost calculation to avoid SIC code errors
         # Employer costs only calculated for health plans
-        if coverage_kind == 'Dental'
-          employer_costs_data = {}
-        else
+        employer_costs_data = if coverage_kind == 'Dental'
+                                {}
+                              elsif params[:employer_costs].present?
           # Use employer costs from params if provided (from the comparison table)
           # Otherwise recalculate them
-          employer_costs_data = if params[:employer_costs].present?
-                                  parse_employer_costs_from_params
-                                else
-                                  calculate_employer_costs
-                                end
-        end
+                                parse_employer_costs_from_params
+                              else
+                                calculate_employer_costs
+                              end
 
         @qhps = qhps.each do |qhp|
           plan_id = qhp.plan.id
@@ -100,7 +110,6 @@ module SponsoredBenefits
         return nil unless benefit_application
 
         active_benefit_group = benefit_application.benefit_groups&.first
-        return nil unless active_benefit_group
 
         if benefit_group_params.present?
           if coverage_kind == 'Dental'
@@ -207,9 +216,7 @@ module SponsoredBenefits
 
         copy_relationship_benefits(benefit_group, temp_bg)
 
-        if benefit_group.sole_source?
-          copy_composite_tiers(benefit_group, temp_bg)
-        end
+        copy_composite_tiers(benefit_group, temp_bg) if benefit_group.sole_source?
 
         temp_bg.set_bounding_cost_plans unless plan.dental?
         temp_bg
