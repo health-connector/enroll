@@ -29,7 +29,11 @@ module DataAnonymizer
     # +fein+ is a 9-digit EIN intentionally left unchanged per anonymization policy.
     # +ach_routing_number+ is an ABA routing number — always exactly 9 digits by spec;
     # it is validated separately by +check_organizations+ / +check_bs_organizations+.
-    SKIP_FIELDS = %w[_id encrypted_ssn fein ach_routing_number ach_routing_number_confirmation].freeze
+    # +npn+ / +corporate_npn+ are public broker National Producer Numbers (up to 10
+    # digits) intentionally preserved by the runner.
+    # +content+ is free-text on Comment / Announcement and may incidentally contain
+    # 9-digit tokens (check numbers, group ids) that are not SSNs.
+    SKIP_FIELDS = %w[_id encrypted_ssn fein ach_routing_number ach_routing_number_confirmation npn corporate_npn content].freeze
 
     def initialize(mode: :smoke, prehash_map: nil, hmac_key: nil, run_id: nil, sample_size: SAMPLE_SIZE)
       @mode = mode

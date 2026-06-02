@@ -274,6 +274,14 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
     it 'includes ach_routing_number — ABA routing numbers are always 9 digits and validated separately' do
       expect(skip_fields).to include('ach_routing_number')
     end
+
+    it 'includes npn and corporate_npn — public broker NPNs intentionally preserved by the runner' do
+      expect(skip_fields).to include('npn', 'corporate_npn')
+    end
+
+    it 'includes content — free-text Comment/Announcement field may contain incidental 9-digit tokens' do
+      expect(skip_fields).to include('content')
+    end
   end
 
   # @!group doc_strings — recursive string extractor tests
@@ -306,6 +314,16 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
     it 'skips encrypted_ssn to avoid ciphertext false positives' do
       doc = { 'encrypted_ssn' => 'AaBbCcDd123456789', 'first_name' => 'Bob' }
       expect(verifier.send(:doc_strings, doc).to_a).to eq(['Bob'])
+    end
+
+    it 'skips npn and corporate_npn so broker NPNs are not yielded' do
+      doc = { 'npn' => '120002398', 'corporate_npn' => '216179133', 'name' => 'Agency' }
+      expect(verifier.send(:doc_strings, doc).to_a).to eq(['Agency'])
+    end
+
+    it 'skips content so operator-entered narrative text is not scanned for SSN patterns' do
+      doc = { 'comments' => [{ 'content' => 'received payment 120002398 from group' }], 'hbx_id' => '42' }
+      expect(verifier.send(:doc_strings, doc).to_a).to eq(['42'])
     end
 
     it 'returns an enumerator when no block is given' do
