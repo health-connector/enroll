@@ -250,7 +250,9 @@ module DataAnonymizer
       total = collection.count_documents({})
       log "\n--- Phase 1: Anonymizing People (#{total}) ---"
       family_shifts = @anonymize_dob ? build_family_shift_map : {}
-      used_ssns = Set.new
+      # Pre-seed with every ciphertext already in the index so that a retry after
+      # a prior aborted run cannot collide with partially-written fake values.
+      used_ssns = load_existing_encrypted_ssns(collection)
       processed = 0
 
       collection.find.batch_size(batch_size).each_slice(batch_size) do |batch|
@@ -287,9 +289,9 @@ module DataAnonymizer
     #
     # @param doc [Hash] raw Mongo person document
     # @param shift_days [Integer] days to shift this person's DOBs (from {#build_family_shift_map})
-    # @param used_ssns [Set, nil] set of already-assigned encrypted SSN ciphertexts within this run;
-    #   when provided, guarantees the generated value is unique across all people in Phase 1,
-    #   preventing duplicate key errors on the encrypted_ssn unique index.
+    # @param used_ssns [Set, nil] set of ciphertexts that must not be reused; should be
+    #   pre-seeded from {#load_existing_encrypted_ssns} so that retries after a partial run
+    #   cannot collide with values already committed to the index.
     # @return [Hash] Mongo update fields suitable for a +$set+ operation
     def build_person_update(doc, shift_days:, used_ssns: nil)
       new_first = AnonymizedData.first_name
@@ -368,6 +370,23 @@ module DataAnonymizer
 
       log "Built family shift map for #{shift_map.size} people"
       shift_map
+    end
+
+    # Queries all non-nil +encrypted_ssn+ values from +collection+ into a +Set+.
+    #
+    # Called once before the Phase 1 batch loop so that any ciphertext already
+    # in the unique index — real data or a fake value written by a prior aborted
+    # run — is excluded from the SSN generation candidate pool.
+    #
+    # @param collection [Mongo::Collection]
+    # @return [Set<String>]
+    def load_existing_encrypted_ssns(collection)
+      ssns = Set.new
+      collection
+        .find('encrypted_ssn' => { '$exists' => true, '$ne' => nil })
+        .projection('encrypted_ssn' => 1, '_id' => 0)
+        .each { |doc| ssns.add(doc['encrypted_ssn']) }
+      ssns
     end
 
     def fetch_dob_lookup(people_collection, person_ids)

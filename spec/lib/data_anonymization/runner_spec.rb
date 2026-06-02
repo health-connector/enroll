@@ -710,4 +710,43 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
       end
     end
   end
+
+  describe '#load_existing_encrypted_ssns' do
+    let(:fake_collection) { instance_double(Mongo::Collection) }
+    let(:fake_view)       { instance_double(Mongo::Collection::View) }
+
+    before do
+      allow(fake_collection).to receive(:find).with(
+        'encrypted_ssn' => { '$exists' => true, '$ne' => nil }
+      ).and_return(fake_view)
+    end
+
+    it 'returns a Set containing each encrypted_ssn value from the collection' do
+      docs = [{ 'encrypted_ssn' => 'AAA==' }, { 'encrypted_ssn' => 'BBB==' }]
+      allow(fake_view).to receive(:projection).and_return(docs)
+
+      result = runner.send(:load_existing_encrypted_ssns, fake_collection)
+
+      expect(result).to be_a(Set)
+      expect(result).to include('AAA==', 'BBB==')
+    end
+
+    it 'returns an empty Set when no documents have an encrypted_ssn' do
+      allow(fake_view).to receive(:projection).and_return([])
+
+      result = runner.send(:load_existing_encrypted_ssns, fake_collection)
+
+      expect(result).to be_a(Set)
+      expect(result).to be_empty
+    end
+
+    it 'deduplicate ciphertexts when the same value appears more than once' do
+      docs = [{ 'encrypted_ssn' => 'AAA==' }, { 'encrypted_ssn' => 'AAA==' }]
+      allow(fake_view).to receive(:projection).and_return(docs)
+
+      result = runner.send(:load_existing_encrypted_ssns, fake_collection)
+
+      expect(result.size).to eq(1)
+    end
+  end
 end
