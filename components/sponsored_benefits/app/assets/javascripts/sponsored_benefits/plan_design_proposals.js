@@ -645,10 +645,12 @@ function AddDentalToPlanDesignProposal(event) {
   rawUrl = rawUrl.trim();
   try {
     var parsedUrl = new URL(rawUrl, window.location.origin);
-    if (parsedUrl.origin === window.location.origin && parsedUrl.pathname.charAt(0) === '/') {
-      window.location.href = parsedUrl.pathname + parsedUrl.search + parsedUrl.hash;
+    var isSafeProtocol = parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:';
+    if (isSafeProtocol && parsedUrl.origin === window.location.origin && parsedUrl.pathname.charAt(0) === '/') {
+      window.location.assign(parsedUrl.href);
     }
   } catch (e) {
+    // Ignore invalid URL values from DOM.
   }
 }
 
