@@ -640,8 +640,11 @@ function saveProposalAndPublish(event) {
 
 function AddDentalToPlanDesignProposal(event) {
   saveProposal(event);
-  var url = $("#add_dental_url").val()
-  window.location.href = url
+  var url = $("#add_dental_url").val();
+  // Only navigate to same-origin relative paths (must start with a single "/").
+  if (/^\/(?!\/)/.test(url)) {
+    window.location.href = url;
+  }
 }
 
 function saveProposalAndNavigateToReview(event) {
