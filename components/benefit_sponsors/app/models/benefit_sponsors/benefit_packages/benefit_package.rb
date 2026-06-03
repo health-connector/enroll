@@ -355,8 +355,7 @@ module BenefitSponsors
           enrolled_families.each do |family|
             enrollments = family.enrollments
                                 .by_benefit_package(self)
-                                .where(:aasm_state.in => (HbxEnrollment::ENROLLED_STATUSES + HbxEnrollment::RENEWAL_STATUSES + HbxEnrollment::WAIVED_STATUSES))
-                                .order(created_at: :desc)
+                                .enrolled_renewal_and_waived
 
             sponsored_benefits.each do |sponsored_benefit|
               hbx_enrollment = enrollments.by_coverage_kind(sponsored_benefit.product_kind).first
@@ -372,8 +371,7 @@ module BenefitSponsors
         enrolled_families.each do |family|
           enrollments = family.enrollments
                               .by_benefit_package(self)
-                              .where(:aasm_state.in => (HbxEnrollment::ENROLLED_STATUSES + HbxEnrollment::RENEWAL_STATUSES + HbxEnrollment::WAIVED_STATUSES))
-                              .order(created_at: :desc)
+                              .enrolled_renewal_and_waived
 
           sponsored_benefits.unscoped.each do |sponsored_benefit|
             hbx_enrollment = enrollments.by_coverage_kind(sponsored_benefit.product_kind).first
@@ -387,7 +385,7 @@ module BenefitSponsors
         enrolled_and_terminated_families.each do |family|
           enrollments = family.enrollments
                               .by_benefit_package(self)
-                              .where(:aasm_state.in => (HbxEnrollment::ENROLLED_STATUSES + HbxEnrollment::RENEWAL_STATUSES + HbxEnrollment::WAIVED_STATUSES + HbxEnrollment::TERMINATED_STATUSES + ['coverage_expired']))
+                              .enrolled_renewal_waived_terminated_and_expired
                               .order(created_at: :desc)
           sponsored_benefits.each do |sponsored_benefit|
             enrollments.by_coverage_kind(sponsored_benefit.product_kind).each do |hbx_enrollment|
@@ -416,8 +414,7 @@ module BenefitSponsors
         enrolled_and_terminated_families.each do |family|
           enrollments = family.enrollments
                               .by_benefit_package(self)
-                              .where(:aasm_state.in => (HbxEnrollment::ENROLLED_STATUSES + HbxEnrollment::RENEWAL_STATUSES + HbxEnrollment::WAIVED_STATUSES + HbxEnrollment::TERMINATED_STATUSES + ['coverage_expired']))
-                              .order(created_at: :desc)
+                              .enrolled_renewal_waived_terminated_and_expired
 
           sponsored_benefits.each do |sponsored_benefit|
             enrollments.by_coverage_kind(sponsored_benefit.product_kind).each do |hbx_enrollment|
@@ -445,8 +442,7 @@ module BenefitSponsors
         enrolled_and_terminated_families.each do |family|
           enrollments = family.enrollments
                               .by_benefit_package(self)
-                              .where(:aasm_state.in => (HbxEnrollment::ENROLLED_STATUSES + HbxEnrollment::RENEWAL_STATUSES + HbxEnrollment::WAIVED_STATUSES + HbxEnrollment::TERMINATED_STATUSES + ['coverage_expired']))
-                              .order(created_at: :desc)
+                              .enrolled_renewal_waived_terminated_and_expired
 
           sponsored_benefits.each do |sponsored_benefit|
             enrollments.by_coverage_kind(sponsored_benefit.product_kind).each do |hbx_enrollment|
