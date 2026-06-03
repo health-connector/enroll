@@ -33,7 +33,7 @@ module Queries
       end
 
       if @search_string.present?
-        return collection.any_of(CensusEmployee.search_hash(@search_string))
+        return collection.where(CensusEmployee.search_hash(@search_string))
       end
 
       return collection
