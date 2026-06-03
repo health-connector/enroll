@@ -150,10 +150,10 @@ module BenefitSponsors
         return employer_event.event_name unless qualifies_to_update_event_name?(carrier, employer_event)
 
         employer_profile = BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(hbx_id: employer_event.employer_profile_id).first
-        raise ::BenefitSponsors::EmployerEvents::Errors::EmployerNotFound, "No employer found for: #{employer_event.employer_profile_id}, Employer Event: #{employer_event.id}" if employer_profile.nil?
+        raise ::BenefitSponsors::EmployerEvents::Errors::EmployerNotFound, "No employer found for: #{employer_event.employer_profile_id}" if employer_profile.nil?
 
         most_recent_plan_year_dates = find_latest_carrier_plan_year_in_event(carrier)
-        raise ::BenefitSponsors::EmployerEvents::Errors::NoCarrierPlanYearsInEvent, "No plan years found in event for: #{carrier.id}, Employer Event: #{employer_event.id}" if most_recent_plan_year_dates.nil?
+        raise ::BenefitSponsors::EmployerEvents::Errors::NoCarrierPlanYearsInEvent, "No plan years found in event for: #{carrier.id}" if most_recent_plan_year_dates.nil?
 
         start_date, end_date = most_recent_plan_year_dates
         plan_year = find_employer_plan_year_by_date(employer_profile, start_date, end_date)

@@ -1146,8 +1146,7 @@ RSpec.describe BenefitSponsors::EmployerEvents::Renderer, dbclean: :after_each d
                         { event_time: event_time,
                           event_name: renewal_successful_event,
                           resource_body: source_document,
-                          employer_profile_id: "nonexistent-hbx-id-000",
-                          id: "some-event-id" })
+                          employer_profile_id: "nonexistent-hbx-id-000" })
       end
 
       subject do
@@ -1198,8 +1197,7 @@ RSpec.describe BenefitSponsors::EmployerEvents::Renderer, dbclean: :after_each d
                         { event_time: event_time,
                           event_name: renewal_successful_event,
                           resource_body: mismatched_source_document,
-                          employer_profile_id: employer_profile_hbx_id,
-                          id: "some-event-id" })
+                          employer_profile_id: employer_profile_hbx_id })
       end
 
       subject do

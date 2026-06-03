@@ -96,6 +96,10 @@ module Exchanges
       end
 
       respond_to(&:js) unless result.success?
+    rescue StandardError
+      @error_message = l10n('exchange.employer_applications.download_v2_xml.failure_message')
+      @file_path = nil
+      respond_to(&:js)
     end
 
     def new_v2_xml

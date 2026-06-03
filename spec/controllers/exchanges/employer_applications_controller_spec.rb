@@ -430,5 +430,24 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
         expect(response).to have_http_status(:ok)
       end
     end
+
+    context "when the operation raises an unexpected error" do
+      before do
+        allow(download_v2_xml_operation).to receive(:call).and_raise(StandardError, "unexpected boom")
+      end
+
+      it "sets the generic failure message without exposing the internal error" do
+        get :download_v2_xml, params: {
+          selected_event: selected_event,
+          employer_application_id: initial_application.id,
+          employer_actions_id: employer_actions_id,
+          employer_id: benefit_sponsorship.id
+        }, xhr: true
+
+        expect(assigns(:error_message)).to eq('An error occurred during download')
+        expect(assigns(:file_path)).to be_nil
+        expect(response).to have_http_status(:ok)
+      end
+    end
   end
 end
