@@ -260,9 +260,22 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
           runner.db[:people].insert_one('emails' => [{ 'address' => 'real.person@gmail.com' }])
         end
 
-        it 'logs a warning and proceeds instead of aborting' do
-          expect(strict_runner).to receive(:log).with(a_string_matching(/real email addresses/))
-          expect { strict_runner.send(:check_idempotency!) }.not_to raise_error
+        it 'aborts with a message instructing the operator to run reset' do
+          expect { strict_runner.send(:check_idempotency!) }
+            .to raise_error(SystemExit)
+        end
+      end
+
+      context 'when sentinel exists, data looks unanonymized, and dry_run is true' do
+        let(:dry_strict_runner) { DataAnonymizer::Runner.new(batch_size: 5, dry_run: true, force: false) }
+
+        before do
+          runner.db[:data_anonymizer_runs].insert_one('completed_at' => Time.current)
+          runner.db[:people].insert_one('emails' => [{ 'address' => 'real.person@gmail.com' }])
+        end
+
+        it 'still aborts — dry run does not bypass the stale sentinel guard' do
+          expect { dry_strict_runner.send(:check_idempotency!) }.to raise_error(SystemExit)
         end
       end
     end

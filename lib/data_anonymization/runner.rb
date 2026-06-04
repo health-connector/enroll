@@ -144,14 +144,17 @@ module DataAnonymizer
     #
     # Reads the +data_anonymizer_runs+ sentinel collection. If a prior run is found,
     # cross-checks a small sample of person/user emails against the anonymizer email
-    # pattern. When the sentinel is present but the sampled data still contains real
-    # email addresses — the signature of a DB refresh that selectively restored data
-    # collections from a prior environment and left the sentinel intact — the run
-    # proceeds with a warning rather than aborting. Otherwise aborts unless
-    # +force: true+, in which case a warning is logged and the run continues.
+    # pattern:
+    #
+    # - Stale sentinel (data contains real emails): aborts and instructs the operator
+    #   to run +rake data:anonymize:reset+ before retrying. This is the expected state
+    #   after a DB refresh from a prior environment that left the sentinel intact.
+    # - Sentinel matches anonymized data and +force: true+: logs a warning and continues.
+    # - Sentinel matches anonymized data and +force: false+: aborts.
+    #
     # The sentinel itself is written only after a successful run by {#record_run_sentinel}.
     #
-    # @raise [SystemExit] if already anonymized, the sample looks anonymized, and force is false
+    # @raise [SystemExit] in all cases where a sentinel is found, except force: true
     def check_idempotency!
       runs_collection = db[:data_anonymizer_runs]
       previous = runs_collection.find.sort('completed_at' => -1).limit(1).first
@@ -160,8 +163,12 @@ module DataAnonymizer
       msg = "Database '#{db.name}' was already anonymized at #{previous['completed_at']} (run_id: #{previous['_id']})"
 
       if data_appears_unanonymized?
-        log "WARNING: #{msg} — but a sample of #{STALE_SENTINEL_SAMPLE_SIZE} records still contains real email addresses, suggesting a DB refresh since that run. Proceeding."
-        return
+        abort(
+          "ABORT: Stale sentinel detected — #{msg}\n" \
+          "A sample of the data still contains real email addresses, indicating the database\n" \
+          "was refreshed from a prior environment after the last anonymization run.\n" \
+          "Run `rake data:anonymize:reset` to clear the sentinel, then re-run data:anonymize."
+        )
       end
 
       if @force
