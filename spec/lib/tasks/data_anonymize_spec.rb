@@ -218,6 +218,8 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
     describe '#check_idempotency!' do
       before do
         runner.db[:data_anonymizer_runs].drop
+        runner.db[:people].drop
+        runner.db[:users].drop
       end
 
       context 'when no previous run exists' do
@@ -247,6 +249,70 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
         it 'logs a warning but does not abort' do
           expect(runner).to receive(:log).with(a_string_matching(/WARNING/))
           expect { runner.send(:check_idempotency!) }.not_to raise_error
+        end
+      end
+
+      context 'when sentinel exists but the data sample still contains real emails (stale sentinel after DB refresh)' do
+        let(:strict_runner) { DataAnonymizer::Runner.new(batch_size: 5, dry_run: false, force: false) }
+
+        before do
+          runner.db[:data_anonymizer_runs].insert_one('completed_at' => Time.current)
+          runner.db[:people].insert_one('emails' => [{ 'address' => 'real.person@gmail.com' }])
+        end
+
+        it 'logs a warning and proceeds instead of aborting' do
+          expect(strict_runner).to receive(:log).with(a_string_matching(/real email addresses/))
+          expect { strict_runner.send(:check_idempotency!) }.not_to raise_error
+        end
+      end
+    end
+
+    describe '#data_appears_unanonymized?' do
+      before do
+        runner.db[:people].drop
+        runner.db[:users].drop
+      end
+
+      context 'when no people or users exist' do
+        it 'returns false (no signal to act on)' do
+          expect(runner.send(:data_appears_unanonymized?)).to be false
+        end
+      end
+
+      context 'when sampled people emails all match the anonymizer pattern' do
+        before do
+          runner.db[:people].insert_many([
+            { 'emails' => [{ 'address' => 'user0@exampleanonymizer.com' }] },
+            { 'emails' => [{ 'address' => 'user1@testanonymizer.com' }] }
+          ])
+        end
+
+        it 'returns false' do
+          expect(runner.send(:data_appears_unanonymized?)).to be false
+        end
+      end
+
+      context 'when any sampled person email is not from an anonymizer domain' do
+        before do
+          runner.db[:people].insert_many([
+            { 'emails' => [{ 'address' => 'user0@exampleanonymizer.com' }] },
+            { 'emails' => [{ 'address' => 'real.person@gmail.com' }] }
+          ])
+        end
+
+        it 'returns true' do
+          expect(runner.send(:data_appears_unanonymized?)).to be true
+        end
+      end
+
+      context 'when no person carries an email and users.email is real' do
+        before do
+          runner.db[:people].insert_one('first_name' => 'Anon')
+          runner.db[:users].insert_one('email' => 'real.user@gmail.com')
+        end
+
+        it 'falls back to the users collection and returns true' do
+          expect(runner.send(:data_appears_unanonymized?)).to be true
         end
       end
     end

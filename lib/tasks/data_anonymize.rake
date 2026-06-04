@@ -27,6 +27,9 @@ require_relative '../data_anonymization/verifier'
 # @example Verify after anonymization
 #   bundle exec rake data:anonymize:verify
 #
+# @example Reset anonymizer state after a fresh DB refresh from a prior environment
+#   ENV_NAME=pvt bundle exec rake data:anonymize:reset
+#
 # @example Opt in to anonymizing sensitive location and DOB fields
 #   ENV_NAME=pvt bundle exec rake data:anonymize ANONYMIZE_ZIP=true ANONYMIZE_COUNTY=true ANONYMIZE_STATE=true ANONYMIZE_DOB=true
 #
@@ -93,6 +96,30 @@ namespace :data do
       else
         Rails.logger.info "[data:anonymize:drop_history_trackers] history_trackers not present in #{db.name}; nothing to drop"
         puts "history_trackers not present in #{db.name}; nothing to drop"
+      end
+    end
+
+    desc "Drop the anonymizer-owned bookkeeping collections
+          (data_anonymizer_runs sentinel and data_anonymizer_prehashes TTL).
+          Use after a fresh DB refresh from a prior environment so the next
+          data:anonymize run is not blocked by a stale sentinel. Honors the
+          same production-safety guard as data:anonymize."
+    task :reset => :environment do
+      # Reuse Runner's production-safety guard. +force: true+ bypasses
+      # idempotency, which is not consulted by abort_if_production!.
+      DataAnonymizer::Runner.new(force: true).send(:abort_if_production!)
+
+      db = Mongoid.default_client.database
+      %w[data_anonymizer_runs data_anonymizer_prehashes].each do |name|
+        if db.collection_names.include?(name)
+          count = db[name].count_documents({})
+          db[name].drop
+          Rails.logger.info "[data:anonymize:reset] Dropped #{name} (#{count} documents) from #{db.name}"
+          puts "Dropped #{name} (#{count} documents) from #{db.name}"
+        else
+          Rails.logger.info "[data:anonymize:reset] #{name} not present in #{db.name}; nothing to drop"
+          puts "#{name} not present in #{db.name}; nothing to drop"
+        end
       end
     end
   end

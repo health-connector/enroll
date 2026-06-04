@@ -19,6 +19,16 @@ module DataAnonymizer
   class Runner
     include CanonicalPayloads
 
+    # Pattern matching email addresses produced by {AnonymizedData.email}.
+    # Built from {AnonymizedData::ALLOWED_EMAIL_DOMAINS} so the two stay in
+    # lockstep — used to detect a stale sentinel after a partial DB refresh.
+    ANONYMIZED_EMAIL_PATTERN = /@(?:#{AnonymizedData::ALLOWED_EMAIL_DOMAINS.map { |d| Regexp.escape(d) }.join('|')})\z/i
+
+    # Number of person/user documents to sample when checking whether a
+    # sentinel is stale (a DB refresh from a prior environment restores data
+    # collections but does not touch +data_anonymizer_runs+).
+    STALE_SENTINEL_SAMPLE_SIZE = 5
+
     attr_reader :batch_size, :client, :db
 
     # @param batch_size [Integer] documents per bulk_write batch (default 1000).
@@ -136,21 +146,70 @@ module DataAnonymizer
     # Aborts (or warns in force mode) if this database has already been anonymized.
     #
     # Reads the +data_anonymizer_runs+ sentinel collection. If a prior run is found,
-    # aborts unless +force: true+, in which case a warning is logged and the run continues.
+    # cross-checks a small sample of person/user emails against the anonymizer email
+    # pattern. When the sentinel is present but the sampled data still contains real
+    # email addresses — the signature of a DB refresh that selectively restored data
+    # collections from a prior environment and left the sentinel intact — the run
+    # proceeds with a warning rather than aborting. Otherwise aborts unless
+    # +force: true+, in which case a warning is logged and the run continues.
     # The sentinel itself is written only after a successful run by {#record_run_sentinel}.
     #
-    # @raise [SystemExit] if already anonymized and force is false
+    # @raise [SystemExit] if already anonymized, the sample looks anonymized, and force is false
     def check_idempotency!
       runs_collection = db[:data_anonymizer_runs]
       previous = runs_collection.find.sort('completed_at' => -1).limit(1).first
       return unless previous
 
       msg = "Database '#{db.name}' was already anonymized at #{previous['completed_at']} (run_id: #{previous['_id']})"
+
+      if data_appears_unanonymized?
+        log "WARNING: #{msg} — but a sample of #{STALE_SENTINEL_SAMPLE_SIZE} records still contains real email addresses, suggesting a DB refresh since that run. Proceeding."
+        return
+      end
+
       if @force
         log "WARNING: #{msg} — proceeding anyway (FORCE_REANONYMIZE=true)"
       else
-        abort("ABORT: #{msg}\nSet FORCE_REANONYMIZE=true to override.")
+        abort("ABORT: #{msg}\nSet FORCE_REANONYMIZE=true to override, or run `rake data:anonymize:reset` after a fresh DB refresh.")
       end
+    end
+
+    # Samples a small number of person (and as a fallback, user) email addresses
+    # and returns true if any do not match {ANONYMIZED_EMAIL_PATTERN}. Used by
+    # {#check_idempotency!} to detect a stale sentinel left behind by a partial
+    # DB refresh from a prior environment.
+    #
+    # @return [Boolean] true when the sample contains a non-anonymizer email
+    def data_appears_unanonymized?
+      sample = sample_email_addresses
+      return false if sample.empty?
+
+      sample.any? { |addr| !addr.match?(ANONYMIZED_EMAIL_PATTERN) }
+    end
+
+    # @return [Array<String>] up to {STALE_SENTINEL_SAMPLE_SIZE} non-blank email
+    #   addresses pulled from +people+, falling back to +users+ when no person
+    #   document carries an email
+    def sample_email_addresses
+      addresses = []
+
+      if db.collection_names.include?('people')
+        db[:people].find.projection('emails.address' => 1).limit(STALE_SENTINEL_SAMPLE_SIZE).each do |doc|
+          Array(doc['emails']).each do |em|
+            addr = em['address'].to_s
+            addresses << addr if addr.present?
+          end
+        end
+      end
+
+      if addresses.empty? && db.collection_names.include?('users')
+        db[:users].find.projection('email' => 1).limit(STALE_SENTINEL_SAMPLE_SIZE).each do |doc|
+          addr = doc['email'].to_s
+          addresses << addr if addr.present?
+        end
+      end
+
+      addresses
     end
 
     # Records a sentinel document in +data_anonymizer_runs+ after a successful run.
