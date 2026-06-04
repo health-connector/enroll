@@ -554,6 +554,10 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
     let(:live_runner) { described_class.new(batch_size: batch_size, dry_run: false, force: true) }
     let(:collection_double) { instance_double(Mongo::Collection) }
     let(:db_double) { instance_double(Mongo::Database) }
+    # Cursor returned by Phase 1's pre-seed dedup query (load_existing_encrypted_ssns).
+    let(:dedup_cursor) { double('dedup_cursor', projection: double('projected_cursor', each: [])) }
+    # Cursor returned by the per-batch find used in the anonymization loop.
+    let(:batch_cursor) { double('batch_cursor', batch_size: double('sized_cursor', each_slice: [])) }
 
     before do
       allow(live_runner).to receive(:db).and_return(db_double)
@@ -563,7 +567,8 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
     it 'unsets versions from people after anonymizing the batch loop' do
       allow(db_double).to receive(:[]).with(:people).and_return(collection_double)
       allow(collection_double).to receive(:count_documents).and_return(0)
-      allow(collection_double).to receive(:find).and_return(double('cursor', batch_size: double('sized_cursor', each_slice: [])))
+      allow(collection_double).to receive(:find).with('encrypted_ssn' => { '$exists' => true, '$ne' => nil }).and_return(dedup_cursor)
+      allow(collection_double).to receive(:find).with(no_args).and_return(batch_cursor)
 
       expect(collection_double).to receive(:update_many).with({}, { '$unset' => { 'versions' => '' } })
 
@@ -573,7 +578,7 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
     it 'unsets versions from organizations after anonymizing the batch loop' do
       allow(db_double).to receive(:[]).with(:organizations).and_return(collection_double)
       allow(collection_double).to receive(:count_documents).and_return(0)
-      allow(collection_double).to receive(:find).and_return(double('cursor', batch_size: double('sized_cursor', each_slice: [])))
+      allow(collection_double).to receive(:find).and_return(batch_cursor)
 
       expect(collection_double).to receive(:update_many).with({}, { '$unset' => { 'versions' => '' } })
 
@@ -585,7 +590,8 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
       allow(dry_runner).to receive(:db).and_return(db_double)
       allow(db_double).to receive(:[]).with(:people).and_return(collection_double)
       allow(collection_double).to receive(:count_documents).and_return(0)
-      allow(collection_double).to receive(:find).and_return(double('cursor', batch_size: double('sized_cursor', each_slice: [])))
+      allow(collection_double).to receive(:find).with('encrypted_ssn' => { '$exists' => true, '$ne' => nil }).and_return(dedup_cursor)
+      allow(collection_double).to receive(:find).with(no_args).and_return(batch_cursor)
 
       expect(collection_double).not_to receive(:update_many)
 
