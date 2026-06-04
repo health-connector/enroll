@@ -17,16 +17,16 @@ class GroupConversionEmployersMigration < MongoidMigrationTask
       end
       plan_years = organization.first.employer_profile.plan_years.published + organization.first.employer_profile.plan_years.renewing_published_state + organization.first.employer_profile.plan_years.where(aasm_state: "draft") + organization.first.employer_profile.plan_years.where(aasm_state: "renewing_publish_pending")
       plan_years.each do |plan_year|
-        if plan_year.start_on.year == 2016
-          plan_year.update_attribute(:aasm_state, "canceled")
-          id_list = plan_year.benefit_groups.map(&:id)
-          families = Family.where(:"households.hbx_enrollments.benefit_group_id".in => id_list)
-          enrollments = families.inject([]) do |enrollments, family|
-            enrollments += family.active_household.hbx_enrollments.where(:benefit_group_id.in => id_list).any_of([HbxEnrollment::enrolled.selector]).to_a
-          end
-          enrollments.each do |enrollment|
-            enrollment.update_attribute(:aasm_state, "coverage_canceled") if enrollment.effective_on.strftime("%m/%d/%Y") == "10/01/2016" 
-          end
+        next unless plan_year.start_on.year == 2016
+
+        plan_year.update_attribute(:aasm_state, "canceled")
+        id_list = plan_year.benefit_groups.map(&:id)
+        families = Family.where(:"households.hbx_enrollments.benefit_group_id".in => id_list)
+        enrollments = families.inject([]) do |enrs, family|
+          enrs + family.active_household.hbx_enrollments.where(:benefit_group_id.in => id_list, :aasm_state.in => HbxEnrollment::ENROLLED_STATUSES).to_a
+        end
+        enrollments.each do |enrollment|
+          enrollment.update_attribute(:aasm_state, "coverage_canceled") if enrollment.effective_on.strftime("%m/%d/%Y") == "10/01/2016"
         end
       end
       organization.first.employer_profile.revert_application! if organization.first.employer_profile.may_revert_application?
