@@ -115,10 +115,8 @@ module DataAnonymizer
 
     # Executes all anonymization phases in dependency order and returns a stats hash.
     #
-    # +history_trackers+ is dropped twice: once up-front (Phase 0) so that no
-    # tracker reads occur against stale PII during the run, and once at the end
-    # so any tracker docs written by save callbacks during anonymization phases
-    # are also removed before verification.
+    # +history_trackers+ is dropped up-front (Phase 0) so that no tracker reads
+    # occur against stale PII during the run.
     #
     # @return [Hash{Symbol => Integer}]
     def run_phases
@@ -129,8 +127,7 @@ module DataAnonymizer
         census_members: anonymize_census_members,
         organizations: anonymize_organizations,
         bs_organizations: anonymize_bs_organizations,
-        families: anonymize_families,
-        history_trackers_final: drop_history_trackers
+        families: anonymize_families
       }
     end
 

@@ -367,15 +367,16 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
         allow(runner).to receive(:anonymize_families).and_return(0)
       end
 
-      it 'invokes drop_history_trackers twice — once before phases and once after' do
-        expect(runner).to receive(:drop_history_trackers).twice.and_return(0)
+      it 'invokes drop_history_trackers once before phases' do
+        expect(runner).to receive(:drop_history_trackers).once.and_return(0)
         runner.send(:run_phases)
       end
 
-      it 'returns a stats hash containing both the initial and final tracker drops' do
+      it 'returns a stats hash containing the initial tracker drop key' do
         allow(runner).to receive(:drop_history_trackers).and_return(0)
         stats = runner.send(:run_phases)
-        expect(stats).to include(:history_trackers, :history_trackers_final)
+        expect(stats).to include(:history_trackers)
+        expect(stats).not_to include(:history_trackers_final)
       end
     end
 
