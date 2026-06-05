@@ -29,6 +29,19 @@ module DataAnonymizer
     # collections but does not touch +data_anonymizer_runs+).
     STALE_SENTINEL_SAMPLE_SIZE = 5
 
+    # System operator accounts whose User + linked Person are intentionally
+    # preserved through anonymization so a developer can sign in to the
+    # post-anonymization dump and exercise the UI without having to seed an
+    # admin account first. After phases run (and before the verifier), these
+    # users have their password reset and super_admin role ensured by
+    # {#ensure_protected_users!}.
+    PROTECTED_OIM_IDS = %w[admin@dc.gov].freeze
+
+    # Password the protected operator account(s) are reset to after every
+    # successful anonymization run. Known-non-secret; for use only in
+    # non-prod environments (the runner aborts in production).
+    PROTECTED_USER_PASSWORD = 'aA1!aA1!aA1!'
+
     attr_reader :batch_size, :client, :db
 
     # @param batch_size [Integer] documents per bulk_write batch (default 1000).
@@ -91,13 +104,20 @@ module DataAnonymizer
       stats = run_phases
       log_stats(stats, (Time.current - start_time).round(1))
 
+      ensure_protected_users!
+
       # Post-run: run audit verifier (expensive) and require pass before recording sentinel
       if @dry_run
         log "Skipping verifier (dry run)"
         return
       end
 
-      verifier = DataAnonymizer::Verifier.new(mode: :audit, prehash_map: @prehash_map, hmac_key: @prehash_hmac_key)
+      verifier = DataAnonymizer::Verifier.new(
+        mode: :audit,
+        prehash_map: @prehash_map,
+        hmac_key: @prehash_hmac_key,
+        protected_oim_ids: PROTECTED_OIM_IDS
+      )
       _results, all_passed, report_path = verifier.run
 
       unless all_passed
@@ -307,10 +327,14 @@ module DataAnonymizer
     # Tribal ID is cleared. Embedded addresses, phones, and emails are replaced.
     # Plain-text +ssn+ fields (legacy) are unset.
     #
+    # Person documents linked to a protected user (see {PROTECTED_OIM_IDS}) are
+    # skipped so the operator account remains usable post-anonymization.
+    #
     # @return [Integer] number of people processed
     def anonymize_people
       collection = db[:people]
-      total = collection.count_documents({})
+      filter = protected_people_filter
+      total = collection.count_documents(filter)
       log "\n--- Phase 1: Anonymizing People (#{total}) ---"
       family_shifts = @anonymize_dob ? build_family_shift_map : {}
       # Pre-seed with every ciphertext already in the index so that a retry after
@@ -318,7 +342,7 @@ module DataAnonymizer
       used_ssns = load_existing_encrypted_ssns(collection)
       processed = 0
 
-      collection.find.batch_size(batch_size).each_slice(batch_size) do |batch|
+      collection.find(filter).batch_size(batch_size).each_slice(batch_size) do |batch|
         updates = batch.map do |doc|
           shift_days = family_shifts[doc['_id']] || AnonymizedData.dob_shift_days
           set_fields = build_person_update(doc, shift_days: shift_days, used_ssns: used_ssns)
@@ -452,6 +476,115 @@ module DataAnonymizer
       ssns
     end
 
+    # Mongo find filter for {#anonymize_users} that excludes {PROTECTED_OIM_IDS}.
+    # @return [Hash]
+    def protected_users_filter
+      { 'oim_id' => { '$nin' => PROTECTED_OIM_IDS } }
+    end
+
+    # Mongo find filter for {#anonymize_people} that excludes any Person linked
+    # to a protected User. Returns +{}+ when no protected users exist so the
+    # find does not get a no-op +$nin+ clause.
+    # @return [Hash]
+    def protected_people_filter
+      ids = protected_person_ids
+      return {} if ids.empty?
+
+      { '_id' => { '$nin' => ids.to_a } }
+    end
+
+    # Set of +users._id+ values for accounts whose +oim_id+ is in
+    # {PROTECTED_OIM_IDS}. Memoized; safe to call during phase setup because
+    # the set is computed before any User mutation occurs.
+    # @return [Set<BSON::ObjectId>]
+    def protected_user_ids
+      @protected_user_ids ||= db[:users]
+                              .find('oim_id' => { '$in' => PROTECTED_OIM_IDS })
+                              .projection('_id' => 1)
+                              .each_with_object(Set.new) { |doc, set| set.add(doc['_id']) }
+    end
+
+    # Set of +people._id+ values linked to {#protected_user_ids}. Memoized.
+    # @return [Set<BSON::ObjectId>]
+    def protected_person_ids
+      @protected_person_ids ||= if protected_user_ids.empty?
+                                  Set.new
+                                else
+                                  db[:people]
+                                    .find('user_id' => { '$in' => protected_user_ids.to_a })
+                                    .projection('_id' => 1)
+                                    .each_with_object(Set.new) { |doc, set| set.add(doc['_id']) }
+                                end
+    end
+
+    # Ensures each {PROTECTED_OIM_IDS} account exists, has a known password,
+    # and is granted the +super_admin+ permission so an operator can sign in
+    # to the post-anonymization dump and exercise the UI. Called after phases
+    # complete and before the verifier so the verifier observes the final
+    # state (and skips these records via +protected_oim_ids:+).
+    #
+    # Idempotent. Uses Mongoid models so Devise password encryption and
+    # mongoid-history snapshots fire correctly.
+    # @return [void]
+    def ensure_protected_users!
+      PROTECTED_OIM_IDS.each { |oim_id| ensure_protected_user!(oim_id) }
+    end
+
+    def ensure_protected_user!(oim_id)
+      if @dry_run
+        log "  [DRY RUN] Would ensure protected user '#{oim_id}' has reset password and super_admin role"
+        return
+      end
+
+      log "\n--- Ensuring protected user '#{oim_id}' ---"
+      user = find_or_create_protected_user(oim_id)
+      person = find_or_create_protected_person(user)
+      grant_super_admin(person, oim_id)
+    end
+
+    def find_or_create_protected_user(oim_id)
+      user = User.where(oim_id: oim_id).first
+      if user
+        log "  Resetting password for existing protected user '#{oim_id}' (id=#{user.id})"
+      else
+        log "  Creating protected user '#{oim_id}'"
+        user = User.new(email: oim_id, oim_id: oim_id, roles: ['hbx_staff'])
+      end
+      user.password = PROTECTED_USER_PASSWORD
+      user.password_confirmation = PROTECTED_USER_PASSWORD
+      user.save!
+      user
+    end
+
+    def find_or_create_protected_person(user)
+      person = Person.where(user_id: user.id).first
+      return person if person
+
+      log "  Creating protected person for user '#{user.oim_id}'"
+      Person.create!(first_name: 'system', last_name: 'admin', user: user)
+    end
+
+    def grant_super_admin(person, oim_id)
+      permission = Permission.super_admin
+      if permission.nil?
+        log "  WARNING: Permission.super_admin not found; skipping role grant for '#{oim_id}' (run permissions seed)"
+        return
+      end
+
+      if person.hbx_staff_role&.permission_id == permission.id
+        log "  Protected user '#{oim_id}' already has super_admin role"
+        return
+      end
+
+      person.build_hbx_staff_role(
+        permission_id: permission.id,
+        subrole: 'super_admin',
+        hbx_profile_id: HbxProfile.current_hbx&.id
+      )
+      person.save!
+      log "  Granted super_admin role to protected user '#{oim_id}'"
+    end
+
     def fetch_dob_lookup(people_collection, person_ids)
       lookup = {}
       people_collection.find('_id' => { '$in' => person_ids }).projection('_id' => 1, 'dob' => 1).each do |p|
@@ -558,14 +691,18 @@ module DataAnonymizer
     # identity_final_decision_code, identity_final_decision_transaction_id,
     # identity_response_description_text.
     #
+    # Users whose +oim_id+ is in {PROTECTED_OIM_IDS} are skipped; their credentials
+    # are reset by {#ensure_protected_users!} after the phase loop completes.
+    #
     # @return [Integer] number of users processed
     def anonymize_users
       collection = db[:users]
-      total = collection.count_documents({})
+      filter = protected_users_filter
+      total = collection.count_documents(filter)
       log "\n--- Phase 2: Anonymizing Users (#{total}) ---"
       processed = 0
 
-      collection.find.batch_size(batch_size).each_slice(batch_size) do |batch|
+      collection.find(filter).batch_size(batch_size).each_slice(batch_size) do |batch|
         updates = batch.each_with_index.map do |doc, idx|
           seq = processed + idx
           anon_email = AnonymizedData.email(seq)
@@ -1042,6 +1179,7 @@ module DataAnonymizer
       cursor = db[:people].find(no_ssn_filter).projection('first_name' => 1, 'last_name' => 1, 'addresses' => 1, 'phones' => 1)
       cursor.batch_size(batch_size).each do |p|
         next if p['first_name'].to_s.strip.empty? || p['last_name'].to_s.strip.empty?
+        next if protected_person_ids.include?(p['_id'])
 
         map[:people][p['_id'].to_s] = OpenSSL::HMAC.hexdigest('SHA256', @prehash_hmac_key, canonical_person_payload(p))
       end

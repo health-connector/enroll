@@ -43,7 +43,8 @@ module DataAnonymizer
     # the runner; this covers the remaining per-document version trail.
     SKIP_FIELDS = %w[_id encrypted_ssn fein ach_routing_number ach_routing_number_confirmation npn corporate_npn content dba versions].freeze
 
-    def initialize(mode: :smoke, prehash_map: nil, hmac_key: nil, run_id: nil, sample_size: SAMPLE_SIZE)
+    # rubocop:disable Metrics/ParameterLists
+    def initialize(mode: :smoke, prehash_map: nil, hmac_key: nil, run_id: nil, sample_size: SAMPLE_SIZE, protected_oim_ids: [])
       @mode = mode
       @prehash_map = prehash_map
       @hmac_key = hmac_key
@@ -51,7 +52,11 @@ module DataAnonymizer
       @sample_size = sample_size
       @client = Mongoid.default_client
       @db = @client.database
+      @protected_oim_ids = Array(protected_oim_ids).compact.uniq
+      @protected_user_ids = compute_protected_user_ids
+      @protected_person_ids = compute_protected_person_ids
     end
+    # rubocop:enable Metrics/ParameterLists
 
     def run
       log "=== CCA Anonymization Verification Report ==="
@@ -118,6 +123,32 @@ module DataAnonymizer
         map[scope][rec_id] = doc['digest']
       end
       map
+    end
+
+    # Set of +users._id+ values whose +oim_id+ is in +@protected_oim_ids+.
+    # These accounts are preserved by the runner so the operator can sign in
+    # to the post-anonymization dump; they are excluded from email-pattern
+    # sampling in {#check_users}.
+    # @return [Set<BSON::ObjectId>]
+    def compute_protected_user_ids
+      return Set.new if @protected_oim_ids.empty?
+
+      @db[:users]
+        .find('oim_id' => { '$in' => @protected_oim_ids })
+        .projection('_id' => 1)
+        .each_with_object(Set.new) { |doc, set| set.add(doc['_id']) }
+    end
+
+    # Set of +people._id+ values linked to {#compute_protected_user_ids}.
+    # Excluded from email-pattern sampling in {#check_people}.
+    # @return [Set<BSON::ObjectId>]
+    def compute_protected_person_ids
+      return Set.new if @protected_user_ids.empty?
+
+      @db[:people]
+        .find('user_id' => { '$in' => @protected_user_ids.to_a })
+        .projection('_id' => 1)
+        .each_with_object(Set.new) { |doc, set| set.add(doc['_id']) }
     end
 
     # Streaming regex scan across all collections for SSN-like 9-digit patterns.
@@ -251,6 +282,7 @@ module DataAnonymizer
       end
     end
 
+    # rubocop:disable Metrics/CyclomaticComplexity
     def check_people
       collection = @db[:people]
       total = collection.count_documents({})
@@ -258,6 +290,8 @@ module DataAnonymizer
 
       real_email_count = 0
       collection.find.limit(SAMPLE_SIZE).each do |doc|
+        next if @protected_person_ids.include?(doc['_id'])
+
         (doc['emails'] || []).each do |em|
           addr = em['address']
           real_email_count += 1 if addr.present? && !addr.match?(GENERATED_EMAIL_PATTERN)
@@ -276,6 +310,7 @@ module DataAnonymizer
 
       build_result("People (people)", total, issues, sample_names)
     end
+    # rubocop:enable Metrics/CyclomaticComplexity
 
     def check_history_trackers
       if @db.collection_names.include?('history_trackers')
@@ -294,6 +329,8 @@ module DataAnonymizer
 
       real_email_count = 0
       collection.find.limit(SAMPLE_SIZE).each do |doc|
+        next if @protected_user_ids.include?(doc['_id'])
+
         addr = doc['email']
         real_email_count += 1 if addr.present? && !addr.match?(GENERATED_EMAIL_PATTERN)
       end
