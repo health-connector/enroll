@@ -129,6 +129,7 @@ module DataAnonymizer
       record_run_sentinel
       log "Re-verification credentials — RUN_ID=#{@prehash_run_id} HMAC_KEY=#{@prehash_hmac_key}"
       log "Store these values to re-run: bundle exec rake data:anonymize:verify RUN_ID=<value> HMAC_KEY=<value>"
+      log_admin_access_hint
     end
 
     private
@@ -158,6 +159,22 @@ module DataAnonymizer
     def log_stats(stats, elapsed)
       log "\n=== Anonymization Complete#{' (DRY RUN — no writes)' if @dry_run} (#{elapsed}s) ==="
       stats.each { |k, v| log "  #{k}: #{v} records processed" }
+    end
+
+    # Prints the admin portal access details so an operator can immediately
+    # sign in to the post-anonymization dump and exercise the UI.
+    # Only called on a fully successful live run (after verifier PASS and
+    # sentinel recorded) so the credentials are shown only when the database
+    # is confirmed anonymized and the account is ready.
+    # @return [void]
+    def log_admin_access_hint
+      log "\n==================================================================="
+      log "Admin portal access"
+      log "  Email    : #{PROTECTED_OIM_IDS.first}"
+      log "  Password : #{PROTECTED_USER_PASSWORD}"
+      log "  Role     : super_admin"
+      log "Sign in and perform a quick spot-check before sharing the dump."
+      log "==================================================================="
     end
 
     # Aborts (or warns in force mode) if this database has already been anonymized.
