@@ -7,6 +7,9 @@ class TranscriptGenerator
   # TRANSCRIPT_PATH = "#{Rails.root}/individual_xmls_with_timestamps/ivl_transcript_batch/"
   TRANSCRIPT_PATH = "#{Rails.root}/person_transcripts"
 
+  # Keys whose values are HashWithIndifferentAccess in Transcripts::Base#transcript_template.
+  INNER_HASH_KEYS = %i[source other compare source_errors other_errors].freeze
+
 
   def initialize(market = 'individual')
     @identifier = 'hbx_id'
@@ -43,9 +46,7 @@ class TranscriptGenerator
     # transcript.shop = false
     transcript.find_or_build(external_obj)
 
-    File.open("#{TRANSCRIPT_PATH}/#{@count}_#{transcript.transcript[:identifier]}_#{Time.now.to_i}.bin", 'wb') do |file|
-      file.write Marshal.dump(transcript.transcript)
-    end
+    File.write("#{TRANSCRIPT_PATH}/#{@count}_#{transcript.transcript[:identifier]}_#{Time.now.to_i}.bin", JSON.dump(transcript.transcript))
   end
 
   def display_enrollment_transcripts
@@ -177,7 +178,14 @@ class TranscriptGenerator
           # rows = Transcripts::ComparisonResult.new(Marshal.load(File.open(file_path))).csv_row
 
           person_importer = Importers::Transcripts::PersonTranscript.new
-          person_importer.transcript = Marshal.load(File.open(file_path))
+          raw = JSON.parse(File.read(file_path), symbolize_names: true)
+          # Outer keys are accessed with symbols
+          # Inner sub-hashes were originally HashWithIndifferentAccess
+          # JSON round-trip loses that, so restore indifferent access for all inner hash keys.
+          INNER_HASH_KEYS.each do |key|
+            raw[key] = HashWithIndifferentAccess.new(raw[key]) if raw[key].is_a?(Hash)
+          end
+          person_importer.transcript = raw
           person_importer.market = @market
           person_importer.process
 

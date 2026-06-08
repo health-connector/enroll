@@ -189,7 +189,7 @@ class CensusEmployee < CensusMember
     )
   }
 
-  scope :enrolled, -> { any_of([covered.selector, waived.selector]) }
+  scope :enrolled, -> { where(:_id.in => (covered.pluck(:_id) + waived.pluck(:_id)).uniq) }
 
 
   scope :employee_name, -> (employee_name) { any_of({first_name: /#{employee_name}/i}, {last_name: /#{employee_name}/i}, first_name: /#{employee_name.split[0]}/i, last_name: /#{employee_name.split[1]}/i) }
@@ -1152,19 +1152,17 @@ class CensusEmployee < CensusMember
     end
 
     def terminate_scheduled_census_employees(as_of_date = TimeKeeper.date_of_record)
-      census_employees_for_termination = CensusEmployee.pending.where(:employment_terminated_on.lt => as_of_date)
+      census_employees_for_termination = CensusEmployee.where(:aasm_state.in => PENDING_STATES, :employment_terminated_on.lt => as_of_date)
       census_employees_for_termination.each do |census_employee|
-        begin
-          census_employee.terminate_employment(census_employee.employment_terminated_on)
-        rescue Exception => e
-          (Rails.logger.error { "Error while terminating cesus employee - #{census_employee.full_name} due to -- #{e}" }) unless Rails.env.test?
-        end
+        census_employee.terminate_employment(census_employee.employment_terminated_on)
+      rescue StandardError => e
+        (Rails.logger.error { "Error while terminating cesus employee - #{census_employee.full_name} due to -- #{e}" }) unless Rails.env.test?
       end
     end
 
     def rebase_newly_designated_employees
       return unless TimeKeeper.date_of_record.yday == 1
-      CensusEmployee.where(:"aasm_state".in => NEWLY_DESIGNATED_STATES).each do |employee|
+      CensusEmployee.where(:aasm_state.in => NEWLY_DESIGNATED_STATES).each do |employee|
         begin
           employee.rebase_new_designee! if employee.may_rebase_new_designee?
         rescue Exception => e
@@ -1221,20 +1219,21 @@ class CensusEmployee < CensusMember
     end
 
     def find_all_terminated(employer_profiles: [], date_range: (TimeKeeper.date_of_record..TimeKeeper.date_of_record))
-
-      if employer_profiles.size > 0
+      if employer_profiles.empty?
+        query = unscoped.where(
+          :aasm_state.in => EMPLOYMENT_TERMINATED_STATES,
+          :employment_terminated_on.gte => date_range.first,
+          :employment_terminated_on.lte => date_range.last
+        )
+      else
         employer_profile_ids = employer_profiles.map(&:_id)
 
-        query = unscoped.terminated.any_in(benefit_sponsors_employer_profile_id: employer_profile_ids).
-                                    where(
-                                      :employment_terminated_on.gte => date_range.first,
-                                      :employment_terminated_on.lte => date_range.last
-                                    )
-      else
-        query = unscoped.terminated.where(
-                                    :employment_terminated_on.gte => date_range.first,
-                                    :employment_terminated_on.lte => date_range.last
-                                  )
+        query = unscoped.where(
+          :aasm_state.in => EMPLOYMENT_TERMINATED_STATES,
+          :benefit_sponsors_employer_profile_id.in => employer_profile_ids,
+          :employment_terminated_on.gte => date_range.first,
+          :employment_terminated_on.lte => date_range.last
+        )
       end
       query.to_a
     end
@@ -1243,11 +1242,11 @@ class CensusEmployee < CensusMember
     def update_census_employee_records(person, current_user)
       person.employee_roles.each do |employee_role|
         ce = employee_role.census_employee
-        if current_user.has_hbx_staff_role? && ce.present?
-          ce.ssn = person.ssn
-          ce.dob = person.dob
-          ce.save!(validate: false)
-        end
+        next unless current_user.has_hbx_staff_role? && ce.present?
+
+        ce.ssn = person.ssn
+        ce.dob = person.dob
+        ce.save!(validate: false)
       end
     end
 
@@ -1257,13 +1256,13 @@ class CensusEmployee < CensusMember
       action = s_rex.strip.split.size > 1 ? "$and" : "$or"
       search_rex = Regexp.compile(clean_str, true)
       {
-          "$or" => [
-              {action => [
-                  {"first_name" => search_rex},
-                  {"last_name" => search_rex}
-              ]},
-              {"encrypted_ssn" => encrypt_ssn(clean_str)}
-          ]
+        "$or" => [
+          {action => [
+            {"first_name" => search_rex},
+            {"last_name" => search_rex}
+          ]},
+          {"encrypted_ssn" => encrypt_ssn(clean_str)}
+        ]
       }
     end
   end
