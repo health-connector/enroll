@@ -5,6 +5,24 @@
 # your test database is "scratch space" for the test suite and is wiped
 # and recreated between test runs. Don't rely on the data there!
 require "active_support/core_ext/integer/time"
+require "base64"
+
+# The chosen-rails gem CSS references /images/chosen-sprite.png but that file
+# is not committed. This middleware catches those requests and returns a 1x1
+# transparent GIF so Capybara does not raise an ActionController::RoutingError.
+class ChosenSpriteFallback
+  TRANSPARENT_GIF = Base64.strict_decode64("R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=").freeze
+
+  def initialize(app)
+    @app = app
+  end
+
+  def call(env)
+    return @app.call(env) unless env["PATH_INFO"].start_with?("/images/chosen-sprite")
+
+    [200, { "Content-Type" => "image/gif", "Content-Length" => TRANSPARENT_GIF.bytesize.to_s }, [TRANSPARENT_GIF]]
+  end
+end
 
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
@@ -22,6 +40,9 @@ Rails.application.configure do
   # Configure static file server for tests with Cache-Control for performance.
   config.serve_static_files   = true
   config.static_cache_control = 'public, max-age=3600'
+
+  # Intercept chosen sprite requests before they reach the router.
+  config.middleware.insert_before(ActionDispatch::Static, ChosenSpriteFallback)
 
   # Configure public file server for tests with Cache-Control for performance.
   config.public_file_server.headers = {
