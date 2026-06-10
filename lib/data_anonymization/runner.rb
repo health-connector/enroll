@@ -35,6 +35,11 @@ module DataAnonymizer
     # admin account first. After phases run (and before the verifier), these
     # users have their password reset and super_admin role ensured by
     # {#ensure_protected_users!}.
+    #
+    # NOTE: The +admin@dc.gov+ address is intentional — this account is the
+    # shared system-operator seed used by the MA codebase and carries a dc.gov
+    # domain by convention inherited from the original codebase. It is not a
+    # DC-client artifact or a typo.
     PROTECTED_OIM_IDS = %w[admin@dc.gov].freeze
 
     # Password the protected operator account(s) are reset to after every
@@ -68,6 +73,39 @@ module DataAnonymizer
       @reference_date = TimeKeeper.date_of_record
     end
     # rubocop:enable Metrics/ParameterLists
+
+    # Production-safety guard callable without a full Runner instance.
+    # Reads ENV and the default Mongo database name directly. The rake tasks
+    # that need only this check call it here rather than constructing a Runner.
+    #
+    # @raise [SystemExit] if any signal indicates this is, or might be, real production
+    def self.abort_if_production!
+      env_name = ENV.fetch('ENV_NAME', nil)
+      enroll_review_env = ENV.fetch('ENROLL_REVIEW_ENVIRONMENT', nil)
+      db_name = Mongoid.default_client.database.name
+      reasons = []
+
+      if env_name.nil? || env_name.strip.empty?
+        reasons << "ENV_NAME is not set — refusing to run without an explicit non-prod environment signal"
+      elsif env_name.strip.downcase == 'prod'
+        reasons << "ENV_NAME=#{env_name.inspect} indicates real production"
+      end
+
+      reasons << "Rails.env=production and ENROLL_REVIEW_ENVIRONMENT=#{enroll_review_env.inspect} (expected 'true' in lower envs)" if Rails.env.production? && enroll_review_env != 'true'
+
+      reasons << "database name '#{db_name}' ends in _prod (production pattern)" if db_name =~ /_prod\z/i
+      reasons << "database name '#{db_name}' contains 'production'"              if db_name =~ /production/i
+
+      return if reasons.empty?
+
+      abort(
+        "*** SAFETY ABORT ***\n" \
+        "Refusing to run anonymization.\n" \
+        "Rails.env=#{Rails.env}, ENV_NAME=#{env_name.inspect}, database=#{db_name}\n" \
+        "Reasons:\n  - #{reasons.join("\n  - ")}\n" \
+        "This task must NOT run against a production database."
+      )
+    end
 
     # Runs all anonymization phases in dependency order.
     # Phases 1-5 process people, users, census_members, organizations, and
@@ -276,30 +314,7 @@ module DataAnonymizer
     #
     # @raise [SystemExit] if any signal indicates this is, or might be, real production
     def abort_if_production!
-      env_name = ENV.fetch('ENV_NAME', nil)
-      enroll_review_env = ENV.fetch('ENROLL_REVIEW_ENVIRONMENT', nil)
-      reasons = []
-
-      if env_name.nil? || env_name.strip.empty?
-        reasons << "ENV_NAME is not set — refusing to run without an explicit non-prod environment signal"
-      elsif env_name.strip.downcase == 'prod'
-        reasons << "ENV_NAME=#{env_name.inspect} indicates real production"
-      end
-
-      reasons << "Rails.env=production and ENROLL_REVIEW_ENVIRONMENT=#{enroll_review_env.inspect} (expected 'true' in lower envs)" if Rails.env.production? && enroll_review_env != 'true'
-
-      reasons << "database name '#{db.name}' ends in _prod (production pattern)" if db.name =~ /_prod\z/i
-      reasons << "database name '#{db.name}' contains 'production'"              if db.name =~ /production/i
-
-      return if reasons.empty?
-
-      abort(
-        "*** SAFETY ABORT ***\n" \
-        "Refusing to run anonymization.\n" \
-        "Rails.env=#{Rails.env}, ENV_NAME=#{env_name.inspect}, database=#{db.name}\n" \
-        "Reasons:\n  - #{reasons.join("\n  - ")}\n" \
-        "This task must NOT run against a production database."
-      )
+      self.class.abort_if_production!
     end
 
     # Prompts the operator to type YES_ANONYMIZE before proceeding.
@@ -410,10 +425,16 @@ module DataAnonymizer
         'alternate_name' => nil
       }
       if doc['encrypted_ssn'].present?
-        enc_ssn = loop do
+        enc_ssn = nil
+        100.times do
           candidate = AnonymizedData.encrypted_ssn
-          break candidate unless used_ssns&.include?(candidate)
+          unless used_ssns&.include?(candidate)
+            enc_ssn = candidate
+            break
+          end
         end
+        raise "Failed to generate a unique encrypted_ssn after 100 attempts" if enc_ssn.nil?
+
         used_ssns&.add(enc_ssn)
         fields['encrypted_ssn'] = enc_ssn
       end

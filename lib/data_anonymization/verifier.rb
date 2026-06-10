@@ -209,7 +209,13 @@ module DataAnonymizer
       # No credentials supplied — treat as skipped (PASS) so that verify-only
       # invocations without RUN_ID/HMAC_KEY don't block the overall sentinel.
       # A hard FAIL only applies when credentials were supplied but verification fails.
-      return build_result("Canonical prehash", 0, [], "skipped - no prehash credentials provided") unless @prehash_map && @hmac_key
+      unless @prehash_map && @hmac_key
+        log "WARNING: Canonical prehash check SKIPPED — RUN_ID/HMAC_KEY not provided. " \
+            "Name and DOB mutation is NOT verified by this run. " \
+            "To enable this check, pass the RUN_ID and HMAC_KEY printed at anonymization time: " \
+            "bundle exec rake data:anonymize:verify RUN_ID=<value> HMAC_KEY=<value>"
+        return build_result("Canonical prehash", 0, [], "SKIPPED - RUN_ID/HMAC_KEY not provided; name+DOB mutation NOT verified")
+      end
 
       issues = []
       samples = []

@@ -102,10 +102,7 @@ namespace :data do
           re-running data:anonymize:verify. Honors the same production-safety
           guard as data:anonymize."
     task :drop_history_trackers => :environment do
-      # Reuse Runner's production-safety guard rather than duplicating the
-      # multi-signal check here. The +force: true+ flag bypasses idempotency,
-      # which is not consulted by abort_if_production!.
-      DataAnonymizer::Runner.new(force: true).send(:abort_if_production!)
+      DataAnonymizer::Runner.abort_if_production!
 
       db = Mongoid.default_client.database
       if db.collection_names.include?('history_trackers')
@@ -125,9 +122,7 @@ namespace :data do
           data:anonymize run is not blocked by a stale sentinel. Honors the
           same production-safety guard as data:anonymize."
     task :reset => :environment do
-      # Reuse Runner's production-safety guard. +force: true+ bypasses
-      # idempotency, which is not consulted by abort_if_production!.
-      DataAnonymizer::Runner.new(force: true).send(:abort_if_production!)
+      DataAnonymizer::Runner.abort_if_production!
 
       db = Mongoid.default_client.database
       %w[data_anonymizer_runs data_anonymizer_prehashes].each do |name|

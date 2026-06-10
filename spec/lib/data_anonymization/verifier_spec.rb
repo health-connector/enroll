@@ -90,25 +90,31 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
 
   describe '#check_name_dob_prehash' do
     context 'when prehash_map or hmac_key is missing' do
-      it 'passes (skipped) with a note in samples when both are nil' do
+      it 'passes (skipped) with a prominent SKIPPED note in samples when both are nil' do
         result = verifier.send(:check_name_dob_prehash)
         expect(result[:passed]).to be true
         expect(result[:issues]).to eq('None')
-        expect(result[:samples]).to include('skipped')
+        expect(result[:samples]).to include('SKIPPED')
+        expect(result[:samples]).to include('name+DOB mutation NOT verified')
+      end
+
+      it 'emits a WARNING log line when skipped' do
+        expect(Rails.logger).to receive(:info).with(a_string_including('WARNING'))
+        verifier.send(:check_name_dob_prehash)
       end
 
       it 'passes (skipped) when only hmac_key is nil' do
         v = described_class.new(mode: :audit, prehash_map: { people: {} }, hmac_key: nil)
         result = v.send(:check_name_dob_prehash)
         expect(result[:passed]).to be true
-        expect(result[:samples]).to include('skipped')
+        expect(result[:samples]).to include('SKIPPED')
       end
 
       it 'passes (skipped) when only prehash_map is nil' do
         v = described_class.new(mode: :audit, prehash_map: nil, hmac_key: 'somekey')
         result = v.send(:check_name_dob_prehash)
         expect(result[:passed]).to be true
-        expect(result[:samples]).to include('skipped')
+        expect(result[:samples]).to include('SKIPPED')
       end
     end
 
