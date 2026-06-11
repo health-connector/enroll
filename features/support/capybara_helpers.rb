@@ -22,12 +22,23 @@ module CapybaraHelpers
 
   # Throw a one-time load callback on datatables so we can use it to make sure
   # it has finished loading.  Useful for clicking a filter and making sure it's
-  # done reloading.
+  # done reloading. Dual-mode: resolves on the jQuery DataTables 'draw.dt' event
+  # (legacy stack) or the 'effective-datatable:draw' DOM event (refactored
+  # stack), so the same steps pass in either :refactored_datatables flag state.
   def with_datatable_load_wait(timeout, slice_size = 0.2, &blk)
     execute_script(<<-JSCODE)
-      $('.effective-datatable').DataTable().one('draw.dt', function() {
-        window['ef_datatables_done_loading'] = true;#{' '}
-      });
+      var legacyTable = window.jQuery && $.fn.DataTable &&
+        $('.effective-datatable').length &&
+        $.fn.DataTable.fnIsDataTable($('.effective-datatable')[0]);
+      if (legacyTable) {
+        $('.effective-datatable').DataTable().one('draw.dt', function() {
+          window['ef_datatables_done_loading'] = true;#{' '}
+        });
+      } else {
+        document.addEventListener('effective-datatable:draw', function() {
+          window['ef_datatables_done_loading'] = true;
+        }, { once: true });
+      }
     JSCODE
     blk.call
     wait_for_condition_until(timeout, slice_size) do

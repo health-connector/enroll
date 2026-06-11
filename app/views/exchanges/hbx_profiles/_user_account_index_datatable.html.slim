@@ -1,6 +1,8 @@
 h1.heading-text Account Updates
 
-= raw render_datatable(@datatable)
-
-javascript:
-  initializeDataTables();
+- if EnrollRegistry.feature_enabled?(:refactored_datatables)
+  = render partial: 'datatables/refactored/table', locals: @user_accounts_datatable_locals
+- else
+  = raw render_datatable(@datatable)
+  javascript:
+    initializeDataTables();

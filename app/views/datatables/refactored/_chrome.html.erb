@@ -1,0 +1,80 @@
+<%# Everything inside #effective_datatable_wrapper - the region a Stimulus
+    redraw replaces. The markup (wrapper grid, classes, ids, aria attributes)
+    is a server-side reproduction of what jQuery DataTables generated at init
+    time; the flag-OFF DOM snapshot of each migrated page is the parity
+    contract. The two inline display styles are state the legacy stack also
+    carried inline, kept for snapshot parity. %>
+<% table_id = "#{table.param_key}-table" %>
+<div class="row">
+  <div id="<%= table_id %>_wrapper" class="dataTables_wrapper form-inline dt-bootstrap no-footer">
+    <div class="row">
+      <div class="col-sm-7 col-md-7">
+        <div class="dt-buttons btn-group">
+          <a class="btn btn-default buttons-csv buttons-html5" tabindex="0" aria-controls="<%= table_id %>" href="#" data-action="click->datatable#exportCsv"><span><%= l10n('datatables.csv') %></span></a>
+          <a class="btn btn-default buttons-excel buttons-html5" tabindex="0" aria-controls="<%= table_id %>" href="#" data-action="click->datatable#exportCsv"><span><%= l10n('datatables.excel') %></span></a>
+        </div>
+      </div>
+      <div class="col-sm-5 col-md-5">
+        <% if table.global_search? %>
+          <div id="<%= table_id %>_filter" class="dataTables_filter">
+            <label><%= l10n('datatables.search_label') %><input type="search" class="form-control input-sm" placeholder="" aria-controls="<%= table_id %>" value="<%= search %>" data-datatable-target="search" data-action="input->datatable#searchChanged"><div class="datatable_clear btn btn-sm btn-default" style="display:inline" data-action="click->datatable#clearSearch"><i class="fas fa-times"></i></div></label>
+          </div>
+        <% end %>
+      </div>
+    </div>
+    <div class="row"><div class="col-sm-12 col-md-12"></div></div>
+    <div class="row">
+      <div class="col-sm-12 col-md-12">
+        <table class="effective-datatable table table-striped table-hover dataTable no-footer" id="<%= table_id %>" aria-describedby="<%= table_id %>_info">
+          <thead>
+            <tr>
+              <% table.columns.each_with_index do |col, index| %>
+                <% label_text = %(span class="filter-label"#{col[:label]}/span) %>
+                <% if col[:sortable] %>
+                  <% sorted = col[:name] == order %>
+                  <th class="col-<%= col[:type] %> col-<%= col[:name] %> sorting<%= " sorting_#{dir}" if sorted %>"
+                      tabindex="0" aria-controls="<%= table_id %>" rowspan="1" colspan="1"
+                      data-column-index="<%= index %>"
+                      <% if sorted %>aria-sort="<%= dir == 'desc' ? 'descending' : 'ascending' %>"<% end %>
+                      aria-label="<%= label_text %>: activate to sort column <%= sorted && dir == 'asc' ? 'descending' : 'ascending' %>"
+                      data-action="click->datatable#sortClicked" data-column="<%= col[:name] %>"
+                      <% if col[:width] %>style="width: <%= col[:width] %>;"<% end %>><span class="filter-label"><%= col[:label] %></span></th>
+                <% else %>
+                  <th class="col-<%= col[:type] %> col-<%= col[:name] %> sorting_disabled"
+                      rowspan="1" colspan="1" data-column-index="<%= index %>"
+                      aria-label="<%= label_text %>"
+                      <% if col[:width] %>style="width: <%= col[:width] %>;"<% end %>><span class="filter-label"><%= col[:label] %></span></th>
+                <% end %>
+              <% end %>
+            </tr>
+          </thead>
+          <tbody>
+            <% if records.any? %>
+              <% records.each_with_index do |record, index| %>
+                <%= render partial: table.row_partial, locals: { row: record, table: table, row_class: index.even? ? 'odd' : 'even' } %>
+              <% end %>
+            <% else %>
+              <tr class="odd"><td valign="top" colspan="<%= table.columns.size %>" class="dataTables_empty"><%= l10n('datatables.no_matching_records') %></td></tr>
+            <% end %>
+          </tbody>
+        </table>
+        <div id="<%= table_id %>_processing" class="dataTables_processing panel panel-default" role="status" style="display: none;" data-datatable-target="processing"><%= l10n('datatables.processing') %><div><div></div><div></div><div></div><div></div></div></div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-11 col-md-11">
+        <div class="dataTables_info" id="<%= table_id %>_info" role="status" aria-live="polite"><%= l10n('datatables.showing_entries', from: number_with_delimiter(pagy.from), to: number_with_delimiter(pagy.to), count: number_with_delimiter(pagy.count)) %></div>
+      </div>
+      <div class="col-sm-1 col-md-1">
+        <div class="dataTables_length" id="<%= table_id %>_length">
+          <label><select name="<%= table_id %>_length" aria-controls="<%= table_id %>" class="form-control input-sm" tabindex="0" data-action="change->datatable#perChanged"><% ::Datatables::FragmentRendering::PER_PAGE_OPTIONS.each do |option| %><option value="<%= option %>"<%= ' selected'.html_safe if option == pagy.limit %>><%= option %></option><% end %></select> <%= l10n('datatables.per_page') %></label>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-12 col-md-12">
+        <%= render partial: 'datatables/refactored/pagination', locals: { pagy: pagy, table_id: table_id } %>
+      </div>
+    </div>
+  </div>
+</div>

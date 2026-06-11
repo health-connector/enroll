@@ -1,6 +1,16 @@
 en:
   button:
     continue: "Continue"
+  datatables:
+    csv: "CSV"
+    excel: "Excel"
+    search_label: "Search:"
+    per_page: "per page"
+    showing_entries: "Showing %{from} to %{to} of %{count} entries"
+    processing: "Processing..."
+    no_matching_records: "No matching records found"
+    previous: "Previous"
+    next: "Next"
   welcome:
     employee:
         title: "Employee Coverage"
