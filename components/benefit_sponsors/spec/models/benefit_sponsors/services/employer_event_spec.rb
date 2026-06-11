@@ -63,6 +63,7 @@ RSpec.describe BenefitSponsors::Services::EmployerEvent, :dbclean => :after_each
         allow(BenefitSponsors::EmployerEvents::CarrierFile).to receive(:new).with(profile1).and_return(carrier_file_1)
         allow(BenefitSponsors::EmployerEvents::Renderer).to receive(:new).with(subject).and_return(event_renderer)
         allow(carrier_file_1).to receive(:render_event_using).with(event_renderer, subject).and_return([carrier_file_1])
+        allow(carrier_file_1).to receive(:carrier).and_return(profile1)
       end
 
       it 'calls the expected methods and interacts with related objects' do
