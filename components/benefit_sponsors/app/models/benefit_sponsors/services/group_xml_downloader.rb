@@ -57,7 +57,7 @@ module BenefitSponsors
       end
 
       def log_tempfile_path(zip_path)
-        Rails.logger.info "Temporary zip file created at path: #{zip_path}"
+        Rails.logger.tagged(self.class.name) { Rails.logger.info("Temporary zip file created at path: #{zip_path}") }
       end
 
       def write_to_zip(carrier_files, zip_path)

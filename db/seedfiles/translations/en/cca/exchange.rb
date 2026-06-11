@@ -64,6 +64,7 @@ EXCHANGE_TRANSLATIONS = {
   "en.exchange.not_authorized" => "You are not authorized to perform this action.",
   "en.exchange.agent.not_authorized" => "You must be an Agent: CSR, CAC, IPA or a Broker",
   "en.exchange.employer_applications.generate_v2_xml" => "Generate V2 XML",
+  "en.exchange.employer_applications.upload_v2_xml" => "Upload V2 XML",
   "en.exchange.employer_applications.v2_event_type" => "V2 Event Type",
   "en.exchange.employer_applications.address_changed" => "Address Changed",
   "en.exchange.employer_applications.contact_changed" => "Contact Changed",

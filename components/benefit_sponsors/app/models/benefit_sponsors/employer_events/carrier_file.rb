@@ -42,7 +42,7 @@ module BenefitSponsors
           @render_reason = result
         end
       rescue StandardError => e
-        Rails.logger.error "[#{e.class.name}] #{e.message}"
+        log_error(e.message)
         @render_reason = e.message
       end
 
@@ -89,6 +89,12 @@ module BenefitSponsors
         zip.get_output_stream(f_name) do |os|
           os.write(data)
         end
+      end
+
+      private
+
+      def log_error(message)
+        Rails.logger.tagged(self.class.name) { Rails.logger.error(message) }
       end
     end
   end

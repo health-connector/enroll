@@ -26,7 +26,7 @@ module BenefitSponsors
             begin
               date_value = Date.strptime(date_node.content.strip, "%Y%m%d")
             rescue StandardError => e
-              puts "Error parsing start date: #{e.message}" unless Rails.env.test?
+              log_error("Error parsing start date: #{e.message}")
             end
             next unless date_value
 
@@ -36,7 +36,7 @@ module BenefitSponsors
             begin
               date_value = Date.strptime(date_node.content.strip, "%Y%m%d")
             rescue StandardError => e
-              puts "Error parsing end date: #{e.message}" unless Rails.env.test?
+              log_error("Error parsing end date: #{e.message}")
             end
             next unless date_value
 
@@ -54,8 +54,8 @@ module BenefitSponsors
       def finding_sorted_plan_years(all_plan_years)
         all_plan_years.sort_by do |node|
           Date.strptime(node.xpath("cv:plan_year_start", {:cv => XML_NS}).first.content.strip,"%Y%m%d")
-        rescue StandardError
-          puts "Could not find sorted plan year start date" unless Rails.env.test?
+        rescue StandardError => e
+          log_error("Could not find sorted plan year start date: #{e.message}")
         end
       end
 
@@ -71,13 +71,13 @@ module BenefitSponsors
         if last_plan_year.present? && last_plan_year.xpath("//cv:elected_plans/cv:elected_plan/cv:carrier/cv:id/cv:id[text() = '#{carrier.hbx_carrier_id}']", {:cv => XML_NS}).any?
           start_date = begin
             Date.strptime(last_plan_year.xpath("cv:plan_year_start", {:cv => XML_NS}).first.content.strip,"%Y%m%d")
-          rescue StandardError
-            puts "Could not find retroactive plan year start date" unless Rails.env.test?
+          rescue StandardError => e
+            log_error("Could not find retroactive plan year start date: #{e.message}")
           end
           end_date = begin
             Date.strptime(last_plan_year.xpath("cv:plan_year_end", {:cv => XML_NS}).first.content.strip,"%Y%m%d")
-          rescue StandardError
-            puts "Could not find retroactive plan year end date" unless Rails.env.test?
+          rescue StandardError => e
+            log_error("Could not find retroactive plan year end date: #{e.message}")
           end
           return false if start_date.blank? || end_date.blank?
 
@@ -101,7 +101,7 @@ module BenefitSponsors
             raw_end_date = node.xpath("cv:plan_year_end", {:cv => XML_NS}).first.content.strip
             Date.strptime(raw_end_date, "%Y%m%d")
           rescue StandardError => e
-            puts "Could not find renewal and no_future plan year end date: #{e.message}" unless Rails.env.test?
+            log_error("Could not find renewal and no_future plan year end date: #{e.message}")
             nil
           end
 
@@ -110,7 +110,7 @@ module BenefitSponsors
               raw_start_date = date_node.content.strip
               Date.strptime(raw_start_date, "%Y%m%d")
             rescue StandardError => e
-              puts "Could not find renewal and no_future plan year start date: #{e.message}" unless Rails.env.test?
+              log_error("Could not find renewal and no_future plan year start date: #{e.message}")
               nil
             end
             next unless date_value
@@ -127,13 +127,13 @@ module BenefitSponsors
           end_date_node = node.at_xpath("cv:plan_year_end", {:cv => XML_NS})
           start_date_value = begin
             Date.strptime(start_date_node.content.strip, "%Y%m%d")
-          rescue StandardError
-            puts "Could not find latest_carrier plan year start date" unless Rails.env.test?
+          rescue StandardError => e
+            log_error("Could not find latest_carrier plan year start date: #{e.message}")
           end
           end_date_value = begin
             Date.strptime(end_date_node.content.strip, "%Y%m%d")
-          rescue StandardError
-            puts "Could not find latest_carrier plan year end date" unless Rails.env.test?
+          rescue StandardError => e
+            log_error("Could not find latest_carrier plan year end date: #{e.message}")
           end
           start_date_value && end_date_value ? [start_date_value, end_date_value] : nil
         end.compact
@@ -210,8 +210,8 @@ module BenefitSponsors
           node.xpath("cv:plan_year_start", {:cv => XML_NS}).each do |date_node|
             date_value = begin
               Date.strptime(date_node.content.strip, "%Y%m%d")
-            rescue StandardError
-              puts "Could not find drop_and_has_future plan year start date" unless Rails.env.test?
+            rescue StandardError => e
+              log_error("Could not find drop_and_has_future plan year start date: #{e.message}")
             end
             next unless date_value
 
@@ -242,6 +242,10 @@ module BenefitSponsors
       end
 
       private
+
+      def log_error(message)
+        Rails.logger.tagged(self.class.name) { Rails.logger.error(message) }
+      end
 
       def event_whitelisted?(employer_event)
         ::BenefitSponsors::EmployerEvents::EventNames::EVENT_WHITELIST.include?(employer_event.event_name)

@@ -24,16 +24,22 @@ module BenefitSponsors
         end
 
         event_renderer = BenefitSponsors::EmployerEvents::Renderer.new(self)
-        Rails.logger.debug "Initialized event renderer"
+        log_info("Initialized event renderer")
 
         carrier_files.each do |car|
-          Rails.logger.debug "Rendering event using CarrierFile: #{car&.carrier&.id}" unless Rails.env.test?
+          log_info("Rendering event using CarrierFile: #{car&.carrier&.id}")
           car.render_event_using(event_renderer, self)
         end
 
-        Rails.logger.info "Finished rendering payloads"
+        log_info("Finished rendering payloads")
 
         carrier_files
+      end
+
+      private
+
+      def log_info(message)
+        Rails.logger.tagged(self.class.name) { Rails.logger.info(message) }
       end
     end
   end

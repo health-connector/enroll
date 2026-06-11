@@ -48,7 +48,8 @@ $(document).ready(function() {
                 }
             },
             error: function(xhr) {
-              var errorMessage = response ? response.error_message : 'File upload failed.';
+              var parsed = xhr.responseJSON;
+              var errorMessage = parsed ? parsed.error_message : 'File upload failed.';
               $('#error_message').text(errorMessage).show();
             }
         });

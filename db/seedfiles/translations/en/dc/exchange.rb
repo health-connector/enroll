@@ -31,6 +31,7 @@ EXCHANGE_TRANSLATIONS = {
   "en.exchange.employer_applications.unable_to_change_end_date" => "An error occured when changing end date of an application.",
   "en.exchange.employer_applications.revise_end_date.confirmation_message" => "Are you sure you want to change the end date?",
   "en.exchange.employer_applications.generate_v2_xml" => "Generate V2 XML",
+  "en.exchange.employer_applications.upload_v2_xml" => "Upload V2 XML",
   "en.exchange.employer_applications.v2_event_type" => "V2 Event Type",
   "en.exchange.employer_applications.download_v2_xml.success_message" => "V2 XML downloaded successfully.",
   "en.exchange.employer_applications.download_v2_xml.failure_message" => "An error occurred during download",

@@ -22,7 +22,7 @@ module BenefitSponsors
           end
 
           # If first validation passes, check file extension
-          key.failure('must be an XML file') unless File.extname(value.original_filename).downcase == '.xml'
+          key.failure('must be an XML file') unless File.extname(value.original_filename).casecmp('.xml').zero?
         end
 
         rule(:benefit_sponsorship) do
