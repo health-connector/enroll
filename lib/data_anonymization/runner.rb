@@ -19,6 +19,34 @@ module DataAnonymizer
   class Runner
     include CanonicalPayloads
 
+    # Pattern matching email addresses produced by {AnonymizedData.email}.
+    # Built from {AnonymizedData::ALLOWED_EMAIL_DOMAINS} so the two stay in
+    # lockstep - used to detect a stale sentinel after a partial DB refresh.
+    ANONYMIZED_EMAIL_PATTERN = /@(?:#{AnonymizedData::ALLOWED_EMAIL_DOMAINS.map { |d| Regexp.escape(d) }.join('|')})\z/i
+
+    # Number of person/user documents to sample when checking whether a
+    # sentinel is stale (a DB refresh from a prior environment restores data
+    # collections but does not touch +data_anonymizer_runs+).
+    STALE_SENTINEL_SAMPLE_SIZE = 5
+
+    # System operator accounts whose User + linked Person are intentionally
+    # preserved through anonymization so a developer can sign in to the
+    # post-anonymization dump and exercise the UI without having to seed an
+    # admin account first. After phases run (and before the verifier), these
+    # users have their password reset and super_admin role ensured by
+    # {#ensure_protected_users!}.
+    #
+    # NOTE: The +admin@dc.gov+ address is intentional - this account is the
+    # shared system-operator seed used by the MA codebase and carries a dc.gov
+    # domain by convention inherited from the original codebase. It is not a
+    # DC-client artifact or a typo.
+    PROTECTED_OIM_IDS = %w[admin@dc.gov].freeze
+
+    # Password the protected operator account(s) are reset to after every
+    # successful anonymization run. Known-non-secret; for use only in
+    # non-prod environments (the runner aborts in production).
+    PROTECTED_USER_PASSWORD = 'aA1!aA1!aA1!'
+
     attr_reader :batch_size, :client, :db
 
     # @param batch_size [Integer] documents per bulk_write batch (default 1000).
@@ -27,7 +55,7 @@ module DataAnonymizer
     # @param force [Boolean] when true, skips the idempotency guard and re-anonymizes.
     # @param anonymize_zip [Boolean] opt in to anonymize zip; preserved by default to protect rating calculations.
     # @param anonymize_county [Boolean] opt in to anonymize county; preserved by default to protect rating calculations.
-    # @param anonymize_dob [Boolean] opt in to shift DOB ±30 days; preserved by default to protect age-band eligibility.
+    # @param anonymize_dob [Boolean] opt in to shift DOB +/-30 days; preserved by default to protect age-band eligibility.
     # @param anonymize_state [Boolean] opt in to anonymize state; preserved by default to protect plan availability.
     # rubocop:disable Metrics/ParameterLists
     def initialize(batch_size: 1000, dry_run: false, force: false,
@@ -45,6 +73,44 @@ module DataAnonymizer
       @reference_date = TimeKeeper.date_of_record
     end
     # rubocop:enable Metrics/ParameterLists
+
+    # Production-safety guard callable without a full Runner instance.
+    # Reads ENV and the default Mongo database name directly. The rake tasks
+    # that need only this check call it here rather than constructing a Runner.
+    #
+    # @raise [SystemExit] if any signal indicates this is, or might be, real production
+    def self.abort_if_production!
+      env_name = ENV.fetch('ENV_NAME', nil)
+      enroll_review_env = ENV.fetch('ENROLL_REVIEW_ENVIRONMENT', nil)
+      db_name = Mongoid.default_client.database.name
+      reasons = env_name_reasons(env_name)
+
+      reasons << "Rails.env=production and ENROLL_REVIEW_ENVIRONMENT=#{enroll_review_env.inspect} (expected 'true' in lower envs)" if Rails.env.production? && enroll_review_env != 'true'
+
+      reasons << "database name '#{db_name}' ends in _prod (production pattern)" if db_name =~ /_prod\z/i
+      reasons << "database name '#{db_name}' contains 'production'"              if db_name =~ /production/i
+
+      return if reasons.empty?
+
+      abort(
+        "*** SAFETY ABORT ***\n" \
+        "Refusing to run anonymization.\n" \
+        "Rails.env=#{Rails.env}, ENV_NAME=#{env_name.inspect}, database=#{db_name}\n" \
+        "Reasons:\n  - #{reasons.join("\n  - ")}\n" \
+        "This task must NOT run against a production database."
+      )
+    end
+
+    def self.env_name_reasons(env_name)
+      if env_name.nil? || env_name.strip.empty?
+        ["ENV_NAME is not set - refusing to run without an explicit non-prod environment signal"]
+      elsif env_name.strip.casecmp?('prod')
+        ["ENV_NAME=#{env_name.inspect} indicates real production"]
+      else
+        []
+      end
+    end
+    private_class_method :env_name_reasons
 
     # Runs all anonymization phases in dependency order.
     # Phases 1-5 process people, users, census_members, organizations, and
@@ -81,29 +147,41 @@ module DataAnonymizer
       stats = run_phases
       log_stats(stats, (Time.current - start_time).round(1))
 
+      ensure_protected_users!
+
       # Post-run: run audit verifier (expensive) and require pass before recording sentinel
       if @dry_run
         log "Skipping verifier (dry run)"
         return
       end
 
-      verifier = DataAnonymizer::Verifier.new(mode: :audit, prehash_map: @prehash_map, hmac_key: @prehash_hmac_key)
+      verifier = DataAnonymizer::Verifier.new(
+        mode: :audit,
+        prehash_map: @prehash_map,
+        hmac_key: @prehash_hmac_key,
+        protected_oim_ids: PROTECTED_OIM_IDS
+      )
       _results, all_passed, report_path = verifier.run
 
       unless all_passed
-        log "VERIFIER FAILED — report: #{report_path}"
+        log "VERIFIER FAILED - report: #{report_path}"
         log "Sentinel will NOT be recorded; investigate and remediate before sharing dumps."
         return
       end
 
       record_run_sentinel
-      log "Re-verification credentials — RUN_ID=#{@prehash_run_id} HMAC_KEY=#{@prehash_hmac_key}"
+      log "Re-verification credentials - RUN_ID=#{@prehash_run_id} HMAC_KEY=#{@prehash_hmac_key}"
       log "Store these values to re-run: bundle exec rake data:anonymize:verify RUN_ID=<value> HMAC_KEY=<value>"
+      log_admin_access_hint
     end
 
     private
 
     # Executes all anonymization phases in dependency order and returns a stats hash.
+    #
+    # +history_trackers+ is dropped up-front (Phase 0) so that no tracker reads
+    # occur against stale PII during the run.
+    #
     # @return [Hash{Symbol => Integer}]
     def run_phases
       {
@@ -122,28 +200,100 @@ module DataAnonymizer
     # @param elapsed [Float] total run time in seconds
     # @return [void]
     def log_stats(stats, elapsed)
-      log "\n=== Anonymization Complete#{' (DRY RUN — no writes)' if @dry_run} (#{elapsed}s) ==="
+      log "\n=== Anonymization Complete#{' (DRY RUN - no writes)' if @dry_run} (#{elapsed}s) ==="
       stats.each { |k, v| log "  #{k}: #{v} records processed" }
+    end
+
+    # Prints the admin portal access details so an operator can immediately
+    # sign in to the post-anonymization dump and exercise the UI.
+    # Only called on a fully successful live run (after verifier PASS and
+    # sentinel recorded) so the credentials are shown only when the database
+    # is confirmed anonymized and the account is ready.
+    # @return [void]
+    def log_admin_access_hint
+      log "\n==================================================================="
+      log "Admin portal access"
+      log "  Email    : #{PROTECTED_OIM_IDS.first}"
+      log "  Password : #{PROTECTED_USER_PASSWORD}"
+      log "  Role     : super_admin"
+      log "Sign in and perform a quick spot-check before sharing the dump."
+      log "==================================================================="
     end
 
     # Aborts (or warns in force mode) if this database has already been anonymized.
     #
     # Reads the +data_anonymizer_runs+ sentinel collection. If a prior run is found,
-    # aborts unless +force: true+, in which case a warning is logged and the run continues.
+    # cross-checks a small sample of person/user emails against the anonymizer email
+    # pattern:
+    #
+    # - Stale sentinel (data contains real emails): aborts and instructs the operator
+    #   to run +rake data:anonymize:reset+ before retrying. This is the expected state
+    #   after a DB refresh from a prior environment that left the sentinel intact.
+    # - Sentinel matches anonymized data and +force: true+: logs a warning and continues.
+    # - Sentinel matches anonymized data and +force: false+: aborts.
+    #
     # The sentinel itself is written only after a successful run by {#record_run_sentinel}.
     #
-    # @raise [SystemExit] if already anonymized and force is false
+    # @raise [SystemExit] in all cases where a sentinel is found, except force: true
     def check_idempotency!
       runs_collection = db[:data_anonymizer_runs]
       previous = runs_collection.find.sort('completed_at' => -1).limit(1).first
       return unless previous
 
       msg = "Database '#{db.name}' was already anonymized at #{previous['completed_at']} (run_id: #{previous['_id']})"
-      if @force
-        log "WARNING: #{msg} — proceeding anyway (FORCE_REANONYMIZE=true)"
-      else
-        abort("ABORT: #{msg}\nSet FORCE_REANONYMIZE=true to override.")
+
+      if data_appears_unanonymized?
+        abort(
+          "ABORT: Stale sentinel detected - #{msg}\n" \
+          "A sample of the data still contains real email addresses, indicating the database\n" \
+          "was refreshed from a prior environment after the last anonymization run.\n" \
+          "Run `rake data:anonymize:reset` to clear the sentinel, then re-run data:anonymize."
+        )
       end
+
+      if @force
+        log "WARNING: #{msg} - proceeding anyway (FORCE_REANONYMIZE=true)"
+      else
+        abort("ABORT: #{msg}\nSet FORCE_REANONYMIZE=true to override, or run `rake data:anonymize:reset` after a fresh DB refresh.")
+      end
+    end
+
+    # Samples a small number of person (and as a fallback, user) email addresses
+    # and returns true if any do not match {ANONYMIZED_EMAIL_PATTERN}. Used by
+    # {#check_idempotency!} to detect a stale sentinel left behind by a partial
+    # DB refresh from a prior environment.
+    #
+    # @return [Boolean] true when the sample contains a non-anonymizer email
+    def data_appears_unanonymized?
+      sample = sample_email_addresses
+      return false if sample.empty?
+
+      sample.any? { |addr| !addr.match?(ANONYMIZED_EMAIL_PATTERN) }
+    end
+
+    # @return [Array<String>] up to {STALE_SENTINEL_SAMPLE_SIZE} non-blank email
+    #   addresses pulled from +people+, falling back to +users+ when no person
+    #   document carries an email
+    def sample_email_addresses
+      addresses = []
+
+      if db.collection_names.include?('people')
+        db[:people].find.projection('emails.address' => 1).limit(STALE_SENTINEL_SAMPLE_SIZE).each do |doc|
+          Array(doc['emails']).each do |em|
+            addr = em['address'].to_s
+            addresses << addr if addr.present?
+          end
+        end
+      end
+
+      if addresses.empty? && db.collection_names.include?('users')
+        db[:users].find.projection('email' => 1).limit(STALE_SENTINEL_SAMPLE_SIZE).each do |doc|
+          addr = doc['email'].to_s
+          addresses << addr if addr.present?
+        end
+      end
+
+      addresses
     end
 
     # Records a sentinel document in +data_anonymizer_runs+ after a successful run.
@@ -169,30 +319,7 @@ module DataAnonymizer
     #
     # @raise [SystemExit] if any signal indicates this is, or might be, real production
     def abort_if_production!
-      env_name = ENV.fetch('ENV_NAME', nil)
-      enroll_review_env = ENV.fetch('ENROLL_REVIEW_ENVIRONMENT', nil)
-      reasons = []
-
-      if env_name.nil? || env_name.strip.empty?
-        reasons << "ENV_NAME is not set — refusing to run without an explicit non-prod environment signal"
-      elsif env_name.strip.downcase == 'prod'
-        reasons << "ENV_NAME=#{env_name.inspect} indicates real production"
-      end
-
-      reasons << "Rails.env=production and ENROLL_REVIEW_ENVIRONMENT=#{enroll_review_env.inspect} (expected 'true' in lower envs)" if Rails.env.production? && enroll_review_env != 'true'
-
-      reasons << "database name '#{db.name}' ends in _prod (production pattern)" if db.name =~ /_prod\z/i
-      reasons << "database name '#{db.name}' contains 'production'"              if db.name =~ /production/i
-
-      return if reasons.empty?
-
-      abort(
-        "*** SAFETY ABORT ***\n" \
-        "Refusing to run anonymization.\n" \
-        "Rails.env=#{Rails.env}, ENV_NAME=#{env_name.inspect}, database=#{db.name}\n" \
-        "Reasons:\n  - #{reasons.join("\n  - ")}\n" \
-        "This task must NOT run against a production database."
-      )
+      self.class.abort_if_production!
     end
 
     # Prompts the operator to type YES_ANONYMIZE before proceeding.
@@ -232,23 +359,30 @@ module DataAnonymizer
 
     # Anonymizes all documents in the +people+ collection.
     #
-    # DOB shifting is consistent within each family group — all family members
+    # DOB shifting is consistent within each family group - all family members
     # share the same +shift_days+ value derived by {#build_family_shift_map}.
     # Tribal ID is cleared. Embedded addresses, phones, and emails are replaced.
     # Plain-text +ssn+ fields (legacy) are unset.
     #
+    # Person documents linked to a protected user (see {PROTECTED_OIM_IDS}) are
+    # skipped so the operator account remains usable post-anonymization.
+    #
     # @return [Integer] number of people processed
     def anonymize_people
       collection = db[:people]
-      total = collection.count_documents({})
+      filter = protected_people_filter
+      total = collection.count_documents(filter)
       log "\n--- Phase 1: Anonymizing People (#{total}) ---"
       family_shifts = @anonymize_dob ? build_family_shift_map : {}
+      # Pre-seed with every ciphertext already in the index so that a retry after
+      # a prior aborted run cannot collide with partially-written fake values.
+      used_ssns = load_existing_encrypted_ssns(collection)
       processed = 0
 
-      collection.find.batch_size(batch_size).each_slice(batch_size) do |batch|
+      collection.find(filter).batch_size(batch_size).each_slice(batch_size) do |batch|
         updates = batch.map do |doc|
           shift_days = family_shifts[doc['_id']] || AnonymizedData.dob_shift_days
-          set_fields = build_person_update(doc, shift_days: shift_days)
+          set_fields = build_person_update(doc, shift_days: shift_days, used_ssns: used_ssns)
           {
             update_one: {
               filter: { '_id' => doc['_id'] },
@@ -268,6 +402,10 @@ module DataAnonymizer
         processed += batch.size
         log "  #{processed}/#{total} people" if (processed % (batch_size * 5)).zero? || processed >= total
       end
+      unless @dry_run
+        log "  Clearing embedded version history from people..."
+        collection.update_many({}, { '$unset' => { 'versions' => '' } })
+      end
       processed
     end
 
@@ -275,8 +413,11 @@ module DataAnonymizer
     #
     # @param doc [Hash] raw Mongo person document
     # @param shift_days [Integer] days to shift this person's DOBs (from {#build_family_shift_map})
+    # @param used_ssns [Set, nil] set of ciphertexts that must not be reused; should be
+    #   pre-seeded from {#load_existing_encrypted_ssns} so that retries after a partial run
+    #   cannot collide with values already committed to the index.
     # @return [Hash] Mongo update fields suitable for a +$set+ operation
-    def build_person_update(doc, shift_days:)
+    def build_person_update(doc, shift_days:, used_ssns: nil)
       new_first = AnonymizedData.first_name
       new_last  = AnonymizedData.last_name
       fields = {
@@ -288,8 +429,21 @@ module DataAnonymizer
         'name_sfx' => nil,
         'alternate_name' => nil
       }
-      fields['encrypted_ssn'] = AnonymizedData.encrypted_ssn if doc['encrypted_ssn'].present?
-      fields['tribal_id']     = nil                    if doc['tribal_id'].present?
+      if doc['encrypted_ssn'].present?
+        enc_ssn = nil
+        100.times do
+          candidate = AnonymizedData.encrypted_ssn
+          unless used_ssns&.include?(candidate)
+            enc_ssn = candidate
+            break
+          end
+        end
+        raise "Failed to generate a unique encrypted_ssn after 100 attempts" if enc_ssn.nil?
+
+        used_ssns&.add(enc_ssn)
+        fields['encrypted_ssn'] = enc_ssn
+      end
+      fields['tribal_id'] = nil if doc['tribal_id'].present?
       fields.merge!(anonymize_person_dates(doc, shift_days))
       fields.merge!(anonymize_person_embedded(doc))
     end
@@ -348,6 +502,132 @@ module DataAnonymizer
       shift_map
     end
 
+    # Queries all non-nil +encrypted_ssn+ values from +collection+ into a +Set+.
+    #
+    # Called once before the Phase 1 batch loop so that any ciphertext already
+    # in the unique index - real data or a fake value written by a prior aborted
+    # run - is excluded from the SSN generation candidate pool.
+    #
+    # @param collection [Mongo::Collection]
+    # @return [Set<String>]
+    def load_existing_encrypted_ssns(collection)
+      ssns = Set.new
+      collection
+        .find('encrypted_ssn' => { '$exists' => true, '$ne' => nil })
+        .projection('encrypted_ssn' => 1, '_id' => 0)
+        .each { |doc| ssns.add(doc['encrypted_ssn']) }
+      ssns
+    end
+
+    # Mongo find filter for {#anonymize_users} that excludes {PROTECTED_OIM_IDS}.
+    # @return [Hash]
+    def protected_users_filter
+      { 'oim_id' => { '$nin' => PROTECTED_OIM_IDS } }
+    end
+
+    # Mongo find filter for {#anonymize_people} that excludes any Person linked
+    # to a protected User. Returns +{}+ when no protected users exist so the
+    # find does not get a no-op +$nin+ clause.
+    # @return [Hash]
+    def protected_people_filter
+      ids = protected_person_ids
+      return {} if ids.empty?
+
+      { '_id' => { '$nin' => ids.to_a } }
+    end
+
+    # Set of +users._id+ values for accounts whose +oim_id+ is in
+    # {PROTECTED_OIM_IDS}. Memoized; safe to call during phase setup because
+    # the set is computed before any User mutation occurs.
+    # @return [Set<BSON::ObjectId>]
+    def protected_user_ids
+      @protected_user_ids ||= db[:users]
+                              .find('oim_id' => { '$in' => PROTECTED_OIM_IDS })
+                              .projection('_id' => 1)
+                              .each_with_object(Set.new) { |doc, set| set.add(doc['_id']) }
+    end
+
+    # Set of +people._id+ values linked to {#protected_user_ids}. Memoized.
+    # @return [Set<BSON::ObjectId>]
+    def protected_person_ids
+      @protected_person_ids ||= if protected_user_ids.empty?
+                                  Set.new
+                                else
+                                  db[:people]
+                                    .find('user_id' => { '$in' => protected_user_ids.to_a })
+                                    .projection('_id' => 1)
+                                    .each_with_object(Set.new) { |doc, set| set.add(doc['_id']) }
+                                end
+    end
+
+    # Ensures each {PROTECTED_OIM_IDS} account exists, has a known password,
+    # and is granted the +super_admin+ permission so an operator can sign in
+    # to the post-anonymization dump and exercise the UI. Called after phases
+    # complete and before the verifier so the verifier observes the final
+    # state (and skips these records via +protected_oim_ids:+).
+    #
+    # Idempotent. Uses Mongoid models so Devise password encryption and
+    # mongoid-history snapshots fire correctly.
+    # @return [void]
+    def ensure_protected_users!
+      PROTECTED_OIM_IDS.each { |oim_id| ensure_protected_user!(oim_id) }
+    end
+
+    def ensure_protected_user!(oim_id)
+      if @dry_run
+        log "  [DRY RUN] Would ensure protected user '#{oim_id}' has reset password and super_admin role"
+        return
+      end
+
+      log "\n--- Ensuring protected user '#{oim_id}' ---"
+      user = find_or_create_protected_user(oim_id)
+      person = find_or_create_protected_person(user)
+      grant_super_admin(person, oim_id)
+    end
+
+    def find_or_create_protected_user(oim_id)
+      user = User.where(oim_id: oim_id).first
+      if user
+        log "  Resetting password for existing protected user '#{oim_id}' (id=#{user.id})"
+      else
+        log "  Creating protected user '#{oim_id}'"
+        user = User.new(email: oim_id, oim_id: oim_id, roles: ['hbx_staff'])
+      end
+      user.password = PROTECTED_USER_PASSWORD
+      user.password_confirmation = PROTECTED_USER_PASSWORD
+      user.save!
+      user
+    end
+
+    def find_or_create_protected_person(user)
+      person = Person.where(user_id: user.id).first
+      return person if person
+
+      log "  Creating protected person for user '#{user.oim_id}'"
+      Person.create!(first_name: 'system', last_name: 'admin', user: user)
+    end
+
+    def grant_super_admin(person, oim_id)
+      permission = Permission.super_admin
+      if permission.nil?
+        log "  WARNING: Permission.super_admin not found; skipping role grant for '#{oim_id}' (run permissions seed)"
+        return
+      end
+
+      if person.hbx_staff_role&.permission_id == permission.id
+        log "  Protected user '#{oim_id}' already has super_admin role"
+        return
+      end
+
+      person.build_hbx_staff_role(
+        permission_id: permission.id,
+        subrole: 'super_admin',
+        hbx_profile_id: HbxProfile.current_hbx&.id
+      )
+      person.save!
+      log "  Granted super_admin role to protected user '#{oim_id}'"
+    end
+
     def fetch_dob_lookup(people_collection, person_ids)
       lookup = {}
       people_collection.find('_id' => { '$in' => person_ids }).projection('_id' => 1, 'dob' => 1).each do |p|
@@ -374,7 +654,7 @@ module DataAnonymizer
     # across all supplied DOBs. Returns 0 when no common range exists.
     #
     # @param dobs [Array<Date>] dates of birth for all members in the group
-    # @return [Integer] shift in days within the ±30-day policy window, or 0 if ranges do not intersect
+    # @return [Integer] shift in days within the +/-30-day policy window, or 0 if ranges do not intersect
     def pick_group_shift_days(dobs)
       return AnonymizedData.dob_shift_days if dobs.empty?
 
@@ -391,9 +671,9 @@ module DataAnonymizer
 
     # Computes the permitted DOB shift range for a single person, enforcing:
     # 1. Global bounds: 1920-01-01 minimum, yesterday maximum.
-    # 2. Age-band bounds: the shifted DOB must remain in the same band —
+    # 2. Age-band bounds: the shifted DOB must remain in the same band -
     #    under_18 (age < 18), between_18_25 (18 <= age < 26), or over_26 (age >= 26).
-    # Shift is bounded to ±30 days per policy.
+    # Shift is bounded to +/-30 days per policy.
     #
     # @param dob [Date] person's date of birth
     # @param reference_date [Date] system date (TimeKeeper.date_of_record)
@@ -454,14 +734,18 @@ module DataAnonymizer
     # identity_final_decision_code, identity_final_decision_transaction_id,
     # identity_response_description_text.
     #
+    # Users whose +oim_id+ is in {PROTECTED_OIM_IDS} are skipped; their credentials
+    # are reset by {#ensure_protected_users!} after the phase loop completes.
+    #
     # @return [Integer] number of users processed
     def anonymize_users
       collection = db[:users]
-      total = collection.count_documents({})
+      filter = protected_users_filter
+      total = collection.count_documents(filter)
       log "\n--- Phase 2: Anonymizing Users (#{total}) ---"
       processed = 0
 
-      collection.find.batch_size(batch_size).each_slice(batch_size) do |batch|
+      collection.find(filter).batch_size(batch_size).each_slice(batch_size) do |batch|
         updates = batch.each_with_index.map do |doc, idx|
           seq = processed + idx
           anon_email = AnonymizedData.email(seq)
@@ -628,33 +912,41 @@ module DataAnonymizer
     # @param shift_days [Integer] DOB shift in days; used only when +person_vals+ is nil
     # @param person_vals [Hash, nil] anonymized person fields from {#build_person_values_map_for_census}
     # @return [Hash] Mongo update fields suitable for a +$set+ operation
-    # rubocop:disable Metrics/CyclomaticComplexity
     def build_census_member_update(doc, shift_days:, person_vals: nil)
-      if person_vals
-        fields = {
-          'first_name' => person_vals['first_name'],
-          'last_name' => person_vals['last_name'],
-          'middle_name' => nil,
-          'name_sfx' => nil
-        }
-        fields['encrypted_ssn'] = person_vals['encrypted_ssn'] if doc['encrypted_ssn'].present? && person_vals['encrypted_ssn'].present?
-        fields['dob']           = person_vals['dob']           if @anonymize_dob && doc['dob'].present? && person_vals['dob'].present?
-      else
-        fields = {
-          'first_name' => AnonymizedData.first_name,
-          'last_name' => AnonymizedData.last_name,
-          'middle_name' => nil,
-          'name_sfx' => nil
-        }
-        fields['encrypted_ssn'] = AnonymizedData.encrypted_ssn if doc['encrypted_ssn'].present?
-        fields['dob']           = AnonymizedData.shift_dob(doc['dob'].to_date, shift_days: shift_days) if @anonymize_dob && doc['dob'].present?
-      end
+      fields = if person_vals
+                 build_census_member_fields_from_person(doc, person_vals)
+               else
+                 build_census_member_fields_random(doc, shift_days)
+               end
 
       fields['address'] = anonymize_address_hash(doc['address']) if doc['address'].present?
       fields['email']   = anonymize_email_hash(doc['email'])     if doc['email'].present?
       fields
     end
-    # rubocop:enable Metrics/CyclomaticComplexity
+
+    def build_census_member_fields_from_person(doc, person_vals)
+      fields = {
+        'first_name' => person_vals['first_name'],
+        'last_name' => person_vals['last_name'],
+        'middle_name' => nil,
+        'name_sfx' => nil
+      }
+      fields['encrypted_ssn'] = person_vals['encrypted_ssn'] if doc['encrypted_ssn'].present? && person_vals['encrypted_ssn'].present?
+      fields['dob']           = person_vals['dob']           if @anonymize_dob && doc['dob'].present? && person_vals['dob'].present?
+      fields
+    end
+
+    def build_census_member_fields_random(doc, shift_days)
+      fields = {
+        'first_name' => AnonymizedData.first_name,
+        'last_name' => AnonymizedData.last_name,
+        'middle_name' => nil,
+        'name_sfx' => nil
+      }
+      fields['encrypted_ssn'] = AnonymizedData.encrypted_ssn if doc['encrypted_ssn'].present?
+      fields['dob'] = AnonymizedData.shift_dob(doc['dob'].to_date, shift_days: shift_days) if @anonymize_dob && doc['dob'].present?
+      fields
+    end
 
     # Anonymizes a single census_dependent embedded hash.
     #
@@ -699,6 +991,10 @@ module DataAnonymizer
         end
         processed += batch.size
         log "  #{processed}/#{total} organizations" if (processed % (batch_size * 5)).zero? || processed >= total
+      end
+      unless @dry_run
+        log "  Clearing embedded version history from organizations..."
+        collection.update_many({}, { '$unset' => { 'versions' => '' } })
       end
       processed
     end
@@ -934,6 +1230,7 @@ module DataAnonymizer
       cursor = db[:people].find(no_ssn_filter).projection('first_name' => 1, 'last_name' => 1, 'addresses' => 1, 'phones' => 1)
       cursor.batch_size(batch_size).each do |p|
         next if p['first_name'].to_s.strip.empty? || p['last_name'].to_s.strip.empty?
+        next if protected_person_ids.include?(p['_id'])
 
         map[:people][p['_id'].to_s] = OpenSSL::HMAC.hexdigest('SHA256', @prehash_hmac_key, canonical_person_payload(p))
       end

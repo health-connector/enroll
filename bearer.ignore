@@ -23,6 +23,18 @@
     "false_positive": true,
     "ignored_at": "2025-06-24T16:20:06Z"
   },
+  "09d1f2784824ed137c7c0e9630818ed5_0": {
+    "author": "Nikhil",
+    "comment": "Known non-prod developer credential used only by the anonymizer task in lower environments. The task aborts immediately in production. This value is intentionally hardcoded for operator convenience and is not a secret.",
+    "false_positive": true,
+    "ignored_at": "2026-06-08T14:09:04Z"
+  },
+  "cea0ec34f10f290e74bade0cfa10b007_0": {
+    "author": "Nikhil",
+    "comment": "Known non-prod developer credential used only by the anonymizer task in lower environments. The task aborts immediately in production. This value is intentionally hardcoded for operator convenience and is not a secret.",
+    "false_positive": true,
+    "ignored_at": "2026-06-08T14:09:04Z"
+  },
   "0eeaa85053556b1553e85573ebcdb09e_1": {
     "author": "Hanna",
     "comment": "This is flagges as 'Leakage of sensitive data in dynamic file generation [CWE-313]' but the code is expected to generate CSV files with the given data with sensitive information.",
