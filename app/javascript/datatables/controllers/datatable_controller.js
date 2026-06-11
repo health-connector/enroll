@@ -1,10 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
 
-// Drives the refactored (Pagy-backed) datatables: serializes UI state into
-// query params, fetches the server-rendered chrome fragment, and swaps it into
-// the wrapper. Replaces jQuery DataTables + the legacy DT.filters() plumbing.
-//
-// Search debounce matches the legacy stack's searchDelay of 800ms.
+// Drives the Pagy-backed datatables: serializes UI state into query params, fetches the server-rendered table fragment, and swaps it into the wrapper.
 const SEARCH_DEBOUNCE_MS = 800
 const MAX_FILTER_LEVELS = 4
 
@@ -79,8 +75,7 @@ export default class extends Controller {
     window.location.assign(url)
   }
 
-  // Reproduces the legacy DT.filters() tab behavior: one active tab per level,
-  // clicking hides deeper levels, an active tab reveals its Filter-<id> sub-level.
+  // Filter tab behavior: one active tab per level, clicking hides deeper levels, an active tab reveals its Filter-<id> sub-level. Must stay equivalent to the legacy DT.filters() implementation while both stacks coexist.
   filterClicked(event) {
     const button = event.currentTarget
     const group = button.parentElement
@@ -136,8 +131,7 @@ export default class extends Controller {
     return url
   }
 
-  // Walks the active tab chain like the legacy DT.filter_params: each level's
-  // active button contributes <group data-scope> = <button data-key>.
+  // Walks the active tab chain: each level's active button contributes <group data-scope> = <button data-key> — the same params the query wrappers have always received.
   filterParams(params = {}, level = 1) {
     if (level > MAX_FILTER_LEVELS) return params
     const active = this.element.querySelector(`.custom_level_${level} .active`)

@@ -157,7 +157,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
     end
   end
 
-  describe "Action # user_accounts_datatable (refactored datatables)", dbclean: :after_each do
+  describe "Action # user_accounts_datatable (:refactored_datatables)", dbclean: :after_each do
     let(:permission) { double(can_access_user_account_tab: true) }
     let(:hbx_staff_role) { double("hbx_staff_role", permission: permission) }
     let(:person) { double("person", hbx_staff_role: hbx_staff_role) }
@@ -208,10 +208,10 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       it "renders the chrome fragment without a layout" do
         get :user_accounts_datatable, format: :html
         expect(response).to have_http_status(:success)
-        expect(response).to render_template("datatables/refactored/_chrome")
+        expect(response).to render_template("datatables/_table")
       end
 
-      it "prepares the refactored locals on user_account_index" do
+      it "prepares the datatable locals on user_account_index" do
         get :user_account_index, format: :html
         expect(assigns(:user_accounts_datatable_locals)).to include(:table, :pagy, :records, :url)
         expect(assigns(:datatable)).to be_nil

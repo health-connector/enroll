@@ -1,10 +1,4 @@
-<%# Nested filter tab bar for the refactored datatables. Markup mirrors
-    datatables/shared/_filter.html.erb (the legacy parity contract: data-scope /
-    data-key / id="Tab:..." / custom_level_N / Filter-<group> classes) with the
-    inline <script>DT.filters()</script> and <style> blocks removed - the
-    datatable Stimulus controller handles tab behavior, and the level padding
-    rules live in the refactored_datatables stylesheet. Level 1 renders
-    unhidden (legacy JS removed its 'hide' class at init time). %>
+<%# Nested filter tab bar. Markup mirrors datatables/shared/_filter.html.erb — the data-scope / data-key / id="Tab:..." / custom_level_N / Filter-<group> class contract that step definitions and the datatable Stimulus controller rely on — without that partial's inline <script> and <style> blocks (tab behavior lives in the Stimulus controller; the level padding rules live in effective_datatable.scss.erb). Level 1 renders unhidden; deeper levels start hidden until a parent tab activates them. %>
 <% level = defined?(level) && level || 1 %>
 <% if level == 1 %>
    <% ancestors = [] %>
@@ -30,7 +24,7 @@
 <% filters[data_scope].each do |filter| %>
   <% new_data_scope = filter[:subfilter] %>
   <% if new_data_scope %>
-    <%= render partial: 'datatables/refactored/filter_tabs',
+    <%= render partial: 'datatables/filter_tabs',
        locals: { filters: filters, level: level + 1, ancestors: ancestors + [filter[:scope]], data_scope: new_data_scope } %>
   <% end %>
 <% end %>

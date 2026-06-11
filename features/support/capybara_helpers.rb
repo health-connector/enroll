@@ -23,7 +23,7 @@ module CapybaraHelpers
   # Throw a one-time load callback on datatables so we can use it to make sure
   # it has finished loading.  Useful for clicking a filter and making sure it's
   # done reloading. Dual-mode: resolves on the jQuery DataTables 'draw.dt' event
-  # (legacy stack) or the 'effective-datatable:draw' DOM event (refactored
+  # (legacy stack) or the 'effective-datatable:draw' DOM event (:refactored_datatables
   # stack), so the same steps pass in either :refactored_datatables flag state.
   def with_datatable_load_wait(timeout, slice_size = 0.2, &blk)
     execute_script(<<-JSCODE)

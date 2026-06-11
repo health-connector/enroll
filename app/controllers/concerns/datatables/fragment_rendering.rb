@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 module Datatables
-  # Page-math and rendering helpers for the refactored (Pagy + Stimulus)
-  # datatables. Actions build their table object and call
-  # render_datatable_fragment (Stimulus redraws) or datatable_locals
-  # (initial full-page render of datatables/refactored/_table).
+  # Page-math and rendering helpers for the Pagy + Stimulus datatables. Actions
+  # build their table object and call render_datatable_fragment (Stimulus
+  # redraws) or datatable_locals (initial full-page render of
+  # datatables/_datatable).
   module FragmentRendering
     extend ActiveSupport::Concern
 
@@ -15,7 +15,7 @@ module Datatables
 
     def render_datatable_fragment(table, url:)
       locals = datatable_locals(table, url: url)
-      render partial: 'datatables/refactored/chrome', locals: locals, layout: false
+      render partial: 'datatables/table', locals: locals, layout: false
     end
 
     def datatable_locals(table, url:)

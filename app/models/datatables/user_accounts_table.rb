@@ -1,13 +1,14 @@
 # frozen_string_literal: true
 
 module Datatables
-  # Table definition for the refactored (Pagy + Stimulus) User Accounts admin
-  # datatable. Mirrors Effective::Datatables::UserAccountDatatable: same columns,
+  # Table definition for the User Accounts admin datatable (Pagy + Stimulus
+  # stack). Mirrors Effective::Datatables::UserAccountDatatable: same columns,
   # same nested filter definition, and the same Queries::UserDatatableQuery
-  # collection wrapper, so both stacks return identical data.
+  # collection wrapper, so both stacks return identical data while the
+  # :refactored_datatables flag is being rolled out.
   #
   # The contract consumed by Datatables::FragmentRendering and the
-  # datatables/refactored/* partials:
+  # app/views/datatables/_* partials:
   #   #param_key        - identifier used for DOM ids and the CSV filename
   #   #columns          - ordered column defs: name, label, sortable, type, width
   #   #collection(hash) - filterable collection (query wrapper or Mongoid criteria)

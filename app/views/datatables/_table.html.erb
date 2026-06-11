@@ -1,9 +1,4 @@
-<%# Everything inside #effective_datatable_wrapper - the region a Stimulus
-    redraw replaces. The markup (wrapper grid, classes, ids, aria attributes)
-    is a server-side reproduction of what jQuery DataTables generated at init
-    time; the flag-OFF DOM snapshot of each migrated page is the parity
-    contract. The two inline display styles are state the legacy stack also
-    carried inline, kept for snapshot parity. %>
+<%# The redraw region inside #effective_datatable_wrapper: table, buttons, search, length menu, info line, pager. The markup (grid layout, classes, ids, aria attributes) reproduces what jQuery DataTables generated at init time; each migrated page's flag-OFF DOM snapshot is the parity contract. The two inline display styles are state, kept inline for snapshot parity. %>
 <% table_id = "#{table.param_key}-table" %>
 <div class="row">
   <div id="<%= table_id %>_wrapper" class="dataTables_wrapper form-inline dt-bootstrap no-footer">
@@ -73,7 +68,7 @@
     </div>
     <div class="row">
       <div class="col-sm-12 col-md-12">
-        <%= render partial: 'datatables/refactored/pagination', locals: { pagy: pagy, table_id: table_id } %>
+        <%= render partial: 'datatables/pagination', locals: { pagy: pagy, table_id: table_id } %>
       </div>
     </div>
   </div>

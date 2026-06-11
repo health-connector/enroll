@@ -1,7 +1,4 @@
-<%# Refactored (Pagy + Stimulus) datatable - full-page entry point.
-    The chrome partial inside #effective_datatable_wrapper is what Stimulus
-    redraws replace; the filter tab bar outside it keeps its JS-managed state
-    across redraws, exactly like the legacy stack. %>
+<%# Datatable entry point: Stimulus controller scope + filter tab bar + the redraw wrapper. The _table partial inside #effective_datatable_wrapper is what Stimulus redraws replace; the tab bar outside it keeps its JS-managed state across redraws. %>
 <div class="container"
      data-controller="datatable"
      data-datatable-url-value="<%= url %>"
@@ -10,9 +7,9 @@
      data-datatable-search-value="<%= search %>"
      data-datatable-order-value="<%= order %>"
      data-datatable-dir-value="<%= dir %>">
-  <%= render partial: 'datatables/refactored/filter_tabs', locals: { filters: table.filters } if table.filters %>
+  <%= render partial: 'datatables/filter_tabs', locals: { filters: table.filters } if table.filters %>
   <div id="effective_datatable_wrapper" data-datatable-target="wrapper">
-    <%= render partial: 'datatables/refactored/chrome',
+    <%= render partial: 'datatables/table',
                locals: { table: table, pagy: pagy, records: records, url: url, search: search, order: order, dir: dir } %>
   </div>
 </div>
