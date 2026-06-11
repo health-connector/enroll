@@ -561,6 +561,7 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
 
     before do
       allow(live_runner).to receive(:db).and_return(db_double)
+      allow(live_runner).to receive(:protected_user_ids).and_return(Set.new)
       allow(db_double).to receive(:collection_names).and_return(%w[people organizations])
     end
 
@@ -568,7 +569,7 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
       allow(db_double).to receive(:[]).with(:people).and_return(collection_double)
       allow(collection_double).to receive(:count_documents).and_return(0)
       allow(collection_double).to receive(:find).with('encrypted_ssn' => { '$exists' => true, '$ne' => nil }).and_return(dedup_cursor)
-      allow(collection_double).to receive(:find).with(no_args).and_return(batch_cursor)
+      allow(collection_double).to receive(:find).with({}).and_return(batch_cursor)
 
       expect(collection_double).to receive(:update_many).with({}, { '$unset' => { 'versions' => '' } })
 
@@ -588,10 +589,11 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
     it 'skips the versions unset when dry_run is true' do
       dry_runner = described_class.new(batch_size: batch_size, dry_run: true, force: true)
       allow(dry_runner).to receive(:db).and_return(db_double)
+      allow(dry_runner).to receive(:protected_user_ids).and_return(Set.new)
       allow(db_double).to receive(:[]).with(:people).and_return(collection_double)
       allow(collection_double).to receive(:count_documents).and_return(0)
       allow(collection_double).to receive(:find).with('encrypted_ssn' => { '$exists' => true, '$ne' => nil }).and_return(dedup_cursor)
-      allow(collection_double).to receive(:find).with(no_args).and_return(batch_cursor)
+      allow(collection_double).to receive(:find).with({}).and_return(batch_cursor)
 
       expect(collection_double).not_to receive(:update_many)
 

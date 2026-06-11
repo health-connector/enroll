@@ -18,7 +18,7 @@ module DataAnonymizer
   #
   # Writes a CSV report to +tmp/anonymization_report_YYYYMMDD.csv+.
   #
-  # @note +dba+, +fein+, and +npn+ are not checked — they are intentionally unchanged.
+  # @note +dba+, +fein+, and +npn+ are not checked - they are intentionally unchanged.
   # rubocop:disable Metrics/ClassLength
   class Verifier
     include CanonicalPayloads
@@ -27,7 +27,7 @@ module DataAnonymizer
     SAMPLE_SIZE = 5000
     # Fields excluded from the streaming SSN regex scan.
     # +fein+ is a 9-digit EIN intentionally left unchanged per anonymization policy.
-    # +ach_routing_number+ is an ABA routing number — always exactly 9 digits by spec;
+    # +ach_routing_number+ is an ABA routing number - always exactly 9 digits by spec;
     # it is validated separately by +check_organizations+ / +check_bs_organizations+.
     # +npn+ / +corporate_npn+ are public broker National Producer Numbers (up to 10
     # digits) intentionally preserved by the runner.
@@ -206,11 +206,11 @@ module DataAnonymizer
     # with a post-run HMAC built from the same canonicalization rules. Any
     # record whose HMAC is unchanged is treated as a failure.
     def check_name_dob_prehash
-      # No credentials supplied — treat as skipped (PASS) so that verify-only
+      # No credentials supplied - treat as skipped (PASS) so that verify-only
       # invocations without RUN_ID/HMAC_KEY don't block the overall sentinel.
       # A hard FAIL only applies when credentials were supplied but verification fails.
       unless @prehash_map && @hmac_key
-        log "WARNING: Canonical prehash check SKIPPED — RUN_ID/HMAC_KEY not provided. " \
+        log "WARNING: Canonical prehash check SKIPPED - RUN_ID/HMAC_KEY not provided. " \
             "Name and DOB mutation is NOT verified by this run. " \
             "To enable this check, pass the RUN_ID and HMAC_KEY printed at anonymization time: " \
             "bundle exec rake data:anonymize:verify RUN_ID=<value> HMAC_KEY=<value>"
@@ -288,21 +288,12 @@ module DataAnonymizer
       end
     end
 
-    # rubocop:disable Metrics/CyclomaticComplexity
     def check_people
       collection = @db[:people]
       total = collection.count_documents({})
       issues = []
 
-      real_email_count = 0
-      collection.find.limit(SAMPLE_SIZE).each do |doc|
-        next if @protected_person_ids.include?(doc['_id'])
-
-        (doc['emails'] || []).each do |em|
-          addr = em['address']
-          real_email_count += 1 if addr.present? && !addr.match?(GENERATED_EMAIL_PATTERN)
-        end
-      end
+      real_email_count = count_real_person_emails(collection)
       issues << "#{real_email_count} real emails in sample of #{SAMPLE_SIZE}" if real_email_count > 0
 
       plain_ssn_count = collection.count_documents('ssn' => { '$exists' => true })
@@ -316,12 +307,11 @@ module DataAnonymizer
 
       build_result("People (people)", total, issues, sample_names)
     end
-    # rubocop:enable Metrics/CyclomaticComplexity
 
     def check_history_trackers
       if @db.collection_names.include?('history_trackers')
         count = @db[:history_trackers].count_documents({})
-        issues = ["history_trackers collection still exists with #{count} documents — contains raw PII change history"]
+        issues = ["history_trackers collection still exists with #{count} documents - contains raw PII change history"]
         build_result("History Trackers (history_trackers)", count, issues, "")
       else
         build_result("History Trackers (history_trackers)", 0, [], "dropped")
@@ -419,7 +409,7 @@ module DataAnonymizer
     #
     # Samples up to SAMPLE_SIZE census_members that carry an +employee_role_id+
     # and verifies that +first_name+ matches the linked Person's +first_name+.
-    # A mismatch indicates the Phase 1 → Phase 3 person-sync failed for some
+    # A mismatch indicates the Phase 1 -> Phase 3 person-sync failed for some
     # documents.
     #
     # Uses a single +$in+ query to load all matched Person documents rather than
@@ -427,7 +417,7 @@ module DataAnonymizer
     #
     # When no linked census members are found (e.g. on a staging environment
     # populated only with BenefitSponsors records), a warning is logged but the
-    # check is not marked as FAIL — the absence of links is valid in that context.
+    # check is not marked as FAIL - the absence of links is valid in that context.
     def check_census_person_consistency
       issues = []
       mismatches = 0
@@ -440,8 +430,8 @@ module DataAnonymizer
       role_ids = census_sample.map { |ce| ce['employee_role_id'] }.compact.uniq
 
       if role_ids.empty?
-        log "  WARN: check_census_person_consistency — no census members with employee_role_id found in sample; skipping consistency check"
-        return build_result("Cross-model: Census ↔ Person (sample 0)", 0, [], "skipped — no linked records")
+        log "  WARN: check_census_person_consistency - no census members with employee_role_id found in sample; skipping consistency check"
+        return build_result("Cross-model: Census <-> Person (sample 0)", 0, [], "skipped - no linked records")
       end
 
       person_map = {}
@@ -463,7 +453,7 @@ module DataAnonymizer
 
       issues << "#{mismatches}/#{checked} linked census members have first_name mismatch with Person" if mismatches > 0
 
-      build_result("Cross-model: Census ↔ Person (sample #{checked})", checked, issues, "")
+      build_result("Cross-model: Census <-> Person (sample #{checked})", checked, issues, "")
     end
 
     def check_bs_organizations
@@ -486,6 +476,19 @@ module DataAnonymizer
       sample_names = sample.map { |d| d['legal_name'] }.join(", ")
 
       build_result("BS Organizations (benefit_sponsors_organizations_organizations)", total, issues, sample_names)
+    end
+
+    def count_real_person_emails(collection)
+      count = 0
+      collection.find.limit(SAMPLE_SIZE).each do |doc|
+        next if @protected_person_ids.include?(doc['_id'])
+
+        (doc['emails'] || []).each do |em|
+          addr = em['address']
+          count += 1 if addr.present? && !addr.match?(GENERATED_EMAIL_PATTERN)
+        end
+      end
+      count
     end
 
     def build_result(collection_name, total, issues, samples)
