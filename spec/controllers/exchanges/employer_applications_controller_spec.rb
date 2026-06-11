@@ -358,7 +358,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
     end
   end
 
-  describe 'GET download_v2_xml', :dbclean => :after_each do
+  describe 'POST download_v2_xml', :dbclean => :after_each do
     let(:user) { instance_double("User", :has_hbx_staff_role? => true, :person => person1) }
     let(:hbx_staff_role) { FactoryBot.create(:hbx_staff_role, person: person1, subrole: "super_admin") }
     let(:employer_actions_id) { 'employer_actions_12345' }
@@ -377,7 +377,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
       end
 
       it "sets success message and file path" do
-        get :download_v2_xml, params: {
+        post :download_v2_xml, params: {
           selected_event: selected_event,
           employer_application_id: initial_application.id,
           employer_actions_id: employer_actions_id,
@@ -397,7 +397,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
       end
 
       it "sets error message for empty files" do
-        get :download_v2_xml, params: {
+        post :download_v2_xml, params: {
           selected_event: selected_event,
           employer_application_id: initial_application.id,
           employer_actions_id: employer_actions_id,
@@ -417,7 +417,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
       end
 
       it "sets generic error message" do
-        get :download_v2_xml, params: {
+        post :download_v2_xml, params: {
           selected_event: selected_event,
           employer_application_id: initial_application.id,
           employer_actions_id: employer_actions_id,
@@ -437,7 +437,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
       end
 
       it "sets the generic failure message without exposing the internal error" do
-        get :download_v2_xml, params: {
+        post :download_v2_xml, params: {
           selected_event: selected_event,
           employer_application_id: initial_application.id,
           employer_actions_id: employer_actions_id,
