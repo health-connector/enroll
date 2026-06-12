@@ -156,6 +156,91 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       expect(response).to redirect_to("www.google.com")
     end
   end
+
+  describe "Action # user_accounts_datatable (:refactored_datatables)", dbclean: :after_each do
+    let(:permission) { double(can_access_user_account_tab: true) }
+    let(:hbx_staff_role) { double("hbx_staff_role", permission: permission) }
+    let(:person) { double("person", hbx_staff_role: hbx_staff_role) }
+    let(:user) { double("user", :has_hbx_staff_role? => true, :person => person, :last_portal_visited => nil) }
+
+    before :each do
+      allow(user).to receive(:has_role?).with(:hbx_staff).and_return(true)
+      allow(EnrollRegistry).to receive(:feature_enabled?).and_call_original
+      allow(EnrollRegistry).to receive(:feature_enabled?).with(:refactored_datatables).and_return(true)
+      sign_in(user)
+    end
+
+    context "when the :refactored_datatables flag is disabled" do
+      before do
+        allow(EnrollRegistry).to receive(:feature_enabled?).with(:refactored_datatables).and_return(false)
+      end
+
+      it "404s the fragment endpoint" do
+        expect { get :user_accounts_datatable, format: :html }.to raise_error(ActionController::RoutingError)
+      end
+
+      it "builds the legacy datatable on user_account_index" do
+        get :user_account_index, format: :html
+        expect(assigns(:datatable)).to be_a(Effective::Datatables::UserAccountDatatable)
+        expect(assigns(:user_accounts_datatable_locals)).to be_nil
+      end
+    end
+
+    context "when the user lacks the user-account permission" do
+      let(:permission) { double(can_access_user_account_tab: false) }
+
+      it "denies access" do
+        get :user_accounts_datatable, format: :html
+        expect(response).not_to have_http_status(:success)
+      end
+    end
+
+    context "when authorized with the flag enabled" do
+      let!(:locked_employee) do
+        FactoryBot.create(:user, oim_id: "locked_employee1", email: "locked_employee@example.com",
+                                 roles: ["employee"], locked_at: Time.now)
+      end
+      let!(:unlocked_broker) do
+        FactoryBot.create(:user, oim_id: "unlocked_broker1", email: "unlocked_broker@example.com",
+                                 roles: ["broker"])
+      end
+
+      it "renders the chrome fragment without a layout" do
+        get :user_accounts_datatable, format: :html
+        expect(response).to have_http_status(:success)
+        expect(response).to render_template("datatables/_table")
+      end
+
+      it "prepares the datatable locals on user_account_index" do
+        get :user_account_index, format: :html
+        expect(assigns(:user_accounts_datatable_locals)).to include(:table, :pagy, :records, :url)
+        expect(assigns(:datatable)).to be_nil
+      end
+
+      # The action streams via response_body=Enumerator, so the test response
+      # body must be materialized before parsing.
+      def streamed_csv_rows
+        body = response.body
+        CSV.parse(body.is_a?(String) ? body : body.to_a.join)
+      end
+
+      it "streams a CSV of all filtered rows, not just one page" do
+        get :user_accounts_datatable, params: { users: "all", per: 10 }, format: :csv
+        expect(response.headers["Content-Type"]).to eq("text/csv; charset=utf-8")
+        expect(response.headers["Content-Disposition"]).to include('filename="user_accounts.csv"')
+        rows = streamed_csv_rows
+        expect(rows.first).to eq(["USERNAME", "SSN", "DOB", "HBX ID", "USER EMAIL", "Status", "Role Type"])
+        expect(rows.length).to eq(User.count + 1)
+      end
+
+      it "applies the nested filter attributes to the CSV export" do
+        get :user_accounts_datatable, params: { users: "all", lock_unlock: "locked" }, format: :csv
+        rows = streamed_csv_rows
+        expect(rows.map(&:first)).to include("locked_employee1")
+        expect(rows.map(&:first)).not_to include("unlocked_broker1")
+      end
+    end
+  end
 =begin
   describe "#create" do
     let(:user) { double("User")}
