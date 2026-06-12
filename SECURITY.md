@@ -98,7 +98,6 @@ CodeQL flagged DOM-based cross-site scripting (XSS) patterns where values read f
 - `app/views/exchanges/hbx_profiles/_view_hbx_enrollments.html.erb` — reinstate enrollment modal warning messages
 - `app/assets/javascripts/quotes/page_actions.js` — slider percentage labels
 - `components/sponsored_benefits/app/assets/javascripts/sponsored_benefits/plan_design_proposals.js` — slider percentage labels
-- `components/old_sponsored_benefits/app/assets/javascripts/sponsored_benefits/plan_design_proposals.js` — slider percentage labels
 
 An additional finding flagged `app/assets/javascripts/employee_dependent.js`, where a DOM attribute value was used as a jQuery selector without format validation.
 
