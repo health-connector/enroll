@@ -15,6 +15,10 @@ export default class extends Controller {
     dir: { type: String, default: "asc" }
   }
 
+  connect() {
+    this.bindLengthSelect()
+  }
+
   disconnect() {
     clearTimeout(this.searchTimeout)
   }
@@ -109,6 +113,7 @@ export default class extends Controller {
       if (!response.ok) throw new Error(`datatable fragment failed: ${response.status}`)
       this.wrapperTarget.innerHTML = await response.text()
       this.applyLegacyDecorations()
+      this.bindLengthSelect()
       this.element.dispatchEvent(new CustomEvent("effective-datatable:draw", { bubbles: true }))
     } catch (error) {
       this.hideProcessing()
@@ -147,6 +152,23 @@ export default class extends Controller {
     this.element.querySelectorAll(`.custom_level_${level} .btn-default`)
       .forEach((el) => el.classList.remove("active"))
     this.clearFilterLevel(level + 1)
+  }
+
+  // The length select can't use a Stimulus data-action: selectric (applied by
+  // page-level scripts) hides the native select and propagates picks with
+  // jQuery's .trigger('change'), which runs jQuery-bound handlers only — no
+  // native DOM event is dispatched, so addEventListener never fires. A jQuery
+  // binding hears both native changes and selectric's triggered ones; the
+  // native fallback covers pages where jQuery is gone.
+  bindLengthSelect() {
+    const select = this.element.querySelector(".dataTables_length select")
+    if (!select) return
+    const $ = window.jQuery
+    if ($) {
+      $(select).off("change.datatable").on("change.datatable", (event) => this.perChanged(event))
+    } else {
+      select.addEventListener("change", (event) => this.perChanged(event))
+    }
   }
 
   showProcessing() {

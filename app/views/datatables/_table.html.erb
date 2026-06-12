@@ -62,7 +62,7 @@
       </div>
       <div class="col-sm-1 col-md-1">
         <div class="dataTables_length" id="<%= table_id %>_length">
-          <label><select name="<%= table_id %>_length" aria-controls="<%= table_id %>" class="form-control input-sm" tabindex="0" data-action="change->datatable#perChanged"><% ::Datatables::FragmentRendering::PER_PAGE_OPTIONS.each do |option| %><option value="<%= option %>"<%= ' selected'.html_safe if option == pagy.limit %>><%= option %></option><% end %></select> <%= l10n('datatables.per_page') %></label>
+          <label><%# no data-action here: the controller binds this select itself (see bindLengthSelect) because selectric swallows native change events %><select name="<%= table_id %>_length" aria-controls="<%= table_id %>" class="form-control input-sm" tabindex="0"><% ::Datatables::FragmentRendering::PER_PAGE_OPTIONS.each do |option| %><option value="<%= option %>"<%= ' selected'.html_safe if option == pagy.limit %>><%= option %></option><% end %></select> <%= l10n('datatables.per_page') %></label>
         </div>
       </div>
     </div>
