@@ -7,16 +7,7 @@ module Datatables
   # collection wrapper, so both stacks return identical data while the
   # :refactored_datatables flag is being rolled out.
   #
-  # The contract consumed by Datatables::FragmentRendering and the
-  # app/views/datatables/_* partials:
-  #   #param_key        - identifier used for DOM ids and the CSV filename
-  #   #columns          - ordered column defs: name, label, sortable, type, width
-  #   #collection(hash) - filterable collection (query wrapper or Mongoid criteria)
-  #   #global_search?   - whether the search box renders
-  #   #filters          - nested filter tab definition (legacy shape) or nil
-  #   #csv_headers      - header row for the streamed CSV export
-  #   #csv_row(record)  - plain-text cell values for one CSV row
-  #   #row_partial      - partial rendered for each table row
+  # Implements the table contract documented in Datatables::FragmentRendering.
   class UserAccountsTable
     def param_key
       'user_accounts'

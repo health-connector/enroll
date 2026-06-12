@@ -406,7 +406,11 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   def broker_agency_index
-    @datatable = Effective::Datatables::BrokerAgencyDatatable.new
+    if EnrollRegistry.feature_enabled?(:refactored_datatables)
+      @broker_agencies_datatable_locals = datatable_locals(::Datatables::BrokerAgenciesTable.new, url: broker_agencies_datatable_exchanges_hbx_profiles_path)
+    else
+      @datatable = Effective::Datatables::BrokerAgencyDatatable.new
+    end
 
     #@q = params.permit(:q)[:q]
     #@broker_agency_profiles = HbxProfile.search_random(@q)
@@ -414,6 +418,21 @@ class Exchanges::HbxProfilesController < ApplicationController
 
     respond_to do |format|
       format.js {}
+    end
+  end
+
+  def broker_agencies_datatable
+    raise ActionController::RoutingError, 'Not Found' unless EnrollRegistry.feature_enabled?(:refactored_datatables)
+
+    authorize HbxProfile, :broker_agency_index?
+    table = ::Datatables::BrokerAgenciesTable.new
+    respond_to do |format|
+      format.html { render_datatable_fragment(table, url: broker_agencies_datatable_exchanges_hbx_profiles_path) }
+      format.csv do
+        stream_datatable_csv(filename: 'broker_agencies.csv',
+                             headers: table.csv_headers,
+                             rows: datatable_csv_rows(table, datatable_scoped(table)))
+      end
     end
   end
 

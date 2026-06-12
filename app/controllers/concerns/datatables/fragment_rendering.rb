@@ -5,6 +5,28 @@ module Datatables
   # build their table object and call render_datatable_fragment (Stimulus
   # redraws) or datatable_locals (initial full-page render of
   # datatables/_datatable).
+  #
+  # The table contract consumed here and by the app/views/datatables/_*
+  # partials (implemented by the Datatables::*Table POROs):
+  #   #param_key        - identifier used for DOM ids and the CSV filename
+  #   #columns          - ordered column defs: name, label, sortable, type
+  #                       (-> col-<name> / col-<type> th and td classes);
+  #                       optional width (inline th width) and ordered
+  #                       (collection arrives pre-sorted ascending by this
+  #                       column - renders the sort indicator on a
+  #                       non-sortable header)
+  #   #collection(hash) - filterable collection given the filter-tab attribute
+  #                       hash: a query wrapper (e.g. Queries::UserDatatableQuery)
+  #                       or a plain Mongoid criteria - anything responding to
+  #                       order_by/skip/limit/size and, when global_search? is
+  #                       true, datatable_search
+  #   #global_search?   - whether the search box renders
+  #   #filters          - nested filter tab definition (legacy shape) or nil
+  #   #filter_scopes    - filter param keys collected into #collection's hash
+  #   #csv_headers      - header row for the streamed CSV export
+  #   #csv_row(record)  - plain-text cell values for one CSV row
+  #   #row_partial      - partial rendered for each table row with locals
+  #                       row, table, row_class
   module FragmentRendering
     extend ActiveSupport::Concern
 
