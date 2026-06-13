@@ -241,6 +241,90 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       end
     end
   end
+
+  describe "Action # broker_agencies_datatable (:refactored_datatables)", dbclean: :after_each do
+    let(:permission) { double(modify_family: true) }
+    let(:hbx_staff_role) { double("hbx_staff_role", permission: permission) }
+    let(:person) { double("person", hbx_staff_role: hbx_staff_role) }
+    let(:user) { double("user", :has_hbx_staff_role? => true, :person => person, :last_portal_visited => nil) }
+
+    before :each do
+      allow(user).to receive(:has_role?).with(:hbx_staff).and_return(true)
+      allow(EnrollRegistry).to receive(:feature_enabled?).and_call_original
+      allow(EnrollRegistry).to receive(:feature_enabled?).with(:refactored_datatables).and_return(true)
+      sign_in(user)
+    end
+
+    context "when the :refactored_datatables flag is disabled" do
+      before do
+        allow(EnrollRegistry).to receive(:feature_enabled?).with(:refactored_datatables).and_return(false)
+      end
+
+      it "404s the fragment endpoint" do
+        expect { get :broker_agencies_datatable, format: :html }.to raise_error(ActionController::RoutingError)
+      end
+
+      it "builds the legacy datatable on broker_agency_index" do
+        get :broker_agency_index, xhr: true, format: :js
+        expect(assigns(:datatable)).to be_a(Effective::Datatables::BrokerAgencyDatatable)
+        expect(assigns(:broker_agencies_datatable_locals)).to be_nil
+      end
+    end
+
+    context "when the user is not a shop market admin" do
+      let(:permission) { double(modify_family: false) }
+
+      it "denies access" do
+        get :broker_agencies_datatable, format: :html
+        expect(response).not_to have_http_status(:success)
+      end
+    end
+
+    context "when authorized with the flag enabled" do
+      let!(:zeta_brokerage) do
+        FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_site,
+                          :with_broker_agency_profile, legal_name: "Zeta Brokerage")
+      end
+      let!(:alpha_brokerage) do
+        FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_site,
+                          :with_broker_agency_profile, legal_name: "Alpha Brokerage")
+      end
+
+      it "renders the table fragment without a layout" do
+        get :broker_agencies_datatable, format: :html
+        expect(response).to have_http_status(:success)
+        expect(response).to render_template("datatables/_table")
+      end
+
+      it "prepares the datatable locals on broker_agency_index" do
+        get :broker_agency_index, xhr: true, format: :js
+        expect(assigns(:broker_agencies_datatable_locals)).to include(:table, :pagy, :records, :url)
+        expect(assigns(:datatable)).to be_nil
+      end
+
+      # The action streams via response_body=Enumerator, so the test response
+      # body must be materialized before parsing.
+      def streamed_csv_rows
+        body = response.body
+        CSV.parse(body.is_a?(String) ? body : body.to_a.join)
+      end
+
+      it "streams a CSV of all broker agencies sorted by legal name" do
+        get :broker_agencies_datatable, params: { broker_agencies: "all", per: 10 }, format: :csv
+        expect(response.headers["Content-Type"]).to eq("text/csv; charset=utf-8")
+        expect(response.headers["Content-Disposition"]).to include('filename="broker_agencies.csv"')
+        rows = streamed_csv_rows
+        expect(rows.first).to eq(["Legal Name", "Dba", "FEIN", "Entity Kind", "Market Kind"])
+        expect(rows.map(&:first)).to eq(["Legal Name", "Alpha Brokerage", "Zeta Brokerage"])
+      end
+
+      it "applies the global search to the CSV export" do
+        get :broker_agencies_datatable, params: { search: "Zeta" }, format: :csv
+        rows = streamed_csv_rows
+        expect(rows.map(&:first)).to eq(["Legal Name", "Zeta Brokerage"])
+      end
+    end
+  end
 =begin
   describe "#create" do
     let(:user) { double("User")}
