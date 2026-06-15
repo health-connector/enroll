@@ -546,25 +546,6 @@
       "note": ""
     },
     {
-      "warning_type": "Cross-Site Request Forgery",
-      "warning_code": 7,
-      "fingerprint": "ecf2256ff5bebc84477f7358d0533361cb934649f5fadf3eea23d72e6b5e9c6f",
-      "check_name": "ForgerySetting",
-      "message": "`protect_from_forgery` should be called in `SponsoredBenefits::ApplicationController`",
-      "file": "components/old_sponsored_benefits/app/controllers/sponsored_benefits/application_controller.rb",
-      "line": 2,
-      "link": "https://brakemanscanner.org/docs/warning_types/cross-site_request_forgery/",
-      "code": null,
-      "render_path": null,
-      "location": {
-        "type": "controller",
-        "controller": "SponsoredBenefits::ApplicationController"
-      },
-      "user_input": null,
-      "confidence": "High",
-      "note": ""
-    },
-    {
       "warning_type": "File Access",
       "warning_code": 16,
       "fingerprint": "ef486a2f648e540d2eb04ea78e5c6ba243cbaf21350fdec96467367fb1632736",

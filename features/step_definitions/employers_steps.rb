@@ -13,7 +13,7 @@ When(/^the employer clicks on statements$/) do
   find('#statements').click
 end
 
-Then(/^the employer should see statements histroy$/) do
+Then(/^the employer should see statements history$/) do
   expect(page).to have_content('Coverage Period')
   expect(page).to have_content('Download')
 end
@@ -26,9 +26,10 @@ Then(/^the employer should see billing information$/) do
   expect(page).to have_content('The invoice includes next month')
 end
 
-Then(/^the employer should see payment histroy$/) do
+Then(/^the employer should see payment history with formatted date$/) do
   expect(page).to have_content(number_to_currency(@benefit_sponsorship_account.financial_transactions[0].amount))
   expect(page).to have_content('Payment History')
+  expect(page).to have_content(@benefit_sponsorship_account.financial_transactions[0].paid_on.strftime('%m/%d/%Y'))
 end
 
 Then(/^.+ should see a welcome page with successful sign in message$/) do
