@@ -21,28 +21,7 @@
       "cwe_id": [
         77
       ],
-      "note": ""
       "note": "False positive: Strong parameters are used with explicit allowlist in registration_params."
-    },
-    {
-      "warning_type": "File Access",
-      "warning_code": 16,
-      "fingerprint": "49f890491d7c2afee6adea867d0d98443cdb5c3b778e2830afb39614ce7362c7",
-      "check_name": "FileAccess",
-      "message": "Model attribute used in file name",
-      "file": "lib/transcript_generator.rb",
-      "line": 48,
-      "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
-      "code": "File.open(\"#{TRANSCRIPT_PATH}/#{@count}_#{Transcripts::PersonTranscript.new.transcript[:identifier]}_#{Time.now.to_i}.bin\", \"wb\")",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "TranscriptGenerator",
-        "method": "build_transcript"
-      },
-      "user_input": "Transcripts::PersonTranscript.new.transcript[:identifier]",
-      "confidence": "Medium",
-      "note": "False positive: File path is constructed from system-generated or admin-controlled values, not user input."
     },
     {
       "warning_type": "SQL Injection",
@@ -65,7 +44,7 @@
       "cwe_id": [
         89
       ],
-      "note": ""
+      "note": "False positive: `ilike` is an internal constant resolved to either 'ILIKE' or 'LIKE' based on the database adapter (active_record_datatable_tool.rb line 264) — it is never derived from user input. All search term values are passed as named bind parameters (:term, :code), not interpolated directly into the SQL string."
     },
     {
       "warning_type": "Cross-Site Scripting",
@@ -166,9 +145,6 @@
       "note": "False positive: @wf_url is assigned only when WellsFargo::BillPay::SingleSignOn#token returns HTTP 200, and its value is extracted directly from the Wells Fargo API response body (response_body[\"Url\"]). It is not constructed from employer attributes — hbx_id, dba, legal_name, and email are only POST parameters sent to the Wells Fargo API and are not reflected in the URL it returns. On any API error the SSO object is not assigned and @wf_url is never set, so the link degrades to href=\"\" rather than a user-controlled value. The attack surface for a javascript: injection therefore requires compromising the Wells Fargo API endpoint itself, which is outside the application threat model."
     },
     {
-      "note": ""
-    },
-    {
       "warning_type": "File Access",
       "warning_code": 16,
       "fingerprint": "c9b6be562fb5a70ac288211fa1d0377ceed8ca862353a60903d769188d440e9c",
@@ -189,7 +165,7 @@
       "cwe_id": [
         22
       ],
-      "note": ""
+      "note": "False positive: Access is gated by `authorize ::Notifier::NoticeKind` (Pundit) which restricts this action to admin users only. The file path uses only the notice title from the database — a trusted, admin-managed value — and the gsub strips whitespace to underscores. No user-supplied string is interpolated into the path."
     },
     {
       "warning_type": "File Access",
@@ -212,7 +188,7 @@
       "cwe_id": [
         22
       ],
-      "note": ""
+      "note": "False positive: The file identifier is retrieved from a persisted document record belonging to the employer profile found by params[:id]. Access is gated by `authorize @employer_profile` (Pundit) before the send_file call, restricting downloads to authorised users of that employer profile only. The identifier is a system-assigned storage path, not a user-controlled string."
     },
     {
       "warning_type": "Cross-Site Scripting",
@@ -256,7 +232,7 @@
       "cwe_id": [
         79
       ],
-      "note": ""
+      "note": "False positive: `@dup_enr_ids` is assigned in the controller as `fetch_duplicate_enrollment_ids(@coverage_ended_enrollments).map(&:to_s)` — a list of MongoDB ObjectId strings derived from persisted enrollment records, not from user input. The `raw` output in the view renders a JSON array of internal IDs into a JavaScript variable, none of which contain user-supplied content."
     }
   ],
   "brakeman_version": "7.1.1"
