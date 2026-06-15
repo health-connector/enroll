@@ -4,11 +4,13 @@ en:
   datatables:
     csv: "CSV"
     excel: "Excel"
+    print: "Print"
     search_label: "Search:"
     per_page: "per page"
     showing_entries: "Showing %{from} to %{to} of %{count} entries"
     processing: "Processing..."
     no_matching_records: "No matching records found"
+    no_data: "No data available in table"
     previous: "Previous"
     next: "Next"
   welcome:

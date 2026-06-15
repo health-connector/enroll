@@ -23,15 +23,20 @@ module Datatables
   #   #global_search?   - whether the search box renders
   #   #filters          - nested filter tab definition (legacy shape) or nil
   #   #filter_scopes    - filter param keys collected into #collection's hash
+  #                       (includes custom_datatable_date_from/to when the table
+  #                       has a date filter)
+  #   #date_filter      - label for the date-range filter block, or nil when the
+  #                       table has no date filter
+  #   #buttons          - ordered export/print button keys (e.g. %w[csv excel]
+  #                       or %w[excel csv print]) rendered by datatables/_buttons
+  #   #per_page_options - the page-length menu values (legacy lengthMenu), e.g.
+  #                       [10, 25, 50, 100]; the first is the default page size
   #   #csv_headers      - header row for the streamed CSV export
   #   #csv_row(record)  - plain-text cell values for one CSV row
   #   #row_partial      - partial rendered for each table row with locals
   #                       row, table, row_class
   module FragmentRendering
     extend ActiveSupport::Concern
-
-    DEFAULT_PER_PAGE = 10
-    PER_PAGE_OPTIONS = [10, 25, 50, 100].freeze
 
     private
 
@@ -43,7 +48,7 @@ module Datatables
     def datatable_locals(table, url:)
       scoped = datatable_scoped(table)
       count = scoped.size
-      pagy = datatable_pagy(count)
+      pagy = datatable_pagy(count, table)
       records = scoped.order_by(datatable_order_criteria(table)).skip(pagy.offset).limit(pagy.limit)
       {
         table: table,
@@ -52,7 +57,9 @@ module Datatables
         url: url,
         search: params[:search].to_s,
         order: datatable_order_column(table),
-        dir: datatable_order_dir
+        dir: datatable_order_dir,
+        date_from: params[:custom_datatable_date_from].to_s,
+        date_to: params[:custom_datatable_date_to].to_s
       }
     end
 
@@ -70,16 +77,17 @@ module Datatables
       table.filter_scopes.index_with { |scope| params[scope].presence }.compact
     end
 
-    def datatable_pagy(count)
-      per = datatable_per_page
+    def datatable_pagy(count, table)
+      per = datatable_per_page(table)
       last_page = [(count.to_f / per).ceil, 1].max
       page = params.fetch(:page, 1).to_i.clamp(1, last_page)
       Pagy.new(count: count, page: page, limit: per)
     end
 
-    def datatable_per_page
+    def datatable_per_page(table)
+      options = table.per_page_options
       per = params[:per].to_i
-      PER_PAGE_OPTIONS.include?(per) ? per : DEFAULT_PER_PAGE
+      options.include?(per) ? per : options.first
     end
 
     def datatable_order_column(table)

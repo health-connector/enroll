@@ -12,11 +12,14 @@ export default class extends Controller {
     per: { type: Number, default: 10 },
     search: { type: String, default: "" },
     order: { type: String, default: "" },
-    dir: { type: String, default: "asc" }
+    dir: { type: String, default: "asc" },
+    dateFrom: { type: String, default: "" },
+    dateTo: { type: String, default: "" }
   }
 
   connect() {
     this.bindLengthSelect()
+    this.initDatepickers()
   }
 
   disconnect() {
@@ -79,6 +82,27 @@ export default class extends Controller {
     window.location.assign(url)
   }
 
+  // Print uses the browser dialog against the @media print rules that hide the
+  // surrounding chrome, matching the legacy DataTables print view (the visible
+  // rows of the current page).
+  print(event) {
+    event.preventDefault()
+    window.print()
+  }
+
+  // The date-range Apply button: read the two datepicker inputs (their .value is
+  // set by the jQuery datepicker) and redraw with custom_datatable_date_from/to,
+  // which the query wrapper turns into a Family.min_verification_due_date_range
+  // scope.
+  applyDateRange() {
+    const from = this.element.querySelector("#custom_datatable_date_from")
+    const to = this.element.querySelector("#custom_datatable_date_to")
+    this.dateFromValue = from ? from.value : ""
+    this.dateToValue = to ? to.value : ""
+    this.pageValue = 1
+    this.redraw()
+  }
+
   // Filter tab behavior: one active tab per level, clicking hides deeper levels, an active tab reveals its Filter-<id> sub-level. Must stay equivalent to the legacy DT.filters() implementation while both stacks coexist.
   filterClicked(event) {
     const button = event.currentTarget
@@ -131,6 +155,8 @@ export default class extends Controller {
       url.searchParams.set("order", this.orderValue)
       url.searchParams.set("dir", this.dirValue)
     }
+    if (this.dateFromValue) url.searchParams.set("custom_datatable_date_from", this.dateFromValue)
+    if (this.dateToValue) url.searchParams.set("custom_datatable_date_to", this.dateToValue)
     const filters = this.filterParams()
     Object.keys(filters).forEach((key) => url.searchParams.set(key, filters[key]))
     return url
@@ -169,6 +195,19 @@ export default class extends Controller {
     } else {
       select.addEventListener("change", (event) => this.perChanged(event))
     }
+  }
+
+  // The date-range inputs use the legacy page-level jQuery UI datepicker. Like
+  // the length select, it is a jQuery plugin, so it is initialized here rather
+  // than via a Stimulus data-action. The date filter lives outside the redraw
+  // wrapper, so this runs once on connect and does not need re-binding after a
+  // swap; reading the inputs' .value on Apply works because the datepicker
+  // writes the chosen date to the native input value.
+  initDatepickers() {
+    const $ = window.jQuery
+    if (!$ || !$.fn || !$.fn.datepicker) return
+    const datepickers = this.element.querySelectorAll(".datepicker")
+    if (datepickers.length) $(datepickers).datepicker({ dateFormat: "yy-mm-dd" })
   }
 
   showProcessing() {

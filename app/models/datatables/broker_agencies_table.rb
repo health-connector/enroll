@@ -52,6 +52,18 @@ module Datatables
       [:broker_agencies]
     end
 
+    def date_filter
+      nil
+    end
+
+    def buttons
+      %w[csv excel]
+    end
+
+    def per_page_options
+      [10, 25, 50, 100]
+    end
+
     def csv_headers
       columns.map { |col| col[:label] }
     end

@@ -1,0 +1,20 @@
+<%# One Outstanding Verifications table row. Cell values must stay identical to
+    the legacy OutstandingVerificationDataTable column procs while both stacks
+    coexist. sorting_1 stays on col-name: it is the default-order column (index 0,
+    asc) the legacy stack shaded on load. %>
+<%
+  person = row.primary_applicant.person
+  dropdowns = [
+    ['Review', show_docs_documents_path(person_id: person.id), 'static']
+  ]
+%>
+<tr class="<%= row_class %>">
+  <td class="col-string col-name sorting_1"><%= link_to person.full_name, resume_enrollment_exchanges_agents_path(person_id: person.id) %></td>
+  <td class="col-string col-ssn"><%= truncate(number_to_obscured_ssn(person.ssn)) %></td>
+  <td class="col-string col-dob"><%= format_date(person.dob) %></td>
+  <td class="col-integer col-hbx_id"><%= person.hbx_id %></td>
+  <td class="col-string col-count"><%= row.active_family_members.size %></td>
+  <td class="col-string col-documents_uploaded"><%= row.vlp_documents_status %></td>
+  <td class="col-string col-verification_due"><%= format_date(row.best_verification_due_date) || format_date(TimeKeeper.date_of_record + 95.days) %></td>
+  <td class="col-string col-actions"><%= render partial: 'datatables/shared/dropdown', locals: { dropdowns: dropdowns, row_actions_id: "family_actions_#{row.id}" } %></td>
+</tr>

@@ -4,10 +4,7 @@
   <div id="<%= table_id %>_wrapper" class="dataTables_wrapper form-inline dt-bootstrap no-footer">
     <div class="row">
       <div class="col-sm-7 col-md-7">
-        <div class="dt-buttons btn-group">
-          <a class="btn btn-default buttons-csv buttons-html5" tabindex="0" aria-controls="<%= table_id %>" href="#" data-action="click->datatable#exportCsv"><span><%= l10n('datatables.csv') %></span></a>
-          <a class="btn btn-default buttons-excel buttons-html5" tabindex="0" aria-controls="<%= table_id %>" href="#" data-action="click->datatable#exportCsv"><span><%= l10n('datatables.excel') %></span></a>
-        </div>
+        <%= render partial: 'datatables/buttons', locals: { table: table, table_id: table_id } %>
       </div>
       <div class="col-sm-5 col-md-5">
         <% if table.global_search? %>
@@ -50,7 +47,9 @@
                 <%= render partial: table.row_partial, locals: { row: record, table: table, row_class: index.even? ? 'odd' : 'even' } %>
               <% end %>
             <% else %>
-              <tr class="odd"><td valign="top" colspan="<%= table.columns.size %>" class="dataTables_empty"><%= l10n('datatables.no_matching_records') %></td></tr>
+              <%# Match the legacy DataTables split: emptyTable when nothing is loaded at all, zeroRecords when a search filtered everything out. %>
+              <% empty_message = search.present? ? l10n('datatables.no_matching_records') : l10n('datatables.no_data') %>
+              <tr class="odd"><td valign="top" colspan="<%= table.columns.size %>" class="dataTables_empty"><%= empty_message %></td></tr>
             <% end %>
           </tbody>
         </table>
@@ -63,7 +62,7 @@
       </div>
       <div class="col-sm-1 col-md-1">
         <div class="dataTables_length" id="<%= table_id %>_length">
-          <label><%# no data-action here: the controller binds this select itself (see bindLengthSelect) because selectric swallows native change events %><select name="<%= table_id %>_length" aria-controls="<%= table_id %>" class="form-control input-sm" tabindex="0"><% ::Datatables::FragmentRendering::PER_PAGE_OPTIONS.each do |option| %><option value="<%= option %>"<%= ' selected'.html_safe if option == pagy.limit %>><%= option %></option><% end %></select> <%= l10n('datatables.per_page') %></label>
+          <label><%# no data-action here: the controller binds this select itself (see bindLengthSelect) because selectric swallows native change events %><select name="<%= table_id %>_length" aria-controls="<%= table_id %>" class="form-control input-sm" tabindex="0"><% table.per_page_options.each do |option| %><option value="<%= option %>"<%= ' selected'.html_safe if option == pagy.limit %>><%= option %></option><% end %></select> <%= l10n('datatables.per_page') %></label>
         </div>
       </div>
     </div>

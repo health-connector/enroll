@@ -54,6 +54,18 @@ module Datatables
       [:users, :lock_unlock]
     end
 
+    def date_filter
+      nil
+    end
+
+    def buttons
+      %w[csv excel]
+    end
+
+    def per_page_options
+      [10, 25, 50, 100]
+    end
+
     def status(row)
       return 'Unlocked' if row.locked_at.blank? && row.unlock_token.blank?
 

@@ -1,0 +1,16 @@
+<%# Export/print button group. Each table declares its buttons (and their order)
+    via #buttons; the markup reproduces the legacy DataTables Buttons anchors.
+    CSV and Excel both stream the full filtered CSV (legacy exported the loaded
+    page client-side); print opens the browser print dialog against the @media
+    print rules that hide the surrounding chrome. %>
+<div class="dt-buttons btn-group">
+  <% table.buttons.each do |button| %>
+    <% if button.to_s == 'csv' %>
+      <a class="btn btn-default buttons-csv buttons-html5" tabindex="0" aria-controls="<%= table_id %>" href="#" data-action="click->datatable#exportCsv"><span><%= l10n('datatables.csv') %></span></a>
+    <% elsif button.to_s == 'excel' %>
+      <a class="btn btn-default buttons-excel buttons-html5" tabindex="0" aria-controls="<%= table_id %>" href="#" data-action="click->datatable#exportCsv"><span><%= l10n('datatables.excel') %></span></a>
+    <% elsif button.to_s == 'print' %>
+      <a class="btn btn-default buttons-print" tabindex="0" aria-controls="<%= table_id %>" href="#" data-action="click->datatable#print"><span><%= l10n('datatables.print') %></span></a>
+    <% end %>
+  <% end %>
+</div>
