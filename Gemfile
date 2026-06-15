@@ -121,7 +121,7 @@ group :development do
   gem 'overcommit'
   gem 'rubocop', require: false
   gem 'rubocop-rspec'
-  gem 'rubocop-git'
+  gem 'rubocop-git2'
   gem 'web-console', '>= 3'
   gem 'next_rails'
 end
