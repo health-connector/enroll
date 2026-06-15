@@ -275,22 +275,42 @@ module DataAnonymizer
     #   addresses pulled from +people+, falling back to +users+ when no person
     #   document carries an email
     def sample_email_addresses
+      addresses = sample_person_emails
+      addresses = sample_user_emails if addresses.empty?
+      addresses
+    end
+
+    def sample_person_emails
+      return [] unless db.collection_names.include?('people')
+
+      protected_ids = protected_person_ids
       addresses = []
 
-      if db.collection_names.include?('people')
-        db[:people].find.projection('emails.address' => 1).limit(STALE_SENTINEL_SAMPLE_SIZE).each do |doc|
-          Array(doc['emails']).each do |em|
-            addr = em['address'].to_s
-            addresses << addr if addr.present?
-          end
+      db[:people].find.projection('emails.address' => 1).limit(STALE_SENTINEL_SAMPLE_SIZE).each do |doc|
+
+        next if protected_ids.include?(doc['_id'])
+
+        Array(doc['emails']).each do |em|
+          addr = em['address'].to_s
+          addresses << addr if addr.present?
         end
       end
 
-      if addresses.empty? && db.collection_names.include?('users')
-        db[:users].find.projection('email' => 1).limit(STALE_SENTINEL_SAMPLE_SIZE).each do |doc|
-          addr = doc['email'].to_s
-          addresses << addr if addr.present?
-        end
+      addresses
+    end
+
+    def sample_user_emails
+      return [] unless db.collection_names.include?('users')
+
+      protected_ids = protected_user_ids
+      addresses = []
+
+      db[:users].find.projection('email' => 1).limit(STALE_SENTINEL_SAMPLE_SIZE).each do |doc|
+
+        next if protected_ids.include?(doc['_id'])
+
+        addr = doc['email'].to_s
+        addresses << addr if addr.present?
       end
 
       addresses
