@@ -22,6 +22,27 @@
         77
       ],
       "note": ""
+      "note": "False positive: Strong parameters are used with explicit allowlist in registration_params."
+    },
+    {
+      "warning_type": "File Access",
+      "warning_code": 16,
+      "fingerprint": "49f890491d7c2afee6adea867d0d98443cdb5c3b778e2830afb39614ce7362c7",
+      "check_name": "FileAccess",
+      "message": "Model attribute used in file name",
+      "file": "lib/transcript_generator.rb",
+      "line": 48,
+      "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
+      "code": "File.open(\"#{TRANSCRIPT_PATH}/#{@count}_#{Transcripts::PersonTranscript.new.transcript[:identifier]}_#{Time.now.to_i}.bin\", \"wb\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "TranscriptGenerator",
+        "method": "build_transcript"
+      },
+      "user_input": "Transcripts::PersonTranscript.new.transcript[:identifier]",
+      "confidence": "Medium",
+      "note": "False positive: File path is constructed from system-generated or admin-controlled values, not user input."
     },
     {
       "warning_type": "SQL Injection",
@@ -145,6 +166,9 @@
       "note": "False positive: @wf_url is assigned only when WellsFargo::BillPay::SingleSignOn#token returns HTTP 200, and its value is extracted directly from the Wells Fargo API response body (response_body[\"Url\"]). It is not constructed from employer attributes — hbx_id, dba, legal_name, and email are only POST parameters sent to the Wells Fargo API and are not reflected in the URL it returns. On any API error the SSO object is not assigned and @wf_url is never set, so the link degrades to href=\"\" rather than a user-controlled value. The attack surface for a javascript: injection therefore requires compromising the Wells Fargo API endpoint itself, which is outside the application threat model."
     },
     {
+      "note": ""
+    },
+    {
       "warning_type": "File Access",
       "warning_code": 16,
       "fingerprint": "c9b6be562fb5a70ac288211fa1d0377ceed8ca862353a60903d769188d440e9c",
@@ -165,26 +189,6 @@
       "cwe_id": [
         22
       ],
-      "note": ""
-    },
-    {
-      "warning_type": "Remote Code Execution",
-      "warning_code": 24,
-      "fingerprint": "cae4f250812ac10b3146de3493efca4305f38176f6eaab78c0d99000b1c80c99",
-      "check_name": "UnsafeReflection",
-      "message": "Unsafe reflection method `constantize` called with parameter value",
-      "file": "components/notifier/app/controllers/notifier/notice_kinds_controller.rb",
-      "line": 113,
-      "link": "https://brakemanscanner.org/docs/warning_types/remote_code_execution/",
-      "code": "(params[\"builder\"] or \"Notifier::MergeDataModels::EmployerProfile\").constantize",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "Notifier::NoticeKindsController",
-        "method": "get_tokens"
-      },
-      "user_input": "params[\"builder\"]",
-      "confidence": "High",
       "note": ""
     },
     {
