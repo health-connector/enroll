@@ -2256,7 +2256,7 @@ GEM
       byebug (~> 11.0)
       pry (>= 0.13, < 0.15)
     public_suffix (7.0.5)
-    puma (6.6.1)
+    puma (7.2.1)
       nio4r (~> 2.0)
     pundit (2.5.2)
       activesupport (>= 3.0.0)
@@ -2530,7 +2530,7 @@ GEM
     wkhtmltopdf-binary-edge (0.12.3.0)
     xpath (3.2.0)
       nokogiri (~> 1.8)
-    yard (0.9.36)
+    yard (0.9.44)
     yard-mongoid (0.1.0)
       yard (>= 0.8.4)
     zeitwerk (2.7.5)
@@ -2616,7 +2616,7 @@ DEPENDENCIES
   parallel_tests (= 2.26.2)
   prawn!
   pry-byebug
-  puma (~> 6.6.0)
+  puma (~> 7.2.1)
   pundit (~> 2.0)
   rack (>= 3.2.5)
   rack-cors
@@ -2666,7 +2666,7 @@ DEPENDENCIES
   webmock
   wicked_pdf (= 2.1.0)
   wkhtmltopdf-binary-edge (~> 0.12.3.0)
-  yard (~> 0.9.5)
+  yard (>= 0.9.42)
   yard-mongoid (~> 0.1.0)
 
 RUBY VERSION
