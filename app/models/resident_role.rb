@@ -4,7 +4,6 @@ class ResidentRole
   include AASM
   include Acapi::Notifiers
   include SetCurrentUser
-  include Mongoid::Attributes::Dynamic
 
   RESIDENCY_VERIFICATION_REQUEST_EVENT_NAME = "local.enroll.residency.verification_request"
 
@@ -36,15 +35,16 @@ class ResidentRole
 
   accepts_nested_attributes_for :person, :paper_applications
 
-  embeds_many :local_residency_responses, class_name:"EventResponse"
+  embeds_many :local_residency_responses, class_name: "EventResponse"
 
   after_initialize :setup_lawful_determination_instance
 
-  alias_method :is_incarcerated?,   :is_incarcerated
+  alias is_incarcerated? is_incarcerated
 
   def parent
     raise "undefined parent: Person" unless person?
-    self.person
+
+    person
   end
 
   def families
@@ -75,44 +75,44 @@ class ResidentRole
   end
 
   def is_active?
-    self.is_active
+    is_active
   end
 
   def setup_lawful_determination_instance
-    unless self.lawful_presence_determination.present?
-      self.lawful_presence_determination = LawfulPresenceDetermination.new
-    end
+    return if lawful_presence_determination.present?
+
+    self.lawful_presence_determination = LawfulPresenceDetermination.new
   end
 
   def lawful_presence_determination_instance
     setup_lawful_determination_instance
-    self.lawful_presence_determination
+    lawful_presence_determination
   end
 
   def latest_active_tax_household_with_year(year, family)
     family.latest_household.latest_active_tax_household_with_year(year)
-  rescue => e
+  rescue StandardError => e
     log("#4287 person_id: #{person.try(:id)}", {:severity => 'error'})
     nil
   end
 
   def start_residency_verification_process
-    notify(RESIDENCY_VERIFICATION_REQUEST_EVENT_NAME, {:person => self.person})
+    notify(RESIDENCY_VERIFICATION_REQUEST_EVENT_NAME, {:person => person})
   end
 
-  def update_by_person(*args)
+  def update_by_person(*)
     person.addresses = []
     person.phones = []
     person.emails = []
-    person.update_attributes(*args)
+    person.update_attributes(*)
   end
-
 
   def find_paper_application_by_key(key)
     candidate_paper_applications = paper_applications
     if person.primary_family.present?
       person.primary_family.family_members.flat_map(&:person).each do |family_person|
         next unless family_person.resident_role.present?
+
         candidate_paper_applications << family_person.resident_role.paper_applications
       end
       candidate_paper_applications.uniq!
@@ -122,12 +122,14 @@ class ResidentRole
 
     candidate_paper_applications.detect do |document|
       next if document.identifier.blank?
+
       doc_key = document.identifier.split('#').last
       doc_key == key
     end
   end
 
   private
+
   def mark_residency_denied(*args)
     self.residency_determined_at = Time.now
     self.is_state_resident = false
@@ -143,7 +145,7 @@ class ResidentRole
   end
 
   def residency_denied?
-    (!is_state_resident.nil?) && (!is_state_resident)
+    !is_state_resident.nil? && !is_state_resident
   end
 
   def residency_verified?

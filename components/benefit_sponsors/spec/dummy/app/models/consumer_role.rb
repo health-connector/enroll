@@ -6,32 +6,31 @@ class ConsumerRole
   include Mongoid::Timestamps
   include Acapi::Notifiers
   include AASM
-  include Mongoid::Attributes::Dynamic
   # include StateTransitionPublisher
   # include Mongoid::History::Trackable
   # include DocumentsVerificationStatus
 
   embedded_in :person
 
-  VLP_AUTHORITY_KINDS = %w(ssa dhs hbx curam)
+  VLP_AUTHORITY_KINDS = %w[ssa dhs hbx curam]
   NATURALIZED_CITIZEN_STATUS = "naturalized_citizen"
   INDIAN_TRIBE_MEMBER_STATUS = "indian_tribe_member"
   US_CITIZEN_STATUS = "us_citizen"
   NOT_LAWFULLY_PRESENT_STATUS = "not_lawfully_present_in_us"
   ALIEN_LAWFULLY_PRESENT_STATUS = "alien_lawfully_present"
-  INELIGIBLE_CITIZEN_VERIFICATION = %w(not_lawfully_present_in_us non_native_not_lawfully_present_in_us)
+  INELIGIBLE_CITIZEN_VERIFICATION = %w[not_lawfully_present_in_us non_native_not_lawfully_present_in_us]
 
-  SSN_VALIDATION_STATES = %w(na valid outstanding pending)
-  NATIVE_VALIDATION_STATES = %w(na valid outstanding pending)
-  LOCAL_RESIDENCY_VALIDATION_STATES = %w(attested valid outstanding pending) #attested state is used for people with active enrollments before locale residency verification was turned on
-  VERIFICATION_SENSITIVE_ATTR = %w(first_name last_name ssn us_citizen naturalized_citizen eligible_immigration_status dob indian_tribe_member)
+  SSN_VALIDATION_STATES = %w[na valid outstanding pending]
+  NATIVE_VALIDATION_STATES = %w[na valid outstanding pending]
+  LOCAL_RESIDENCY_VALIDATION_STATES = %w[attested valid outstanding pending] #attested state is used for people with active enrollments before locale residency verification was turned on
+  VERIFICATION_SENSITIVE_ATTR = %w[first_name last_name ssn us_citizen naturalized_citizen eligible_immigration_status dob indian_tribe_member]
 
-  US_CITIZEN_STATUS_KINDS = %W(
+  US_CITIZEN_STATUS_KINDS = %w[
   us_citizen
   naturalized_citizen
   indian_tribe_member
-  )
-  CITIZEN_STATUS_KINDS = %w(
+  ]
+  CITIZEN_STATUS_KINDS = %w[
       us_citizen
       naturalized_citizen
       alien_lawfully_present
@@ -41,13 +40,13 @@ class ConsumerRole
       non_native_not_lawfully_present_in_us
       ssn_pass_citizenship_fails_with_SSA
       non_native_citizen
-  )
+  ]
 
-  ACA_ELIGIBLE_CITIZEN_STATUS_KINDS = %W(
+  ACA_ELIGIBLE_CITIZEN_STATUS_KINDS = %w[
       us_citizen
       naturalized_citizen
       indian_tribe_member
-  )
+  ]
 
   # FiveYearBarApplicabilityIndicator ??
   field :five_year_bar, type: Mongoid::Boolean, default: false
@@ -120,31 +119,31 @@ class ConsumerRole
   #validate :ssn_or_no_ssn
 
   validates :vlp_authority,
-    allow_blank: true,
-    inclusion: { in: VLP_AUTHORITY_KINDS, message: "%{value} is not a valid identity authority" }
+            allow_blank: true,
+            inclusion: { in: VLP_AUTHORITY_KINDS, message: "%<value>s is not a valid identity authority" }
 
   validates :citizen_status,
-    allow_blank: true,
-    inclusion: { in: CITIZEN_STATUS_KINDS + ACA_ELIGIBLE_CITIZEN_STATUS_KINDS, message: "%{value} is not a valid citizen status" }
+            allow_blank: true,
+            inclusion: { in: CITIZEN_STATUS_KINDS + ACA_ELIGIBLE_CITIZEN_STATUS_KINDS, message: "%<value>s is not a valid citizen status" }
 
   validates :citizenship_result,
-    allow_blank: true,
-    inclusion: { in: CITIZEN_STATUS_KINDS, message: "%{value} is not a valid citizen status" }
+            allow_blank: true,
+            inclusion: { in: CITIZEN_STATUS_KINDS, message: "%<value>s is not a valid citizen status" }
 
-  scope :all_under_age_twenty_six, ->{ gt(:'dob' => (TimeKeeper.date_of_record - 26.years))}
-  scope :all_over_age_twenty_six,  ->{lte(:'dob' => (TimeKeeper.date_of_record - 26.years))}
+  scope :all_under_age_twenty_six, ->{ gt(:dob => (TimeKeeper.date_of_record - 26.years))}
+  scope :all_over_age_twenty_six,  ->{lte(:dob => (TimeKeeper.date_of_record - 26.years))}
 
   # TODO: Add scope that accepts age range
-  scope :all_over_or_equal_age, ->(age) {lte(:'dob' => (TimeKeeper.date_of_record - age.years))}
-  scope :all_under_or_equal_age, ->(age) {gte(:'dob' => (TimeKeeper.date_of_record - age.years))}
+  scope :all_over_or_equal_age, ->(age) {lte(:dob => (TimeKeeper.date_of_record - age.years))}
+  scope :all_under_or_equal_age, ->(age) {gte(:dob => (TimeKeeper.date_of_record - age.years))}
 
-  alias_method :is_state_resident?, :is_state_resident
-  alias_method :is_incarcerated?,   :is_incarcerated
+  alias is_state_resident? is_state_resident
+  alias is_incarcerated? is_incarcerated
 
   embeds_one :lawful_presence_determination, as: :ivl_role
 
-  embeds_many :local_residency_responses, class_name:"EventResponse"
-  embeds_many :local_residency_requests, class_name:"EventRequest"
+  embeds_many :local_residency_responses, class_name: "EventResponse"
+  embeds_many :local_residency_requests, class_name: "EventRequest"
 
   after_initialize :setup_lawful_determination_instance
 
@@ -179,12 +178,12 @@ class ConsumerRole
   embeds_many :history_action_trackers, as: :history_trackable
 
   #list of the collections we want to track under consumer role model
-  COLLECTIONS_TO_TRACK = %w- Person consumer_role vlp_documents lawful_presence_determination hbx_enrollments -
+  COLLECTIONS_TO_TRACK = %w[Person consumer_role vlp_documents lawful_presence_determination hbx_enrollments]
 
   def ivl_coverage_selected
-    if unverified?
-      coverage_purchased!
-    end
+    return unless unverified?
+
+    coverage_purchased!
   end
 
   def ssn_or_no_ssn
@@ -192,18 +191,18 @@ class ConsumerRole
   end
 
   def start_residency_verification_process
-    notify(RESIDENCY_VERIFICATION_REQUEST_EVENT_NAME, {:person => self.person})
+    notify(RESIDENCY_VERIFICATION_REQUEST_EVENT_NAME, {:person => person})
   end
 
   def setup_lawful_determination_instance
-    unless self.lawful_presence_determination.present?
-      self.lawful_presence_determination = LawfulPresenceDetermination.new
-    end
+    return if lawful_presence_determination.present?
+
+    self.lawful_presence_determination = LawfulPresenceDetermination.new
   end
 
   def lawful_presence_determination_instance
     setup_lawful_determination_instance
-    self.lawful_presence_determination
+    lawful_presence_determination
   end
 
   def is_aca_enrollment_eligible?
@@ -213,17 +212,17 @@ class ConsumerRole
 
   #check if consumer has uploaded documents for verification type
   def has_docs_for_type?(type)
-    self.vlp_documents.any?{ |doc| doc.verification_type == type && doc.identifier }
+    vlp_documents.any?{ |doc| doc.verification_type == type && doc.identifier }
   end
 
   def has_outstanding_documents?
-    self.vlp_documents.any? {|doc| verification_type_status(doc.verification_type, self.person) == "outstanding" }
+    vlp_documents.any? {|doc| verification_type_status(doc.verification_type, person) == "outstanding" }
   end
 
   #use this method to check what verification types needs to be included to the notices
   def outstanding_verification_types
-    self.person.verification_types.find_all do |type|
-      self.is_type_outstanding?(type)
+    person.verification_types.find_all do |type|
+      is_type_outstanding?(type)
     end
   end
 
@@ -234,35 +233,35 @@ class ConsumerRole
   #check verification type status
   def is_type_outstanding?(type)
     case type
-      when "DC Residency"
-        residency_denied? && !has_docs_for_type?(type) && local_residency_outstanding?
-      when 'Social Security Number'
-        !ssn_verified? && !has_docs_for_type?(type)
-      when 'American Indian Status'
-        !native_verified? && !has_docs_for_type?(type)
-      else
-        !lawful_presence_authorized? && !has_docs_for_type?(type)
+    when "DC Residency"
+      residency_denied? && !has_docs_for_type?(type) && local_residency_outstanding?
+    when 'Social Security Number'
+      !ssn_verified? && !has_docs_for_type?(type)
+    when 'American Indian Status'
+      !native_verified? && !has_docs_for_type?(type)
+    else
+      !lawful_presence_authorized? && !has_docs_for_type?(type)
     end
   end
 
   def local_residency_outstanding?
-    self.local_residency_validation == 'outstanding'
+    local_residency_validation == 'outstanding'
   end
 
   def ssn_verified?
-    ["na", "valid"].include?(self.ssn_validation)
+    ["na", "valid"].include?(ssn_validation)
   end
 
   def ssn_pending?
-    self.ssn_validation == "pending"
+    ssn_validation == "pending"
   end
 
   def ssn_outstanding?
-    self.ssn_validation == "outstanding"
+    ssn_validation == "outstanding"
   end
 
   def lawful_presence_verified?
-    self.lawful_presence_determination.verification_successful?
+    lawful_presence_determination.verification_successful?
   end
 
   def is_hbx_enrollment_eligible?
@@ -271,7 +270,8 @@ class ConsumerRole
 
   def parent
     raise "undefined parent: Person" unless person?
-    self.person
+
+    person
   end
 
   def families
@@ -307,9 +307,8 @@ class ConsumerRole
     Person.all_consumer_roles
   end
 
-
   def is_active?
-    self.is_active
+    is_active
   end
 
   def self.naturalization_document_types
@@ -557,12 +556,10 @@ class ConsumerRole
   def verify_ivl_by_admin(*args)
     if sci_verified?
       pass_residency!
+    elsif person.ssn || is_native?
+      ssn_valid_citizenship_valid! verification_attr(args.first)
     else
-      if person.ssn || is_native?
-        self.ssn_valid_citizenship_valid! verification_attr(args.first)
-      else
-        self.pass_dhs! verification_attr(args.first)
-      end
+      pass_dhs! verification_attr(args.first)
     end
   end
 
@@ -591,7 +588,7 @@ class ConsumerRole
       documents.subject.eql?(subject)
     end
 
-    subject_doc || vlp_documents.build({subject:subject})
+    subject_doc || vlp_documents.build({subject: subject})
   end
 
   # collect all vlp documents for person and all dependents.
@@ -601,6 +598,7 @@ class ConsumerRole
     if person.primary_family.present?
       person.primary_family.family_members.flat_map(&:person).each do |family_person|
         next unless family_person.consumer_role.present?
+
         candidate_vlp_documents << family_person.consumer_role.vlp_documents
       end
       candidate_vlp_documents.uniq!
@@ -610,6 +608,7 @@ class ConsumerRole
 
     candidate_vlp_documents.detect do |document|
       next if document.identifier.blank?
+
       doc_key = document.identifier.split('#').last
       doc_key == key
     end
@@ -617,7 +616,7 @@ class ConsumerRole
 
   def latest_active_tax_household_with_year(year, family)
     family.latest_household.latest_active_tax_household_with_year(year)
-  rescue => e
+  rescue StandardError => e
     log("#4287 person_id: #{person.try(:id)}", {:severity => 'error'})
     nil
   end
@@ -651,22 +650,20 @@ class ConsumerRole
   end
 
   def check_for_critical_changes(person_params, family)
-    if person_params.select{|k,v| VERIFICATION_SENSITIVE_ATTR.include?(k) }.any?{|field,v| sensitive_information_changed(field, person_params)}
-      redetermine_verification!(verification_attr) if family.person_has_an_active_enrollment?(person)
-    end
+    redetermine_verification!(verification_attr) if person_params.select{|k,v| VERIFICATION_SENSITIVE_ATTR.include?(k) }.any?{|field,v| sensitive_information_changed(field, person_params)} && family.person_has_an_active_enrollment?(person)
 
     trigger_residency! if can_trigger_residency?(person_params["no_dc_address"], family)
   end
 
   def can_trigger_residency?(no_dc_address, family) # trigger for change in address
     person.age_on(TimeKeeper.date_of_record) > 18 &&
-    person.no_dc_address &&
-    no_dc_address == "false" &&
-    family.person_has_an_active_enrollment?(person)
+      person.no_dc_address &&
+      no_dc_address == "false" &&
+      family.person_has_an_active_enrollment?(person)
   end
 
   def add_type_history_element(params)
-    verification_type_history_elements<<VerificationTypeHistoryElement.new(params)
+    verification_type_history_elements << VerificationTypeHistoryElement.new(params)
   end
 
   def can_start_residency_verification? # initial trigger check for coverage purchase
@@ -674,10 +671,10 @@ class ConsumerRole
   end
 
   def invoke_residency_verification!
-    if can_start_residency_verification?
-      mark_residency_pending
-      start_residency_verification_process
-    end
+    return unless can_start_residency_verification?
+
+    mark_residency_pending
+    start_residency_verification_process
   end
 
   #class methods
@@ -689,6 +686,7 @@ class ConsumerRole
   end
 
   private
+
   def notify_of_eligibility_change(*args)
     CoverageHousehold.update_individual_eligibilities_for(self)
   end
@@ -728,7 +726,7 @@ class ConsumerRole
   end
 
   def residency_denied?
-    (!is_state_resident.nil?) && (!is_state_resident) && local_residency_validation == "outstanding"
+    !is_state_resident.nil? && !is_state_resident && local_residency_validation == "outstanding"
   end
 
   def residency_verified?
@@ -757,16 +755,16 @@ class ConsumerRole
 
   def mark_doc_type_uploaded(v_type)
     case v_type
-      when "Social Security Number"
-        update_attributes(:ssn_rejected => false)
-      when "Citizenship"
-        update_attributes(:lawful_presence_rejected => false)
-      when "Immigration status"
-        update_attributes(:lawful_presence_rejected => false)
-      when "American Indian Status"
-        update_attributes(:native_rejected => false)
-      when "DC Residency"
-        update_attributes(:residency_rejected => false)
+    when "Social Security Number"
+      update_attributes(:ssn_rejected => false)
+    when "Citizenship"
+      update_attributes(:lawful_presence_rejected => false)
+    when "Immigration status"
+      update_attributes(:lawful_presence_rejected => false)
+    when "American Indian Status"
+      update_attributes(:native_rejected => false)
+    when "DC Residency"
+      update_attributes(:residency_rejected => false)
     end
   end
 
@@ -779,32 +777,32 @@ class ConsumerRole
   end
 
   def pass_ssn(*args)
-    self.update_attributes!(ssn_validation: "valid")
+    update_attributes!(ssn_validation: "valid")
   end
 
   def fail_ssn(*args)
-    self.update_attributes!(
+    update_attributes!(
       ssn_validation: "outstanding"
     )
   end
 
   def fail_ssa_for_no_ssn(*args)
-    self.update_attributes!(
+    update_attributes!(
       ssn_validation: "outstanding",
       ssn_update_reason: "no_ssn_for_native"
     )
   end
 
-  def pass_lawful_presence(*args)
-    lawful_presence_determination.authorize!(*args)
+  def pass_lawful_presence(*)
+    lawful_presence_determination.authorize!(*)
   end
 
   def record_partial_pass(*args)
     lawful_presence_determination.update_attributes!(:citizenship_result => "ssn_pass_citizenship_fails_with_SSA")
   end
 
-  def fail_lawful_presence(*args)
-    lawful_presence_determination.deny!(*args)
+  def fail_lawful_presence(*)
+    lawful_presence_determination.deny!(*)
   end
 
   def revert_ssn
@@ -815,8 +813,8 @@ class ConsumerRole
     update_attributes(:native_validation => "pending")
   end
 
-  def revert_lawful_presence(*args)
-    self.lawful_presence_determination.revert!(*args)
+  def revert_lawful_presence(*)
+    lawful_presence_determination.revert!(*)
   end
 
   def update_all_verification_types(*args)
@@ -827,25 +825,25 @@ class ConsumerRole
 
   def admin_verification_action(admin_action, v_type, update_reason)
     case admin_action
-      when "verify"
-        update_verification_type(v_type, update_reason)
-      when "return_for_deficiency"
-        return_doc_for_deficiency(v_type, update_reason)
+    when "verify"
+      update_verification_type(v_type, update_reason)
+    when "return_for_deficiency"
+      return_doc_for_deficiency(v_type, update_reason)
     end
   end
 
   def return_doc_for_deficiency(v_type, update_reason, *authority)
     case v_type
-      when "DC Residency"
-        update_attributes(:residency_update_reason => update_reason, :residency_rejected => true)
-        mark_residency_denied
-      when "Social Security Number"
-        update_attributes(:ssn_validation => "outstanding", :ssn_update_reason => update_reason, :ssn_rejected => true)
-      when "American Indian Status"
-        update_attributes(:native_validation => "outstanding", :native_update_reason => update_reason, :native_rejected => true)
-      else
-        lawful_presence_determination.deny!(verification_attr(authority.first))
-        update_attributes(:lawful_presence_update_reason => {:v_type => v_type, :update_reason => update_reason}, :lawful_presence_rejected => true )
+    when "DC Residency"
+      update_attributes(:residency_update_reason => update_reason, :residency_rejected => true)
+      mark_residency_denied
+    when "Social Security Number"
+      update_attributes(:ssn_validation => "outstanding", :ssn_update_reason => update_reason, :ssn_rejected => true)
+    when "American Indian Status"
+      update_attributes(:native_validation => "outstanding", :native_update_reason => update_reason, :native_rejected => true)
+    else
+      lawful_presence_determination.deny!(verification_attr(authority.first))
+      update_attributes(:lawful_presence_update_reason => {:v_type => v_type, :update_reason => update_reason}, :lawful_presence_rejected => true)
     end
     reject!(verification_attr(authority.first))
     "#{v_type} was rejected."
@@ -853,17 +851,17 @@ class ConsumerRole
 
   def update_verification_type(v_type, update_reason, *authority)
     case v_type
-      when "DC Residency"
-        update_attributes(:is_state_resident => true, :residency_update_reason => update_reason, :residency_determined_at => TimeKeeper.datetime_of_record, :local_residency_validation => "valid")
-      when "Social Security Number"
-        update_attributes(:ssn_validation => "valid", :ssn_update_reason => update_reason)
-      when "American Indian Status"
-        update_attributes(:native_validation => "valid", :native_update_reason => update_reason)
-      else
-        lawful_presence_determination.authorize!(verification_attr(authority.first))
-        update_attributes(:lawful_presence_update_reason => {:v_type => v_type, :update_reason => update_reason} )
+    when "DC Residency"
+      update_attributes(:is_state_resident => true, :residency_update_reason => update_reason, :residency_determined_at => TimeKeeper.datetime_of_record, :local_residency_validation => "valid")
+    when "Social Security Number"
+      update_attributes(:ssn_validation => "valid", :ssn_update_reason => update_reason)
+    when "American Indian Status"
+      update_attributes(:native_validation => "valid", :native_update_reason => update_reason)
+    else
+      lawful_presence_determination.authorize!(verification_attr(authority.first))
+      update_attributes(:lawful_presence_update_reason => {:v_type => v_type, :update_reason => update_reason})
     end
-    (all_types_verified? && !fully_verified?) ? verify_ivl_by_admin(authority.first) : "#{v_type} successfully verified."
+    all_types_verified? && !fully_verified? ? verify_ivl_by_admin(authority.first) : "#{v_type} successfully verified."
   end
 
   def redetermine_verification!(verification_attr)
@@ -873,14 +871,14 @@ class ConsumerRole
 
   def is_type_verified?(type)
     case type
-      when "DC Residency"
-        residency_verified?
-      when "Social Security Number"
-        ssn_verified?
-      when "American Indian Status"
-        native_verified?
-      else
-        lawful_presence_verified?
+    when "DC Residency"
+      residency_verified?
+    when "Social Security Number"
+      ssn_verified?
+    when "American Indian Status"
+      native_verified?
+    else
+      lawful_presence_verified?
     end
   end
 
@@ -890,17 +888,17 @@ class ConsumerRole
   end
 
   def ensure_native_validation
-    if (tribal_id.nil? || tribal_id.empty?)
+    if tribal_id.nil? || tribal_id.empty?
       self.native_validation = "na"
-    else
-      self.native_validation = "outstanding" if native_validation == "na"
+    elsif native_validation == "na"
+      self.native_validation = "outstanding"
     end
   end
 
   def ensure_ssn_validation_status
-    if self.person && self.person.ssn.blank?
-      self.ssn_validation = "na"
-    end
+    return unless person && person.ssn.blank?
+
+    self.ssn_validation = "na"
   end
 
   def citizenship_immigration_processing?
@@ -908,8 +906,9 @@ class ConsumerRole
   end
 
   def processing_residency_24h?
-    return false if self.residency_determined_at.nil?
-    residency_pending? && ((self.residency_determined_at + 24.hours) > DateTime.now)
+    return false if residency_determined_at.nil?
+
+    residency_pending? && ((residency_determined_at + 24.hours) > DateTime.now)
   end
 
   def sensitive_information_changed(field, person_params)
@@ -934,7 +933,6 @@ class ConsumerRole
   def verification_attr(*authority)
     authority = authority.first == "curam" ? "curam" : "hbx"
     OpenStruct.new({:determined_at => Time.now,
-                    :vlp_authority => authority
-                   })
+                    :vlp_authority => authority})
   end
 end
