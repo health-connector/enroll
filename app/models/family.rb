@@ -52,13 +52,12 @@ class Family
   embeds_many :households, cascade_callbacks: true, :before_add => :reset_active_household
   # embeds_many :broker_agency_accounts #depricated
   embeds_many :broker_agency_accounts, class_name: "BenefitSponsors::Accounts::BrokerAgencyAccount"
-  embeds_many :general_agency_accounts
   embeds_many :documents, as: :documentable
 
   before_save :clear_blank_fields
 
   accepts_nested_attributes_for :special_enrollment_periods, :family_members, :irs_groups,
-                                :households, :broker_agency_accounts, :general_agency_accounts
+                                :households, :broker_agency_accounts
 
   # index({hbx_assigned_id: 1}, {unique: true})
   index({e_case_id: 1}, { sparse: true })
@@ -165,7 +164,6 @@ class Family
   scope :by_broker_agency_profile_id,       lambda { |broker_agency_profile_id|
                                               where(broker_agency_accounts: {:$elemMatch => {is_active: true, "$or": [{benefit_sponsors_broker_agency_profile_id: broker_agency_profile_id}, {broker_agency_profile_id: broker_agency_profile_id}]}})
                                             }
-  scope :by_general_agency_profile_id,      ->(general_agency_profile_id) { where(general_agency_accounts: {:$elemMatch => {general_agency_profile_id: general_agency_profile_id, aasm_state: "active"}})}
 
   scope :all_assistance_applying,           lambda {
                                               unscoped.exists(:"households.tax_households.eligibility_determinations" => true).order(
@@ -1178,12 +1176,16 @@ class Family
     active_household.hbx_enrollments.where(:aasm_state.in => HbxEnrollment::ENROLLED_STATUSES).flat_map(&:hbx_enrollment_members).flat_map(&:family_member).flat_map(&:person).include?(person)
   end
 
-  def self.min_verification_due_date_range(start_date,end_date)
+  def self.min_verification_due_date_range(start_date, end_date)
     timekeeper_date = TimeKeeper.date_of_record + 95.days
+    date_condition = { :"$gte" => start_date, :"$lte" => end_date }
     if timekeeper_date >= start_date.to_date && timekeeper_date <= end_date.to_date
-      self.or(:min_verification_due_date => { :"$gte" => start_date, :"$lte" => end_date}).or(:min_verification_due_date => nil)
+      where("$or" => [
+        { min_verification_due_date: date_condition },
+        { min_verification_due_date: nil }
+      ])
     else
-      self.or(:min_verification_due_date => { :"$gte" => start_date, :"$lte" => end_date})
+      where(min_verification_due_date: date_condition)
     end
   end
 

@@ -68,7 +68,14 @@ Rails.application.configure do
   #:namespace => "cache",
   #:expires_in => 90.minutes }
 
-  config.cache_store = :redis_store, "redis://#{ENV.fetch('REDIS_HOST_ENROLL', nil)}:6379", {  }
+  config.cache_store = :redis_cache_store, {
+    url: "redis://valkey-master",
+    sentinels: [
+      { host: ENV.fetch('REDIS_HOST_ENROLL', ''), port: 26379 }
+    ],
+    role: :master,
+    namespace: "cache"
+  }
 
   # Enable serving of images, stylesheets, and JavaScripts from an asset server.
   # config.action_controller.asset_host = 'http://assets.example.com'
@@ -92,12 +99,22 @@ Rails.application.configure do
   #  config.acapi.add_async_subscription(Subscribers::DateChange)
   config.acapi.publish_amqp_events = true
   config.acapi.app_id = "enroll"
-  config.acapi.remote_broker_uri = ENV.fetch('RABBITMQ_URL', nil)
+
   config.acapi.remote_request_exchange = "#{ENV.fetch('HBX_ID', nil)}.#{ENV.fetch('ENV_NAME', nil)}.e.fanout.requests"
   config.acapi.remote_event_queue = "#{ENV.fetch('HBX_ID', nil)}.#{ENV.fetch('ENV_NAME', nil)}.q.application.enroll.inbound_events"
   config.action_mailer.default_url_options = { :host => ENV.fetch('ENROLL_FQDN', nil).to_s }
   config.acapi.hbx_id = ENV.fetch('HBX_ID', nil).to_s
   config.acapi.environment_name = ENV.fetch('ENV_NAME', nil).to_s
+  if ENV['RABBITMQ_CLUSTER_HOSTS'].present?
+    config.acapi.cluster do |c|
+      c.hosts = JSON.parse(ENV.fetch('RABBITMQ_CLUSTER_HOSTS'))
+      c.port = ENV.fetch('RABBITMQ_CLUSTER_PORT').to_i
+      c.username = ENV.fetch('RABBITMQ_CLUSTER_USERNAME')
+      c.password = ENV.fetch('RABBITMQ_CLUSTER_PASSWORD')
+    end
+  else
+    config.acapi.remote_broker_uri = ENV.fetch('RABBITMQ_URL', nil)
+  end
 
   # Add Google Analytics tracking ID
   config.ga_tracking_id = ENV.fetch('GA_TRACKING_ID', 'dummy')
@@ -130,3 +147,13 @@ Rails.application.configure do
     config.middleware.swap ActionDispatch::RemoteIp, ActionDispatch::RemoteIp, false, all_proxies
   end
 end
+
+# rubocop:disable Style/GlobalVars
+$redis = Resque.redis = Redis.new(
+  url: "redis://valkey-master",
+  sentinels: [
+    { host: ENV.fetch('REDIS_HOST_ENROLL', ''), port: 26379 }
+  ],
+  role: :master
+)
+# rubocop:enable Style/GlobalVars

@@ -38,7 +38,6 @@ module Importers
   def employer_attributes
     {
         :broker_agency_accounts => assign_brokers,
-        :general_agency_accounts => assign_general_agencies,
         :entity_kind => "c_corporation",
         :profile_source => "conversion",
         :registered_on => registered_on

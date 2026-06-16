@@ -16,9 +16,9 @@ Gem::Specification.new do |s|
 
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]
 
-  s.add_dependency "rails", "~> 7.2"
+  s.add_dependency 'rails', '~> 8.1', '>= 8.1.2'
   s.add_dependency "slim", '~> 5.2'
-  s.add_dependency "mongoid", '~> 8.1.5'
+  s.add_dependency "mongoid", '~> 9'
   # s.add_dependency 'mongoid-multitenancy', '~> 1.2'
   s.add_dependency "aasm", "~> 4.8.0"
   s.add_dependency 'config', '~> 5.5', '>= 5.5.2'
@@ -29,7 +29,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'virtus', '~> 1.0.5'
   s.add_dependency 'active_model_serializers'
   # s.add_dependency 'devise', '~> 3.5.4'
-  s.add_dependency 'devise', '~> 4.5'
+  s.add_dependency 'devise', '~> 5.0', '>= 5.0.3'
   s.add_dependency 'language_list', '~> 1.1.0'
   s.add_dependency 'mongoid-autoinc', '~> 6.0'
   s.add_dependency 'interactor', '3.1.2'

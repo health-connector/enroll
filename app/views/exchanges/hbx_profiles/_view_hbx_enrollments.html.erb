@@ -117,12 +117,12 @@
         $("#reinstate-form").submit();
     });
     $('div#reinstate_confirm').on('hidden.bs.modal', function () {
-        $('.modal-dialog .bg-warning').html('');
+      $('.modal-dialog .bg-warning').text('');
     })
     $("div#reinstate_confirm").on('shown.bs.modal', function(event){
         $('#terminated_enrollemnts :radio:checked').each(function (){
-            $('#reinstate-plan-name').html($(this).closest('tr').find("td#name").text());
-            $('#effective-date').html($(this).closest('tr').find("td#reinstate").text());
+        $('#reinstate-plan-name').text($(this).closest('tr').find("td#name").text());
+        $('#effective-date').text($(this).closest('tr').find("td#reinstate").text());
             var employee_status = $(this).closest('tr').find("td#employee_status").text();
             var effective_date = $(this).closest('tr').find("td#reinstate").text();
             var enrollment_can_be_reinstated = $(this).closest('tr').find("td#enrollment_can_be_reinstated").text();
@@ -133,28 +133,28 @@
             if(enrollment_can_be_reinstated == "false") {
                 if (enrollment_market == "Employer Sponsored"){
                     if (cobra_employee == "true" && cobra_enrollment == "false"){
-                        $('.modal-dialog .bg-warning').html("Unable to reinstate employer sponsored enrollment for cobra employee ");
+              $('.modal-dialog .bg-warning').text("Unable to reinstate employer sponsored enrollment for cobra employee ");
                         return;
                     }
                     if(cobra_employee == "false" && cobra_enrollment == "true"){
-                        $('.modal-dialog .bg-warning').html("Unable to reinstate cobra enrollment for active employee");
+              $('.modal-dialog .bg-warning').text("Unable to reinstate cobra enrollment for active employee");
                         return;
                     }
-                    $('.modal-dialog .bg-warning').html("Unable to reinstate Employer Sponsored enrollment, Employer not offering coverage for the effective date " + effective_date);
+            $('.modal-dialog .bg-warning').text("Unable to reinstate Employer Sponsored enrollment, Employer not offering coverage for the effective date " + effective_date);
                 }else{
-                    $('.modal-dialog .bg-warning').html("Unable to reinstate Individual Market enrollment for effective date " + effective_date + " : Previous year terminated enrollment can't be reinstated, Please reinstate for current year terminated enrollment.");
+            $('.modal-dialog .bg-warning').text("Unable to reinstate Individual Market enrollment for effective date " + effective_date + " : Previous year terminated enrollment can't be reinstated, Please reinstate for current year terminated enrollment.");
                 }
                 return;
             }
             if (active_enroll_exists_with_reinstate_date == "true") {
-                $('.modal-dialog .bg-warning').html("Unable to reinstate, Active Coverage/Enrollment exists with Effective date " + effective_date);
+          $('.modal-dialog .bg-warning').text("Unable to reinstate, Active Coverage/Enrollment exists with Effective date " + effective_date);
                 return;
             }
             if(employee_status) {
                 if(employee_status == 'CobraTerminated') {
-                    $('.modal-dialog .bg-warning').html("This COBRA employee is no longer 'active' on the employers roster. If you proceed, the COBRA census record will also be reinstated to an 'active' state.")
+            $('.modal-dialog .bg-warning').text("This COBRA employee is no longer 'active' on the employers roster. If you proceed, the COBRA census record will also be reinstated to an 'active' state.")
                 }else{
-                    $('.modal-dialog .bg-warning').html("This employee is no longer 'active' on the employers roster. If you proceed, the census record will also be reinstated to an 'active' state.")
+            $('.modal-dialog .bg-warning').text("This employee is no longer 'active' on the employers roster. If you proceed, the census record will also be reinstated to an 'active' state.")
                 }
             }
         });

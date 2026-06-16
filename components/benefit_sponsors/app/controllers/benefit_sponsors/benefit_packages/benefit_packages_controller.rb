@@ -14,6 +14,7 @@ module BenefitSponsors
 
       def new
         authorize @benefit_package_form, :updateable?
+        @product_search_options = @benefit_package_form.catalog.search_options
       end
 
       def create
@@ -40,6 +41,7 @@ module BenefitSponsors
 
       def edit
         @benefit_package_form = BenefitSponsors::Forms::BenefitPackageForm.for_edit(params.permit(:id, :benefit_application_id), true)
+        @product_search_options = @benefit_package_form.catalog.search_options
         authorize @benefit_package_form, :updateable?
       end
 

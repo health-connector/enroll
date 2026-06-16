@@ -16,10 +16,9 @@ qs.evaluate.each do |r|
   end
 end
 
-remote_broker_uri = Rails.application.config.acapi.remote_broker_uri
 target_queue = "dc0.#{amqp_environment_name}.q.gluedb.enrollment_query_result_handler"
 
-conn = Bunny.new(remote_broker_uri, :heartbeat => 15)
+conn = Bunny.new(Rails.application.config.acapi.to_connection_settings)
 conn.start
 chan = conn.create_channel
 chan.confirm_select

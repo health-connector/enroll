@@ -43,3 +43,19 @@ Feature: Broker creates a quote for a prospect employer
       | 0                | disabled       |
       | 50               | enabled        |
       | 100              | enabled        |
+
+  Scenario Outline: Broker should be able to click employee cost details button
+    And Max Planck logs on to the Broker Agency Portal
+    And the broker clicks on Employers tab
+    And the broker clicks Actions for that Employer
+    And the broker clicks on Create Quote button
+    And Primary Broker enters quote name
+    And the broker clicks on Select Health Benefits button
+    And the broker selects plan offerings by metal level and enters <contribution_pct> for employee and deps
+    And the broker selects a Reference Health Plan
+    When the broker clicks on view employee cost details button
+    Then broker should see Benefit Package Set Up page
+
+    Examples:
+      | contribution_pct |
+      | 50               |

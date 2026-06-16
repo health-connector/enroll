@@ -19,7 +19,28 @@ module BenefitSponsors
         form_attrs = base_form_attributes
         form_attrs[:sponsored_benefits_attributes] = { "0" => sponsored_benefit_attributes }
 
-        ActionController::Parameters.new(form_attrs).permit!
+        ActionController::Parameters.new(form_attrs).permit(
+          :id,
+          :benefit_application_id,
+          sponsored_benefits_attributes: [
+            :id,
+            :kind,
+            :reference_plan_id,
+            :product_package_kind,
+            :product_option_choice,
+            {
+              sponsor_contribution_attributes: [
+                contribution_levels_attributes: [
+                  :id,
+                  :contribution_factor,
+                  :is_offered,
+                  :display_name,
+                  :contribution_unit_id
+                ]
+              ]
+            }
+          ]
+        )
       end
 
       private
@@ -63,7 +84,7 @@ module BenefitSponsors
         Rails.logger.info("Existing sponsored benefit ID: #{existing_id.inspect}, package_exists: #{package_exists?}")
 
         if existing_id.present?
-          attrs[:id] = existing_id
+          attrs[:id] = existing_id.to_s
           Rails.logger.info("Including sponsored benefit ID in attrs: #{existing_id}")
         else
           Rails.logger.info("No existing sponsored benefit ID, will create new benefit")

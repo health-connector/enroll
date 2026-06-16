@@ -81,7 +81,7 @@ module BenefitSponsors
       def counties_for_zip_code
         @counties = BenefitMarkets::Locations::CountyZip.where(zip: params[:zip_code]).pluck(:county_name).uniq
 
-        render json: @counties
+        render json: @counties.to_json
       end
 
       private
@@ -104,15 +104,145 @@ module BenefitSponsors
 
       def registration_params
         current_user_id = current_user.present? ? current_user.id : nil
-        params[:agency].merge!({
-                                 :profile_id => params["id"],
-                                 :current_user_id => current_user_id
-                               })
-        params[:agency].permit!
+        agency_params = params.require(:agency).permit(
+          :profile_type,
+          :portal,
+          :profile_id,
+          :current_user_id,
+          staff_roles_attributes: [
+            :id,
+            :first_name,
+            :last_name,
+            :dob,
+            :email,
+            :area_code,
+            :number,
+            :extension,
+            :npn,
+            :person_id,
+            :profile_id
+          ],
+          organization: [
+            :id,
+            :entity_kind,
+            :legal_name,
+            :dba,
+            :fein,
+            :profile_type,
+            {
+              profile_attributes: [
+                :id,
+                :market_kind,
+                :is_benefit_sponsorship_eligible,
+                :corporate_npn,
+                :languages_spoken,
+                :working_hours,
+                :accept_new_clients,
+                :home_page,
+                :contact_method,
+                :sic_code,
+                :ach_account_number,
+                :ach_routing_number,
+                :ach_routing_number_confirmation,
+                :referred_by,
+                :referred_reason,
+                :profile_type,
+                {
+                  office_locations_attributes: [
+                    :id,
+                    :is_primary,
+                    :_destroy,
+                    {
+                      address_attributes: [
+                        :id,
+                        :kind,
+                        :address_1,
+                        :address_2,
+                        :city,
+                        :state,
+                        :zip,
+                        :county,
+                        :_destroy
+                      ]
+                    },
+                    {
+                      phone_attributes: [
+                        :id,
+                        :kind,
+                        :area_code,
+                        :number,
+                        :extension,
+                        :_destroy
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        )
+
+        agency_params.merge(
+          profile_id: params["id"],
+          current_user_id: current_user_id
+        )
       end
 
       def organization_params
-        params[:agency][:organization].permit!
+        params.require(:agency).require(:organization).permit(
+          :id,
+          :entity_kind,
+          :legal_name,
+          :dba,
+          :fein,
+          :profile_type,
+          profile_attributes: [
+            :id,
+            :market_kind,
+            :is_benefit_sponsorship_eligible,
+            :corporate_npn,
+            :languages_spoken,
+            :working_hours,
+            :accept_new_clients,
+            :home_page,
+            :contact_method,
+            :sic_code,
+            :ach_account_number,
+            :ach_routing_number,
+            :ach_routing_number_confirmation,
+            :referred_by,
+            :referred_reason,
+            :profile_type,
+            {office_locations_attributes: [
+              :id,
+              :is_primary,
+              :_destroy,
+              {
+                address_attributes: [
+                  :id,
+                  :kind,
+                  :address_1,
+                  :address_2,
+                  :city,
+                  :state,
+                  :zip,
+                  :county,
+                  :_destroy
+                ]
+              },
+              {
+                phone_attributes: [
+                  :id,
+                  :kind,
+                  :area_code,
+                  :number,
+                  :extension,
+                  :_destroy
+                ]
+              }
+            ]}
+          ]
+        )
       end
 
       def current_person

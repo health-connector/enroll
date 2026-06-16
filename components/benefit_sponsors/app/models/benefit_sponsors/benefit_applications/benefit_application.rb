@@ -539,6 +539,19 @@ module BenefitSponsors
       ENROLLING_STATES.include?(aasm_state)
     end
 
+    def is_starting_soon?
+      published_and_pre_active_states = PUBLISHED_STATES - COVERAGE_EFFECTIVE_STATES - TERMINATED_STATES
+      published_and_pre_active_states.include?(aasm_state)
+    end
+
+    def has_changes_on_renewal?
+      return false unless is_renewing? && predecessor.present?
+      return false unless predecessor.active? || predecessor.expired?
+      return false unless start_on.year == predecessor.start_on.year + 1
+
+      benefit_packages.any?(&:has_changes_on_renewal?)
+    end
+
     def open_enrollment_contains?(date)
       open_enrollment_period.cover?(date)
     end

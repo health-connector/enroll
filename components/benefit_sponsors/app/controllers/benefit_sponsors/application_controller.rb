@@ -115,16 +115,16 @@ module BenefitSponsors
 
     private
 
-    def broker_agency_or_general_agency?
-      @profile_type == "broker_agency" || @profile_type == "general_agency"
+    def broker_agency_profile?
+      @profile_type == "broker_agency"
     end
 
     def user_not_authorized(exception)
       policy_name = exception.policy.class.to_s.underscore
-      flash[:error] = "Access not allowed for #{exception.query}, (Pundit policy)" unless broker_agency_or_general_agency?
+      flash[:error] = "Access not allowed for #{exception.query}, (Pundit policy)" unless broker_agency_profile?
       respond_to do |format|
         format.json { render nothing: true, status: :forbidden }
-        format.html { redirect_to(session[:custom_url] || request.referrer || main_app.root_path)}
+        format.html { redirect_to(url_from(session[:custom_url]) || url_from(request.referrer) || main_app.root_path) }
         format.js   { render nothing: true, status: :forbidden }
       end
     end

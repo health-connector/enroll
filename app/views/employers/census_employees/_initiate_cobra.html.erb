@@ -9,7 +9,11 @@
               <br />
               <span><strong><%= l10n('census_employee.cobra_eligibility_text') %></strong></span>
               <br />
-              <span><strong><%= l10n('census_employee.initiate_cobra_notes') %></strong></span>
+                <% if EnrollRegistry.feature_enabled?(:employer_broker_ui_enhancements) %>
+                  <span><strong><%= l10n('census_employee.initiate_cobra_notes_extended') %></strong></span>
+                <% else %>
+                  <span><strong><%= l10n('census_employee.initiate_cobra_notes') %></strong></span>
+                <% end %>
             </h5>
             <br />
             <br />

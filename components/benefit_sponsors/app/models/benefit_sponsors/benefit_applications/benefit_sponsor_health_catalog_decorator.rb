@@ -17,7 +17,8 @@ module BenefitSponsors
         :rx_deductible_value,
         :rx_family_deductible_value,
         :is_standard_plan,
-        :is_pvp_eligible
+        :is_pvp_eligible,
+        :hsa_eligibility
       )
 
       ContributionLevel = Struct.new(:id, :display_name, :contribution_factor, :is_offered, :contribution_unit_id)
@@ -106,7 +107,8 @@ module BenefitSponsors
                         product.rx_individual_deductible,
                         product.rx_family_deductible,
                         product.is_standard_plan,
-                        product_is_pvp_eligible?(product)
+                        product_is_pvp_eligible?(product),
+                        product.hsa_eligibility
             )
           end
           @products[product_package.package_kind] = case product_package.package_kind
@@ -119,6 +121,44 @@ module BenefitSponsors
             end
         end
         @products
+      end
+
+      def search_options
+        plan_options unless defined? @products
+        return @search_options if defined? @search_options
+
+        @search_options = {
+          product_type: [],
+          hsa_eligibility: [],
+          metal_level_kind: [],
+          deductible_value: [],
+          is_pvp_eligible: []
+        }
+
+        product_packages.by_product_kind(:health).each do |product_package|
+          product_package.products.each do |product|
+            hsa_bool = product.hsa_eligibility ? "yes" : "no"
+            pvp_bool = product_is_pvp_eligible?(product) ? "yes" : "no"
+            @search_options[:product_type] << product.product_type
+            @search_options[:hsa_eligibility] << hsa_bool
+            @search_options[:metal_level_kind] << product.metal_level_kind
+            @search_options[:deductible_value] << product.medical_individual_deductible
+            @search_options[:is_pvp_eligible] << pvp_bool
+          end
+        end
+
+        @search_options.each do |key, option|
+          if key == :metal_level_kind
+            # Sort metal levels in proper order: bronze, silver, gold, platinum
+            metal_level_order = ['bronze', 'silver', 'gold', 'platinum']
+            option.uniq!
+            option.sort_by! { |level| metal_level_order.index(level.to_s.downcase) || 999 }
+          else
+            option.uniq!.sort! unless [true, false].include?(option)
+          end
+        end
+
+        @search_options
       end
 
       def carriers

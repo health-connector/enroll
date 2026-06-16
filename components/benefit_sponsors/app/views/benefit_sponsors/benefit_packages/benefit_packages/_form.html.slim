@@ -11,8 +11,7 @@ h1.heading-text Benefit Package - Set Up
 .benefit-properties
   .plan-title#uic-wrapper
     .row.row-form-wrapper
-      - title_value = f.object.title.present? ? f.object.title : "#{TimeKeeper.date_of_record.year} Employer Benefits"
-      = f.text_field :title, class: "form-control", placeholder:'My Benefit Package', required: true
+      = f.text_field :title, class: "form-control", placeholder:'My Benefit Package', required: true, value: strip_year_from_title(f.object.title)
     .row.row-form-wrapper
       = f.text_field :description, class: "form-control", placeholder:'My Description'
     .row.row-form-wrapper

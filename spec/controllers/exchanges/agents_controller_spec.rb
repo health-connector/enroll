@@ -72,12 +72,12 @@ RSpec.describe Exchanges::AgentsController do
     let!(:consumer_role) { FactoryBot.create(:consumer_role, bookmark_url: nil, person: person_user) }
 
     before :each do
-      allow(person_user).to receive(:csr_role).and_return true
       allow(current_user).to receive(:person).and_return(person_user)
     end
 
     context "actions when not passed Ridp" do
       it 'should redirect to family account path' do
+        allow(person_user).to receive(:csr_role).and_return true
         sign_in current_user
         get :resume_enrollment, params: { person_id: person_user.id }
         expect(response).to redirect_to family_account_path
@@ -86,7 +86,7 @@ RSpec.describe Exchanges::AgentsController do
       it 'should redirect to consumer role bookmark url' do
         consumer_role.update_attributes(bookmark_url: '/')
         sign_in current_user
-        get :resume_enrollment, params: {  person_id: person_user.id }
+        get :resume_enrollment, params: { person_id: person_user.id }
         expect(response).to redirect_to person_user.consumer_role.bookmark_url
       end
     end

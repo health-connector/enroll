@@ -5,11 +5,31 @@
 # your test database is "scratch space" for the test suite and is wiped
 # and recreated between test runs. Don't rely on the data there!
 require "active_support/core_ext/integer/time"
+require "base64"
+
+# The chosen-rails gem CSS references /images/chosen-sprite.png but that file
+# is not committed. This middleware catches those requests and returns a 1x1
+# transparent GIF so Capybara does not raise an ActionController::RoutingError.
+class ChosenSpriteFallback
+  TRANSPARENT_GIF = Base64.strict_decode64("R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=").freeze
+
+  def initialize(app)
+    @app = app
+  end
+
+  def call(env)
+    return @app.call(env) unless env["PATH_INFO"].start_with?("/images/chosen-sprite")
+
+    [200, { "Content-Type" => "image/gif", "Content-Length" => TRANSPARENT_GIF.bytesize.to_s }, [TRANSPARENT_GIF]]
+  end
+end
 
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
   config.cache_classes = true
+
+  config.enable_reloading = false
   config.cache_store = :memory_store
 
   # Do not eager load code on boot. This avoids loading your whole application
@@ -21,7 +41,10 @@ Rails.application.configure do
   config.serve_static_files   = true
   config.static_cache_control = 'public, max-age=3600'
 
-    # Configure public file server for tests with Cache-Control for performance.
+  # Intercept chosen sprite requests before they reach the router.
+  config.middleware.insert_before(ActionDispatch::Static, ChosenSpriteFallback)
+
+  # Configure public file server for tests with Cache-Control for performance.
   config.public_file_server.headers = {
     'Cache-Control' => "public, max-age=#{1.hour.to_i}"
   }
@@ -86,3 +109,9 @@ Rails.application.configure do
   Mongoid.logger.level = Logger::ERROR
   Mongo::Logger.logger.level = Logger::ERROR
 end
+
+resque_redis_host = ENV["REDIS_HOST_ENROLL"] || "localhost"
+
+# rubocop:disable Style/GlobalVars
+$redis = Resque.redis = Redis.new(:host => resque_redis_host, :port => 6379)
+# rubocop:enable Style/GlobalVars

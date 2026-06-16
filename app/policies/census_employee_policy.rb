@@ -10,9 +10,6 @@ class CensusEmployeePolicy < ApplicationPolicy
         end
       elsif @user.has_role? :broker
         @record.employer_profile.try(:active_broker) == @user.person
-      elsif @user.has_role?(:general_agency_staff)
-        emp_ids = EmployerProfile.find_by_general_agency_profile(@user.person.general_agency_staff_roles.first.general_agency_profile).map(&:id)
-        emp_ids.include? ( @record.employer_profile.id)
       else
         false
       end

@@ -62,10 +62,10 @@ module BenefitMarkets
           )
         end
 
-        # Following Operation expects AcaEntities domain class as subject
+        # Following Operation expects Eligible domain class as subject
         def create_eligibility(eligibility_options)
-          ::AcaEntities::Eligible::AddEligibility.new.call(
-            subject: "AcaEntities::BenefitMarkets::PremiumValueProduct",
+          ::Eligible::Operations::AddEligibility.new.call(
+            subject: "Eligible::Entities::Eligibility",
             eligibility: eligibility_options
           )
         end
@@ -115,8 +115,17 @@ module BenefitMarkets
           eligibility_record = ::BenefitMarkets::PvpEligibilities::PvpEligibility.new(eligibility_params)
 
           eligibility_record.tap do |record|
-            record.evidences = record.class.create_objects(eligibility.evidences, :evidences)
-            record.grants = record.class.create_objects(eligibility.grants, :grants)
+            # Convert Dry::Struct entities to hashes for Mongoid models
+            # Filter out fields that Mongoid models don't support
+            evidence_hashes = eligibility.evidences.map do |evidence|
+              evidence.to_h.slice(:key, :title, :description, :is_satisfied, :current_state, :subject_ref, :evidence_ref, :state_histories)
+            end
+            grant_hashes = eligibility.grants.map do |grant|
+              grant.to_h.slice(:key, :title, :description, :value)
+            end
+
+            record.evidences = record.class.create_objects(evidence_hashes, :evidences)
+            record.grants = record.class.create_objects(grant_hashes, :grants)
           end
 
           eligibility_record

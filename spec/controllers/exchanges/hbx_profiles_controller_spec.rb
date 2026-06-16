@@ -679,7 +679,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       allow(hbx_staff_role).to receive(:permission).and_return permission_yes
       sign_in(user)
       @params = {:person => {:pid => person.id, :ssn => invalid_ssn, :dob => valid_dob},:jq_datepicker_ignore_person => {:dob => valid_dob}, :format => 'js'}
-      get :update_dob_ssn, params: @params, xhr: true
+      post :update_dob_ssn, params: @params, xhr: true
       expect(response).to render_template('edit_enrollment')
     end
 
@@ -688,7 +688,7 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       sign_in(user)
       expect(response).to have_http_status(:success)
       @params = {:person => {:pid => person.id, :ssn => valid_ssn, :dob => valid_dob },:jq_datepicker_ignore_person => {:dob => valid_dob}, :format => 'js'}
-      get :update_dob_ssn, params: @params, xhr: true
+      post :update_dob_ssn, params: @params, xhr: true
       expect(response).to render_template('update_enrollment')
     end
 
@@ -697,55 +697,19 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       sign_in(user)
       expect(response).to have_http_status(:success)
       @params = {:person => {:pid => person1.id, :ssn => "", :dob => valid_dob },:jq_datepicker_ignore_person => {:dob => valid_dob}, :format => 'js'}
-      get :update_dob_ssn, params: @params, xhr: true
+      post :update_dob_ssn, params: @params, xhr: true
       expect(response).to render_template('update_enrollment')
     end
 
     it "should return authorization error for Non-Admin users" do
-      allow(user).to receive(:has_hbx_staff_role?).and_return false
-      sign_in(user)
-      get :update_dob_ssn, xhr: true
+      non_admin_user = FactoryBot.create(:user, :hbx_staff, person: person)
+      non_admin_user.person.hbx_staff_role.update_attributes!(permission_id: permission_no.id)
+      sign_in(non_admin_user)
+      @params = {:person => {:pid => person.id, :ssn => valid_ssn, :dob => valid_dob }, :jq_datepicker_ignore_person => {:dob => valid_dob}, :format => 'js'}
+      post :update_dob_ssn, params: @params, xhr: true
       expect(response).not_to have_http_status(:success)
     end
 
-  end
-
-  describe "GET general_agency_index" do
-    let(:user) { FactoryBot.create(:user, roles: ["hbx_staff"]) }
-    before :each do
-      allow(user).to receive(:has_hbx_staff_role?).and_return(true)
-      sign_in user
-    end
-
-    context "when GA is enabled in settings" do
-      before do
-        Settings.aca.general_agency_enabled = true
-        Enroll::Application.reload_routes!
-      end
-      it "should returns http success" do
-        get :general_agency_index, format: :js
-        expect(response).to have_http_status(:success)
-      end
-
-      it "should get general_agencies" do
-        get :general_agency_index, format: :js
-        expect(assigns(:general_agency_profiles)).to eq Kaminari.paginate_array(GeneralAgencyProfile.filter_by)
-      end
-    end
-
-    context "when GA is disabled in settings" do
-      before do
-        Settings.aca.general_agency_enabled = false
-        Enroll::Application.reload_routes!
-      end
-
-      it "should returns http success" do
-        expect(get: "/exchanges/hbx_profiles/general_agency_index").not_to route_to(
-          controller: "exchanges/hbx_profiles",
-          action: "general_agency_index"
-        )
-      end
-    end
   end
 
   describe "POST reinstate_enrollment", :dbclean => :around_each do

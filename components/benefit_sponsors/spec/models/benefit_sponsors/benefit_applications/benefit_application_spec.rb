@@ -640,11 +640,6 @@ module BenefitSponsors
 
         context '.active_census_employees_under_py', dbclean: :after_each do
 
-          before :each do
-            renewal_application.benefit_packages.first.update_attributes!(_id: CensusEmployee.all.first.benefit_group_assignments.first.benefit_package_id)
-            census_employee.reload
-          end
-
           it 'should not return the terminated EEs' do
             expect(renewal_application.active_census_employees_under_py.count).to eq 5
             term_date = renewal_application.effective_period.min - 10.days
@@ -1401,6 +1396,98 @@ module BenefitSponsors
         it 'total_enrolled_active_count returns 0' do
           expect(benefit_application.total_enrolled_active_count).to eq 0
         end
+      end
+    end
+  end
+
+  describe '#has_changes_on_renewal?', :dbclean => :after_each do
+    include_context 'setup benefit market with market catalogs and product packages'
+    include_context 'setup renewal application'
+
+    subject { renewal_application }
+
+    context 'when the application is not renewing' do
+      before { allow(subject).to receive(:is_renewing?).and_return(false) }
+
+      it 'returns false' do
+        expect(subject.has_changes_on_renewal?).to be false
+      end
+    end
+
+    context 'when there is no predecessor' do
+      before do
+        allow(subject).to receive(:is_renewing?).and_return(true)
+        allow(subject).to receive(:predecessor).and_return(nil)
+      end
+
+      it 'returns false' do
+        expect(subject.has_changes_on_renewal?).to be false
+      end
+    end
+
+    context 'when the predecessor is canceled' do
+      before do
+        allow(subject).to receive(:is_renewing?).and_return(true)
+        allow(subject.predecessor).to receive(:active?).and_return(false)
+        allow(subject.predecessor).to receive(:expired?).and_return(false)
+      end
+
+      it 'returns false' do
+        expect(subject.has_changes_on_renewal?).to be false
+      end
+    end
+
+    context 'when the renewal start year is not one year after the predecessor start year' do
+      before do
+        allow(subject).to receive(:is_renewing?).and_return(true)
+        allow(subject.predecessor).to receive(:active?).and_return(true)
+        allow(subject).to receive(:start_on).and_return(Date.new(2026, 1, 1))
+        allow(subject.predecessor).to receive(:start_on).and_return(Date.new(2024, 1, 1))
+      end
+
+      it 'returns false' do
+        expect(subject.has_changes_on_renewal?).to be false
+      end
+    end
+
+    context 'when the application is renewing with an active predecessor from the prior year' do
+      before do
+        allow(subject).to receive(:is_renewing?).and_return(true)
+        allow(subject.predecessor).to receive(:active?).and_return(true)
+        allow(subject.predecessor).to receive(:expired?).and_return(false)
+        allow(subject).to receive(:start_on).and_return(Date.new(2026, 1, 1))
+        allow(subject.predecessor).to receive(:start_on).and_return(Date.new(2025, 1, 1))
+      end
+
+      context 'and no benefit packages have changes' do
+        before { allow(subject).to receive(:benefit_packages).and_return([double(has_changes_on_renewal?: false)]) }
+
+        it 'returns false' do
+          expect(subject.has_changes_on_renewal?).to be false
+        end
+      end
+
+      context 'and at least one benefit package has changes' do
+        before { allow(subject).to receive(:benefit_packages).and_return([double(has_changes_on_renewal?: true)]) }
+
+        it 'returns true' do
+          expect(subject.has_changes_on_renewal?).to be true
+        end
+      end
+    end
+
+    context 'when the predecessor is expired from the prior year' do
+      before do
+        allow(subject).to receive(:is_renewing?).and_return(true)
+        allow(subject.predecessor).to receive(:active?).and_return(false)
+        allow(subject.predecessor).to receive(:expired?).and_return(true)
+        allow(subject).to receive(:start_on).and_return(Date.new(2026, 1, 1))
+        allow(subject.predecessor).to receive(:start_on).and_return(Date.new(2025, 1, 1))
+        allow(subject).to receive(:benefit_packages).and_return([double(has_changes_on_renewal?: true)])
+      end
+
+      it 'returns true' do
+        expect(subject.has_changes_on_renewal?).to be true
       end
     end
   end

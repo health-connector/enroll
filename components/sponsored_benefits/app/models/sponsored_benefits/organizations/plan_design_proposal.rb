@@ -4,6 +4,7 @@ module SponsoredBenefits
       include Mongoid::Document
       include Mongoid::Timestamps
       include AASM
+      include Concerns::Mongoid::RecursiveEmbeddedValidation
 
       RENEWAL_STATES = %w(renewing_draft renewing_published renewing_claimed renewing_expired)
       EXPIRABLE_STATES = %w(draft renewing_draft)
@@ -18,7 +19,7 @@ module SponsoredBenefits
       field :published_on, type: Date
       field :aasm_state, type: String
 
-      embeds_one :profile, class_name: "SponsoredBenefits::Organizations::AcaShopCcaEmployerProfile"
+      embeds_one :profile, class_name: "SponsoredBenefits::Organizations::AcaShopCcaEmployerProfile", validate: true, cascade_callbacks: true
       delegate :effective_date, to: :profile
       validates_uniqueness_of :claim_code, :case_sensitive => false, :allow_nil => true
 

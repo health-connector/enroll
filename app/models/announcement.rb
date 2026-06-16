@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 class Announcement
   include Mongoid::Document
   include SetCurrentUser
   include Mongoid::Timestamps
 
-  AUDIENCE_KINDS = %W{Employer Employee IVL Broker GA Webpage}
+  AUDIENCE_KINDS = %w[Employer Employee IVL Broker Webpage].freeze
 
   field :content, type: String
   field :start_date, type: Date
@@ -20,6 +22,7 @@ class Announcement
 
   def date_checks
     return if start_date.blank? || end_date.blank?
+
     errors.add(:base, "End Date should be later than today") if end_date < TimeKeeper.date_of_record
     errors.add(:base, "End Date should be later than Start date") if end_date < start_date
   end
@@ -33,7 +36,7 @@ class Announcement
 
   before_validation :update_audiences
   def update_audiences
-    self.audiences = audiences.select {|audience| audience.present? } if audiences.present?
+    self.audiences = audiences.select(&:present?) if audiences.present?
   end
 
   before_validation :update_content
@@ -43,32 +46,31 @@ class Announcement
 
   class << self
     AUDIENCE_KINDS.each do |kind|
-      define_method "current_msg_for_#{kind.downcase}".to_sym do
+      define_method :"current_msg_for_#{kind.downcase}" do
         Announcement.current.by_audience(kind).map(&:content)
       end
     end
 
-    def get_announcements_by_portal(portal_path="", person=nil)
+    # rubocop:disable Metrics/CyclomaticComplexity
+    def get_announcements_by_portal(portal_path = "", person = nil)
       announcements = []
 
-      case 
-      when portal_path.include?("employers/employer_profiles")
+      if portal_path.include?("employers/employer_profiles")
         announcements.concat(Announcement.current_msg_for_employer)
-      when portal_path.include?("families/home")
-        announcements.concat(Announcement.current_msg_for_employee) if person && person.has_active_employee_role?
-        announcements.concat(Announcement.current_msg_for_ivl) if person && person.has_active_consumer_role?
-      when portal_path.include?("employee")
-        announcements.concat(Announcement.current_msg_for_employee) if person && person.has_active_employee_role?
-      when portal_path.include?("consumer")
-        announcements.concat(Announcement.current_msg_for_ivl) if person && person.has_active_consumer_role?
-      when portal_path.include?("broker_agencies")
+      elsif portal_path.include?("families/home")
+        announcements.concat(Announcement.current_msg_for_employee) if person&.has_active_employee_role?
+        announcements.concat(Announcement.current_msg_for_ivl) if person&.has_active_consumer_role?
+      elsif portal_path.include?("employee")
+        announcements.concat(Announcement.current_msg_for_employee) if person&.has_active_employee_role?
+      elsif portal_path.include?("consumer")
+        announcements.concat(Announcement.current_msg_for_ivl) if person&.has_active_consumer_role?
+      elsif portal_path.include?("broker_agencies")
         announcements.concat(Announcement.current_msg_for_broker)
-      when portal_path.include?("general_agencies")
-        announcements.concat(Announcement.current_msg_for_ga)
       end
 
       announcements.uniq
     end
+    # rubocop:enable Metrics/CyclomaticComplexity
 
     def get_announcements_for_web
       Announcement.current_msg_for_webpage
