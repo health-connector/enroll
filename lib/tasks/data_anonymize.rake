@@ -9,44 +9,67 @@ require_relative '../data_anonymization/verifier'
 # Anonymizes all PII in the current CCA database. Restore a production backup
 # into a lower environment, run the anonymizer, verify, then dump and share.
 #
-# @example Standard run (local dev — ENV_NAME required by the production guard)
-#   ENV_NAME=pvt bundle exec rake data:anonymize
+# == Typical workflow
 #
-# @example Dry-run (preview counts without writing)
+#   1. Restore a prod backup into the lower env database.
+#   2. Run data:anonymize:reset if a prior sentinel exists (fresh DB refresh).
+#   3. Run data:anonymize (dry-run first, then live).
+#   4. Run data:anonymize:verify to confirm PII is gone.
+#   5. Dump and share the anonymized database.
+#
+# == ENV_NAME requirement
+#
+# ENV_NAME must be set to a non-'prod' value (e.g. 'pvt', 'preprod').
+# The task ABORTS immediately if ENV_NAME is unset or empty — this is an
+# intentional fail-closed safety guard to prevent accidental production runs
+# when the environment signal is missing or ambiguous.
+# In k8s lower envs, ENV_NAME and ENROLL_REVIEW_ENVIRONMENT are injected
+# automatically by the mhc_k8s configmap; no manual export is needed.
+#
+# @example Dry-run first — preview record counts without writing anything
 #   ENV_NAME=pvt bundle exec rake data:anonymize DRY_RUN=true
 #
-# @example CI/CD pipeline (skip interactive prompt, larger batch)
-#   ENV_NAME=pvt bundle exec rake data:anonymize SKIP_CONFIRMATION=true BATCH_SIZE=2000
+# @example Standard live run
+#   ENV_NAME=pvt bundle exec rake data:anonymize SKIP_CONFIRMATION=true
 #
-# @example Re-run on an already-anonymized database
+# @example Verify PII was removed after the run
+#   ENV_NAME=pvt bundle exec rake data:anonymize:verify
+#
+# @example Reset anonymizer state after a fresh DB refresh from a prior environment
+#   ENV_NAME=pvt bundle exec rake data:anonymize:reset
+#
+# @example Drop history_trackers only (e.g. after Sidekiq activity post-run)
+#   ENV_NAME=pvt bundle exec rake data:anonymize:drop_history_trackers
+#
+# @example Force re-anonymize an already-anonymized database
 #   ENV_NAME=pvt bundle exec rake data:anonymize FORCE_REANONYMIZE=true SKIP_CONFIRMATION=true
 #
-# @example Lower k8s env (ENV_NAME and ENROLL_REVIEW_ENVIRONMENT are injected by configmaps)
-#   bundle exec rake data:anonymize SKIP_CONFIRMATION=true
-#
-# @example Verify after anonymization
-#   bundle exec rake data:anonymize:verify
-#
-# @example Opt in to anonymizing sensitive location and DOB fields
+# @example Opt in to anonymizing location and DOB fields (off by default to protect rating/eligibility)
 #   ENV_NAME=pvt bundle exec rake data:anonymize ANONYMIZE_ZIP=true ANONYMIZE_COUNTY=true ANONYMIZE_STATE=true ANONYMIZE_DOB=true
 #
-# @env ENV_NAME                  [String]  k8s environment name (from mhc_k8s configmap). Must be
-#   set and must NOT equal 'prod'. Use 'pvt' or 'preprod' locally; injected by configmap in k8s.
-# @env ENROLL_REVIEW_ENVIRONMENT [Boolean] Must be 'true' in deployed lower envs (Rails.env=production).
-#   Set by k8s configmap to distinguish lower envs from real prod. Not required locally (Rails.env=test).
-# @env BATCH_SIZE        [Integer] Documents per bulk_write batch (default: 1000)
-# @env DRY_RUN           [Boolean] Set to 'true' to preview without writing
-# @env SKIP_CONFIRMATION [Boolean] Set to 'true' to skip the YES_ANONYMIZE prompt
-# @env FORCE_REANONYMIZE [Boolean] Set to 'true' to bypass the idempotency guard
-# @env ANONYMIZE_ZIP     [Boolean] Anonymize zip fields; preserved by default to protect rating calculations
-# @env ANONYMIZE_COUNTY  [Boolean] Anonymize county fields; preserved by default to protect rating calculations
-# @env ANONYMIZE_DOB     [Boolean] Shift DOB fields ±30 days; preserved by default to protect age-band eligibility
-# @env ANONYMIZE_STATE   [Boolean] Anonymize state fields; preserved by default to protect plan availability
-# @env RUN_ID            [String]  Printed to stdout at the end of a successful data:anonymize run; pass to data:anonymize:verify for out-of-process re-verification
-# @env HMAC_KEY          [String]  Printed to stdout at the end of a successful data:anonymize run; pass to data:anonymize:verify for out-of-process re-verification
+# @example Lower k8s env — ENV_NAME and ENROLL_REVIEW_ENVIRONMENT injected by configmap
+#   bundle exec rake data:anonymize SKIP_CONFIRMATION=true
 #
-# @example Out-of-process canonical prehash re-verification
+# @example Out-of-process prehash re-verification using credentials printed at run time
 #   bundle exec rake data:anonymize:verify RUN_ID=<uuid> HMAC_KEY=<hex>
+#
+# == Environment variables
+#
+# @env ENV_NAME                  [String]  Required. k8s environment name (mhc_k8s configmap).
+#   Must be set and must NOT equal 'prod'. Omitting this causes an immediate safety abort.
+#   Use 'pvt' or 'preprod' locally; injected automatically in k8s.
+# @env ENROLL_REVIEW_ENVIRONMENT [Boolean] Required in deployed lower envs (Rails.env=production).
+#   Must be 'true' to distinguish lower envs from real prod. Not required locally (Rails.env=test).
+# @env SKIP_CONFIRMATION [Boolean] Set to 'true' to skip the YES_ANONYMIZE interactive prompt
+# @env DRY_RUN           [Boolean] Set to 'true' to preview counts without writing
+# @env BATCH_SIZE        [Integer] Documents per bulk_write batch (default: 1000)
+# @env FORCE_REANONYMIZE [Boolean] Set to 'true' to bypass the idempotency guard
+# @env ANONYMIZE_ZIP     [Boolean] Anonymize zip fields (off by default — protects rating calculations)
+# @env ANONYMIZE_COUNTY  [Boolean] Anonymize county fields (off by default — protects rating calculations)
+# @env ANONYMIZE_DOB     [Boolean] Shift DOB ±30 days (off by default — protects age-band eligibility)
+# @env ANONYMIZE_STATE   [Boolean] Anonymize state fields (off by default — protects plan availability)
+# @env RUN_ID            [String]  UUID printed at end of a successful run; pass to :verify for re-verification
+# @env HMAC_KEY          [String]  Hex key printed at end of a successful run; pass to :verify for re-verification
 # @!endgroup
 
 namespace :data do
@@ -72,6 +95,47 @@ namespace :data do
       verifier_opts[:run_id] = ENV['RUN_ID'] if ENV['RUN_ID'].present?
       verifier_opts[:hmac_key] = ENV['HMAC_KEY'] if ENV['HMAC_KEY'].present?
       DataAnonymizer::Verifier.new(**verifier_opts).run
+    end
+
+    desc "Drop the history_trackers collection. Use to clean up tracker docs
+          written by app/sidekiq activity after an anonymization run, before
+          re-running data:anonymize:verify. Honors the same production-safety
+          guard as data:anonymize."
+    task :drop_history_trackers => :environment do
+      DataAnonymizer::Runner.abort_if_production!
+
+      db = Mongoid.default_client.database
+      if db.collection_names.include?('history_trackers')
+        count = db[:history_trackers].count_documents({})
+        db[:history_trackers].drop
+        Rails.logger.info "[data:anonymize:drop_history_trackers] Dropped history_trackers (#{count} documents) from #{db.name}"
+        puts "Dropped history_trackers (#{count} documents) from #{db.name}"
+      else
+        Rails.logger.info "[data:anonymize:drop_history_trackers] history_trackers not present in #{db.name}; nothing to drop"
+        puts "history_trackers not present in #{db.name}; nothing to drop"
+      end
+    end
+
+    desc "Drop the anonymizer-owned bookkeeping collections
+          (data_anonymizer_runs sentinel and data_anonymizer_prehashes TTL).
+          Use after a fresh DB refresh from a prior environment so the next
+          data:anonymize run is not blocked by a stale sentinel. Honors the
+          same production-safety guard as data:anonymize."
+    task :reset => :environment do
+      DataAnonymizer::Runner.abort_if_production!
+
+      db = Mongoid.default_client.database
+      %w[data_anonymizer_runs data_anonymizer_prehashes].each do |name|
+        if db.collection_names.include?(name)
+          count = db[name].count_documents({})
+          db[name].drop
+          Rails.logger.info "[data:anonymize:reset] Dropped #{name} (#{count} documents) from #{db.name}"
+          puts "Dropped #{name} (#{count} documents) from #{db.name}"
+        else
+          Rails.logger.info "[data:anonymize:reset] #{name} not present in #{db.name}; nothing to drop"
+          puts "#{name} not present in #{db.name}; nothing to drop"
+        end
+      end
     end
   end
 end
