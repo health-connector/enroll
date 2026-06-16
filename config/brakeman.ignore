@@ -21,7 +21,7 @@
       "cwe_id": [
         77
       ],
-      "note": ""
+      "note": "False positive: this is an admin-only data migration task run manually from the command line, never via a web request. The CSV is supplied by administrators via ENV['file_name']; FEIN and aasm_state values come from that admin-provided file, not from end-user input."
     },
     {
       "warning_type": "SQL Injection",
@@ -44,7 +44,7 @@
       "cwe_id": [
         89
       ],
-      "note": ""
+      "note": "False positive: ilike is an internal constant that resolves to ILIKE or LIKE depending on the database adapter — it is not derived from user input. All user-supplied search values are bound via named parameters (:term, :code), not interpolated into the SQL string directly."
     },
     {
       "warning_type": "Cross-Site Scripting",
@@ -165,27 +165,7 @@
       "cwe_id": [
         22
       ],
-      "note": ""
-    },
-    {
-      "warning_type": "Remote Code Execution",
-      "warning_code": 24,
-      "fingerprint": "cae4f250812ac10b3146de3493efca4305f38176f6eaab78c0d99000b1c80c99",
-      "check_name": "UnsafeReflection",
-      "message": "Unsafe reflection method `constantize` called with parameter value",
-      "file": "components/notifier/app/controllers/notifier/notice_kinds_controller.rb",
-      "line": 113,
-      "link": "https://brakemanscanner.org/docs/warning_types/remote_code_execution/",
-      "code": "(params[\"builder\"] or \"Notifier::MergeDataModels::EmployerProfile\").constantize",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "Notifier::NoticeKindsController",
-        "method": "get_tokens"
-      },
-      "user_input": "params[\"builder\"]",
-      "confidence": "High",
-      "note": ""
+      "note": "False positive: the notice title is an admin-managed database value, not user input. Access is restricted to admin users via Pundit (authorize ::Notifier::NoticeKind). The gsub call normalises whitespace to underscores and no user-supplied string reaches the file path."
     },
     {
       "warning_type": "File Access",
@@ -208,7 +188,7 @@
       "cwe_id": [
         22
       ],
-      "note": ""
+      "note": "False positive: the document identifier is a system-assigned storage path stored in MongoDB, not a user-controlled value. The action is protected by Pundit (authorize @employer_profile) which ensures only authorised users of that employer profile can download documents."
     },
     {
       "warning_type": "Cross-Site Scripting",
@@ -252,7 +232,7 @@
       "cwe_id": [
         79
       ],
-      "note": ""
+      "note": "False positive: @dup_enr_ids is built in the controller from fetch_duplicate_enrollment_ids on persisted enrollment records and contains only MongoDB ObjectId strings — no user-supplied content. The raw helper is used to embed this array into a JavaScript variable; it does not render any user input into the page."
     }
   ],
   "brakeman_version": "7.1.1"
