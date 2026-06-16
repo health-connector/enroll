@@ -511,21 +511,13 @@ class HbxEnrollment
     return nil unless employee_role.present?
     return nil if effective_on.blank?
 
-    base_enrollment = parent_enrollment
-    if base_enrollment.blank? && employee_role.respond_to?(:census_employee)
-      census_employee = employee_role.census_employee
-      if census_employee.present? && census_employee.respond_to?(:cobra_eligible_enrollments)
-        base_enrollment = census_employee.cobra_eligible_enrollments.detect do |enr|
-          enr.present? && !enr.is_cobra_status? && enr.coverage_kind == coverage_kind
-        end
-      end
-    end
-
+    base_enrollment = cobra_base_enrollment
     return nil unless base_enrollment.present?
     return nil if base_enrollment.is_cobra_status?
 
     benefit_application = base_enrollment.try(:sponsored_benefit_package).try(:benefit_application)
-    return nil unless benefit_application.present? && benefit_application.respond_to?(:effective_period)
+    return nil unless benefit_application.present?
+    return nil unless benefit_application.respond_to?(:effective_period)
     return nil unless benefit_application.effective_period.cover?(effective_on)
 
     base_enrollment.effective_on
@@ -2072,6 +2064,8 @@ class HbxEnrollment
     end
     cobra_rate_on = cobra_rating_start_on
     if is_cobra_status? && cobra_rate_on.present?
+      # CoverageAgeCalculator only uses coverage_eligibility_on when previous_product.id == product.id.
+      # Enrollments without predecessor_enrollment_id have previous_product nil, so we force it here.
       previous_product = product
     end
     hbx_enrollment_members.each do |hem|
@@ -2130,6 +2124,20 @@ class HbxEnrollment
   end
 
   private
+
+  def cobra_base_enrollment
+    base = parent_enrollment
+    return base if base.present?
+    return nil unless employee_role.respond_to?(:census_employee)
+
+    ce = employee_role.census_employee
+    return nil unless ce.present?
+    return nil unless ce.respond_to?(:cobra_eligible_enrollments)
+
+    ce.cobra_eligible_enrollments.detect do |enr|
+      enr.present? && !enr.is_cobra_status? && enr.coverage_kind == coverage_kind
+    end
+  end
 
   # NOTE - Mongoid::Timestamps does not generate created_at time stamps.
   def check_created_at

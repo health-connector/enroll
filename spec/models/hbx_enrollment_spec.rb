@@ -2273,6 +2273,15 @@ RSpec.describe HbxEnrollment, type: :model, dbclean: :after_each do
             expect(hbx_enrollment.cobra_rating_start_on).to eq effective_on
           end
         end
+
+        context 'when COBRA effective date falls outside the base plan year' do
+          let(:cobra_begin_date) { effective_on.next_year.beginning_of_month }
+
+          it 'returns nil from cobra_rating_start_on so re-rating applies' do
+            hbx_enrollment.validate_for_cobra_eligiblity(employee_role)
+            expect(hbx_enrollment.cobra_rating_start_on).to be_nil
+          end
+        end
       end
 
       context 'When Enrollment Effectve date is after cobra begin date' do
