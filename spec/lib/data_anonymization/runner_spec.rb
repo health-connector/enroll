@@ -548,13 +548,69 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
     end
   end
 
-  # @!group abort_if_production! — production guard tests
+  # @!group Version history clearing — versions unset behavior tests
 
-  describe '#abort_if_production!' do
-    let(:fake_db) { instance_double(Mongo::Database, name: 'mhc_enroll_test') }
+  describe 'version history clearing' do
+    let(:live_runner) { described_class.new(batch_size: batch_size, dry_run: false, force: true) }
+    let(:collection_double) { instance_double(Mongo::Collection) }
+    let(:db_double) { instance_double(Mongo::Database) }
+    # Cursor returned by Phase 1's pre-seed dedup query (load_existing_encrypted_ssns).
+    let(:dedup_cursor) { double('dedup_cursor', projection: double('projected_cursor', each: [])) }
+    # Cursor returned by the per-batch find used in the anonymization loop.
+    let(:batch_cursor) { double('batch_cursor', batch_size: double('sized_cursor', each_slice: [])) }
 
     before do
-      allow(runner).to receive(:db).and_return(fake_db)
+      allow(live_runner).to receive(:db).and_return(db_double)
+      allow(live_runner).to receive(:protected_user_ids).and_return(Set.new)
+      allow(db_double).to receive(:collection_names).and_return(%w[people organizations])
+    end
+
+    it 'unsets versions from people after anonymizing the batch loop' do
+      allow(db_double).to receive(:[]).with(:people).and_return(collection_double)
+      allow(collection_double).to receive(:count_documents).and_return(0)
+      allow(collection_double).to receive(:find).with('encrypted_ssn' => { '$exists' => true, '$ne' => nil }).and_return(dedup_cursor)
+      allow(collection_double).to receive(:find).with({}).and_return(batch_cursor)
+
+      expect(collection_double).to receive(:update_many).with({}, { '$unset' => { 'versions' => '' } })
+
+      live_runner.send(:anonymize_people)
+    end
+
+    it 'unsets versions from organizations after anonymizing the batch loop' do
+      allow(db_double).to receive(:[]).with(:organizations).and_return(collection_double)
+      allow(collection_double).to receive(:count_documents).and_return(0)
+      allow(collection_double).to receive(:find).and_return(batch_cursor)
+
+      expect(collection_double).to receive(:update_many).with({}, { '$unset' => { 'versions' => '' } })
+
+      live_runner.send(:anonymize_organizations)
+    end
+
+    it 'skips the versions unset when dry_run is true' do
+      dry_runner = described_class.new(batch_size: batch_size, dry_run: true, force: true)
+      allow(dry_runner).to receive(:db).and_return(db_double)
+      allow(dry_runner).to receive(:protected_user_ids).and_return(Set.new)
+      allow(db_double).to receive(:[]).with(:people).and_return(collection_double)
+      allow(collection_double).to receive(:count_documents).and_return(0)
+      allow(collection_double).to receive(:find).with('encrypted_ssn' => { '$exists' => true, '$ne' => nil }).and_return(dedup_cursor)
+      allow(collection_double).to receive(:find).with({}).and_return(batch_cursor)
+
+      expect(collection_double).not_to receive(:update_many)
+
+      dry_runner.send(:anonymize_people)
+    end
+  end
+
+  # @!group abort_if_production! — production guard tests
+
+  # Shared shared_context so the same stub pattern is reused by both the
+  # instance and class method describe blocks without duplication.
+  shared_context 'with fake db name' do
+    let(:fake_db)     { instance_double(Mongo::Database, name: 'mhc_enroll_test') }
+    let(:fake_client) { instance_double(Mongo::Client, database: fake_db) }
+
+    before do
+      allow(Mongoid).to receive(:default_client).and_return(fake_client)
       ENV.delete('ENV_NAME')
       ENV.delete('ENROLL_REVIEW_ENVIRONMENT')
     end
@@ -563,6 +619,10 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
       ENV.delete('ENV_NAME')
       ENV.delete('ENROLL_REVIEW_ENVIRONMENT')
     end
+  end
+
+  describe '#abort_if_production!' do
+    include_context 'with fake db name'
 
     context "when ENV_NAME is a lower-env value like 'pvt' (Rails.env=test)" do
       before { ENV['ENV_NAME'] = 'pvt' }
@@ -663,6 +723,201 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
         expect(err).not_to be_nil
         expect(err.message).to include('ENV_NAME is not set')
       end
+    end
+
+    it 'delegates to the class method' do
+      ENV['ENV_NAME'] = 'pvt'
+      expect(described_class).to receive(:abort_if_production!)
+      runner.send(:abort_if_production!)
+    end
+  end
+
+  # @!group .abort_if_production! — class method production guard tests
+
+  describe '.abort_if_production!' do
+    include_context 'with fake db name'
+
+    context "when ENV_NAME is a lower-env value like 'pvt' (Rails.env=test)" do
+      before { ENV['ENV_NAME'] = 'pvt' }
+
+      it 'does not abort' do
+        expect { described_class.abort_if_production! }.not_to raise_error
+      end
+    end
+
+    context "when in a lower k8s env like 'preprod' (Rails.env=production, ENROLL_REVIEW_ENVIRONMENT=true)" do
+      before do
+        ENV['ENV_NAME'] = 'preprod'
+        ENV['ENROLL_REVIEW_ENVIRONMENT'] = 'true'
+        allow(Rails).to receive(:env).and_return(ActiveSupport::StringInquirer.new('production'))
+      end
+
+      it 'does not abort' do
+        expect { described_class.abort_if_production! }.not_to raise_error
+      end
+    end
+
+    context 'when ENV_NAME is not set' do
+      it 'aborts' do
+        expect { described_class.abort_if_production! }.to raise_error(SystemExit)
+      end
+    end
+
+    context "when ENV_NAME is 'prod'" do
+      before { ENV['ENV_NAME'] = 'prod' }
+
+      it 'aborts' do
+        expect { described_class.abort_if_production! }.to raise_error(SystemExit)
+      end
+    end
+
+    context 'when database name ends in _prod' do
+      let(:fake_db) { instance_double(Mongo::Database, name: 'mhc_enroll_prod') }
+
+      before { ENV['ENV_NAME'] = 'pvt' }
+
+      it 'aborts' do
+        expect { described_class.abort_if_production! }.to raise_error(SystemExit)
+      end
+    end
+
+    context 'when database name contains production' do
+      let(:fake_db) { instance_double(Mongo::Database, name: 'mhc_production_enroll') }
+
+      before { ENV['ENV_NAME'] = 'pvt' }
+
+      it 'aborts' do
+        expect { described_class.abort_if_production! }.to raise_error(SystemExit)
+      end
+    end
+
+    context 'when Rails.env=production and ENROLL_REVIEW_ENVIRONMENT is not set' do
+      before do
+        ENV['ENV_NAME'] = 'pvt'
+        allow(Rails).to receive(:env).and_return(ActiveSupport::StringInquirer.new('production'))
+      end
+
+      it 'aborts' do
+        expect { described_class.abort_if_production! }.to raise_error(SystemExit)
+      end
+    end
+
+    it 'reads the database name from Mongoid.default_client directly' do
+      ENV['ENV_NAME'] = 'pvt'
+      expect(fake_client).to receive(:database).and_return(fake_db)
+      described_class.abort_if_production!
+    end
+  end
+
+  # @!group build_person_update SSN bounded loop — collision guard tests
+
+  describe '#build_person_update' do
+    let(:base_doc) do
+      {
+        'first_name' => 'Alice',
+        'last_name' => 'Smith',
+        'full_name' => 'Alice Smith',
+        'middle_name' => 'M',
+        'name_pfx' => 'Ms',
+        'name_sfx' => 'Jr',
+        'alternate_name' => 'Al',
+        'encrypted_ssn' => 'AAAA=='
+      }
+    end
+
+    it 'replaces encrypted_ssn with a newly generated value' do
+      result = runner.send(:build_person_update, base_doc, shift_days: 0)
+      expect(result['encrypted_ssn']).to be_present
+      expect(result['encrypted_ssn']).not_to eq('AAAA==')
+    end
+
+    it 'does not include encrypted_ssn in the update when the doc has none' do
+      doc = base_doc.except('encrypted_ssn')
+      result = runner.send(:build_person_update, doc, shift_days: 0)
+      expect(result).not_to have_key('encrypted_ssn')
+    end
+
+    it 'adds the new ciphertext to used_ssns so it cannot be reused in the same batch' do
+      used = Set.new
+      result = runner.send(:build_person_update, base_doc, shift_days: 0, used_ssns: used)
+      expect(used).to include(result['encrypted_ssn'])
+    end
+
+    it 'skips colliding candidates and picks the first non-colliding one' do
+      first_call = true
+      allow(DataAnonymizer::AnonymizedData).to receive(:encrypted_ssn) do
+        if first_call
+          first_call = false
+          'COLLIDE=='
+        else
+          'UNIQUE=='
+        end
+      end
+      used = Set.new(['COLLIDE=='])
+      result = runner.send(:build_person_update, base_doc, shift_days: 0, used_ssns: used)
+      expect(result['encrypted_ssn']).to eq('UNIQUE==')
+    end
+
+    it 'raises after 100 exhausted attempts when every candidate collides' do
+      allow(DataAnonymizer::AnonymizedData).to receive(:encrypted_ssn).and_return('FIXED==')
+      used = Set.new(['FIXED=='])
+      expect do
+        runner.send(:build_person_update, base_doc, shift_days: 0, used_ssns: used)
+      end.to raise_error(RuntimeError, /100 attempts/)
+    end
+
+    it 'replaces first_name and last_name' do
+      result = runner.send(:build_person_update, base_doc, shift_days: 0)
+      expect(result['first_name']).to be_present
+      expect(result['last_name']).to be_present
+      expect(result['first_name']).not_to eq('Alice')
+      expect(result['last_name']).not_to eq('Smith')
+    end
+
+    it 'nils out name_pfx, name_sfx, and alternate_name' do
+      result = runner.send(:build_person_update, base_doc, shift_days: 0)
+      expect(result['name_pfx']).to be_nil
+      expect(result['name_sfx']).to be_nil
+      expect(result['alternate_name']).to be_nil
+    end
+  end
+
+  describe '#load_existing_encrypted_ssns' do
+    let(:fake_collection) { instance_double(Mongo::Collection) }
+    let(:fake_view)       { instance_double(Mongo::Collection::View) }
+
+    before do
+      allow(fake_collection).to receive(:find).with(
+        'encrypted_ssn' => { '$exists' => true, '$ne' => nil }
+      ).and_return(fake_view)
+    end
+
+    it 'returns a Set containing each encrypted_ssn value from the collection' do
+      docs = [{ 'encrypted_ssn' => 'AAA==' }, { 'encrypted_ssn' => 'BBB==' }]
+      allow(fake_view).to receive(:projection).and_return(docs)
+
+      result = runner.send(:load_existing_encrypted_ssns, fake_collection)
+
+      expect(result).to be_a(Set)
+      expect(result).to include('AAA==', 'BBB==')
+    end
+
+    it 'returns an empty Set when no documents have an encrypted_ssn' do
+      allow(fake_view).to receive(:projection).and_return([])
+
+      result = runner.send(:load_existing_encrypted_ssns, fake_collection)
+
+      expect(result).to be_a(Set)
+      expect(result).to be_empty
+    end
+
+    it 'deduplicate ciphertexts when the same value appears more than once' do
+      docs = [{ 'encrypted_ssn' => 'AAA==' }, { 'encrypted_ssn' => 'AAA==' }]
+      allow(fake_view).to receive(:projection).and_return(docs)
+
+      result = runner.send(:load_existing_encrypted_ssns, fake_collection)
+
+      expect(result.size).to eq(1)
     end
   end
 end
