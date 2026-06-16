@@ -90,25 +90,31 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
 
   describe '#check_name_dob_prehash' do
     context 'when prehash_map or hmac_key is missing' do
-      it 'fails with a descriptive issue message when both are nil' do
+      it 'passes (skipped) with a prominent SKIPPED note in samples when both are nil' do
         result = verifier.send(:check_name_dob_prehash)
-        expect(result[:passed]).to be false
-        expect(result[:issues]).to include('not provided')
-        expect(result[:samples]).to eq('not provided')
+        expect(result[:passed]).to be true
+        expect(result[:issues]).to eq('None')
+        expect(result[:samples]).to include('SKIPPED')
+        expect(result[:samples]).to include('name+DOB mutation NOT verified')
       end
 
-      it 'fails when only hmac_key is nil' do
+      it 'emits a WARNING log line when skipped' do
+        expect(Rails.logger).to receive(:info).with(a_string_including('WARNING'))
+        verifier.send(:check_name_dob_prehash)
+      end
+
+      it 'passes (skipped) when only hmac_key is nil' do
         v = described_class.new(mode: :audit, prehash_map: { people: {} }, hmac_key: nil)
         result = v.send(:check_name_dob_prehash)
-        expect(result[:passed]).to be false
-        expect(result[:issues]).to include('not provided')
+        expect(result[:passed]).to be true
+        expect(result[:samples]).to include('SKIPPED')
       end
 
-      it 'fails when only prehash_map is nil' do
+      it 'passes (skipped) when only prehash_map is nil' do
         v = described_class.new(mode: :audit, prehash_map: nil, hmac_key: 'somekey')
         result = v.send(:check_name_dob_prehash)
-        expect(result[:passed]).to be false
-        expect(result[:issues]).to include('not provided')
+        expect(result[:passed]).to be true
+        expect(result[:samples]).to include('SKIPPED')
       end
     end
 
@@ -274,6 +280,22 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
     it 'includes ach_routing_number — ABA routing numbers are always 9 digits and validated separately' do
       expect(skip_fields).to include('ach_routing_number')
     end
+
+    it 'includes npn and corporate_npn — public broker NPNs intentionally preserved by the runner' do
+      expect(skip_fields).to include('npn', 'corporate_npn')
+    end
+
+    it 'includes content — free-text Comment/Announcement field may contain incidental 9-digit tokens' do
+      expect(skip_fields).to include('content')
+    end
+
+    it 'includes dba — organization doing-business-as name intentionally preserved per policy' do
+      expect(skip_fields).to include('dba')
+    end
+
+    it 'includes versions — inline mongoid-history snapshot array is not scanned for SSN patterns' do
+      expect(skip_fields).to include('versions')
+    end
   end
 
   # @!group doc_strings — recursive string extractor tests
@@ -306,6 +328,32 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
     it 'skips encrypted_ssn to avoid ciphertext false positives' do
       doc = { 'encrypted_ssn' => 'AaBbCcDd123456789', 'first_name' => 'Bob' }
       expect(verifier.send(:doc_strings, doc).to_a).to eq(['Bob'])
+    end
+
+    it 'skips npn and corporate_npn so broker NPNs are not yielded' do
+      doc = { 'npn' => '120002398', 'corporate_npn' => '216179133', 'name' => 'Agency' }
+      expect(verifier.send(:doc_strings, doc).to_a).to eq(['Agency'])
+    end
+
+    it 'skips content so operator-entered narrative text is not scanned for SSN patterns' do
+      doc = { 'comments' => [{ 'content' => 'received payment 120002398 from group' }], 'hbx_id' => '42' }
+      expect(verifier.send(:doc_strings, doc).to_a).to eq(['42'])
+    end
+
+    it 'skips dba so numeric doing-business-as names are not yielded' do
+      doc = { 'dba' => '125000024', 'legal_name' => 'Acme Corp' }
+      expect(verifier.send(:doc_strings, doc).to_a).to eq(['Acme Corp'])
+    end
+
+    it 'skips the versions key so inline mongoid-history snapshots are not scanned' do
+      doc = {
+        'first_name' => 'Alice',
+        'versions' => [
+          { 'phones' => [{ 'full_phone_number' => '216179133' }] },
+          { 'broker_agency_profile' => { 'ach_account_number' => '163674734' } }
+        ]
+      }
+      expect(verifier.send(:doc_strings, doc).to_a).to eq(['Alice'])
     end
 
     it 'returns an enumerator when no block is given' do
