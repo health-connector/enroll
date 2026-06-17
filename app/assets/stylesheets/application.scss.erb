@@ -347,3 +347,29 @@ img {
   padding-left: 0 !important;
   margin-left: -15px !important;
 }
+
+/* Print view for the Stimulus datatables: print only the current page's table
+   rows. Hide the site header/footer and every piece of datatable chrome (filter
+   tabs, date filter, export/print buttons, search, length menu, info line,
+   pager, processing overlay). */
+@media print {
+  #header-uic,
+  #footer-uic,
+  [data-controller="datatable"] > br,
+  [data-controller="datatable"] > div:not(#effective_datatable_wrapper),
+  #effective_datatable_wrapper .dt-buttons,
+  #effective_datatable_wrapper .dataTables_filter,
+  #effective_datatable_wrapper .dataTables_length,
+  #effective_datatable_wrapper .dataTables_info,
+  #effective_datatable_wrapper .dataTables_paginate,
+  #effective_datatable_wrapper .dataTables_processing {
+    display: none !important;
+  }
+
+  /* A site-wide print rule (body a { display: none }) can blank every anchor;
+     keep the table's cell links (e.g. the Name column) rendered. The id-scoped
+     selector out-specifies body a, so no !important is needed. */
+  #effective_datatable_wrapper table.effective-datatable a {
+    display: inline;
+  }
+}

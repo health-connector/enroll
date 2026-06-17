@@ -1,13 +1,9 @@
 # frozen_string_literal: true
 
 module Datatables
-  # Table definition for the User Accounts admin datatable (Pagy + Stimulus
-  # stack). Mirrors Effective::Datatables::UserAccountDatatable: same columns,
-  # same nested filter definition, and the same Queries::UserDatatableQuery
-  # collection wrapper, so both stacks return identical data while the
-  # :refactored_datatables flag is being rolled out.
-  #
-  # Implements the table contract documented in Datatables::FragmentRendering.
+  # Table definition for the User Accounts admin datatable. Wraps the filter-tab
+  # attributes in Queries::UserDatatableQuery and implements the table contract
+  # documented in Datatables::FragmentRendering.
   class UserAccountsTable
     def param_key
       'user_accounts'
@@ -54,14 +50,25 @@ module Datatables
       [:users, :lock_unlock]
     end
 
+    def date_filter
+      nil
+    end
+
+    def buttons
+      %w[csv excel]
+    end
+
+    def per_page_options
+      [10, 25, 50, 100]
+    end
+
     def status(row)
       return 'Unlocked' if row.locked_at.blank? && row.unlock_token.blank?
 
       'Locked'
     end
 
-    # The actions column is excluded, matching the legacy client-side export
-    # (buttons exported ':not(.col-actions)').
+    # The actions column is excluded from the export.
     def csv_headers
       columns[0..-2].map { |col| col[:label] }
     end

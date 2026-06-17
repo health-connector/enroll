@@ -1,13 +1,10 @@
-<%# The redraw region inside #effective_datatable_wrapper: table, buttons, search, length menu, info line, pager. The markup (grid layout, classes, ids, aria attributes) reproduces what jQuery DataTables generated at init time; each migrated page's flag-OFF DOM snapshot is the parity contract. The two inline display styles are state, kept inline for snapshot parity. %>
+<%# The redraw region inside #effective_datatable_wrapper: table, buttons, search, length menu, info line, pager. The markup (grid layout, classes, ids, aria attributes) matches the existing DataTables DOM so the page renders identically. The two inline display styles are element state, kept inline. %>
 <% table_id = "#{table.param_key}-table" %>
 <div class="row">
   <div id="<%= table_id %>_wrapper" class="dataTables_wrapper form-inline dt-bootstrap no-footer">
     <div class="row">
       <div class="col-sm-7 col-md-7">
-        <div class="dt-buttons btn-group">
-          <a class="btn btn-default buttons-csv buttons-html5" tabindex="0" aria-controls="<%= table_id %>" href="#" data-action="click->datatable#exportCsv"><span><%= l10n('datatables.csv') %></span></a>
-          <a class="btn btn-default buttons-excel buttons-html5" tabindex="0" aria-controls="<%= table_id %>" href="#" data-action="click->datatable#exportCsv"><span><%= l10n('datatables.excel') %></span></a>
-        </div>
+        <%= render partial: 'datatables/buttons', locals: { table: table, table_id: table_id } %>
       </div>
       <div class="col-sm-5 col-md-5">
         <% if table.global_search? %>
@@ -35,7 +32,7 @@
                       data-action="click->datatable#sortClicked" data-column="<%= col[:name] %>"
                       <% if col[:width] %>style="width: <%= col[:width] %>;"<% end %>><span class="filter-label"><%= col[:label] %></span></th>
                 <% else %>
-                  <%# ordered: the collection arrives pre-sorted ascending by this column; the legacy default order rendered the asc indicator on its (non-clickable) header. %>
+                  <%# ordered: the collection arrives pre-sorted ascending by this column; render the asc indicator on its non-clickable header. %>
                   <th class="col-<%= col[:type] %> col-<%= col[:name] %> sorting_disabled<%= ' sorting_asc' if col[:ordered] %>"
                       rowspan="1" colspan="1" data-column-index="<%= index %>"
                       aria-label="<%= label_text %>"
@@ -50,7 +47,9 @@
                 <%= render partial: table.row_partial, locals: { row: record, table: table, row_class: index.even? ? 'odd' : 'even' } %>
               <% end %>
             <% else %>
-              <tr class="odd"><td valign="top" colspan="<%= table.columns.size %>" class="dataTables_empty"><%= l10n('datatables.no_matching_records') %></td></tr>
+              <%# Two empty states: "no data" when nothing is loaded at all, "no match" when a search filtered everything out. %>
+              <% empty_message = search.present? ? l10n('datatables.no_matching_records') : l10n('datatables.no_data') %>
+              <tr class="odd"><td valign="top" colspan="<%= table.columns.size %>" class="dataTables_empty"><%= empty_message %></td></tr>
             <% end %>
           </tbody>
         </table>
@@ -63,7 +62,7 @@
       </div>
       <div class="col-sm-1 col-md-1">
         <div class="dataTables_length" id="<%= table_id %>_length">
-          <label><%# no data-action here: the controller binds this select itself (see bindLengthSelect) because selectric swallows native change events %><select name="<%= table_id %>_length" aria-controls="<%= table_id %>" class="form-control input-sm" tabindex="0"><% ::Datatables::FragmentRendering::PER_PAGE_OPTIONS.each do |option| %><option value="<%= option %>"<%= ' selected'.html_safe if option == pagy.limit %>><%= option %></option><% end %></select> <%= l10n('datatables.per_page') %></label>
+          <label><%# no data-action here: the controller binds this select itself (see bindLengthSelect) because selectric swallows native change events %><select name="<%= table_id %>_length" aria-controls="<%= table_id %>" class="form-control input-sm" tabindex="0"><% table.per_page_options.each do |option| %><option value="<%= option %>"<%= ' selected'.html_safe if option == pagy.limit %>><%= option %></option><% end %></select> <%= l10n('datatables.per_page') %></label>
         </div>
       </div>
     </div>
