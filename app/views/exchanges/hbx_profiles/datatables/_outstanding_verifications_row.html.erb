@@ -1,7 +1,5 @@
-<%# One Outstanding Verifications table row. Cell values must stay identical to
-    the legacy OutstandingVerificationDataTable column procs while both stacks
-    coexist. sorting_1 stays on col-name: it is the default-order column (index 0,
-    asc) the legacy stack shaded on load. %>
+<%# One Outstanding Verifications table row. sorting_1 stays on col-name: it is
+    the default-order column (index 0, asc), so its cells carry the sort shading. %>
 <%
   person = row.primary_applicant.person
   dropdowns = [

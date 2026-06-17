@@ -348,12 +348,10 @@ img {
   margin-left: -15px !important;
 }
 
-/* Print view for the Stimulus datatables (Outstanding Verifications print
-   button). The legacy stack used DataTables' buttons.print.js, which cloned only
-   the table into a new window; this reproduces that from the in-place page by
-   hiding the site header/footer and every piece of datatable chrome (filter
+/* Print view for the Stimulus datatables: print only the current page's table
+   rows. Hide the site header/footer and every piece of datatable chrome (filter
    tabs, date filter, export/print buttons, search, length menu, info line,
-   pager, processing overlay), leaving the current page's table rows. */
+   pager, processing overlay). */
 @media print {
   #header-uic,
   #footer-uic,
@@ -368,10 +366,10 @@ img {
     display: none !important;
   }
 
-  /* Some site print stylesheets blank every anchor (body a { display: none });
-     keep the table's cell links (e.g. the Name column) rendered, matching the
-     legacy print output. */
+  /* A site-wide print rule (body a { display: none }) can blank every anchor;
+     keep the table's cell links (e.g. the Name column) rendered. The id-scoped
+     selector out-specifies body a, so no !important is needed. */
   #effective_datatable_wrapper table.effective-datatable a {
-    display: inline !important;
+    display: inline;
   }
 }

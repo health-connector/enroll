@@ -21,7 +21,7 @@ module Datatables
   #                       order_by/skip/limit/size and, when global_search? is
   #                       true, datatable_search
   #   #global_search?   - whether the search box renders
-  #   #filters          - nested filter tab definition (legacy shape) or nil
+  #   #filters          - nested filter tab definition or nil
   #   #filter_scopes    - filter param keys collected into #collection's hash
   #                       (includes custom_datatable_date_from/to when the table
   #                       has a date filter)
@@ -29,7 +29,7 @@ module Datatables
   #                       table has no date filter
   #   #buttons          - ordered export/print button keys (e.g. %w[csv excel]
   #                       or %w[excel csv print]) rendered by datatables/_buttons
-  #   #per_page_options - the page-length menu values (legacy lengthMenu), e.g.
+  #   #per_page_options - the page-length menu values, e.g.
   #                       [10, 25, 50, 100]; the first is the default page size
   #   #csv_headers      - header row for the streamed CSV export
   #   #csv_row(record)  - plain-text cell values for one CSV row
@@ -71,8 +71,8 @@ module Datatables
       scoped
     end
 
-    # The same attribute hash the legacy DataTables AJAX flow delivered to the
-    # query wrappers via custom_attributes (e.g. {users: 'all', lock_unlock: 'locked'}).
+    # Builds the filter-attribute hash the query wrappers consume
+    # (e.g. {users: 'all', lock_unlock: 'locked'}).
     def datatable_filter_attributes(table)
       table.filter_scopes.index_with { |scope| params[scope].presence }.compact
     end

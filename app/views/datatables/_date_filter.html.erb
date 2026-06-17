@@ -1,11 +1,9 @@
-<%# Date-range filter, a parity copy of datatables/shared/_date_filter.html.erb
-    (the legacy gem rendered that partial when a datatable defined
-    date_filter_name_definition). The #custom_datatable_date_from / _to inputs and
-    the #date_range_apply button keep their ids so the page-level jQuery datepicker
-    init still binds them. The only new-stack addition is the Apply button's
-    data-action: the Stimulus controller reads the two inputs and adds
-    custom_datatable_date_from/to to the fragment params on redraw. This block sits
-    outside #effective_datatable_wrapper, so it survives redraws untouched. %>
+<%# Date-range filter. The #custom_datatable_date_from / _to inputs and the
+    #date_range_apply button keep their ids so the jQuery datepicker binds them.
+    The Apply button's data-action drives the Stimulus controller, which reads the
+    two inputs and adds custom_datatable_date_from/to to the fragment params on
+    redraw. This block sits outside #effective_datatable_wrapper, so it survives
+    redraws untouched. %>
 <div>
 <h4><%= filter_name %></h4>
 From:

@@ -1,27 +1,20 @@
 # frozen_string_literal: true
 
 module Datatables
-  # Table definition for the Outstanding Verifications admin datatable (Pagy +
-  # Stimulus stack). Mirrors Effective::Datatables::OutstandingVerificationDataTable:
-  # same columns, same documents-uploaded filter tabs, the same
-  # "Verification Due Date Range" date filter, and the same
-  # Queries::OutstandingVerificationDatatableQuery collection wrapper, so both
-  # stacks return identical data while the :refactored_datatables flag is being
-  # rolled out.
-  #
-  # Implements the table contract documented in Datatables::FragmentRendering.
-  # This is the first table to declare a date filter and to render the print
+  # Table definition for the Outstanding Verifications admin datatable.
+  # Implements the table contract documented in Datatables::FragmentRendering;
+  # it is the one table that declares a date-range filter and renders the print
   # button (buttons: excel, csv, print).
   class OutstandingVerificationsTable
     def param_key
       'outstanding_verifications'
     end
 
-    # name/documents_uploaded/verification_due are sortable to match the legacy
-    # column flags (and the default order [0, asc] surfaces sorting_asc on the
-    # name header). The sort itself is effectively a no-op: the query wrapper
-    # only applies order_by while a search is active, and the column names are
-    # not real Family fields - the legacy stack reorders nothing here either.
+    # name/documents_uploaded/verification_due render as sortable, and name is
+    # the default-ordered column (its header shows sorting_asc on load). The sort
+    # is a visual no-op, though: the query wrapper only applies order_by while a
+    # search is active, and these column names are not real Family fields, so
+    # nothing actually reorders.
     def columns
       [
         { name: 'name',               label: 'Name',               sortable: true,  type: :string },
@@ -62,25 +55,23 @@ module Datatables
       [:documents_uploaded, :custom_datatable_date_from, :custom_datatable_date_to]
     end
 
-    # Label for the date-range filter block (legacy date_filter_name_definition).
+    # Label for the date-range filter block.
     def date_filter
       'Verification Due Date Range'
     end
 
-    # Rendered (and in this order) by the buttons partial. Print is unique to
-    # this page among the migrated tables.
+    # Rendered in this order by the buttons partial; this is the one table with
+    # a print button.
     def buttons
       %w[excel csv print]
     end
 
-    # Legacy length menu: render_datatable was passed lengthMenu
-    # [[10, 25, 50], [10, 25, 50]] - no 100 option, unlike the default tables.
+    # This page's length menu is 10/25/50 (no 100, unlike the default tables).
     def per_page_options
       [10, 25, 50]
     end
 
-    # The actions column is excluded, matching the legacy client-side export
-    # (buttons exported ':not(.col-actions)').
+    # The actions column is excluded from the export.
     def csv_headers
       columns[0..-2].map { |col| col[:label] }
     end

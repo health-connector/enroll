@@ -83,8 +83,7 @@ export default class extends Controller {
   }
 
   // Print uses the browser dialog against the @media print rules that hide the
-  // surrounding chrome, matching the legacy DataTables print view (the visible
-  // rows of the current page).
+  // surrounding chrome, leaving the current page's rows.
   print(event) {
     event.preventDefault()
     window.print()
@@ -103,7 +102,7 @@ export default class extends Controller {
     this.redraw()
   }
 
-  // Filter tab behavior: one active tab per level, clicking hides deeper levels, an active tab reveals its Filter-<id> sub-level. Must stay equivalent to the legacy DT.filters() implementation while both stacks coexist.
+  // Filter tab behavior: one active tab per level; clicking hides deeper levels, and an active tab reveals its Filter-<id> sub-level.
   filterClicked(event) {
     const button = event.currentTarget
     const group = button.parentElement

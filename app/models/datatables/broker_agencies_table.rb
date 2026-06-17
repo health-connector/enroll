@@ -1,24 +1,18 @@
 # frozen_string_literal: true
 
 module Datatables
-  # Table definition for the Broker Agencies admin datatable (Pagy + Stimulus
-  # stack). Mirrors Effective::Datatables::BrokerAgencyDatatable: same columns,
-  # same single-tab filter definition, and the same
-  # BenefitSponsors::Organizations::Organization collection, so both stacks
-  # return identical data while the :refactored_datatables flag is being
-  # rolled out.
-  #
-  # Implements the table contract documented in Datatables::FragmentRendering.
-  # Unlike UserAccountsTable, the collection is a plain Mongoid criteria
-  # rather than a query wrapper.
+  # Table definition for the Broker Agencies admin datatable. Implements the
+  # table contract documented in Datatables::FragmentRendering. Unlike
+  # UserAccountsTable, the collection is a plain Mongoid criteria rather than a
+  # query wrapper.
   class BrokerAgenciesTable
     def param_key
       'broker_agencies'
     end
 
     # No column is user-sortable; the collection arrives pre-sorted by
-    # legal_name, which legal_name's ordered flag surfaces as the sort
-    # indicator (matching the legacy default order of [0, asc]).
+    # legal_name, and legal_name's ordered flag surfaces that as the sort
+    # indicator on its (non-clickable) header.
     def columns
       [
         { name: 'legal_name',  label: 'Legal Name',  sortable: false, type: :string, ordered: true },
@@ -29,8 +23,7 @@ module Datatables
       ]
     end
 
-    # The legacy datatable ignores the filter attributes too - its only tab
-    # ("All") narrows nothing.
+    # The only tab ("All") narrows nothing, so the filter attributes are ignored.
     def collection(_attributes)
       BenefitSponsors::Organizations::Organization.broker_agency_profiles.order_by([:legal_name])
     end
