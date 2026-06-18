@@ -254,6 +254,7 @@ Notes from the sinatra bugtracker state:
 
 ```
 Carefully crafted input can cause If-Match and If-None-Match header parsing in Sinatra to take an unexpected amount of time, possibly resulting in a denial of service attack vector. This header is typically involved in generating the ETag header value. Any applications that use the etag method when generating a response are impacted if they are using Ruby below version 3.2.
+```
 
 ### CodeQL: rb/clear-text-storage-of-sensitive-data — script/policies_for_simulated_renewals.rb
 
@@ -286,3 +287,32 @@ This finding is considered a false positive in the context of the application's 
 Given the limited scope, short-lived nature of the data, and existing file permission controls, the simpler approach is appropriate and sufficient for the risk level presented.
 
 **Status:** False positive - Risk adequately mitigated through file permissions and operational controls.
+
+
+### Mongoid Dynamic Attributes Reduction — June 2026
+
+**Vulnerability:**
+
+Use of `Mongoid::Attributes::Dynamic` allows undeclared fields to be persisted to MongoDB documents. This can introduce schema drift, allow accidental persistence of unexpected attributes, and reduce confidence in model-level validation and data integrity controls.
+
+**Mitigation:**
+
+Removed `Mongoid::Attributes::Dynamic` from non-essential models and retained it only in high-risk legacy surfaces pending targeted audits.
+
+**Actions Taken:**
+
+1. Removed `Mongoid::Attributes::Dynamic` from non-essential models (`ConsumerRole`, `ResidentRole`, `LawfulPresenceDetermination`, `Document`, and matching dummy/spec models).
+2. Kept `Mongoid::Attributes::Dynamic` temporarily in `Person`.
+3. Kept `Mongoid::Attributes::Dynamic` temporarily in `BenefitSponsors::SponsoredBenefits::SponsorContribution`.
+4. Documented both exceptions and risk rationale in this policy.
+
+**Rationale for exceptions:**
+
+- `Person` is a high-traffic legacy model with broad integration surface where immediate strict-field enforcement carries elevated regression risk.
+- `SponsorContribution` currently relies on dynamic attribute behavior/inheritance patterns and requires a separate field-definition audit before safe removal.
+
+**Ongoing Measures:**
+
+1. Audit persisted attributes for `Person` and `BenefitSponsors::SponsoredBenefits::SponsorContribution`.
+2. Add explicit `field` definitions where required.
+3. Remove `Mongoid::Attributes::Dynamic` from the two remaining models after compatibility validation.
