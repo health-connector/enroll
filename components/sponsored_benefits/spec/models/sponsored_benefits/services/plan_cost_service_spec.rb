@@ -174,7 +174,7 @@ RSpec.describe SponsoredBenefits::Services::PlanCostService, type: :model, dbcle
     describe "#large_family_factor with a dental plan" do
       let(:children_oldest_first) do
         employee_with_four_children.reload.census_dependents
-                                  .sort_by { |c| -c.age_on(start_on) }
+                                   .sort_by { |c| -c.age_on(start_on) }
       end
 
       it "returns 1.00 for the 1st oldest child under 21" do
