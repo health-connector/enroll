@@ -1188,6 +1188,92 @@ module BenefitSponsors
           expect(benefit_sponsorship.late_renewal_benefit_application).to eq benefit_sponsorship.renewal_benefit_application
         end
       end
+
+      context "when predecessor is terminated (off-cycle date change)" do
+        let!(:terminated_predecessor) do
+          terminated_application = FactoryBot.create(
+            :benefit_sponsors_benefit_application,
+            benefit_sponsorship: benefit_sponsorship,
+            recorded_service_areas: benefit_sponsorship.primary_office_service_areas,
+            aasm_state: :terminated,
+            default_effective_period: (benefit_sponsorship.active_benefit_application.start_on - 1.year..benefit_sponsorship.active_benefit_application.start_on - 1.day)
+          )
+          active_application = benefit_sponsorship.active_benefit_application
+          active_application.predecessor = terminated_application
+          active_application.save
+          terminated_application
+        end
+
+        before do
+          terminated_predecessor
+          benefit_sponsorship.active_benefit_application.update_attributes(aasm_state: 'enrollment_eligible')
+        end
+
+        it 'should return nil' do
+          expect(benefit_sponsorship.late_renewal_benefit_application).to eq nil
+        end
+      end
+    end
+
+    describe '.is_renewal_transmission_eligible?', :dbclean => :after_each do
+
+      let(:effective_date) { TimeKeeper.date_of_record.next_month.beginning_of_month }
+      let!(:benefit_sponsorship) do
+        create(
+          :benefit_sponsors_benefit_sponsorship,
+          :with_organization_cca_profile,
+          :with_renewal_benefit_application,
+          initial_application_state: :active,
+          renewal_application_state: :enrollment_eligible,
+          default_effective_period: (effective_date..(effective_date + 1.year - 1.day)),
+          site: site,
+          aasm_state: :active
+        )
+      end
+
+      context "when renewal application has an expired predecessor (annual renewal)" do
+        let!(:expired_predecessor) do
+          expired_application = FactoryBot.create(
+            :benefit_sponsors_benefit_application,
+            benefit_sponsorship: benefit_sponsorship,
+            recorded_service_areas: benefit_sponsorship.primary_office_service_areas,
+            aasm_state: :expired,
+            default_effective_period: (benefit_sponsorship.active_benefit_application.start_on - 1.year..benefit_sponsorship.active_benefit_application.start_on - 1.day)
+          )
+          active_application = benefit_sponsorship.active_benefit_application
+          active_application.predecessor = expired_application
+          active_application.save
+          expired_application
+        end
+
+        before { expired_predecessor }
+
+        it 'should return true' do
+          expect(benefit_sponsorship.is_renewal_transmission_eligible?).to be_truthy
+        end
+      end
+
+      context "when renewal application has a terminated predecessor (off-cycle date change)" do
+        let!(:terminated_predecessor) do
+          renewal_application = benefit_sponsorship.renewal_benefit_application
+          terminated_application = FactoryBot.create(
+            :benefit_sponsors_benefit_application,
+            benefit_sponsorship: benefit_sponsorship,
+            recorded_service_areas: benefit_sponsorship.primary_office_service_areas,
+            aasm_state: :terminated,
+            default_effective_period: (renewal_application.start_on - 1.year..renewal_application.start_on - 1.day)
+          )
+          renewal_application.predecessor = terminated_application
+          renewal_application.save
+          terminated_application
+        end
+
+        before { terminated_predecessor }
+
+        it 'should return false' do
+          expect(benefit_sponsorship.is_renewal_transmission_eligible?).to be_falsey
+        end
+      end
     end
 
     describe '.is_potential_off_cycle_employer', dbclean: :after_each do
