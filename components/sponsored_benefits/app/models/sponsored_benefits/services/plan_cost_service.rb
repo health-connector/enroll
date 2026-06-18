@@ -252,7 +252,7 @@ class SponsoredBenefits::Services::PlanCostService
     if age_of(member) > 20
       1.00
     else
-      if child_index(member, census_employee) > 2 && @plan.health?
+      if child_index(member, census_employee) > 2
         0.00
       else
         1.00
