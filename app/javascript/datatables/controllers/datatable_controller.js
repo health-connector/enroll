@@ -14,11 +14,17 @@ export default class extends Controller {
     order: { type: String, default: "" },
     dir: { type: String, default: "asc" },
     dateFrom: { type: String, default: "" },
-    dateTo: { type: String, default: "" }
+    dateTo: { type: String, default: "" },
+    disableSelectric: { type: Boolean, default: false }
   }
 
   connect() {
+    // Page-global selectric (freebies.js) skips selects while disableSelectric is
+    // set. Tables that inject forms with native selects (the employer Create Plan
+    // Year form) opt out so those selects stay reachable.
+    window.disableSelectric = this.disableSelectricValue
     this.bindLengthSelect()
+    this.bindColumnFilters()
     this.initDatepickers()
   }
 
@@ -137,6 +143,7 @@ export default class extends Controller {
       this.wrapperTarget.innerHTML = await response.text()
       this.applyLegacyDecorations()
       this.bindLengthSelect()
+      this.bindColumnFilters()
       this.element.dispatchEvent(new CustomEvent("effective-datatable:draw", { bubbles: true }))
     } catch (error) {
       this.hideProcessing()
@@ -158,7 +165,16 @@ export default class extends Controller {
     if (this.dateToValue) url.searchParams.set("custom_datatable_date_to", this.dateToValue)
     const filters = this.filterParams()
     Object.keys(filters).forEach((key) => url.searchParams.set(key, filters[key]))
+    this.columnFilterParams().forEach((filter) => url.searchParams.set(`columns[${filter.name}]`, filter.value))
     return url
+  }
+
+  // Per-column select filters contribute columns[<name>]=<value>, omitting any
+  // select left at its no-filter default (data-column-default).
+  columnFilterParams() {
+    return Array.from(this.element.querySelectorAll("#effective_datatable_wrapper select[data-column-name]"))
+      .filter((select) => select.value && select.value !== select.dataset.columnDefault)
+      .map((select) => ({ name: select.dataset.columnName, value: select.value }))
   }
 
   // Walks the active tab chain: each level's active button contributes <group data-scope> = <button data-key> — the same params the query wrappers have always received.
@@ -196,6 +212,28 @@ export default class extends Controller {
     }
   }
 
+  // Per-column filter selects are bound the same way as the length select: they
+  // may be wrapped by selectric (a jQuery plugin whose triggered change events
+  // are invisible to native listeners), so bind via jQuery with a native
+  // fallback, re-binding after each fragment swap.
+  bindColumnFilters() {
+    const selects = this.element.querySelectorAll("#effective_datatable_wrapper select[data-column-name]")
+    if (!selects.length) return
+    const $ = window.jQuery
+    selects.forEach((select) => {
+      if ($) {
+        $(select).off("change.datatable-column").on("change.datatable-column", () => this.columnFilterChanged())
+      } else {
+        select.addEventListener("change", () => this.columnFilterChanged())
+      }
+    })
+  }
+
+  columnFilterChanged() {
+    this.pageValue = 1
+    this.redraw()
+  }
+
   // The date-range inputs use the legacy page-level jQuery UI datepicker. Like
   // the length select, it is a jQuery plugin, so it is initialized here rather
   // than via a Stimulus data-action. The date filter lives outside the redraw
@@ -223,6 +261,7 @@ export default class extends Controller {
   // calls no-op once the legacy scripts are retired.
   applyLegacyDecorations() {
     if (typeof window.semantic_class === "function") window.semantic_class()
+    if (window.disableSelectric) return
     const $ = window.jQuery
     const select = this.element.querySelector(".dataTables_length select")
     if ($ && $.fn && $.fn.selectric && select) $(select).selectric()

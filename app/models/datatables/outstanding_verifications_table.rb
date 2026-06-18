@@ -60,6 +60,22 @@ module Datatables
       'Verification Due Date Range'
     end
 
+    def default_order_column
+      'name'
+    end
+
+    def column_index_offset
+      0
+    end
+
+    def bulk_actions
+      []
+    end
+
+    def disable_selectric?
+      false
+    end
+
     # Rendered in this order by the buttons partial; this is the one table with
     # a print button.
     def buttons

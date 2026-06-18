@@ -182,7 +182,11 @@ class Exchanges::HbxProfilesController < ApplicationController
     @next_60_day = @next_30_day.next_month
     @next_90_day = @next_60_day.next_month
 
-    @datatable = Effective::Datatables::BenefitSponsorsEmployerDatatable.new
+    if EnrollRegistry.feature_enabled?(:refactored_datatables)
+      @employers_datatable_locals = datatable_locals(::Datatables::EmployersTable.new, url: employers_datatable_exchanges_hbx_profiles_path)
+    else
+      @datatable = Effective::Datatables::BenefitSponsorsEmployerDatatable.new
+    end
 
     respond_to do |format|
       format.js
@@ -192,10 +196,29 @@ class Exchanges::HbxProfilesController < ApplicationController
   def employer_datatable
     # copy the link and open in new tab
     last_visited_url = current_user.try(:last_portal_visited) || root_path if current_user.present?
-    @datatable = Effective::Datatables::BenefitSponsorsEmployerDatatable.new
+    if EnrollRegistry.feature_enabled?(:refactored_datatables)
+      @employers_datatable_locals = datatable_locals(::Datatables::EmployersTable.new, url: employers_datatable_exchanges_hbx_profiles_path)
+    else
+      @datatable = Effective::Datatables::BenefitSponsorsEmployerDatatable.new
+    end
     respond_to do |format|
       format.html { redirect_to(last_visited_url, allow_other_host: true) }
       format.js
+    end
+  end
+
+  def employers_datatable
+    raise ActionController::RoutingError, 'Not Found' unless EnrollRegistry.feature_enabled?(:refactored_datatables)
+
+    authorize HbxProfile, :employer_datatable?
+    table = ::Datatables::EmployersTable.new
+    respond_to do |format|
+      format.html { render_datatable_fragment(table, url: employers_datatable_exchanges_hbx_profiles_path) }
+      format.csv do
+        stream_datatable_csv(filename: 'employers.csv',
+                             headers: table.csv_headers,
+                             rows: datatable_csv_rows(table, datatable_scoped(table)))
+      end
     end
   end
 
