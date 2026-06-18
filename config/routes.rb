@@ -80,6 +80,7 @@ Rails.application.routes.draw do
         post :employer_poc_datatable
         get :employer_invoice
         get :employer_datatable
+        get :employers_datatable
         post :employer_invoice_datatable
         post :generate_invoice
         get :edit_force_publish

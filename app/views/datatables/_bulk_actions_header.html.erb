@@ -1,0 +1,6 @@
+<%# Check-all checkbox rendered inside the bulk-actions column header, after the
+    (empty) label. data-role="bulk-actions-all" is what the bulk-actions Stimulus
+    controller binds to; checking it selects every eligible row checkbox. The
+    interaction-* decoration classes are applied client-side and are not rendered
+    here. %>
+<br><div class="input boolean optional datatable_filter_<%= col[:name] %>"><input autocomplete="off" value="0" type="hidden"><label class="checkbox"><input value="1" autocomplete="off" data-column-name="<%= col[:name] %>" data-column-index="<%= column_index %>" data-role="bulk-actions-all" class="boolean optional" type="checkbox" id="datatable_filter_<%= col[:name] %>"></label></div>

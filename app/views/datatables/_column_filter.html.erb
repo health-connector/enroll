@@ -1,0 +1,8 @@
+<%# Per-column select filter rendered inside a th, after the label.
+    data-column-default tells the Stimulus controller which value means "no
+    filter" so it omits the param; on change the controller appends
+    columns[<name>]=<value> to the redraw. no-selectric keeps it a native select
+    (freebies.selectric skips that class) so the change binding works and the
+    control renders unwrapped. The interaction-* decoration classes are applied
+    client-side and are not rendered here. %>
+<br><div class="input select optional datatable_filter_<%= col[:name] %>"><select value="<%= selected_value %>" title="<%= col[:label] %>" autocomplete="off" data-column-name="<%= col[:name] %>" data-column-index="<%= column_index %>" data-column-default="<%= col[:filter][:selected] %>" class="select optional no-selectric" id="datatable_filter_<%= col[:name] %>"><% col[:filter][:collection].each do |option| %><option value="<%= option %>"<%= ' selected="selected"'.html_safe if option.to_s == selected_value %>><%= option %></option><% end %></select></div>
