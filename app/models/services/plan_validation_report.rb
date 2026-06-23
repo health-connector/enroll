@@ -86,34 +86,20 @@ module Services
 
     def sheet2
       worksheet2 = workbook.add_worksheet('Report2')
-      headers = %w[PlanYearId CarrierId CarrierName RatingArea Age(Range) IndividualRate]
+      headers = %w[PlanYearId CarrierId CarrierName RatingArea Age(Range) IndividualRate EffectiveDate ExpirationDate]
       generate_excel(headers, worksheet2)
       b = 1
       issuer_hios_ids.each do |issuer_hios_id|
         issuer_products = products(active_year).where(hios_id: /#{issuer_hios_id}/i)
         rating_area_ids(issuer_products).each do |rating_area_key, rating_area_value|
-          premium_tables = issuer_products.map(&:premium_tables).flatten.select do |prem_tab|
-            start_date = prem_tab.effective_period.min.to_date
-            end_date = prem_tab.effective_period.max.to_date
-            (start_date..end_date).cover?(active_date) && prem_tab.rating_area_id.to_s == rating_area_key
+          premium_tables_by_period = issuer_products.map(&:premium_tables).flatten.select do |prem_tab|
+            prem_tab.rating_area_id.to_s == rating_area_key
+          end.group_by do |prem_tab|
+            [prem_tab.effective_period.min.to_date, prem_tab.effective_period.max.to_date]
           end
-          (14..64).each do |value|
-            age = case value
-                  when 14
-                    "0-14"
-                  when 64
-                    "64 and over"
-                  else
-                    value
-                  end
-            age_cost = premium_tables.map(&:premium_tuples).flatten.select{|tuple| tuple.age == value}.map(&:cost).sum
-            carrier_name = issuer_products.first.issuer_profile.legal_name
-            ra_val = rating_area_value.gsub("R-MA00", "Rating Area ")
-            data = [active_year, issuer_hios_id, carrier_name, ra_val, age, age_cost.round(2).to_s]
-            generate_data(worksheet2, data, b)
-            b += 1
-          rescue StandardError
-            puts "Report2 Plan validation issue for issuer_hios_id: #{issuer_hios_id}" unless Rails.env.test?
+
+          premium_tables_by_period.sort_by { |period, _| period.first }.each do |(effective_start, effective_end), premium_tables|
+            b = write_sheet2_age_rows(worksheet2, premium_tables, issuer_hios_id, issuer_products, rating_area_value, effective_start, effective_end, b)
           end
         end
       end
@@ -288,6 +274,27 @@ module Services
         puts "Report9 plan validation issue for Product_id: #{product.id}" unless Rails.env.test?
       end
       puts "Successfully generated 9th Plan validation report for Super Group ID's" unless Rails.env.test?
+    end
+
+    private
+
+    def write_sheet2_age_rows(worksheet, premium_tables, issuer_hios_id, issuer_products, rating_area_value, effective_start, effective_end, row_index)
+      carrier_name = issuer_products.first.issuer_profile.legal_name
+      ra_val = rating_area_value.gsub("R-MA00", "Rating Area ")
+      (14..64).each do |value|
+        age = case value
+              when 14 then "0-14"
+              when 64 then "64 and over"
+              else value
+              end
+        age_cost = premium_tables.map(&:premium_tuples).flatten.select { |tuple| tuple.age == value }.map(&:cost).sum
+        data = [active_year, issuer_hios_id, carrier_name, ra_val, age, age_cost.round(2).to_s, effective_start.to_s, effective_end.to_s]
+        generate_data(worksheet, data, row_index)
+        row_index += 1
+      rescue StandardError
+        puts "Report2 Plan validation issue for issuer_hios_id: #{issuer_hios_id}" unless Rails.env.test?
+      end
+      row_index
     end
   end
 end
