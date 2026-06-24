@@ -14,7 +14,7 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
       force: true
     )
   end
-  # @!group Constructor / flags — constructor and flag behavior tests
+  # @!group Constructor / flags -constructor and flag behavior tests
 
   describe '#initialize' do
     it 'sets dry_run' do
@@ -45,7 +45,7 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
     end
   end
 
-  # @!group Address anonymization — address anonymization tests
+  # @!group Address anonymization -address anonymization tests
 
   describe '#anonymize_address_hash' do
     let(:addr) do
@@ -124,7 +124,7 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
     end
   end
 
-  # @!group Person date anonymization — DOB shifting tests
+  # @!group Person date anonymization -DOB shifting tests
 
   describe '#anonymize_person_dates' do
     let(:doc) { { 'dob' => Date.new(1980, 3, 12), 'date_of_death' => nil } }
@@ -153,7 +153,7 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
     end
   end
 
-  # @!group Phone anonymization — phone anonymization tests
+  # @!group Phone anonymization -phone anonymization tests
 
   describe '#anonymize_phone_hash' do
     let(:phone) do
@@ -193,7 +193,7 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
     end
   end
 
-  # @!group Email hash anonymization — email anonymization tests
+  # @!group Email hash anonymization -email anonymization tests
 
   describe '#anonymize_email_hash' do
     let(:email_hash) { { 'address' => 'real@example.com', 'kind' => 'home' } }
@@ -217,7 +217,7 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
     end
   end
 
-  # @!group DOB shift range — shift range/allowed_shift_range tests
+  # @!group DOB shift range -shift range/allowed_shift_range tests
 
   describe '#allowed_shift_range' do
     let(:ref) { Date.new(2026, 5, 14) }
@@ -226,7 +226,7 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
       expect(runner.send(:allowed_shift_range, nil, ref)).to be_nil
     end
 
-    it 'returns a range bounded to ±30' do
+    it 'returns a range bounded to +/- 30' do
       dob = Date.new(1970, 1, 1)
       min, max = runner.send(:allowed_shift_range, dob, ref)
       expect(min).to be >= -30
@@ -234,16 +234,16 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
     end
 
     it 'returns nil when min > max (no valid range)' do
-      # A newborn (today - 1) — the 18-year band pushes min > 30
+      # A newborn (today - 1) -the 18-year band pushes min > 30
       newborn = ref - 1
-      # With ±30 days the band guard should tighten the range
+      # With +/- 30 days the band guard should tighten the range
       result = runner.send(:allowed_shift_range, newborn, ref)
       # Either nil (impossible range) or a very tight valid range
       expect(result).to(satisfy { |r| r.nil? || (r.first <= r.last) })
     end
   end
 
-  # @!group Canonical payloads — canonical payloads (prehash) tests
+  # @!group Canonical payloads -canonical payloads (prehash) tests
 
   describe '#canonical_person_payload' do
     let(:doc) do
@@ -282,7 +282,7 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
     end
   end
 
-  # @!group apply_family_shifts — DOB shift assignment tests
+  # @!group apply_family_shifts -DOB shift assignment tests
 
   describe '#apply_family_shifts' do
     let(:id_a) { BSON::ObjectId.new }
@@ -334,7 +334,7 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
     end
   end
 
-  # @!group BS profile anonymization — anonymize_bs_profile tests
+  # @!group BS profile anonymization -anonymize_bs_profile tests
 
   describe '#anonymize_bs_profile' do
     let(:base_profile) do
@@ -400,7 +400,7 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
     end
   end
 
-  # @!group Employer attestation anonymization — anonymize_employer_attestation tests
+  # @!group Employer attestation anonymization -anonymize_employer_attestation tests
 
   describe '#anonymize_employer_attestation' do
     let(:attestation) do
@@ -497,7 +497,7 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
     end
   end
 
-  # @!group BS org update builder — build_bs_org_update tests
+  # @!group BS org update builder -build_bs_org_update tests
 
   describe '#build_bs_org_update' do
     let(:non_issuer_profile) { { '_type' => 'BenefitSponsors::Organizations::BrokerAgencyProfile' } }
@@ -548,7 +548,7 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
     end
   end
 
-  # @!group Version history clearing — versions unset behavior tests
+  # @!group Version history clearing -versions unset behavior tests
 
   describe 'version history clearing' do
     let(:live_runner) { described_class.new(batch_size: batch_size, dry_run: false, force: true) }
@@ -601,7 +601,7 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
     end
   end
 
-  # @!group abort_if_production! — production guard tests
+  # @!group abort_if_production! -production guard tests
 
   # Shared shared_context so the same stub pattern is reused by both the
   # instance and class method describe blocks without duplication.
@@ -713,7 +713,7 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
       let(:fake_db) { instance_double(Mongo::Database, name: 'mhc_production_enroll') }
 
       it 'includes all reasons in the abort message' do
-        # ENV_NAME nil + db name contains "production" — both signals should fire
+        # ENV_NAME nil + db name contains "production" -both signals should fire
         err = nil
         begin
           runner.send(:abort_if_production!)
@@ -732,7 +732,7 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
     end
   end
 
-  # @!group .abort_if_production! — class method production guard tests
+  # @!group .abort_if_production! -class method production guard tests
 
   describe '.abort_if_production!' do
     include_context 'with fake db name'
@@ -809,7 +809,7 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
     end
   end
 
-  # @!group build_person_update SSN bounded loop — collision guard tests
+  # @!group build_person_update SSN bounded loop -collision guard tests
 
   describe '#build_person_update' do
     let(:base_doc) do
@@ -921,7 +921,7 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
     end
   end
 
-  # @!group redact_document_filename — notice body redaction tests
+  # @!group redact_document_filename - notice body redaction tests
 
   describe '#redact_document_filename' do
     let(:notice_body) do
@@ -956,7 +956,7 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
     end
   end
 
-  # @!group redact_message_fields — message hash redaction tests
+  # @!group redact_message_fields - message hash redaction tests
 
   describe '#redact_message_fields' do
     let(:notice_body) do
@@ -964,32 +964,247 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
     end
 
     it 'redacts the body' do
-      msg    = { 'subject' => 'Notice Available', 'body' => notice_body }
+      msg = {'subject' => 'Notice Available', 'body' => notice_body }
       result = runner.send(:redact_message_fields, msg)
       expect(result['body']).to include('document-redacted')
       expect(result['body']).not_to include('SomeNotice')
     end
 
     it 'preserves the subject' do
-      msg    = { 'subject' => 'Notice Available', 'body' => notice_body }
+      msg = {'subject' => 'Notice Available', 'body' => notice_body }
       result = runner.send(:redact_message_fields, msg)
       expect(result['subject']).to eq('Notice Available')
     end
 
     it 'does not mutate the original message hash' do
-      msg    = { 'subject' => 'Notice Available', 'body' => notice_body }
+      msg = {'subject' => 'Notice Available', 'body' => notice_body }
       runner.send(:redact_message_fields, msg)
       expect(msg['body']).to eq(notice_body)
     end
 
     it 'returns the original hash unchanged when body is blank' do
-      msg    = { 'subject' => 'Hello', 'body' => nil }
+      msg = {'subject' => 'Hello', 'body' => nil }
       result = runner.send(:redact_message_fields, msg)
       expect(result['body']).to be_nil
     end
 
     it 'returns the input unchanged when it is not a Hash' do
       expect(runner.send(:redact_message_fields, nil)).to be_nil
+    end
+  end
+
+  # @!group redact_document_filename double-quoted target attribute
+
+  describe '#redact_document_filename with double-quoted target attribute' do
+    let(:double_quoted_body) do
+      "<a href=/path?filename=Notice.pdf target=\"_blank\">Notice</a>"
+    end
+
+    it 'redacts link text when target attribute uses double quotes' do
+      result = runner.send(:redact_document_filename, double_quoted_body)
+      expect(result).to include('[document-redacted]')
+      expect(result).not_to include('>Notice<')
+    end
+  end
+
+  # @!group inbox_message_update -nested path traversal tests
+
+  describe '#inbox_message_update' do
+    let(:msg_with_body) { { 'subject' => 'Notice', 'body' => 'filename=Notice.pdf' } }
+
+    it 'returns a bulk update op for a direct inbox path' do
+      doc = { '_id' => BSON::ObjectId.new, 'inbox' => { 'messages' => [msg_with_body] } }
+      result = runner.send(:inbox_message_update, doc, ['inbox'], 'inbox.messages')
+      expect(result).to be_a(Hash)
+      expect(result[:update_one][:update]['$set']).to have_key('inbox.messages')
+    end
+
+    it 'traverses a nested employer_profile.inbox path' do
+      doc = {
+        '_id' => BSON::ObjectId.new,
+        'employer_profile' => { 'inbox' => { 'messages' => [msg_with_body] } }
+      }
+      result = runner.send(:inbox_message_update, doc, ['employer_profile', 'inbox'], 'employer_profile.inbox.messages')
+      expect(result).to be_a(Hash)
+      expect(result[:update_one][:update]['$set']).to have_key('employer_profile.inbox.messages')
+    end
+
+    it 'returns nil when the inbox has no messages' do
+      doc = { '_id' => BSON::ObjectId.new, 'inbox' => { 'messages' => [] } }
+      expect(runner.send(:inbox_message_update, doc, ['inbox'], 'inbox.messages')).to be_nil
+    end
+
+    it 'returns nil when the inbox key is absent from the document' do
+      doc = { '_id' => BSON::ObjectId.new }
+      expect(runner.send(:inbox_message_update, doc, ['inbox'], 'inbox.messages')).to be_nil
+    end
+
+    it 'returns nil when an intermediate nested key is absent' do
+      doc = { '_id' => BSON::ObjectId.new, 'employer_profile' => {} }
+      expect(runner.send(:inbox_message_update, doc, ['employer_profile', 'inbox'], 'employer_profile.inbox.messages')).to be_nil
+    end
+  end
+
+  # @!group redact_profile_inbox -BS org profile inbox redaction
+
+  describe '#redact_profile_inbox' do
+    let(:body_with_filename) { 'filename=SomeNotice.pdf' }
+
+    it 'redacts message bodies in a profile that has inbox messages' do
+      profile = { '_type' => 'SomeProfile', 'inbox' => { 'messages' => [{ 'body' => body_with_filename }] } }
+      result = runner.send(:redact_profile_inbox, profile)
+      expect(result['inbox']['messages'].first['body']).to include('document-redacted')
+    end
+
+    it 'returns the profile unchanged when inbox has an empty messages array' do
+      profile = { '_type' => 'SomeProfile', 'inbox' => { 'messages' => [] } }
+      expect(runner.send(:redact_profile_inbox, profile)).to eq(profile)
+    end
+
+    it 'returns the profile unchanged when inbox key is absent' do
+      profile = { '_type' => 'SomeProfile' }
+      expect(runner.send(:redact_profile_inbox, profile)).to eq(profile)
+    end
+
+    it 'does not mutate the original profile or inbox hash' do
+      profile = { 'inbox' => { 'messages' => [{ 'body' => body_with_filename }] } }
+      runner.send(:redact_profile_inbox, profile)
+      expect(profile['inbox']['messages'].first['body']).to eq(body_with_filename)
+    end
+  end
+
+  # @!group redact_inbox_messages_at_path -collection-level batch loop
+
+  describe '#redact_inbox_messages_at_path' do
+    let(:people_collection) { instance_double(Mongo::Collection, name: 'people') }
+    let(:doc) do
+      { '_id' => BSON::ObjectId.new, 'inbox' => { 'messages' => [{ 'body' => 'filename=Notice.pdf' }] } }
+    end
+    let(:filter) { { 'inbox.messages.0' => { '$exists' => true } } }
+    let(:view)   { instance_double(Mongo::Collection::View) }
+    let(:sized)  { double('sized_cursor') }
+
+    before do
+      allow(people_collection).to receive(:count_documents).with(filter).and_return(1)
+      allow(people_collection).to receive(:find).with(filter).and_return(view)
+      allow(view).to receive(:projection).with('inbox' => 1).and_return(view)
+      allow(view).to receive(:batch_size).with(batch_size).and_return(sized)
+      allow(sized).to receive(:each_slice).with(batch_size).and_yield([doc])
+    end
+
+    it 'returns the number of documents processed' do
+      expect(runner.send(:redact_inbox_messages_at_path, people_collection, 'inbox')).to eq(1)
+    end
+
+    it 'returns 0 and skips the find when no documents match the filter' do
+      allow(people_collection).to receive(:count_documents).with(filter).and_return(0)
+      expect(people_collection).not_to receive(:find)
+      expect(runner.send(:redact_inbox_messages_at_path, people_collection, 'inbox')).to eq(0)
+    end
+
+    it 'traverses nested employer_profile.inbox path' do
+      nested_doc = {
+        '_id' => BSON::ObjectId.new,
+        'employer_profile' => { 'inbox' => { 'messages' => [{ 'body' => 'filename=Notice.pdf' }] } }
+      }
+      nested_filter = { 'employer_profile.inbox.messages.0' => { '$exists' => true } }
+      nested_view   = instance_double(Mongo::Collection::View)
+      nested_sized  = double('nested_sized')
+
+      allow(people_collection).to receive(:count_documents).with(nested_filter).and_return(1)
+      allow(people_collection).to receive(:find).with(nested_filter).and_return(nested_view)
+      allow(nested_view).to receive(:projection).with('employer_profile.inbox' => 1).and_return(nested_view)
+      allow(nested_view).to receive(:batch_size).with(batch_size).and_return(nested_sized)
+      allow(nested_sized).to receive(:each_slice).with(batch_size).and_yield([nested_doc])
+
+      result = runner.send(:redact_inbox_messages_at_path, people_collection, 'employer_profile.inbox')
+      expect(result).to eq(1)
+    end
+
+    context 'when not dry_run' do
+      let(:live_runner) { described_class.new(batch_size: batch_size, dry_run: false, force: true) }
+
+      before do
+        allow(people_collection).to receive(:count_documents).with(filter).and_return(1)
+        allow(people_collection).to receive(:find).with(filter).and_return(view)
+        allow(view).to receive(:projection).with('inbox' => 1).and_return(view)
+        allow(view).to receive(:batch_size).with(batch_size).and_return(sized)
+        allow(sized).to receive(:each_slice).with(batch_size).and_yield([doc])
+      end
+
+      it 'calls bulk_write_batch with an update operation for each document' do
+        expect(live_runner).to receive(:bulk_write_batch).with(
+          people_collection,
+          array_including(hash_including(:update_one))
+        )
+        live_runner.send(:redact_inbox_messages_at_path, people_collection, 'inbox')
+      end
+    end
+  end
+
+  # @!group redact_bs_org_inbox_messages -BS org profiles array write-back
+
+  describe '#redact_bs_org_inbox_messages' do
+    let(:db_double)     { instance_double(Mongo::Database) }
+    let(:bs_collection) { instance_double(Mongo::Collection, name: 'benefit_sponsors_organizations_organizations') }
+    let(:profile_with_inbox) do
+      {
+        '_type' => 'BenefitSponsors::Organizations::AcaShopCcaEmployerProfile',
+        'inbox' => { 'messages' => [{ 'subject' => 'Invoice', 'body' => 'filename=Invoice.pdf' }] }
+      }
+    end
+    let(:doc)    { { '_id' => BSON::ObjectId.new, 'profiles' => [profile_with_inbox] } }
+    let(:filter) { { 'profiles.inbox.messages.0' => { '$exists' => true } } }
+    let(:view)   { instance_double(Mongo::Collection::View) }
+    let(:sized)  { double('sized_cursor') }
+
+    before do
+      allow(runner).to receive(:db).and_return(db_double)
+      allow(db_double).to receive(:[]).with(:benefit_sponsors_organizations_organizations).and_return(bs_collection)
+      allow(bs_collection).to receive(:count_documents).with(filter).and_return(1)
+      allow(bs_collection).to receive(:find).with(filter).and_return(view)
+      allow(view).to receive(:projection).with('profiles' => 1).and_return(view)
+      allow(view).to receive(:batch_size).with(batch_size).and_return(sized)
+      allow(sized).to receive(:each_slice).with(batch_size).and_yield([doc])
+    end
+
+    it 'returns the number of documents processed' do
+      expect(runner.send(:redact_bs_org_inbox_messages)).to eq(1)
+    end
+
+    it 'returns 0 when no BS org documents have inbox messages' do
+      allow(bs_collection).to receive(:count_documents).with(filter).and_return(0)
+      expect(runner.send(:redact_bs_org_inbox_messages)).to eq(0)
+    end
+
+    context 'when not dry_run' do
+      let(:live_runner) { described_class.new(batch_size: batch_size, dry_run: false, force: true) }
+
+      before do
+        allow(live_runner).to receive(:db).and_return(db_double)
+        allow(bs_collection).to receive(:count_documents).with(filter).and_return(1)
+        allow(bs_collection).to receive(:find).with(filter).and_return(view)
+        allow(view).to receive(:projection).with('profiles' => 1).and_return(view)
+        allow(view).to receive(:batch_size).with(batch_size).and_return(sized)
+        allow(sized).to receive(:each_slice).with(batch_size).and_yield([doc])
+      end
+
+      it 'calls bulk_write_batch to write back the updated profiles array' do
+        expect(live_runner).to receive(:bulk_write_batch).with(
+          bs_collection,
+          array_including(hash_including(:update_one))
+        )
+        live_runner.send(:redact_bs_org_inbox_messages)
+      end
+    end
+
+    it 'passes profiles without inbox messages through unchanged in the update payload' do
+      profile_without_inbox = { '_type' => 'BenefitSponsors::Organizations::IssuerProfile' }
+      doc_mixed = { '_id' => BSON::ObjectId.new, 'profiles' => [profile_without_inbox, profile_with_inbox] }
+
+      result = runner.send(:bs_org_inbox_message_update, doc_mixed)
+      updated_profiles = result[:update_one][:update]['$set']['profiles']
+      expect(updated_profiles.first).to eq(profile_without_inbox)
     end
   end
 end

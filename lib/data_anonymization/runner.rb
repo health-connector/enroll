@@ -2,6 +2,7 @@
 
 require_relative 'anonymized_data'
 require_relative 'canonical_payloads'
+require_relative '../../app/concerns/timing_helper'
 require 'openssl'
 require 'securerandom'
 
@@ -608,7 +609,7 @@ module DataAnonymizer
       user = User.where(oim_id: oim_id).first
       if user
         log "  Resetting password for existing protected user '#{oim_id}' (id=#{user.id})"
-        user.update_attributes!(
+        user.update!(
           password: PROTECTED_USER_PASSWORD,
           password_confirmation: PROTECTED_USER_PASSWORD
         )
@@ -1282,7 +1283,7 @@ module DataAnonymizer
       return body if body.blank?
 
       body = body.gsub(/filename=[^&"'\s]+/, 'filename=document-redacted')
-      body.gsub(%r{target='_blank'>\s*[^<]+\s*</a>}i, "target='_blank'>[document-redacted]</a>")
+      body.gsub(%r{target=['"]_blank['"]>\s*[^<]+\s*</a>}i, "target='_blank'>[document-redacted]</a>")
     end
 
     # Replaces address PII fields in an embedded address hash.
