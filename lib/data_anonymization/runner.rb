@@ -18,6 +18,7 @@ module DataAnonymizer
   # rubocop:disable Metrics/ClassLength
   class Runner
     include CanonicalPayloads
+    include TimingHelper
 
     # Pattern matching email addresses produced by {AnonymizedData.email}.
     # Built from {AnonymizedData::ALLOWED_EMAIL_DOMAINS} so the two stay in
@@ -127,7 +128,7 @@ module DataAnonymizer
       log "=== Starting CCA Data Anonymization#{' (DRY RUN)' if @dry_run} ==="
       log "Database: #{db.name}"
       log "Time: #{Time.current}"
-      start_time = Time.current
+      start_time = process_start_time
 
       # Pre-run: generate HMAC prehashes for records that lack SSN so we can
       # verify name+dob were changed after anonymization. Kept in-memory and
@@ -145,7 +146,7 @@ module DataAnonymizer
       end
 
       stats = run_phases
-      log_stats(stats, (Time.current - start_time).round(1))
+      log_stats(stats, process_end_time_formatted(start_time))
 
       ensure_protected_users!
 
@@ -191,16 +192,14 @@ module DataAnonymizer
         census_members: anonymize_census_members,
         organizations: anonymize_organizations,
         bs_organizations: anonymize_bs_organizations,
-        families: anonymize_families
+        families: anonymize_families,
+        inbox_messages: anonymize_inbox_messages
       }
     end
 
-    # Logs the per-phase record counts and total elapsed time.
-    # @param stats [Hash{Symbol => Integer}]
-    # @param elapsed [Float] total run time in seconds
-    # @return [void]
-    def log_stats(stats, elapsed)
-      log "\n=== Anonymization Complete#{' (DRY RUN - no writes)' if @dry_run} (#{elapsed}s) ==="
+    # Logs per-phase record counts and total elapsed time.
+    def log_stats(stats, elapsed_str)
+      log "\n=== Anonymization Complete#{' (DRY RUN - no writes)' if @dry_run} (#{elapsed_str}) ==="
       stats.each { |k, v| log "  #{k}: #{v} records processed" }
     end
 
@@ -609,13 +608,27 @@ module DataAnonymizer
       user = User.where(oim_id: oim_id).first
       if user
         log "  Resetting password for existing protected user '#{oim_id}' (id=#{user.id})"
+        user.update_attributes!(
+          password: PROTECTED_USER_PASSWORD,
+          password_confirmation: PROTECTED_USER_PASSWORD
+        )
       else
         log "  Creating protected user '#{oim_id}'"
-        user = User.new(email: oim_id, oim_id: oim_id, roles: ['hbx_staff'])
+        user = User.create!(
+          email: oim_id,
+          oim_id: oim_id,
+          roles: ['hbx_staff'],
+          password: PROTECTED_USER_PASSWORD,
+          password_confirmation: PROTECTED_USER_PASSWORD
+        )
       end
-      user.password = PROTECTED_USER_PASSWORD
-      user.password_confirmation = PROTECTED_USER_PASSWORD
-      user.save!
+
+      # Clear session tokens via the DB driver to avoid Devise callbacks regenerating them.
+      db[:users].update_one(
+        { '_id' => user.id },
+        { '$set' => { 'current_login_token' => nil, 'authentication_token' => nil } }
+      )
+
       user
     end
 
@@ -1171,6 +1184,105 @@ module DataAnonymizer
         log "  Cleared e_case_id on #{total} families"
       end
       total
+    end
+
+    # Phase 7: redact document filenames from inbox message bodies (people, orgs, bs_orgs).
+    def anonymize_inbox_messages
+      log "\n--- Phase 7: Anonymizing Inbox Message Bodies ---"
+      total  = redact_inbox_messages_at_path(db[:people], 'inbox')
+      total += redact_inbox_messages_at_path(db[:organizations], 'employer_profile.inbox')
+      total += redact_bs_org_inbox_messages
+      log "  Phase 7 complete: #{total} documents processed" if total.positive?
+      total
+    end
+
+    def redact_inbox_messages_at_path(collection, inbox_path)
+      messages_path = "#{inbox_path}.messages"
+      filter        = { "#{messages_path}.0" => { '$exists' => true } }
+      total         = collection.count_documents(filter)
+      return 0 if total.zero?
+
+      log "  #{collection.name}: #{total} documents with inbox messages"
+      path_keys = inbox_path.split('.')
+      processed = 0
+
+      collection.find(filter).projection(inbox_path => 1).batch_size(batch_size).each_slice(batch_size) do |batch|
+        updates = batch.filter_map { |doc| inbox_message_update(doc, path_keys, messages_path) }
+
+        if @dry_run
+          log "  [DRY RUN] Would redact document names in #{batch.size} #{collection.name} inbox messages"
+        else
+          bulk_write_batch(collection, updates) unless updates.empty?
+        end
+        processed += batch.size
+      end
+      processed
+    end
+
+    def inbox_message_update(doc, path_keys, messages_path)
+      inbox    = path_keys.reduce(doc) { |d, k| d.is_a?(Hash) ? d[k] : nil }
+      messages = inbox.is_a?(Hash) ? inbox['messages'] : nil
+      return nil unless messages.is_a?(Array) && messages.present?
+
+      redacted = messages.map { |msg| redact_message_fields(msg) }
+      { update_one: { filter: { '_id' => doc['_id'] }, update: { '$set' => { messages_path => redacted } } } }
+    end
+
+    def redact_bs_org_inbox_messages
+      collection = db[:benefit_sponsors_organizations_organizations]
+      filter     = { 'profiles.inbox.messages.0' => { '$exists' => true } }
+      total      = collection.count_documents(filter)
+      return 0 if total.zero?
+
+      log "  #{collection.name}: #{total} documents with inbox messages"
+      processed = 0
+
+      collection.find(filter).projection('profiles' => 1).batch_size(batch_size).each_slice(batch_size) do |batch|
+        updates = batch.filter_map { |doc| bs_org_inbox_message_update(doc) }
+
+        if @dry_run
+          log "  [DRY RUN] Would redact document names in #{batch.size} BS org inbox messages"
+        else
+          bulk_write_batch(collection, updates) unless updates.empty?
+        end
+        processed += batch.size
+      end
+      processed
+    end
+
+    def bs_org_inbox_message_update(doc)
+      profiles = doc['profiles']
+      return nil unless profiles.is_a?(Array)
+
+      updated = profiles.map { |p| redact_profile_inbox(p) }
+      { update_one: { filter: { '_id' => doc['_id'] }, update: { '$set' => { 'profiles' => updated } } } }
+    end
+
+    def redact_profile_inbox(profile)
+      messages = profile.dig('inbox', 'messages')
+      return profile unless messages.is_a?(Array) && messages.present?
+
+      profile                      = profile.dup
+      profile['inbox']             = profile['inbox'].dup
+      profile['inbox']['messages'] = messages.map { |msg| redact_message_fields(msg) }
+      profile
+    end
+
+    def redact_message_fields(msg)
+      return msg unless msg.is_a?(Hash)
+
+      msg = msg.dup
+      msg['body'] = redact_document_filename(msg['body']) if msg['body'].present?
+      msg
+    end
+
+    # Redacts filename= URL params and notice link text from a message body.
+    # S3 downloads are unaffected - the download path uses the document ObjectId.
+    def redact_document_filename(body)
+      return body if body.blank?
+
+      body = body.gsub(/filename=[^&"'\s]+/, 'filename=document-redacted')
+      body.gsub(%r{target='_blank'>\s*[^<]+\s*</a>}i, "target='_blank'>[document-redacted]</a>")
     end
 
     # Replaces address PII fields in an embedded address hash.

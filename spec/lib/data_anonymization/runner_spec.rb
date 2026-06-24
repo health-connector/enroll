@@ -920,4 +920,76 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
       expect(result.size).to eq(1)
     end
   end
+
+  # @!group redact_document_filename — notice body redaction tests
+
+  describe '#redact_document_filename' do
+    let(:notice_body) do
+      "<br>You can download the notice by clicking this link " \
+        "<a href=/some/path?content_type=application/pdf&filename=EmployerInvoiceAvailable.pdf&disposition=inline " \
+        "target='_blank'>EmployerInvoiceAvailable</a>"
+    end
+
+    it 'redacts the filename= URL parameter' do
+      result = runner.send(:redact_document_filename, notice_body)
+      expect(result).to include('filename=document-redacted')
+      expect(result).not_to include('EmployerInvoiceAvailable.pdf')
+    end
+
+    it 'redacts the visible link text' do
+      result = runner.send(:redact_document_filename, notice_body)
+      expect(result).to include("[document-redacted]</a>")
+      expect(result).not_to match(%r{target='_blank'>EmployerInvoiceAvailable</a>})
+    end
+
+    it 'returns nil unchanged' do
+      expect(runner.send(:redact_document_filename, nil)).to be_nil
+    end
+
+    it 'returns a blank string unchanged' do
+      expect(runner.send(:redact_document_filename, '')).to eq('')
+    end
+
+    it 'does not change a body with no filename parameter or notice link' do
+      plain = 'Your invoice is now available in your employer profile under Billing tab. Thank You'
+      expect(runner.send(:redact_document_filename, plain)).to eq(plain)
+    end
+  end
+
+  # @!group redact_message_fields — message hash redaction tests
+
+  describe '#redact_message_fields' do
+    let(:notice_body) do
+      "<a href=/path?filename=SomeNotice.pdf&disposition=inline target='_blank'>SomeNotice</a>"
+    end
+
+    it 'redacts the body' do
+      msg    = { 'subject' => 'Notice Available', 'body' => notice_body }
+      result = runner.send(:redact_message_fields, msg)
+      expect(result['body']).to include('document-redacted')
+      expect(result['body']).not_to include('SomeNotice')
+    end
+
+    it 'preserves the subject' do
+      msg    = { 'subject' => 'Notice Available', 'body' => notice_body }
+      result = runner.send(:redact_message_fields, msg)
+      expect(result['subject']).to eq('Notice Available')
+    end
+
+    it 'does not mutate the original message hash' do
+      msg    = { 'subject' => 'Notice Available', 'body' => notice_body }
+      runner.send(:redact_message_fields, msg)
+      expect(msg['body']).to eq(notice_body)
+    end
+
+    it 'returns the original hash unchanged when body is blank' do
+      msg    = { 'subject' => 'Hello', 'body' => nil }
+      result = runner.send(:redact_message_fields, msg)
+      expect(result['body']).to be_nil
+    end
+
+    it 'returns the input unchanged when it is not a Hash' do
+      expect(runner.send(:redact_message_fields, nil)).to be_nil
+    end
+  end
 end
