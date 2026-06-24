@@ -991,6 +991,25 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
     it 'returns the input unchanged when it is not a Hash' do
       expect(runner.send(:redact_message_fields, nil)).to be_nil
     end
+
+    it 'anonymizes the from field when present' do
+      msg = { 'subject' => 'Notice', 'body' => notice_body, 'from' => 'Real Employer LLC' }
+      result = runner.send(:redact_message_fields, msg)
+      expect(result['from']).not_to eq('Real Employer LLC')
+      expect(result['from']).to be_present
+    end
+
+    it 'leaves the from field absent when it was not set' do
+      msg = { 'subject' => 'Notice', 'body' => notice_body }
+      result = runner.send(:redact_message_fields, msg)
+      expect(result).not_to have_key('from')
+    end
+
+    it 'does not mutate the original from value' do
+      msg = { 'subject' => 'Notice', 'body' => notice_body, 'from' => 'Real Employer LLC' }
+      runner.send(:redact_message_fields, msg)
+      expect(msg['from']).to eq('Real Employer LLC')
+    end
   end
 
   # @!group redact_document_filename double-quoted target attribute
@@ -1205,6 +1224,195 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
       result = runner.send(:bs_org_inbox_message_update, doc_mixed)
       updated_profiles = result[:update_one][:update]['$set']['profiles']
       expect(updated_profiles.first).to eq(profile_without_inbox)
+    end
+  end
+
+  # @!group anonymized_document_identifier - replacement URN format
+
+  describe '#anonymized_document_identifier' do
+    it 'returns an anonymized S3 URN with no real bucket name' do
+      uri = runner.send(:anonymized_document_identifier)
+      expect(uri).to start_with('urn:openhbx:terms:v1:file_storage:s3:bucket:anonymized#')
+    end
+
+    it 'returns a unique value on each call' do
+      first  = runner.send(:anonymized_document_identifier)
+      second = runner.send(:anonymized_document_identifier)
+      expect(first).not_to eq(second)
+    end
+  end
+
+  # @!group redact_document_identifier_field - per-document identifier scrub
+
+  describe '#redact_document_identifier_field' do
+    it 'replaces a present identifier with an anonymized URN' do
+      document = { 'title' => 'Notice', 'identifier' => 'urn:openhbx:terms:v1:file_storage:s3:bucket:real-bucket#abc' }
+      result = runner.send(:redact_document_identifier_field, document)
+      expect(result['identifier']).to start_with('urn:openhbx:terms:v1:file_storage:s3:bucket:anonymized#')
+      expect(result['identifier']).not_to include('real-bucket')
+    end
+
+    it 'leaves a document with a blank identifier unchanged' do
+      document = { 'title' => 'Notice', 'identifier' => nil }
+      expect(runner.send(:redact_document_identifier_field, document)).to eq(document)
+    end
+
+    it 'returns the input unchanged when it is not a Hash' do
+      expect(runner.send(:redact_document_identifier_field, nil)).to be_nil
+    end
+
+    it 'does not mutate the original document hash' do
+      original = 'urn:openhbx:terms:v1:file_storage:s3:bucket:real-bucket#abc'
+      document = { 'identifier' => original }
+      runner.send(:redact_document_identifier_field, document)
+      expect(document['identifier']).to eq(original)
+    end
+  end
+
+  # @!group document_identifier_update - embedded documents path traversal
+
+  describe '#document_identifier_update' do
+    let(:doc_with_identifier) { { 'title' => 'Notice', 'identifier' => 'urn:real#abc' } }
+
+    it 'builds an update op for a direct documents path' do
+      doc = { '_id' => BSON::ObjectId.new, 'documents' => [doc_with_identifier] }
+      result = runner.send(:document_identifier_update, doc, ['documents'], 'documents')
+      expect(result[:update_one][:update]['$set']).to have_key('documents')
+    end
+
+    it 'traverses a nested employer_profile.documents path' do
+      doc = { '_id' => BSON::ObjectId.new, 'employer_profile' => { 'documents' => [doc_with_identifier] } }
+      result = runner.send(:document_identifier_update, doc, ['employer_profile', 'documents'], 'employer_profile.documents')
+      expect(result[:update_one][:update]['$set']).to have_key('employer_profile.documents')
+    end
+
+    it 'returns nil when the documents array is empty' do
+      doc = { '_id' => BSON::ObjectId.new, 'documents' => [] }
+      expect(runner.send(:document_identifier_update, doc, ['documents'], 'documents')).to be_nil
+    end
+
+    it 'returns nil when an intermediate nested key is absent' do
+      doc = { '_id' => BSON::ObjectId.new, 'employer_profile' => {} }
+      expect(runner.send(:document_identifier_update, doc, ['employer_profile', 'documents'], 'employer_profile.documents')).to be_nil
+    end
+  end
+
+  # @!group redact_document_identifiers_at_path - collection-level batch loop
+
+  describe '#redact_document_identifiers_at_path' do
+    let(:people_collection) { instance_double(Mongo::Collection, name: 'people') }
+    let(:doc) do
+      { '_id' => BSON::ObjectId.new, 'documents' => [{ 'identifier' => 'urn:real#abc' }] }
+    end
+    let(:filter) { { 'documents.0' => { '$exists' => true } } }
+    let(:view)   { instance_double(Mongo::Collection::View) }
+    let(:sized)  { double('sized_cursor') }
+
+    before do
+      allow(people_collection).to receive(:count_documents).with(filter).and_return(1)
+      allow(people_collection).to receive(:find).with(filter).and_return(view)
+      allow(view).to receive(:projection).with('documents' => 1).and_return(view)
+      allow(view).to receive(:batch_size).with(batch_size).and_return(sized)
+      allow(sized).to receive(:each_slice).with(batch_size).and_yield([doc])
+    end
+
+    it 'returns the number of records processed' do
+      expect(runner.send(:redact_document_identifiers_at_path, people_collection, 'documents')).to eq(1)
+    end
+
+    it 'returns 0 and skips the find when no records match the filter' do
+      allow(people_collection).to receive(:count_documents).with(filter).and_return(0)
+      expect(people_collection).not_to receive(:find)
+      expect(runner.send(:redact_document_identifiers_at_path, people_collection, 'documents')).to eq(0)
+    end
+
+    context 'when not dry_run' do
+      let(:live_runner) { described_class.new(batch_size: batch_size, dry_run: false, force: true) }
+
+      before do
+        allow(people_collection).to receive(:count_documents).with(filter).and_return(1)
+        allow(people_collection).to receive(:find).with(filter).and_return(view)
+        allow(view).to receive(:projection).with('documents' => 1).and_return(view)
+        allow(view).to receive(:batch_size).with(batch_size).and_return(sized)
+        allow(sized).to receive(:each_slice).with(batch_size).and_yield([doc])
+      end
+
+      it 'calls bulk_write_batch with an update operation for each record' do
+        expect(live_runner).to receive(:bulk_write_batch).with(
+          people_collection,
+          array_including(hash_including(:update_one))
+        )
+        live_runner.send(:redact_document_identifiers_at_path, people_collection, 'documents')
+      end
+    end
+  end
+
+  # @!group redact_bs_document_identifiers - referenced BS documents collection
+
+  describe '#redact_bs_document_identifiers' do
+    let(:db_double)     { instance_double(Mongo::Database) }
+    let(:bs_collection) { instance_double(Mongo::Collection, name: 'benefit_sponsors_documents_documents') }
+    let(:doc)    { { '_id' => BSON::ObjectId.new } }
+    let(:filter) do
+      {
+        'identifier' => { '$exists' => true, '$nin' => [nil, '', 'missing_uri'] },
+        'documentable_type' => { '$ne' => 'BenefitSponsors::Organizations::IssuerProfile' }
+      }
+    end
+    let(:view)   { instance_double(Mongo::Collection::View) }
+    let(:sized)  { double('sized_cursor') }
+
+    before do
+      allow(runner).to receive(:db).and_return(db_double)
+      allow(db_double).to receive(:[]).with(:benefit_sponsors_documents_documents).and_return(bs_collection)
+      allow(db_double).to receive(:collection_names).and_return(['benefit_sponsors_documents_documents'])
+      allow(bs_collection).to receive(:count_documents).with(filter).and_return(1)
+      allow(bs_collection).to receive(:find).with(filter).and_return(view)
+      allow(view).to receive(:projection).with('_id' => 1).and_return(view)
+      allow(view).to receive(:batch_size).with(batch_size).and_return(sized)
+      allow(sized).to receive(:each_slice).with(batch_size).and_yield([doc])
+    end
+
+    it 'returns the number of documents processed' do
+      expect(runner.send(:redact_bs_document_identifiers)).to eq(1)
+    end
+
+    it 'returns 0 when the collection is not present' do
+      allow(db_double).to receive(:collection_names).and_return([])
+      expect(runner.send(:redact_bs_document_identifiers)).to eq(0)
+    end
+
+    it 'returns 0 when no documents have a real identifier' do
+      allow(bs_collection).to receive(:count_documents).with(filter).and_return(0)
+      expect(runner.send(:redact_bs_document_identifiers)).to eq(0)
+    end
+
+    it 'excludes IssuerProfile documents from the query filter' do
+      expect(bs_collection).to receive(:count_documents).with(
+        hash_including('documentable_type' => { '$ne' => 'BenefitSponsors::Organizations::IssuerProfile' })
+      ).and_return(0)
+      runner.send(:redact_bs_document_identifiers)
+    end
+
+    context 'when not dry_run' do
+      let(:live_runner) { described_class.new(batch_size: batch_size, dry_run: false, force: true) }
+
+      before do
+        allow(live_runner).to receive(:db).and_return(db_double)
+        allow(bs_collection).to receive(:count_documents).with(filter).and_return(1)
+        allow(bs_collection).to receive(:find).with(filter).and_return(view)
+        allow(view).to receive(:projection).with('_id' => 1).and_return(view)
+        allow(view).to receive(:batch_size).with(batch_size).and_return(sized)
+        allow(sized).to receive(:each_slice).with(batch_size).and_yield([doc])
+      end
+
+      it 'calls bulk_write_batch with an identifier update for each document' do
+        expect(live_runner).to receive(:bulk_write_batch).with(
+          bs_collection,
+          array_including(hash_including(:update_one))
+        )
+        live_runner.send(:redact_bs_document_identifiers)
+      end
     end
   end
 end

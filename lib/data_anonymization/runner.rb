@@ -194,7 +194,8 @@ module DataAnonymizer
         organizations: anonymize_organizations,
         bs_organizations: anonymize_bs_organizations,
         families: anonymize_families,
-        inbox_messages: anonymize_inbox_messages
+        inbox_messages: anonymize_inbox_messages,
+        document_identifiers: anonymize_document_identifiers
       }
     end
 
@@ -1187,7 +1188,6 @@ module DataAnonymizer
       total
     end
 
-    # Phase 7: redact document filenames from inbox message bodies (people, orgs, bs_orgs).
     def anonymize_inbox_messages
       log "\n--- Phase 7: Anonymizing Inbox Message Bodies ---"
       total  = redact_inbox_messages_at_path(db[:people], 'inbox')
@@ -1274,16 +1274,96 @@ module DataAnonymizer
 
       msg = msg.dup
       msg['body'] = redact_document_filename(msg['body']) if msg['body'].present?
+      msg['from'] = AnonymizedData.company_name if msg['from'].present?
       msg
     end
 
-    # Redacts filename= URL params and notice link text from a message body.
-    # S3 downloads are unaffected - the download path uses the document ObjectId.
     def redact_document_filename(body)
       return body if body.blank?
 
       body = body.gsub(/filename=[^&"'\s]+/, 'filename=document-redacted')
       body.gsub(%r{target=['"]_blank['"]>\s*[^<]+\s*</a>}i, "target='_blank'>[document-redacted]</a>")
+    end
+
+    def anonymize_document_identifiers
+      log "\n--- Phase 8: Anonymizing Document S3 References ---"
+      total  = redact_document_identifiers_at_path(db[:people], 'documents')
+      total += redact_document_identifiers_at_path(db[:organizations], 'employer_profile.documents')
+      total += redact_bs_document_identifiers
+      log "  Phase 8 complete: #{total} documents processed" if total.positive?
+      total
+    end
+
+    def redact_document_identifiers_at_path(collection, docs_path)
+      filter = { "#{docs_path}.0" => { '$exists' => true } }
+      total  = collection.count_documents(filter)
+      return 0 if total.zero?
+
+      log "  #{collection.name}: #{total} records with embedded documents"
+      path_keys = docs_path.split('.')
+      processed = 0
+
+      collection.find(filter).projection(docs_path => 1).batch_size(batch_size).each_slice(batch_size) do |batch|
+        updates = batch.filter_map { |doc| document_identifier_update(doc, path_keys, docs_path) }
+
+        if @dry_run
+          log "  [DRY RUN] Would redact S3 identifiers in #{batch.size} #{collection.name} records"
+        else
+          bulk_write_batch(collection, updates) unless updates.empty?
+        end
+        processed += batch.size
+      end
+      processed
+    end
+
+    def document_identifier_update(doc, path_keys, docs_path)
+      documents = path_keys.reduce(doc) { |d, k| d.is_a?(Hash) ? d[k] : nil }
+      return nil unless documents.is_a?(Array) && documents.present?
+
+      redacted = documents.map { |d| redact_document_identifier_field(d) }
+      { update_one: { filter: { '_id' => doc['_id'] }, update: { '$set' => { docs_path => redacted } } } }
+    end
+
+    def redact_document_identifier_field(document)
+      return document unless document.is_a?(Hash)
+      return document if document['identifier'].blank?
+
+      document = document.dup
+      document['identifier'] = anonymized_document_identifier
+      document
+    end
+
+    def redact_bs_document_identifiers
+      collection = db[:benefit_sponsors_documents_documents]
+      return 0 unless db.collection_names.include?(collection.name)
+
+      filter = {
+        'identifier' => { '$exists' => true, '$nin' => [nil, '', 'missing_uri'] },
+        'documentable_type' => { '$ne' => 'BenefitSponsors::Organizations::IssuerProfile' }
+      }
+      total  = collection.count_documents(filter)
+      return 0 if total.zero?
+
+      log "  #{collection.name}: #{total} documents with S3 identifiers"
+      processed = 0
+
+      collection.find(filter).projection('_id' => 1).batch_size(batch_size).each_slice(batch_size) do |batch|
+        updates = batch.map do |doc|
+          { update_one: { filter: { '_id' => doc['_id'] }, update: { '$set' => { 'identifier' => anonymized_document_identifier } } } }
+        end
+
+        if @dry_run
+          log "  [DRY RUN] Would redact S3 identifiers in #{batch.size} BS documents"
+        else
+          bulk_write_batch(collection, updates) unless updates.empty?
+        end
+        processed += batch.size
+      end
+      processed
+    end
+
+    def anonymized_document_identifier
+      "urn:openhbx:terms:v1:file_storage:s3:bucket:anonymized##{SecureRandom.uuid}"
     end
 
     # Replaces address PII fields in an embedded address hash.
