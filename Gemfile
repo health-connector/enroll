@@ -52,7 +52,7 @@ gem 'mongoid_userstamp', '~> 0.4', :path => "./project_gems/mongoid_userstamp-0.
 
 gem 'non-stupid-digest-assets', '~> 1.0', '>= 1.0.9'
 gem 'openhbx_cv2', git: 'https://github.com/ideacrew/openhbx_cv2.git', branch: 'trunk'
-gem 'resource_registry',  git:  'https://github.com/ideacrew/resource_registry.git', tag: 'v0.10.1'
+gem 'resource_registry',  git: 'https://github.com/dchbx/resource_registry', tag: 'v0.10.0'
 gem 'prawn', :git => 'https://github.com/prawnpdf/prawn.git', :ref => '8028ca0cd2'
 gem 'pundit', '~> 2.0'
 gem 'rails', '~> 8.1', '>= 8.1.2'
@@ -121,7 +121,7 @@ group :development do
   gem 'overcommit'
   gem 'rubocop', require: false
   gem 'rubocop-rspec'
-  gem 'rubocop-git'
+  gem 'rubocop-git2'
   gem 'web-console', '>= 3'
   gem 'next_rails'
 end
