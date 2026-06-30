@@ -79,7 +79,7 @@ RSpec.describe Notifier::NoticeKind, type: :model, dbclean: :after_each do
       it 'does not send email or create an inbox message' do
         expect(UserMailer).not_to receive(:generic_notice_alert_to_ba)
         expect { notice_kind.send_generic_notice_alert_to_broker }
-          .not_to change { broker_person.reload.inbox.messages.count }
+          .not_to(change { broker_person.reload.inbox.messages.count })
       end
     end
 
@@ -89,7 +89,7 @@ RSpec.describe Notifier::NoticeKind, type: :model, dbclean: :after_each do
       it 'does not send email or create an inbox message' do
         expect(UserMailer).not_to receive(:generic_notice_alert_to_ba)
         expect { notice_kind.send_generic_notice_alert_to_broker }
-          .not_to change { broker_person.reload.inbox.messages.count }
+          .not_to(change { broker_person.reload.inbox.messages.count })
       end
     end
 
