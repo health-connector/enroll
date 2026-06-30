@@ -98,14 +98,22 @@ module Services
       issuer_hios_ids.each do |issuer_hios_id|
         issuer_products = products(active_year).where(hios_id: /#{issuer_hios_id}/i)
         rating_area_ids(issuer_products).each do |rating_area_key, rating_area_value|
-          premium_tables_by_period = issuer_products.map(&:premium_tables).flatten.select do |prem_tab|
+          rating_area_tables = issuer_products.map(&:premium_tables).flatten.select do |prem_tab|
             prem_tab.rating_area_id.to_s == rating_area_key
-          end.group_by do |prem_tab|
+          end
+          premium_tables_by_period = rating_area_tables.group_by do |prem_tab|
             [prem_tab.effective_period.min.to_date, prem_tab.effective_period.max.to_date]
           end
 
           premium_tables_by_period.sort_by { |period, _| period.first }.each do |(effective_start, effective_end), premium_tables|
-            b = write_sheet2_age_rows(worksheet2, premium_tables, issuer_hios_id, issuer_products, rating_area_value, effective_start, effective_end, b)
+            row_context = {
+              issuer_hios_id: issuer_hios_id,
+              carrier_name: issuer_products.first.issuer_profile.legal_name,
+              rating_area_value: rating_area_value,
+              effective_start: effective_start,
+              effective_end: effective_end
+            }
+            b = write_sheet2_age_rows(worksheet2, premium_tables, row_context, b)
           end
         end
       end
@@ -284,9 +292,12 @@ module Services
 
     private
 
-    def write_sheet2_age_rows(worksheet, premium_tables, issuer_hios_id, issuer_products, rating_area_value, effective_start, effective_end, row_index)
-      carrier_name = issuer_products.first.issuer_profile.legal_name
-      ra_val = rating_area_value.gsub("R-MA00", "Rating Area ")
+    def write_sheet2_age_rows(worksheet, premium_tables, row_context, row_index)
+      issuer_hios_id = row_context[:issuer_hios_id]
+      carrier_name = row_context[:carrier_name]
+      ra_val = row_context[:rating_area_value].gsub("R-MA00", "Rating Area ")
+      effective_start = row_context[:effective_start]
+      effective_end = row_context[:effective_end]
       (14..64).each do |value|
         age = case value
               when 14 then "0-14"
