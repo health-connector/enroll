@@ -33,7 +33,13 @@ module Services
     end
 
     def issuer_hios_ids
-      profiles.flat_map(&:issuer_hios_ids).map(&:to_i)
+      profiles.flat_map { |profile| issuer_hios_ids_for(profile) }.map(&:to_i)
+    end
+
+    # Issuer HIOS ids for a profile, excluding any that have no products loaded for
+    # the active year (e.g. legacy off-exchange ids like Fallon's 52710).
+    def issuer_hios_ids_for(profile)
+      profile.issuer_hios_ids.map(&:to_s).select { |hios_id| products(active_year).where(hios_id: /\A#{hios_id}/i).present? }
     end
 
     def profiles
@@ -143,7 +149,7 @@ module Services
       profiles.each do |profile|
         carrier_name = profile.abbrev
         profile_id = profile.id.to_s
-        profile.issuer_hios_ids.each do |issuer_hios_id|
+        issuer_hios_ids_for(profile).each do |issuer_hios_id|
           group_sizes = BenefitMarkets::Products::ActuarialFactors::GroupSizeActuarialFactor.where(active_year: active_year, issuer_profile_id: profile_id)
           group_sizes.each do |group_size|
             group_size_sum = group_size.actuarial_factor_entries.map(&:factor_key).flatten.inject(0) do |sum,i|
@@ -170,7 +176,7 @@ module Services
       profiles.each do |profile|
         carrier_name = profile.abbrev
         profile_id = profile.id.to_s
-        profile.issuer_hios_ids.each do |issuer_hios_id|
+        issuer_hios_ids_for(profile).each do |issuer_hios_id|
           part_rates = ::BenefitMarkets::Products::ActuarialFactors::ParticipationRateActuarialFactor.where(active_year: active_year, issuer_profile_id: profile_id)
           part_rates.each do |part_rate|
             group_size_sum = part_rate.actuarial_factor_entries.map(&:factor_key).flatten.inject(0) do |sum,i|
@@ -197,7 +203,7 @@ module Services
       profiles.each do |profile|
         carrier_name = profile.abbrev
         profile_id = profile.id.to_s
-        profile.issuer_hios_ids.each do |issuer_hios_id|
+        issuer_hios_ids_for(profile).each do |issuer_hios_id|
           sic_codes = ::BenefitMarkets::Products::ActuarialFactors::SicActuarialFactor.where(active_year: active_year, issuer_profile_id: profile_id)
           sic_codes.all.each do |sic_code|
             sic_count = sic_code.actuarial_factor_entries.count

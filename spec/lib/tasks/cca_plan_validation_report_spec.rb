@@ -7,18 +7,40 @@ require 'rubyXL/convenience_methods'
 
 describe 'reports generation after plan loading', :dbclean => :after_each do
 
-  let(:current_date) {Date.today.strftime("%Y_%m_%d")}
-  let(:file_name) {"#{Rails.root}/CCA_PlanLoadValidation_Report_EA_#{current_date}.xlsx"}
+  let(:current_date) { Date.today.strftime("%Y_%m_%d") }
+  let(:issuer_abbrev) { "TEST" }
+  let(:issuer_hios_id) { "88888" }
+  let(:file_name) { "#{Rails.root}/CCA_PlanLoadValidation_Report_#{issuer_abbrev}_#{issuer_hios_id}_#{current_date}.xlsx" }
 
   before do
     load File.expand_path("#{Rails.root}/lib/tasks/cca_plan_validation_report.rake", __FILE__)
     Rake::Task.define_task(:environment)
-    allow(Date).to receive(:today).and_return Date.new(2001,2,3)
+    allow(Date).to receive(:today).and_return Date.new(2001, 2, 3)
+
+    # Set up test data: create an ExemptOrganization with an IssuerProfile
+    issuer_org = FactoryBot.create(:benefit_sponsors_organizations_exempt_organization, :with_issuer_profile)
+    issuer_profile = issuer_org.issuer_profile
+    issuer_profile.update(abbrev: issuer_abbrev, issuer_hios_ids: [issuer_hios_id])
+
+    # Create a product for 2019 (active year) with the issuer profile
+    start_date = Date.new(2019, 1, 1)
+    end_date = Date.new(2019, 12, 31)
+    application_period = Time.utc(start_date.year, start_date.month, start_date.day)..Time.utc(end_date.year, end_date.month, end_date.day)
+
+    FactoryBot.create(
+      :benefit_markets_products_health_products_health_product,
+      issuer_profile_id: issuer_profile.id,
+      application_period: application_period,
+      benefit_market_kind: :aca_shop,
+      kind: :health,
+      product_package_kinds: [:single_issuer],
+      hios_id: "#{issuer_hios_id}MA0100001-01"
+    )
   end
 
   context 'generation of reports' do
     after :all do
-      File.delete(File.join("#{Rails.root}/", "CCA_PlanLoadValidation_Report_EA_2001_02_03.xlsx")) if File.file?(File.join("#{Rails.root}/", "CCA_PlanLoadValidation_Report_EA_2001_02_03.xlsx"))
+      FileUtils.rm_f(Dir.glob("#{Rails.root}/CCA_PlanLoadValidation_Report_*_2001_02_03.xlsx"))
     end
 
     it 'should generate a xlsx when active date is passed' do
@@ -42,7 +64,7 @@ describe 'reports generation after plan loading', :dbclean => :after_each do
         workbook = RubyXL::Parser.parse(file_name)
         worksheet1 = workbook[1]
         worksheet1.sheet_data[0]
-        expect(worksheet1.sheet_data[0].cells.map(&:value)).to eq ["PlanYearId", "CarrierId", "CarrierName", "RatingArea", "Age(Range)", "IndividualRate"]
+        expect(worksheet1.sheet_data[0].cells.map(&:value)).to eq ["PlanYearId", "CarrierId", "CarrierName", "RatingArea", "Age(Range)", "IndividualRate", "EffectiveDate", "ExpirationDate"]
       end
     end
 
