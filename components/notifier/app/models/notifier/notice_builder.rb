@@ -202,9 +202,11 @@ module Notifier
 
     def send_generic_notice_alert_to_broker
       return unless resource.is_a?(BenefitSponsors::Organizations::AcaShopCcaEmployerProfile)
+
       primary_broker_role = resource.broker_agency_profile&.primary_broker_role
       broker_person = primary_broker_role&.person
       return if broker_person.blank?
+
       UserMailer.generic_notice_alert_to_ba(broker_person.full_name, primary_broker_role.email_address, resource.legal_name.titleize).deliver_now
       create_broker_inbox_message(broker_person)
     end
