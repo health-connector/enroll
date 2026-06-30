@@ -1,1 +1,1 @@
-<%= f.select :benefit_group_id, options_from_collection_for_select(benefit_groups, 'id', 'title', current_option), include_blank: prompt  %>
+<%= f.select :benefit_group_id, options_from_collection_for_select(benefit_groups, 'id', proc { |bg| EnrollRegistry[:employer_broker_ui_enhancements].enabled? ? bg.display_title : bg.title }, current_option), include_blank: prompt  %>

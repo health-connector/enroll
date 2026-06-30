@@ -237,6 +237,17 @@ module BenefitSponsors
         benefit_model_changed? || reference_plan_changed? || employer_contribution_changed?
       end
 
+      # Get specific reasons for changes on renewal
+      def renewal_change_reasons
+        return [] unless predecessor.present?
+
+        reasons = []
+        reasons << :benefit_model if benefit_model_changed?
+        reasons << :reference_plan if reference_plan_changed?
+        reasons << :employer_contribution if employer_contribution_changed?
+        reasons
+      end
+
       # Check if benefit model (product_package_kind) has changed
       def benefit_model_changed?
         return false unless predecessor.present?
@@ -338,21 +349,31 @@ module BenefitSponsors
       end
 
       def effectuate_member_benefits
-        activate_benefit_group_assignments if predecessor.present?
+        Rails.logger.tagged(self.class.name) do
+          activate_benefit_group_assignments if predecessor.present?
 
-        enrolled_families.each do |family|
-          enrollments = family.enrollments.by_benefit_package(self).enrolled_and_waived
+          enrolled_families.each do |family|
+            enrollments = family.enrollments
+                                .by_benefit_package(self)
+                                .where(:aasm_state.in => (HbxEnrollment::ENROLLED_STATUSES + HbxEnrollment::RENEWAL_STATUSES + HbxEnrollment::WAIVED_STATUSES))
+                                .order(created_at: :desc)
 
-          sponsored_benefits.each do |sponsored_benefit|
-            hbx_enrollment = enrollments.by_coverage_kind(sponsored_benefit.product_kind).first
-            hbx_enrollment.begin_coverage! if hbx_enrollment && hbx_enrollment.may_begin_coverage?
+            sponsored_benefits.each do |sponsored_benefit|
+              hbx_enrollment = enrollments.by_coverage_kind(sponsored_benefit.product_kind).first
+              hbx_enrollment.begin_coverage! if hbx_enrollment&.may_begin_coverage?
+            rescue StandardError => e
+              Rails.logger.error "error raised for family: #{family.id}, error: #{e.message} - #{e.backtrace}"
+            end
           end
         end
       end
 
       def expire_member_benefits
         enrolled_families.each do |family|
-          enrollments = family.enrollments.by_benefit_package(self).enrolled_and_waived
+          enrollments = family.enrollments
+                              .by_benefit_package(self)
+                              .where(:aasm_state.in => (HbxEnrollment::ENROLLED_STATUSES + HbxEnrollment::RENEWAL_STATUSES + HbxEnrollment::WAIVED_STATUSES))
+                              .order(created_at: :desc)
 
           sponsored_benefits.unscoped.each do |sponsored_benefit|
             hbx_enrollment = enrollments.by_coverage_kind(sponsored_benefit.product_kind).first
@@ -364,7 +385,10 @@ module BenefitSponsors
       def terminate_member_benefits
         terminate_benefit_group_assignments
         enrolled_and_terminated_families.each do |family|
-          enrollments = family.enrollments.by_benefit_package(self).enrolled_waived_terminated_and_expired
+          enrollments = family.enrollments
+                              .by_benefit_package(self)
+                              .where(:aasm_state.in => (HbxEnrollment::ENROLLED_STATUSES + HbxEnrollment::RENEWAL_STATUSES + HbxEnrollment::WAIVED_STATUSES + HbxEnrollment::TERMINATED_STATUSES + ['coverage_expired']))
+                              .order(created_at: :desc)
           sponsored_benefits.each do |sponsored_benefit|
             enrollments.by_coverage_kind(sponsored_benefit.product_kind).each do |hbx_enrollment|
               if hbx_enrollment.effective_on > benefit_application.end_on
@@ -390,7 +414,10 @@ module BenefitSponsors
       def termination_pending_member_benefits
         terminate_benefit_group_assignments
         enrolled_and_terminated_families.each do |family|
-          enrollments = family.enrollments.by_benefit_package(self).enrolled_waived_terminated_and_expired
+          enrollments = family.enrollments
+                              .by_benefit_package(self)
+                              .where(:aasm_state.in => (HbxEnrollment::ENROLLED_STATUSES + HbxEnrollment::RENEWAL_STATUSES + HbxEnrollment::WAIVED_STATUSES + HbxEnrollment::TERMINATED_STATUSES + ['coverage_expired']))
+                              .order(created_at: :desc)
 
           sponsored_benefits.each do |sponsored_benefit|
             enrollments.by_coverage_kind(sponsored_benefit.product_kind).each do |hbx_enrollment|
@@ -416,7 +443,10 @@ module BenefitSponsors
         deactivate_benefit_group_assignments
 
         enrolled_and_terminated_families.each do |family|
-          enrollments = family.enrollments.by_benefit_package(self).enrolled_waived_terminated_and_expired
+          enrollments = family.enrollments
+                              .by_benefit_package(self)
+                              .where(:aasm_state.in => (HbxEnrollment::ENROLLED_STATUSES + HbxEnrollment::RENEWAL_STATUSES + HbxEnrollment::WAIVED_STATUSES + HbxEnrollment::TERMINATED_STATUSES + ['coverage_expired']))
+                              .order(created_at: :desc)
 
           sponsored_benefits.each do |sponsored_benefit|
             enrollments.by_coverage_kind(sponsored_benefit.product_kind).each do |hbx_enrollment|
@@ -603,21 +633,27 @@ module BenefitSponsors
       private
 
       def health_reference_changed?
+        return false unless predecessor.present?
+
         health_sb = health_sponsored_benefit
         predecessor_health_sb = predecessor.health_sponsored_benefit
 
         return false if health_sb.blank? || predecessor_health_sb.blank?
+        return false if health_sb.reference_product.blank? || predecessor_health_sb.reference_product.blank?
 
-        health_sb.reference_product_id != predecessor_health_sb.reference_product_id
+        health_sb.reference_product.hios_id != predecessor_health_sb.reference_product.hios_id
       end
 
       def dental_reference_changed?
+        return false unless predecessor.present?
+
         dental_sb = dental_sponsored_benefit
         predecessor_dental_sb = predecessor.dental_sponsored_benefit
 
         return false if dental_sb.blank? || predecessor_dental_sb.blank?
+        return false if dental_sb.reference_product.blank? || predecessor_dental_sb.reference_product.blank?
 
-        dental_sb.reference_product_id != predecessor_dental_sb.reference_product_id
+        dental_sb.reference_product.hios_id != predecessor_dental_sb.reference_product.hios_id
       end
 
       def health_contribution_changed?

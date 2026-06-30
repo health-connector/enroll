@@ -13,12 +13,12 @@ jobs:
     runs-on: ubuntu-latest
     services:
       mongo:
-        image: mongo:5.0
+        image: mongo:7.0
         ports:
           - 27017:27017
         options: >-
           --name "mongo"
-          --health-cmd mongo
+          --health-cmd mongosh
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -26,30 +26,25 @@ jobs:
       fail-fast: false
       matrix:
         group:
-          [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 ]
+          [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+            21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40 ]
     steps:
       - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
         with:
-          bundler-cache: false
-          rubygems: 3.3.26
+          bundler-cache: true
+          rubygems: 3.5.21
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-      - name: Install dependencies
-        run: |
-          gem update --system 3.3.26
-          gem install bundler:2.4.22
-          gem install psych -v "~> 4.0.0"
-          bundle _2.4.22_ install
+          node-version: '24'
       - name: Restore Node Modules
         id: npm-cache
         uses: actions/cache@v4
         with:
           path: node_modules
-          key: ${{ runner.os }}-node_modules-v20-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-node_modules-v24-${{ hashFiles('yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-node_modules-v20-${{ hashFiles('yarn.lock') }}
+            ${{ runner.os }}-node_modules-v24-
       - name: Install node dependencies
         if: steps.npm-cache.outputs.cache-hit != 'true'
         run: yarn install
@@ -66,12 +61,12 @@ jobs:
     runs-on: ubuntu-latest
     services:
       mongo:
-        image: mongo:5.0
+        image: mongo:7.0
         ports:
           - 27017:27017
         options: >-
           --name "mongo"
-          --health-cmd mongo
+          --health-cmd mongosh
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -84,36 +79,25 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
         with:
-          bundler-cache: false
-          rubygems: 3.3.26
+          bundler-cache: true
+          rubygems: 3.5.21
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-      - name: Install dependencies
-        run: |
-          gem update --system 3.3.26
-          gem install bundler:2.4.22
-          gem install psych -v "~> 4.0.0"
-          bundle _2.4.22_ install
+          node-version: '24'
       - name: Restore Node Modules
         id: npm-cache
         uses: actions/cache@v4
         with:
           path: node_modules
-          key: ${{ runner.os }}-node_modules-v20-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-node_modules-v24-${{ hashFiles('yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-node_modules-v20-${{ hashFiles('yarn.lock') }}
+            ${{ runner.os }}-node_modules-v24-
       - name: Install node dependencies
         if: steps.npm-cache.outputs.cache-hit != 'true'
         run: yarn install
-      - name: Install Legacy Chrome
-        run: |
-          wget https://storage.googleapis.com/chrome-for-testing-public/131.0.6778.264/linux64/chrome-linux64.zip
-          unzip chrome-linux64.zip
       - name: Install Test boosters gem
         run: gem install treye-semaphore_test_boosters --version '2.5.2'
       - name: Run tests
         env:
-          WD_VERSION: "131.0.6778.264"
-          WD_CHROME_PATH: ${{ github.workspace }}/chrome-linux64/chrome
+          CUCUMBER_SPLIT_CONFIGURATION_PATH: 'ci/cucumber-split-config.json'
         run: cucumber_booster --job ${{ matrix.group }}/${{ strategy.job-total }}

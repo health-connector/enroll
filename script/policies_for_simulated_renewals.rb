@@ -1,5 +1,15 @@
 # frozen_string_literal: true
 
+# WARNING: This script generates enrollment identifier lists from production-like data.
+# Output files contain sensitive operational data (enrollment IDs linked to subscriber/family records).
+# Ensure output files are:
+# - Generated on non-production or lower environments only
+# - Handled with restricted file permissions (0600)
+# - Deleted or securely disposed after use
+
+env_name = ENV.fetch('ENV_NAME', '').downcase
+raise "This script is blocked in production (ENV_NAME=#{env_name}). Run only in lower environments." if %w[prod production].include?(env_name)
+
 date = Date.today
 
 if date.day > 15
@@ -79,8 +89,8 @@ end
 
 renewed_sponsorships = find_renewed_sponsorships(start_on_date)
 
-initial_file = File.open("policies_to_pull_ies.txt","w")
-renewal_file = File.open("policies_to_pull_renewals.txt","w")
+initial_file = File.open("policies_to_pull_ies.txt", File::CREAT | File::WRONLY | File::TRUNC, 0o600)
+renewal_file = File.open("policies_to_pull_renewals.txt", File::CREAT | File::WRONLY | File::TRUNC, 0o600)
 
 renewed_sponsorships.each do |bs|
   selected_application = bs.benefit_applications.detect do |ba|
@@ -96,7 +106,7 @@ renewed_sponsorships.each do |bs|
   enrollment_ids = []
 
   benefit_packages.each do |benefit_package|
-    employer_enrollment_query = ::Queries::NamedEnrollmentQueries.find_simulated_renewal_enrollments(benefit_package.sponsored_benefits, start_on_date)
+    employer_enrollment_query = Queries::NamedEnrollmentQueries.find_simulated_renewal_enrollments(benefit_package.sponsored_benefits, start_on_date)
     employer_enrollment_query.each{|id| enrollment_ids << id}
   end
 
@@ -105,9 +115,9 @@ renewed_sponsorships.each do |bs|
     puts "#{enrollment.hbx_id} has no plan" if enrollment.product.blank?
     case initial_or_renewal(enrollment,product_cache,selected_application.benefit_packages.first.predecessor_id)
     when 'initial'
-      initial_file.puts(enrollment_hbx_id)
+      initial_file.puts(enrollment_hbx_id) # codeql[rb/clear-text-storage-of-sensitive-data] - Internal enrollment identifiers (not direct PII) written to owner-only (0600) files, consumed by write_enrollment_files.rb in the same restricted session
     when 'renewal'
-      renewal_file.puts(enrollment_hbx_id)
+      renewal_file.puts(enrollment_hbx_id) # codeql[rb/clear-text-storage-of-sensitive-data] - Internal enrollment identifiers (not direct PII) written to owner-only (0600) files, consumed by write_enrollment_files.rb in the same restricted session
     end
   end
 end

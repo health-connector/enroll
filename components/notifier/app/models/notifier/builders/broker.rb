@@ -52,13 +52,13 @@ module Notifier
 
     def broker_assignment_date
       if broker_agency_account.present?
-        merge_model.broker.assignment_date = broker_agency_account.start_on
+        merge_model.broker.assignment_date = format_date(broker_agency_account.start_on)
       end
     end
 
     def broker_termination_date
       if terminated_broker_agency_account.present?
-        merge_model.broker.termination_date = terminated_broker_agency_account.end_on
+        merge_model.broker.termination_date = format_date(terminated_broker_agency_account.end_on)
       end
     end
 
