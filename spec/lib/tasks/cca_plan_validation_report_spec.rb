@@ -128,4 +128,140 @@ describe 'reports generation after plan loading', :dbclean => :after_each do
       end
     end
   end
+
+  context 'behavior 1b: hios_id with no products is excluded from filename' do
+    after :all do
+      FileUtils.rm_f(Dir.glob("#{Rails.root}/CCA_PlanLoadValidation_Report_*_2001_02_03.xlsx"))
+    end
+
+    it 'excludes productless hios_id from the carrier slug in filename' do
+      # Setup: issuer_profile already has one hios_id with a product from the before block
+      # Now add a second hios_id with no product
+      issuer_org = FactoryBot.create(:benefit_sponsors_organizations_exempt_organization, :with_issuer_profile)
+      issuer_profile = issuer_org.issuer_profile
+      issuer_profile.update(
+        abbrev: "FALLON",
+        issuer_hios_ids: ["88888", "52710"]
+      )
+
+      # Create product only for 88888, not for 52710
+      start_date = Date.new(2019, 1, 1)
+      end_date = Date.new(2019, 12, 31)
+      application_period = (Time.utc(start_date.year, start_date.month, start_date.day)..
+                            Time.utc(end_date.year, end_date.month, end_date.day))
+
+      FactoryBot.create(
+        :benefit_markets_products_health_products_health_product,
+        issuer_profile_id: issuer_profile.id,
+        application_period: application_period,
+        benefit_market_kind: :aca_shop,
+        kind: :health,
+        product_package_kinds: [:single_issuer],
+        hios_id: "88888MA0100001-01"
+      )
+
+      ClimateControl.modify active_date: "2019-12-01" do
+        Rake::Task["cca_plan_validation:reports"].reenable
+        Rake::Task["cca_plan_validation:reports"].invoke
+      end
+
+      # Assert that the file includes only the productful hios_id (88888), not 52710
+      generated_files = Dir.glob("#{Rails.root}/CCA_PlanLoadValidation_Report_FALLON_*_2001_02_03.xlsx")
+      expect(generated_files).to include(
+        "#{Rails.root}/CCA_PlanLoadValidation_Report_FALLON_88888_2001_02_03.xlsx"
+      )
+      expect(generated_files).not_to include(
+        "#{Rails.root}/CCA_PlanLoadValidation_Report_FALLON_88888_52710_2001_02_03.xlsx"
+      )
+    end
+  end
+
+  context 'behavior 2: separate files per carrier, each scoped to its own data' do
+    after :all do
+      FileUtils.rm_f(Dir.glob("#{Rails.root}/CCA_PlanLoadValidation_Report_*_2001_02_03.xlsx"))
+    end
+
+    it 'generates one file per carrier with distinct slugs' do
+      # Create second carrier
+      second_issuer_org = FactoryBot.create(:benefit_sponsors_organizations_exempt_organization, :with_issuer_profile)
+      second_issuer_profile = second_issuer_org.issuer_profile
+      second_issuer_profile.update(
+        abbrev: "BTWO",
+        issuer_hios_ids: ["99999"]
+      )
+
+      start_date = Date.new(2019, 1, 1)
+      end_date = Date.new(2019, 12, 31)
+      application_period = (Time.utc(start_date.year, start_date.month, start_date.day)..
+                            Time.utc(end_date.year, end_date.month, end_date.day))
+
+      # Create product for second carrier
+      FactoryBot.create(
+        :benefit_markets_products_health_products_health_product,
+        issuer_profile_id: second_issuer_profile.id,
+        application_period: application_period,
+        benefit_market_kind: :aca_shop,
+        kind: :health,
+        product_package_kinds: [:single_issuer],
+        hios_id: "99999MA0100001-01"
+      )
+
+      ClimateControl.modify active_date: "2019-12-01" do
+        Rake::Task["cca_plan_validation:reports"].reenable
+        Rake::Task["cca_plan_validation:reports"].invoke
+      end
+
+      # Assert two distinct files are generated
+      first_carrier_file = "#{Rails.root}/CCA_PlanLoadValidation_Report_TEST_88888_2001_02_03.xlsx"
+      second_carrier_file = "#{Rails.root}/CCA_PlanLoadValidation_Report_BTWO_99999_2001_02_03.xlsx"
+
+      expect(File.exist?(first_carrier_file)).to be true
+      expect(File.exist?(second_carrier_file)).to be true
+    end
+
+    it 'each carrier file contains only that carrier\'s data' do
+      # Create second carrier
+      second_issuer_org = FactoryBot.create(:benefit_sponsors_organizations_exempt_organization, :with_issuer_profile)
+      second_issuer_profile = second_issuer_org.issuer_profile
+      second_issuer_profile.update(
+        abbrev: "ATHREE",
+        issuer_hios_ids: ["77777"]
+      )
+
+      start_date = Date.new(2019, 1, 1)
+      end_date = Date.new(2019, 12, 31)
+      application_period = (Time.utc(start_date.year, start_date.month, start_date.day)..
+                            Time.utc(end_date.year, end_date.month, end_date.day))
+
+      # Create product for second carrier
+      FactoryBot.create(
+        :benefit_markets_products_health_products_health_product,
+        issuer_profile_id: second_issuer_profile.id,
+        application_period: application_period,
+        benefit_market_kind: :aca_shop,
+        kind: :health,
+        product_package_kinds: [:single_issuer],
+        hios_id: "77777MA0100001-01"
+      )
+
+      ClimateControl.modify active_date: "2019-12-01" do
+        Rake::Task["cca_plan_validation:reports"].reenable
+        Rake::Task["cca_plan_validation:reports"].invoke
+      end
+
+      first_carrier_file = "#{Rails.root}/CCA_PlanLoadValidation_Report_TEST_88888_2001_02_03.xlsx"
+      second_carrier_file = "#{Rails.root}/CCA_PlanLoadValidation_Report_ATHREE_77777_2001_02_03.xlsx"
+
+      workbook1 = RubyXL::Parser.parse(first_carrier_file)
+      worksheet1 = workbook1[0]
+      first_carrier_hios_ids = worksheet1.sheet_data[1..].map { |row| row&.cells&.at(1)&.value }.compact.uniq
+
+      workbook2 = RubyXL::Parser.parse(second_carrier_file)
+      worksheet2 = workbook2[0]
+      second_carrier_hios_ids = worksheet2.sheet_data[1..].map { |row| row&.cells&.at(1)&.value }.compact.uniq
+
+      expect(first_carrier_hios_ids).to eq([88888])
+      expect(second_carrier_hios_ids).to eq([77777])
+    end
+  end
 end
