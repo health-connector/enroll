@@ -44,7 +44,8 @@ describe 'reports generation after plan loading', :dbclean => :after_each do
 
   # CarrierId (hios id) values found in the data rows of a report's first sheet.
   def carrier_ids_in(path)
-    RubyXL::Parser.parse(path)[0].sheet_data[1..].map { |row| row&.cells&.at(1)&.value }.compact.uniq
+    data_rows = RubyXL::Parser.parse(path)[0].sheet_data.rows.drop(1)
+    data_rows.map { |row| row&.cells&.at(1)&.value }.compact.uniq
   end
 
   before do
