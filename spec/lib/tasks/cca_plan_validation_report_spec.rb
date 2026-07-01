@@ -117,8 +117,8 @@ describe 'reports generation after plan loading', :dbclean => :after_each do
     end
 
     it 'scopes each workbook to only that carrier data' do
-      expect(carrier_ids_in(report_path("TEST_88888"))).to eq([88888])
-      expect(carrier_ids_in(report_path("BTWO_99999"))).to eq([99999])
+      expect(carrier_ids_in(report_path("TEST_88888"))).to eq([88_888])
+      expect(carrier_ids_in(report_path("BTWO_99999"))).to eq([99_999])
     end
   end
 end
