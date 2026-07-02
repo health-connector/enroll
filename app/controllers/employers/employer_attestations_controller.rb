@@ -6,7 +6,7 @@ class Employers::EmployerAttestationsController < ApplicationController
     authorize @employer_profile, :employer_attestation_edit?
     @documents = []
     @documents = @employer_profile.employer_attestation.employer_attestation_documents if @employer_profile.employer_attestation.present?
-    @element_to_replace_id = params[:employer_actions_id]
+    @element_to_replace_id = "employer_actions_#{@employer_profile.id}"
   end
 
   def new
