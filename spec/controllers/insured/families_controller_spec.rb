@@ -461,6 +461,8 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
       allow(person).to receive(:primary_family).and_return(@family)
       allow(person).to receive(:hbx_staff_role).and_return(nil)
       allow(controller).to receive(:authorize).and_return(true)
+      employee_roles_relation = double('employee_roles_relation', pluck: [])
+      allow(person).to receive(:employee_roles).and_return(double('employee_roles', where: employee_roles_relation))
     end
 
     context 'when its initial enrollment' do
@@ -471,7 +473,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
       it "should redirect" do
         special_enrollment_period = @family.special_enrollment_periods.last
         expect(response).to have_http_status(:redirect)
-        expect(response).to redirect_to(new_insured_group_selection_path({person_id: person.id, consumer_role_id: person.consumer_role.try(:id), enrollment_kind: 'sep', effective_on_date: special_enrollment_period.effective_on, qle_id: @qle.id}))
+        expect(response).to redirect_to(new_insured_group_selection_path({person_id: person.id, consumer_role_id: person.consumer_role.try(:id), employee_role_id: nil, enrollment_kind: 'sep', effective_on_date: special_enrollment_period.effective_on, qle_id: @qle.id}))
       end
     end
 
@@ -484,7 +486,7 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
 
       it "should redirect with change_plan parameter" do
         expect(response).to have_http_status(:redirect)
-        expect(response).to redirect_to(new_insured_group_selection_path({person_id: person.id, consumer_role_id: person.consumer_role.try(:id), change_plan: 'change_plan', enrollment_kind: 'sep', qle_id: @qle.id}))
+        expect(response).to redirect_to(new_insured_group_selection_path({person_id: person.id, consumer_role_id: person.consumer_role.try(:id), employee_role_id: nil, change_plan: 'change_plan', enrollment_kind: 'sep', qle_id: @qle.id}))
       end
     end
   end
