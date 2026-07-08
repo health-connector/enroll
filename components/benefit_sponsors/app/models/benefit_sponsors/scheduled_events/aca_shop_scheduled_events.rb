@@ -14,6 +14,8 @@ module BenefitSponsors
       def initialize(new_date)
         @new_date = new_date
         initialize_logger
+        @logger.info("[AcaShopScheduledEvents] advance_day processing date: #{new_date}")
+        puts "[AcaShopScheduledEvents] advance_day processing date: #{new_date}"
         shop_daily_events
         process_events_for('auto_submit_renewal_applications') { auto_submit_renewal_applications }
         # process_events_for('process_applications_missing_binder_payment') { process_applications_missing_binder_payment } #refs 39124 - Had to comment out as we got rid of states on BS.
@@ -34,26 +36,36 @@ module BenefitSponsors
 
       def open_enrollment_begin
         benefit_sponsorships = BenefitSponsorships::BenefitSponsorship.may_begin_open_enrollment?(new_date)
+        @logger.info("[AcaShopScheduledEvents] open_enrollment_begin: sponsorships_found=#{benefit_sponsorships.count}")
+        puts "[AcaShopScheduledEvents] open_enrollment_begin: sponsorships_found=#{benefit_sponsorships.count}"
         execute_sponsor_event(benefit_sponsorships, :begin_open_enrollment)
       end
 
       def open_enrollment_end
         benefit_sponsorships = BenefitSponsorships::BenefitSponsorship.may_end_open_enrollment?(new_date)
+        @logger.info("[AcaShopScheduledEvents] open_enrollment_end: sponsorships_found=#{benefit_sponsorships.count}")
+        puts "[AcaShopScheduledEvents] open_enrollment_end: sponsorships_found=#{benefit_sponsorships.count}"
         execute_sponsor_event(benefit_sponsorships, :end_open_enrollment)
       end
 
       def benefit_begin
         benefit_sponsorships = BenefitSponsorships::BenefitSponsorship.may_begin_benefit_coverage?(new_date)
+        @logger.info("[AcaShopScheduledEvents] benefit_begin: sponsorships_found=#{benefit_sponsorships.count}")
+        puts "[AcaShopScheduledEvents] benefit_begin: sponsorships_found=#{benefit_sponsorships.count}"
         execute_sponsor_event(benefit_sponsorships, :begin_sponsor_benefit)
       end
 
       def benefit_end
         benefit_sponsorships = BenefitSponsorships::BenefitSponsorship.may_end_benefit_coverage?(new_date)
+        @logger.info("[AcaShopScheduledEvents] benefit_end: sponsorships_found=#{benefit_sponsorships.count}")
+        puts "[AcaShopScheduledEvents] benefit_end: sponsorships_found=#{benefit_sponsorships.count}"
         execute_sponsor_event(benefit_sponsorships, :end_sponsor_benefit)
       end
 
       def benefit_termination_pending
         benefit_sponsorships = BenefitSponsorships::BenefitSponsorship.may_terminate_pending_benefit_coverage?(new_date)
+        @logger.info("[AcaShopScheduledEvents] benefit_termination_pending: sponsorships_found=#{benefit_sponsorships.count}")
+        puts "[AcaShopScheduledEvents] benefit_termination_pending: sponsorships_found=#{benefit_sponsorships.count}"
         execute_sponsor_event(benefit_sponsorships, :terminate_pending_sponsor_benefit)
       end
 
@@ -62,8 +74,12 @@ module BenefitSponsors
         renewal_offset_days = Settings.aca.shop_market.renewal_application.earliest_start_prior_to_effective_on.day_of_month.days
         renewal_application_begin = (new_date + months_prior_to_effective.months - renewal_offset_days)
 
+        @logger.info("[AcaShopScheduledEvents] benefit_renewal: new_date=#{new_date} renewal_application_begin=#{renewal_application_begin} mday_check=#{renewal_application_begin.mday == 1}")
+        puts "[AcaShopScheduledEvents] benefit_renewal: new_date=#{new_date} renewal_application_begin=#{renewal_application_begin} mday_check=#{renewal_application_begin.mday == 1}"
         if renewal_application_begin.mday == 1
           benefit_sponsorships = BenefitSponsors::BenefitSponsorships::BenefitSponsorship.may_renew_application?(renewal_application_begin.prev_day)
+          @logger.info("[AcaShopScheduledEvents] benefit_renewal: sponsorships_found=#{benefit_sponsorships.count} for effective_period_max=#{renewal_application_begin.prev_day}")
+          puts "[AcaShopScheduledEvents] benefit_renewal: sponsorships_found=#{benefit_sponsorships.count} for effective_period_max=#{renewal_application_begin.prev_day}"
           execute_sponsor_event(benefit_sponsorships, :renew_sponsor_benefit)
         end
       end
