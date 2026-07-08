@@ -270,8 +270,27 @@ class Exchanges::HbxProfilesController < ApplicationController
 
   def family_index_dt
     @selector = params[:scopes][:selector] if params[:scopes].present?
-    @datatable = Effective::Datatables::FamilyDataTable.new(params[:scopes])
-    #render '/exchanges/hbx_profiles/family_index_datatable'
+    if EnrollRegistry.feature_enabled?(:refactored_datatables)
+      @families_datatable_locals = datatable_locals(::Datatables::FamiliesTable.new, url: families_datatable_exchanges_hbx_profiles_path)
+    else
+      @datatable = Effective::Datatables::FamilyDataTable.new(params[:scopes])
+      #render '/exchanges/hbx_profiles/family_index_datatable'
+    end
+  end
+
+  def families_datatable
+    raise ActionController::RoutingError, 'Not Found' unless EnrollRegistry.feature_enabled?(:refactored_datatables)
+
+    authorize HbxProfile, :family_index_dt?
+    table = ::Datatables::FamiliesTable.new
+    respond_to do |format|
+      format.html { render_datatable_fragment(table, url: families_datatable_exchanges_hbx_profiles_path) }
+      format.csv do
+        stream_datatable_csv(filename: 'families.csv',
+                             headers: table.csv_headers,
+                             rows: datatable_csv_rows(table, datatable_scoped(table)))
+      end
+    end
   end
 
   def user_account_index

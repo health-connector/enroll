@@ -73,6 +73,7 @@ Rails.application.routes.draw do
         post :reinstate_enrollment
         get :family_index
         get :family_index_dt
+        get :families_datatable
         get :outstanding_verification_dt
         get :outstanding_verifications_datatable
         post :families_index_datatable
