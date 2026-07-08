@@ -105,8 +105,7 @@ class TimeKeeper
 
   def push_date_of_record
     notify_logger("TimeKeeper advance day started at #{Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%m-%d-%Y %H:%M:%S')}")
-    Rails.logger.info("[TimeKeeper] TimeKeeper advance day started at #{Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%m-%d-%Y %H:%M:%S')}")
-    Rails.logger.info("[TimeKeeper] calling AcaShopScheduledEvents.advance_day for date=#{date_of_record}"
+    Rails.logger.info("[TimeKeeper] calling AcaShopScheduledEvents.advance_day for date=#{date_of_record}")
     puts "[TimeKeeper] calling AcaShopScheduledEvents.advance_day for date=#{date_of_record}"
     Rails.logger.info("[TimeKeeper] ------- step 1 ----------- | Date.today=#{Date.today} | TimeKeeper.date_of_record=#{TimeKeeper.date_of_record}")
     BenefitSponsors::ScheduledEvents::AcaShopScheduledEvents.advance_day(self.date_of_record)
