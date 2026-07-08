@@ -105,14 +105,20 @@ class TimeKeeper
 
   def push_date_of_record
     notify_logger("TimeKeeper advance day started at #{Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%m-%d-%Y %H:%M:%S')}")
+    Rails.logger.info("[TimeKeeper] TimeKeeper advance day started at #{Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%m-%d-%Y %H:%M:%S')}")
+    Rails.logger.info("[TimeKeeper] calling AcaShopScheduledEvents.advance_day for date=#{date_of_record}"
     puts "[TimeKeeper] calling AcaShopScheduledEvents.advance_day for date=#{date_of_record}"
+    Rails.logger.info("[TimeKeeper] ------- step 1 ----------- | Date.today=#{Date.today} | TimeKeeper.date_of_record=#{TimeKeeper.date_of_record}")
     BenefitSponsors::ScheduledEvents::AcaShopScheduledEvents.advance_day(self.date_of_record)
+    Rails.logger.info("[TimeKeeper] ------- step 2 ----------- | Date.today=#{Date.today} | TimeKeeper.date_of_record=#{TimeKeeper.date_of_record}")
     BenefitSponsorship.advance_day(self.date_of_record)
+    Rails.logger.info("[TimeKeeper] ------- step 3 ----------- | Date.today=#{Date.today} | TimeKeeper.date_of_record=#{TimeKeeper.date_of_record}")
     # EmployerProfile.advance_day(self.date_of_record)
     Family.advance_day(self.date_of_record) if individual_market_is_enabled?
     HbxEnrollment.advance_day(self.date_of_record)
     CensusEmployee.advance_day(self.date_of_record)
     ConsumerRole.advance_day(self.date_of_record)
+    Rails.logger.info("[TimeKeeper] ------- last step  ----------- | Date.today=#{Date.today} | TimeKeeper.date_of_record=#{TimeKeeper.date_of_record}")
     notify_logger("TimeKeeper advance day ended at #{Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%m-%d-%Y %H:%M:%S')}")
   end
 
