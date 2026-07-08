@@ -48,6 +48,8 @@ class TimeKeeper
 
   def self.set_date_of_record(new_date)
     new_date = new_date.to_date
+    Rails.logger.info("[TimeKeeper] set_date_of_record called: stored=#{instance.date_of_record} requested=#{new_date}")
+    puts "[TimeKeeper] set_date_of_record called: stored=#{instance.date_of_record} requested=#{new_date}"
     if instance.date_of_record != new_date
       if instance.date_of_record > new_date
         log("Attempt made to set date to past: #{new_date}", {:severity => :error})
@@ -85,12 +87,16 @@ class TimeKeeper
 
   def set_date_of_record(new_date)
     Rails.cache.write(CACHE_KEY, new_date.strftime("%Y-%m-%d"))
+    Rails.logger.info("[TimeKeeper] cache write: #{CACHE_KEY} = #{new_date.strftime('%Y-%m-%d')}")
+    puts "[TimeKeeper] cache write: #{CACHE_KEY} = #{new_date.strftime('%Y-%m-%d')}"
   end
 
   def date_of_record
     tl_value = thread_local_date_of_record
     return tl_value unless tl_value.blank?
     found_value = Rails.cache.fetch(CACHE_KEY) do
+      Rails.logger.info("[TimeKeeper] cache miss for #{self.class::CACHE_KEY} - falling back to Date.current (#{Date.current})")
+      puts "[TimeKeeper] cache miss for #{self.class::CACHE_KEY} - falling back to Date.current (#{Date.current})"
       log("date_of_record not available for TimeKeeper - using Date.current")
       Date.current.strftime("%Y-%m-%d")
     end
@@ -99,13 +105,19 @@ class TimeKeeper
 
   def push_date_of_record
     notify_logger("TimeKeeper advance day started at #{Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%m-%d-%Y %H:%M:%S')}")
+    Rails.logger.info("[TimeKeeper] calling AcaShopScheduledEvents.advance_day for date=#{date_of_record}")
+    puts "[TimeKeeper] calling AcaShopScheduledEvents.advance_day for date=#{date_of_record}"
+    Rails.logger.info("[TimeKeeper] ------- step 1 ----------- | Date.today=#{Date.today} | TimeKeeper.date_of_record=#{TimeKeeper.date_of_record}")
     BenefitSponsors::ScheduledEvents::AcaShopScheduledEvents.advance_day(self.date_of_record)
+    Rails.logger.info("[TimeKeeper] ------- step 2 ----------- | Date.today=#{Date.today} | TimeKeeper.date_of_record=#{TimeKeeper.date_of_record}")
     BenefitSponsorship.advance_day(self.date_of_record)
+    Rails.logger.info("[TimeKeeper] ------- step 3 ----------- | Date.today=#{Date.today} | TimeKeeper.date_of_record=#{TimeKeeper.date_of_record}")
     # EmployerProfile.advance_day(self.date_of_record)
     Family.advance_day(self.date_of_record) if individual_market_is_enabled?
     HbxEnrollment.advance_day(self.date_of_record)
     CensusEmployee.advance_day(self.date_of_record)
     ConsumerRole.advance_day(self.date_of_record)
+    Rails.logger.info("[TimeKeeper] ------- last step  ----------- | Date.today=#{Date.today} | TimeKeeper.date_of_record=#{TimeKeeper.date_of_record}")
     notify_logger("TimeKeeper advance day ended at #{Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%m-%d-%Y %H:%M:%S')}")
   end
 
