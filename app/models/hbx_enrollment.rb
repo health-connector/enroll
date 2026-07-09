@@ -2134,21 +2134,21 @@ class HbxEnrollment
     target_benefit_application = sponsored_benefit_package&.benefit_application
     return nil unless target_benefit_application.present?
     family.active_household.hbx_enrollments
-      .where(
-        employee_role_id: employee_role_id,
-        coverage_kind: coverage_kind,
-        :kind.ne => 'employer_sponsored_cobra',
-        :aasm_state.in => %w[
-          coverage_terminated
-          coverage_termination_pending
-          coverage_enrolled
-          coverage_selected
-        ]
-      )
-      .order(effective_on: :desc)
-      .detect do |enr|
-        enr.sponsored_benefit_package&.benefit_application&.id == target_benefit_application.id
-      end
+          .where(
+            employee_role_id: employee_role_id,
+            coverage_kind: coverage_kind,
+            :kind.ne => 'employer_sponsored_cobra',
+            :aasm_state.in => %w[
+              coverage_terminated
+              coverage_termination_pending
+              coverage_enrolled
+              coverage_selected
+            ]
+          )
+          .order(effective_on: :desc)
+          .detect do |enr|
+            enr.sponsored_benefit_package&.benefit_application&.id == target_benefit_application.id
+          end
   end
 
   # NOTE - Mongoid::Timestamps does not generate created_at time stamps.
