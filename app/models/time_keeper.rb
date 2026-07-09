@@ -48,8 +48,17 @@ class TimeKeeper
 
   def self.set_date_of_record(new_date)
     new_date = new_date.to_date
-    if instance.date_of_record != new_date
-      if instance.date_of_record > new_date
+    last_recorded_date = instance.cached_date_of_record
+
+    if last_recorded_date.blank?
+      # Cache state was lost or is unreachable. A missing value must never be
+      # treated as "day already processed" - run the day's events (CCAOM-345).
+      log("date_of_record missing at advance - running events for #{new_date}", {:severity => :critical})
+      instance.set_date_of_record(new_date)
+      instance.push_date_of_record
+      instance.push_date_change_event
+    elsif last_recorded_date != new_date
+      if last_recorded_date > new_date
         log("Attempt made to set date to past: #{new_date}", {:severity => :error})
         raise StandardError, "system may not go backward in time"
       else
@@ -67,10 +76,7 @@ class TimeKeeper
   # DO NOT EVER USE OUTSIDE OF TESTS
   def self.set_date_of_record_unprotected!(new_date)
     new_date = new_date.to_date
-    if instance.date_of_record != new_date
-      (new_date - instance.date_of_record).to_i
-      instance.set_date_of_record(new_date)
-    end
+    instance.set_date_of_record(new_date) if instance.cached_date_of_record != new_date
     instance.date_of_record
   end
 
@@ -87,14 +93,24 @@ class TimeKeeper
     Rails.cache.write(CACHE_KEY, new_date.strftime("%Y-%m-%d"))
   end
 
+  # Raw cache read: returns nil on a miss instead of fabricating a value.
+  # Only set_date_of_record decides what a miss means; readers fall back below.
+  def cached_date_of_record
+    found_value = Rails.cache.read(CACHE_KEY)
+    return nil if found_value.blank?
+
+    Date.strptime(found_value, "%Y-%m-%d")
+  end
+
   def date_of_record
     tl_value = thread_local_date_of_record
     return tl_value unless tl_value.blank?
-    found_value = Rails.cache.fetch(CACHE_KEY) do
-      log("date_of_record not available for TimeKeeper - using Date.current")
-      Date.current.strftime("%Y-%m-%d")
-    end
-    Date.strptime(found_value, "%Y-%m-%d")
+
+    cached = cached_date_of_record
+    return cached if cached.present?
+
+    log("date_of_record not available for TimeKeeper - using Date.current")
+    Date.current
   end
 
   def push_date_of_record
