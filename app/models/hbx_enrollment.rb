@@ -2129,10 +2129,13 @@ class HbxEnrollment
     base = parent_enrollment
     return base if base.present?
     return nil unless employee_role.present?
+
     family = employee_role.person.primary_family
     return nil unless family.present?
+
     target_benefit_application = sponsored_benefit_package&.benefit_application
     return nil unless target_benefit_application.present?
+
     family.active_household.hbx_enrollments
           .where(
             employee_role_id: employee_role_id,
