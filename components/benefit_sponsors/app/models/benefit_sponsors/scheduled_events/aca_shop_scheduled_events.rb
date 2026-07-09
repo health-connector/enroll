@@ -14,6 +14,7 @@ module BenefitSponsors
       def initialize(new_date)
         @new_date = new_date
         initialize_logger
+        Rails.logger.info("[AcaShopScheduledEvents] advance_day processing date: #{new_date} | Date.today=#{Date.today} | TimeKeeper.date_of_record=#{TimeKeeper.date_of_record}")
         shop_daily_events
         process_events_for('auto_submit_renewal_applications') { auto_submit_renewal_applications }
         # process_events_for('process_applications_missing_binder_payment') { process_applications_missing_binder_payment } #refs 39124 - Had to comment out as we got rid of states on BS.
@@ -34,26 +35,31 @@ module BenefitSponsors
 
       def open_enrollment_begin
         benefit_sponsorships = BenefitSponsorships::BenefitSponsorship.may_begin_open_enrollment?(new_date)
+        Rails.logger.info("[AcaShopScheduledEvents] open_enrollment_begin: sponsorships_found=#{benefit_sponsorships.count} | Date.today=#{Date.today} | TimeKeeper.date_of_record=#{TimeKeeper.date_of_record}")
         execute_sponsor_event(benefit_sponsorships, :begin_open_enrollment)
       end
 
       def open_enrollment_end
         benefit_sponsorships = BenefitSponsorships::BenefitSponsorship.may_end_open_enrollment?(new_date)
+        Rails.logger.info("[AcaShopScheduledEvents] open_enrollment_end: sponsorships_found=#{benefit_sponsorships.count} | Date.today=#{Date.today} | TimeKeeper.date_of_record=#{TimeKeeper.date_of_record}")
         execute_sponsor_event(benefit_sponsorships, :end_open_enrollment)
       end
 
       def benefit_begin
         benefit_sponsorships = BenefitSponsorships::BenefitSponsorship.may_begin_benefit_coverage?(new_date)
+        Rails.logger.info("[AcaShopScheduledEvents] benefit_begin: sponsorships_found=#{benefit_sponsorships.count} | Date.today=#{Date.today} | TimeKeeper.date_of_record=#{TimeKeeper.date_of_record}")
         execute_sponsor_event(benefit_sponsorships, :begin_sponsor_benefit)
       end
 
       def benefit_end
         benefit_sponsorships = BenefitSponsorships::BenefitSponsorship.may_end_benefit_coverage?(new_date)
+        Rails.logger.info("[AcaShopScheduledEvents] benefit_end: sponsorships_found=#{benefit_sponsorships.count} | Date.today=#{Date.today} | TimeKeeper.date_of_record=#{TimeKeeper.date_of_record}")
         execute_sponsor_event(benefit_sponsorships, :end_sponsor_benefit)
       end
 
       def benefit_termination_pending
         benefit_sponsorships = BenefitSponsorships::BenefitSponsorship.may_terminate_pending_benefit_coverage?(new_date)
+        Rails.logger.info("[AcaShopScheduledEvents] benefit_termination_pending: sponsorships_found=#{benefit_sponsorships.count} | Date.today=#{Date.today} | TimeKeeper.date_of_record=#{TimeKeeper.date_of_record}")
         execute_sponsor_event(benefit_sponsorships, :terminate_pending_sponsor_benefit)
       end
 
@@ -62,8 +68,10 @@ module BenefitSponsors
         renewal_offset_days = Settings.aca.shop_market.renewal_application.earliest_start_prior_to_effective_on.day_of_month.days
         renewal_application_begin = (new_date + months_prior_to_effective.months - renewal_offset_days)
 
+        Rails.logger.info("[AcaShopScheduledEvents] benefit_renewal: new_date=#{new_date} renewal_application_begin=#{renewal_application_begin} mday_check=#{renewal_application_begin.mday == 1} | Date.today=#{Date.today} | TimeKeeper.date_of_record=#{TimeKeeper.date_of_record}")
         if renewal_application_begin.mday == 1
           benefit_sponsorships = BenefitSponsors::BenefitSponsorships::BenefitSponsorship.may_renew_application?(renewal_application_begin.prev_day)
+          Rails.logger.info("[AcaShopScheduledEvents] benefit_renewal: sponsorships_found=#{benefit_sponsorships.count} for effective_period_max=#{renewal_application_begin.prev_day} | Date.today=#{Date.today} | TimeKeeper.date_of_record=#{TimeKeeper.date_of_record}")
           execute_sponsor_event(benefit_sponsorships, :renew_sponsor_benefit)
         end
       end
@@ -144,6 +152,7 @@ module BenefitSponsors
       private
 
       def execute_sponsor_event(benefit_sponsorships, event)
+        Rails.logger.info("[AcaShopScheduledEvents] Event: #{event}. Process started at #{Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%m-%d-%Y %H:%M:%S')}")
         notify_logger("Event: #{event}. Process started at #{Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%m-%d-%Y %H:%M:%S')}")
         BenefitSponsors::BenefitSponsorships::BenefitSponsorshipDirector.new(new_date).process(benefit_sponsorships, event)
         notify_logger("Event: #{event}. Process ended at #{Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%m-%d-%Y %H:%M:%S')}")
@@ -153,8 +162,8 @@ module BenefitSponsors
         begin
           yield
         rescue Exception => e
-          @logger.error("Error in Event: #{event}. Message: #{e.message}")
-          @logger.error e.backtrace.join("\n")
+          Rails.logger.error("[AcaShopScheduledEvents] Error in Event: #{event}. Message: #{e.message}")
+          Rails.logger.error e.backtrace.join("\n")
           notify_logger("Error in Event: #{event}. Message: #{e.message}")
           notify_logger(e.backtrace.join("\n"))
           notify_logger("Error in Event: #{event}. Process ended at #{Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%m-%d-%Y %H:%M:%S')}")
@@ -162,7 +171,7 @@ module BenefitSponsors
       end
 
       def notify_logger(message)
-        @logger.info(message)
+        Rails.logger.info("[AcaShopScheduledEvents] #{message} | Date.today=#{Date.today} | TimeKeeper.date_of_record=#{TimeKeeper.date_of_record}")
         log(message) unless Rails.env.test?
       end
 
