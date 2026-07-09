@@ -507,6 +507,56 @@ RSpec.describe Insured::FamiliesController, dbclean: :after_each do
         )
       end
     end
+
+    context 'when a valid employee_role_id is passed' do
+      let(:valid_employee_role_id) { BSON::ObjectId.new }
+
+      before :each do
+        employee_roles_relation = double('employee_roles_relation', pluck: [valid_employee_role_id])
+        allow(person).to receive(:employee_roles).and_return(double('employee_roles', where: employee_roles_relation))
+        post :record_sep, params: { qle_id: @qle.id, qle_date: Date.today.strftime('%m/%d/%Y'), employee_role_id: valid_employee_role_id.to_s }
+      end
+
+      it "should redirect with the valid employee_role_id" do
+        special_enrollment_period = @family.special_enrollment_periods.last
+        expect(response).to have_http_status(:redirect)
+        expect(response).to redirect_to(
+          new_insured_group_selection_path(
+            person_id: person.id,
+            consumer_role_id: person.consumer_role.try(:id),
+            employee_role_id: valid_employee_role_id,
+            enrollment_kind: 'sep',
+            effective_on_date: special_enrollment_period.effective_on,
+            qle_id: @qle.id
+          )
+        )
+      end
+    end
+
+    context 'when an invalid employee_role_id is passed that does not belong to the person' do
+      let(:invalid_employee_role_id) { BSON::ObjectId.new }
+
+      before :each do
+        employee_roles_relation = double('employee_roles_relation', pluck: [])
+        allow(person).to receive(:employee_roles).and_return(double('employee_roles', where: employee_roles_relation))
+        post :record_sep, params: { qle_id: @qle.id, qle_date: Date.today.strftime('%m/%d/%Y'), employee_role_id: invalid_employee_role_id.to_s }
+      end
+
+      it "should redirect with nil employee_role_id to prevent open redirect" do
+        special_enrollment_period = @family.special_enrollment_periods.last
+        expect(response).to have_http_status(:redirect)
+        expect(response).to redirect_to(
+          new_insured_group_selection_path(
+            person_id: person.id,
+            consumer_role_id: person.consumer_role.try(:id),
+            employee_role_id: nil,
+            enrollment_kind: 'sep',
+            effective_on_date: special_enrollment_period.effective_on,
+            qle_id: @qle.id
+          )
+        )
+      end
+    end
   end
 
   describe "qle kinds" do
