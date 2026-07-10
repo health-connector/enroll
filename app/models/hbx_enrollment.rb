@@ -2146,6 +2146,7 @@ class HbxEnrollment
               coverage_termination_pending
               coverage_enrolled
               coverage_selected
+              coverage_expired
             ]
           )
           .order(effective_on: :desc)
