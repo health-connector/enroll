@@ -13,7 +13,7 @@ module Exchanges
     def index
       @allow_mid_month_voluntary_terms = allow_mid_month_voluntary_terms?
       @allow_mid_month_non_payment_terms = allow_mid_month_non_payment_terms?
-      @element_to_replace_id = params[:employers_action_id]
+      @element_to_replace_id = "employer_actions_#{@benefit_sponsorship.profile.id}"
     end
 
     def terminate
