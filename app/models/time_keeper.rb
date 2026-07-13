@@ -48,6 +48,7 @@ class TimeKeeper
 
   def self.set_date_of_record(new_date)
     new_date = new_date.to_date
+    Rails.cache.delete(CACHE_KEY)
     last_recorded_date = instance.cached_date_of_record
 
     if last_recorded_date.blank?
