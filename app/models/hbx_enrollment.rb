@@ -2129,7 +2129,7 @@ class HbxEnrollment
 
   def cobra_base_enrollment
     base = parent_enrollment
-    return base if base.present? && !base.is_cobra_status? && !base.is_cobra_status?
+    return base if base.present? && !base.is_cobra_status?
     return nil unless employee_role.present?
 
     family = employee_role.person.primary_family
