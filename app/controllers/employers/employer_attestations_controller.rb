@@ -6,7 +6,7 @@ class Employers::EmployerAttestationsController < ApplicationController
     authorize @employer_profile, :employer_attestation_edit?
     @documents = []
     @documents = @employer_profile.employer_attestation.employer_attestation_documents if @employer_profile.employer_attestation.present?
-    @element_to_replace_id = params[:employer_actions_id]
+    @element_to_replace_id = "employer_actions_#{@employer_profile.id}"
   end
 
   def new
@@ -20,7 +20,7 @@ class Employers::EmployerAttestationsController < ApplicationController
   def verify_attestation
     authorize @employer_profile
     attestation = @employer_profile.employer_attestation
-    @document = attestation.employer_attestation_documents.find(params[:employer_attestation_id])
+    @document = attestation.employer_attestation_documents.find(params[:document_id])
   end
 
   def create
@@ -74,7 +74,7 @@ class Employers::EmployerAttestationsController < ApplicationController
     begin
       documents = @employer_profile.employer_attestation.employer_attestation_documents
       if authorized_to_download?
-        uri = documents.find(params[:employer_attestation_id]).identifier
+        uri = documents.find(params[:document_id]).identifier
         send_data Aws::S3Storage.find(uri), get_options(params)
       else
        raise "Sorry! You are not authorized to download this document."
@@ -110,9 +110,11 @@ class Employers::EmployerAttestationsController < ApplicationController
   end
 
   def find_employer
-    if params[:employer_attestation_id].present?
-      org = ::BenefitSponsors::Organizations::Organization.where(:"profiles.employer_attestation.employer_attestation_documents._id" => BSON::ObjectId.from_string(params[:employer_attestation_id])).first
-      org ||= Organization.where(:"employer_profile.employer_attestation.employer_attestation_documents._id" => BSON::ObjectId.from_string(params[:employer_attestation_id])).first
+    # Support both :document_id (new path-param routes) and :employer_attestation_id (legacy delete route)
+    attestation_doc_id = params[:document_id] || params[:employer_attestation_id]
+    if attestation_doc_id.present?
+      org = ::BenefitSponsors::Organizations::Organization.where(:"profiles.employer_attestation.employer_attestation_documents._id" => BSON::ObjectId.from_string(attestation_doc_id)).first
+      org ||= Organization.where(:"employer_profile.employer_attestation.employer_attestation_documents._id" => BSON::ObjectId.from_string(attestation_doc_id)).first
       @employer_profile = org.employer_profile
     elsif params[:id].present?
       @employer_profile = EmployerProfile.find(params[:id]) || ::BenefitSponsors::Organizations::Profile.find(params[:id])

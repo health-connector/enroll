@@ -7,11 +7,11 @@
 
       <div class="panel-body">
         <p id="print_<%=@document.id%>">
-          <iframe src="<%= employers_employer_attestation_authorized_download_path(@document.id) + "?id=#{@employer_profile.id}&content_type=#{@document.format}&filename=#{@document.title.gsub(/[^0-9a-z]/i,'')}&disposition=inline" %>" style="border: 0" width="100%" height="500" frameborder="1" scrolling="no"></iframe>
+          <iframe src="<%= authorized_download_employers_employer_attestation_path(@employer_profile.id, document_id: @document.id, content_type: @document.format, filename: @document.title.gsub(/[^0-9a-z]/i,''), disposition: 'inline') %>" style="border: 0" width="100%" height="500" frameborder="1" scrolling="no"></iframe>
 
         </p>
         <p class="text-right">
-          <button class="btn btn-default"><span class="glyphicons glyphicons-cloud-download"></span><%= link_to 'Download', employers_employer_attestation_authorized_download_path(@document.id) + "?id=#{@employer_profile.id}&content_type=#{@document.format}&filename=#{@document.title.gsub(/[^0-9a-z]/i,'')}&disposition=inline", target: '_blank' %></button>
+          <button class="btn btn-default"><span class="glyphicons glyphicons-cloud-download"></span><%= link_to 'Download', authorized_download_employers_employer_attestation_path(@employer_profile.id, document_id: @document.id, content_type: @document.format, filename: @document.title.gsub(/[^0-9a-z]/i,''), disposition: 'inline'), target: '_blank' %></button>
           <button class="btn btn-default" onclick='window.print();return false;'>Print</button>
         </p>
       </div>
