@@ -546,8 +546,10 @@ module BenefitSponsors
           start_on_condition = application.start_on.to_date == (application.predecessor.end_on + 1.day).to_date
           state_condition = [:active, :enrollment_eligible].include?(application.aasm_state.to_sym)
           date_condition = application.start_on.to_date >= (TimeKeeper.date_of_record - 1.month).to_date # grace period of one month for late renewal
+          # off-cycle date change renewals have a terminated predecessor, exclude them from the renewal EDI path
+          predecessor_natural_end = application.predecessor.active? || application.predecessor.expired?
 
-          start_on_condition && state_condition && date_condition
+          start_on_condition && state_condition && date_condition && predecessor_natural_end
         else
           false
         end
@@ -629,7 +631,12 @@ module BenefitSponsors
 
     #### TODO FIX Move these methods to domain logic layer
     def is_renewal_transmission_eligible?
-      (renewal_benefit_application.present? && renewal_benefit_application.enrollment_eligible?) || late_renewal_benefit_application.present?
+      renewal_app = renewal_benefit_application
+      # off-cycle date-change apps have a terminated predecessor, they must not fire the renewal EDI event
+      predecessor = renewal_app&.predecessor
+      predecessor_natural_end = predecessor&.active? || predecessor&.expired?
+      annual_renewal_eligible = renewal_app.present? && renewal_app.enrollment_eligible? && predecessor_natural_end
+      annual_renewal_eligible || late_renewal_benefit_application.present?
     end
 
     def is_renewal_carrier_drop?

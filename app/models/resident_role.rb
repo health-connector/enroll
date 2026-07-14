@@ -4,7 +4,6 @@ class ResidentRole
   include AASM
   include Acapi::Notifiers
   include SetCurrentUser
-  include Mongoid::Attributes::Dynamic
 
   RESIDENCY_VERIFICATION_REQUEST_EVENT_NAME = "local.enroll.residency.verification_request"
 

@@ -499,6 +499,30 @@ class HbxEnrollment
     end
   end
 
+  # For COBRA elections that occur within the same benefit application (plan year),
+  # preserve the original rating effective date so age-based premiums do not change
+  # simply because COBRA starts later in the same plan year.
+  #
+  # NOTE: This does NOT change enrollment effective_on or member coverage_start_on.
+  # It only provides a rating-as-of date that we feed into the sponsored pricing stack.
+  def cobra_rating_start_on
+    return nil unless is_shop?
+    return nil unless is_cobra_status?
+    return nil unless employee_role.present?
+    return nil if effective_on.blank?
+
+    base_enrollment = cobra_base_enrollment
+    return nil unless base_enrollment.present?
+    return nil if base_enrollment.is_cobra_status?
+
+    benefit_application = base_enrollment.try(:sponsored_benefit_package).try(:benefit_application)
+    return nil unless benefit_application.present?
+    return nil unless benefit_application.respond_to?(:effective_period)
+    return nil unless benefit_application.effective_period.cover?(effective_on)
+
+    base_enrollment.effective_on
+  end
+
   def generate_hbx_id
     write_attribute(:hbx_id, HbxIdGenerator.generate_policy_id) if hbx_id.blank?
   end
@@ -2038,6 +2062,12 @@ class HbxEnrollment
     if previous_enrollment
       previous_product = previous_enrollment.product
     end
+    cobra_rate_on = cobra_rating_start_on
+    if is_cobra_status? && cobra_rate_on.present?
+      # CoverageAgeCalculator only uses coverage_eligibility_on when previous_product.id == product.id.
+      # Enrollments without predecessor_enrollment_id have previous_product nil, so we force it here.
+      previous_product = product
+    end
     hbx_enrollment_members.each do |hem|
       person = hem.person
       roster_member = EnrollmentMemberAdapter.new(
@@ -2050,7 +2080,7 @@ class HbxEnrollment
       roster_members << roster_member
       group_enrollment_member = BenefitSponsors::Enrollments::MemberEnrollment.new({
         member_id: hem.id,
-        coverage_eligibility_on: hem.coverage_start_on
+        coverage_eligibility_on: cobra_rate_on || hem.coverage_start_on
       })
       group_enrollment_members << group_enrollment_member
     end
@@ -2094,6 +2124,36 @@ class HbxEnrollment
   end
 
   private
+
+  def cobra_base_enrollment
+    base = parent_enrollment
+    return base if base.present?
+    return nil unless employee_role.present?
+
+    family = employee_role.person.primary_family
+    return nil unless family.present?
+
+    target_benefit_application = sponsored_benefit_package&.benefit_application
+    return nil unless target_benefit_application.present?
+
+    family.active_household.hbx_enrollments
+          .where(
+            employee_role_id: employee_role_id,
+            coverage_kind: coverage_kind,
+            :kind.ne => 'employer_sponsored_cobra',
+            :aasm_state.in => %w[
+              coverage_terminated
+              coverage_termination_pending
+              coverage_enrolled
+              coverage_selected
+              coverage_expired
+            ]
+          )
+          .order(effective_on: :desc)
+          .detect do |enr|
+            enr.sponsored_benefit_package&.benefit_application&.id == target_benefit_application.id
+          end
+  end
 
   # NOTE - Mongoid::Timestamps does not generate created_at time stamps.
   def check_created_at

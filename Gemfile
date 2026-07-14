@@ -96,7 +96,7 @@ gem 'sassc',                    '~> 2.0'
 gem 'sass-rails', '~> 6.0'
 gem 'config',    '~> 5.6'
 gem 'rack-cors'
-gem 'puma', '~> 6.6.0'
+gem 'puma', '~> 7.2.1'
 gem "observer"
 gem "openssl"
 
@@ -122,7 +122,7 @@ group :development do
   gem 'overcommit'
   gem 'rubocop', require: false
   gem 'rubocop-rspec'
-  gem 'rubocop-git'
+  gem 'rubocop-git2'
   gem 'web-console', '>= 3'
   gem 'next_rails'
 end
@@ -142,7 +142,7 @@ group :development, :test do
   gem 'rdoc', '~> 6.3.4'
   gem 'rspec_junit_formatter', '0.2.3'
   gem 'spring'
-  gem 'yard', '~> 0.9.5', require: false
+  gem 'yard', '>= 0.9.42', require: false
   gem 'yard-mongoid', '~> 0.1.0', require: false
   gem 'sdoc',  '~> 1.0'
   gem 'pry-byebug'
