@@ -94,7 +94,10 @@ class Insured::FamiliesController < FamiliesController
       special_enrollment_period.save
     end
 
-    action_params = {person_id: @person.id, consumer_role_id: @person.consumer_role.try(:id), employee_role_id: params[:employee_role_id], enrollment_kind: 'sep', effective_on_date: special_enrollment_period.effective_on, qle_id: qle.id}
+    # Validate employee_role_id belongs to the current person to prevent open redirect
+    employee_role_id = @person.employee_roles.where(id: params[:employee_role_id]).pluck(:id).first
+
+    action_params = {person_id: @person.id, consumer_role_id: @person.consumer_role.try(:id), employee_role_id: employee_role_id, enrollment_kind: 'sep', effective_on_date: special_enrollment_period.effective_on, qle_id: qle.id}
     if @family.enrolled_hbx_enrollments.any?
       action_params.merge!({change_plan: "change_plan"})
     end

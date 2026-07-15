@@ -26,6 +26,12 @@ Then(/^the employer should see billing information$/) do
   expect(page).to have_content('The invoice includes next month')
 end
 
+Then(/^the employer should see recent activity with formatted date$/) do
+  expect(page).to have_content(number_to_currency(@benefit_sponsorship_account.financial_transactions[0].amount))
+  expect(page).to have_content('Recent Activity')
+  expect(page).to have_content(@benefit_sponsorship_account.current_statement_date.strftime('%m/%d/%Y'))
+end
+
 Then(/^the employer should see payment history with formatted date$/) do
   expect(page).to have_content(number_to_currency(@benefit_sponsorship_account.financial_transactions[0].amount))
   expect(page).to have_content('Payment History')

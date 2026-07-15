@@ -333,7 +333,13 @@ module BenefitMarkets
     end
 
     def create_copy_for_embedding
-      self.class.new(attributes.except("premium_tables")).tap do |new_product|
+      attrs = attributes.except("premium_tables")
+      # Stored sbc_documents may carry a legacy _type discriminator; Document
+      # only defines the _type field once a subclass is loaded, which never
+      # happens in rake tasks (rake_eager_load is off), so strip it before
+      # rebuilding through attribute setters
+      attrs["sbc_document"] = attrs["sbc_document"].except("_type") if attrs["sbc_document"]
+      self.class.new(attrs).tap do |new_product|
         new_product.premium_tables = premium_tables.map(&:create_copy_for_embedding)
       end
     end
