@@ -2065,8 +2065,10 @@ class HbxEnrollment
     cobra_rate_on = cobra_rating_start_on
     if is_cobra_status? && cobra_rate_on.present?
       # CoverageAgeCalculator only uses coverage_eligibility_on when previous_product.id == product.id.
-      # Enrollments without predecessor_enrollment_id have previous_product nil, so we force it here.
-      previous_product = product
+      # Use self.product when available (enrollment has a selected plan); otherwise fall back to the
+      # predecessor enrollment's product so the same-plan check is satisfied for plan-change shopping
+      # enrollments that have no product_id yet.
+      previous_product = product || previous_enrollment&.product
     end
     hbx_enrollment_members.each do |hem|
       person = hem.person
@@ -2127,7 +2129,7 @@ class HbxEnrollment
 
   def cobra_base_enrollment
     base = parent_enrollment
-    return base if base.present?
+    return base if base.present? && !base.is_cobra_status?
     return nil unless employee_role.present?
 
     family = employee_role.person.primary_family
