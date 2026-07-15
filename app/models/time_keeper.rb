@@ -54,6 +54,7 @@ class TimeKeeper
     if last_recorded_date.blank?
       # Cache state was lost or is unreachable. A missing value must never be
       # treated as "day already processed" - run the day's events (CCAOM-349).
+      Rails.logger.info("date_of_record missing at advance - running events for #{new_date}")
       log("date_of_record missing at advance - running events for #{new_date}", {:severity => :critical})
       instance.set_date_of_record(new_date)
       instance.push_date_of_record
