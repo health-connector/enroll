@@ -1284,7 +1284,7 @@ module DataAnonymizer
       return body if body.blank?
 
       body = body.gsub(/filename=[^&"'\s]+/, 'filename=document-redacted')
-      body.gsub(%r{target=['"]_blank['"]>\s*[^<]+\s*</a>}i, "target='_blank'>[document-redacted]</a>")
+      body.gsub(%r{target=['"]_blank['"][^>]*>\s*[^<]+\s*</a>}i, "target='_blank'>[document-redacted]</a>")
     end
 
     def anonymize_document_identifiers

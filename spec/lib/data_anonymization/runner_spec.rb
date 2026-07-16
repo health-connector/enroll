@@ -1024,6 +1024,13 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
       expect(result).to include('[document-redacted]')
       expect(result).not_to include('>Notice<')
     end
+
+    it 'redacts link text when other attributes follow the target attribute' do
+      body = "<a href=/path?filename=Notice3.pdf target='_blank' class='btn'>Notice3</a>"
+      result = runner.send(:redact_document_filename, body)
+      expect(result).to include('[document-redacted]')
+      expect(result).not_to include('Notice3')
+    end
   end
 
   # @!group inbox_message_update -nested path traversal tests
