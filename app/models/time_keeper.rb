@@ -47,31 +47,49 @@ class TimeKeeper
   end
 
   def self.set_date_of_record(new_date)
+    Rails.logger.info("[TimeKeeper] STEP 1: set_date_of_record called with new_date=#{new_date.inspect}")
     new_date = new_date.to_date
-    Rails.cache.delete(CACHE_KEY)
+
+    Rails.cache.delete(CACHE_KEY) # TEMP: force cache-miss path for testing - DO NOT COMMIT
+    Rails.logger.info("[TimeKeeper] STEP 2: cache deleted for #{CACHE_KEY} (TEMP test-only)")
+
     last_recorded_date = instance.cached_date_of_record
+    Rails.logger.info("[TimeKeeper] STEP 3: read cached_date_of_record => #{last_recorded_date.inspect} (new_date=#{new_date})")
 
     if last_recorded_date.blank?
       # Cache state was lost or is unreachable. A missing value must never be
       # treated as "day already processed" - run the day's events (CCAOM-349).
-      Rails.logger.info("date_of_record missing at advance - running events for #{new_date}")
+      Rails.logger.info("[TimeKeeper] STEP 4: cache miss branch - last_recorded_date is blank, running events for #{new_date}")
       log("date_of_record missing at advance - running events for #{new_date}", {:severity => :critical})
       instance.set_date_of_record(new_date)
+      Rails.logger.info("[TimeKeeper] STEP 5: cache seeded with #{new_date}, calling push_date_of_record")
       instance.push_date_of_record
+      Rails.logger.info("[TimeKeeper] STEP 6: push_date_of_record done, calling push_date_change_event")
       instance.push_date_change_event
+      Rails.logger.info("[TimeKeeper] STEP 7: cache-miss branch complete")
     elsif last_recorded_date != new_date
+      Rails.logger.info("[TimeKeeper] STEP 4: cache present and differs - last_recorded_date=#{last_recorded_date}, new_date=#{new_date}")
       if last_recorded_date > new_date
+        Rails.logger.info("[TimeKeeper] STEP 5: rejecting backward time travel (#{last_recorded_date} > #{new_date})")
         log("Attempt made to set date to past: #{new_date}", {:severity => :error})
         raise StandardError, "system may not go backward in time"
       else
         number_of_days = (new_date - instance.date_of_record).to_i
-        number_of_days.times do
-          instance.set_date_of_record(instance.date_of_record + 1.day)
+        Rails.logger.info("[TimeKeeper] STEP 5: advancing forward #{number_of_days} day(s), one day at a time")
+        number_of_days.times do |i|
+          next_date = instance.date_of_record + 1.day
+          Rails.logger.info("[TimeKeeper] STEP 6.#{i + 1}: advancing to #{next_date}")
+          instance.set_date_of_record(next_date)
           instance.push_date_of_record
           instance.push_date_change_event
         end
+        Rails.logger.info("[TimeKeeper] STEP 7: forward advance complete, now at #{instance.date_of_record}")
       end
+    else
+      Rails.logger.info("[TimeKeeper] STEP 4: cache already equals new_date=#{new_date} - no-op")
     end
+
+    Rails.logger.info("[TimeKeeper] STEP 8: set_date_of_record returning #{instance.date_of_record}")
     instance.date_of_record
   end
 
@@ -92,6 +110,7 @@ class TimeKeeper
   end
 
   def set_date_of_record(new_date)
+    Rails.logger.info("[TimeKeeper] STEP: writing cache #{CACHE_KEY} = #{new_date.strftime('%Y-%m-%d')}")
     Rails.cache.write(CACHE_KEY, new_date.strftime("%Y-%m-%d"))
   end
 
@@ -99,6 +118,7 @@ class TimeKeeper
   # Only set_date_of_record decides what a miss means; readers fall back below.
   def cached_date_of_record
     found_value = Rails.cache.read(CACHE_KEY)
+    Rails.logger.info("[TimeKeeper] STEP: cache read #{CACHE_KEY} => #{found_value.inspect}")
     return nil if found_value.blank?
 
     Date.strptime(found_value, "%Y-%m-%d")
@@ -111,6 +131,7 @@ class TimeKeeper
     cached = cached_date_of_record
     return cached if cached.present?
 
+    Rails.logger.info("[TimeKeeper] STEP: date_of_record cache miss on read - falling back to Date.current")
     log("date_of_record not available for TimeKeeper - using Date.current")
     Date.current
   end
