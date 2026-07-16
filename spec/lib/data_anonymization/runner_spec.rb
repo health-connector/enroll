@@ -1246,26 +1246,52 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
 
   describe '#redact_document_identifier_field' do
     it 'replaces a present identifier with an anonymized URN' do
-      document = { 'title' => 'Notice', 'identifier' => 'urn:openhbx:terms:v1:file_storage:s3:bucket:real-bucket#abc' }
-      result = runner.send(:redact_document_identifier_field, document)
+      document = { 'title' => 'Notice.pdf', 'identifier' => 'urn:openhbx:terms:v1:file_storage:s3:bucket:real-bucket#abc' }
+      result = runner.send(:redact_document_identifier_field, document, 0)
       expect(result['identifier']).to start_with('urn:openhbx:terms:v1:file_storage:s3:bucket:anonymized#')
       expect(result['identifier']).not_to include('real-bucket')
     end
 
-    it 'leaves a document with a blank identifier unchanged' do
-      document = { 'title' => 'Notice', 'identifier' => nil }
-      expect(runner.send(:redact_document_identifier_field, document)).to eq(document)
+    it 'redacts the title preserving the extension' do
+      document = { 'title' => 'passport_scan.jpeg', 'identifier' => 'urn:real#abc' }
+      result = runner.send(:redact_document_identifier_field, document, 2)
+      expect(result['title']).to eq('document_3.jpeg')
+    end
+
+    it 'redacts the subject when present' do
+      document = { 'title' => 'Notice.pdf', 'subject' => 'Notice.pdf', 'identifier' => 'urn:real#abc' }
+      result = runner.send(:redact_document_identifier_field, document, 0)
+      expect(result['subject']).to eq('document_1.pdf')
+    end
+
+    it 'does not add a subject key when the document has none' do
+      document = { 'title' => 'Notice.pdf', 'identifier' => 'urn:real#abc' }
+      result = runner.send(:redact_document_identifier_field, document, 0)
+      expect(result).not_to have_key('subject')
+    end
+
+    it 'redacts the title even when the identifier is blank' do
+      document = { 'title' => 'tax_return.pdf', 'identifier' => nil }
+      result = runner.send(:redact_document_identifier_field, document, 0)
+      expect(result['title']).to eq('document_1.pdf')
+      expect(result['identifier']).to be_nil
+    end
+
+    it 'leaves a document with no identifier title or subject unchanged' do
+      document = { 'format' => 'application/pdf', 'identifier' => nil }
+      expect(runner.send(:redact_document_identifier_field, document, 0)).to eq(document)
     end
 
     it 'returns the input unchanged when it is not a Hash' do
-      expect(runner.send(:redact_document_identifier_field, nil)).to be_nil
+      expect(runner.send(:redact_document_identifier_field, nil, 0)).to be_nil
     end
 
     it 'does not mutate the original document hash' do
       original = 'urn:openhbx:terms:v1:file_storage:s3:bucket:real-bucket#abc'
-      document = { 'identifier' => original }
-      runner.send(:redact_document_identifier_field, document)
+      document = { 'title' => 'Notice.pdf', 'identifier' => original }
+      runner.send(:redact_document_identifier_field, document, 0)
       expect(document['identifier']).to eq(original)
+      expect(document['title']).to eq('Notice.pdf')
     end
   end
 
@@ -1412,6 +1438,107 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
           array_including(hash_including(:update_one))
         )
         live_runner.send(:redact_bs_document_identifiers)
+      end
+    end
+  end
+
+  # @!group phase wiring - legacy organization sibling paths
+
+  describe '#anonymize_inbox_messages' do
+    let(:db_double) { instance_double(Mongo::Database) }
+    let(:people_collection) { instance_double(Mongo::Collection, name: 'people') }
+    let(:orgs_collection) { instance_double(Mongo::Collection, name: 'organizations') }
+
+    before do
+      allow(runner).to receive(:db).and_return(db_double)
+      allow(db_double).to receive(:[]).with(:people).and_return(people_collection)
+      allow(db_double).to receive(:[]).with(:organizations).and_return(orgs_collection)
+      allow(runner).to receive(:redact_bs_org_inbox_messages).and_return(0)
+    end
+
+    it 'redacts every legacy inbox path including broker agency and hbx profiles' do
+      expect(runner).to receive(:redact_inbox_messages_at_path).with(people_collection, 'inbox').and_return(1)
+      expect(runner).to receive(:redact_inbox_messages_at_path).with(orgs_collection, 'employer_profile.inbox').and_return(1)
+      expect(runner).to receive(:redact_inbox_messages_at_path).with(orgs_collection, 'broker_agency_profile.inbox').and_return(1)
+      expect(runner).to receive(:redact_inbox_messages_at_path).with(orgs_collection, 'hbx_profile.inbox').and_return(1)
+      expect(runner.send(:anonymize_inbox_messages)).to eq(4)
+    end
+  end
+
+  describe '#anonymize_document_identifiers' do
+    let(:db_double) { instance_double(Mongo::Database) }
+    let(:people_collection) { instance_double(Mongo::Collection, name: 'people') }
+    let(:orgs_collection) { instance_double(Mongo::Collection, name: 'organizations') }
+
+    before do
+      allow(runner).to receive(:db).and_return(db_double)
+      allow(db_double).to receive(:[]).with(:people).and_return(people_collection)
+      allow(db_double).to receive(:[]).with(:organizations).and_return(orgs_collection)
+      allow(runner).to receive(:redact_bs_document_identifiers).and_return(0)
+    end
+
+    it 'redacts org level and broker agency document paths alongside employer profile' do
+      expect(runner).to receive(:redact_document_identifiers_at_path).with(people_collection, 'documents').and_return(1)
+      expect(runner).to receive(:redact_document_identifiers_at_path).with(orgs_collection, 'documents').and_return(1)
+      expect(runner).to receive(:redact_document_identifiers_at_path).with(orgs_collection, 'employer_profile.documents').and_return(1)
+      expect(runner).to receive(:redact_document_identifiers_at_path).with(orgs_collection, 'broker_agency_profile.documents').and_return(1)
+      expect(runner.send(:anonymize_document_identifiers)).to eq(4)
+    end
+  end
+
+  # @!group find_or_create_protected_user - session token clearing
+
+  describe '#find_or_create_protected_user' do
+    let(:live_runner) { described_class.new(batch_size: batch_size, dry_run: false, force: true) }
+    let(:db_double) { instance_double(Mongo::Database) }
+    let(:users_collection) { instance_double(Mongo::Collection) }
+    let(:user_id) { BSON::ObjectId.new }
+    let(:oim_id) { 'protected_admin@example.com' }
+    let(:user) { instance_double(User, id: user_id, oim_id: oim_id) }
+    let(:token_clear_update) do
+      { '$set' => { 'current_login_token' => nil, 'authentication_token' => nil } }
+    end
+
+    before do
+      allow(live_runner).to receive(:db).and_return(db_double)
+      allow(db_double).to receive(:[]).with(:users).and_return(users_collection)
+    end
+
+    context 'when the user already exists' do
+      before do
+        allow(User).to receive(:where).with(oim_id: oim_id).and_return([user])
+        allow(user).to receive(:update!)
+      end
+
+      it 'resets the password through the model so devise encryption runs' do
+        allow(users_collection).to receive(:update_one)
+        expect(user).to receive(:update!).with(
+          password: described_class::PROTECTED_USER_PASSWORD,
+          password_confirmation: described_class::PROTECTED_USER_PASSWORD
+        )
+        live_runner.send(:find_or_create_protected_user, oim_id)
+      end
+
+      it 'clears session tokens via the driver so devise callbacks cannot regenerate them' do
+        expect(users_collection).to receive(:update_one).with({ '_id' => user_id }, token_clear_update)
+        live_runner.send(:find_or_create_protected_user, oim_id)
+      end
+    end
+
+    context 'when the user does not exist' do
+      before do
+        allow(User).to receive(:where).with(oim_id: oim_id).and_return([])
+        allow(User).to receive(:create!).and_return(user)
+      end
+
+      it 'clears session tokens via the driver after creation' do
+        expect(users_collection).to receive(:update_one).with({ '_id' => user_id }, token_clear_update)
+        live_runner.send(:find_or_create_protected_user, oim_id)
+      end
+
+      it 'returns the created user' do
+        allow(users_collection).to receive(:update_one)
+        expect(live_runner.send(:find_or_create_protected_user, oim_id)).to eq(user)
       end
     end
   end

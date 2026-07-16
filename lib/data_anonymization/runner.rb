@@ -2,7 +2,7 @@
 
 require_relative 'anonymized_data'
 require_relative 'canonical_payloads'
-require_relative '../../app/concerns/timing_helper'
+require_relative '../timing_helper'
 require 'openssl'
 require 'securerandom'
 
@@ -1192,6 +1192,8 @@ module DataAnonymizer
       log "\n--- Phase 7: Anonymizing Inbox Message Bodies ---"
       total  = redact_inbox_messages_at_path(db[:people], 'inbox')
       total += redact_inbox_messages_at_path(db[:organizations], 'employer_profile.inbox')
+      total += redact_inbox_messages_at_path(db[:organizations], 'broker_agency_profile.inbox')
+      total += redact_inbox_messages_at_path(db[:organizations], 'hbx_profile.inbox')
       total += redact_bs_org_inbox_messages
       log "  Phase 7 complete: #{total} documents processed" if total.positive?
       total
@@ -1288,7 +1290,9 @@ module DataAnonymizer
     def anonymize_document_identifiers
       log "\n--- Phase 8: Anonymizing Document S3 References ---"
       total  = redact_document_identifiers_at_path(db[:people], 'documents')
+      total += redact_document_identifiers_at_path(db[:organizations], 'documents')
       total += redact_document_identifiers_at_path(db[:organizations], 'employer_profile.documents')
+      total += redact_document_identifiers_at_path(db[:organizations], 'broker_agency_profile.documents')
       total += redact_bs_document_identifiers
       log "  Phase 8 complete: #{total} documents processed" if total.positive?
       total
@@ -1320,16 +1324,19 @@ module DataAnonymizer
       documents = path_keys.reduce(doc) { |d, k| d.is_a?(Hash) ? d[k] : nil }
       return nil unless documents.is_a?(Array) && documents.present?
 
-      redacted = documents.map { |d| redact_document_identifier_field(d) }
+      redacted = documents.each_with_index.map { |d, idx| redact_document_identifier_field(d, idx) }
       { update_one: { filter: { '_id' => doc['_id'] }, update: { '$set' => { docs_path => redacted } } } }
     end
 
-    def redact_document_identifier_field(document)
+    def redact_document_identifier_field(document, idx)
       return document unless document.is_a?(Hash)
-      return document if document['identifier'].blank?
+      return document if document['identifier'].blank? && document['title'].blank? && document['subject'].blank?
 
       document = document.dup
-      document['identifier'] = anonymized_document_identifier
+      ext = File.extname(document['title'].to_s).presence || '.pdf'
+      document['title']      = "document_#{idx + 1}#{ext}" if document['title'].present?
+      document['subject']    = "document_#{idx + 1}#{ext}" if document['subject'].present?
+      document['identifier'] = anonymized_document_identifier if document['identifier'].present?
       document
     end
 
@@ -1341,7 +1348,7 @@ module DataAnonymizer
         'identifier' => { '$exists' => true, '$nin' => [nil, '', 'missing_uri'] },
         'documentable_type' => { '$ne' => 'BenefitSponsors::Organizations::IssuerProfile' }
       }
-      total  = collection.count_documents(filter)
+      total = collection.count_documents(filter)
       return 0 if total.zero?
 
       log "  #{collection.name}: #{total} documents with S3 identifiers"
