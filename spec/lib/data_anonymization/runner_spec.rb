@@ -1542,4 +1542,38 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
       end
     end
   end
+
+  # @!group ensure_protected_user! - end to end token state regression guard
+
+  describe '#ensure_protected_user! against the database' do
+    let(:live_runner) { described_class.new(batch_size: batch_size, dry_run: false, force: true) }
+    let(:oim_id) { 'protected_admin@example.com' }
+
+    it 'leaves both session tokens nil in the persisted document after the full flow' do
+      user = User.create!(
+        email: oim_id,
+        oim_id: oim_id,
+        roles: ['hbx_staff'],
+        password: 'Original1!pass',
+        password_confirmation: 'Original1!pass'
+      )
+      user.set(current_login_token: 'stale-login-token')
+      expect(User.collection.find('_id' => user.id).first['authentication_token']).to be_present
+
+      live_runner.send(:ensure_protected_user!, oim_id)
+
+      raw = User.collection.find('_id' => user.id).first
+      expect(raw['current_login_token']).to be_nil
+      expect(raw['authentication_token']).to be_nil
+    end
+
+    it 'persists nil tokens when the protected user is created from scratch' do
+      live_runner.send(:ensure_protected_user!, oim_id)
+
+      raw = User.collection.find('oim_id' => oim_id).first
+      expect(raw).to be_present
+      expect(raw['current_login_token']).to be_nil
+      expect(raw['authentication_token']).to be_nil
+    end
+  end
 end
