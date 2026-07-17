@@ -131,9 +131,9 @@ class TimeKeeper
     cached = cached_date_of_record
     return cached if cached.present?
 
-    Rails.logger.info("[TimeKeeper] STEP: date_of_record cache miss on read - falling back to Date.current")
-    log("date_of_record not available for TimeKeeper - using Date.current")
-    self.class.format_date(DateTime.current)
+    Rails.logger.info("[TimeKeeper] STEP: date_of_record cache miss on read - falling back to self.class.local_time(DateTime.current)")
+    log("date_of_record not available for TimeKeeper - using self.class.local_time(DateTime.current)")
+    self.class.local_time(DateTime.current)
   end
 
   def push_date_of_record
