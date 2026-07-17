@@ -133,7 +133,7 @@ class TimeKeeper
 
     Rails.logger.info("[TimeKeeper] STEP: date_of_record cache miss on read - falling back to Date.current")
     log("date_of_record not available for TimeKeeper - using Date.current")
-    Date.current
+    self.class.format_date(DateTime.current)
   end
 
   def push_date_of_record
