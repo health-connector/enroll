@@ -18,7 +18,6 @@ module BenefitSponsors
       end
 
       # rubocop:disable Metrics/CyclomaticComplexity
-      # rubocop:disable Metrics/PerceivedComplexity
       def has_current_or_future_plan_year?(carrier)
         found_plan_year = false
         carrier_plan_years(carrier).each do |node|
@@ -90,7 +89,6 @@ module BenefitSponsors
           false
         end
       end
-      # rubocop:enable Metrics/PerceivedComplexity
 
       def renewal_and_no_future_plan_year?(carrier)
         return false if employer_event.event_name != BenefitSponsors::EmployerEvents::EventNames::RENEWAL_SUCCESSFUL_EVENT
@@ -143,7 +141,7 @@ module BenefitSponsors
       def qualifies_to_update_event_name?(carrier, employer_event)
         events = [BenefitSponsors::EmployerEvents::EventNames::RENEWAL_SUCCESSFUL_EVENT, BenefitSponsors::EmployerEvents::EventNames::FIRST_TIME_EMPLOYER_EVENT_NAME]
         # return true if employer_event.event_name.in?(events) && carrier.uses_issuer_centric_sponsor_cycles
-        return true if employer_event.event_name.in?(events) && [20_001, 20_004].include?(carrier.hbx_carrier_id)
+        true if employer_event.event_name.in?(events) && [20_001, 20_004].include?(carrier.hbx_carrier_id)
       end
 
       def update_event_name(carrier, employer_event)
@@ -199,6 +197,7 @@ module BenefitSponsors
           end
         end
         raise ::BenefitSponsors::EmployerEvents::Errors::EmployerPlanYearNotFound, "No plan year found for: #{employer_event.employer_profile_id}, Start: #{start_date}, End: #{end_date}" if found_py.nil?
+
         found_py
       end
 
