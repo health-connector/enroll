@@ -73,7 +73,7 @@ class ApplicationController < ActionController::Base
     flash[:error] = "Access not allowed for #{policy_name}.#{exception.query}, (Pundit policy)"
     respond_to do |format|
       format.json { render nothing: true, status: :forbidden }
-      format.html { redirect_to(request.referrer || root_path)}
+      format.html { redirect_back(fallback_location: root_path, allow_other_host: false) }
       format.js { head :forbidden }
     end
   end
@@ -379,7 +379,7 @@ class ApplicationController < ActionController::Base
   end
 
   def authorize_for
-    authorize(controller_name.classify.constantize, "#{action_name}?".to_sym)
+    authorize(controller_name.classify.constantize, :"#{action_name}?")
   end
 
   def set_ie_flash_by_announcement

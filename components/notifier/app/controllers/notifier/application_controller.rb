@@ -22,10 +22,17 @@ module Notifier
 
     def user_not_authorized(_exception)
       flash[:error] = t('exchange.not_authorized')
+      safe_url = url_from(session[:custom_url])
       respond_to do |format|
         format.json { render nothing: true, status: :forbidden }
-        format.html { redirect_to(session[:custom_url] || request.referrer || main_app.root_path)}
-        format.js   { render plain: "window.location.assign('#{session[:custom_url] || request.referrer || main_app.root_path}');" }
+        format.html do
+          if safe_url
+            redirect_to(safe_url)
+          else
+            redirect_back(fallback_location: main_app.root_path, allow_other_host: false)
+          end
+        end
+        format.js   { render plain: "window.location.assign('#{safe_url || main_app.root_path}');" }
       end
     end
   end

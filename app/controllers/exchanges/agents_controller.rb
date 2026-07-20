@@ -25,7 +25,7 @@ module Exchanges
           from: 'Plan Shopping Web Portal',
           to: "Agent Mailbox",
           subject: "Account link for  #{@person.full_name}. ",
-          body: "<a href='#{root}'>Link to access #{@person.full_name}</a>  <br>"
+          body: "<a href='#{ERB::Util.html_escape(root)}'>Link to access #{ERB::Util.html_escape(@person.full_name)}</a><br>"
         }
         create_secure_message message_params, current_user.person, :inbox
       end
@@ -99,7 +99,7 @@ module Exchanges
 
     def user_not_authorized(_exception)
       flash[:error] = l10n('exchange.agent.not_authorized')
-      redirect_to(request.referrer || root_path)
+      redirect_back(fallback_location: root_path, allow_other_host: false)
     end
   end
 end

@@ -53,11 +53,24 @@ namespace :reports do
           active_states = %w(registered eligible binder_paid enrolled suspended)
 
           if active_states.include? census_employee.employer_profile.aasm_state
+            field_map = {
+              'employer_name'            => -> { employer_name },
+              'last_name'                => -> { last_name },
+              'first_name'               => -> { first_name },
+              'ssn'                      => -> { ssn },
+              'dob'                      => -> { dob },
+              'aasm_state'               => -> { aasm_state },
+              'hired_on'                 => -> { hired_on },
+              'employment_terminated_on' => -> { employment_terminated_on },
+              'updated_at'               => -> { updated_at }
+            }
+
             csv << field_names.map do |field_name| 
+              value = field_map[field_name]&.call
               if field_name == "ssn"
-                '="' + eval(field_name) + '"'
+                '="' + value.to_s + '"'
               else
-                eval("#{field_name}")
+                value
               end
             end
             processed_count += 1

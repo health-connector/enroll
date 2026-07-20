@@ -63,12 +63,12 @@ module BenefitSponsors
         end
 
         def is_prev_year_application?
-          return true if TimeKeeper.date_of_record > @benefit_application.earliest_benefit_application_item.effective_period.max
+          true if TimeKeeper.date_of_record > @benefit_application.earliest_benefit_application_item.effective_period.max
         end
 
         def incorrect_reinstate_on?
           application_eligible_reinstate_on = @benefit_application.retroactive_canceled? ? @benefit_application.start_on : (@benefit_application.end_on + 1.day)
-          return true if application_eligible_reinstate_on != @reinstate_on
+          true if application_eligible_reinstate_on != @reinstate_on
         end
 
         def reinstate_benefit_application
@@ -130,7 +130,7 @@ module BenefitSponsors
               handle_coverage(hbx_enrollment, reinstate_enrollment)
             end
           rescue StandardError => e
-            Rails.logger.error "Error while reinstating benefit group assignment for #{census_employee.full_name}(#{census_employee.id}) #{e}"
+            Rails.logger.error "Error while reinstating benefit group assignment for census_employee_id=#{census_employee.id}: #{e.class} #{e.message}"
           end
 
           Success()

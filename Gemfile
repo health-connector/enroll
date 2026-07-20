@@ -14,8 +14,8 @@ gem "transport_profiles", path: "components/transport_profiles"
 
 gem 'aasm', '~> 4.8.0'
 gem 'acapi', git: "https://github.com/ideacrew/acapi.git", branch: 'trunk'
-gem 'aws-sdk-s3'
-gem 'aws-sdk-core'
+gem 'aws-sdk-s3', '~> 1.208'
+gem 'aws-sdk-core', '~> 3.3'
 gem 'bcrypt', '~> 3.1'
 gem 'bootstrap-multiselect-rails', '~> 0.9.9'
 # TODO: Validate this gem if it's being used.
@@ -26,7 +26,7 @@ gem 'chosen-rails'
 gem 'ckeditor', '4.2.4'
 gem 'coffee-rails', '~> 5.0.0'
 gem 'combine_pdf'
-gem 'devise',  '~> 4.5'
+gem 'devise',  '~> 5.0', '>= 5.0.3'
 gem 'effective_datatables', path: './project_gems/effective_datatables-2.6.14'
 gem 'httparty'
 gem 'i18n', '~> 1.5'
@@ -52,7 +52,7 @@ gem 'mongoid_userstamp', '~> 0.4', :path => "./project_gems/mongoid_userstamp-0.
 
 gem 'non-stupid-digest-assets', '~> 1.0', '>= 1.0.9'
 gem 'openhbx_cv2', git: 'https://github.com/ideacrew/openhbx_cv2.git', branch: 'trunk'
-gem 'resource_registry',  git:  'https://github.com/ideacrew/resource_registry.git', tag: 'v0.10.1'
+gem 'resource_registry',  git: 'https://github.com/dchbx/resource_registry', tag: 'v0.10.0'
 gem 'prawn', :git => 'https://github.com/prawnpdf/prawn.git', :ref => '8028ca0cd2'
 gem 'pundit', '~> 2.0'
 gem 'rails', '~> 8.1', '>= 8.1.2'
@@ -78,6 +78,7 @@ gem 'rubyXL'
 gem 'holidays', '~> 8.6'
 gem 'thor', '>= 1.4.0'
 gem "connection_pool", "< 3"
+gem 'ffaker'
 
 #arm64 mac support
 gem 'ffi', '1.17.3'
@@ -95,7 +96,7 @@ gem 'sassc',                    '~> 2.0'
 gem 'sass-rails', '~> 6.0'
 gem 'config',    '~> 5.6'
 gem 'rack-cors'
-gem 'puma', '~> 6.6.0'
+gem 'puma', '~> 7.2.1'
 gem "observer"
 gem "openssl"
 
@@ -121,7 +122,7 @@ group :development do
   gem 'overcommit'
   gem 'rubocop', require: false
   gem 'rubocop-rspec'
-  gem 'rubocop-git'
+  gem 'rubocop-git2'
   gem 'web-console', '>= 3'
   gem 'next_rails'
 end
@@ -141,7 +142,7 @@ group :development, :test do
   gem 'rdoc', '~> 6.3.4'
   gem 'rspec_junit_formatter', '0.2.3'
   gem 'spring'
-  gem 'yard', '~> 0.9.5', require: false
+  gem 'yard', '>= 0.9.42', require: false
   gem 'yard-mongoid', '~> 0.1.0', require: false
   gem 'sdoc',  '~> 1.0'
   gem 'pry-byebug'
@@ -163,7 +164,7 @@ group :test do
   gem 'test-prof', '~> 1.3'
   gem 'warden'
   gem 'watir',                        '~> 6.18.0'
-  gem 'webdrivers', '~> 5.3.1'
+  gem 'selenium-webdriver', '~> 4.11'
   gem 'webmock'
 end
 

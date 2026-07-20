@@ -242,7 +242,7 @@ Rails.application.routes.draw do
       ##get :privacy, on: :collection
     end
 
-    resources :employee, :controller=>"employee_roles", only: [:create, :edit, :update, :show] do
+    resources :employee, :controller => "employee_roles", only: [:create, :edit, :update, :show] do
       collection do
         get 'new_message_to_broker'
         post 'send_message_to_broker'
@@ -294,16 +294,18 @@ Rails.application.routes.draw do
   namespace :employers do
 
     # Redirect from Enroll old model to Enroll new model
-    match '/employer_profiles/new' , to: redirect('/benefit_sponsors/profiles/registrations/new?profile_type=benefit_sponsor'), via: [:get, :post]
+    match '/employer_profiles/new', to: redirect('/benefit_sponsors/profiles/registrations/new?profile_type=benefit_sponsor'), via: [:get, :post]
     #match '/employer_profiles/:id/*path' , to: redirect('/'), via: [:get, :post]
     #match '/employer_profiles/:id' , to: redirect('/'), via: [:get, :post]
-    match '/' , to: redirect('/benefit_sponsors/profiles/registrations/new?profile_type=benefit_sponsor'), via: [:get, :post]
+    match '/', to: redirect('/benefit_sponsors/profiles/registrations/new?profile_type=benefit_sponsor'), via: [:get, :post]
 
     resources :premium_statements, :only => [:show]
 
     resources :employer_attestations do
-      get 'authorized_download'
-      get 'verify_attestation'
+      member do
+        get 'verify_attestation/:document_id', action: :verify_attestation, as: :verify_attestation
+        get 'authorized_download/:document_id', action: :authorized_download, as: :authorized_download
+      end
       delete 'delete_attestation_documents'
       #get 'revert_attestation'
       post 'edit', on: :member # This POST request hides sensitive data per security review
@@ -447,11 +449,11 @@ Rails.application.routes.draw do
 
   resources :people, only: [:index, :update]
 
-  match 'families/home', to: 'insured/families#home', via:[:get], as: "family_account"
+  match 'families/home', to: 'insured/families#home', via: [:get], as: "family_account"
 
   match "hbx_profiles/edit_dob_ssn" => "exchanges/hbx_profiles#edit_dob_ssn", as: :edit_dob_ssn, via: [:get, :post]
-  match "hbx_profiles/update_dob_ssn" => "exchanges/hbx_profiles#update_dob_ssn", as: :update_dob_ssn, via: [:get, :post], defaults: { format: 'js' }
-  match "hbx_profiles/verify_dob_change" => "exchanges/hbx_profiles#verify_dob_change", as: :verify_dob_change, via: [:get], defaults: { format: 'js' }
+  match "hbx_profiles/update_dob_ssn" => "exchanges/hbx_profiles#update_dob_ssn", as: :update_dob_ssn, via: [:post], defaults: { format: 'js' }
+  match "hbx_profiles/verify_dob_change" => "exchanges/hbx_profiles#verify_dob_change", as: :verify_dob_change, via: [:post], defaults: { format: 'js' }
 
   resources :families do
     get 'page/:page', :action => :index, :on => :collection

@@ -3,7 +3,6 @@
 class Document
   include Mongoid::Document
   include Mongoid::Timestamps
-  include Mongoid::Attributes::Dynamic
   include ModelEvents::Document
   include Config::AcaModelConcern
   include EnrollObservable

@@ -190,22 +190,29 @@ class HbxEnrollment
   scope :with_in,             ->(time_limit){ where(:created_at.gte => time_limit) }
   scope :shop_market,         ->{ where(:kind.in => ["employer_sponsored", "employer_sponsored_cobra"]) }
   scope :individual_market,   ->{ where(:kind.nin => ["employer_sponsored", "employer_sponsored_cobra"]) }
-  scope :verification_needed, ->{ where(:aasm_state => "enrolled_contingent").or({:terminated_on => nil }, {:terminated_on.gt => TimeKeeper.date_of_record}).order(created_at: :desc) }
+  scope :verification_needed, -> {
+    where(
+      :aasm_state => "enrolled_contingent",
+      "$or" => [{ terminated_on: nil }, { :terminated_on.gt => TimeKeeper.date_of_record }]
+    ).order(created_at: :desc)
+  }
 
   scope :canceled, -> { where(:aasm_state.in => CANCELED_STATUSES) }
   #scope :terminated, -> { where(:aasm_state.in => TERMINATED_STATUSES, :terminated_on.gte => TimeKeeper.date_of_record.beginning_of_day) }
   scope :terminated, -> { where(:aasm_state.in => TERMINATED_STATUSES) }
   scope :canceled_and_terminated, -> { where(:aasm_state.in => (CANCELED_STATUSES + TERMINATED_STATUSES)) }
-  scope :enrolled_and_waived, -> { any_of([enrolled.selector, waived.selector]).order(created_at: :desc) }
-  scope :enrolled_waived_terminated_and_expired, -> { any_of([enrolled.selector, waived.selector, terminated.selector, expired.selector]).order(created_at: :desc) }
-  scope :show_enrollments, -> { any_of([enrolled.selector, renewing.selector, terminated.selector, canceled.selector, waived.selector]) }
-  scope :show_enrollments_sans_canceled, -> { any_of([enrolled.selector, renewing.selector, terminated.selector, waived.selector]).order(created_at: :desc) }
+  scope :enrolled_and_waived, -> { where(:aasm_state.in => (ENROLLED_STATUSES + WAIVED_STATUSES)).order(created_at: :desc) }
+  scope :enrolled_renewal_and_waived, -> { where(:aasm_state.in => (ENROLLED_STATUSES + RENEWAL_STATUSES + WAIVED_STATUSES)).order(created_at: :desc) }
+  scope :enrolled_renewal_waived_terminated_and_expired, -> { where(:aasm_state.in => (ENROLLED_STATUSES + RENEWAL_STATUSES + WAIVED_STATUSES + TERMINATED_STATUSES + ['coverage_expired'])).order(created_at: :desc) }
+  scope :enrolled_waived_terminated_and_expired, -> { where(:aasm_state.in => (ENROLLED_STATUSES + WAIVED_STATUSES + TERMINATED_STATUSES + ['coverage_expired'])).order(created_at: :desc) }
+  scope :show_enrollments, -> { where(:aasm_state.in => (ENROLLED_STATUSES + RENEWAL_STATUSES + TERMINATED_STATUSES + CANCELED_STATUSES + WAIVED_STATUSES)) }
+  scope :show_enrollments_sans_canceled, -> { where(:aasm_state.in => (ENROLLED_STATUSES + RENEWAL_STATUSES + TERMINATED_STATUSES + WAIVED_STATUSES)).order(created_at: :desc) }
   scope :enrollments_for_cobra, -> { where(:aasm_state.in => ['coverage_terminated', 'coverage_termination_pending', 'auto_renewing']).order(created_at: :desc) }
   scope :with_plan, -> { where(:plan_id.ne => nil) }
   scope :coverage_selected_and_waived, -> {where(:aasm_state.in => SELECTED_AND_WAIVED).order(created_at: :desc)}
   scope :non_terminated, -> { where(:aasm_state.ne => 'coverage_terminated') }
   scope :non_external, -> { where(:external_enrollment => false) }
-  scope :non_expired_and_non_terminated,  -> { any_of([enrolled.selector, renewing.selector, waived.selector]).order(created_at: :desc) }
+  scope :non_expired_and_non_terminated,  -> { where(:aasm_state.in => (ENROLLED_STATUSES + RENEWAL_STATUSES + WAIVED_STATUSES)).order(created_at: :desc) }
   scope :by_benefit_sponsorship,   ->(benefit_sponsorship) { where(:benefit_sponsorship_id => benefit_sponsorship.id) }
   scope :by_benefit_package,       ->(benefit_package) { where(:sponsored_benefit_package_id => benefit_package.id) }
   scope :by_enrollment_period,     ->(enrollment_period) { where(:effective_on.gte => enrollment_period.min, :effective_on.lte => enrollment_period.max) }
@@ -490,6 +497,30 @@ class HbxEnrollment
         # end
       end
     end
+  end
+
+  # For COBRA elections that occur within the same benefit application (plan year),
+  # preserve the original rating effective date so age-based premiums do not change
+  # simply because COBRA starts later in the same plan year.
+  #
+  # NOTE: This does NOT change enrollment effective_on or member coverage_start_on.
+  # It only provides a rating-as-of date that we feed into the sponsored pricing stack.
+  def cobra_rating_start_on
+    return nil unless is_shop?
+    return nil unless is_cobra_status?
+    return nil unless employee_role.present?
+    return nil if effective_on.blank?
+
+    base_enrollment = cobra_base_enrollment
+    return nil unless base_enrollment.present?
+    return nil if base_enrollment.is_cobra_status?
+
+    benefit_application = base_enrollment.try(:sponsored_benefit_package).try(:benefit_application)
+    return nil unless benefit_application.present?
+    return nil unless benefit_application.respond_to?(:effective_period)
+    return nil unless benefit_application.effective_period.cover?(effective_on)
+
+    base_enrollment.effective_on
   end
 
   def generate_hbx_id
@@ -2031,6 +2062,14 @@ class HbxEnrollment
     if previous_enrollment
       previous_product = previous_enrollment.product
     end
+    cobra_rate_on = cobra_rating_start_on
+    if is_cobra_status? && cobra_rate_on.present?
+      # CoverageAgeCalculator only uses coverage_eligibility_on when previous_product.id == product.id.
+      # Use self.product when available (enrollment has a selected plan); otherwise fall back to the
+      # predecessor enrollment's product so the same-plan check is satisfied for plan-change shopping
+      # enrollments that have no product_id yet.
+      previous_product = product || previous_enrollment&.product
+    end
     hbx_enrollment_members.each do |hem|
       person = hem.person
       roster_member = EnrollmentMemberAdapter.new(
@@ -2043,7 +2082,7 @@ class HbxEnrollment
       roster_members << roster_member
       group_enrollment_member = BenefitSponsors::Enrollments::MemberEnrollment.new({
         member_id: hem.id,
-        coverage_eligibility_on: hem.coverage_start_on
+        coverage_eligibility_on: cobra_rate_on || hem.coverage_start_on
       })
       group_enrollment_members << group_enrollment_member
     end
@@ -2087,6 +2126,36 @@ class HbxEnrollment
   end
 
   private
+
+  def cobra_base_enrollment
+    base = parent_enrollment
+    return base if base.present? && !base.is_cobra_status?
+    return nil unless employee_role.present?
+
+    family = employee_role.person.primary_family
+    return nil unless family.present?
+
+    target_benefit_application = sponsored_benefit_package&.benefit_application
+    return nil unless target_benefit_application.present?
+
+    family.active_household.hbx_enrollments
+          .where(
+            employee_role_id: employee_role_id,
+            coverage_kind: coverage_kind,
+            :kind.ne => 'employer_sponsored_cobra',
+            :aasm_state.in => %w[
+              coverage_terminated
+              coverage_termination_pending
+              coverage_enrolled
+              coverage_selected
+              coverage_expired
+            ]
+          )
+          .order(effective_on: :desc)
+          .detect do |enr|
+            enr.sponsored_benefit_package&.benefit_application&.id == target_benefit_application.id
+          end
+  end
 
   # NOTE - Mongoid::Timestamps does not generate created_at time stamps.
   def check_created_at

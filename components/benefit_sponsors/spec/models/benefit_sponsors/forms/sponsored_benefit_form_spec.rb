@@ -46,6 +46,43 @@ module BenefitSponsors
     end
   end
 
+  describe "#sponsor_contribution_attributes=" do
+    let(:raw_params) do
+      ActionController::Parameters.new(
+        contribution_levels_attributes: {
+          "0" => {
+            display_name: "Employee Only",
+            contribution_unit_id: "employee_only",
+            is_offered: "true",
+            contribution_factor: "0.75",
+            ignored_nested_key: "remove_me"
+          }
+        },
+        ignored_top_level_key: "remove_me"
+      )
+    end
+
+    it "permits only allowlisted sponsor contribution keys" do
+      form = BenefitSponsors::Forms::SponsoredBenefitForm.new
+      captured_attributes = nil
+
+      allow(BenefitSponsors::Forms::SponsorContributionForm).to receive(:new) do |attributes|
+        captured_attributes = attributes
+        instance_double(BenefitSponsors::Forms::SponsorContributionForm)
+      end
+
+      form.sponsor_contribution_attributes = raw_params
+
+      expect(captured_attributes).to be_a(ActionController::Parameters)
+      expect(captured_attributes[:ignored_top_level_key]).to be_nil
+      expect(
+        captured_attributes
+          .dig(:contribution_levels_attributes, "0", :ignored_nested_key)
+      ).to be_nil
+      expect(captured_attributes.dig(:contribution_levels_attributes, "0", :display_name)).to eq("Employee Only")
+    end
+  end
+
   describe "#fetch" do
     let(:params) {
       {

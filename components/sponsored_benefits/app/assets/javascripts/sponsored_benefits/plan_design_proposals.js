@@ -443,7 +443,7 @@ function buildBenefitGroupParams() {
 function initSlider() {
   $('.benefits-fields input.hidden-param, .dental-benefits-fields input.hidden-param').each(function() {
     $(this).closest('.form-group').find('.slider').attr('data-slider-value', $(this).val());
-    $(this).closest('.form-group').find('.slide-label').html($(this).val()+"%");
+    $(this).closest('.form-group').find('.slide-label').text($(this).val()+"%");
   });
 
   $('.benefits-fields .slider').bootstrapSlider({
@@ -640,8 +640,18 @@ function saveProposalAndPublish(event) {
 
 function AddDentalToPlanDesignProposal(event) {
   saveProposal(event);
-  var url = $("#add_dental_url").val()
-  window.location.href = url
+  var rawUrl = $("#add_dental_url").val();
+  if (typeof rawUrl !== 'string') { return; }
+  rawUrl = rawUrl.trim();
+  try {
+    var parsedUrl = new URL(rawUrl, window.location.origin);
+    var isSafeProtocol = parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:';
+    if (isSafeProtocol && parsedUrl.origin === window.location.origin && parsedUrl.pathname.charAt(0) === '/') {
+      window.location.assign(parsedUrl.href);
+    }
+  } catch (e) {
+    // Ignore invalid URL values from DOM.
+  }
 }
 
 function saveProposalAndNavigateToReview(event) {

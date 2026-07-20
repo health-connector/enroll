@@ -596,8 +596,10 @@ class Person
     end
 
     def find_all_brokers_or_staff_members_by_agency(broker_agency)
-      Person.or({:"broker_role.broker_agency_profile_id" => broker_agency.id},
-                {:"broker_agency_staff_roles.broker_agency_profile_id" => broker_agency.id})
+      Person.where("$or" => [
+        { :"broker_role.broker_agency_profile_id" => broker_agency.id },
+        { :"broker_agency_staff_roles.broker_agency_profile_id" => broker_agency.id }
+      ])
     end
 
     def sans_primary_broker(broker_agency)
