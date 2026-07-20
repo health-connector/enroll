@@ -1,6 +1,7 @@
 name: Security Checks (daily dependency-scan)
 on:
   workflow_dispatch:
+  pull_request:
   schedule:
     - cron: '0 5 * * *'
 
