@@ -419,7 +419,7 @@ end
 
 Then(/^retroactive dates should be disabled in the datepicker$/) do
   min_date_str = page.evaluate_script(
-  "(function(){ var d = $('#benefit_application_open_enrollment_start_on').datepicker('option', 'minDate'); return d ? d.toISOString().split('T')[0] : null; })()"
+      "(function(){ var d = $('#benefit_application_open_enrollment_start_on').datepicker('option', 'minDate'); return d ? d.toISOString().split('T')[0] : null; })()"
   )
   expect(min_date_str).not_to be_nil
   min_date = Date.parse(min_date_str)
