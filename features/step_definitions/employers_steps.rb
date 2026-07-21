@@ -398,17 +398,41 @@ And(/^Employer can see the sole source plan information$/) do
 end
 
 And(/^.+ should see a button to create new plan year$/) do
-  sleep 1
   screenshot("employer_plan_year")
   #Hackity Hack need both years reference plans b/c of Plan.valid_shop_dental_plans and Plan.by_active_year(params[:start_on]).shop_market.health_coverage.by_carrier_profile(@carrier_profile).and(hios_id: /-01/)
   find('a.interaction-click-control-add-plan-year').click
+end
+
+And(/^.+ selects a plan year start date$/) do
+  start = (TimeKeeper.date_of_record - HbxProfile::ShopOpenEnrollmentBeginDueDayOfMonth + Settings.aca.shop_market.open_enrollment.maximum_length.months.months).beginning_of_month.year
+  find(:xpath, "//p[@class='label'][contains(., 'SELECT START ON')]").click
+  find(:xpath, "//li[@data-index='1'][contains(., '#{start}')]").click
+end
+
+When(/^employer clicks on the open enrollment start date field$/) do
+  find("input#benefit_application_open_enrollment_start_on").click
+end
+
+Then(/^employer should see the datepicker calendar$/) do
+  expect(page).to have_css("#ui-datepicker-div", visible: true)
+end
+
+Then(/^retroactive dates should be disabled in the datepicker$/) do
+  min_date_str = page.evaluate_script(
+  "(function(){ var d = $('#benefit_application_open_enrollment_start_on').datepicker('option', 'minDate'); return d ? d.toISOString().split('T')[0] : null; })()"
+  )
+  expect(min_date_str).not_to be_nil
+  min_date = Date.parse(min_date_str)
+  expect(min_date).to be >= TimeKeeper.date_of_record
+  within("#ui-datepicker-div") do
+    expect(page).to have_css("td.ui-datepicker-unselectable", minimum: 1)
+  end
 end
 
 And(/^.+ should be able to enter plan year, benefits, relationship benefits with (high|low) FTE$/) do |amount_of_fte|
   start = (TimeKeeper.date_of_record - HbxProfile::ShopOpenEnrollmentBeginDueDayOfMonth + Settings.aca.shop_market.open_enrollment.maximum_length.months.months).beginning_of_month.year
   find(:xpath, "//p[@class='label'][contains(., 'SELECT START ON')]").click
   find(:xpath, "//li[@data-index='1'][contains(., '#{start}')]").click
-
   screenshot("employer_add_plan_year")
   find('.interaction-field-control-plan-year-fte-count').click
 
