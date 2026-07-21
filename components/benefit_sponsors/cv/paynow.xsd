@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://openhbx.org/api/terms/1.0" targetNamespace="http://openhbx.org/api/terms/1.0" elementFormDefault="qualified">
+  <xs:include schemaLocation="common.xsd"/>
+  <xs:include schemaLocation="individual.xsd"/>
+
+  <xs:simpleType name="ExchangeAssignedMemberIDType">
+      <xs:annotation>
+          <xs:documentation>
+              Exchanged-assigned identifier for the member or primary.
+              
+              Denotes the identifier that is expected to arrive on subsequent information
+              interchanges, such as an X220A1 834 transaction.
+          </xs:documentation>
+      </xs:annotation>
+      <xs:restriction base="xs:string">
+      </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="PaynowMemberRelationshipCode">
+      <xs:restriction base="xs:string">
+          <xs:enumeration value="18">
+              <xs:annotation>
+                  <xs:documentation>Self</xs:documentation>
+              </xs:annotation>
+          </xs:enumeration>
+          <xs:enumeration value="01">
+              <xs:annotation>
+                  <xs:documentation>Spouse</xs:documentation>
+              </xs:annotation>
+          </xs:enumeration>
+          <xs:enumeration value="53">
+              <xs:annotation>
+                  <xs:documentation>Life Partner</xs:documentation>
+              </xs:annotation>
+          </xs:enumeration>
+          <xs:enumeration value="15">
+              <xs:annotation>
+                  <xs:documentation>Ward</xs:documentation>
+              </xs:annotation>
+          </xs:enumeration>
+          <xs:enumeration value="19">
+              <xs:annotation>
+                  <xs:documentation>Child/other dependent</xs:documentation>
+              </xs:annotation>
+          </xs:enumeration>
+      </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="PaynowMemberType">
+      <xs:annotation>
+          <xs:documentation>
+              A member receiving coverage.
+          </xs:documentation>
+      </xs:annotation>
+      <xs:sequence>
+          <xs:element name="exchange_assigned_member_id" type="ExchangeAssignedMemberIDType"/>
+          <xs:element name="member_name" type="PersonNameType"/>
+          <xs:element name="birth_date" type="SimpleDateType"/>
+          <xs:element name="sex" type="SexofIndividualTerminologyType"/>
+          <xs:element name="ssn" type="FederalTaxIdType" minOccurs="0"/>
+          <xs:element name="relationship" type="PaynowMemberRelationshipCode">
+              <xs:annotation>
+                  <xs:documentation>Describes the relationship to the subscriber.</xs:documentation>
+              </xs:annotation>
+          </xs:element>
+          <xs:element name="is_subscriber" type="xs:boolean">
+              <xs:annotation>
+                  <xs:documentation>
+                      Indicates if the member is the subscriber for the coverage
+                      period, rather than simply a covered individual.
+                  </xs:documentation>
+              </xs:annotation>
+          </xs:element>
+      </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PaynowMembersListType">
+      <xs:annotation>
+          <xs:documentation>
+              The list of covered members.
+          </xs:documentation>
+      </xs:annotation>
+      <xs:sequence>
+          <xs:element name="member" type="PaynowMemberType" minOccurs="1" maxOccurs="unbounded"/>
+      </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PaynowPrimary">
+      <xs:annotation>
+          <xs:documentation>
+              The primary individual responsible for payment and selection of coverage.
+
+              This individual may or may not appear in the members section.
+          </xs:documentation>
+      </xs:annotation>
+      <xs:sequence>
+          <xs:element name="exchange_assigned_member_id" type="ExchangeAssignedMemberIDType"/>
+          <xs:element name="member_name" type="PersonNameType"/>
+      </xs:sequence>
+  </xs:complexType>
+  
+  <xs:simpleType name="PaynowCoverageKindType">
+      <xs:annotation>
+          <xs:documentation>Set of codes indicating the type of insurance policy or program that pays for the cost of benefits provided to covered parties.</xs:documentation>
+          <xs:appinfo>NCI:C3244106</xs:appinfo>
+          <xs:appinfo>HL7:OID:2.16.840.1.113883.1.11.19855</xs:appinfo>
+          <xs:appinfo>X12:005010X220:1205</xs:appinfo>
+      </xs:annotation>
+      <xs:restriction base="xs:anyURI">
+          <xs:enumeration value="urn:openhbx:terms:v1:qhp_benefit_coverage#health">
+              <xs:annotation>
+                  <xs:documentation>Health Coverage</xs:documentation>
+                  <xs:appinfo>NCI:C3244234</xs:appinfo>
+                  <xs:appinfo>HL7:OID:2.16.840.1.113883.1.11.19855:HIP</xs:appinfo>
+                  <xs:appinfo>X12:005010X220:1205:HLT</xs:appinfo>
+              </xs:annotation>
+          </xs:enumeration>
+          <xs:enumeration value="urn:openhbx:terms:v1:qhp_benefit_coverage#dental">
+              <xs:annotation>
+                  <xs:documentation>Dental Coverage</xs:documentation>
+                  <xs:appinfo>NCI:C3244232</xs:appinfo>
+                  <xs:appinfo>HL7:OID:2.16.840.1.113883.1.11.19855:DENTAL</xs:appinfo>
+                  <xs:appinfo>X12:005010X220:1205:DEN</xs:appinfo>
+              </xs:annotation>
+          </xs:enumeration>
+      </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="PaynowTransferPayloadType">
+      <xs:annotation>
+          <xs:documentation>
+              A transfer representing information needed to enroll a group under
+              a given product and make payment.
+          </xs:documentation>
+      </xs:annotation>
+      <xs:sequence>
+          <xs:element name="coverage_kind" type="PaynowCoverageKindType"/>
+          <xs:element name="primary" type="PaynowPrimary"/>
+          <xs:element name="members" type="PaynowMembersListType"/>
+      </xs:sequence>
+  </xs:complexType>
+</xs:schema>
