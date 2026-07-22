@@ -150,6 +150,9 @@ Rails.application.routes.draw do
         put :reinstate
         put :revise_end_date
         get :confirmation_details
+        post :download_v2_xml
+        get :new_v2_xml
+        post :upload_v2_xml
       end
     end
 
@@ -302,8 +305,10 @@ Rails.application.routes.draw do
     resources :premium_statements, :only => [:show]
 
     resources :employer_attestations do
-      get 'authorized_download'
-      get 'verify_attestation'
+      member do
+        get 'verify_attestation/:document_id', action: :verify_attestation, as: :verify_attestation
+        get 'authorized_download/:document_id', action: :authorized_download, as: :authorized_download
+      end
       delete 'delete_attestation_documents'
       #get 'revert_attestation'
       post 'edit', on: :member # This POST request hides sensitive data per security review

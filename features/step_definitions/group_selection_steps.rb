@@ -210,6 +210,7 @@ end
 
 Then(/(.*) should see primary person/) do |_role|
   primary = Person.all.select { |person| person.primary_family.present? }.first
+  find('.my-account-page')
   expect(page).to have_content "Covered\n#{primary.first_name}"
 end
 

@@ -36,6 +36,11 @@ RSpec.describe TimeKeeper, type: :model do
         expect { TimeKeeper.date_of_record }.to raise_error(TkNotifyWrapper::ExpectedLogCallInvoked)
       end
 
+      it "should return Date.current without writing it back to the cache" do
+        expect(TimeKeeper.date_of_record).to eq Date.current
+        expect(Rails.cache.read(TimeKeeper::CACHE_KEY)).to be_nil
+      end
+
       context "and the date_of_record isn't available from enterprise service" do
         it "should send a syslog critical error to the enterprise logger"
         it "should halt the system initialization process to avoid corrupting records"
@@ -51,9 +56,37 @@ RSpec.describe TimeKeeper, type: :model do
 
     let(:date_of_record) { TimeKeeper.set_date_of_record(base_date) }
 
+    context "and the cache value is missing at the advance (CCAOM-349)" do
+      before :each do
+        allow(TimeKeeper.instance).to receive(:push_date_of_record)
+        allow(TimeKeeper.instance).to receive(:push_date_change_event)
+        Rails.cache.delete(TimeKeeper::CACHE_KEY)
+      end
+
+      it "runs the day's events instead of silently skipping" do
+        expect(TimeKeeper.instance).to receive(:push_date_of_record).once
+        TimeKeeper.set_date_of_record(base_date)
+      end
+
+      it "seeds the cache with the new date" do
+        TimeKeeper.set_date_of_record(base_date)
+        expect(Rails.cache.read(TimeKeeper::CACHE_KEY)).to eq base_date.strftime("%Y-%m-%d")
+      end
+
+      it "is a no-op on a duplicate trigger after recovery" do
+        TimeKeeper.set_date_of_record(base_date)
+        expect(TimeKeeper.instance).not_to receive(:push_date_of_record)
+        TimeKeeper.set_date_of_record(base_date)
+      end
+    end
+
     context "and new date the same as the current date_of_record" do
+      before :each do
+        TimeKeeper.set_date_of_record_unprotected!(base_date)
+      end
+
       it "should leave the date unchanged" do
-        expect(TimeKeeper.set_date_of_record(base_date)).to eq date_of_record
+        expect(TimeKeeper.set_date_of_record(base_date)).to eq base_date
       end
     end
 
@@ -62,6 +95,7 @@ RSpec.describe TimeKeeper, type: :model do
 
       let(:notification_stub) { TkNotifyWrapper::SimpleWrapper.new(ActiveSupport::Notifications) }
       before :each do
+        TimeKeeper.set_date_of_record_unprotected!(base_date)
         stub_const("ActiveSupport::Notifications", notification_stub)
       end
 
@@ -73,6 +107,10 @@ RSpec.describe TimeKeeper, type: :model do
 
     context "and new date is one day later than current date_of_record" do
       let!(:hbx_profile) { FactoryBot.create(:hbx_profile) }
+      before :each do
+        TimeKeeper.set_date_of_record_unprotected!(base_date)
+      end
+
       it "should advance the date" do
         expect(TimeKeeper.set_date_of_record(next_day)).to eq next_day
       end

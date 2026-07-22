@@ -2065,8 +2065,10 @@ class HbxEnrollment
     cobra_rate_on = cobra_rating_start_on
     if is_cobra_status? && cobra_rate_on.present?
       # CoverageAgeCalculator only uses coverage_eligibility_on when previous_product.id == product.id.
-      # Enrollments without predecessor_enrollment_id have previous_product nil, so we force it here.
-      previous_product = product
+      # Use self.product when available (enrollment has a selected plan); otherwise fall back to the
+      # predecessor enrollment's product so the same-plan check is satisfied for plan-change shopping
+      # enrollments that have no product_id yet.
+      previous_product = product || previous_enrollment&.product
     end
     hbx_enrollment_members.each do |hem|
       person = hem.person
@@ -2127,16 +2129,32 @@ class HbxEnrollment
 
   def cobra_base_enrollment
     base = parent_enrollment
-    return base if base.present?
-    return nil unless employee_role.respond_to?(:census_employee)
+    return base if base.present? && !base.is_cobra_status?
+    return nil unless employee_role.present?
 
-    ce = employee_role.census_employee
-    return nil unless ce.present?
-    return nil unless ce.respond_to?(:cobra_eligible_enrollments)
+    family = employee_role.person.primary_family
+    return nil unless family.present?
 
-    ce.cobra_eligible_enrollments.detect do |enr|
-      enr.present? && !enr.is_cobra_status? && enr.coverage_kind == coverage_kind
-    end
+    target_benefit_application = sponsored_benefit_package&.benefit_application
+    return nil unless target_benefit_application.present?
+
+    family.active_household.hbx_enrollments
+          .where(
+            employee_role_id: employee_role_id,
+            coverage_kind: coverage_kind,
+            :kind.ne => 'employer_sponsored_cobra',
+            :aasm_state.in => %w[
+              coverage_terminated
+              coverage_termination_pending
+              coverage_enrolled
+              coverage_selected
+              coverage_expired
+            ]
+          )
+          .order(effective_on: :desc)
+          .detect do |enr|
+            enr.sponsored_benefit_package&.benefit_application&.id == target_benefit_application.id
+          end
   end
 
   # NOTE - Mongoid::Timestamps does not generate created_at time stamps.

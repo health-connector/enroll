@@ -14,7 +14,7 @@
     <!-- Payments -->
     <tr>
       <td class="payments-icon"><span class="pull-right glyphicon glyphicon-plus"></span></td>
-      <td>Payments since <%= @benefit_sponsorship_account.try(:current_statement_date) %> invoice</td>
+      <td>Payments since <%= @benefit_sponsorship_account.try(:current_statement_date)&.strftime("%m/%d/%Y") %> invoice</td>
       <td></td>
     </tr>
     <% if @benefit_sponsorship_account.payments_since_last_invoice.size == 0 %>
@@ -26,7 +26,7 @@
     <% else %>
       <% @benefit_sponsorship_account.payments_since_last_invoice.each do |payment| %>
         <tr class="payments">
-          <td><%= payment.posting_date %></td>
+          <td><%= payment.posting_date&.strftime("%m/%d/%Y") %></td>
           <% if payment.payment_method == "SCN" %>
             <td>Payment Type: CHK</td>
           <% else %>
@@ -40,7 +40,7 @@
     <!-- Adjustments/Enrollment Changes -->
     <tr>
       <td class="adjustments-icon"><span class="pull-right glyphicon glyphicon-plus"></span></td>
-      <td>Enrollment changes since <%= @benefit_sponsorship_account.current_statement_date %> invoice
+      <td>Enrollment changes since <%= @benefit_sponsorship_account.current_statement_date&.strftime("%m/%d/%Y") %> invoice
         <i class="fa fa-info-circle" data-toggle="tooltip" data-placement="right" title="Includes new enrollments, changes to existing enrollments, and terminations. Enrollment changes happen when you make a new employee eligible for coverage, when someone qualifies for a special enrollment period, or when someone is no longer eligible for coverage."></i>
       </td>
       <td></td>

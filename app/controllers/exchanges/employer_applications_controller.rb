@@ -9,11 +9,12 @@ module Exchanges
     before_action :can_modify_plan_year?, only: [:terminate, :cancel, :reinstate, :revise_end_date]
     before_action :check_hbx_staff_role, except: :get_term_reasons
     before_action :find_benefit_sponsorship, except: :get_term_reasons
+    before_action :can_generate_v2_xml?, only: [:download_v2_xml, :upload_v2_xml, :new_v2_xml]
 
     def index
       @allow_mid_month_voluntary_terms = allow_mid_month_voluntary_terms?
       @allow_mid_month_non_payment_terms = allow_mid_month_non_payment_terms?
-      @element_to_replace_id = params[:employers_action_id]
+      @element_to_replace_id = "employer_actions_#{@benefit_sponsorship.profile.id}"
     end
 
     def terminate
@@ -77,6 +78,57 @@ module Exchanges
       else
         redirect_to exchanges_hbx_profiles_root_path
       end
+    end
+
+    def download_v2_xml
+      @employer_actions_id = params[:employer_actions_id]
+      result = BenefitSponsors::Operations::BenefitApplications::DownloadV2Xml.new.call(
+        selected_event: params[:selected_event],
+        employer_application_id: params[:employer_application_id],
+        employer_actions_id: params[:employer_actions_id],
+        benefit_sponsorship: @benefit_sponsorship
+      )
+
+      if result.success?
+        handle_success(result)
+      else
+        handle_failure(result)
+      end
+
+      respond_to(&:js) unless result.success?
+    rescue StandardError
+      @error_message = l10n('exchange.employer_applications.download_v2_xml.failure_message')
+      @file_path = nil
+      respond_to(&:js)
+    end
+
+    def new_v2_xml
+      @application = @benefit_sponsorship.benefit_applications.find(params[:employer_application_id])
+      respond_to(&:js)
+    end
+
+    def upload_v2_xml
+      result = BenefitSponsors::Operations::BenefitApplications::UploadV2Xml.new.call(
+        file: params[:file],
+        employer_actions_id: params[:employer_actions_id],
+        benefit_sponsorship: @benefit_sponsorship
+      )
+
+      if result.success?
+        @result = result.value!
+        render json: { success_message: @result }, status: :ok
+      else
+        @failures = result.failure
+        error_message = if @failures.is_a?(Hash)
+                          @failures.values.flatten.join(', ')
+                        else
+                          @failures.to_s
+                        end
+        render json: { error_message: error_message }, status: :ok
+      end
+    rescue StandardError
+      @error_message = l10n('exchange.employer_applications.upload_v2_xml.invalid_file_error')
+      render json: { error_message: @error_message }, status: :ok
     end
 
     def confirmation_details
@@ -159,6 +211,29 @@ module Exchanges
 
     def find_benefit_sponsorship
       @benefit_sponsorship = BenefitSponsors::BenefitSponsorships::BenefitSponsorship.find(params[:employer_id])
+    end
+
+    def can_generate_v2_xml?
+      authorize HbxProfile, :can_generate_v2_xml?
+    end
+
+    def handle_success(result)
+      @success_message = l10n('exchange.employer_applications.download_v2_xml.success_message')
+      @file_path = result.value!
+    end
+
+    def handle_failure(result)
+      download_status = result.failure
+
+      @error_message = if download_status.first == :empty_files
+                         download_status[1]
+                       elsif download_status.is_a?(Hash)
+                         download_status.values.flatten.join(', ')
+                       else
+                         l10n('exchange.employer_applications.download_v2_xml.failure_message')
+                       end
+
+      @file_path = nil
     end
   end
 end
