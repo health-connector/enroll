@@ -110,7 +110,10 @@ function runGlossary() {
       $('[data-toggle="popover"]').popover({container: '.reference-plans'});
     }
     else if ( $('.enrollment-tile').length > 0 ) {
-      $('[data-toggle="popover"]').popover({container: '.enrollment-tile'});
+      $('[data-toggle="popover"]').each(function() {
+        var container = $(this).closest('.enrollment-tile');
+        $(this).popover({ container: container.length ? container[0] : 'body' });
+      });
     }
     else {
       $('[data-toggle="popover"]').popover();
