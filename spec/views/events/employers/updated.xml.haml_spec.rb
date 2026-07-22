@@ -3,7 +3,7 @@
 require 'rails_helper'
 require File.join(Rails.root, "spec", "support", "acapi_vocabulary_spec_helpers")
 
-RSpec.describe "events/employers/updated.haml.erb" do
+RSpec.describe "events/employers/updated.haml.erb", :dbclean => :after_each do
   let(:legal_name) { "A Legal Employer Name" }
   let(:fein) { "867530900" }
   let(:entity_kind) { "c_corporation" }
