@@ -390,7 +390,9 @@ When(/^the broker selects a Reference Health Plan$/) do
 end
 
 And(/^the broker clicks on view employee cost details button$/) do
-  find(BrokerQuotingTool.employee_cost_details_button).click
+  wait_for_page_reload_until(5) do
+    find(BrokerQuotingTool.employee_cost_details_button).click
+  end
 end
 
 Then(/^.+ should see Benefit Package Set Up page$/) do
