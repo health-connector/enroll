@@ -111,7 +111,7 @@ class TimeKeeper
 
     # Fallback must use the exchange time zone. The Rails process runs in
     # UTC (config.time_zone is unset), so Date.current is one day ahead of
-    # the exchange calendar between 20:00 ET and 24:00 ET.
+    # the exchange calendar after UTC midnight.
     log("date_of_record not available for TimeKeeper - using exchange time zone")
     self.class.date_according_to_exchange_at(Time.current)
   end
