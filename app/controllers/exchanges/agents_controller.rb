@@ -99,7 +99,7 @@ module Exchanges
 
     def user_not_authorized(_exception)
       flash[:error] = l10n('exchange.agent.not_authorized')
-      redirect_back(fallback_location: root_path, allow_other_host: false)
+      redirect_to(url_from(request.referrer) || root_path)
     end
   end
 end
