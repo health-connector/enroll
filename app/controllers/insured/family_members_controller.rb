@@ -208,7 +208,7 @@ class Insured::FamilyMembersController < ApplicationController
     elsif @dependent.addresses.is_a? ActionController::Parameters
       addresses = []
       @dependent.addresses.map do |_, address|
-        addresses << Address.new(address.except("_destroy").permit(*Forms::FamilyMember::ADDRESS_ATTRIBUTE_KEYS))
+        addresses << Address.new(address.permit!)
       end
       @dependent.addresses = addresses
     end
