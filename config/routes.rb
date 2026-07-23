@@ -302,10 +302,8 @@ Rails.application.routes.draw do
     resources :premium_statements, :only => [:show]
 
     resources :employer_attestations do
-      member do
-        get 'verify_attestation/:document_id', action: :verify_attestation, as: :verify_attestation
-        get 'authorized_download/:document_id', action: :authorized_download, as: :authorized_download
-      end
+      get 'authorized_download'
+      get 'verify_attestation'
       delete 'delete_attestation_documents'
       #get 'revert_attestation'
       post 'edit', on: :member # This POST request hides sensitive data per security review

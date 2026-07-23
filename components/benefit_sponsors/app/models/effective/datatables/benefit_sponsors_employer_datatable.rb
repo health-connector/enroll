@@ -90,7 +90,7 @@ module Effective
           ]
 
           if pundit_allow(HbxProfile, :can_modify_plan_year?)
-            dropdown.insert(2,['Plan Years', exchanges_employer_applications_path(employer_id: row), 'ajax'])
+            dropdown.insert(2,['Plan Years', exchanges_employer_applications_path(employer_id: row, employers_action_id: "employer_actions_#{@employer_profile.id}"), 'ajax'])
           end
 
           if individual_market_is_enabled?
@@ -102,7 +102,7 @@ module Effective
           end
 
           if employer_attestation_is_enabled?
-            dropdown.insert(2,['Attestation', main_app.edit_employers_employer_attestation_path(id: @employer_profile.id), 'ajax'])
+            dropdown.insert(2,['Attestation', main_app.edit_employers_employer_attestation_path(id: @employer_profile.id, employer_actions_id: "employer_actions_#{@employer_profile.id}"), 'ajax'])
           end
 
           if row.oe_extendable_benefit_applications.present? && pundit_allow(HbxProfile, :can_extend_open_enrollment?)
