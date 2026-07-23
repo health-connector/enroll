@@ -139,7 +139,7 @@ end
 
 When(/^Employer Staff clicks documents tab$/) do
   wait_for_ajax
-  find('nav a[href*="tab=documents"]').click
+  find('.interaction-click-control-documents').click
 end
 
 def enter_plan_year_info
