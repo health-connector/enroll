@@ -32,13 +32,23 @@ RSpec.describe TimeKeeper, type: :model do
       end
 
       it "should send a syslog info message to the enterprise logger" do
-        notification_stub.expect_event("acapi.info.application.enroll.logging", {:body => "date_of_record not available for TimeKeeper - using Date.current"})
+        notification_stub.expect_event("acapi.info.application.enroll.logging", {:body => "date_of_record not available for TimeKeeper - using exchange time zone"})
         expect { TimeKeeper.date_of_record }.to raise_error(TkNotifyWrapper::ExpectedLogCallInvoked)
       end
 
-      it "should return Date.current without writing it back to the cache" do
-        expect(TimeKeeper.date_of_record).to eq Date.current
+      it "should return the exchange-zone date without writing it back to the cache" do
+        expect(TimeKeeper.date_of_record).to eq TimeKeeper.date_according_to_exchange_at(Time.current)
         expect(Rails.cache.read(TimeKeeper::CACHE_KEY)).to be_nil
+      end
+
+      it "returns the exchange-zone date when the process clock is a day ahead in UTC" do
+        # 03:00 UTC on 2026-07-22 is 23:00 ET on 2026-07-21. Before this fix
+        # the fallback returned Date.current (UTC), which was one day ahead of
+        # the exchange's actual business date.
+        utc_after_et_evening = Time.utc(2026, 7, 22, 3, 0, 0)
+        allow(Time).to receive(:current).and_return(utc_after_et_evening)
+
+        expect(TimeKeeper.date_of_record).to eq Date.new(2026, 7, 21)
       end
 
       context "and the date_of_record isn't available from enterprise service" do
