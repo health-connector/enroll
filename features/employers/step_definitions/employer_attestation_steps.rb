@@ -139,7 +139,7 @@ end
 
 When(/^Employer Staff clicks documents tab$/) do
   wait_for_ajax
-  within('nav') { click_link 'Documents' }
+  find('nav a[href*="tab=documents"]').click
 end
 
 def enter_plan_year_info
@@ -248,8 +248,8 @@ Then(/.+ should see deductible information in summary$/) do
 end
 
 Then(/^Employer clicks delete in actions$/) do
-  find(:xpath, '//*[@id="effective_datatable_wrapper"]/div/div/div[3]/div/table/tbody/tr[1]/td[6]').click
   accept_alert do
+    find(:xpath, '//*[@id="effective_datatable_wrapper"]/div/div/div[3]/div/table/tbody/tr[1]/td[6]').click
     find(:xpath, '//*[@id="effective_datatable_wrapper"]/div/div/div[3]/div/table/tbody/tr[1]/td[6]/div/ul/li[2]/a').click
   end
 end
