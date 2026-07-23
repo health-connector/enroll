@@ -2128,31 +2128,15 @@ class HbxEnrollment
   def cobra_base_enrollment
     base = parent_enrollment
     return base if base.present?
-    return nil unless employee_role.present?
+    return nil unless employee_role.respond_to?(:census_employee)
 
-    family = employee_role.person.primary_family
-    return nil unless family.present?
+    ce = employee_role.census_employee
+    return nil unless ce.present?
+    return nil unless ce.respond_to?(:cobra_eligible_enrollments)
 
-    target_benefit_application = sponsored_benefit_package&.benefit_application
-    return nil unless target_benefit_application.present?
-
-    family.active_household.hbx_enrollments
-          .where(
-            employee_role_id: employee_role_id,
-            coverage_kind: coverage_kind,
-            :kind.ne => 'employer_sponsored_cobra',
-            :aasm_state.in => %w[
-              coverage_terminated
-              coverage_termination_pending
-              coverage_enrolled
-              coverage_selected
-              coverage_expired
-            ]
-          )
-          .order(effective_on: :desc)
-          .detect do |enr|
-            enr.sponsored_benefit_package&.benefit_application&.id == target_benefit_application.id
-          end
+    ce.cobra_eligible_enrollments.detect do |enr|
+      enr.present? && !enr.is_cobra_status? && enr.coverage_kind == coverage_kind
+    end
   end
 
   # NOTE - Mongoid::Timestamps does not generate created_at time stamps.
