@@ -128,6 +128,25 @@ RSpec.describe TimeKeeper, type: :model do
     end
   end
 
+  context "datetime_of_record time-of-day component", dbclean: :after_each do
+    # 02:30:45 UTC on 2024-01-15 is 21:30:45 EST on 2024-01-14 - a near-UTC-
+    # midnight instant where a UTC-sourced time-of-day is most visibly wrong:
+    # the exchange day has already rolled back, but the raw UTC hour has not.
+    let(:utc_instant) { Time.utc(2024, 1, 15, 2, 30, 45) }
+
+    before :each do
+      allow(Time).to receive(:now).and_return(utc_instant)
+      TimeKeeper.set_date_of_record_unprotected!(Date.new(2024, 1, 14))
+    end
+
+    it "sources the time-of-day from the exchange (Eastern) zone, not UTC" do
+      result = TimeKeeper.datetime_of_record
+
+      expect(result.to_date).to eq(Date.new(2024, 1, 14))
+      expect([result.hour, result.min, result.sec]).to eq([21, 30, 45])
+    end
+  end
+
   context "which can avoid local cache hits" do
     before :each do
       TimeKeeper.set_date_of_record_unprotected!(Date.today)
