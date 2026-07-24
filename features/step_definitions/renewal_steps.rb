@@ -26,6 +26,11 @@ Then(/(.*) should see active and renewing enrollments/) do |named_person|
   ).to be_truthy
 end
 
+Then(/^only one deductible tooltip should be visible on the page$/) do
+  first('.glossary[data-title^="Deductible"]').click
+  expect(page).to have_css('.popover', count: 1, visible: true)
+end
+
 # For new updates
 When(/(.*) clicks continue on group selection page for dependents/) do |_named_person|
   if find_all('.interaction-click-control-continue').any?
