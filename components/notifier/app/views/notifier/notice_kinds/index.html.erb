@@ -20,19 +20,21 @@
       <div class="container top-pd">
         <div class="row">
           <div aria-labelledby="inbox-tab" id="inbox" class="tab-pane-hbx" role="tabpanel">
-            <div class="col-xs-12">
-              <div class="notices_index_list">
-                <h1 class="heading-text">Notices</h1>
+            <div id="tabContent">
+              <div class="col-xs-12">
+                <div class="notices_index_list">
+                  <h1 class="heading-text">Notices</h1>
 
 
-                  <span class="pull-right">
-                    <%= link_to 'Add Notice', new_notice_kind_path, class: "btn btn-primary notice-preview", remote: true %>
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
-                      <i class='fa fa-file-text-o' aria-hidden='true'></i> Upload Notices
-                    </button>
-                    <%= link_to "<i class='fa fa-cloud-download' aria-hidden='true'></i> Download Notices".html_safe, download_notices_notice_kinds_path, class: "btn btn-primary", target: "_blank", rel: "noopener noreferrer" %>
-                  </span>
-                <%= render_datatable(@datatable) %>
+                    <span class="pull-right">
+                      <%= link_to 'Add Notice', new_notice_kind_path, class: "btn btn-primary notice-preview", remote: true %>
+                      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
+                        <i class='fa fa-file-text-o' aria-hidden='true'></i> Upload Notices
+                      </button>
+                      <%= link_to "<i class='fa fa-cloud-download' aria-hidden='true'></i> Download Notices".html_safe, download_notices_notice_kinds_path, class: "btn btn-primary", target: "_blank", rel: "noopener noreferrer" %>
+                    </span>
+                  <%= render_datatable(@datatable) %>
+                </div>
               </div>
             </div>
           </div>
