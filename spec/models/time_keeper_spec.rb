@@ -126,6 +126,21 @@ RSpec.describe TimeKeeper, type: :model do
       it "should persist in the local data storage the new date_of_record for each successful advance"
       it "should send a syslog info message to the enterprise logger for each successful advance"
     end
+
+    context "and the local cache is missing when advancing the date" do
+      let!(:hbx_profile) { FactoryBot.create(:hbx_profile, :normal_ivl_open_enrollment) }
+
+      before do
+        allow(Rails.cache).to receive(:exist?).with(TimeKeeper::CACHE_KEY).and_return(false)
+      end
+
+      it "still runs the day-advance events" do
+        expect(TimeKeeper.instance).to receive(:push_date_of_record)
+        expect(TimeKeeper.instance).to receive(:push_date_change_event)
+        expect(TimeKeeper.date_of_record).to eq base_date
+        TimeKeeper.set_date_of_record(base_date)
+      end
+    end
   end
 
   context "which can avoid local cache hits" do
