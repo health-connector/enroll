@@ -96,15 +96,6 @@ class TimeKeeper
     Rails.cache.write(CACHE_KEY, new_date.strftime("%Y-%m-%d"))
   end
 
-  # Raw cache read: returns nil on a miss instead of fabricating a value.
-  # Only set_date_of_record decides what a miss means; readers fall back below.
-  def cached_date_of_record
-    found_value = Rails.cache.read(CACHE_KEY)
-    return nil if found_value.blank?
-
-    Date.strptime(found_value, "%Y-%m-%d")
-  end
-
   def date_of_record
     tl_value = thread_local_date_of_record
     return tl_value unless tl_value.blank?

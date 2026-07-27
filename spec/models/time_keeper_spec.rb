@@ -96,17 +96,14 @@ RSpec.describe TimeKeeper, type: :model do
     end
 
     context "and the local cache is missing when advancing the date" do
-      let!(:hbx_profile) { FactoryBot.create(:hbx_profile, :normal_ivl_open_enrollment) }
-
       before do
-        allow(Rails.cache).to receive(:exist?).with(TimeKeeper::CACHE_KEY).and_return(false)
+        Rails.cache.delete(TimeKeeper::CACHE_KEY)
       end
 
       it "still runs the day-advance events" do
         expect(TimeKeeper.instance).to receive(:push_date_of_record)
         expect(TimeKeeper.instance).to receive(:push_date_change_event)
-        expect(TimeKeeper.date_of_record).to eq base_date
-        TimeKeeper.set_date_of_record(base_date)
+        expect(TimeKeeper.set_date_of_record(base_date)).to eq base_date
       end
     end
   end
