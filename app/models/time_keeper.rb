@@ -71,7 +71,6 @@ class TimeKeeper
   def self.set_date_of_record_unprotected!(new_date)
     new_date = new_date.to_date
     if instance.date_of_record != new_date
-      (new_date - instance.date_of_record).to_i
       instance.set_date_of_record(new_date)
     end
     instance.date_of_record
