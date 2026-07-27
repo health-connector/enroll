@@ -85,11 +85,7 @@ class TimeKeeper
   end
 
   def self.datetime_of_record
-    # date_of_record is anchored to the exchange (Eastern) day, so the
-    # time-of-day glued onto it must come from the same zone. Time.current
-    # is UTC here (config.time_zone is unset), which would otherwise shift
-    # the result by the UTC/ET offset.
-    instant = Time.current.in_time_zone(exchange_zone)
+    instant = Time.current
     instance.date_of_record.to_datetime + instant.hour.hours + instant.min.minutes + instant.sec.seconds
   end
 
