@@ -78,7 +78,7 @@ class Employers::CensusEmployeesController < ApplicationController
       flash[:notice] = "Census Employee is successfully updated."
       flash[:info] = employee_update_info_flash(@census_employee.is_linked?, ce_roster_composition_changed)
 
-      if benefit_group_id.blank?
+      if benefit_group_id.blank? && off_cycle_benefit_group_id.blank?
         flash[:notice] += " Note: new employee cannot enroll on #{site_short_name} until they are assigned a benefit group."
       end
 

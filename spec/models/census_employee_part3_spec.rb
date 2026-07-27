@@ -715,6 +715,70 @@ RSpec.describe CensusEmployee, type: :model, dbclean: :after_each do
     end
   end
 
+  describe '#off_cycle_benefit_group_assignment', dbclean: :before_each do
+    context 'when employee has an off-cycle assignment but no active benefit group assignment' do
+      let(:date)                  { (TimeKeeper.date_of_record + 2.months).beginning_of_month }
+      let(:current_effective_date){ date.prev_year }
+
+      include_context 'setup initial benefit application'
+
+      let(:census_employee) do
+        FactoryBot.create(
+          :benefit_sponsors_census_employee,
+          employer_profile: employer_profile,
+          benefit_sponsorship: benefit_sponsorship,
+          dob: TimeKeeper.date_of_record - 30.years
+        )
+      end
+
+      let(:off_cycle_effective_date) { TimeKeeper.date_of_record.end_of_month.next_day }
+
+      let(:off_cycle_benefit_sponsor_catalog) do
+        benefit_sponsorship.benefit_sponsor_catalog_for(off_cycle_effective_date)
+      end
+
+      let!(:off_cycle_application) do
+        ben_app = create(
+          :benefit_sponsors_benefit_application,
+          :with_benefit_sponsor_catalog,
+          :with_benefit_package,
+          passed_benefit_sponsor_catalog: off_cycle_benefit_sponsor_catalog,
+          aasm_state: :draft,
+          benefit_sponsorship: benefit_sponsorship,
+          recorded_rating_area: rating_area,
+          recorded_service_areas: service_areas,
+          fte_count: 5,
+          pte_count: 0,
+          msp_count: 0
+        )
+        ben_app.benefit_application_items.create(
+          effective_period: off_cycle_effective_date..off_cycle_benefit_sponsor_catalog.effective_period.max,
+          sequence_id: 1,
+          state: :draft
+        )
+        ben_app
+      end
+
+      let(:off_cycle_benefit_package) { off_cycle_application.benefit_packages[0] }
+
+      let!(:off_cycle_bga) do
+        FactoryBot.create(
+          :benefit_sponsors_benefit_group_assignment,
+          benefit_group: off_cycle_benefit_package,
+          census_employee: census_employee,
+          start_on: off_cycle_benefit_package.start_on,
+          end_on: off_cycle_benefit_package.end_on
+        )
+      end
+
+      it 'returns the off-cycle benefit group assignment even when active_benefit_group_assignment is nil' do
+        allow(census_employee).to receive(:active_benefit_group_assignment).and_return(nil)
+        allow(census_employee.benefit_sponsorship).to receive(:off_cycle_benefit_application).and_return(off_cycle_application)
+        expect(census_employee.off_cycle_benefit_group_assignment).to eq off_cycle_bga
+      end
+    end
+  end
+
   context '.past_enrollments' do
     include_context "setup renewal application"
 
