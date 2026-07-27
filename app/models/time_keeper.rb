@@ -92,9 +92,12 @@ class TimeKeeper
     push_date_change_event
   end
 
+  # Bypassing rubocop here to avoid the unnecessary risk of a name change to a load-bearing legacy method.
+  # rubocop:disable  Naming/AccessorMethodName
   def set_date_of_record(new_date)
     Rails.cache.write(CACHE_KEY, new_date.strftime("%Y-%m-%d"))
   end
+  # rubocop:enable  Naming/AccessorMethodName
 
   def date_of_record
     tl_value = thread_local_date_of_record
