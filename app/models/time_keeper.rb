@@ -109,11 +109,8 @@ class TimeKeeper
     cached = cached_date_of_record
     return cached if cached.present?
 
-    # Fallback must use the exchange time zone. The Rails process runs in
-    # UTC (config.time_zone is unset), so Date.current is one day ahead of
-    # the exchange calendar after UTC midnight.
-    log("date_of_record not available for TimeKeeper - using exchange time zone")
-    self.class.date_according_to_exchange_at(Time.current)
+    log("date_of_record not available for TimeKeeper - using Date.current")
+    Date.current
   end
 
   def push_date_of_record
