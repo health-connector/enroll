@@ -11,18 +11,16 @@ Feature: Employee passive renewal should be canceled when Employee selected cove
     And this employer ABC Widgets has first_of_month_after_30_days rule
     And this employer renewal application is under open enrollment
 
-  Scenario: Renewing employee makes plan selection
-
+  Scenario: Search for employee and verify only one deductible tooltip is visible on the page
     Given there exists Patrick Doe employee for employer ABC Widgets
     And employee Patrick Doe has past hired on date
     And employee Patrick Doe already matched with employer ABC Widgets and logged into employee portal
     And Patrick Doe has active coverage and passive renewal
     Then Patrick Doe should see active and renewing enrollments
-    When Patrick Doe clicks "Shop for Plans" on my account page
-    Then Employee should see the group selection page
-    When Employee clicks continue on the group selection page
-    Then Employee should see the list of plans
-    When Patrick Doe selects a plan on the plan shopping page
-    Then Patrick Doe should see coverage summary page with renewing benefit application start date as effective date
-    Then Patrick Doe should see the receipt page with renewing plan year start date as effective date
-    Then Patrick Doe should see "my account" page with new enrollment and passive renewal should be canceled
+    And only one deductible tooltip should be visible on the page
+    And Employee logs out
+    When that a user with a HBX staff role with HBX staff subrole exists and is logged in
+    And the user is on the Employees Index of the Admin Dashboard
+    And the user searches for the employee Patrick Doe
+    And only one deductible tooltip should be visible on the page
+

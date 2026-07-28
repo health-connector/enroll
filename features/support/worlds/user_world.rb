@@ -82,6 +82,10 @@ And(/^the user is on the Employees Index of the Admin Dashboard$/) do
   find('.interaction-click-control-employees').click
 end
 
+And(/^the user searches for the employee Patrick Doe$/) do
+  find('a', text: 'Patrick Doe').click
+end
+
 And(/^the user is on the Issuers Index of the Admin Dashboard$/) do
   visit exchanges_hbx_profiles_path
   find('.interaction-click-control-issuers').click
