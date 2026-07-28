@@ -6,6 +6,7 @@ class TimeKeeper
   extend Acapi::Notifiers
 
   CACHE_KEY = "timekeeper/date_of_record"
+  ADVANCE_KEY = "timekeeper/last_advanced_on".freeze
 
   # time zone management
 
@@ -48,19 +49,18 @@ class TimeKeeper
 
   def self.set_date_of_record(new_date)
     new_date = new_date.to_date
-    cache_missed = !Rails.cache.exist?(CACHE_KEY)
+    last_advanced = instance.last_advanced_on
 
-    if cache_missed
-      log("date_of_record cache missing while advancing to #{new_date} - forcing day-advance events", {:severity => :warn})
+    if last_advanced.blank?
+      log("date_of_record advance ledger missing - running events for #{new_date}", {:severity => :critical})
       instance.advance_date_of_record(new_date)
-    elsif instance.date_of_record != new_date
-      if instance.date_of_record > new_date
+    elsif last_advanced != new_date
+      if last_advanced > new_date
         log("Attempt made to set date to past: #{new_date}", {:severity => :error})
         raise StandardError, "system may not go backward in time"
       else
-        number_of_days = (new_date - instance.date_of_record).to_i
-        number_of_days.times do
-          instance.advance_date_of_record(instance.date_of_record + 1.day)
+        ((last_advanced + 1.day)..new_date).each do |day|
+          instance.advance_date_of_record(day)
         end
       end
     end
@@ -70,9 +70,8 @@ class TimeKeeper
   # DO NOT EVER USE OUTSIDE OF TESTS
   def self.set_date_of_record_unprotected!(new_date)
     new_date = new_date.to_date
-    if instance.date_of_record != new_date
-      instance.set_date_of_record(new_date)
-    end
+    instance.set_date_of_record(new_date) if instance.date_of_record != new_date
+    instance.mark_advanced(new_date)
     instance.date_of_record
   end
 
@@ -89,6 +88,21 @@ class TimeKeeper
     set_date_of_record(new_date)
     push_date_of_record
     push_date_change_event
+    mark_advanced(new_date)
+  end
+
+  # Records which day the advance events last ran for. CACHE_KEY can't answer
+  # that - a reader that misses repopulates it with a dynamic fallback date.
+  # Written after the events so a partial advance is retried, not marked done.
+  def mark_advanced(new_date)
+    Rails.cache.write(ADVANCE_KEY, new_date.strftime("%Y-%m-%d"))
+  end
+
+  def last_advanced_on
+    found_value = Rails.cache.read(ADVANCE_KEY)
+    return nil if found_value.blank?
+
+    Date.strptime(found_value, "%Y-%m-%d")
   end
 
   # Bypassing rubocop here to avoid the unnecessary risk of a name change to a load-bearing legacy method.
