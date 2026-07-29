@@ -29,7 +29,7 @@ module SponsoredBenefits
       flash[:error] = "Access not allowed for #{exception.query}, (Pundit policy)"
       respond_to do |format|
         format.json { render nothing: true, status: :forbidden }
-        format.html { redirect_back(fallback_location: main_app.root_path, allow_other_host: false) }
+        format.html { redirect_to(url_from(request.referrer) || main_app.root_path) }
         format.js   { render nothing: true, status: :forbidden }
       end
     end

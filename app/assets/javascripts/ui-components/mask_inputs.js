@@ -484,17 +484,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	'use strict';
 
-	/**
-	 * Removes delimiter from string using split/join (replaces dynamic RegExp)
-	 * @param {string} str - The input string
-	 * @param {string} delimiter - The delimiter to remove
-	 * @returns {string} String with delimiter removed
-	 */
-	function removeDelimiter(str, delimiter) {
-	    if (!delimiter) return str;
-	    return str.split(delimiter).join('');
-	}
-
 	var NumeralFormatter = function (numeralDecimalMark,
 	                                 numeralIntegerScale,
 	                                 numeralDecimalScale,
@@ -511,6 +500,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    owner.numeralPositiveOnly = !!numeralPositiveOnly;
 	    owner.stripLeadingZeroes = stripLeadingZeroes !== false;
 	    owner.delimiter = (delimiter || delimiter === '') ? delimiter : ',';
+	    owner.delimiterRE = delimiter ? new RegExp('\\' + delimiter, 'g') : '';
 	};
 
 	NumeralFormatter.groupStyle = {
@@ -522,7 +512,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	NumeralFormatter.prototype = {
 	    getRawValue: function (value) {
-	        return removeDelimiter(value, this.delimiter).replace(this.numeralDecimalMark, '.');
+	        return value.replace(this.delimiterRE, '').replace(this.numeralDecimalMark, '.');
 	    },
 
 	    format: function (value) {
@@ -773,6 +763,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var owner = this;
 
 	    owner.delimiter = (delimiter || delimiter === '') ? delimiter : ' ';
+	    owner.delimiterRE = delimiter ? new RegExp('\\' + delimiter, 'g') : '';
 
 	    owner.formatter = formatter;
 	};
@@ -791,7 +782,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        phoneNumber = phoneNumber.replace(/[^\d+]/g, '');
 
 	        // strip delimiter
-	        phoneNumber = removeDelimiter(phoneNumber, owner.delimiter);
+	        phoneNumber = phoneNumber.replace(owner.delimiterRE, '');
 
 	        var result = '', current, validated = false;
 
@@ -955,6 +946,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	                return true;
 	            }
 	        });
+	    },
+
+	    getDelimiterREByDelimiter: function (delimiter) {
+	        return new RegExp(delimiter.replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1'), 'g');
 	    },
 
 	    getNextCursorPosition: function (prevPos, oldValue, newValue, delimiter, delimiters) {

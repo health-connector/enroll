@@ -12,55 +12,6 @@ $(document).on("turbolinks:load ajax:success", function() {
   });
 });
 
-/**
- * Replaces glossary terms with popover spans using word-boundary matching
- * Handles optional trailing 's' for plurals without RegExp
- * @param {string} text - The text to search
- * @param {string} term - The glossary term to find
- * @param {string} replacement - The HTML replacement for matched terms
- * @returns {string} Text with glossary terms replaced
- */
-function replaceGlossaryTerm(text, term, replacement) {
-    var result = '';
-    var lowerTerm = term.toLowerCase();
-    var lowerText = text.toLowerCase();
-    var lastIndex = 0;
-    var searchIndex = 0;
-    
-    while ((searchIndex = lowerText.indexOf(lowerTerm, searchIndex)) !== -1) {
-        var endIndex = searchIndex + term.length;
-        var matchesPlural = false;
-        
-        // Check for optional trailing 's' for plurals
-        if (endIndex < text.length && lowerText[endIndex] === 's') {
-            // Check if 's' is a word character boundary (part of plural)
-            var nextCharIndex = endIndex + 1;
-            var nextCharValid = nextCharIndex >= text.length || /\s|[^a-zA-Z0-9]/.test(text[nextCharIndex]);
-            if (nextCharValid) {
-                matchesPlural = true;
-                endIndex++;
-            }
-        }
-        
-        // Check word boundary before match
-        var isWordBoundaryBefore = searchIndex === 0 || /\s|[^a-zA-Z0-9]/.test(text[searchIndex - 1]);
-        
-        // Check word boundary after match (or after plural 's')
-        var charAfterMatch = endIndex < text.length ? text[endIndex] : '';
-        var isWordBoundaryAfter = endIndex === text.length || /\s|[^a-zA-Z0-9]/.test(charAfterMatch);
-        
-        if (isWordBoundaryBefore && isWordBoundaryAfter) {
-            result += text.substring(lastIndex, searchIndex) + replacement;
-            lastIndex = endIndex;
-        }
-        
-        searchIndex = endIndex;
-    }
-    
-    result += text.substring(lastIndex);
-    return result;
-}
-
 function runGlossary() {
   if ($('.run-glossary').length) {
     var terms = [
@@ -83,14 +34,14 @@ function runGlossary() {
         // finds every instance of the term on the page
         $('.run-glossary:contains(' + term.term + ')').each(function(i, matchingEl) {
           // matches the exact or plural term
+          var termRegex    = new RegExp("\\b(?:" + term.term + "[s]?)\\b", "gi");
           var popoverRegex = new RegExp("(<span class=\"glossary\".+?<\/span>)");
           var description  = term.description;
           var newElement   = "";
-          var popoverHtml  = '<span class="glossary" data-toggle="popover" data-placement="auto top" data-trigger="click focus" data-boundary="window" data-fallbackPlacement="flip" data-html="true" data-content="' + description + '" data-title="' + term.term + '<button data-dismiss=\'modal\' type=\'button\' class=\'close\' aria-label=\'Close\' onclick=\'hideGlossaryPopovers()\'></button>">' + term.term + '</span>';
           $(matchingEl).html().toString().split(popoverRegex).forEach(function(text){
             // if a matching term has not yet been given a popover, replace it with the popover element
             if (!text.includes("class=\"glossary\"")) {
-              newElement += replaceGlossaryTerm(text, term.term, popoverHtml);
+              newElement += text.replace(termRegex, '<span class="glossary" data-toggle="popover" data-placement="auto top" data-trigger="click focus" data-boundary="window" data-fallbackPlacement="flip" data-html="true" data-content="' + description + '" data-title="' + term.term + '<button data-dismiss=\'modal\' type=\'button\' class=\'close\' aria-label=\'Close\' onclick=\'hideGlossaryPopovers()\'></button>">' + term.term + '</span>');
             }
             else {
               // if the term has already been given a popover, do not search it again
