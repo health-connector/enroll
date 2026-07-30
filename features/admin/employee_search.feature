@@ -17,10 +17,10 @@ Feature: Employee passive renewal should be canceled when Employee selected cove
     And employee Patrick Doe already matched with employer ABC Widgets and logged into employee portal
     And Patrick Doe has active coverage and passive renewal
     Then Patrick Doe should see active and renewing enrollments
-    And only one deductible tooltip should be visible on the page
+    And only one deductible tooltip should be visible on the homepage
     And Employee logs out
     When that a user with a HBX staff role with HBX staff subrole exists and is logged in
     And the user is on the Employees Index of the Admin Dashboard
-    And the user searches for the employee Patrick Doe
-    And only one deductible tooltip should be visible on the page
+    And the user clicks on the employee Patrick Doe's name
+    Then only one deductible tooltip should be visible on the homepage
 

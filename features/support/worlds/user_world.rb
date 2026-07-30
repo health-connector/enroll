@@ -82,7 +82,7 @@ And(/^the user is on the Employees Index of the Admin Dashboard$/) do
   find('.interaction-click-control-employees').click
 end
 
-And(/^the user searches for the employee Patrick Doe$/) do
+And(/^the user clicks on the employee Patrick Doe's name$/) do
   find('a', text: 'Patrick Doe').click
 end
 
