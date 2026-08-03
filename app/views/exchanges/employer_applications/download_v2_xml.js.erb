@@ -1,0 +1,42 @@
+<% if !@file_path.nil? %>
+  // Decode Base64 and create a Blob
+  const binaryData = atob('<%= Base64.strict_encode64(File.read(@file_path)) %>');
+  const arrayBuffer = new Uint8Array(binaryData.length);
+
+  for (let i = 0; i < binaryData.length; i++) {
+    arrayBuffer[i] = binaryData.charCodeAt(i);
+  }
+
+  // Create a Blob and a Blob URL
+  const blob = new Blob([arrayBuffer], { type: 'application/zip' });
+  const blobUrl = URL.createObjectURL(blob);
+
+  // Create a download link and simulate a click
+  const link = document.createElement('a');
+  link.href = blobUrl;
+
+  link.download = "#<%= @file_path %>".split("/").at(-1);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  // Revoke the Blob URL to free up memory
+  URL.revokeObjectURL(blobUrl);
+
+<% end %>
+
+var formContainer = $("#<%= @employer_actions_id %>");
+var containing_row = formContainer.closest('TR');
+var $parent_row = containing_row;
+if ( $('tr.child-row:visible').length > 0 ) {
+  $('tr.child-row:visible').remove();
+}
+
+if ( $parent_row.next().hasClass('child-row') ) {
+
+}
+else {
+  $parent_row.after('<tr class="child-row"><td colspan="100"><%= j render "v2_xml_result" %></td></tr>');
+  $("li>a:contains('Collapse Form')").eq(containing_row.index()).removeClass('disabled');
+  $('.dropdown.pull-right').removeClass('open');
+}
