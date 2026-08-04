@@ -324,6 +324,17 @@ RSpec.describe Employers::CensusEmployeesController, dbclean: :after_each do
           post :update, params: { :id => census_employee.id, :employer_profile_id => employer_profile_id, census_employee: census_employee_params }
           expect(flash[:notice]).to eq "Census Employee is successfully updated. Note: new employee cannot enroll on #{Settings.site.short_name} until they are assigned a benefit group."
         end
+
+        context 'when off-cycle benefit group is assigned but no active benefit_group_id' do
+          before do
+            allow(controller).to receive(:off_cycle_benefit_group_id).and_return(BSON::ObjectId.new.to_s)
+            post :update, params: { :id => census_employee.id, :employer_profile_id => employer_profile_id, census_employee: census_employee_params }
+          end
+
+          it 'does not display the benefit group warning' do
+            expect(flash[:notice]).to eq "Census Employee is successfully updated."
+          end
+        end
       end
 
       it "should be redirect when invalid" do
