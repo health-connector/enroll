@@ -18,6 +18,7 @@ Feature: Employee passive renewal should be canceled when Employee selected cove
     And employee Patrick Doe already matched with employer ABC Widgets and logged into employee portal
     And Patrick Doe has active coverage and passive renewal
     Then Patrick Doe should see active and renewing enrollments
+    And only one deductible tooltip should be visible on the page
     When Patrick Doe clicks "Shop for Plans" on my account page
     Then Employee should see the group selection page
     When Employee clicks continue on the group selection page
