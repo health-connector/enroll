@@ -32,8 +32,40 @@ RSpec.describe TimeKeeper, type: :model do
       end
 
       it "should send a syslog info message to the enterprise logger" do
-        notification_stub.expect_event("acapi.info.application.enroll.logging", {:body => "date_of_record not available for TimeKeeper - using Date.current"})
+        notification_stub.expect_event("acapi.info.application.enroll.logging", {:body => "date_of_record not available for TimeKeeper - using exchange time zone"})
         expect { TimeKeeper.date_of_record }.to raise_error(TkNotifyWrapper::ExpectedLogCallInvoked)
+      end
+
+      it "returns the exchange date rather than the UTC date" do
+        expect(TimeKeeper.date_of_record).to eq TimeKeeper.date_according_to_exchange_at(Time.current)
+      end
+
+      context "and the process clock has already rolled over to the next UTC day" do
+        # 02:30 UTC on 2026-09-01 is 22:30 EDT on 2026-08-31. The exchange is
+        # still on 8/31, so a UTC-sourced fallback would be a day ahead.
+        let(:utc_instant) { Time.utc(2026, 9, 1, 2, 30, 0) }
+
+        before :each do
+          allow(Time).to receive(:current).and_return(utc_instant)
+        end
+
+        it "returns the exchange day, not the UTC day" do
+          expect(TimeKeeper.date_of_record).to eq Date.new(2026, 8, 31)
+        end
+      end
+
+      context "and the process clock has rolled over during standard time" do
+        # 02:30 UTC on 2026-01-15 is 21:30 EST on 2026-01-14, confirming the
+        # offset is taken from the zone rather than hard-coded.
+        let(:utc_instant) { Time.utc(2026, 1, 15, 2, 30, 0) }
+
+        before :each do
+          allow(Time).to receive(:current).and_return(utc_instant)
+        end
+
+        it "returns the exchange day across the standard time offset" do
+          expect(TimeKeeper.date_of_record).to eq Date.new(2026, 1, 14)
+        end
       end
 
       context "and the date_of_record isn't available from enterprise service" do

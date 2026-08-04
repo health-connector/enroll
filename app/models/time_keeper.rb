@@ -116,8 +116,11 @@ class TimeKeeper
     tl_value = thread_local_date_of_record
     return tl_value unless tl_value.blank?
     found_value = Rails.cache.fetch(CACHE_KEY) do
-      log("date_of_record not available for TimeKeeper - using Date.current")
-      Date.current.strftime("%Y-%m-%d")
+      # The exchange business day is Eastern. This process runs in UTC, so
+      # Date.current is a day ahead between UTC midnight and the start of the
+      # Eastern day, which would hand the app tomorrow's date on a cache miss.
+      log("date_of_record not available for TimeKeeper - using exchange time zone")
+      self.class.date_according_to_exchange_at(Time.current).strftime("%Y-%m-%d")
     end
     Date.strptime(found_value, "%Y-%m-%d")
   end
