@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module RuboCop
   module Cop
     module Lint
@@ -11,6 +13,11 @@ module RuboCop
       # the business". Use Time.current when the value is a real timestamp, such
       # as when it is being written to a created_at or submitted_at field.
       #
+      # A deliberate side-by-side comparison of the two clocks, such as
+      # diagnostic logging while investigating a discrepancy, is a legitimate
+      # exception. Wrap that specific line with a rubocop-disable / rubocop-enable
+      # comment pair naming Lint/RawSystemClock.
+      #
       # @example
       #   # bad
       #   Date.today
@@ -21,7 +28,7 @@ module RuboCop
       #   TimeKeeper.date_of_record
       #   Time.current
       class RawSystemClock < Base
-        MSG = 'Avoid `%<source>s`, it follows the server clock. Use `TimeKeeper.date_of_record` for a business date or `Time.current` for a timestamp.'.freeze
+        MSG = 'Avoid `%<source>s`, it follows the server clock. Use `TimeKeeper.date_of_record` for a business date or `Time.current` for a timestamp.'
 
         RESTRICT_ON_SEND = %i[now today].freeze
 
