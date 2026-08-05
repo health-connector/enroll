@@ -20,7 +20,7 @@ module Subscribers
         person = find_person(person_hbx_id)
         return if person.nil? || person.consumer_role.nil?
         consumer_role = person.consumer_role
-        event_response_record = EventResponse.new({received_at: Time.now, body: xml})
+        event_response_record = EventResponse.new({received_at: Time.current, body: xml})
         consumer_role.local_residency_responses << event_response_record
         consumer_role.add_type_history_element(verification_type: "DC Residency",
                                                action: "Local Hub response",

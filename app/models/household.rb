@@ -325,7 +325,7 @@ class Household
       consumer_role: consumer_role,
       benefit_package: benefit_package,
       qle: qle,
-      submitted_at: Time.now,
+      submitted_at: Time.current,
       external_enrollment: external_enrollment,
       coverage_start: coverage_start,
       opt_effective_on: opt_effective_on
@@ -340,7 +340,7 @@ class Household
       benefit_group_assignment: benefit_group_assignment,
       consumer_role: consumer_role,
       benefit_package: benefit_package,
-      submitted_at: Time.now
+      submitted_at: Time.current
     )
     enrollment.save
     enrollment
