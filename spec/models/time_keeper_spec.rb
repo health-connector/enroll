@@ -209,10 +209,8 @@ RSpec.describe TimeKeeper, type: :model do
   end
 
   context "datetime_of_record", dbclean: :after_each do
-    # The Rails process runs in UTC (config.time_zone is unset), so the
-    # time-of-day component is the UTC wall clock. 02:30:45 UTC on 2024-01-15
-    # is 21:30:45 ET on 2024-01-14, which makes the sourcing zone unambiguous
-    # in the assertion below.
+    # 02:30:45 UTC on 2024-01-15 is 21:30:45 ET on 2024-01-14. The exchange is
+    # still on the 14th, so the sourcing zone is unambiguous in the assertions.
     let(:utc_instant) { Time.utc(2024, 1, 15, 2, 30, 45) }
 
     before :each do
@@ -220,11 +218,49 @@ RSpec.describe TimeKeeper, type: :model do
       allow(Time).to receive(:current).and_return(utc_instant)
     end
 
-    it "combines date_of_record with the UTC time-of-day" do
+    it "combines date_of_record with the exchange time-of-day" do
       result = TimeKeeper.datetime_of_record
 
       expect(result.to_date).to eq(Date.new(2024, 1, 14))
-      expect([result.hour, result.min, result.sec]).to eq([2, 30, 45])
+      expect([result.hour, result.min, result.sec]).to eq([21, 30, 45])
+    end
+
+    it "carries the exchange offset so the instant is correct when persisted" do
+      expect(TimeKeeper.datetime_of_record.utc).to eq(utc_instant)
+    end
+
+    context "during daylight saving" do
+      # 02:30:45 UTC on 2024-07-15 is 22:30:45 EDT on 2024-07-14.
+      let(:utc_instant) { Time.utc(2024, 7, 15, 2, 30, 45) }
+
+      before :each do
+        TimeKeeper.set_date_of_record_unprotected!(Date.new(2024, 7, 14))
+      end
+
+      it "takes the offset from the zone rather than a fixed value" do
+        result = TimeKeeper.datetime_of_record
+
+        expect([result.hour, result.min, result.sec]).to eq([22, 30, 45])
+        expect(result.utc).to eq(utc_instant)
+      end
+    end
+
+    # The date half and the time-of-day half have to come from the same zone.
+    # On a cache miss the date half comes from the fallback, so this is the only
+    # path where the two depend on each other. Sourcing one from the exchange
+    # zone and the other from UTC puts the result a full day out.
+    context "and the date cache is missing" do
+      before :each do
+        Rails.cache.delete(TimeKeeper::CACHE_KEY)
+      end
+
+      it "still resolves to the correct instant" do
+        expect(TimeKeeper.datetime_of_record.utc).to eq(utc_instant)
+      end
+
+      it "reports the exchange day rather than the UTC day" do
+        expect(TimeKeeper.datetime_of_record.to_date).to eq(Date.new(2024, 1, 14))
+      end
     end
   end
 

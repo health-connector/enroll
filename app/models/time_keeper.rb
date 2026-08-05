@@ -79,9 +79,21 @@ class TimeKeeper
     instance.date_of_record
   end
 
+  # The exchange business day is Eastern, so the time of day glued onto it has
+  # to come from the same zone. Building through Time.zone.local carries the real
+  # offset, which matters because callers persist this value - adding the hours to
+  # date.to_datetime instead would label an Eastern wall clock as UTC and store an
+  # instant several hours out.
+  #
+  # Returned as a DateTime to stay compatible with callers. DateTime descends from
+  # Date, so guards like is_a?(::Date) and subtraction against a DateTime read back
+  # from Mongoid both keep working. The offset is preserved either way.
   def self.datetime_of_record
-    instant = Time.current
-    instance.date_of_record.to_datetime + instant.hour.hours + instant.min.minutes + instant.sec.seconds
+    date = instance.date_of_record
+    instant = Time.current.in_time_zone(exchange_zone)
+    Time.use_zone(exchange_zone) do
+      Time.zone.local(date.year, date.month, date.day, instant.hour, instant.min, instant.sec)
+    end.to_datetime
   end
 
   def advance_date_of_record(new_date)
