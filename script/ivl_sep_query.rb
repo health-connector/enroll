@@ -1,5 +1,7 @@
-start_time = Time.now - 17.minutes
-end_time = Time.now
+# frozen_string_literal: true
+
+start_time = Time.current - 17.minutes
+end_time = Time.current
 
 class IvlEnrollmentsPublisher
   extend Acapi::Notifiers

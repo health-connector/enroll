@@ -111,7 +111,7 @@ def update_aptc(row)
     allocated_aptc: 0.0,
     effective_starting_on: Date.new(2018,1,1),
     is_eligibility_determined: true,
-    submitted_at: Date.today
+    submitted_at: Time.current
   )
 
   th.tax_household_members.build(
@@ -127,7 +127,7 @@ def update_aptc(row)
     benchmark_plan_id: @slcsp,
     max_aptc: row[1],
     csr_percent_as_integer: row[2],
-    determined_on: Date.today
+    determined_on: Time.current
   )
   deter.csr_percent_as_integer = row[2]
   deter.save

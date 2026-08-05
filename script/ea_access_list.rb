@@ -4,7 +4,7 @@
   offset = 0
   user_count = User.count
 
-  file_name = "#{Rails.root}/ea_access_list_#{DateTime.now.strftime("%m_%d_%Y_%H_%M")}.csv"
+  file_name = "#{Rails.root}/ea_access_list_#{Time.current.strftime('%m_%d_%Y_%H_%M')}.csv"
 
   processed_count = 0
   

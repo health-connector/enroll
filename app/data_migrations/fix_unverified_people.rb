@@ -71,16 +71,16 @@ class FixUnverifiedPeople < MongoidMigrationTask
     args = OpenStruct.new
 
     if xml_hash[:ssn_verification_failed].eql?("true")
-      args.determined_at = Time.now
+      args.determined_at = Time.current
       args.vlp_authority = 'hbx'
       consumer_role.ssn_invalid!(args)
     elsif xml_hash[:ssn_verified].eql?("true") && xml_hash[:citizenship_verified].eql?("true")
-      args.determined_at = Time.now
+      args.determined_at = Time.current
       args.vlp_authority = 'hbx'
       args.citizenship_result = ::ConsumerRole::US_CITIZEN_STATUS
       consumer_role.ssn_valid_citizenship_valid!(args)
     elsif xml_hash[:ssn_verified].eql?("true") && xml_hash[:citizenship_verified].eql?("false")
-      args.determined_at = Time.now
+      args.determined_at = Time.current
       args.vlp_authority = 'hbx'
       args.citizenship_result = ::ConsumerRole::NOT_LAWFULLY_PRESENT_STATUS
       consumer_role.ssn_valid_citizenship_invalid!(args)
@@ -91,16 +91,16 @@ class FixUnverifiedPeople < MongoidMigrationTask
   def update_dhs_consumer_role(consumer_role, xml_hash)
     args = OpenStruct.new
     if xml_hash[:lawful_presence_indeterminate].present?
-      args.determined_at = Time.now
+      args.determined_at = Time.current
       args.vlp_authority = 'hbx'
       consumer_role.fail_dhs!(args)
     elsif xml_hash[:lawful_presence_determination].present? && xml_hash[:lawful_presence_determination][:response_code].eql?("lawfully_present")
-      args.determined_at = Time.now
+      args.determined_at = Time.current
       args.vlp_authority = 'hbx'
       args.citizenship_result = get_citizen_status(xml_hash[:lawful_presence_determination][:legal_status])
       consumer_role.pass_dhs!(args)
     elsif xml_hash[:lawful_presence_determination].present? && xml_hash[:lawful_presence_determination][:response_code].eql?("not_lawfully_present")
-      args.determined_at = Time.now
+      args.determined_at = Time.current
       args.vlp_authority = 'hbx'
       args.citizenship_result = ::ConsumerRole::NOT_LAWFULLY_PRESENT_STATUS
       consumer_role.fail_dhs!(args)
