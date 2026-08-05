@@ -26,7 +26,7 @@ Then(/(.*) should see active and renewing enrollments/) do |named_person|
   ).to be_truthy
 end
 
-Then(/^only one deductible tooltip should be visible on the page$/) do
+Then(/^only one deductible tooltip should be visible on the homepage$/) do
   first('.glossary[data-title^="Deductible"]').click
   expect(page).to have_css('.popover', count: 1, visible: true)
 end
