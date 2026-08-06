@@ -48,4 +48,22 @@ RSpec.describe RuboCop::Cop::Lint::RawSystemClock do
   it "accepts a timestamp read off a record" do
     expect_no_offenses("stamped = enrollment.created_at")
   end
+
+  it "registers an offense for a raw read even when a method is chained onto it" do
+    expect_offense(<<~RUBY)
+      submitted_at = Time.now.utc
+                     ^^^^^^^^ Lint/RawSystemClock: Avoid `Time.now`, it follows the server clock. Use `TimeKeeper.date_of_record` for a business date or `Time.current` for a timestamp.
+    RUBY
+  end
+
+  it "registers an offense for a raw read even when the result is transformed" do
+    expect_offense(<<~RUBY)
+      due_on = Date.today.beginning_of_month
+               ^^^^^^^^^^ Lint/RawSystemClock: Avoid `Date.today`, it follows the server clock. Use `TimeKeeper.date_of_record` for a business date or `Time.current` for a timestamp.
+    RUBY
+  end
+
+  it "accepts Time.zone.now" do
+    expect_no_offenses("submitted_at = Time.zone.now")
+  end
 end
