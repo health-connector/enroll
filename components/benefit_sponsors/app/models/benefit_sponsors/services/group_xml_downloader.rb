@@ -36,6 +36,10 @@ module BenefitSponsors
         "Reasons: #{reason_messages.join(', ')}"
       end
 
+      # Translates a carrier file render reason into an admin facing message.
+      #
+      # @param reason [Symbol, String] reason recorded by CarrierFile
+      # @return [String] message safe to render in the browser
       def map_reason_to_message(reason)
         case reason
         when :event_not_whitelisted
@@ -44,7 +48,8 @@ module BenefitSponsors
           "No carrier plan years available"
         # Removed cases for invalid plan year, drop and has future plan year, and renewal and no future plan year
         else
-          reason.to_s
+          # not interpolated because an unrecognised reason can carry internal error text
+          "Unable to generate XML"
         end
       end
 
