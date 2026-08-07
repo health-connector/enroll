@@ -4,8 +4,14 @@
    <div class='hide' id='collection_scope'><%= @broker.id %></div>
    <%= link_to l10n('new_quote'), new_broker_agencies_broker_role_quote_path, method: :get, class: 'btn btn-lg btn-primary', style: 'float: right' %>
 </h1>
-<%= render_datatable(@datatable) %>
+<% if EnrollRegistry.feature_enabled?(:refactored_datatables) %>
+  <%= render partial: 'datatables/datatable', locals: @quotes_datatable_locals %>
+<% else %>
+  <%= render_datatable(@datatable) %>
+<% end %>
 </div>
+<% unless EnrollRegistry.feature_enabled?(:refactored_datatables) %>
 <script type="text/javascript" charset="utf-8">
   initializeDataTables();
 </script>
+<% end %>

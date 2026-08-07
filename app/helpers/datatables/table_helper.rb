@@ -5,6 +5,13 @@ module Datatables
   module TableHelper
     DATATABLE_PAGE_BUTTONS = 7
 
+    # Page-length menu label: the unlimited option reads "All".
+    def datatable_per_page_label(option)
+      return l10n('datatables.per_page_all') if option == ::Datatables::FragmentRendering::ALL_PER_PAGE
+
+      option
+    end
+
     # Zero-based page numbers (and :ellipsis markers) for the DataTables-style
     # 'simple_numbers' pager, which differs from Pagy#series in how it pins the
     # first/last pages - the pager markup is fixed, so its algorithm is

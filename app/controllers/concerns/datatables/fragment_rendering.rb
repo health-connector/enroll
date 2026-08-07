@@ -46,13 +46,20 @@ module Datatables
   #   #buttons          - ordered export/print button keys (e.g. %w[csv excel]
   #                       or %w[excel csv print]) rendered by datatables/_buttons
   #   #per_page_options - the page-length menu values, e.g.
-  #                       [10, 25, 50, 100]; the first is the default page size
+  #                       [10, 25, 50, 100]; the first is the default page size.
+  #                       ALL_PER_PAGE (-1) offers an unlimited "All" option
+  #   #layout           - grid arrangement of the chrome around the table, one of
+  #                       the Datatables::Layouts constants or a table-specific
+  #                       arrangement in the same shape
   #   #csv_headers      - header row for the streamed CSV export
   #   #csv_row(record)  - plain-text cell values for one CSV row
   #   #row_partial      - partial rendered for each table row with locals
   #                       row, table, row_class
   module FragmentRendering
     extend ActiveSupport::Concern
+
+    # Page-length value offering every filtered row on a single page.
+    ALL_PER_PAGE = -1
 
     private
 
@@ -64,7 +71,8 @@ module Datatables
     def datatable_locals(table, url:)
       scoped = datatable_scoped(table)
       count = scoped.size
-      pagy = datatable_pagy(count, table)
+      per = datatable_per_page(table)
+      pagy = datatable_pagy(count, per)
       records = scoped.order_by(datatable_order_criteria(table)).skip(pagy.offset).limit(pagy.limit)
       {
         table: table,
@@ -72,6 +80,7 @@ module Datatables
         records: records.to_a,
         url: url,
         search: params[:search].to_s,
+        per: per,
         order: datatable_order_column(table),
         dir: datatable_order_dir,
         date_from: params[:custom_datatable_date_from].to_s,
@@ -106,11 +115,13 @@ module Datatables
       table.filter_scopes.index_with { |scope| params[scope].presence }.compact
     end
 
-    def datatable_pagy(count, table)
-      per = datatable_per_page(table)
-      last_page = [(count.to_f / per).ceil, 1].max
+    # An unlimited page length puts every row on page 1, so the limit becomes the
+    # row count (Pagy needs a positive limit, hence the floor of 1 when empty).
+    def datatable_pagy(count, per)
+      limit = per == ALL_PER_PAGE ? [count, 1].max : per
+      last_page = [(count.to_f / limit).ceil, 1].max
       page = params.fetch(:page, 1).to_i.clamp(1, last_page)
-      Pagy.new(count: count, page: page, limit: per)
+      Pagy.new(count: count, page: page, limit: limit)
     end
 
     def datatable_per_page(table)

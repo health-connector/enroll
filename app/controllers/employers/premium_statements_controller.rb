@@ -3,6 +3,7 @@ require 'prawn/table'
 class Employers::PremiumStatementsController < ApplicationController
   layout "two_column", only: [:show]
   include Employers::PremiumStatementHelper
+  include ::Datatables::FragmentRendering
 
   def show
     @employer_profile = EmployerProfile.find(params.require(:id))
@@ -10,8 +11,12 @@ class Employers::PremiumStatementsController < ApplicationController
     set_billing_date
     query = Queries::EmployerPremiumStatement.new(@employer_profile, @billing_date)
     @hbx_enrollments =  query.execute.nil? ? [] : query.execute.hbx_enrollments
-    scopes = { id: @employer_profile.id, billing_date: @billing_date}
-    @datatable = Effective::Datatables::PremiumBillingReportDataTable.new(scopes)
+    if EnrollRegistry.feature_enabled?(:refactored_datatables)
+      @premium_billing_datatable_locals = datatable_locals(premium_billing_table, url: premium_billing_datatable_url)
+    else
+      scopes = { id: @employer_profile.id, billing_date: @billing_date}
+      @datatable = Effective::Datatables::PremiumBillingReportDataTable.new(scopes)
+    end
 
     respond_to do |format|
       format.html
@@ -22,7 +27,26 @@ class Employers::PremiumStatementsController < ApplicationController
     end
   end
 
+  # Renders the report's table fragment for Stimulus redraws. The report's CSV
+  # export stays on #show, which already sends the full billing period.
+  def premium_billing_datatable
+    raise ActionController::RoutingError, 'Not Found' unless EnrollRegistry.feature_enabled?(:refactored_datatables)
+
+    @employer_profile = EmployerProfile.find(params.require(:id))
+    authorize @employer_profile, :list_enrollments?
+    set_billing_date
+    render_datatable_fragment(premium_billing_table, url: premium_billing_datatable_url)
+  end
+
   private
+
+  def premium_billing_table
+    ::Datatables::PremiumBillingTable.new(@employer_profile, @billing_date)
+  end
+
+  def premium_billing_datatable_url
+    premium_billing_datatable_employers_premium_statement_path(@employer_profile, billing_date: @billing_date.strftime("%m/%d/%Y"))
+  end
 
   def csv_for(hbx_enrollments)
     (output = "").tap do

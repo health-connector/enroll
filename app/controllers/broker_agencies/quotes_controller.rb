@@ -5,6 +5,8 @@ module BrokerAgencies
 
     include BrokerAgencies::QuoteHelper
     include ApplicationHelper
+    include ::Datatables::FragmentRendering
+    include ::Datatables::CsvStreaming
 
     before_action :validate_roles, :set_broker_role
     before_action :find_quote, only: [:show, :delete_member, :delete_household, :publish_quote, :view_published_quote]
@@ -30,11 +32,30 @@ module BrokerAgencies
     def my_quotes
       authorize @broker
       @all_quotes = Quote.where("broker_role_id" => @broker.id)
-      Effective::Datatables::QuoteDatatable.broker_role_id = @broker.id
-      @datatable = Effective::Datatables::QuoteDatatable.new
+      if EnrollRegistry.feature_enabled?(:refactored_datatables)
+        @quotes_datatable_locals = datatable_locals(::Datatables::QuotesTable.new(@broker.id), url: quotes_datatable_url)
+      else
+        Effective::Datatables::QuoteDatatable.broker_role_id = @broker.id
+        @datatable = Effective::Datatables::QuoteDatatable.new
+      end
       respond_to do |format|
         format.js
         format.html {render 'quotes'}
+      end
+    end
+
+    def quotes_datatable
+      raise ActionController::RoutingError, 'Not Found' unless EnrollRegistry.feature_enabled?(:refactored_datatables)
+
+      authorize @broker
+      table = ::Datatables::QuotesTable.new(@broker.id)
+      respond_to do |format|
+        format.html { render_datatable_fragment(table, url: quotes_datatable_url) }
+        format.csv do
+          stream_datatable_csv(filename: 'quotes.csv',
+                               headers: table.csv_headers,
+                               rows: datatable_csv_rows(table, datatable_scoped(table)))
+        end
       end
     end
 
@@ -512,6 +533,10 @@ module BrokerAgencies
     end
 
     private
+
+    def quotes_datatable_url
+      quotes_datatable_broker_agencies_broker_role_quotes_path(@broker.id)
+    end
 
     def set_broker_role
       @broker = BrokerRole.find(params[:broker_role_id])

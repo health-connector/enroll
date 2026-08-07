@@ -8,6 +8,7 @@ en:
     bulk_actions: "Bulk Actions"
     search_label: "Search:"
     per_page: "per page"
+    per_page_all: "All"
     showing_entries: "Showing %{from} to %{to} of %{count} entries"
     processing: "Processing..."
     no_matching_records: "No matching records found"

@@ -1,0 +1,16 @@
+<%# One premium billing report row, keyed on an HbxEnrollment. Cell values must
+    stay identical to the legacy PremiumBillingReportDataTable column procs while
+    both stacks coexist, including three quirks in the COST cell: the employee
+    contribution is currency-formatted twice (rendering a doubled currency
+    symbol), its label carries no trailing space, and the total is the raw
+    unformatted premium. sorting_1 stays on col-full_name: it is the
+    default-order column (index 0, asc), so its cells carry the sort shading. %>
+<%
+  person = row.employee_role.person
+%>
+<tr class="<%= row_class %>">
+  <td class="col-string col-full_name sorting_1"><span class="name"><%= name_to_listing(person) %></span><span><p>DOB: <%= format_date(person.dob) %></p></span><span><p>SSN: <%= number_to_obscured_ssn(person.ssn) %></p></span><span>HIRED:  <%= format_date(row.employee_role.census_employee.hired_on) %></span></td>
+  <td class="col-string col-title"><span class="benefit-group"><%= row.benefit_group.title.try(:titleize) %></span></td>
+  <td class="col-string col-coverage_kind"><span><span class="name"><%= mixed_case(row.coverage_kind) %></span><span> | # Dep(s) Covered: <%= row.humanized_dependent_summary %></span><p><%= row.plan.carrier_profile.legal_name %> -- <%= row.plan.name %></p></span></td>
+  <td class="col-string col-cost"><span>Employer Contribution: <%= number_to_currency(row.total_employer_contribution.to_s) %></span><div>Employee Contribution:<%= number_to_currency(number_to_currency(row.total_employee_cost)) %></div><p><strong>Total:</strong><strong><%= row.total_premium %></strong></p></td>
+</tr>

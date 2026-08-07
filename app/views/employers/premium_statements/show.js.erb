@@ -1,5 +1,7 @@
 $('.premium-reports-table').next('.container').html('');
 $('.premium-reports-table').html("<%= escape_javascript(render "employers/premium_statements/show") %>");
 semantic_class()
+<% unless EnrollRegistry.feature_enabled?(:refactored_datatables) %>
 initializeDataTables();
 $("div.custom_level_1").children('div').hide();
+<% end %>

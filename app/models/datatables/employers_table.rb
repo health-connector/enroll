@@ -175,6 +175,10 @@ module Datatables
       [10, 25, 50, 100]
     end
 
+    def layout
+      Datatables::Layouts::STANDARD
+    end
+
     # The row-action dropdowns inject forms (e.g. Create Plan Year) whose native
     # selects must stay reachable, so page-global selectric is suppressed here.
     def disable_selectric?

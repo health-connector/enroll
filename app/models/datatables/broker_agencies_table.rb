@@ -75,6 +75,10 @@ module Datatables
       [10, 25, 50, 100]
     end
 
+    def layout
+      Datatables::Layouts::STANDARD
+    end
+
     def csv_headers
       columns.map { |col| col[:label] }
     end
