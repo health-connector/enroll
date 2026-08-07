@@ -69,6 +69,15 @@ RSpec.describe "exchanges/employer_applications/index.html.erb", dbclean: :after
       expect(rendered).to have_content('Generate V2 XML')
       expect(rendered).to have_content('V2 Event Type')
     end
+
+    it 'gives the plan year actions and v2 xml rows distinct ids' do
+      expect(rendered).to match(/<tr id="#{initial_application.id}" class="plan-year-actions/)
+      expect(rendered).to match(/<tr id="v2_xml_inputs_#{initial_application.id}" class="v2_xml_inputs/)
+    end
+
+    it 'does not emit the same row id twice for one application' do
+      expect(rendered.scan(/id="#{initial_application.id}"/).size).to eq 1
+    end
   end
 
   context 'When employer doesnt have valid plan years' do
