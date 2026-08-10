@@ -151,6 +151,13 @@ module BenefitSponsors
 
 
     describe "GET coverage_reports" do
+      # These examples assert the legacy datatable assignment, so they pin the
+      # flag off rather than inheriting whatever the environment sets.
+      before do
+        allow(EnrollRegistry).to receive(:feature_enabled?).and_call_original
+        allow(EnrollRegistry).to receive(:feature_enabled?).with(:refactored_datatables).and_return(false)
+      end
+
       context "without today's date billing_date param" do
         let!(:employees) do
           FactoryBot.create_list(:census_employee, 2, employer_profile: employer_profile, benefit_sponsorship: benefit_sponsorship)
@@ -333,7 +340,10 @@ module BenefitSponsors
       end
 
       context "when the :refactored_datatables flag is disabled" do
-        before { allow(EnrollRegistry).to receive(:feature_enabled?).with(:refactored_datatables).and_return(false) }
+        before do
+          allow(EnrollRegistry).to receive(:feature_enabled?).and_call_original
+          allow(EnrollRegistry).to receive(:feature_enabled?).with(:refactored_datatables).and_return(false)
+        end
 
         it "404s every fragment endpoint" do
           sign_in user
@@ -344,7 +354,10 @@ module BenefitSponsors
       end
 
       context "when the :refactored_datatables flag is enabled" do
-        before { allow(EnrollRegistry).to receive(:feature_enabled?).with(:refactored_datatables).and_return(true) }
+        before do
+          allow(EnrollRegistry).to receive(:feature_enabled?).and_call_original
+          allow(EnrollRegistry).to receive(:feature_enabled?).with(:refactored_datatables).and_return(true)
+        end
 
         it "denies a user with no relationship to the employer" do
           sign_in outsider
@@ -375,6 +388,7 @@ module BenefitSponsors
         render_views
 
         before do
+          allow(EnrollRegistry).to receive(:feature_enabled?).and_call_original
           allow(EnrollRegistry).to receive(:feature_enabled?).with(:refactored_datatables).and_return(true)
           sign_in user
         end
@@ -402,7 +416,8 @@ module BenefitSponsors
 
     describe "GET show with the :refactored_datatables flag enabled" do
       before do
-        allow(EnrollRegistry).to receive(:feature_enabled?).with(:refactored_datatables).and_return(true)
+        allow(EnrollRegistry).to receive(:feature_enabled?).and_call_original
+          allow(EnrollRegistry).to receive(:feature_enabled?).with(:refactored_datatables).and_return(true)
         allow(controller).to receive(:authorize).and_return(true)
         sign_in user
       end
