@@ -107,6 +107,10 @@ module Datatables
       [10, 25, 50, 100]
     end
 
+    def layout
+      Datatables::Layouts::STANDARD
+    end
+
     # The actions column is excluded from the export.
     def csv_headers
       columns[0..-2].map { |col| col[:label] }

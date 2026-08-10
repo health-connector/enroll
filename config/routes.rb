@@ -307,7 +307,11 @@ Rails.application.routes.draw do
     #match '/employer_profiles/:id' , to: redirect('/'), via: [:get, :post]
     match '/', to: redirect('/benefit_sponsors/profiles/registrations/new?profile_type=benefit_sponsor'), via: [:get, :post]
 
-    resources :premium_statements, :only => [:show]
+    resources :premium_statements, :only => [:show] do
+      member do
+        get :premium_billing_datatable
+      end
+    end
 
     resources :employer_attestations do
       member do
@@ -417,6 +421,7 @@ Rails.application.routes.draw do
           get :download_pdf
           get :dental_plans_data
           get :my_quotes
+          get :quotes_datatable
           get :employees_list
           get :employee_type
         end

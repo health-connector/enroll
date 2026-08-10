@@ -78,6 +78,10 @@ module Datatables
       [10, 25, 50, 100]
     end
 
+    def layout
+      Datatables::Layouts::STANDARD
+    end
+
     def status(row)
       return 'Unlocked' if row.locked_at.blank? && row.unlock_token.blank?
 
