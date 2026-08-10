@@ -10,7 +10,9 @@ module BenefitMarkets
     include Mongoid::Document
     include Mongoid::Timestamps
 
-    embedded_in :product, class_name: "BenefitMarkets::Products::Product"
+    # touch: false keeps bulk rate loads from touching the parent once per
+    # embedded child (quadratic on Mongoid 8+ where touch defaults to true)
+    embedded_in :product, class_name: "BenefitMarkets::Products::Product", touch: false
 
     field       :effective_period,  type: Range
 

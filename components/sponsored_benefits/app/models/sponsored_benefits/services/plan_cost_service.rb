@@ -251,12 +251,10 @@ class SponsoredBenefits::Services::PlanCostService
   def large_family_factor(member, census_employee)
     if age_of(member) > 20
       1.00
+    elsif child_index(member, census_employee) > 2
+      0.00
     else
-      if child_index(member, census_employee) > 2 && @plan.health?
-        0.00
-      else
-        1.00
-      end
+      1.00
     end
   end
 
