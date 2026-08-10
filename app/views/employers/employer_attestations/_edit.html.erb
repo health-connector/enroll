@@ -34,7 +34,7 @@
           <td></td>
           <td><%= TimeKeeper.local_time(doc.created_at).strftime('%m/%d/%Y %I:%M%p') %></td>
           <td>
-            <%= link_to 'View', employers_employer_attestation_verify_attestation_path(doc.id), :remote => true, :role => 'button', :class => "btn btn-primary btn-sm" %>
+            <%= link_to 'View', verify_attestation_employers_employer_attestation_path(@employer_profile.id, document_id: doc.id), :remote => true, :role => 'button', :class => "btn btn-primary btn-sm" %>
           </td>
         </tr>
         <% end %>

@@ -16,6 +16,10 @@ ENV BUNDLER_VERSION=$BUNDLER_VERSION
 # Only add packages that aren't already in the base image.
 # Keep in sync with upstream Ruby slim-trixie image:
 # https://github.com/docker-library/ruby/blob/5a670110fb6e65afa72ee9da2c65de377f589281/3.4/slim-trixie/Dockerfile
+
+# Cache-bust the apt layer to ensure security patches are applied on every build.
+# This arg is set to github.run_id in CI to force fresh package updates.
+ARG APT_CACHE_BUST
 RUN apt-get update \
     && apt-get -yq dist-upgrade \
     && apt-get install -y \

@@ -20,7 +20,7 @@ yarn install
 
 NODE_ENV=test RAILS_ENV=test ./bin/webpack
 
-for test_dir in `ls -1 $root/components/ | grep -v old_sponsored_benefits`; do
+for test_dir in `ls -1 $root/components/`; do
   echo $root/components/$test_dir
   cd $root/components/$test_dir
   bundle install

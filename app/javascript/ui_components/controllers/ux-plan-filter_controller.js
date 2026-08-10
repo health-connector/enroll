@@ -43,7 +43,7 @@ export default class extends Controller {
       
       productArray.map((p)=> {
         
-        title.innerHTML = JSON.parse(p).title;
+        title.textContent = JSON.parse(p).title;
       });
 
     }
