@@ -1,0 +1,24 @@
+<%# One Manage Quotes row. A published quote's name is plain text; every other
+    state links to the quote editor even where the Edit Quote action is disabled.
+    sorting_1 shades whichever column the table is ordered by, so it follows a
+    click on the Effective Date header away from Quote Name. %>
+<%
+  show_link = sponsored_benefits.organizations_plan_design_proposal_path(row)
+  dropdown = [
+    ['Edit Quote', sponsored_benefits.edit_organizations_plan_design_organization_plan_design_proposal_path(row.plan_design_organization, row), table.edit_quote_link_type(row)],
+    table.view_quote_link(row, show_link),
+    ['Copy Quote', sponsored_benefits.organizations_plan_design_proposal_proposal_copies_path(row.id), 'post'],
+    ['Remove Quote', sponsored_benefits.organizations_plan_design_organization_plan_design_proposal_path(row.plan_design_organization, row), 'delete with confirm', 'Are you sure? This will permanently delete the quote information']
+  ]
+%>
+<tr class="<%= row_class %>">
+  <td class="col-string col-title<%= ' sorting_1' if order == 'title' %>"><% if row.published? %><%= row.title %><% else %><%= link_to row.title, sponsored_benefits.edit_organizations_plan_design_organization_plan_design_proposal_path(row.plan_design_organization, row) %><% end %></td>
+  <td class="col-string col-effective_date<%= ' sorting_1' if order == 'effective_date' %>"><%= table.effective_date(row) %></td>
+  <td class="col-string col-claim_code"><%= table.claim_code(row) %></td>
+  <td class="col-string col-employees"><%= table.employee_count(row) %></td>
+  <td class="col-string col-families"><%= table.family_count(row) %></td>
+  <td class="col-string col-plan_option_kind"><%= table.plan_option_kind(row) %></td>
+  <td class="col-string col-reference_plan"><%= table.reference_plan_name(row) %></td>
+  <td class="col-string col-state"><%= table.state(row) %></td>
+  <td class="col-string col-actions"><%= render partial: 'datatables/shared/dropdown', locals: { dropdowns: dropdown, row_actions_id: "quotes_actions_#{row.id}" } %></td>
+</tr>

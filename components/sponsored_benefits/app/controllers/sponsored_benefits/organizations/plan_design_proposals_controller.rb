@@ -5,16 +5,49 @@ module SponsoredBenefits
 
     include Config::BrokerAgencyHelper
     include DataTablesAdapter
+    include ::Datatables::FragmentRendering
+    include ::Datatables::CsvStreaming
     skip_before_action :set_broker_agency_profile_from_user, only: [:claim]
     before_action :load_plan_design_organization, except: [:destroy, :publish, :claim, :show]
-    before_action :load_plan_design_proposal, only: [:edit, :update, :destroy, :publish, :show]
+    before_action :load_plan_design_proposal, only: [:edit, :update, :destroy, :publish, :show, :plan_design_employees_datatable]
     before_action :published_plans_are_view_only, only: [:edit]
     before_action :claimed_quotes_are_view_only, only: [:edit]
 
     def index
       authorize @plan_design_organization, :plan_design_proposal_index?
 
-      @datatable = effective_datatable
+      if EnrollRegistry.feature_enabled?(:refactored_datatables)
+        @plan_design_proposals_datatable_locals = datatable_locals(plan_design_proposals_table, url: plan_design_proposals_datatable_url)
+      else
+        @datatable = effective_datatable
+      end
+    end
+
+    # Renders the Manage Quotes table fragment for Stimulus redraws and streams
+    # its CSV export.
+    def plan_design_proposals_datatable
+      raise ActionController::RoutingError, 'Not Found' unless EnrollRegistry.feature_enabled?(:refactored_datatables)
+
+      authorize @plan_design_organization, :plan_design_proposals_datatable?
+      table = plan_design_proposals_table
+      respond_to do |format|
+        format.html { render_datatable_fragment(table, url: plan_design_proposals_datatable_url) }
+        format.csv do
+          stream_datatable_csv(filename: 'plan_design_proposals.csv',
+                               headers: table.csv_headers,
+                               rows: datatable_csv_rows(table, datatable_scoped(table)))
+        end
+      end
+    end
+
+    # Renders the quote form's Employee Roster fragment for Stimulus redraws. The
+    # roster's CSV is the separate export link beside the table, so this endpoint
+    # serves HTML only.
+    def plan_design_employees_datatable
+      raise ActionController::RoutingError, 'Not Found' unless EnrollRegistry.feature_enabled?(:refactored_datatables)
+
+      authorize @plan_design_organization, :plan_design_employees_datatable?
+      render_datatable_fragment(plan_design_employees_table(@plan_design_proposal), url: plan_design_employees_datatable_url(@plan_design_proposal))
     end
 
     def claim
@@ -165,6 +198,22 @@ module SponsoredBenefits
       ::Effective::Datatables::PlanDesignProposalsDatatable.new(organization_id: @plan_design_organization._id)
     end
 
+    def plan_design_proposals_table
+      ::SponsoredBenefits::Datatables::PlanDesignProposalsTable.new(@plan_design_organization)
+    end
+
+    def plan_design_employees_table(proposal)
+      ::SponsoredBenefits::Datatables::PlanDesignEmployeesTable.new(proposal)
+    end
+
+    def plan_design_proposals_datatable_url
+      plan_design_proposals_datatable_organizations_plan_design_organization_plan_design_proposals_path(@plan_design_organization)
+    end
+
+    def plan_design_employees_datatable_url(proposal)
+      plan_design_employees_datatable_organizations_plan_design_organization_plan_design_proposal_path(@plan_design_organization, proposal)
+    end
+
     def load_plan_design_organization
       @plan_design_organization = SponsoredBenefits::Organizations::PlanDesignOrganization.find(params[:plan_design_organization_id])
       broker_agency_profile
@@ -208,10 +257,19 @@ module SponsoredBenefits
       Effective::Datatables::PlanDesignEmployeeDatatable.new({id: sponsorship.id, scopes: params[:scopes]})
     end
 
+    # The roster renders only for a proposal that already has employees, so the
+    # table is built on the same condition the view checks.
     def init_employee_datatable
       sponsorship = @plan_design_proposal.profile.benefit_sponsorships.first
       @census_employees = sponsorship.census_employees
-      @datatable = employee_datatable(sponsorship)
+      if EnrollRegistry.feature_enabled?(:refactored_datatables)
+        return if @census_employees.empty?
+
+        proposal = @plan_design_proposal.proposal
+        @plan_design_employees_datatable_locals = datatable_locals(plan_design_employees_table(proposal), url: plan_design_employees_datatable_url(proposal))
+      else
+        @datatable = employee_datatable(sponsorship)
+      end
     end
 
     def published_plans_are_view_only
