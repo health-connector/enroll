@@ -11,8 +11,9 @@
               <% if feature == :buttons %>
                 <%= render partial: 'datatables/buttons', locals: { table: table, table_id: table_id } %>
               <% elsif feature == :search && table.global_search? %>
+                <%# The clear button belongs to the filter bar's script, so only tables that render a filter bar get one. %>
                 <div id="<%= table_id %>_filter" class="dataTables_filter">
-                  <label><%= l10n('datatables.search_label') %><input type="search" class="form-control input-sm" placeholder="" aria-controls="<%= table_id %>" value="<%= search %>" data-datatable-target="search" data-action="input->datatable#searchChanged"><div class="datatable_clear btn btn-sm btn-default" style="display:inline" data-action="click->datatable#clearSearch"><i class="fas fa-times"></i></div></label>
+                  <label><%= l10n('datatables.search_label') %><input type="search" class="form-control input-sm" placeholder="" aria-controls="<%= table_id %>" value="<%= search %>" data-datatable-target="search" data-action="input->datatable#searchChanged"><% if table.filters %><div class="datatable_clear btn btn-sm btn-default" style="display:inline" data-action="click->datatable#clearSearch"><i class="fas fa-times"></i></div><% end %></label>
                 </div>
               <% elsif feature == :table %>
                 <table class="effective-datatable table table-striped table-hover dataTable no-footer" id="<%= table_id %>" aria-describedby="<%= table_id %>_info">
