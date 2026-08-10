@@ -51,9 +51,7 @@ module Datatables
       cols << { name: 'off_cycle_benefit_package', label: 'Off-Cycle Benefit Package', sortable: false, type: :string } if off_cycle?
       cols << { name: 'enrollment_status', label: 'Enrollment Status', sortable: false, type: :string } unless current_py_terminated?
       cols << { name: 'renewal_enrollment_status', label: 'Renewal Enrollment Status', sortable: false, type: :string } if renewal?
-      if off_cycle? && off_cycle_submitted?
-        cols << { name: 'off_cycle_enrollment_status', label: 'Off Cycle Enrollment Status', sortable: false, type: :string }
-      end
+      cols << { name: 'off_cycle_enrollment_status', label: 'Off Cycle Enrollment Status', sortable: false, type: :string } if off_cycle? && off_cycle_submitted?
       cols << { name: 'est_participation', label: 'Est Participation', sortable: false, type: :string } if show_est_participation?
       cols << { name: 'actions', label: '', sortable: false, type: :string, width: '50px' }
       cols

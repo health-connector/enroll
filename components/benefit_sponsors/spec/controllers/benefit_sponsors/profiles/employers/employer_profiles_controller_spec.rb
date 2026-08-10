@@ -417,7 +417,7 @@ module BenefitSponsors
     describe "GET show with the :refactored_datatables flag enabled" do
       before do
         allow(EnrollRegistry).to receive(:feature_enabled?).and_call_original
-          allow(EnrollRegistry).to receive(:feature_enabled?).with(:refactored_datatables).and_return(true)
+        allow(EnrollRegistry).to receive(:feature_enabled?).with(:refactored_datatables).and_return(true)
         allow(controller).to receive(:authorize).and_return(true)
         sign_in user
       end
