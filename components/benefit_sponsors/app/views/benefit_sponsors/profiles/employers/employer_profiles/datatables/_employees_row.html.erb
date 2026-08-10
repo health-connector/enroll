@@ -1,0 +1,46 @@
+<%# One Employees tab row. Which cells render follows the same employer-application
+    predicates the table's column list uses, so headers and cells stay in step.
+    The checkbox carries no data-status, so the bulk-actions check-all - which
+    selects only rows marked Eligible - selects nothing here. sorting_1 marks the
+    default-ordered employee_name column. %>
+<%
+  employer_profile = row.employer_profile
+  row_actions_id = "census_employeeid_#{row.id}"
+
+  dropdown = [
+    ['Edit', main_app.edit_employers_employer_profile_census_employee_path(employer_profile, row.id, tab: 'employees'), 'static'],
+    ['Terminate', main_app.confirm_effective_date_employers_employer_profile_census_employees_path(employer_profile, census_employee_id: row.id, census_employee: row.id, type: 'terminate', tab: 'employees'), table.terminate_link_type(row)],
+    ['Rehire', main_app.confirm_effective_date_employers_employer_profile_census_employees_path(employer_profile, census_employee_id: row.id, census_employee: row.id, type: 'rehire', tab: 'employees'), table.rehire_link_type(row)],
+    ['Initiate Cobra', main_app.confirm_effective_date_employers_employer_profile_census_employees_path(employer_profile, census_employee_id: row.id, type: 'cobra'), table.cobra_link_type(row)]
+  ]
+%>
+<tr class="<%= row_class %>">
+  <td class="col-bulk_actions_column col-bulk_actions"><%= check_box_tag 'bulk_actions_resources[]', row.to_param, false, autocomplete: 'off', id: "bulk_actions_resource_#{row.to_param}", data: { role: 'bulk-actions-resource' }, onClick: 'event.stopPropagation();' %></td>
+  <td class="col-string col-employee_name sorting_1"><%= link_to row.full_name, main_app.employers_employer_profile_census_employee_path(employer_profile.id, row.id, tab: 'employees') %><br></td>
+  <td class="col-string col-dob"><%= row.dob.strftime("%m/%d/%Y") if row.dob.present? %></td>
+  <td class="col-string col-hired_on"><%= row.hired_on.strftime("%m/%d/%Y") if row.hired_on.present? %></td>
+  <td class="col-string col-terminated_on"><%= row.employment_terminated_on.present? ? row.employment_terminated_on.strftime("%m/%d/%Y") : "Active" %></td>
+  <td class="col-string col-status"><%= employee_state_format(row, row.aasm_state, row.employment_terminated_on) %></td>
+  <% unless table.current_py_terminated? %>
+    <td class="col-string col-benefit_package"><%= table.benefit_package_title(row.active_benefit_group_assignment&.benefit_group) %></td>
+  <% end %>
+  <% if table.renewal? %>
+    <td class="col-string col-renewal_benefit_package"><%= table.benefit_package_title(row.renewal_benefit_group_assignment&.benefit_package) %></td>
+  <% end %>
+  <% if table.off_cycle? %>
+    <td class="col-string col-off_cycle_benefit_package"><%= table.benefit_package_title(row.off_cycle_benefit_group_assignment&.benefit_package) %></td>
+  <% end %>
+  <% unless table.current_py_terminated? %>
+    <td class="col-string col-enrollment_status"><%= enrollment_state(row) %></td>
+  <% end %>
+  <% if table.renewal? %>
+    <td class="col-string col-renewal_enrollment_status"><%= renewal_enrollment_state(row) %></td>
+  <% end %>
+  <% if table.off_cycle? && table.off_cycle_submitted? %>
+    <td class="col-string col-off_cycle_enrollment_status"><%= off_cycle_enrollment_state(row) %></td>
+  <% end %>
+  <% if table.show_est_participation? %>
+    <td class="col-string col-est_participation"><%= row.expected_selection.titleize if row.expected_selection %></td>
+  <% end %>
+  <td class="col-string col-actions"><%= render partial: 'datatables/shared/dropdown', locals: { dropdowns: dropdown, row_actions_id: row_actions_id } %></td>
+</tr>

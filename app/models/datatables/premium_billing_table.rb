@@ -79,25 +79,8 @@ module Datatables
       [10, 25, 50, Datatables::FragmentRendering::ALL_PER_PAGE]
     end
 
-    # The report keeps its own grid arrangement: no button cell, a narrower
-    # table column, and the page-length menu beside the info line.
     def layout
-      [
-        [
-          { class: 'col-sm-5', features: [] },
-          { class: 'col-sm-5', features: [:search] }
-        ],
-        [
-          { class: 'col-sm-10', features: [:table, :processing] }
-        ],
-        [
-          { class: 'col-sm-9', features: [:info] },
-          { class: 'col-sm-3', features: [:length] }
-        ],
-        [
-          { class: 'col-sm-10', features: [:pagination] }
-        ]
-      ]
+      Datatables::Layouts::SEARCH_ONLY
     end
 
     def row_partial

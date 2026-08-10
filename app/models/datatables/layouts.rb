@@ -30,5 +30,25 @@ module Datatables
         { class: 'col-sm-12 col-md-12', features: [:pagination] }
       ]
     ].freeze
+
+    # Arrangement for tables whose only header control is the search box: no
+    # button group, a narrower table column, and the page-length menu beside the
+    # info line.
+    SEARCH_ONLY = [
+      [
+        { class: 'col-sm-5', features: [] },
+        { class: 'col-sm-5', features: [:search] }
+      ],
+      [
+        { class: 'col-sm-10', features: [:table, :processing] }
+      ],
+      [
+        { class: 'col-sm-9', features: [:info] },
+        { class: 'col-sm-3', features: [:length] }
+      ],
+      [
+        { class: 'col-sm-10', features: [:pagination] }
+      ]
+    ].freeze
   end
 end

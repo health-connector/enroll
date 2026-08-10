@@ -2,8 +2,10 @@ module BenefitSponsors
   module Profiles
     module Employers
       class EmployerProfilesController < ::BenefitSponsors::ApplicationController
+        include ::Datatables::FragmentRendering
 
-        before_action :find_employer, only: [:show, :inbox, :bulk_employee_upload, :export_census_employees, :coverage_reports, :download_invoice, :show_invoice, :estimate_cost, :run_eligibility_check]
+        before_action :find_employer, only: [:show, :inbox, :bulk_employee_upload, :export_census_employees, :coverage_reports, :download_invoice, :show_invoice, :estimate_cost, :run_eligibility_check,
+                                             :employees_datatable, :documents_datatable, :coverage_reports_datatable]
         before_action :load_group_enrollments, only: [:coverage_reports], if: :is_format_csv?
         before_action :check_and_download_invoice, only: [:download_invoice, :show_invoice]
         before_action :wells_fargo_sso, only: [:show]
@@ -30,7 +32,11 @@ module BenefitSponsors
             @benefit_sponsorship = @employer_profile.organization.active_benefit_sponsorship
             @benefit_applications = @employer_profile.benefit_applications.non_imported.desc(:start_on, :created_at)
           when 'documents'
-            @datatable = ::Effective::Datatables::BenefitSponsorsEmployerDocumentsDataTable.new({employer_profile_id: @employer_profile.id})
+            if EnrollRegistry.feature_enabled?(:refactored_datatables)
+              @employer_documents_datatable_locals = datatable_locals(employer_documents_table, url: documents_datatable_url)
+            else
+              @datatable = ::Effective::Datatables::BenefitSponsorsEmployerDocumentsDataTable.new({employer_profile_id: @employer_profile.id})
+            end
             load_documents
           when 'accounts'
             collect_and_sort_invoices(params[:sort_order])
@@ -50,7 +56,11 @@ module BenefitSponsors
               format.html
             end
           when 'employees'
-            @datatable = ::Effective::Datatables::EmployeeDatatable.new(employee_datatable_params)
+            if EnrollRegistry.feature_enabled?(:refactored_datatables)
+              @employees_datatable_locals = datatable_locals(employees_table, url: employees_datatable_url)
+            else
+              @datatable = ::Effective::Datatables::EmployeeDatatable.new(employee_datatable_params)
+            end
           when 'brokers'
             @broker_agency_account = @employer_profile.active_broker_agency_account
           when 'inbox'
@@ -79,7 +89,11 @@ module BenefitSponsors
         def coverage_reports
           authorize @employer_profile
           @billing_date = DateParser.smart_parse(params[:billing_date]) if params[:billing_date]
-          @datatable = ::Effective::Datatables::BenefitSponsorsCoverageReportsDataTable.new({ id: params.require(:employer_profile_id), billing_date: @billing_date})
+          if EnrollRegistry.feature_enabled?(:refactored_datatables)
+            @coverage_reports_datatable_locals = datatable_locals(coverage_reports_table, url: coverage_reports_datatable_url)
+          else
+            @datatable = ::Effective::Datatables::BenefitSponsorsCoverageReportsDataTable.new({ id: params.require(:employer_profile_id), billing_date: @billing_date})
+          end
 
           respond_to do |format|
             format.html
@@ -88,6 +102,33 @@ module BenefitSponsors
               send_data(csv_for(@group_enrollments), type: csv_content_type, filename: "DCHealthLink_Premium_Billing_Report.csv")
             end
           end
+        end
+
+        # Renders the Employees tab's table fragment for Stimulus redraws.
+        def employees_datatable
+          raise ActionController::RoutingError, 'Not Found' unless EnrollRegistry.feature_enabled?(:refactored_datatables)
+
+          authorize @employer_profile
+          render_datatable_fragment(employees_table, url: employees_datatable_url)
+        end
+
+        # Renders the Documents tab's table fragment for Stimulus redraws.
+        def documents_datatable
+          raise ActionController::RoutingError, 'Not Found' unless EnrollRegistry.feature_enabled?(:refactored_datatables)
+
+          authorize @employer_profile
+          render_datatable_fragment(employer_documents_table, url: documents_datatable_url)
+        end
+
+        # Renders the Coverage Reports table fragment for Stimulus redraws. The
+        # report's CSV export stays on #coverage_reports, which already sends the
+        # full billing period.
+        def coverage_reports_datatable
+          raise ActionController::RoutingError, 'Not Found' unless EnrollRegistry.feature_enabled?(:refactored_datatables)
+
+          authorize @employer_profile
+          @billing_date = DateParser.smart_parse(params[:billing_date]) if params[:billing_date]
+          render_datatable_fragment(coverage_reports_table, url: coverage_reports_datatable_url)
         end
 
         def run_eligibility_check
@@ -181,6 +222,33 @@ module BenefitSponsors
         end
 
         private
+
+        def employees_table
+          ::Datatables::EmployeesTable.new(@employer_profile)
+        end
+
+        def employer_documents_table
+          ::BenefitSponsors::Datatables::EmployerDocumentsTable.new(@employer_profile)
+        end
+
+        def coverage_reports_table
+          ::BenefitSponsors::Datatables::CoverageReportsTable.new(@employer_profile, @billing_date)
+        end
+
+        def employees_datatable_url
+          profiles_employers_employer_profile_employees_datatable_path(@employer_profile)
+        end
+
+        def documents_datatable_url
+          profiles_employers_employer_profile_documents_datatable_path(@employer_profile)
+        end
+
+        # Until a billing period is chosen the report resolves its own default, so
+        # the fragment URL carries a period only once one is selected.
+        def coverage_reports_datatable_url
+          options = @billing_date.present? ? { billing_date: @billing_date.strftime("%m/%d/%Y") } : {}
+          profiles_employers_employer_profile_coverage_reports_datatable_path(@employer_profile, options)
+        end
 
         def wells_fargo_sso
           #grab url for WellsFargoSSO and store in insance variable
