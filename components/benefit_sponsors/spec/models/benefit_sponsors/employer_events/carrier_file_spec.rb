@@ -149,4 +149,35 @@ describe BenefitSponsors::EmployerEvents::CarrierFile, "given a carrier", :dbcle
       end
     end
   end
+
+  describe "when rendering raises", :dbclean => :after_each do
+    include_context "setup benefit market with market catalogs and product packages"
+    include_context "setup initial benefit application"
+
+    let(:carrier) { initial_application.benefit_packages.first.health_sponsored_benefit.reference_product.issuer_profile }
+    let(:employer_event) do
+      instance_double(BenefitSponsors::Services::EmployerEvent, employer_profile_id: benefit_sponsorship.hbx_id)
+    end
+    let(:event_renderer) { instance_double(BenefitSponsors::EmployerEvents::Renderer) }
+
+    subject { BenefitSponsors::EmployerEvents::CarrierFile.new(carrier) }
+
+    before do
+      allow(Rails.logger).to receive(:tagged).and_yield
+      allow(event_renderer).to receive(:render_for).and_raise(StandardError, "undefined method `foo' for nil:NilClass")
+    end
+
+    it "records a symbol reason instead of the exception text" do
+      subject.render_event_using(event_renderer, employer_event)
+
+      expect(subject.render_reason).to eq :render_error
+      expect(subject.render_reason).not_to be_a String
+    end
+
+    it "logs the underlying error" do
+      expect(Rails.logger).to receive(:error).with(/undefined method/)
+
+      subject.render_event_using(event_renderer, employer_event)
+    end
+  end
 end
