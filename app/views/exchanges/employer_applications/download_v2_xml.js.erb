@@ -1,0 +1,37 @@
+<% if @file_data.present? %>
+  // jQuery evaluates this response by injecting a script element into one shared global
+  // scope, so these declarations stay inside a function to keep a repeat download from
+  // failing on redeclaration
+  (function() {
+    // Decode Base64 and create a Blob
+    const binaryData = atob('<%= @file_data %>');
+    const arrayBuffer = new Uint8Array(binaryData.length);
+
+    for (let i = 0; i < binaryData.length; i++) {
+      arrayBuffer[i] = binaryData.charCodeAt(i);
+    }
+
+    // Create a Blob and a Blob URL
+    const blob = new Blob([arrayBuffer], { type: 'application/zip' });
+    const blobUrl = URL.createObjectURL(blob);
+
+    // Create a download link and simulate a click
+    const link = document.createElement('a');
+    link.href = blobUrl;
+
+    link.download = "<%= j @file_name %>";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    // Revoke the Blob URL to free up memory
+    URL.revokeObjectURL(blobUrl);
+  })();
+<% end %>
+
+// v2-xml-result-row rather than child-row because child-row marks the wrapper holding
+// this whole applications table, so clearing it would detach the anchor and the table
+var $anchor_row = $("#v2_xml_inputs_<%= @employer_actions_id %>");
+$('tr.v2-xml-result-row').remove();
+$anchor_row.after('<tr class="v2-xml-result-row"><td colspan="100"><%= j render "v2_xml_result" %></td></tr>');
+$('.dropdown.pull-right').removeClass('open');

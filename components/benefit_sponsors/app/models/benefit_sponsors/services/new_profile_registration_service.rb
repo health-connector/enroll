@@ -102,7 +102,7 @@ module BenefitSponsors
       def office_locations_form_to_params(locations)
         locations.each_with_index.inject({}) do |result, (form, index_val)|
           attributes = sanitize_params(form.attributes.deep_symbolize_keys.slice(:is_primary, :id, :_destroy))
-          if form._destroy
+          if form._destroy == true
             result[index_val] = attributes
             next result
           end

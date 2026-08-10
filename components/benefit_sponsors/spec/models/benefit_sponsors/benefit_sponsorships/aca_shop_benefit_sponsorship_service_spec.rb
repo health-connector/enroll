@@ -272,5 +272,99 @@ module BenefitSponsors
       end
 
     end
+
+    describe '.set_binder_paid', :dbclean => :after_each do
+      let(:effective_date) { TimeKeeper.date_of_record.next_month.beginning_of_month }
+
+      context "when benefit application is initial (no predecessor)" do
+        let!(:initial_sponsor) do
+          create(
+            :benefit_sponsors_benefit_sponsorship,
+            :with_organization_cca_profile,
+            :with_initial_benefit_application,
+            initial_application_state: :enrollment_closed,
+            default_effective_period: (effective_date..(effective_date + 1.year - 1.day)),
+            site: site
+          )
+        end
+
+        it 'credits binder for initial application' do
+          subject.set_binder_paid([initial_sponsor.id])
+          expect(initial_sponsor.benefit_applications.first.reload.binder_paid?).to be_truthy
+        end
+      end
+
+      context "when benefit application is an annual renewal (predecessor expired)" do
+        let!(:renewal_sponsor) do
+          create(
+            :benefit_sponsors_benefit_sponsorship,
+            :with_organization_cca_profile,
+            :with_renewal_benefit_application,
+            initial_application_state: :active,
+            renewal_application_state: :enrollment_closed,
+            default_effective_period: (effective_date..(effective_date + 1.year - 1.day)),
+            site: site,
+            aasm_state: :active
+          )
+        end
+        let!(:expired_predecessor) do
+          active_application = renewal_sponsor.active_benefit_application
+          expired_application = FactoryBot.create(
+            :benefit_sponsors_benefit_application,
+            benefit_sponsorship: renewal_sponsor,
+            recorded_service_areas: renewal_sponsor.primary_office_service_areas,
+            aasm_state: :expired,
+            default_effective_period: (active_application.start_on - 1.year..active_application.start_on - 1.day)
+          )
+          active_application.predecessor = expired_application
+          active_application.save
+          expired_application
+        end
+
+        before { expired_predecessor }
+
+        it 'does not credit binder for annual renewal application' do
+          renewal_app = renewal_sponsor.renewal_benefit_application
+          subject.set_binder_paid([renewal_sponsor.id])
+          expect(renewal_app.reload.binder_paid?).to be_falsey
+        end
+      end
+
+      context "when benefit application is an off-cycle renewal (predecessor terminated)" do
+        let!(:off_cycle_sponsor) do
+          create(
+            :benefit_sponsors_benefit_sponsorship,
+            :with_organization_cca_profile,
+            :with_renewal_benefit_application,
+            initial_application_state: :active,
+            renewal_application_state: :enrollment_closed,
+            default_effective_period: (effective_date..(effective_date + 1.year - 1.day)),
+            site: site,
+            aasm_state: :active
+          )
+        end
+        let!(:terminated_predecessor) do
+          renewal_application = off_cycle_sponsor.renewal_benefit_application
+          terminated_application = FactoryBot.create(
+            :benefit_sponsors_benefit_application,
+            benefit_sponsorship: off_cycle_sponsor,
+            recorded_service_areas: off_cycle_sponsor.primary_office_service_areas,
+            aasm_state: :terminated,
+            default_effective_period: (renewal_application.start_on - 1.year..renewal_application.start_on - 1.day)
+          )
+          renewal_application.predecessor = terminated_application
+          renewal_application.save
+          terminated_application
+        end
+
+        before { terminated_predecessor }
+
+        it 'credits binder for off-cycle renewal application' do
+          renewal_app = off_cycle_sponsor.renewal_benefit_application
+          subject.set_binder_paid([off_cycle_sponsor.id])
+          expect(renewal_app.reload.binder_paid?).to be_truthy
+        end
+      end
+    end
   end
 end

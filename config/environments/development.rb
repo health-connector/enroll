@@ -98,3 +98,9 @@ Rails.application.configure do
   Mongoid.logger.level = Logger::ERROR
   Mongo::Logger.logger.level = Logger::ERROR
 end
+
+resque_redis_host = ENV["REDIS_HOST_ENROLL"] || "localhost"
+
+# rubocop:disable Style/GlobalVars
+$redis = Resque.redis = Redis.new(:host => resque_redis_host, :port => 6379)
+# rubocop:enable Style/GlobalVars
