@@ -2,8 +2,9 @@ p#notice = notice
 
 h1.heading-text Broker Agencies
 
-= raw render_datatable(@datatable)
-
-javascript:
-  initializeDataTables();
-  
+- if EnrollRegistry.feature_enabled?(:refactored_datatables)
+  = render partial: 'datatables/datatable', locals: @broker_agencies_datatable_locals
+- else
+  = raw render_datatable(@datatable)
+  javascript:
+    initializeDataTables();
