@@ -40,11 +40,19 @@ module BenefitSponsors
           Success(values[:benefit_sponsorship].profile)
         end
 
+        # Renders the CV2 employer payload for the selected benefit application.
+        #
+        # @param employer [BenefitSponsors::Organizations::Profile] employer the payload describes
+        # @param application [BenefitSponsors::BenefitApplications::BenefitApplication] application to include
+        # @return [Dry::Monads::Result::Success] wraps the rendered xml
+        # @note benefit_application_id must be a String. EventsHelper#employer_plan_years
+        #   compares it with benefit_app.id.to_s, so a BSON::ObjectId never matches and the
+        #   selected application is dropped from the payload unless it is eligible_for_export?
         def generate_event_payload(employer, application)
           payload = ApplicationController.render(
             template: "events/v2/employers/updated",
             formats: [:xml],
-            locals: { employer: employer, manual_gen: false, benefit_application_id: application.id }
+            locals: { employer: employer, manual_gen: false, benefit_application_id: application.id.to_s }
           )
           Success(payload)
         end

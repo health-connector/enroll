@@ -33,6 +33,34 @@ RSpec.describe BenefitSponsors::Services::GroupXmlDownloader, type: :service do
       end
     end
 
+    context 'when a carrier file failed to render' do
+      let(:errored_carrier_file) { double('ErroredCarrierFile', rendered_employers: [], render_reason: :render_error) }
+
+      before do
+        allow(employer_event).to receive(:render_payloads).and_return([errored_carrier_file])
+      end
+
+      it 'reports a generic message rather than internal error detail' do
+        expect(subject.download).to eq([:empty_files, "Reasons: Unable to generate XML"])
+      end
+    end
+
+    context 'when a render reason carries raw exception text' do
+      let(:leaky_carrier_file) do
+        double('LeakyCarrierFile', rendered_employers: [], render_reason: "undefined method `foo' for nil:NilClass")
+      end
+
+      before do
+        allow(employer_event).to receive(:render_payloads).and_return([leaky_carrier_file])
+      end
+
+      it 'does not surface the exception text to the caller' do
+        message = subject.download.last
+        expect(message).to eq("Reasons: Unable to generate XML")
+        expect(message).not_to include("undefined method")
+      end
+    end
+
     context 'when there are non-empty carrier files' do
       it 'creates a zip file and returns success with zip path' do
         expect(Tempfile).to receive(:new).with("employer_events_digest").and_return(double(path: zip_path, close: nil, unlink: nil))
