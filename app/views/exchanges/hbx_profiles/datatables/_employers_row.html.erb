@@ -1,0 +1,54 @@
+<%# One Employers table row. employer_profile is resolved once and reused by the
+    later columns and the action dropdown. No td carries sorting_1: the default
+    order is the hidden created_at column, so no visible column is the active
+    sort. Each row-action link type ('ajax', 'post_ajax', 'disabled', 'hide') is
+    consumed by datatables/shared/_dropdown; 'hide' renders an empty entry. %>
+<%
+  employer_profile = row.organization.employer_profile
+  benefit_application = row.dt_display_benefit_application
+  row_actions_id = "employer_actions_#{employer_profile.id}"
+
+  dropdown = [
+    ['Transmit XML', '#', 'disabled'],
+    ['Generate Invoice', generate_invoice_exchanges_hbx_profiles_path(ids: [row.id]), table.generate_invoice_link_type(employer_profile)],
+    ['Create Plan Year', new_benefit_application_exchanges_hbx_profiles_path(benefit_sponsorship_id: row.id, employer_actions_id: row_actions_id), pundit_allow(HbxProfile, :can_create_benefit_application?) ? 'ajax' : 'hide'],
+    ['Change FEIN', edit_fein_exchanges_hbx_profiles_path(id: row.id, employer_actions_id: row_actions_id), pundit_allow(HbxProfile, :can_change_fein?) ? 'ajax' : 'hide'],
+    ['Force Publish', edit_force_publish_exchanges_hbx_profiles_path(id: employer_profile.latest_benefit_sponsorship.id, employer_actions_id: row_actions_id), table.force_publish_link_type(row, pundit_allow(HbxProfile, :can_force_publish?))]
+  ]
+
+  if pundit_allow(HbxProfile, :can_modify_plan_year?)
+    dropdown.insert(2, ['Plan Years', exchanges_employer_applications_path(employer_id: row, employers_action_id: row_actions_id), 'ajax'])
+  end
+
+  if individual_market_is_enabled?
+    people_id = Person.where("employer_staff_roles.employer_profile_id" => employer_profile._id).map(&:id)
+    dropdown.insert(2, ['View Username and Email', get_user_info_exchanges_hbx_profiles_path(people_id: people_id, employers_action_id: row_actions_id), !people_id.empty? && pundit_allow(Family, :can_view_username_and_email?) ? 'ajax' : 'disabled'])
+  end
+
+  if employer_attestation_is_enabled?
+    dropdown.insert(2, ['Attestation', edit_employers_employer_attestation_path(id: employer_profile.id, employer_actions_id: row_actions_id), 'ajax'])
+  end
+
+  if row.oe_extendable_benefit_applications.present? && pundit_allow(HbxProfile, :can_extend_open_enrollment?)
+    dropdown.insert(3, ['Extend Open Enrollment', oe_extendable_applications_exchanges_hbx_profiles_path(id: employer_profile.latest_benefit_sponsorship.id, employer_actions_id: row_actions_id), 'ajax'])
+  end
+
+  if row.oe_extended_applications.present? && pundit_allow(HbxProfile, :can_extend_open_enrollment?)
+    dropdown.insert(4, ['Close Open Enrollment', oe_extended_applications_exchanges_hbx_profiles_path(id: employer_profile.latest_benefit_sponsorship.id, employer_actions_id: row_actions_id), 'ajax'])
+  end
+%>
+<tr class="<%= row_class %>">
+  <td class="col-bulk_actions_column col-bulk_actions"><%= render partial: 'datatables/employers/bulk_actions_column', locals: { resource: row, resource_method: :id } %></td>
+  <td class="col-string col-legal_name"><%= link_to row.organization.legal_name.titleize, benefit_sponsors.profiles_employers_employer_profile_path(employer_profile.id, tab: 'home') %></td>
+  <td class="col-string col-fein"><%= row.organization.fein %></td>
+  <td class="col-integer col-hbx_id"><%= row.organization.hbx_id %></td>
+  <td class="col-string col-broker"><%= employer_profile.try(:active_broker_agency_legal_name).try(:titleize) %></td>
+  <td class="col-string col-source_kind"><%= row.source_kind.to_s.humanize %></td>
+  <td class="col-string col-plan_year_state"><%= benefit_application_summarized_state(benefit_application) if benefit_application.present? %></td>
+  <td class="col-string col-effective_date"><%= benefit_application.effective_period.min&.strftime("%m/%d/%Y") if benefit_application.present? %></td>
+  <td class="col-string col-invoiced?"><%= boolean_to_glyph(employer_profile.current_month_invoice.present?) %></td>
+  <% if employer_attestation_is_enabled? %>
+    <td class="col-string col-attestation_status"><%= employer_profile.attestation_status %></td>
+  <% end %>
+  <td class="col-string col-actions"><%= render partial: 'datatables/shared/dropdown', locals: { dropdowns: dropdown, row_actions_id: row_actions_id } %></td>
+</tr>

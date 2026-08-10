@@ -399,6 +399,138 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       end
     end
   end
+
+  describe "Action # employers_datatable (:refactored_datatables)", dbclean: :after_each do
+    let(:person) { double("person", hbx_staff_role: double("hbx_staff_role")) }
+    let(:user) { double("user", :has_hbx_staff_role? => true, :person => person, :last_portal_visited => nil) }
+
+    before :each do
+      allow(user).to receive(:has_role?).with(:hbx_staff).and_return(true)
+      allow(EnrollRegistry).to receive(:feature_enabled?).and_call_original
+      allow(EnrollRegistry).to receive(:feature_enabled?).with(:refactored_datatables).and_return(true)
+      sign_in(user)
+    end
+
+    context "when the :refactored_datatables flag is disabled" do
+      before do
+        allow(EnrollRegistry).to receive(:feature_enabled?).with(:refactored_datatables).and_return(false)
+      end
+
+      it "404s the fragment endpoint" do
+        expect { get :employers_datatable, format: :html }.to raise_error(ActionController::RoutingError)
+      end
+
+      it "builds the legacy datatable on employer_datatable" do
+        get :employer_datatable, format: :js
+        expect(assigns(:datatable)).to be_a(Effective::Datatables::BenefitSponsorsEmployerDatatable)
+        expect(assigns(:employers_datatable_locals)).to be_nil
+      end
+    end
+
+    context "when the user is not an HBX staff member" do
+      let(:user) { double("user", :has_hbx_staff_role? => false, :person => person, :last_portal_visited => nil) }
+
+      it "denies access" do
+        get :employers_datatable, format: :html
+        expect(response).not_to have_http_status(:success)
+      end
+    end
+
+    context "when authorized with the flag enabled" do
+      it "renders the table fragment without a layout" do
+        get :employers_datatable, format: :html
+        expect(response).to have_http_status(:success)
+        expect(response).to render_template("datatables/_table")
+      end
+
+      it "prepares the datatable locals on employer_datatable and employer_invoice" do
+        get :employer_datatable, format: :js
+        expect(assigns(:employers_datatable_locals)).to include(:table, :pagy, :records, :url, :column_filters)
+        expect(assigns(:datatable)).to be_nil
+
+        get :employer_invoice, xhr: true
+        expect(assigns(:employers_datatable_locals)).to include(:table, :pagy, :records, :url)
+      end
+
+      # The action streams via response_body=Enumerator, so the test response
+      # body must be materialized before parsing.
+      def streamed_csv_rows
+        body = response.body
+        CSV.parse(body.is_a?(String) ? body : body.to_a.join)
+      end
+
+      it "streams a CSV with the excluded-actions/bulk-actions header row" do
+        get :employers_datatable, params: { employers: "all" }, format: :csv
+        expect(response.headers["Content-Type"]).to eq("text/csv; charset=utf-8")
+        expect(response.headers["Content-Disposition"]).to include('filename="employers.csv"')
+        expect(streamed_csv_rows.first).to start_with("Legal Name", "FEIN", "HBX ID", "Broker", "Source Kind")
+      end
+
+      it "routes the source_kind column filter param through to the table search_column hook" do
+        expect_any_instance_of(Datatables::EmployersTable).to receive(:search_column).with(anything, "source_kind", "conversion").and_call_original
+        get :employers_datatable, params: { columns: { source_kind: "conversion" } }, format: :csv
+      end
+
+      context "with real employer data" do
+        let(:site) { FactoryBot.create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
+        let!(:self_serve_org) do
+          FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile,
+                            site: site, legal_name: "Self Serve Co").tap do |org|
+            org.employer_profile.add_benefit_sponsorship.tap { |bs| bs.update(source_kind: :self_serve) }
+          end
+        end
+        let!(:conversion_org) do
+          FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile,
+                            site: site, legal_name: "Conversion Co").tap do |org|
+            org.employer_profile.add_benefit_sponsorship.tap { |bs| bs.update(source_kind: :conversion) }
+          end
+        end
+
+        it "streams every employer when no column filter is active" do
+          get :employers_datatable, params: { employers: "all" }, format: :csv
+          legal_names = streamed_csv_rows.drop(1).map(&:first)
+          expect(legal_names).to include("Self Serve Co", "Conversion Co")
+        end
+
+        it "restricts the CSV to the selected source_kind" do
+          get :employers_datatable, params: { employers: "all", columns: { source_kind: "conversion" } }, format: :csv
+          legal_names = streamed_csv_rows.drop(1).map(&:first)
+          expect(legal_names).to include("Conversion Co")
+          expect(legal_names).not_to include("Self Serve Co")
+        end
+      end
+    end
+  end
+
+  describe "Action # bulk actions (Generate Invoice / Mark Binder Paid round-trip)", dbclean: :after_each do
+    let(:site) { FactoryBot.create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
+    let(:employer_organization) do
+      FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site).tap do |org|
+        org.employer_profile.add_benefit_sponsorship.save
+      end
+    end
+    let(:benefit_sponsorship) { employer_organization.benefit_sponsorships.first }
+    let(:person) do
+      FactoryBot.create(:person, :with_hbx_staff_role).tap do |staff|
+        FactoryBot.create(:permission, :super_admin).tap { |permission| staff.hbx_staff_role.update_attributes(permission_id: permission.id) }
+      end
+    end
+    let(:user) { FactoryBot.create(:user, person: person) }
+
+    before { sign_in(user) }
+
+    it "marks the selected employers binder paid and returns the surfaced JSON message" do
+      allow(BenefitSponsors::BenefitSponsorships::AcaShopBenefitSponsorshipService).to receive(:set_binder_paid).with([benefit_sponsorship.id.to_s])
+      post :binder_paid, params: { ids: [benefit_sponsorship.id.to_s] }, format: :json
+      expect(response).to have_http_status(:success)
+      expect(JSON.parse(response.body)["message"]).to include("binder paid")
+    end
+
+    it "submits the selected employers for invoice generation" do
+      get :generate_invoice, params: { ids: [benefit_sponsorship.id.to_s] }, format: :js
+      expect(response).to have_http_status(:success)
+    end
+  end
 =begin
   describe "#create" do
     let(:user) { double("User")}

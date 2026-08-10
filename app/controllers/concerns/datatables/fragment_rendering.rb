@@ -27,6 +27,22 @@ module Datatables
   #                       has a date filter)
   #   #date_filter      - label for the date-range filter block, or nil when the
   #                       table has no date filter
+  #   #default_order_column - column name whose header shows the sort indicator on
+  #                       load (and which orders the collection when no user sort
+  #                       is active); may name a non-visible field (e.g. created_at)
+  #                       so that no visible header is highlighted
+  #   #column_index_offset - amount added to each column's positional index for the
+  #                       th data-column-index attribute, accounting for any
+  #                       leading non-rendered legacy columns (usually 0)
+  #   #bulk_actions     - ordered bulk-action configs ({label, url, confirm}) for
+  #                       the dropdown prepended into datatables/_buttons; [] when
+  #                       the table has no bulk actions
+  #   #disable_selectric? - whether the Stimulus controller suppresses page-global
+  #                       selectric (true for tables whose row actions inject forms
+  #                       with native selects that must stay reachable)
+  #   #search_column(collection, name, value) - applies a per-column filter (only
+  #                       called for columns declaring a filter:); returns the
+  #                       narrowed collection
   #   #buttons          - ordered export/print button keys (e.g. %w[csv excel]
   #                       or %w[excel csv print]) rendered by datatables/_buttons
   #   #per_page_options - the page-length menu values, e.g.
@@ -59,7 +75,8 @@ module Datatables
         order: datatable_order_column(table),
         dir: datatable_order_dir,
         date_from: params[:custom_datatable_date_from].to_s,
-        date_to: params[:custom_datatable_date_to].to_s
+        date_to: params[:custom_datatable_date_to].to_s,
+        column_filters: datatable_column_filters(table)
       }
     end
 
@@ -68,7 +85,19 @@ module Datatables
     def datatable_scoped(table)
       scoped = table.collection(datatable_filter_attributes(table))
       scoped = scoped.datatable_search(params[:search]) if table.global_search? && params[:search].present?
+      datatable_column_filters(table).each { |name, value| scoped = table.search_column(scoped, name, value) }
       scoped
+    end
+
+    # Active per-column filter values keyed by column name, read from the
+    # columns[<name>]=<value> params the controller adds for filter columns.
+    def datatable_column_filters(table)
+      table.columns.each_with_object({}) do |col, filters|
+        next unless col[:filter]
+
+        value = params.dig(:columns, col[:name])
+        filters[col[:name]] = value if value.present?
+      end
     end
 
     # Builds the filter-attribute hash the query wrappers consume
@@ -92,7 +121,7 @@ module Datatables
 
     def datatable_order_column(table)
       sortable = table.columns.select { |col| col[:sortable] }.map { |col| col[:name] }
-      sortable.include?(params[:order]) ? params[:order] : sortable.first
+      sortable.include?(params[:order]) ? params[:order] : table.default_order_column
     end
 
     def datatable_order_dir

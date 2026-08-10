@@ -49,6 +49,24 @@ module Datatables
       nil
     end
 
+    # No column is user-sortable and the collection carries its own legal_name
+    # order, so no header is the active sort.
+    def default_order_column
+      nil
+    end
+
+    def column_index_offset
+      0
+    end
+
+    def bulk_actions
+      []
+    end
+
+    def disable_selectric?
+      false
+    end
+
     def buttons
       %w[csv excel]
     end

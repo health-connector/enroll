@@ -5,6 +5,7 @@ en:
     csv: "CSV"
     excel: "Excel"
     print: "Print"
+    bulk_actions: "Bulk Actions"
     search_label: "Search:"
     per_page: "per page"
     showing_entries: "Showing %{from} to %{to} of %{count} entries"

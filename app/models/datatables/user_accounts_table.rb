@@ -54,6 +54,22 @@ module Datatables
       nil
     end
 
+    def default_order_column
+      'name'
+    end
+
+    def column_index_offset
+      0
+    end
+
+    def bulk_actions
+      []
+    end
+
+    def disable_selectric?
+      false
+    end
+
     def buttons
       %w[csv excel]
     end

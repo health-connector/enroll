@@ -1,7 +1,11 @@
-h1.heading-text Employers
+- if EnrollRegistry.feature_enabled?(:refactored_datatables)
+  h1.heading-text Employers
+  = render partial: 'datatables/datatable', locals: @employers_datatable_locals
+- else
+  h1.heading-text Employers
 
-= render_datatable(@datatable)
+  = render_datatable(@datatable)
 
-javascript:
-  initializeDataTables()
-  disableSelectric = true
+  javascript:
+    initializeDataTables()
+    disableSelectric = true
