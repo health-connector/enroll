@@ -372,11 +372,18 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
     end
 
     context "when download is successful" do
-      before do
-        allow(download_v2_xml_operation).to receive(:call).and_return(Dry::Monads::Success('/path/to/file.zip'))
+      let(:zip_file) do
+        file = Tempfile.new(["employer_events_digest", ".zip"])
+        file.write("zip bytes")
+        file.close
+        file
       end
 
-      it "sets success message and file path" do
+      before do
+        allow(download_v2_xml_operation).to receive(:call).and_return(Dry::Monads::Success(zip_file.path))
+      end
+
+      it "sets success message and the encoded file for the browser" do
         post :download_v2_xml, params: {
           selected_event: selected_event,
           employer_application_id: initial_application.id,
@@ -385,8 +392,67 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
         }, xhr: true
 
         expect(assigns(:success_message)).to eq('V2 XML downloaded successfully.')
-        expect(assigns(:file_path)).to eq('/path/to/file.zip')
+        expect(assigns(:file_data)).to eq(Base64.strict_encode64("zip bytes"))
         expect(assigns(:employer_actions_id)).to eq(employer_actions_id)
+        expect(response).to have_http_status(:ok)
+      end
+
+      it "names the download after the employer fein and the current date" do
+        post :download_v2_xml, params: {
+          selected_event: selected_event,
+          employer_application_id: initial_application.id,
+          employer_actions_id: employer_actions_id,
+          employer_id: benefit_sponsorship.id
+        }, xhr: true
+
+        expected = "employer_v2_#{benefit_sponsorship.fein}_#{TimeKeeper.date_of_record.strftime('%Y%m%d')}.zip"
+        expect(assigns(:file_name)).to eq expected
+      end
+
+      context "when the employer has no fein" do
+        before do
+          allow_any_instance_of(BenefitSponsors::BenefitSponsorships::BenefitSponsorship).to receive(:fein).and_return(nil)
+        end
+
+        it "falls back to the sponsorship hbx_id" do
+          post :download_v2_xml, params: {
+            selected_event: selected_event,
+            employer_application_id: initial_application.id,
+            employer_actions_id: employer_actions_id,
+            employer_id: benefit_sponsorship.id
+          }, xhr: true
+
+          expect(assigns(:file_name)).to match(/\Aemployer_v2_#{benefit_sponsorship.hbx_id}_\d{8}\.zip\z/)
+        end
+      end
+
+      it "deletes the temporary zip once its contents are in the response" do
+        post :download_v2_xml, params: {
+          selected_event: selected_event,
+          employer_application_id: initial_application.id,
+          employer_actions_id: employer_actions_id,
+          employer_id: benefit_sponsorship.id
+        }, xhr: true
+
+        expect(File.exist?(zip_file.path)).to eq false
+      end
+    end
+
+    context "when the generated zip cannot be read" do
+      before do
+        allow(download_v2_xml_operation).to receive(:call).and_return(Dry::Monads::Success('/path/to/missing.zip'))
+      end
+
+      it "falls back to the generic failure message without exposing the path" do
+        post :download_v2_xml, params: {
+          selected_event: selected_event,
+          employer_application_id: initial_application.id,
+          employer_actions_id: employer_actions_id,
+          employer_id: benefit_sponsorship.id
+        }, xhr: true
+
+        expect(assigns(:error_message)).to eq('An error occurred during download')
+        expect(assigns(:file_data)).to be_nil
         expect(response).to have_http_status(:ok)
       end
     end
@@ -405,7 +471,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
         }, xhr: true
 
         expect(assigns(:error_message)).to eq('No files to download')
-        expect(assigns(:file_path)).to be_nil
+        expect(assigns(:file_data)).to be_nil
         expect(assigns(:employer_actions_id)).to eq(employer_actions_id)
         expect(response).to have_http_status(:ok)
       end
@@ -425,7 +491,7 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
         }, xhr: true
 
         expect(assigns(:error_message)).to eq('An error occurred during download')
-        expect(assigns(:file_path)).to be_nil
+        expect(assigns(:file_data)).to be_nil
         expect(assigns(:employer_actions_id)).to eq(employer_actions_id)
         expect(response).to have_http_status(:ok)
       end
@@ -445,8 +511,20 @@ RSpec.describe Exchanges::EmployerApplicationsController, dbclean: :after_each d
         }, xhr: true
 
         expect(assigns(:error_message)).to eq('An error occurred during download')
-        expect(assigns(:file_path)).to be_nil
+        expect(assigns(:file_data)).to be_nil
         expect(response).to have_http_status(:ok)
+      end
+
+      it "logs the error" do
+        allow(Rails.logger).to receive(:tagged).and_yield
+        expect(Rails.logger).to receive(:error).with(/#{initial_application.id}.*unexpected boom/)
+
+        post :download_v2_xml, params: {
+          selected_event: selected_event,
+          employer_application_id: initial_application.id,
+          employer_actions_id: employer_actions_id,
+          employer_id: benefit_sponsorship.id
+        }, xhr: true
       end
     end
   end

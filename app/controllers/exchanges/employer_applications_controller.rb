@@ -96,9 +96,10 @@ module Exchanges
       end
 
       respond_to(&:js) unless result.success?
-    rescue StandardError
+    rescue StandardError => e
+      Rails.logger.tagged(self.class.name) { Rails.logger.error("download v2 xml failed for employer_application_id #{params[:employer_application_id]}: #{e.message}") }
       @error_message = l10n('exchange.employer_applications.download_v2_xml.failure_message')
-      @file_path = nil
+      @file_data = nil
       respond_to(&:js)
     end
 
@@ -217,11 +218,34 @@ module Exchanges
       authorize HbxProfile, :can_generate_v2_xml?
     end
 
+    # Encodes the generated zip for the browser and removes it from disk.
+    #
+    # @param result [Dry::Monads::Result::Success] wraps the path of the generated zip
+    # @return [void]
     def handle_success(result)
       @success_message = l10n('exchange.employer_applications.download_v2_xml.success_message')
-      @file_path = result.value!
+      zip_path = result.value!
+      @file_name = download_file_name
+      @file_data = Base64.strict_encode64(File.read(zip_path))
+    ensure
+      # deleted here rather than by a sweeper because the zip is a transport artifact
+      # that has no purpose once its bytes are in the response
+      File.delete(zip_path) if zip_path.present? && File.exist?(zip_path)
     end
 
+    # Name the browser saves the generated zip under. Falls back to the sponsorship
+    # hbx_id because a fein is not present on every employer.
+    #
+    # @return [String] for example employer_v2_123456789_20260807.zip
+    def download_file_name
+      identifier = @benefit_sponsorship.fein.presence || @benefit_sponsorship.hbx_id
+      "employer_v2_#{identifier.to_s.gsub(/[^0-9a-zA-Z]/, '')}_#{TimeKeeper.date_of_record.strftime('%Y%m%d')}.zip"
+    end
+
+    # Builds the admin facing message for a download that produced no file.
+    #
+    # @param result [Dry::Monads::Result::Failure] carries the reason the download failed
+    # @return [void]
     def handle_failure(result)
       download_status = result.failure
 
@@ -233,7 +257,7 @@ module Exchanges
                          l10n('exchange.employer_applications.download_v2_xml.failure_message')
                        end
 
-      @file_path = nil
+      @file_data = nil
     end
   end
 end

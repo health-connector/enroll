@@ -42,8 +42,9 @@ module BenefitSponsors
           @render_reason = result
         end
       rescue StandardError => e
-        log_error(e.message)
-        @render_reason = e.message
+        log_error("failed to render carrier file for carrier #{carrier&.id}: #{e.message}")
+        # a symbol rather than e.message because render_reason is surfaced to the browser
+        @render_reason = :render_error
       end
 
       def update_timestamps(timestamp)
