@@ -1,0 +1,140 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<employer_digest_event xmlns="http://openhbx.org/api/terms/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://openhbx.org/api/terms/1.0 organization.xsd http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<event_name>urn:openhbx:events:v1:employer#digest_period_ended</event_name>
+	<resource_instance_uri>
+		<id>urn:openhbx:resources:v1:carrier:abbreviation#DDA</id>
+	</resource_instance_uri>
+	<body>
+		<employer_events>
+			<coverage_period>
+				<begin_datetime>2023-10-26T17:37:11+00:00</begin_datetime>
+				<end_datetime>2023-10-26T17:37:11+00:00</end_datetime>
+			</coverage_period>
+			<employer_event>
+				<event_name>urn:openhbx:events:v1:employer#address_changed</event_name>
+				<resource_instance_uri>
+					<id>urn:openhbx:resource:organization:id#EMPLOYER HBX_ID</id>
+				</resource_instance_uri>
+				<body>
+					<organization xmlns="http://openhbx.org/api/terms/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="EmployerOrganizationType">
+						<id>
+							<id>EMPLOYER HBX_ID</id>
+						</id>
+						<name>LEGAL NAME</name>
+						<fein>010101010</fein>
+						<office_locations>
+							<office_location>
+								<id>
+									<id>5b46cf88aea91a66a346e8b9</id>
+								</id>
+								<primary>true</primary>
+								<address>
+									<type>urn:openhbx:terms:v1:address_type#work</type>
+									<address_line_1>ADDRESS 1</address_line_1>
+									<location_city_name>CITY NAME</location_city_name>
+									<location_county_name>Middlesex</location_county_name>
+									<location_state>urn:openhbx:terms:v1:us_state#massachusetts</location_state>
+									<location_state_code>MA</location_state_code>
+									<postal_code>01887</postal_code>
+									<location_country_name/>
+									<address_full_text>ADDRESS 1 CITY NAME, MA 01887</address_full_text>
+								</address>
+								<phone>
+									<type>urn:openhbx:terms:v1:phone_type#work</type>
+									<area_code>100</area_code>
+									<phone_number>9999999</phone_number>
+									<full_phone_number>1009999999</full_phone_number>
+									<is_preferred>false</is_preferred>
+								</phone>
+							</office_location>
+							<office_location>
+								<id>
+									<id>5b46cf88aea91a66a346e8bc</id>
+								</id>
+								<primary>false</primary>
+								<address>
+									<type>urn:openhbx:terms:v1:address_type#mailing</type>
+									<address_line_1>ADDRESS 1</address_line_1>
+									<location_city_name>CITY NAME</location_city_name>
+									<location_state>urn:openhbx:terms:v1:us_state#massachusetts</location_state>
+									<location_state_code>MA</location_state_code>
+									<postal_code>01887</postal_code>
+									<location_country_name/>
+									<address_full_text>ADDRESS 1  CITY NAME, MA 01887</address_full_text>
+								</address>
+								<phone>
+									<type>urn:openhbx:terms:v1:phone_type#work</type>
+									<area_code>100</area_code>
+									<phone_number>9999999</phone_number>
+									<full_phone_number>1009999999</full_phone_number>
+									<is_preferred>false</is_preferred>
+								</phone>
+							</office_location>
+						</office_locations>
+						<contacts>
+							<contact>
+								<id>
+									<id>000000</id>
+								</id>
+								<person_name>
+									<person_surname>SURNAME</person_surname>
+									<person_given_name>GIVEN</person_given_name>
+									<person_full_name>GIVEN SURNAME</person_full_name>
+								</person_name>
+								<emails>
+									<email>
+										<type>urn:openhbx:terms:v1:email_type#work</type>
+										<email_address>SURNAME@EXAMPLE.com</email_address>
+									</email>
+								</emails>
+								<phones>
+									<phone>
+										<type>urn:openhbx:terms:v1:phone_type#home</type>
+										<area_code>111</area_code>
+										<phone_number>1111111</phone_number>
+										<full_phone_number>1111111111</full_phone_number>
+										<is_preferred>false</is_preferred>
+									</phone>
+								</phones>
+							</contact>
+							<contact>
+								<id>
+									<id>000000</id>
+								</id>
+								<person_name>
+									<person_surname>PERSON NAME</person_surname>
+									<person_given_name>LAST</person_given_name>
+									<person_middle_name>T</person_middle_name>
+									<person_full_name>LAST T PERSON NAME</person_full_name>
+								</person_name>
+								<emails>
+									<email>
+										<type>urn:openhbx:terms:v1:email_type#work</type>
+										<email_address>SPERSON NAME@EXAMPLE.COM</email_address>
+									</email>
+								</emails>
+								<phones>
+									<phone>
+										<type>urn:openhbx:terms:v1:phone_type#home</type>
+										<area_code>555</area_code>
+										<phone_number>5555555</phone_number>
+										<full_phone_number>5555555555</full_phone_number>
+										<is_preferred>false</is_preferred>
+									</phone>
+								</phones>
+							</contact>
+						</contacts>
+						<is_active>true</is_active>
+						<employer_profile>
+							<business_entity_kind>urn:openhbx:terms:v1:employers#s_corporation</business_entity_kind>
+							<sic_code>1522</sic_code>
+							<plan_years/>
+						</employer_profile>
+						<created_at>2018-07-12T03:48:24Z</created_at>
+						<modified_at>2023-06-08T15:34:06Z</modified_at>
+					</organization>
+				</body>
+			</employer_event>
+		</employer_events>
+	</body>
+</employer_digest_event>

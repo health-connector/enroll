@@ -1,98 +1,47 @@
 {
   "ignored_warnings": [
     {
-      "warning_type": "Mass Assignment",
-      "warning_code": 70,
-      "fingerprint": "23f1373c8ae182e49594ad5005e56c43afbc8c9aae26ad542eec9a813823a2ef",
-      "check_name": "MassAssignment",
-      "message": "Specify exact keys allowed for mass assignment instead of using `permit!` which allows any keys",
-      "file": "app/controllers/benefit_sponsors/profiles/registrations_controller.rb",
-      "line": 109,
-      "link": "https://brakemanscanner.org/docs/warning_types/mass_assignment/",
-      "code": "params[:agency][:organization].permit!",
-      "render_path": null,
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 2,
+      "fingerprint": "1a0138bf13980258e02f9a1c60170b564958c28a7d2cdbe28b53059cb8583d6f",
+      "check_name": "CrossSiteScripting",
+      "message": "Unescaped parameter value",
+      "file": "app/views/benefit_sponsors/profiles/employers/employer_profiles/_coverage_reports.html.erb",
+      "line": 8,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
+      "code": "render_datatable(::Effective::Datatables::BenefitSponsorsCoverageReportsDataTable.new(:id => params.require(:employer_profile_id), :billing_date => DateParser.smart_parse(params[:billing_date])), :sDom => \"<'row'<'col-sm-5'> <'col-sm-5'f> >\", :autowidth => true, :buttons => ([\"csv\", \"excel\"]), :lengthMenu => ([[10, 25, 50, -1], [10, 25, 50, \"All\"]]))",
+      "render_path": [
+        {
+          "type": "controller",
+          "class": "BenefitSponsors::Profiles::Employers::EmployerProfilesController",
+          "method": "coverage_reports",
+          "line": 85,
+          "file": "app/controllers/benefit_sponsors/profiles/employers/employer_profiles_controller.rb",
+          "rendered": {
+            "name": "benefit_sponsors/profiles/employers/employer_profiles/coverage_reports",
+            "file": "app/views/benefit_sponsors/profiles/employers/employer_profiles/coverage_reports.js.erb"
+          }
+        },
+        {
+          "type": "template",
+          "name": "benefit_sponsors/profiles/employers/employer_profiles/coverage_reports",
+          "line": 2,
+          "file": "app/views/benefit_sponsors/profiles/employers/employer_profiles/coverage_reports.js.erb",
+          "rendered": {
+            "name": "benefit_sponsors/profiles/employers/employer_profiles/_coverage_reports",
+            "file": "app/views/benefit_sponsors/profiles/employers/employer_profiles/_coverage_reports.html.erb"
+          }
+        }
+      ],
       "location": {
-        "type": "method",
-        "class": "BenefitSponsors::Profiles::RegistrationsController",
-        "method": "organization_params"
+        "type": "template",
+        "template": "benefit_sponsors/profiles/employers/employer_profiles/_coverage_reports"
       },
-      "user_input": null,
-      "confidence": "Medium",
-      "note": ""
-    },
-    {
-      "warning_type": "Mass Assignment",
-      "warning_code": 70,
-      "fingerprint": "c1078d1ff262e07e0aa2085d9cca05f093b0a3cc93eecc63ae1eab4cfa45af07",
-      "check_name": "MassAssignment",
-      "message": "Specify exact keys allowed for mass assignment instead of using `permit!` which allows any keys",
-      "file": "app/controllers/benefit_sponsors/profiles/registrations_controller.rb",
-      "line": 105,
-      "link": "https://brakemanscanner.org/docs/warning_types/mass_assignment/",
-      "code": "params[:agency].permit!",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "BenefitSponsors::Profiles::RegistrationsController",
-        "method": "registration_params"
-      },
-      "user_input": null,
-      "confidence": "Medium",
-      "note": ""
-    },
-    {
-      "warning_type": "Cross-Site Request Forgery",
-      "warning_code": 116,
-      "fingerprint": "c8697fda60549ca065789e2ea74c94effecef88b2b5483bae17ddd62ece47194",
-      "check_name": "CSRFTokenForgeryCVE",
-      "message": "Rails 4.2.11.1 has a vulnerability that may allow CSRF token forgery. Upgrade to Rails 5.2.4.3 or patch",
-      "file": "Gemfile.lock",
-      "line": 388,
-      "link": "https://groups.google.com/g/rubyonrails-security/c/NOjKiGeXUgw",
-      "code": null,
-      "render_path": null,
-      "location": null,
-      "user_input": null,
-      "confidence": "Medium",
-      "note": ""
-    },
-    {
-      "warning_type": "Mass Assignment",
-      "warning_code": 70,
-      "fingerprint": "d2798342ec6df186c20930de4c3dfbe35628aef0655db4f4bddcaeb06e146dc3",
-      "check_name": "MassAssignment",
-      "message": "Specify exact keys allowed for mass assignment instead of using `permit!` which allows any keys",
-      "file": "app/controllers/benefit_sponsors/profiles/broker_agencies/broker_roles_controller.rb",
-      "line": 94,
-      "link": "https://brakemanscanner.org/docs/warning_types/mass_assignment/",
-      "code": "params[:broker_agency].permit!",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "BenefitSponsors::Profiles::BrokerAgencies::BrokerRolesController",
-        "method": "initiate_broker_profile"
-      },
-      "user_input": null,
-      "confidence": "Medium",
-      "note": ""
-    },
-    {
-      "warning_type": "Unmaintained Dependency",
-      "warning_code": 120,
-      "fingerprint": "d84924377155b41e094acae7404ec2e521629d86f97b0ff628e3d1b263f8101c",
-      "check_name": "EOLRails",
-      "message": "Support for Rails 4.2.11.1 ended on 2017-04-27",
-      "file": "Gemfile.lock",
-      "line": 388,
-      "link": "https://brakemanscanner.org/docs/warning_types/unmaintained_dependency/",
-      "code": null,
-      "render_path": null,
-      "location": null,
-      "user_input": null,
-      "confidence": "High",
-      "note": ""
+      "user_input": "params.require(:employer_profile_id)",
+      "confidence": "Weak",
+      "note": "False positive: 'raw' is used deliberately because effective_datatables generates its own HTML structure that Rails would otherwise double-escape; the gem does not interpolate param values into attributes or cell content without its own escaping. The two params Brakeman traces are both sanitised before the view is reached: params[:employer_profile_id] is passed through BSON::ObjectId.from_string in the find_employer before_action (employer_profiles_controller.rb), which raises on any non-hex value and renders a 404 before the action runs; params[:billing_date] is converted to a Date object by DateParser.smart_parse in the coverage_reports action, so the raw string is never present at render time."
     }
   ],
-  "updated": "2022-01-01 20:12:20 -0500",
-  "brakeman_version": "5.2.0"
+  "updated": "2026-06-09 19:56:27 +0000",
+  "brakeman_version": "7.1.1"
 }

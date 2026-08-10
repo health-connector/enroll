@@ -159,6 +159,7 @@ jobs:
           provenance: ${{ env.PUSH_IMAGE == 'true' && 'mode=min' }}
           build-args: |
             HOSTNAME=172.17.0.1
+            APT_CACHE_BUST=${{ github.run_id }}
 
       # See https://docs.docker.com/build/ci/github-actions/cache/#local-cache OR https://github.com/moby/buildkit/issues/1896
       # need for this two-step w/r/t cache-to above and cache movement here.

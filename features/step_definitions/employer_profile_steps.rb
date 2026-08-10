@@ -144,6 +144,23 @@ Then(/(\w+) decides to Update Business information/) do |_person|
   screenshot('update_business_info')
 end
 
+And(/(\w+) adds a mailing address and clicks on save/) do |_person|
+  find('.interaction-click-control-add-office-location').click
+  wait_for_ajax(10,2)
+  find(:xpath, "(//select[@id='kindSelect'])[2]/option[@value='mailing']").click
+  fill_in 'agency[organization][profile_attributes][office_locations_attributes][1][address_attributes][address_1]', :with => Forgery('address').street_address
+  fill_in 'agency[organization][profile_attributes][office_locations_attributes][1][address_attributes][city]', :with => Forgery('address').city
+  fill_in 'agency[organization][profile_attributes][office_locations_attributes][1][address_attributes][zip]', :with => Forgery('address').zip
+  find(:xpath, "(//select[@id='inputState'])[2]/option[@value='MA']").click
+  fill_in 'agency[organization][profile_attributes][office_locations_attributes][1][phone_attributes][area_code]', :with => '202'
+  fill_in 'agency[organization][profile_attributes][office_locations_attributes][1][phone_attributes][number]', :with => '5551234'
+  find('.interaction-click-control-save').click
+end
+
+Then(/(\w+) should see the Employer successfully Updated message/) do |_person|
+  expect(page).to have_content(/Employer successfully Updated./)
+end
+
 And(/(.*?) fills in all mandatory fields and clicks on save$/) do |_legal_name|
   find(:xpath, "//*[@id='staff_first_name']").set "john"
   find(:xpath, "//*[@id='staff_last_name']").set "snow"

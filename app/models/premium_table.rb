@@ -2,7 +2,10 @@ class PremiumTable
   include Mongoid::Document
   include Config::AcaModelConcern
 
-  embedded_in :plan
+  # touch defaults to true on embedded_in since Mongoid 8; bulk premium table
+  # loads (rake xml:rates) touch the parent once per child, making the import
+  # quadratic in the number of premium tables
+  embedded_in :plan, touch: false
 
   field :age, type: Integer
   field :start_on, type: Date
