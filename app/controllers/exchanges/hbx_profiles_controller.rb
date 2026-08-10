@@ -281,7 +281,26 @@ class Exchanges::HbxProfilesController < ApplicationController
 
   def outstanding_verification_dt
     @selector = params[:scopes][:selector] if params[:scopes].present?
-    @datatable = Effective::Datatables::OutstandingVerificationDataTable.new(params[:scopes])
+    if EnrollRegistry.feature_enabled?(:refactored_datatables)
+      @outstanding_verifications_datatable_locals = datatable_locals(::Datatables::OutstandingVerificationsTable.new, url: outstanding_verifications_datatable_exchanges_hbx_profiles_path)
+    else
+      @datatable = Effective::Datatables::OutstandingVerificationDataTable.new(params[:scopes])
+    end
+  end
+
+  def outstanding_verifications_datatable
+    raise ActionController::RoutingError, 'Not Found' unless EnrollRegistry.feature_enabled?(:refactored_datatables)
+
+    authorize HbxProfile, :outstanding_verification_dt?
+    table = ::Datatables::OutstandingVerificationsTable.new
+    respond_to do |format|
+      format.html { render_datatable_fragment(table, url: outstanding_verifications_datatable_exchanges_hbx_profiles_path) }
+      format.csv do
+        stream_datatable_csv(filename: 'outstanding_verifications.csv',
+                             headers: table.csv_headers,
+                             rows: datatable_csv_rows(table, datatable_scoped(table)))
+      end
+    end
   end
 
   def hide_form

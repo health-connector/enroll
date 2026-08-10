@@ -74,6 +74,7 @@ Rails.application.routes.draw do
         get :family_index
         get :family_index_dt
         get :outstanding_verification_dt
+        get :outstanding_verifications_datatable
         post :families_index_datatable
         get :employer_index
         post :employer_poc_datatable

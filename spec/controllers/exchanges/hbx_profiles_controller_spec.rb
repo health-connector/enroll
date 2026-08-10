@@ -325,6 +325,80 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       end
     end
   end
+
+  describe "Action # outstanding_verifications_datatable (:refactored_datatables)", dbclean: :after_each do
+    let(:person) { double("person", hbx_staff_role: double("hbx_staff_role")) }
+    let(:user) { double("user", :has_hbx_staff_role? => true, :person => person, :last_portal_visited => nil) }
+
+    before :each do
+      allow(user).to receive(:has_role?).with(:hbx_staff).and_return(true)
+      allow(EnrollRegistry).to receive(:feature_enabled?).and_call_original
+      allow(EnrollRegistry).to receive(:feature_enabled?).with(:refactored_datatables).and_return(true)
+      sign_in(user)
+    end
+
+    context "when the :refactored_datatables flag is disabled" do
+      before do
+        allow(EnrollRegistry).to receive(:feature_enabled?).with(:refactored_datatables).and_return(false)
+      end
+
+      it "404s the fragment endpoint" do
+        expect { get :outstanding_verifications_datatable, format: :html }.to raise_error(ActionController::RoutingError)
+      end
+
+      it "builds the legacy datatable on outstanding_verification_dt" do
+        get :outstanding_verification_dt, xhr: true, format: :js
+        expect(assigns(:datatable)).to be_a(Effective::Datatables::OutstandingVerificationDataTable)
+        expect(assigns(:outstanding_verifications_datatable_locals)).to be_nil
+      end
+    end
+
+    context "when the user is not an HBX staff member" do
+      let(:user) { double("user", :has_hbx_staff_role? => false, :person => person, :last_portal_visited => nil) }
+
+      it "denies access" do
+        get :outstanding_verifications_datatable, format: :html
+        expect(response).not_to have_http_status(:success)
+      end
+    end
+
+    context "when authorized with the flag enabled" do
+      it "renders the table fragment without a layout" do
+        get :outstanding_verifications_datatable, format: :html
+        expect(response).to have_http_status(:success)
+        expect(response).to render_template("datatables/_table")
+      end
+
+      it "prepares the datatable locals (incl. date range) on outstanding_verification_dt" do
+        get :outstanding_verification_dt, xhr: true, format: :js
+        expect(assigns(:outstanding_verifications_datatable_locals)).to include(:table, :pagy, :records, :url, :date_from, :date_to)
+        expect(assigns(:datatable)).to be_nil
+      end
+
+      # The action streams via response_body=Enumerator, so the test response
+      # body must be materialized before parsing.
+      def streamed_csv_rows
+        body = response.body
+        CSV.parse(body.is_a?(String) ? body : body.to_a.join)
+      end
+
+      it "streams a CSV with the excluded-actions header row" do
+        get :outstanding_verifications_datatable, params: { documents_uploaded: "all" }, format: :csv
+        expect(response.headers["Content-Type"]).to eq("text/csv; charset=utf-8")
+        expect(response.headers["Content-Disposition"]).to include('filename="outstanding_verifications.csv"')
+        rows = streamed_csv_rows
+        expect(rows.first).to eq(["Name", "SSN", "DOB", "HBX ID", "Count", "Documents Uploaded", "Verification Due"])
+      end
+
+      it "passes the date-range params through to the export without error" do
+        get :outstanding_verifications_datatable,
+            params: { documents_uploaded: "all", custom_datatable_date_from: "2026-01-01", custom_datatable_date_to: "2026-12-31" },
+            format: :csv
+        expect(response.headers["Content-Disposition"]).to include('filename="outstanding_verifications.csv"')
+        expect(streamed_csv_rows.first).to eq(["Name", "SSN", "DOB", "HBX ID", "Count", "Documents Uploaded", "Verification Due"])
+      end
+    end
+  end
 =begin
   describe "#create" do
     let(:user) { double("User")}

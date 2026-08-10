@@ -6,8 +6,11 @@
      data-datatable-per-value="<%= pagy.limit %>"
      data-datatable-search-value="<%= search %>"
      data-datatable-order-value="<%= order %>"
-     data-datatable-dir-value="<%= dir %>">
+     data-datatable-dir-value="<%= dir %>"
+     data-datatable-date-from-value="<%= date_from %>"
+     data-datatable-date-to-value="<%= date_to %>">
   <%= render partial: 'datatables/filter_tabs', locals: { filters: table.filters } if table.filters %>
+  <%= render partial: 'datatables/date_filter', locals: { filter_name: table.date_filter } if table.date_filter %>
   <div id="effective_datatable_wrapper" data-datatable-target="wrapper">
     <%= render partial: 'datatables/table',
                locals: { table: table, pagy: pagy, records: records, url: url, search: search, order: order, dir: dir } %>
