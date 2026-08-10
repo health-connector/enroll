@@ -502,6 +502,95 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
     end
   end
 
+  describe "Action # families_datatable (:refactored_datatables)", dbclean: :after_each do
+    let(:person) { double("person", hbx_staff_role: double("hbx_staff_role")) }
+    let(:user) { double("user", :has_hbx_staff_role? => true, :person => person, :last_portal_visited => nil) }
+
+    before :each do
+      allow(user).to receive(:has_role?).with(:hbx_staff).and_return(true)
+      allow(EnrollRegistry).to receive(:feature_enabled?).and_call_original
+      allow(EnrollRegistry).to receive(:feature_enabled?).with(:refactored_datatables).and_return(true)
+      sign_in(user)
+    end
+
+    context "when the :refactored_datatables flag is disabled" do
+      before do
+        allow(EnrollRegistry).to receive(:feature_enabled?).with(:refactored_datatables).and_return(false)
+      end
+
+      it "404s the fragment endpoint" do
+        expect { get :families_datatable, format: :html }.to raise_error(ActionController::RoutingError)
+      end
+
+      it "builds the legacy datatable on family_index_dt" do
+        get :family_index_dt, xhr: true, format: :js
+        expect(assigns(:datatable)).to be_a(Effective::Datatables::FamilyDataTable)
+        expect(assigns(:families_datatable_locals)).to be_nil
+      end
+    end
+
+    context "when the user is not an HBX staff member" do
+      let(:user) { double("user", :has_hbx_staff_role? => false, :person => person, :last_portal_visited => nil) }
+
+      it "denies access" do
+        get :families_datatable, format: :html
+        expect(response).not_to have_http_status(:success)
+      end
+    end
+
+    context "when authorized with the flag enabled" do
+      it "renders the table fragment without a layout" do
+        get :families_datatable, format: :html
+        expect(response).to have_http_status(:success)
+        expect(response).to render_template("datatables/_table")
+      end
+
+      it "prepares the datatable locals and the selector on family_index_dt" do
+        get :family_index_dt, xhr: true, format: :js, params: { scopes: { selector: "assited" } }
+        expect(assigns(:families_datatable_locals)).to include(:table, :pagy, :records, :url)
+        expect(assigns(:selector)).to eq("assited")
+        expect(assigns(:datatable)).to be_nil
+      end
+
+      # The action streams via response_body=Enumerator, so the test response
+      # body must be materialized before parsing.
+      def streamed_csv_rows
+        body = response.body
+        CSV.parse(body.is_a?(String) ? body : body.to_a.join)
+      end
+
+      it "streams a CSV with the excluded-actions header row" do
+        get :families_datatable, params: { families: "all" }, format: :csv
+        expect(response.headers["Content-Type"]).to eq("text/csv; charset=utf-8")
+        expect(response.headers["Content-Disposition"]).to include('filename="families.csv"')
+        expect(streamed_csv_rows.first).to eq(
+          ["Name", "SSN", "DOB", "HBX ID", "Count", "Active Enrollments?", "Registered?", "Employee?"]
+        )
+      end
+
+      it "hands the active filter tab to the query wrapper for the export" do
+        expect(Queries::FamilyDatatableQuery).to receive(:new)
+          .with(hash_including("families" => "non_enrolled")).and_call_original
+        get :families_datatable, params: { families: "non_enrolled" }, format: :csv
+        expect(response.headers["Content-Disposition"]).to include('filename="families.csv"')
+      end
+
+      context "with real family data" do
+        let!(:family_one) { FactoryBot.create(:family, :with_primary_family_member) }
+        let!(:family_two) { FactoryBot.create(:family, :with_primary_family_member) }
+
+        it "streams every active family, not just the visible page" do
+          get :families_datatable, params: { families: "all" }, format: :csv
+          rows = streamed_csv_rows
+          expect(rows.size).to eq(3)
+          expect(rows.drop(1).map(&:first)).to match_array(
+            [family_one.primary_applicant.person.full_name, family_two.primary_applicant.person.full_name]
+          )
+        end
+      end
+    end
+  end
+
   describe "Action # bulk actions (Generate Invoice / Mark Binder Paid round-trip)", dbclean: :after_each do
     let(:site) { FactoryBot.create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
     let(:employer_organization) do
