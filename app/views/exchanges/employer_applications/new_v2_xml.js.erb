@@ -1,0 +1,50 @@
+$(document).ready(function() {
+    // Ensure the modal wrapper is present
+    $('body').before('<div id="modal-wrapper"></div>');
+    $('#modal-wrapper').html("<%= escape_javascript(render 'new_v2_xml') %>");
+    $('#modal-wrapper').fadeIn();
+
+    // Handle form submission
+    $('#upload-form').on('submit', function(event) {
+        event.preventDefault(); // Prevent default form submission
+
+        // Create FormData object from the form
+        var formData = new FormData(this);
+
+        $.ajax({
+            url: $(this).attr('action'),
+            type: $(this).attr('method'),
+            data: formData,
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content') // CSRF token for Rails
+            },
+            success: function(response) {
+                $('#modal-wrapper').fadeOut();
+
+                var successMessage = response.success_message;
+                var errorMessage = response.error_message;
+                // v2-xml-result-row rather than child-row because child-row marks the
+                // wrapper holding the whole applications table
+                var $anchorRow = $("#v2_xml_inputs_<%= @application.id %>");
+                $('tr.v2-xml-result-row').remove();
+                $anchorRow.after('<tr class="v2-xml-result-row"><td colspan="100"><%= j render 'v2_xml_result' %></td></tr>');
+                $('.dropdown.pull-right').removeClass('open');
+
+                if (successMessage) {
+                    $('#success_message').text(successMessage).show();
+                }
+
+                if (errorMessage) {
+                    $('#error_message').text(errorMessage).show();
+                }
+            },
+            error: function(xhr) {
+              var parsed = xhr.responseJSON;
+              var errorMessage = parsed ? parsed.error_message : 'File upload failed.';
+              $('#error_message').text(errorMessage).show();
+            }
+        });
+    });
+});

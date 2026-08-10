@@ -201,11 +201,30 @@ module Notifier
     end
 
     def send_generic_notice_alert_to_broker
-      if resource.is_a?(BenefitSponsors::Organizations::AcaShopCcaEmployerProfile) && resource.broker_agency_profile.present?
-        broker_name = resource.broker_agency_profile.primary_broker_role.person.full_name
-        broker_email = resource.broker_agency_profile.primary_broker_role.email_address
-        UserMailer.generic_notice_alert_to_ba(broker_name, broker_email, resource.legal_name.titleize).deliver_now
+      return unless resource.is_a?(BenefitSponsors::Organizations::AcaShopCcaEmployerProfile)
+
+      primary_broker_role = resource.broker_agency_profile&.primary_broker_role
+      broker_person = primary_broker_role&.person
+      return if broker_person.blank?
+
+      UserMailer.generic_notice_alert_to_ba(broker_person.full_name, primary_broker_role.email_address, resource.legal_name.titleize).deliver_now
+      create_broker_inbox_message(broker_person)
+    end
+
+    def create_broker_inbox_message(broker_person)
+      if broker_person.inbox.blank?
+        broker_person.inbox = Inbox.new
+        broker_person.save!
       end
+      message_body = "A notice has been generated for your client, #{resource.legal_name.titleize}. Please log in to your account to view this message or navigate to their employer account to review the notice."
+      message = broker_person.inbox.messages.build(
+        subject: "New Notice: #{subject}",
+        body: message_body,
+        from: site_short_name
+      )
+      message.save!
+    rescue StandardError => e
+      Rails.logger.error("Failed to create broker inbox message for person #{broker_person.id}: #{e.message}")
     end
 
     def store_paper_notice

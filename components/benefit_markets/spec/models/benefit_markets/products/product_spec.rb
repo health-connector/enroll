@@ -384,5 +384,49 @@ module BenefitMarkets
         end
       end
     end
+
+    describe '#create_copy_for_embedding' do
+      let(:product) { FactoryBot.create(:benefit_markets_products_product) }
+
+      before do
+        product.sbc_document = ::Document.new(
+          subject: 'SBC',
+          identifier: 'urn:openhbx:terms:v1:file_storage:s3:bucket:sbc#sample-key'
+        )
+        product.save!
+        product.reload
+      end
+
+      it 'strips the legacy _type discriminator from sbc_document before rebuilding through attribute setters' do
+        # Guard: stored sbc_documents carry the discriminator (Document is
+        # hereditary), which is what breaks rake tasks that never load a
+        # Document subclass
+        expect(product.attributes['sbc_document']).to have_key('_type')
+
+        constructor_attrs = nil
+        allow(described_class).to receive(:new).and_wrap_original do |original, *args|
+          constructor_attrs = args.first
+          original.call(*args)
+        end
+
+        product.create_copy_for_embedding
+
+        expect(constructor_attrs['sbc_document']).not_to have_key('_type')
+      end
+
+      it 'preserves the sbc_document content on the copy' do
+        copy = product.create_copy_for_embedding
+
+        expect(copy.sbc_document.subject).to eq('SBC')
+        expect(copy.sbc_document.identifier).to eq(product.sbc_document.identifier)
+      end
+
+      it 'copies the premium tables without their tuples' do
+        copy = product.create_copy_for_embedding
+
+        expect(copy.premium_tables.size).to eq(product.premium_tables.size)
+        expect(copy.premium_tables.flat_map(&:premium_tuples)).to be_empty
+      end
+    end
   end
 end
