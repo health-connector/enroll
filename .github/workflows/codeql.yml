@@ -93,3 +93,7 @@ jobs:
       uses: github/codeql-action/analyze@v4
       with:
         category: "/language:${{matrix.language}}"
+        # Fail the workflow job when CodeQL finds any alert at error or warning
+        # severity that is not suppressed via a CodeQL alert dismissal in the
+        # GitHub Security tab.  This ensures untracked findings block the PR.
+        fail-on: warning

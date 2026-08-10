@@ -90,25 +90,31 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
 
   describe '#check_name_dob_prehash' do
     context 'when prehash_map or hmac_key is missing' do
-      it 'fails with a descriptive issue message when both are nil' do
+      it 'passes (skipped) with a prominent SKIPPED note in samples when both are nil' do
         result = verifier.send(:check_name_dob_prehash)
-        expect(result[:passed]).to be false
-        expect(result[:issues]).to include('not provided')
-        expect(result[:samples]).to eq('not provided')
+        expect(result[:passed]).to be true
+        expect(result[:issues]).to eq('None')
+        expect(result[:samples]).to include('SKIPPED')
+        expect(result[:samples]).to include('name+DOB mutation NOT verified')
       end
 
-      it 'fails when only hmac_key is nil' do
+      it 'emits a WARNING log line when skipped' do
+        expect(Rails.logger).to receive(:info).with(a_string_including('WARNING'))
+        verifier.send(:check_name_dob_prehash)
+      end
+
+      it 'passes (skipped) when only hmac_key is nil' do
         v = described_class.new(mode: :audit, prehash_map: { people: {} }, hmac_key: nil)
         result = v.send(:check_name_dob_prehash)
-        expect(result[:passed]).to be false
-        expect(result[:issues]).to include('not provided')
+        expect(result[:passed]).to be true
+        expect(result[:samples]).to include('SKIPPED')
       end
 
-      it 'fails when only prehash_map is nil' do
+      it 'passes (skipped) when only prehash_map is nil' do
         v = described_class.new(mode: :audit, prehash_map: nil, hmac_key: 'somekey')
         result = v.send(:check_name_dob_prehash)
-        expect(result[:passed]).to be false
-        expect(result[:issues]).to include('not provided')
+        expect(result[:passed]).to be true
+        expect(result[:samples]).to include('SKIPPED')
       end
     end
 
@@ -274,6 +280,22 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
     it 'includes ach_routing_number — ABA routing numbers are always 9 digits and validated separately' do
       expect(skip_fields).to include('ach_routing_number')
     end
+
+    it 'includes npn and corporate_npn — public broker NPNs intentionally preserved by the runner' do
+      expect(skip_fields).to include('npn', 'corporate_npn')
+    end
+
+    it 'includes content — free-text Comment/Announcement field may contain incidental 9-digit tokens' do
+      expect(skip_fields).to include('content')
+    end
+
+    it 'includes dba — organization doing-business-as name intentionally preserved per policy' do
+      expect(skip_fields).to include('dba')
+    end
+
+    it 'includes versions — inline mongoid-history snapshot array is not scanned for SSN patterns' do
+      expect(skip_fields).to include('versions')
+    end
   end
 
   # @!group doc_strings — recursive string extractor tests
@@ -308,6 +330,32 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
       expect(verifier.send(:doc_strings, doc).to_a).to eq(['Bob'])
     end
 
+    it 'skips npn and corporate_npn so broker NPNs are not yielded' do
+      doc = { 'npn' => '120002398', 'corporate_npn' => '216179133', 'name' => 'Agency' }
+      expect(verifier.send(:doc_strings, doc).to_a).to eq(['Agency'])
+    end
+
+    it 'skips content so operator-entered narrative text is not scanned for SSN patterns' do
+      doc = { 'comments' => [{ 'content' => 'received payment 120002398 from group' }], 'hbx_id' => '42' }
+      expect(verifier.send(:doc_strings, doc).to_a).to eq(['42'])
+    end
+
+    it 'skips dba so numeric doing-business-as names are not yielded' do
+      doc = { 'dba' => '125000024', 'legal_name' => 'Acme Corp' }
+      expect(verifier.send(:doc_strings, doc).to_a).to eq(['Acme Corp'])
+    end
+
+    it 'skips the versions key so inline mongoid-history snapshots are not scanned' do
+      doc = {
+        'first_name' => 'Alice',
+        'versions' => [
+          { 'phones' => [{ 'full_phone_number' => '216179133' }] },
+          { 'broker_agency_profile' => { 'ach_account_number' => '163674734' } }
+        ]
+      }
+      expect(verifier.send(:doc_strings, doc).to_a).to eq(['Alice'])
+    end
+
     it 'returns an enumerator when no block is given' do
       expect(verifier.send(:doc_strings, 'test')).to be_a(Enumerator)
     end
@@ -315,6 +363,119 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
     it 'ignores non-string scalar values (integers, booleans, nil)' do
       doc = { 'count' => 42, 'active' => true, 'note' => nil, 'tag' => 'yes' }
       expect(verifier.send(:doc_strings, doc).to_a).to eq(['yes'])
+    end
+  end
+
+  # @!group Unredacted filename pattern - tests for UNREDACTED_FILENAME_PATTERN
+
+  describe 'UNREDACTED_FILENAME_PATTERN' do
+    subject(:pattern) { described_class::UNREDACTED_FILENAME_PATTERN }
+
+    it 'matches a body with a real filename parameter' do
+      expect('href=/x?filename=EmployerInvoiceAvailable.pdf&disposition=inline').to match(pattern)
+    end
+
+    it 'does not match a redacted filename parameter' do
+      expect('href=/x?filename=document-redacted&disposition=inline').not_to match(pattern)
+    end
+  end
+
+  # @!group check_inbox_messages - residual filename detection
+
+  describe '#check_inbox_messages' do
+    let(:people_collection) { instance_double(Mongo::Collection) }
+    let(:orgs_collection) { instance_double(Mongo::Collection) }
+    let(:bs_orgs_collection) { instance_double(Mongo::Collection) }
+
+    before do
+      allow(db_double).to receive(:[]).with(:people).and_return(people_collection)
+      allow(db_double).to receive(:[]).with(:organizations).and_return(orgs_collection)
+      allow(db_double).to receive(:[]).with(:benefit_sponsors_organizations_organizations).and_return(bs_orgs_collection)
+      allow(orgs_collection).to receive(:count_documents).and_return(0)
+      allow(bs_orgs_collection).to receive(:count_documents).and_return(0)
+    end
+
+    def stub_people_sample(doc)
+      view = instance_double(Mongo::Collection::View)
+      allow(people_collection).to receive(:count_documents).and_return(1)
+      allow(people_collection).to receive(:find).and_return(view)
+      allow(view).to receive(:projection).and_return(view)
+      allow(view).to receive(:limit).and_return([doc])
+    end
+
+    it 'passes when sampled message bodies contain only redacted filenames' do
+      stub_people_sample('inbox' => { 'messages' => [{ 'body' => 'a?filename=document-redacted' }] })
+      result = verifier.send(:check_inbox_messages)
+      expect(result[:passed]).to be true
+    end
+
+    it 'fails when a sampled message body still contains a real filename' do
+      stub_people_sample('inbox' => { 'messages' => [{ 'body' => 'a?filename=EmployerInvoice.pdf' }] })
+      result = verifier.send(:check_inbox_messages)
+      expect(result[:passed]).to be false
+      expect(result[:issues]).to include('people')
+    end
+
+    it 'checks broker agency and hbx profile inbox paths on organizations' do
+      allow(people_collection).to receive(:count_documents).and_return(0)
+      expect(orgs_collection).to receive(:count_documents).with({ 'employer_profile.inbox.messages.0' => { '$exists' => true } }).and_return(0)
+      expect(orgs_collection).to receive(:count_documents).with({ 'broker_agency_profile.inbox.messages.0' => { '$exists' => true } }).and_return(0)
+      expect(orgs_collection).to receive(:count_documents).with({ 'hbx_profile.inbox.messages.0' => { '$exists' => true } }).and_return(0)
+      verifier.send(:check_inbox_messages)
+    end
+  end
+
+  # @!group check_document_identifiers - residual S3 identifier detection
+
+  describe '#check_document_identifiers' do
+    let(:people_collection) { instance_double(Mongo::Collection) }
+    let(:orgs_collection) { instance_double(Mongo::Collection) }
+
+    before do
+      allow(db_double).to receive(:[]).with(:people).and_return(people_collection)
+      allow(db_double).to receive(:[]).with(:organizations).and_return(orgs_collection)
+      allow(orgs_collection).to receive(:count_documents).and_return(0)
+    end
+
+    it 'passes when no embedded documents carry a real identifier' do
+      allow(people_collection).to receive(:count_documents).and_return(0)
+      result = verifier.send(:check_document_identifiers)
+      expect(result[:passed]).to be true
+    end
+
+    it 'fails when embedded documents still hold non anonymized identifiers' do
+      allow(people_collection).to receive(:count_documents).and_return(2)
+      result = verifier.send(:check_document_identifiers)
+      expect(result[:passed]).to be false
+      expect(result[:issues]).to include('people')
+    end
+
+    it 'checks the org level and broker agency document paths on organizations' do
+      allow(people_collection).to receive(:count_documents).and_return(0)
+      expect(orgs_collection).to receive(:count_documents).with({ 'documents.0' => { '$exists' => true } }).and_return(0)
+      expect(orgs_collection).to receive(:count_documents).with({ 'employer_profile.documents.0' => { '$exists' => true } }).and_return(0)
+      expect(orgs_collection).to receive(:count_documents).with({ 'broker_agency_profile.documents.0' => { '$exists' => true } }).and_return(0)
+      expect(orgs_collection).to receive(:count_documents).with(hash_including('documents' => anything)).and_return(0)
+      expect(orgs_collection).to receive(:count_documents).with(hash_including('employer_profile.documents' => anything)).and_return(0)
+      expect(orgs_collection).to receive(:count_documents).with(hash_including('broker_agency_profile.documents' => anything)).and_return(0)
+      verifier.send(:check_document_identifiers)
+    end
+
+    it 'skips the benefit sponsors documents collection when it is absent' do
+      allow(people_collection).to receive(:count_documents).and_return(0)
+      expect(db_double).not_to receive(:[]).with(:benefit_sponsors_documents_documents)
+      verifier.send(:check_document_identifiers)
+    end
+
+    it 'excludes issuer profile documents from the benefit sponsors check' do
+      bs_collection = instance_double(Mongo::Collection)
+      allow(db_double).to receive(:collection_names).and_return(['benefit_sponsors_documents_documents'])
+      allow(db_double).to receive(:[]).with(:benefit_sponsors_documents_documents).and_return(bs_collection)
+      allow(people_collection).to receive(:count_documents).and_return(0)
+      expect(bs_collection).to receive(:count_documents).with(
+        hash_including('documentable_type' => { '$ne' => 'BenefitSponsors::Organizations::IssuerProfile' })
+      ).twice.and_return(0)
+      verifier.send(:check_document_identifiers)
     end
   end
 end

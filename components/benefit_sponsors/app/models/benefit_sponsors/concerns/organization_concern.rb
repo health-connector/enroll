@@ -67,7 +67,7 @@ module BenefitSponsors
           return if location_kinds.detect{|kind| ['work', 'home'].include?(kind)}
 
           return if location_kinds.empty?
-
+          location_kinds = office_locations.flat_map(&:address).compact.flat_map(&:kind)
           if location_kinds.count('primary').zero?
             errors.add(:base, "must select one primary address")
           elsif location_kinds.count('primary') > 1
@@ -75,9 +75,6 @@ module BenefitSponsors
           elsif location_kinds.count('mailing') > 1
             errors.add(:base, "can't have more than one mailing address")
           end
-          return unless errors.none? # this means that the validation succeeded and we can delete all the persisted ones
-
-          office_locations.delete_if(&:persisted?)
         end
 
         def check_legal_name_or_fein_changed?

@@ -68,7 +68,14 @@ Rails.application.configure do
   #:namespace => "cache",
   #:expires_in => 90.minutes }
 
-  config.cache_store = :redis_cache_store, { url: "redis://#{ENV.fetch('REDIS_HOST_ENROLL', nil)}:6379" }
+  config.cache_store = :redis_cache_store, {
+    url: "redis://valkey-master",
+    sentinels: [
+      { host: ENV.fetch('REDIS_HOST_ENROLL', ''), port: 26379 }
+    ],
+    role: :master,
+    namespace: "cache"
+  }
 
   # Enable serving of images, stylesheets, and JavaScripts from an asset server.
   # config.action_controller.asset_host = 'http://assets.example.com'
@@ -140,3 +147,13 @@ Rails.application.configure do
     config.middleware.swap ActionDispatch::RemoteIp, ActionDispatch::RemoteIp, false, all_proxies
   end
 end
+
+# rubocop:disable Style/GlobalVars
+$redis = Resque.redis = Redis.new(
+  url: "redis://valkey-master",
+  sentinels: [
+    { host: ENV.fetch('REDIS_HOST_ENROLL', ''), port: 26379 }
+  ],
+  role: :master
+)
+# rubocop:enable Style/GlobalVars

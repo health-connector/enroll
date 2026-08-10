@@ -73,7 +73,7 @@ class ApplicationController < ActionController::Base
     flash[:error] = "Access not allowed for #{policy_name}.#{exception.query}, (Pundit policy)"
     respond_to do |format|
       format.json { render nothing: true, status: :forbidden }
-      format.html { redirect_to(url_from(request.referrer) || root_path) }
+      format.html { redirect_back(fallback_location: root_path, allow_other_host: false) }
       format.js { head :forbidden }
     end
   end

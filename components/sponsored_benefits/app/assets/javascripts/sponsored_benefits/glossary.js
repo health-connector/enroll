@@ -12,7 +12,73 @@ $(document).on("turbolinks:load ajax:success", function() {
   });
 });
 
+/**
+ * Replaces glossary terms with popover spans using word-boundary matching
+ * Handles optional trailing 's' for plurals without RegExp
+ * @param {string} text - The text to search
+ * @param {string} term - The glossary term to find
+ * @param {string} replacement - The HTML replacement for matched terms
+ * @returns {string} Text with glossary terms replaced
+ */
+function replaceGlossaryTerm(text, term, replacement) {
+    var result = '';
+    var lowerTerm = term.toLowerCase();
+    var lowerText = text.toLowerCase();
+    var lastIndex = 0;
+    var searchIndex = 0;
+
+    while ((searchIndex = lowerText.indexOf(lowerTerm, searchIndex)) !== -1) {
+        var endIndex = searchIndex + term.length;
+        var matchesPlural = false;
+
+        // Check for optional trailing 's' for plurals
+        if (endIndex < text.length && lowerText[endIndex] === 's') {
+            // Check if 's' is a word character boundary (part of plural)
+            var nextCharIndex = endIndex + 1;
+            var nextCharValid = nextCharIndex >= text.length || /\s|[^a-zA-Z0-9]/.test(text[nextCharIndex]);
+            if (nextCharValid) {
+                matchesPlural = true;
+                endIndex++;
+            }
+        }
+
+        // Check word boundary before match
+        var isWordBoundaryBefore = searchIndex === 0 || /\s|[^a-zA-Z0-9]/.test(text[searchIndex - 1]);
+
+        // Check word boundary after match (or after plural 's')
+        var charAfterMatch = endIndex < text.length ? text[endIndex] : '';
+        var isWordBoundaryAfter = endIndex === text.length || /\s|[^a-zA-Z0-9]/.test(charAfterMatch);
+
+        if (isWordBoundaryBefore && isWordBoundaryAfter) {
+            result += text.substring(lastIndex, searchIndex) + replacement;
+            lastIndex = endIndex;
+        }
+
+        searchIndex = endIndex;
+    }
+
+    result += text.substring(lastIndex);
+    return result;
+}
+
+var _glossaryDebounceTimer;
 function runGlossary() {
+  clearTimeout(_glossaryDebounceTimer);
+  _glossaryDebounceTimer = setTimeout(_runGlossaryNow, 50);
+}
+
+function glossaryPopoverOptions(options) {
+  return $.extend({
+    template: '<div class="popover glossary-popover" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>'
+  }, options || {});
+}
+
+function resetGlossaryPopovers() {
+  $('.glossary[data-toggle="popover"]').popover('destroy');
+  $('.glossary-popover').remove();
+}
+
+function _runGlossaryNow() {
   if ($('.run-glossary').length) {
     var terms = [
       {
@@ -34,14 +100,14 @@ function runGlossary() {
         // finds every instance of the term on the page
         $('.run-glossary:contains(' + term.term + ')').each(function(i, matchingEl) {
           // matches the exact or plural term
-          var termRegex    = new RegExp("\\b(?:" + term.term + "[s]?)\\b", "gi");
           var popoverRegex = new RegExp("(<span class=\"glossary\".+?<\/span>)");
           var description  = term.description;
           var newElement   = "";
+          var popoverHtml  = '<span class="glossary" data-toggle="popover" data-placement="auto top" data-trigger="click focus" data-boundary="window" data-fallbackPlacement="flip" data-html="true" data-content="' + description + '" data-title="' + term.term + '<button data-dismiss=\'modal\' type=\'button\' class=\'close\' aria-label=\'Close\' onclick=\'hideGlossaryPopovers()\'></button>">' + term.term + '</span>';
           $(matchingEl).html().toString().split(popoverRegex).forEach(function(text){
             // if a matching term has not yet been given a popover, replace it with the popover element
             if (!text.includes("class=\"glossary\"")) {
-              newElement += text.replace(termRegex, '<span class="glossary" data-toggle="popover" data-placement="auto top" data-trigger="click focus" data-boundary="window" data-fallbackPlacement="flip" data-html="true" data-content="' + description + '" data-title="' + term.term + '<button data-dismiss=\'modal\' type=\'button\' class=\'close\' aria-label=\'Close\' onclick=\'hideGlossaryPopovers()\'></button>">' + term.term + '</span>');
+              newElement += replaceGlossaryTerm(text, term.term, popoverHtml);
             }
             else {
               // if the term has already been given a popover, do not search it again
@@ -51,39 +117,52 @@ function runGlossary() {
           });
         });
     });
+
+    resetGlossaryPopovers();
     if( $('#referencePlans').length > 0 ) {
-      $('[data-toggle="popover"]').popover({container: '#referencePlans'});
+      $('.glossary[data-toggle="popover"]').popover(glossaryPopoverOptions({container: '#referencePlans'}));
     }
     else if ( $('.plan-type-filters').length > 0 ) {
-      $('[data-toggle="popover"]').popover({container: '.plan-type-filters', placement: 'left'});
+      $('.glossary[data-toggle="popover"]').popover(glossaryPopoverOptions({container: '.plan-type-filters', placement: 'left'}));
     }
     else if ( $('.reference-plans').length > 0 ) {
-      $('[data-toggle="popover"]').popover({container: '.reference-plans'});
+      $('.glossary[data-toggle="popover"]').popover(glossaryPopoverOptions({container: '.reference-plans'}));
     }
     else if ( $('.enrollment-tile').length > 0 ) {
-      $('[data-toggle="popover"]').popover({container: '.enrollment-tile'});
+      $('.glossary[data-toggle="popover"]').each(function() {
+        var container = $(this).closest('.enrollment-tile');
+        $(this).popover(glossaryPopoverOptions({ container: container.length ? container[0] : 'body' }));
+      });
     }
     else {
-      $('[data-toggle="popover"]').popover();
+      $('.glossary[data-toggle="popover"]').popover(glossaryPopoverOptions());
     }
 
-    // Because of the change to popover on click instead of hover, you need to
-    // manually close each popover. This will close others if you click to open one
-    // or click outside of a popover.
-
-    $(document).click(function(e){
-      if (e.target.className == 'glossary') {
-        e.preventDefault();
-        $('.glossary').not($(e.target)).popover('hide');
-      }
-      else if (!$(e.target).parents('.popover').length) {
-        $('.glossary').popover('hide');
-      }
-    });
   }
 }
-
 
 function hideGlossaryPopovers() {
   $('.glossary').popover('hide');
 }
+
+// Because of the change to popover on click instead of hover, you need to
+// manually close each popover. This will close others if you click to open one
+// or click outside of a popover.
+// Registered once using a namespaced event to prevent accumulation when
+// runGlossary() is called multiple times (e.g. once per enrollment tile partial).
+$(document).off('click.glossary').on('click.glossary', function(e){
+  if (e.target.className == 'glossary') {
+    e.preventDefault();
+    $('.glossary').not($(e.target)).popover('hide');
+    $('.glossary-popover').not('#' + ($(e.target).attr('aria-describedby') || '')).remove();
+  }
+  else if (!$(e.target).parents('.popover').length) {
+    $('.glossary').popover('hide');
+    $('.glossary-popover').remove();
+  }
+});
+
+$(document).off('shown.bs.popover.glossary', '.glossary').on('shown.bs.popover.glossary', '.glossary', function(){
+  var activePopoverId = $(this).attr('aria-describedby');
+  $('.glossary-popover').not('#' + (activePopoverId || '')).remove();
+});
