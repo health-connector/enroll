@@ -90,7 +90,9 @@ module BenefitSponsors
           authorize @employer_profile
           @billing_date = DateParser.smart_parse(params[:billing_date]) if params[:billing_date]
           if EnrollRegistry.feature_enabled?(:refactored_datatables)
-            @coverage_reports_datatable_locals = datatable_locals(coverage_reports_table, url: coverage_reports_datatable_url)
+            # Building the locals runs the report query, which the CSV export has
+            # already run through load_group_enrollments.
+            @coverage_reports_datatable_locals = datatable_locals(coverage_reports_table, url: coverage_reports_datatable_url) unless is_format_csv?
           else
             @datatable = ::Effective::Datatables::BenefitSponsorsCoverageReportsDataTable.new({ id: params.require(:employer_profile_id), billing_date: @billing_date})
           end
