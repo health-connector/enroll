@@ -6,7 +6,8 @@
   <% if table.bulk_actions.present? %>
     <%# Prepended inside .dt-buttons per the DOM parity contract. The button is disabled until a row is checked (the bulk-actions controller toggles it); each link posts the selected ids to its endpoint. %>
     <div class="btn-group buttons-bulk-actions">
-      <button aria-haspopup="" class="btn btn-default dropdown-toggle" data-toggle="dropdown" disabled="disabled" type="button"><%= l10n('datatables.bulk_actions') %><span class="caret"></span></button>
+      <%# The space before the caret is significant: it is the gap the legacy button rendered between its label and the caret. %>
+      <button aria-haspopup="" class="btn btn-default dropdown-toggle" data-toggle="dropdown" disabled="disabled" type="button"><%= l10n('datatables.bulk_actions') %> <span class="caret"></span></button>
       <ul class="dropdown-menu">
         <% table.bulk_actions.each do |action| %>
           <li><a data-confirm="<%= action[:confirm] %>" data-no-turbolink="true" href="<%= action[:url] %>"><%= action[:label] %></a></li>

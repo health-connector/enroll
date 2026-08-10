@@ -53,8 +53,10 @@ module Datatables
   #                       arrangement in the same shape
   #   #csv_headers      - header row for the streamed CSV export
   #   #csv_row(record)  - plain-text cell values for one CSV row
-  #   #row_partial      - partial rendered for each table row with locals
-  #                       row, table, row_class
+  #   #row_partial      - partial rendered for each table row with locals row,
+  #                       table, row_class and order (the ordered column name,
+  #                       needed only by rows whose sorting_1 cell shading moves
+  #                       between columns)
   module FragmentRendering
     extend ActiveSupport::Concern
 

@@ -4,6 +4,11 @@ require 'rails_helper'
 
 RSpec.describe 'notifier/notice_kinds/index.html.erb', type: :view do
   before do
+    # These examples render the legacy datatable branch, so they pin the flag
+    # rather than inheriting whatever the environment sets.
+    allow(EnrollRegistry).to receive(:feature_enabled?).and_call_original
+    allow(EnrollRegistry).to receive(:feature_enabled?).with(:refactored_datatables).and_return(false)
+
     assign(:errors, [])
     assign(:datatable, instance_double('Effective::Datatables::NoticesDatatable'))
 

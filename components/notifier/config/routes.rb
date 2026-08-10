@@ -7,6 +7,7 @@ Notifier::Engine.routes.draw do
     end
 
     collection do
+      get :notices_datatable
       get :download_notices
       get :get_tokens
       get :get_placeholders

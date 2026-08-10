@@ -15,7 +15,7 @@
   ]
 %>
 <tr class="<%= row_class %>">
-  <td class="col-bulk_actions_column col-bulk_actions"><%= check_box_tag 'bulk_actions_resources[]', row.to_param, false, autocomplete: 'off', id: "bulk_actions_resource_#{row.to_param}", data: { role: 'bulk-actions-resource' }, onClick: 'event.stopPropagation();' %></td>
+  <%= render partial: 'datatables/bulk_actions_cell', locals: { id: row.to_param } %>
   <td class="col-string col-employee_name sorting_1"><%= link_to row.full_name, main_app.employers_employer_profile_census_employee_path(employer_profile.id, row.id, tab: 'employees') %><br></td>
   <td class="col-string col-dob"><%= row.dob.strftime("%m/%d/%Y") if row.dob.present? %></td>
   <td class="col-string col-hired_on"><%= row.hired_on.strftime("%m/%d/%Y") if row.hired_on.present? %></td>
