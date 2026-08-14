@@ -200,8 +200,8 @@ RSpec.describe TimeKeeper, type: :model do
           stub_const("ActiveSupport::Notifications", notification_stub)
         end
 
-        it "should send a syslog critical error to the enterprise logger" do
-          notification_stub.expect_event("acapi.critical.application.enroll.logging", {:body => "date_of_record advance ledger missing - running events for #{base_date}"})
+        it "should send a syslog warning to the enterprise logger" do
+          notification_stub.expect_event("acapi.warn.application.enroll.logging", {:body => "date_of_record advance ledger missing - running events for #{base_date}"})
           expect { TimeKeeper.set_date_of_record(base_date) }.to raise_error(TkNotifyWrapper::ExpectedLogCallInvoked)
         end
       end
