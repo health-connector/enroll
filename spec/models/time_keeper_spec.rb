@@ -32,7 +32,7 @@ RSpec.describe TimeKeeper, type: :model do
       end
 
       it "should send a syslog info message to the enterprise logger" do
-        notification_stub.expect_event("acapi.info.application.enroll.logging", {:body => "date_of_record not available for TimeKeeper - using exchange time zone"})
+        notification_stub.expect_event("acapi.info.application.enroll.logging", {:body => "date_of_record cache miss - returning and restoring the exchange date via date_according_to_exchange_at"})
         expect { TimeKeeper.date_of_record }.to raise_error(TkNotifyWrapper::ExpectedLogCallInvoked)
       end
 
