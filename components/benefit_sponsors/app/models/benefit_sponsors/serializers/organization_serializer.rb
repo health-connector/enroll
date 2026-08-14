@@ -6,7 +6,8 @@ module BenefitSponsors
       attribute :entity_kind_options
 
       def is_general_organization?
-        object.is_a? BenefitSponsors::Organizations::GeneralOrganization
+        object.is_a?(BenefitSponsors::Organizations::GeneralOrganization) ||
+          object.is_a?(BenefitSponsors::Organizations::ExemptOrganization)
       end
 
       def entity_kind_options
