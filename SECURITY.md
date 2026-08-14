@@ -316,3 +316,46 @@ Removed `Mongoid::Attributes::Dynamic` from non-essential models and retained it
 1. Audit persisted attributes for `Person` and `BenefitSponsors::SponsoredBenefits::SponsorContribution`.
 2. Add explicit `field` definitions where required.
 3. Remove `Mongoid::Attributes::Dynamic` from the two remaining models after compatibility validation.
+
+### CKEditor 4.2.4 Bundler Audit Findings — August 2026
+
+**Vulnerability:**
+
+`bundler-audit` flags 14 advisories against `ckeditor` 4.2.4, all cross-site scripting (XSS) or content-filtering bypass issues in CKEditor 4's HTML/paste processing, plus one denial-of-service (ReDoS) advisory:
+
+- CVE-2020-27193 / GHSA-4m44-5j2g-xf64
+- CVE-2020-9281 / GHSA-vcjf-mgcg-jxjq
+- CVE-2021-26271 / GHSA-f6rf-9m92-x2hh (ReDoS in dialog plugin)
+- CVE-2021-26272 / GHSA-wpvm-wqr4-p7cw
+- CVE-2021-32809 / GHSA-7889-rm5j-hpgg
+- CVE-2021-37695 / GHSA-m94c-37g6-cjhc
+- CVE-2021-41164 / GHSA-pvmx-g8h5-cprj
+- CVE-2021-41165 / GHSA-7h26-63m7-qhf2
+- CVE-2022-24728 / GHSA-4fc4-4p5g-6w89
+- CVE-2023-4771 / GHSA-wh5w-82f3-wrxh
+- CVE-2024-24815 / GHSA-fq6h-4g8v-qqvm
+- CVE-2024-24816 / GHSA-mw2c-vx6j-mg76
+- CVE-2024-43407 / GHSA-7r32-vfj5-c2jv
+- CVE-2024-43411 / GHSA-6v96-m24v-f58j
+
+Several of these (2024 CVEs) have no available CKEditor 4.x patch at all — the `bundler-audit` solution for them is literally "remove or disable this gem until a patch is available." The only real fix for the full set is CKEditor 5 (`>= 5.1.2`), which is a major-version rewrite of the editor (different JS bundling/plugin model, different Rails helper API), not a version bump.
+
+**Exploitability in this application:**
+
+`ckeditor` is wired into a single feature: the `notifier` component's notice-template editor (`components/notifier/app/views/notifier/notice_kinds/_form.html.erb`, via the `cktext_area` helper). Every action on `Notifier::NoticeKindsController` is gated by `authorize ::Notifier::NoticeKind` (Pundit), so this editor is reachable only by staff/admin accounts already authorized to manage notice templates — it is not exposed to the public or to unauthenticated/untrusted end users. These CVEs are almost all "malicious HTML/paste content renders as script inside the editor" bypasses; exploiting them here would require an already-authorized admin account to paste or author crafted content that then executes against another admin viewing/editing the same template — a much narrower blast radius than the CVEs' public/anonymous-input CVSS ratings assume.
+
+**Mitigation:**
+
+Given no non-breaking patch exists and the exposure is limited to a trusted, Pundit-authorized staff workflow, we are documenting and ignoring these findings rather than attempting the CKEditor 5 migration as part of routine security-check remediation. The migration is being tracked separately as its own initiative given the scope (editor API rewrite, JS asset changes, and full regression testing of the notifier template-authoring UI).
+
+**Actions Taken:**
+
+1. Documented this issue and the mitigation rationale.
+2. Added all 14 CVE identifiers to `.bundler-audit.yml`'s ignore list.
+3. Opened a follow-up ticket to scope and schedule the CKEditor 5 migration.
+
+**Ongoing Measures:**
+
+1. Track the CKEditor 5 migration as a standalone initiative.
+2. Re-run `bundler-audit` after the migration lands to confirm these entries can be removed from the ignore list.
+3. Periodically re-check for a compatible CKEditor 4.x patch release that would allow closing individual advisories sooner.
