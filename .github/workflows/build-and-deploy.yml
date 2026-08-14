@@ -9,6 +9,7 @@ on:
       - rc-release-*
       - upgrade_to_rails_7_2
       - upgrade_to_rails_7_2_with_shakapacker
+      - 868knqw5y_buildx-multiarch
     tags:
       - 'v*'
   pull_request:
@@ -16,6 +17,7 @@ on:
       - master
       - upgrade_to_rails_7_2
       - upgrade_to_rails_7_2_with_shakapacker
+      - 868knqw5y_buildx-multiarch
 
 concurrency:
   group: docker-${{ github.ref }}
@@ -134,6 +136,8 @@ jobs:
         id: build_push
         uses: docker/build-push-action@v6
         with:
+          # cross-compilation: build images for both amd64 and arm64 on non 'pull_request'
+          platforms: ${{ github.event_name == 'pull_request' && 'linux/amd64' || 'linux/amd64,linux/arm64' }}
           context: .
           file: .docker/Dockerfile.gha
           # Set the desired build target stage here
