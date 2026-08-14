@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'rake'
 require 'ffaker'
 require Rails.root.join('lib/data_anonymization/anonymized_data')
 require Rails.root.join('lib/data_anonymization/runner')
@@ -1741,6 +1742,39 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
         expect(collections).to include(a_string_matching(/users/i))
         expect(collections).to include(a_string_matching(/families/i))
       end
+    end
+  end
+
+  # ============================================================================
+  # data:anonymize:verify rake task — protected account passthrough regression
+  # ============================================================================
+
+  describe 'data:anonymize:verify rake task' do
+    let(:protected_oim_id) { DataAnonymizer::Runner::PROTECTED_OIM_IDS.first }
+    let!(:protected_user) do
+      FactoryBot.create(:user, email: protected_oim_id, oim_id: protected_oim_id)
+    end
+
+    before do
+      load File.expand_path("#{Rails.root}/lib/tasks/data_anonymize.rake", __FILE__)
+      Rake::Task.define_task(:environment)
+      Rake::Task['data:anonymize:verify'].reenable
+      # Drop history_trackers and clear e_case_id so only the protected-account
+      # behavior under test can affect the outcome.
+      Mongoid.default_client.database[:history_trackers].drop rescue StandardError # rubocop:disable Style/RescueModifier
+      Mongoid.default_client.database[:families].update_many({}, { '$unset' => { 'e_case_id' => '' } })
+    end
+
+    it 'does not flag the protected operator account as a real email domain' do
+      captured = nil
+      allow_any_instance_of(DataAnonymizer::Verifier).to receive(:run).and_wrap_original do |method|
+        captured = method.call
+      end
+      Rake::Task['data:anonymize:verify'].invoke
+      results, all_passed, = captured
+      users_result = results.find { |r| r[:collection] =~ /Users/ }
+      expect(users_result[:passed]).to be true
+      expect(all_passed).to be true
     end
   end
 end
