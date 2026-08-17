@@ -31,17 +31,12 @@ module Queries
       end
       if @custom_attributes['families'] == 'by_enrollment_shop_market'
         family = family.by_enrollment_shop_market
-
-        case @custom_attributes['employer_options']
-        when 'waived'
-          family = family.coverage_waived
-        when 'by_enrollment_renewing'
-          family = family.by_enrollment_renewing
-        when 'sep_eligible'
-          family = family.all_enrollments.sep_eligible
-        else
-          family = family.all_enrollments
-        end
+        family = case @custom_attributes['employer_options']
+                 when 'waived'                then family.coverage_waived
+                 when 'by_enrollment_renewing' then family.by_enrollment_renewing
+                 when 'sep_eligible'           then family.all_enrollments.sep_eligible
+                 else                               family.all_enrollments
+                 end
       end
       if @custom_attributes['families'] == 'non_enrolled'
         family = family.non_enrolled
