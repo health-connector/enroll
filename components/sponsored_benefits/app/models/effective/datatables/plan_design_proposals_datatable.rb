@@ -12,7 +12,7 @@
                 link_to row.title, sponsored_benefits.edit_organizations_plan_design_organization_plan_design_proposal_path(row.plan_design_organization, row)
               end
               }, :sortable => false, :filter => false
-          table_column :effective_date, :label => 'Effective Date', :proc => Proc.new { |row| proposal_sponsorship(row).initial_enrollment_period.begin.strftime("%Y - %m - %d") }, :sortable => true, :filter => false
+          table_column :effective_date, :label => 'Effective Date', :proc => Proc.new { |row| proposal_sponsorship(row).initial_enrollment_period.begin.strftime("%m/%d/%Y") }, :sortable => true, :filter => false
           table_column :claim_code, :label => 'Claim Code', :proc => Proc.new { |row| row.claim_code || 'Not Published' }, :sortable => false, :filter => false
           table_column :employees, :label => 'Employees', :proc => Proc.new { |row| proposal_sponsorship(row).census_employees.count }, :sortable => false, :filter => false
           table_column :families, :label => "Families", :proc => Proc.new { |row| proposal_sponsorship(row).census_employees.where({ "census_dependents.0" => { "$exists" => true } }).count }, :sortable => false, :filter => false
