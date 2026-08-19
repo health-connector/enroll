@@ -4015,4 +4015,62 @@ describe HbxEnrollment,"reinstate and change end date", type: :model, :dbclean =
       end
     end
   end
+
+  describe "#terminate_coverage_with", dbclean: :after_each do
+    let(:enrollment) { HbxEnrollment.new }
+    let(:today)      { Date.new(2026, 9, 15) }
+
+    before :each do
+      TimeKeeper.set_date_of_record_unprotected!(today)
+    end
+
+    context "when the termination date is in the future" do
+      before :each do
+        allow(enrollment).to receive(:may_schedule_coverage_termination?).and_return(true)
+      end
+
+      it "schedules the termination" do
+        expect(enrollment).to receive(:schedule_coverage_termination!).with(today + 1.day)
+        enrollment.terminate_coverage_with(today + 1.day)
+      end
+
+      # Regression. This used to compare against a timestamp, so late in the
+      # exchange evening a future dated termination flipped to immediate.
+      context "and the process clock has rolled into the next UTC day" do
+        before :each do
+          allow(Time).to receive(:current).and_return(Time.utc(2026, 9, 16, 0, 30, 0))
+        end
+
+        it "still schedules rather than terminating immediately" do
+          expect(enrollment).to receive(:schedule_coverage_termination!).with(today + 1.day)
+          expect(enrollment).not_to receive(:terminate_coverage!)
+          enrollment.terminate_coverage_with(today + 1.day)
+        end
+      end
+    end
+
+    context "when the termination date is today" do
+      before :each do
+        allow(enrollment).to receive(:may_terminate_coverage?).and_return(true)
+        allow(enrollment).to receive(:update_current)
+      end
+
+      it "terminates immediately" do
+        expect(enrollment).to receive(:terminate_coverage!)
+        enrollment.terminate_coverage_with(today)
+      end
+    end
+
+    context "when the termination date is in the past" do
+      before :each do
+        allow(enrollment).to receive(:may_terminate_coverage?).and_return(true)
+        allow(enrollment).to receive(:update_current)
+      end
+
+      it "terminates immediately" do
+        expect(enrollment).to receive(:terminate_coverage!)
+        enrollment.terminate_coverage_with(today - 5.days)
+      end
+    end
+  end
 end
