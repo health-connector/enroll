@@ -1,0 +1,23 @@
+<%# One User Accounts table row. Cell values must stay identical to the legacy UserAccountDatatable column procs while both stacks coexist. %>
+<%
+  dropdowns = [
+    if row.email.present?
+      ['Reset Password', reset_password_user_path(row), 'ajax']
+    else
+      ['Reset Password', edit_user_path(row.id), 'ajax']
+    end,
+    ['Unlock / Lock Account', confirm_lock_user_path(row.id, user_action_id: "user_action_#{row.id}"), 'ajax'],
+    ['View Login History', login_history_user_path(id: row.id), 'ajax'],
+    ['Edit User', change_username_and_email_user_path(row.id, user_id: row.id.to_s), 'ajax']
+  ]
+%>
+<tr class="<%= row_class %>">
+  <td class="col-string col-name sorting_1"><%= row.oim_id %></td>
+  <td class="col-string col-ssn"><%= truncate(number_to_obscured_ssn(row.person.ssn)) if row.person.present? %></td>
+  <td class="col-string col-dob"><%= format_date(row.person.dob) if row.person.present? %></td>
+  <td class="col-integer col-hbx_id"><%= row.person.hbx_id if row.person.present? %></td>
+  <td class="col-string col-email"><%= row.email %></td>
+  <td class="col-string col-status"><%= table.status(row) %></td>
+  <td class="col-string col-role_type"><%= row.roles.join(', ') %></td>
+  <td class="col-string col-actions"><%= render partial: 'datatables/shared/dropdown', locals: { dropdowns: dropdowns, row_actions_id: "user_action_#{row.id}" } %></td>
+</tr>

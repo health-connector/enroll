@@ -1,0 +1,18 @@
+<%# Bootstrap pager reproducing the legacy dataTables.bootstrap.js markup:
+    ul.pagination > li.paginate_button[.previous/.next/.active/.disabled] with
+    sequential data-dt-idx counters and per-button ids on previous/next/ellipsis. %>
+<div class="dataTables_paginate paging_simple_numbers" id="<%= table_id %>_paginate">
+  <ul class="pagination">
+    <% dt_idx = 0 %>
+    <li class="paginate_button previous<%= ' disabled' if pagy.page <= 1 %>" id="<%= table_id %>_previous"><a href="#" aria-controls="<%= table_id %>" data-dt-idx="<%= dt_idx %>" tabindex="0" data-action="click->datatable#pageClicked" data-page="<%= pagy.page - 1 %>"><%= l10n('datatables.previous') %></a></li>
+    <% datatable_page_series(pagy).each do |item| %>
+      <% dt_idx += 1 %>
+      <% if item == :ellipsis %>
+        <li class="paginate_button disabled" id="<%= table_id %>_ellipsis"><a href="#" aria-controls="<%= table_id %>" data-dt-idx="<%= dt_idx %>" tabindex="0">&#x2026;</a></li>
+      <% else %>
+        <li class="paginate_button <%= 'active' if item + 1 == pagy.page %>"><a href="#" aria-controls="<%= table_id %>" data-dt-idx="<%= dt_idx %>" tabindex="0" data-action="click->datatable#pageClicked" data-page="<%= item + 1 %>"><%= item + 1 %></a></li>
+      <% end %>
+    <% end %>
+    <li class="paginate_button next<%= ' disabled' if pagy.page >= pagy.last %>" id="<%= table_id %>_next"><a href="#" aria-controls="<%= table_id %>" data-dt-idx="<%= dt_idx + 1 %>" tabindex="0" data-action="click->datatable#pageClicked" data-page="<%= pagy.page + 1 %>"><%= l10n('datatables.next') %></a></li>
+  </ul>
+</div>

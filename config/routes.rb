@@ -116,6 +116,7 @@ Rails.application.routes.draw do
         post :update_enrollment_termianted_on_date
         get :calendar_index
         get :user_account_index
+        get :user_accounts_datatable
         get :get_user_info
         get :oe_extendable_applications
         get :oe_extended_applications

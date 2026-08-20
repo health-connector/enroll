@@ -338,3 +338,12 @@ img {
     color: white !important;
   }
 }
+
+/* Datatable filter tab bar (app/views/datatables/_filter_tabs.html.erb): cancel
+   the Bootstrap .btn/.btn-group padding on the level groups so the tabs left-align
+   with the table's buttons. The legacy filter partial injects these same rules
+   via an inline style block. */
+.btn.custom_level_1, .btn.custom_level_2, .custom_level_1, .custom_level_2 {
+  padding-left: 0 !important;
+  margin-left: -15px !important;
+}
