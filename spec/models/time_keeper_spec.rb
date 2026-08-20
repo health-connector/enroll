@@ -32,8 +32,40 @@ RSpec.describe TimeKeeper, type: :model do
       end
 
       it "should send a syslog info message to the enterprise logger" do
-        notification_stub.expect_event("acapi.info.application.enroll.logging", {:body => "date_of_record not available for TimeKeeper - using Date.current"})
+        notification_stub.expect_event("acapi.info.application.enroll.logging", {:body => "date_of_record cache miss - returning and restoring the exchange date via date_according_to_exchange_at"})
         expect { TimeKeeper.date_of_record }.to raise_error(TkNotifyWrapper::ExpectedLogCallInvoked)
+      end
+
+      it "returns the exchange date rather than the UTC date" do
+        expect(TimeKeeper.date_of_record).to eq TimeKeeper.date_according_to_exchange_at(Time.current)
+      end
+
+      context "and the process clock has already rolled over to the next UTC day" do
+        # 02:30 UTC on 2026-09-01 is 22:30 EDT on 2026-08-31. The exchange is
+        # still on 8/31, so a UTC-sourced fallback would be a day ahead.
+        let(:utc_instant) { Time.utc(2026, 9, 1, 2, 30, 0) }
+
+        before :each do
+          allow(Time).to receive(:current).and_return(utc_instant)
+        end
+
+        it "returns the exchange day, not the UTC day" do
+          expect(TimeKeeper.date_of_record).to eq Date.new(2026, 8, 31)
+        end
+      end
+
+      context "and the process clock has rolled over during standard time" do
+        # 02:30 UTC on 2026-01-15 is 21:30 EST on 2026-01-14, confirming the
+        # offset is taken from the zone rather than hard-coded.
+        let(:utc_instant) { Time.utc(2026, 1, 15, 2, 30, 0) }
+
+        before :each do
+          allow(Time).to receive(:current).and_return(utc_instant)
+        end
+
+        it "returns the exchange day across the standard time offset" do
+          expect(TimeKeeper.date_of_record).to eq Date.new(2026, 1, 14)
+        end
       end
 
       context "and the date_of_record isn't available from enterprise service" do
@@ -53,7 +85,8 @@ RSpec.describe TimeKeeper, type: :model do
 
     context "and new date the same as the current date_of_record" do
       it "should leave the date unchanged" do
-        expect(TimeKeeper.set_date_of_record(base_date)).to eq date_of_record
+        TimeKeeper.set_date_of_record_unprotected!(base_date)
+        expect(TimeKeeper.set_date_of_record(base_date)).to eq base_date
       end
     end
 
@@ -62,6 +95,7 @@ RSpec.describe TimeKeeper, type: :model do
 
       let(:notification_stub) { TkNotifyWrapper::SimpleWrapper.new(ActiveSupport::Notifications) }
       before :each do
+        TimeKeeper.set_date_of_record_unprotected!(base_date)
         stub_const("ActiveSupport::Notifications", notification_stub)
       end
 
@@ -73,6 +107,10 @@ RSpec.describe TimeKeeper, type: :model do
 
     context "and new date is one day later than current date_of_record" do
       let!(:hbx_profile) { FactoryBot.create(:hbx_profile) }
+      before :each do
+        TimeKeeper.set_date_of_record_unprotected!(base_date)
+      end
+
       it "should advance the date" do
         expect(TimeKeeper.set_date_of_record(next_day)).to eq next_day
       end
@@ -84,9 +122,145 @@ RSpec.describe TimeKeeper, type: :model do
     end
 
     context "and new date is more than one day later than curent date_of_record" do
-      it "should send the new date_of_record to registered models for each day"
+      before :each do
+        allow(TimeKeeper.instance).to receive(:push_date_of_record)
+        allow(TimeKeeper.instance).to receive(:push_date_change_event)
+        TimeKeeper.set_date_of_record_unprotected!(base_date)
+      end
+
+      it "should send the new date_of_record to registered models for each day" do
+        expect(TimeKeeper.instance).to receive(:push_date_of_record).exactly(3).times
+        TimeKeeper.set_date_of_record(base_date + 3.days)
+      end
+
+      # The catch-up loop is driven by the recorded advance, not by re-reading
+      # the date cache on each pass. A cache the loop does not control must not
+      # be able to change where the sequence starts or how far it gets.
+      it "advances one day at a time starting from the last recorded advance" do
+        advanced_dates = []
+        allow(TimeKeeper.instance).to receive(:advance_date_of_record) { |date| advanced_dates << date }
+
+        TimeKeeper.set_date_of_record(base_date + 3.days)
+
+        expect(advanced_dates).to eq([base_date + 1.day, base_date + 2.days, base_date + 3.days])
+      end
+
       it "should persist in the local data storage the new date_of_record for each successful advance"
       it "should send a syslog info message to the enterprise logger for each successful advance"
+    end
+
+    context "and no advance has been recorded (CCAOM-349)" do
+      before :each do
+        allow(TimeKeeper.instance).to receive(:push_date_of_record)
+        allow(TimeKeeper.instance).to receive(:push_date_change_event)
+        Rails.cache.delete(TimeKeeper::CACHE_KEY)
+        Rails.cache.delete(TimeKeeper::ADVANCE_KEY)
+      end
+
+      it "runs the day's events instead of silently skipping" do
+        expect(TimeKeeper.instance).to receive(:push_date_of_record).once
+        TimeKeeper.set_date_of_record(base_date)
+      end
+
+      it "seeds the date cache with the new date" do
+        TimeKeeper.set_date_of_record(base_date)
+        expect(Rails.cache.read(TimeKeeper::CACHE_KEY)).to eq base_date.strftime("%Y-%m-%d")
+      end
+
+      it "records the advance so the day is not run twice" do
+        TimeKeeper.set_date_of_record(base_date)
+        expect(Rails.cache.read(TimeKeeper::ADVANCE_KEY)).to eq base_date.strftime("%Y-%m-%d")
+      end
+
+      it "is a no-op on a duplicate trigger after recovery" do
+        TimeKeeper.set_date_of_record(base_date)
+        expect(TimeKeeper.instance).not_to receive(:push_date_of_record)
+        TimeKeeper.set_date_of_record(base_date)
+      end
+
+      context "and a reader has already repopulated the date cache" do
+        before :each do
+          # A web request or background job reads the date after the cache was
+          # flushed. That read writes a fabricated date back to CACHE_KEY. A
+          # populated date cache is therefore not evidence that the day's
+          # advance events have run, and must not suppress them.
+          TimeKeeper.date_of_record
+        end
+
+        it "still runs the day's events" do
+          expect(TimeKeeper.instance).to receive(:push_date_of_record).once
+          TimeKeeper.set_date_of_record(base_date)
+        end
+      end
+
+      context "logging" do
+        let(:notification_stub) { TkNotifyWrapper::SimpleWrapper.new(ActiveSupport::Notifications) }
+
+        before :each do
+          stub_const("ActiveSupport::Notifications", notification_stub)
+        end
+
+        it "should send a syslog warning to the enterprise logger" do
+          notification_stub.expect_event("acapi.warn.application.enroll.logging", {:body => "date_of_record advance ledger missing - running events for #{base_date}"})
+          expect { TimeKeeper.set_date_of_record(base_date) }.to raise_error(TkNotifyWrapper::ExpectedLogCallInvoked)
+        end
+      end
+    end
+  end
+
+  context "datetime_of_record", dbclean: :after_each do
+    # 02:30:45 UTC on 2024-01-15 is 21:30:45 ET on 2024-01-14. The exchange is
+    # still on the 14th, so the sourcing zone is unambiguous in the assertions.
+    let(:utc_instant) { Time.utc(2024, 1, 15, 2, 30, 45) }
+
+    before :each do
+      TimeKeeper.set_date_of_record_unprotected!(Date.new(2024, 1, 14))
+      allow(Time).to receive(:current).and_return(utc_instant)
+    end
+
+    it "combines date_of_record with the exchange time-of-day" do
+      result = TimeKeeper.datetime_of_record
+
+      expect(result.to_date).to eq(Date.new(2024, 1, 14))
+      expect([result.hour, result.min, result.sec]).to eq([21, 30, 45])
+    end
+
+    it "carries the exchange offset so the instant is correct when persisted" do
+      expect(TimeKeeper.datetime_of_record.utc).to eq(utc_instant)
+    end
+
+    context "during daylight saving" do
+      # 02:30:45 UTC on 2024-07-15 is 22:30:45 EDT on 2024-07-14.
+      let(:utc_instant) { Time.utc(2024, 7, 15, 2, 30, 45) }
+
+      before :each do
+        TimeKeeper.set_date_of_record_unprotected!(Date.new(2024, 7, 14))
+      end
+
+      it "takes the offset from the zone rather than a fixed value" do
+        result = TimeKeeper.datetime_of_record
+
+        expect([result.hour, result.min, result.sec]).to eq([22, 30, 45])
+        expect(result.utc).to eq(utc_instant)
+      end
+    end
+
+    # The date half and the time-of-day half have to come from the same zone.
+    # On a cache miss the date half comes from the fallback, so this is the only
+    # path where the two depend on each other. Sourcing one from the exchange
+    # zone and the other from UTC puts the result a full day out.
+    context "and the date cache is missing" do
+      before :each do
+        Rails.cache.delete(TimeKeeper::CACHE_KEY)
+      end
+
+      it "still resolves to the correct instant" do
+        expect(TimeKeeper.datetime_of_record.utc).to eq(utc_instant)
+      end
+
+      it "reports the exchange day rather than the UTC day" do
+        expect(TimeKeeper.datetime_of_record.to_date).to eq(Date.new(2024, 1, 14))
+      end
     end
   end
 

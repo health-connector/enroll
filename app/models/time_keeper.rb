@@ -6,6 +6,7 @@ class TimeKeeper
   extend Acapi::Notifiers
 
   CACHE_KEY = "timekeeper/date_of_record"
+  ADVANCE_KEY = "timekeeper/last_advanced_on".freeze
 
   # time zone management
 
@@ -48,16 +49,18 @@ class TimeKeeper
 
   def self.set_date_of_record(new_date)
     new_date = new_date.to_date
-    if instance.date_of_record != new_date
-      if instance.date_of_record > new_date
+    last_advanced = instance.last_advanced_on
+
+    if last_advanced.blank?
+      log("date_of_record advance ledger missing - running events for #{new_date}", {:severity => :warn})
+      instance.advance_date_of_record(new_date)
+    elsif last_advanced != new_date
+      if last_advanced > new_date
         log("Attempt made to set date to past: #{new_date}", {:severity => :error})
         raise StandardError, "system may not go backward in time"
       else
-        number_of_days = (new_date - instance.date_of_record).to_i
-        number_of_days.times do
-          instance.set_date_of_record(instance.date_of_record + 1.day)
-          instance.push_date_of_record
-          instance.push_date_change_event
+        ((last_advanced + 1.day)..new_date).each do |day|
+          instance.advance_date_of_record(day)
         end
       end
     end
@@ -67,10 +70,8 @@ class TimeKeeper
   # DO NOT EVER USE OUTSIDE OF TESTS
   def self.set_date_of_record_unprotected!(new_date)
     new_date = new_date.to_date
-    if instance.date_of_record != new_date
-      (new_date - instance.date_of_record).to_i
-      instance.set_date_of_record(new_date)
-    end
+    instance.set_date_of_record(new_date) if instance.date_of_record != new_date
+    instance.mark_advanced(new_date)
     instance.date_of_record
   end
 
@@ -78,21 +79,54 @@ class TimeKeeper
     instance.date_of_record
   end
 
+  # Built through Time.zone.local, not date.to_datetime, so the time of day comes
+  # from the exchange zone instead of being mislabeled UTC. Returned as a DateTime
+  # rather than a TimeWithZone, since is_a?(::Date) checks elsewhere depend on that type.
   def self.datetime_of_record
-    instant = Time.current
-    instance.date_of_record.to_datetime + instant.hour.hours + instant.min.minutes + instant.sec.seconds
+    date = instance.date_of_record
+    instant = Time.current.in_time_zone(exchange_zone)
+    Time.use_zone(exchange_zone) do
+      Time.zone.local(date.year, date.month, date.day, instant.hour, instant.min, instant.sec)
+    end.to_datetime
   end
 
+  def advance_date_of_record(new_date)
+    set_date_of_record(new_date)
+    push_date_of_record
+    push_date_change_event
+    mark_advanced(new_date)
+  end
+
+  # Records which day the advance events last ran for. CACHE_KEY can't answer
+  # that - a reader that misses repopulates it with a dynamic fallback date.
+  # Written after the events so a partial advance is retried, not marked done.
+  def mark_advanced(new_date)
+    Rails.cache.write(ADVANCE_KEY, new_date.strftime("%Y-%m-%d"))
+  end
+
+  def last_advanced_on
+    found_value = Rails.cache.read(ADVANCE_KEY)
+    return nil if found_value.blank?
+
+    Date.strptime(found_value, "%Y-%m-%d")
+  end
+
+  # Bypassing rubocop here to avoid the unnecessary risk of a name change to a load-bearing legacy method.
+  # rubocop:disable  Naming/AccessorMethodName
   def set_date_of_record(new_date)
     Rails.cache.write(CACHE_KEY, new_date.strftime("%Y-%m-%d"))
   end
+  # rubocop:enable  Naming/AccessorMethodName
 
   def date_of_record
     tl_value = thread_local_date_of_record
     return tl_value unless tl_value.blank?
     found_value = Rails.cache.fetch(CACHE_KEY) do
-      log("date_of_record not available for TimeKeeper - using Date.current")
-      Date.current.strftime("%Y-%m-%d")
+      # The exchange business day is Eastern. This process runs in UTC, so
+      # Date.current is a day ahead between UTC midnight and the start of the
+      # Eastern day, which would hand the app tomorrow's date on a cache miss.
+      log("date_of_record cache miss - returning and restoring the exchange date via date_according_to_exchange_at")
+      self.class.date_according_to_exchange_at(Time.current).strftime("%Y-%m-%d")
     end
     Date.strptime(found_value, "%Y-%m-%d")
   end

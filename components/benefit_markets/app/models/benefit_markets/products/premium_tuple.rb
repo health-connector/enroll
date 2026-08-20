@@ -3,8 +3,11 @@ module BenefitMarkets
     include Mongoid::Document
     include Mongoid::Timestamps
 
+    # touch: false keeps bulk rate loads from touching the parent once per
+    # embedded child (quadratic on Mongoid 8+ where touch defaults to true)
     embedded_in :premium_table,
-                class_name: "BenefitMarkets::Products::PremiumTable"
+                class_name: "BenefitMarkets::Products::PremiumTable",
+                touch: false
 
     field :age,   type: Integer
     field :cost,  type: Float

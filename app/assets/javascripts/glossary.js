@@ -61,7 +61,24 @@ function replaceGlossaryTerm(text, term, replacement) {
     return result;
 }
 
+var _glossaryDebounceTimer;
 function runGlossary() {
+  clearTimeout(_glossaryDebounceTimer);
+  _glossaryDebounceTimer = setTimeout(_runGlossaryNow, 50);
+}
+
+function glossaryPopoverOptions(options) {
+  return $.extend({
+    template: '<div class="popover glossary-popover" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>'
+  }, options || {});
+}
+
+function resetGlossaryPopovers() {
+  $('.glossary[data-toggle="popover"]').popover('destroy');
+  $('.glossary-popover').remove();
+}
+
+function _runGlossaryNow() {
   if ($('.run-glossary').length) {
     var terms = [
       {
@@ -100,39 +117,51 @@ function runGlossary() {
           });
         });
     });
+    resetGlossaryPopovers();
     if( $('#referencePlans').length > 0 ) {
-      $('[data-toggle="popover"]').popover({container: '#referencePlans'});
+      $('.glossary[data-toggle="popover"]').popover(glossaryPopoverOptions({container: '#referencePlans'}));
     }
     else if ( $('.plan-type-filters').length > 0 ) {
-      $('[data-toggle="popover"]').popover({container: '.plan-type-filters', placement: 'left'});
+      $('.glossary[data-toggle="popover"]').popover(glossaryPopoverOptions({container: '.plan-type-filters', placement: 'left'}));
     }
     else if ( $('.reference-plans').length > 0 ) {
-      $('[data-toggle="popover"]').popover({container: '.reference-plans'});
+      $('.glossary[data-toggle="popover"]').popover(glossaryPopoverOptions({container: '.reference-plans'}));
     }
     else if ( $('.enrollment-tile').length > 0 ) {
-      $('[data-toggle="popover"]').popover({container: '.enrollment-tile'});
+      $('.glossary[data-toggle="popover"]').each(function() {
+        var container = $(this).closest('.enrollment-tile');
+        $(this).popover(glossaryPopoverOptions({ container: container.length ? container[0] : 'body' }));
+      });
     }
     else {
-      $('[data-toggle="popover"]').popover();
+      $('.glossary[data-toggle="popover"]').popover(glossaryPopoverOptions());
     }
 
-    // Because of the change to popover on click instead of hover, you need to
-    // manually close each popover. This will close others if you click to open one
-    // or click outside of a popover.
-
-    $(document).click(function(e){
-      if (e.target.className == 'glossary') {
-        e.preventDefault();
-        $('.glossary').not($(e.target)).popover('hide');
-      }
-      else if (!$(e.target).parents('.popover').length) {
-        $('.glossary').popover('hide');
-      }
-    });
   }
 }
-
 
 function hideGlossaryPopovers() {
   $('.glossary').popover('hide');
 }
+
+// Because of the change to popover on click instead of hover, you need to
+// manually close each popover. This will close others if you click to open one
+// or click outside of a popover.
+// Registered once using a namespaced event to prevent accumulation when
+// runGlossary() is called multiple times (e.g. once per enrollment tile partial).
+$(document).off('click.glossary').on('click.glossary', function(e){
+  if (e.target.className == 'glossary') {
+    e.preventDefault();
+    $('.glossary').not($(e.target)).popover('hide');
+    $('.glossary-popover').not('#' + ($(e.target).attr('aria-describedby') || '')).remove();
+  }
+  else if (!$(e.target).parents('.popover').length) {
+    $('.glossary').popover('hide');
+    $('.glossary-popover').remove();
+  }
+});
+
+$(document).off('shown.bs.popover.glossary', '.glossary').on('shown.bs.popover.glossary', '.glossary', function(){
+  var activePopoverId = $(this).attr('aria-describedby');
+  $('.glossary-popover').not('#' + (activePopoverId || '')).remove();
+});

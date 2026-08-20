@@ -56,7 +56,7 @@ RSpec.describe Employers::EmployerAttestationsController, dbclean: :after_each d
     end
 
     it 'should be a success on GET verify_attestation' do
-      get :verify_attestation, params: { :employer_attestation_id => attestation_doc.id}, format: :js
+      get :verify_attestation, params: { :id => employer_profile.id, :document_id => attestation_doc.id}, format: :js
       expect(response).to have_http_status(:success)
     end
 

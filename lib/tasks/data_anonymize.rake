@@ -91,7 +91,7 @@ namespace :data do
           Optionally pass RUN_ID and HMAC_KEY to re-run canonical prehash checks
           out-of-process (requires the key printed/saved at anonymization time)."
     task :verify => :environment do
-      verifier_opts = { mode: :audit }
+      verifier_opts = { mode: :audit, protected_oim_ids: DataAnonymizer::Runner::PROTECTED_OIM_IDS }
       verifier_opts[:run_id] = ENV['RUN_ID'] if ENV['RUN_ID'].present?
       verifier_opts[:hmac_key] = ENV['HMAC_KEY'] if ENV['HMAC_KEY'].present?
       DataAnonymizer::Verifier.new(**verifier_opts).run
