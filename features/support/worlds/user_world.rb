@@ -82,6 +82,46 @@ And(/^the user is on the Employees Index of the Admin Dashboard$/) do
   find('.interaction-click-control-employees').click
 end
 
+And(/^the admin filters employees by Enrolled coverage$/) do
+  find('div[id="Tab:by_enrollment_shop_market"]').click
+  wait_for_ajax
+  find('div[id="Tab:by_enrollment_shop_market-enrolled"]').click
+end
+
+And(/^the admin filters employees by Renewing coverage$/) do
+  find('div[id="Tab:by_enrollment_shop_market"]').click
+  wait_for_ajax
+  find('div[id="Tab:by_enrollment_shop_market-by_enrollment_renewing"]').click
+end
+
+And(/^the admin filters employees by Waived coverage$/) do
+  find('div[id="Tab:by_enrollment_shop_market"]').click
+  wait_for_ajax
+  find('div[id="Tab:by_enrollment_shop_market-waived"]').click
+end
+
+And(/^the admin filters employees by SEP eligible coverage$/) do
+  find('div[id="Tab:by_enrollment_shop_market"]').click
+  wait_for_ajax
+  find('div[id="Tab:by_enrollment_shop_market-sep_eligible"]').click
+end
+
+And(/^Patrick Doe has an active SEP$/) do
+  person = people['Patrick Doe']
+  person_rec = Person.where(first_name: /#{person[:first_name]}/i, last_name: /#{person[:last_name]}/i).first
+  family = person_rec.primary_family
+  FactoryBot.create(
+    :special_enrollment_period,
+    family: family,
+    start_on: TimeKeeper.date_of_record - 5.days,
+    end_on: TimeKeeper.date_of_record + 25.days
+  )
+end
+
+Then(/^the admin should see Patrick Doe in the datatable$/) do
+  expect(page).to have_content('Patrick Doe')
+end
+
 And(/^the user clicks on the employee Patrick Doe's name$/) do
   find('a', text: 'Patrick Doe').click
 end

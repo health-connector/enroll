@@ -30,8 +30,13 @@ module Queries
         family = family.by_enrollment_individual_market
       end
       if @custom_attributes['families'] == 'by_enrollment_shop_market'
-        family = family.all_enrollments
         family = family.by_enrollment_shop_market
+        family = case @custom_attributes['employer_options']
+                 when 'waived'                then family.coverage_waived
+                 when 'by_enrollment_renewing' then family.by_enrollment_renewing
+                 when 'sep_eligible'           then family.all_enrollments.sep_eligible
+                 else                               family.all_enrollments
+                 end
       end
       if @custom_attributes['families'] == 'non_enrolled'
         family = family.non_enrolled
@@ -39,15 +44,6 @@ module Queries
       if @custom_attributes['families'] == 'by_enrollment_coverall'
         resident_ids = Person.all_resident_roles.pluck(:_id)
         family = family.where('family_members.person_id' => {"$in" => resident_ids})
-      end
-      if @custom_attributes['employer_options'] == 'by_enrollment_renewing'
-        family = family.by_enrollment_renewing
-      end
-      if @custom_attributes['employer_options'] == 'sep_eligible'
-        family = family.sep_eligible
-      end
-      if @custom_attributes['employer_options'] == 'coverage_waived'
-        family = family.coverage_waived
       end
       if @custom_attributes['individual_options'] == 'all_assistance_receiving'
         family = family.all_assistance_receiving
