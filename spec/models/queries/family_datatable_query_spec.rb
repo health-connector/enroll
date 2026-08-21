@@ -11,35 +11,46 @@ describe Queries::FamilyDatatableQuery, "Filter Scopes for families Index", dbcl
                                             "households.hbx_enrollments.aasm_state" => {"$in" => enrollment_aasm_states}, "households.hbx_enrollments.kind" => {"$in" => enrollment_kinds}})
   end
 
-  it "filters: by_enrollment_shop_market" do
+  it "filters: by_enrollment_shop_market defaults to enrolled statuses (All sub-filter)" do
     fdq = Queries::FamilyDatatableQuery.new({"families" => "by_enrollment_shop_market"})
-    expect(fdq.build_scope.selector).to eq({"is_active" => true,"households.hbx_enrollments.aasm_state" => {"$in" => HbxEnrollment::ENROLLED_STATUSES},
-                                            "households.hbx_enrollments.kind" => {"$in" => ["employer_sponsored", "employer_sponsored_cobra"]}})
+    expect(fdq.build_scope.selector).to eq({"is_active" => true,
+                                            "households.hbx_enrollments.kind" => {"$in" => ["employer_sponsored", "employer_sponsored_cobra"]},
+                                            "households.hbx_enrollments.aasm_state" => {"$in" => HbxEnrollment::ENROLLED_STATUSES}})
+  end
+
+  it "filters: by_enrollment_shop_market with enrolled sub-filter" do
+    fdq = Queries::FamilyDatatableQuery.new({"families" => "by_enrollment_shop_market", "employer_options" => "enrolled"})
+    expect(fdq.build_scope.selector).to eq({"is_active" => true,
+                                            "households.hbx_enrollments.kind" => {"$in" => ["employer_sponsored", "employer_sponsored_cobra"]},
+                                            "households.hbx_enrollments.aasm_state" => {"$in" => HbxEnrollment::ENROLLED_STATUSES}})
+  end
+
+  it "filters: by_enrollment_shop_market with renewing sub-filter" do
+    fdq = Queries::FamilyDatatableQuery.new({"families" => "by_enrollment_shop_market", "employer_options" => "by_enrollment_renewing"})
+    expect(fdq.build_scope.selector).to eq({"is_active" => true,
+                                            "households.hbx_enrollments.kind" => {"$in" => ["employer_sponsored", "employer_sponsored_cobra"]},
+                                            "households.hbx_enrollments.aasm_state" => {"$in" => HbxEnrollment::RENEWAL_STATUSES}})
+  end
+
+  it "filters: by_enrollment_shop_market with waived sub-filter" do
+    fdq = Queries::FamilyDatatableQuery.new({"families" => "by_enrollment_shop_market", "employer_options" => "waived"})
+    expect(fdq.build_scope.selector).to eq({"is_active" => true,
+                                            "households.hbx_enrollments.kind" => {"$in" => ["employer_sponsored", "employer_sponsored_cobra"]},
+                                            "households.hbx_enrollments.aasm_state" => {"$in" => HbxEnrollment::WAIVED_STATUSES}})
+  end
+
+  it "filters: by_enrollment_shop_market with sep_eligible sub-filter" do
+    fdq = Queries::FamilyDatatableQuery.new({"families" => "by_enrollment_shop_market", "employer_options" => "sep_eligible"})
+    expect(fdq.build_scope.selector).to eq({"is_active" => true,
+                                            "households.hbx_enrollments.kind" => {"$in" => ["employer_sponsored", "employer_sponsored_cobra"]},
+                                            "households.hbx_enrollments.aasm_state" => {"$in" => HbxEnrollment::ENROLLED_STATUSES},
+                                            "special_enrollment_periods.start_on" => {"$lte" => TimeKeeper.date_of_record},
+                                            "special_enrollment_periods.end_on" => {"$gte" => TimeKeeper.date_of_record}})
   end
 
   it "filters: non_enrolled" do
     fdq = Queries::FamilyDatatableQuery.new({"families" => "non_enrolled"})
     expect(fdq.build_scope.selector).to eq({"is_active" => true,"households.hbx_enrollments.aasm_state" => {"$nin" => HbxEnrollment::ENROLLED_STATUSES}})
-  end
-
-  it "filters: by_enrollment_renewing" do
-    fdq = Queries::FamilyDatatableQuery.new({"employer_options" => "by_enrollment_renewing"})
-    expect(fdq.build_scope.selector).to eq({"is_active" => true,"households.hbx_enrollments.aasm_state" => {"$in" => HbxEnrollment::RENEWAL_STATUSES}})
-  end
-
-  it "filters: sep_eligible" do
-    fdq = Queries::FamilyDatatableQuery.new({"employer_options" => "sep_eligible"})
-    expect(fdq.build_scope.selector).to eq({"is_active" => true,"active_seps.count" => {"$gt" => 0}})
-  end
-
-  it "filters: coverage_waived" do
-    fdq = Queries::FamilyDatatableQuery.new({"employer_options" => "coverage_waived"})
-    expect(fdq.build_scope.selector).to eq({"is_active" => true,"households.hbx_enrollments.aasm_state" => {"$in" => HbxEnrollment::WAIVED_STATUSES}})
-  end
-
-  it "filters: coverage_waived" do
-    fdq = Queries::FamilyDatatableQuery.new({"employer_options" => "coverage_waived"})
-    expect(fdq.build_scope.selector).to eq({"is_active" => true,"households.hbx_enrollments.aasm_state" => {"$in" => HbxEnrollment::WAIVED_STATUSES}})
   end
 
   it "filters: all_assistance_receiving" do
