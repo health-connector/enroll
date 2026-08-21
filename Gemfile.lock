@@ -2134,7 +2134,7 @@ GEM
     loofah (2.25.2)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
-    mail (2.9.0)
+    mail (2.9.1)
       logger
       mini_mime (>= 0.1.1)
       net-imap
@@ -2595,7 +2595,7 @@ DEPENDENCIES
   kostya-sigar (= 2.0.11)
   language_list (~> 1.1.0)
   loofah (~> 2.23, >= 2.23.1)
-  mail (~> 2.7)
+  mail (~> 2.9, >= 2.9.1)
   mongo_session_store (~> 3.1)
   mongoid (~> 9)
   mongoid-autoinc!

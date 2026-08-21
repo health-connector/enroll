@@ -693,7 +693,9 @@ class HbxEnrollment
   end
 
   def terminate_coverage_with(termination_date)
-    if termination_date >= TimeKeeper.datetime_of_record
+    # Scheduling is a whole day decision, so compare dates. Comparing against a
+    # timestamp made this flip on the time of day near midnight.
+    if termination_date > TimeKeeper.date_of_record
       schedule_coverage_termination!(termination_date) if may_schedule_coverage_termination?
     else
       if may_terminate_coverage?
