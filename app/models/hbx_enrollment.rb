@@ -575,7 +575,7 @@ class HbxEnrollment
     waived_enrollment.waiver_reason = waiver_reason
     waived_enrollment.predecessor_enrollment_id = _id
     waived_enrollment.generate_hbx_signature
-    waived_enrollment.submitted_at = Time.now
+    waived_enrollment.submitted_at = Time.current
     waived_enrollment.save!
     waived_enrollment
   end
@@ -837,7 +837,7 @@ class HbxEnrollment
     if !consumer_role.present?
       if !is_shop_sep?
         notify(ENROLLMENT_CREATED_EVENT_NAME, {policy_id: self.hbx_id})
-        self.published_to_bus_at = Time.now
+        self.published_to_bus_at = Time.current
         self.save!
       end
     end
@@ -1907,7 +1907,7 @@ class HbxEnrollment
 
   def set_submitted_at
     if submitted_at.blank?
-      write_attribute(:submitted_at, Time.now)
+      write_attribute(:submitted_at, Time.current)
     end
   end
 
@@ -1928,7 +1928,7 @@ class HbxEnrollment
   end
 
   def event_submission_date
-    submitted_at.blank? ? Time.now : submitted_at
+    submitted_at.blank? ? Time.current : submitted_at
   end
 
   def is_reinstated_enrollment?

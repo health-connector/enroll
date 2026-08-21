@@ -21,7 +21,7 @@ module Subscribers
         return if person.nil? || person.consumer_role.nil?
 
         consumer_role = person.consumer_role
-        event_response_record = EventResponse.new({received_at: Time.now, body: xml})
+        event_response_record = EventResponse.new({received_at: Time.current, body: xml})
         consumer_role.lawful_presence_determination.vlp_responses << event_response_record
         if consumer_role.person.verification_types.include? "Citizenship"
           type = "Citizenship"
@@ -35,7 +35,7 @@ module Subscribers
                                                event_response_record_id: event_response_record.id)
         if "503" == return_status
           args = OpenStruct.new
-          args.determined_at = Time.now
+          args.determined_at = Time.current
           args.vlp_authority = 'dhs'
           consumer_role.fail_dhs!(args)
           consumer_role.save      
@@ -58,16 +58,16 @@ module Subscribers
     def update_consumer_role(consumer_role, xml_hash)
       args = OpenStruct.new
       if xml_hash[:lawful_presence_indeterminate].present?
-        args.determined_at = Time.now
+        args.determined_at = Time.current
         args.vlp_authority = 'dhs'
         consumer_role.fail_dhs!(args)
       elsif xml_hash[:lawful_presence_determination].present? && xml_hash[:lawful_presence_determination][:response_code].eql?("lawfully_present")
-        args.determined_at = Time.now
+        args.determined_at = Time.current
         args.vlp_authority = 'dhs'
         args.citizenship_result = get_citizen_status(xml_hash[:lawful_presence_determination][:legal_status])
         consumer_role.pass_dhs!(args)
       elsif xml_hash[:lawful_presence_determination].present? && xml_hash[:lawful_presence_determination][:response_code].eql?("not_lawfully_present")
-        args.determined_at = Time.now
+        args.determined_at = Time.current
         args.vlp_authority = 'dhs'
         args.citizenship_result = ::ConsumerRole::NOT_LAWFULLY_PRESENT_STATUS
         consumer_role.fail_dhs!(args)
