@@ -1907,7 +1907,7 @@ class HbxEnrollment
 
   def set_submitted_at
     if submitted_at.blank?
-      write_attribute(:submitted_at, Time.now)
+      write_attribute(:submitted_at, Time.current)
     end
   end
 
@@ -1928,7 +1928,7 @@ class HbxEnrollment
   end
 
   def event_submission_date
-    submitted_at.blank? ? Time.now : submitted_at
+    submitted_at.blank? ? Time.current : submitted_at
   end
 
   def is_reinstated_enrollment?
