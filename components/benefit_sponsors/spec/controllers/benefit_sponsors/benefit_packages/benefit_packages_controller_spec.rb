@@ -201,6 +201,34 @@ module BenefitSponsors
         end
       end
 
+      context "when product_package_kind is blank" do
+        let(:sponsored_benefits_params) {
+          {
+            "0" => {
+              :product_package_kind => "",
+              :kind => "health"
+            }
+          }
+        }
+
+        before do
+          sign_in user
+          post :create, params: { :benefit_sponsorship_id => benefit_sponsorship_id, :benefit_application_id => benefit_application_id, :benefit_package => benefit_package_params }
+        end
+
+        it "should not raise a NoMethodError" do
+          expect(response).not_to have_http_status(:internal_server_error)
+        end
+
+        it "should re-render the new template" do
+          expect(response).to render_template("new")
+        end
+
+        it "should not redirect to benefits tab" do
+          expect(response.location.to_s).not_to include("tab=benefits")
+        end
+      end
+
       def sign_in_and_do_create
         sign_in user
         post :create, params: { :benefit_sponsorship_id => benefit_sponsorship_id, :benefit_application_id => benefit_application_id, :benefit_package => benefit_package_params }
