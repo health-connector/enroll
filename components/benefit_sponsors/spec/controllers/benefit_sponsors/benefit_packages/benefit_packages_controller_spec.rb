@@ -202,14 +202,14 @@ module BenefitSponsors
       end
 
       context "when product_package_kind is blank" do
-        let(:sponsored_benefits_params) {
+        let(:sponsored_benefits_params) do
           {
             "0" => {
               :product_package_kind => "",
               :kind => "health"
             }
           }
-        }
+        end
 
         before do
           sign_in user
