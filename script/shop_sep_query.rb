@@ -1,5 +1,7 @@
-start_time = Time.now - 17.minutes
-end_time = Time.now
+# frozen_string_literal: true
+
+start_time = Time.current - 17.minutes
+end_time = Time.current
 
 class ShopEnrollmentsPublisher
   extend Acapi::Notifiers
@@ -95,8 +97,10 @@ def can_publish_enrollment?(enrollment, transition_at)
   quiet_period = benefit_application.enrollment_quiet_period
   if is_valid_benefit_application?(benefit_application)
     return false if transition_at.in_time_zone("UTC") <= quiet_period.max # don't transmit enrollments until quiet period ended
+
     return true  if term_states.include?(enrollment.aasm_state) # new hire enrollment check not needed for terminated enrollments
-    return false if enrollment.new_hire_enrollment_for_shop? && (enrollment.effective_on <= (Time.now - 2.months))
+    return false if enrollment.new_hire_enrollment_for_shop? && (enrollment.effective_on <= (Time.current - 2.months))
+
     return true
   else
     return false
@@ -120,7 +124,7 @@ purchase_families.each do |fam|
       }
     }).first.transition_at
 
-    Rails.logger.info "---processing #{purchase.hbx_id}---#{purchased_at}---#{Time.now}"
+    Rails.logger.info "---processing #{purchase.hbx_id}---#{purchased_at}---#{Time.current}"
     if can_publish_enrollment?(purchase, purchased_at)
       Rails.logger.info "-----publishing #{purchase.hbx_id}"
       ShopEnrollmentsPublisher.publish_action( "acapi.info.events.hbx_enrollment.coverage_selected",

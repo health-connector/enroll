@@ -440,6 +440,20 @@ Style/YAMLFileRead: # new in 1.53
 
 require:
   - ./cops/lint/empty_rescue_clause.rb
+  - ./cops/lint/raw_system_clock.rb
+
+Lint/RawSystemClock:
+  Enabled: true
+  Include:
+    - 'app/**/*.rb'
+    - 'lib/**/*.rb'
+    - 'script/**/*.rb'
+    - 'components/*/app/**/*.rb'
+    - 'components/*/lib/**/*.rb'
+  Exclude:
+    # TimeKeeper is the one place that is meant to read the process clock, since
+    # it is what derives the business day for everything else.
+    - 'app/models/time_keeper.rb'
 
 # Deprecated
 # Style/TrailingBlankLines:

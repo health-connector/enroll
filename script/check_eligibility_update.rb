@@ -3,7 +3,7 @@ require 'csv'
 def check_eligibility_update
   ran = []
   not_run = []
-  output_file_name = "#{Rails.root}/eligibility_updated_list_#{DateTime.now.strftime("%m_%d_%Y_%H_%M")}.csv"
+  output_file_name = "#{Rails.root}/eligibility_updated_list_#{Time.current.strftime('%m_%d_%Y_%H_%M')}.csv"
 
   CSV.open(output_file_name, "w") do |output_csv|
     output_csv << ["SSN", "HBX ID", "TAX HOUSEHOLD-submitted_at", "EligibilityDetermination-MAX_APTC", "EligibilityDetermination-CSR", "EligibilityDetermination-E_PDC_ID"]

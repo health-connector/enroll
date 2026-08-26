@@ -1,6 +1,6 @@
 qs = Queries::PolicyAggregationPipeline.new
 
-date = Date.today
+date = TimeKeeper.date_of_record
 
 if date.day > 15
   window_start = Date.new(date.year,date.month,16)

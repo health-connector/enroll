@@ -175,7 +175,7 @@ module Operations
 
         options = {
           event: :"move_to_#{to_state}",
-          transition_at: DateTime.now,
+          transition_at: DateTime.current,
           effective_on: values[:effective_date],
           from_state: from_state || :initial,
           to_state: to_state,

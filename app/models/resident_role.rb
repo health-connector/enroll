@@ -128,12 +128,12 @@ class ResidentRole
 
   private
   def mark_residency_denied(*args)
-    self.residency_determined_at = Time.now
+    self.residency_determined_at = Time.current
     self.is_state_resident = false
   end
 
   def mark_residency_authorized(*args)
-    self.residency_determined_at = Time.now
+    self.residency_determined_at = Time.current
     self.is_state_resident = true
   end
 

@@ -29,7 +29,7 @@ end
 
 qs = Queries::PolicyAggregationPipeline.new
 
-filter_date = (Time.now.utc.beginning_of_day)-2.weeks
+filter_date = Time.current.utc.beginning_of_day - 2.weeks
 
 effective_date = (filter_date-4.months).to_date
 
@@ -49,7 +49,7 @@ count = 0
 
 enroll_pol_ids.each do |pid|
   count += 1
-  puts "#{Time.now} - #{count}/#{total_count}" if count % 100 == 0
+  puts "#{Time.current} - #{count}/#{total_count}" if count % 100 == 0
   pol = HbxEnrollment.by_hbx_id(pid).first
   if pol.nil?
     raise "NO SUCH POLICY #{pid}"

@@ -29,6 +29,6 @@ class WorkflowStateTransition
 
 private
   def set_transition_timestamp
-    self.transition_at ||= Time.now
+    self.transition_at ||= Time.current
   end
 end
