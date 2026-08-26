@@ -9,7 +9,7 @@ module BenefitSponsors
       attr_accessor :event_time, :event_name, :resource_body, :employer_profile_id
 
       def initialize(event_name, resource_body, employer_profile_id)
-        @event_time = Time.now
+        @event_time = Time.current
         @event_name = event_name
         @resource_body = resource_body
         # employer_profile_id is a benefit_sponsorship.hbx_id

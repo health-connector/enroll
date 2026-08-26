@@ -19,6 +19,6 @@ class UpdateVerificationTypes < MongoidMigrationTask
 
   def update_local_residency(person, update_reason)
     local_state = person.consumer_role.local_residency_validation == "attested" ?  "attested" : "valid"
-    person.consumer_role.update_attributes(:is_state_resident => true, :residency_update_reason => update_reason, :residency_determined_at => Time.now, :local_residency_validation => local_state)
+    person.consumer_role.update_attributes(:is_state_resident => true, :residency_update_reason => update_reason, :residency_determined_at => Time.current, :local_residency_validation => local_state)
   end
 end

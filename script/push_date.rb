@@ -3,7 +3,7 @@
 hbx_id = Rails.application.config.acapi.hbx_id
 environment = Rails.application.config.acapi.environment_name
 target_exchange = "#{hbx_id}.#{environment}.e.fanout.events"
-current_date = Date.today.strftime("%Y-%m-%d")
+current_date = TimeKeeper.date_according_to_exchange_at(Time.current).strftime("%Y-%m-%d")
 event_routing_key = "info.events.calendar.date_change"
 
 conn = Bunny.new(Rails.application.config.acapi.to_connection_settings)

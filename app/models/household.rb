@@ -232,7 +232,7 @@ class Household
         allocated_aptc: 0.0,
         effective_starting_on: Date.new(date.year, date.month, date.day),
         is_eligibility_determined: true,
-        submitted_at: Date.today
+        submitted_at: TimeKeeper.date_of_record
     )
 
     th.tax_household_members.build(
@@ -246,7 +246,7 @@ class Household
         benchmark_plan_id: slcsp,
         max_aptc: max_aptc.to_f,
         csr_percent_as_integer: csr.to_i,
-        determined_on: Date.today
+        determined_on: TimeKeeper.date_of_record
     )
 
     deter.save!
@@ -325,7 +325,7 @@ class Household
       consumer_role: consumer_role,
       benefit_package: benefit_package,
       qle: qle,
-      submitted_at: Time.now,
+      submitted_at: Time.current,
       external_enrollment: external_enrollment,
       coverage_start: coverage_start,
       opt_effective_on: opt_effective_on
@@ -340,7 +340,7 @@ class Household
       benefit_group_assignment: benefit_group_assignment,
       consumer_role: consumer_role,
       benefit_package: benefit_package,
-      submitted_at: Time.now
+      submitted_at: Time.current
     )
     enrollment.save
     enrollment

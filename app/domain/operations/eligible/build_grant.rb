@@ -49,7 +49,7 @@ module Operations
                 is_eligible: true,
                 from_state: :initial,
                 to_state: :approved,
-                transition_at: DateTime.now,
+                transition_at: DateTime.current,
                 event: :approve
               }
             ]
