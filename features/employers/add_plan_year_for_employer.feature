@@ -119,7 +119,7 @@ Feature: Add Plan Year For Employer
     And employer clicked on gold metal level
     Then employer should not see pvp indicator
 
-Scenario Outline: Employer should be able to click employee cost details button
+  Scenario Outline: Employer should be able to click employee cost details button
     And ABC Widgets is logged in and on the home page
     And staff role person clicked on benefits tab
     And employer clicked on add plan year button
@@ -135,3 +135,17 @@ Scenario Outline: Employer should be able to click employee cost details button
     Examples:
       | contribution_percent |
       | 100                  |
+
+  Scenario: Compare Plans and Clear All buttons appear above the contributions section
+    Given employer_broker_ui_enhancements feature is enabled
+    When ABC Widgets is logged in and on the home page
+    And staff role person clicked on benefits tab
+    And employer clicked on add plan year button
+    And employer filled all the fields on benefit application form
+    And employer clicked on continue button
+    And employer filled all the fields on benefit package form for initial application
+    And employer selected by metal level plan offerings
+    And employer clicked on gold metal level
+    Then employer should see Compare Plans and Clear All buttons
+    And employer should see compare plans buttons outside the contributions box
+    And employer should not see with-compare-buttons class on contributions section

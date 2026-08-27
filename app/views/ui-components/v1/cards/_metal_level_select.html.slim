@@ -210,16 +210,6 @@ javascript:
     });
   }
 
-  // Apply conditional margin for compare buttons feature
-  if (isPlanComparisonEnabled) {
-    document.addEventListener('DOMContentLoaded', function() {
-      var yourSponsorContributionsElement = document.getElementById('yourSponsorContributions');
-      if (yourSponsorContributionsElement) {
-        yourSponsorContributionsElement.classList.add('with-compare-buttons');
-      }
-    });
-  }
-
   function radioSelected(element) {
     setCircle(element)
     disableNewPlanYearButton()
