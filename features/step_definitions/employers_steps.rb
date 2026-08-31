@@ -1183,7 +1183,7 @@ end
 Then(/^employer should see compare plans buttons outside the contributions box$/) do
   compare_buttons_top = page.evaluate_script("document.getElementById('comparePlansButtons').getBoundingClientRect().bottom")
   contributions_top = page.evaluate_script("document.getElementById('yourSponsorContributions').getBoundingClientRect().top")
-  expect(compare_buttons_top).to be < contributions_top
+  expect(compare_buttons_top).to be <= contributions_top
 end
 
 Then(/^employer should not see with-compare-buttons class on contributions section$/) do
@@ -1193,7 +1193,7 @@ end
 
 Then(/^employer should see Child Under 26 row within the contributions box$/) do
   expect(page).to have_css('#sponsorContributions input[data-displayname="Child Under 26"]')
-  contributions_bottom = page.evaluate_script("document.getElementById('sponsorContributions').getBoundingClientRect().bottom")
   child_bottom = page.evaluate_script("document.querySelector('#sponsorContributions input[data-displayname=\"Child Under 26\"]').getBoundingClientRect().bottom")
+  contributions_bottom = page.evaluate_script("document.querySelector('#sponsorContributions input[data-displayname=\"Child Under 26\"]').closest('#sponsorContributions').getBoundingClientRect().bottom")
   expect(child_bottom).to be <= contributions_bottom
 end

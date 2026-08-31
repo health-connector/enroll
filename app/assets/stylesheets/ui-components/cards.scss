@@ -289,13 +289,15 @@
 }
 
 #comparePlansButtons {
+  margin-top: 15px;
   margin-bottom: 15px;
 }
 
 #sponsorContributions {
   border:1px solid $mhc-light-gray;
   background-color:$primary-white;
-  min-height:330px;
+  overflow: hidden;
+
   p {
     width:190px;
     font-size: 14px;
