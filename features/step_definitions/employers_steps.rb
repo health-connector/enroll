@@ -1165,3 +1165,19 @@ And(/^employer_broker_ui_enhancements feature is (.*?)$/) do |status|
     disable_feature :employer_broker_ui_enhancements
   end
 end
+
+Then(/^employer should see Compare Plans and Clear All buttons$/) do
+  expect(page).to have_css('#comparePlansButtons button', text: 'Compare Plans')
+  expect(page).to have_css('#comparePlansButtons button', text: 'Clear All')
+end
+
+Then(/^employer should see compare plans buttons outside the contributions box$/) do
+  compare_buttons_top = page.evaluate_script("document.getElementById('comparePlansButtons').getBoundingClientRect().bottom")
+  contributions_top = page.evaluate_script("document.getElementById('yourSponsorContributions').getBoundingClientRect().top")
+  expect(compare_buttons_top).to be < contributions_top
+end
+
+Then(/^employer should not see with-compare-buttons class on contributions section$/) do
+  contributions_classes = page.evaluate_script("document.getElementById('yourSponsorContributions').className")
+  expect(contributions_classes).not_to include('with-compare-buttons')
+end
