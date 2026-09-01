@@ -7,6 +7,7 @@ require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_applicatio
 RSpec.describe BenefitSponsors::EmployerEvents::Renderer, dbclean: :after_each do
   before do
     DatabaseCleaner.clean
+    TimeKeeper.set_date_of_record_unprotected!(Date.current)
   end
 
   describe BenefitSponsors::EmployerEvents::Renderer, "given an xml, from which it selects carrier plan years", :dbclean => :after_each do

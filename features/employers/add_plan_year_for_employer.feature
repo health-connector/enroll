@@ -147,5 +147,6 @@ Feature: Add Plan Year For Employer
     And employer selected by metal level plan offerings
     And employer clicked on gold metal level
     Then employer should see Compare Plans and Clear All buttons
-    And employer should see compare plans buttons outside the contributions box
-    And employer should not see with-compare-buttons class on contributions section
+     And employer should see compare plans buttons outside the contributions box
+     And employer should not see with-compare-buttons class on contributions section
+     And employer should see Child Under 26 row within the contributions box
