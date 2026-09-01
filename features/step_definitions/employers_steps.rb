@@ -749,6 +749,15 @@ Then(/^employer should see create plan year button disabled$/) do
   expect(find("#submitBenefitPackage").disabled? || find("#submitBenefitPackage")[:class].include?('disabled')).to eql true
 end
 
+Then(/^employer should see Add Benefit Package button disabled$/) do
+  expect(find("#addBenefitPackage").disabled? || find("#addBenefitPackage")[:class].include?('disabled')).to eql true
+end
+
+Then(/^employer should see Add Benefit Package button enabled$/) do
+  expect(find("#addBenefitPackage").disabled?).to eql false
+  expect(find("#addBenefitPackage")[:class]).not_to include('disabled')
+end
+
 Then(/^employer should see view employee cost details button disabled$/) do
   sleep(3)
   expect(find("#estimatedEmployeeCostDetailsLink").disabled? || find("#estimatedEmployeeCostDetailsLink")[:class].include?('disabled')).to eql true
