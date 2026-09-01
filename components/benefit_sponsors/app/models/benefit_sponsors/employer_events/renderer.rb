@@ -21,26 +21,25 @@ module BenefitSponsors
       def has_current_or_future_plan_year?(carrier)
         found_plan_year = false
         carrier_plan_years(carrier).each do |node|
-          node.xpath("cv:plan_year_start", {:cv => XML_NS}).each do |date_node|
-            begin
-              date_value = Date.strptime(date_node.content.strip, "%Y%m%d")
-            rescue StandardError => e
-              log_error("Error parsing start date: #{e.message}")
-            end
-            next unless date_value
-
-            found_plan_year = true if date_value >= Date.today
+          start_node = node.at_xpath("cv:plan_year_start", {:cv => XML_NS})
+          end_node = node.at_xpath("cv:plan_year_end", {:cv => XML_NS})
+          start_date = begin
+            start_node && Date.strptime(start_node.content.strip, "%Y%m%d")
+          rescue StandardError => e
+            log_error("Error parsing start date: #{e.message}")
+            nil
           end
-          node.xpath("cv:plan_year_end", {:cv => XML_NS}).each do |date_node|
-            begin
-              date_value = Date.strptime(date_node.content.strip, "%Y%m%d")
-            rescue StandardError => e
-              log_error("Error parsing end date: #{e.message}")
-            end
-            next unless date_value
-
-            found_plan_year = true if date_value >= Date.today
+          end_date = begin
+            end_node && Date.strptime(end_node.content.strip, "%Y%m%d")
+          rescue StandardError => e
+            log_error("Error parsing end date: #{e.message}")
+            nil
           end
+          # canceled plan years have start == end and are not current or future
+          next if start_date && end_date && start_date == end_date
+
+          found_plan_year = true if start_date && start_date >= TimeKeeper.date_of_record
+          found_plan_year = true if end_date && end_date >= TimeKeeper.date_of_record
         end
         found_plan_year
       end
