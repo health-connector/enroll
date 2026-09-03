@@ -17,6 +17,17 @@ require_relative '../data_anonymization/verifier'
 #   4. Run data:anonymize:verify to confirm PII is gone.
 #   5. Dump and share the anonymized database.
 #
+# == Demographics handled by default
+#
+# Gender and zip are both replaced on every run, with no flag required.
+# DOB is NOT shifted by default - see ANONYMIZE_DOB.
+#
+# Employer office locations are swapped only within the same rating area and the
+# same issuer service areas, and are left unchanged when no such pair exists.
+# Member addresses are swapped within the same rating area alone, and are given
+# a random zip when no pair exists, so no member retains a real zip. Premiums are
+# unchanged either way, since premium is looked up by rating area code.
+#
 # == ENV_NAME requirement
 #
 # ENV_NAME must be set to a non-'prod' value (e.g. 'pvt', 'preprod').
@@ -64,7 +75,8 @@ require_relative '../data_anonymization/verifier'
 # @env DRY_RUN           [Boolean] Set to 'true' to preview counts without writing
 # @env BATCH_SIZE        [Integer] Documents per bulk_write batch (default: 1000)
 # @env FORCE_REANONYMIZE [Boolean] Set to 'true' to bypass the idempotency guard
-# @env ANONYMIZE_ZIP     [Boolean] Anonymize zip fields (off by default — protects rating calculations)
+# @env ANONYMIZE_ZIP     [Boolean] Replace zip with a fully random value (off by default - protects rating
+#   calculations). Overrides the default rating-area-preserving swap described above.
 # @env ANONYMIZE_COUNTY  [Boolean] Anonymize county fields (off by default — protects rating calculations)
 # @env ANONYMIZE_DOB     [Boolean] Shift DOB ±30 days (off by default — protects age-band eligibility)
 # @env ANONYMIZE_STATE   [Boolean] Anonymize state fields (off by default — protects plan availability)

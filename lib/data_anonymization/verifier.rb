@@ -27,6 +27,8 @@ module DataAnonymizer
 
     GENERATED_EMAIL_PATTERN = /@(exampleanonymizer|testanonymizer)\.com\z/
     SAMPLE_SIZE = 5000
+    # A value outside this set would fail model validation on the next save.
+    ALLOWED_GENDERS = AnonymizedData::GENDERS
     UNREDACTED_FILENAME_PATTERN = /filename=(?!document-redacted)/
     ANONYMIZED_IDENTIFIER_PATTERN = /^urn:openhbx:terms:v1:file_storage:s3:bucket:anonymized#/
     INBOX_MESSAGE_PATHS = [
@@ -61,9 +63,10 @@ module DataAnonymizer
     SKIP_FIELDS = %w[_id encrypted_ssn fein ach_routing_number ach_routing_number_confirmation npn corporate_npn content dba versions].freeze
 
     # rubocop:disable Metrics/ParameterLists
-    def initialize(mode: :smoke, prehash_map: nil, hmac_key: nil, run_id: nil, sample_size: SAMPLE_SIZE, protected_oim_ids: [])
+    def initialize(mode: :smoke, prehash_map: nil, zip_prehash_map: nil, hmac_key: nil, run_id: nil, sample_size: SAMPLE_SIZE, protected_oim_ids: [])
       @mode = mode
       @prehash_map = prehash_map
+      @zip_prehash_map = zip_prehash_map
       @hmac_key = hmac_key
       @run_id = run_id
       @sample_size = sample_size
@@ -121,8 +124,13 @@ module DataAnonymizer
           @prehash_map = load_prehash_map_from_ttl(@run_id)
           log "Loaded #{@prehash_map.values.sum(&:size)} prehash digests from TTL collection (run_id=#{@run_id})."
         end
+        if @zip_prehash_map.nil? && @hmac_key.present? && @run_id.present?
+          @zip_prehash_map = load_prehash_map_from_ttl(@run_id, 'zip_prehash')
+          log "Loaded #{@zip_prehash_map.values.sum(&:size)} zip prehash digests from TTL collection (run_id=#{@run_id})."
+        end
         checks << check_streaming_ssn_patterns
         checks << check_name_dob_prehash
+        checks << check_zip_prehash
       end
 
       checks
@@ -131,12 +139,13 @@ module DataAnonymizer
     # Loads prehash digests from the +data_anonymizer_prehashes+ TTL collection
     # for a given run_id. Used for out-of-process (separate-task) verification.
     # @param run_id [String] UUID recorded during the anonymizer run
+    # @param scope [String] digest set to load
     # @return [Hash{Symbol => Hash{String => String}}] prehash map suitable for check_name_dob_prehash
-    def load_prehash_map_from_ttl(run_id)
+    def load_prehash_map_from_ttl(run_id, scope = 'canonical_prehash')
       map = Hash.new { |h, k| h[k] = {} }
       return map unless @db.collection_names.include?('data_anonymizer_prehashes')
 
-      @db[:data_anonymizer_prehashes].find('run_id' => run_id.to_s).each do |doc|
+      @db[:data_anonymizer_prehashes].find('run_id' => run_id.to_s, 'scope' => scope).each do |doc|
         scope = doc['collection'].to_sym
         rec_id = doc['record_id'].to_s
         map[scope][rec_id] = doc['digest']
@@ -224,6 +233,61 @@ module DataAnonymizer
     # Verifies canonical prehash map: compares pre-run HMAC (stored_hmac)
     # with a post-run HMAC built from the same canonicalization rules. Any
     # record whose HMAC is unchanged is treated as a failure.
+    # Compares a zip-only digest taken before the run against the same digest
+    # recomputed after. A structural check cannot do this, because the swap
+    # replaces a real zip with another real zip.
+    # @return [Hash] check result
+    def check_zip_prehash
+      unless @zip_prehash_map && @hmac_key
+        log "WARNING: Zip prehash check SKIPPED - RUN_ID/HMAC_KEY not provided. " \
+            "Geographic swap is NOT verified by this run."
+        return build_result("Zip prehash", 0, [], "SKIPPED - RUN_ID/HMAC_KEY not provided. Zip mutation NOT verified")
+      end
+
+      issues = []
+      samples = []
+      total = 0
+
+      @zip_prehash_map.each do |collection_sym, id_map|
+        col = collection_sym.to_s
+        next unless @db.collection_names.include?(col)
+
+        id_map.each do |id_str, stored_hmac|
+          doc = find_by_id_string(col, id_str)
+          next unless doc
+
+          total += 1
+          payload = zip_payload_for_collection(collection_sym, doc)
+          next if OpenSSL::HMAC.hexdigest('SHA256', @hmac_key, payload) != stored_hmac
+
+          issues << "Unchanged zip for #{col}:#{id_str}"
+          samples << "#{col}:#{id_str}"
+        end
+      end
+
+      build_result("Zip prehash", total, issues, samples.first(5).join(', '))
+    end
+
+    # @param collection_sym [Symbol] :people or :census_members
+    # @param doc [Hash] raw document
+    # @return [String] zip-only canonical payload
+    def zip_payload_for_collection(collection_sym, doc)
+      case collection_sym
+      when :people then canonical_person_zip_payload(doc)
+      when :census_members then canonical_census_zip_payload(doc)
+      else ''
+      end
+    end
+
+    # @param col [String] collection name
+    # @param id_str [String] stringified record id
+    # @return [Hash, nil]
+    def find_by_id_string(col, id_str)
+      return nil unless BSON::ObjectId.legal?(id_str)
+
+      @db[col.to_sym].find('_id' => BSON::ObjectId.from_string(id_str)).first
+    end
+
     def check_name_dob_prehash
       # No credentials supplied - treat as skipped (PASS) so that verify-only
       # invocations without RUN_ID/HMAC_KEY don't block the overall sentinel.
@@ -321,6 +385,9 @@ module DataAnonymizer
       tribal_count = collection.count_documents('tribal_id' => { '$ne' => nil, '$exists' => true })
       issues << "#{tribal_count} records with non-nil tribal_id" if tribal_count > 0
 
+      bad_gender_count = count_invalid_genders(collection)
+      issues << "#{bad_gender_count} records with a gender outside #{ALLOWED_GENDERS.join('/')}" if bad_gender_count > 0
+
       sample = collection.find.limit(3).to_a
       sample_names = sample.map { |d| "#{d['first_name']} #{d['last_name']}" }.join(", ")
 
@@ -381,10 +448,22 @@ module DataAnonymizer
       dep_ssn_count = collection.count_documents('census_dependents.ssn' => { '$exists' => true })
       issues << "#{dep_ssn_count} records with plain-text dependent 'ssn'" if dep_ssn_count > 0
 
+      bad_gender_count = count_invalid_genders(collection)
+      issues << "#{bad_gender_count} records with a gender outside #{ALLOWED_GENDERS.join('/')}" if bad_gender_count > 0
+
       sample = collection.find.limit(3).to_a
       sample_names = sample.map { |d| "#{d['first_name']} #{d['last_name']}" }.join(", ")
 
       build_result("Census Members (census_members)", total, issues, sample_names)
+    end
+
+    # Blank is permitted, since only a populated gender is replaced.
+    # @param collection [Mongo::Collection]
+    # @return [Integer]
+    def count_invalid_genders(collection)
+      collection.count_documents(
+        'gender' => { '$nin' => ALLOWED_GENDERS + [nil, ''] }
+      )
     end
 
     def check_organizations
@@ -515,21 +594,26 @@ module DataAnonymizer
       person_map = {}
       @db[:people].find(
         'employee_roles._id' => { '$in' => role_ids }
-      ).projection('first_name' => 1, 'employee_roles._id' => 1).each do |person|
+      ).projection('first_name' => 1, 'gender' => 1, 'employee_roles._id' => 1).each do |person|
         (person['employee_roles'] || []).each do |er|
-          person_map[er['_id']] = person['first_name']
+          person_map[er['_id']] = { 'first_name' => person['first_name'], 'gender' => person['gender'] }
         end
       end
 
+      gender_mismatches = 0
       census_sample.each do |ce|
         er_id = ce['employee_role_id']
         next unless person_map.key?(er_id)
 
         checked += 1
-        mismatches += 1 if ce['first_name'] != person_map[er_id]
+        mismatches += 1 if ce['first_name'] != person_map[er_id]['first_name']
+        # Census gender is stored separately from Person gender, so missing
+        # either side leaves one individual with two genders.
+        gender_mismatches += 1 if ce['gender'].present? && person_map[er_id]['gender'].present? && ce['gender'] != person_map[er_id]['gender']
       end
 
       issues << "#{mismatches}/#{checked} linked census members have first_name mismatch with Person" if mismatches > 0
+      issues << "#{gender_mismatches}/#{checked} linked census members have gender mismatch with Person" if gender_mismatches > 0
 
       build_result("Cross-model: Census <-> Person (sample #{checked})", checked, issues, "")
     end

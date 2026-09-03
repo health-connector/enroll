@@ -86,6 +86,74 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
     end
   end
 
+  # @!group check_zip_prehash - geographic swap verification tests
+
+  describe '#check_zip_prehash' do
+    let(:hmac_key) { 'test_key_abcdef1234567890' }
+    let(:fake_id)  { BSON::ObjectId.new }
+
+    def digest_for(zip)
+      OpenSSL::HMAC.hexdigest('SHA256', hmac_key, zip)
+    end
+
+    def verifier_for(doc_after, stored_zip)
+      v = described_class.new(
+        mode: :audit,
+        zip_prehash_map: { people: { fake_id.to_s => digest_for(stored_zip) } },
+        hmac_key: hmac_key
+      )
+      collection_double = instance_double(Mongo::Collection)
+      view_double = instance_double(Mongo::Collection::View)
+      allow(db_double).to receive(:collection_names).and_return(['people'])
+      allow(db_double).to receive(:[]).with(:people).and_return(collection_double)
+      allow(collection_double).to receive(:find).and_return(view_double)
+      allow(view_double).to receive(:first).and_return(doc_after)
+      v
+    end
+
+    context 'when credentials are missing' do
+      it 'passes as skipped rather than blocking the sentinel' do
+        result = verifier.send(:check_zip_prehash)
+        expect(result[:passed]).to be true
+        expect(result[:samples]).to include('SKIPPED')
+        expect(result[:samples]).to include('Zip mutation NOT verified')
+      end
+
+      it 'emits a WARNING so the gap is visible' do
+        expect(Rails.logger).to receive(:info).with(a_string_including('WARNING'))
+        verifier.send(:check_zip_prehash)
+      end
+    end
+
+    context 'when the zip changed' do
+      it 'passes' do
+        v = verifier_for({ '_id' => fake_id, 'addresses' => [{ 'zip' => '02108' }] }, '02101')
+        result = v.send(:check_zip_prehash)
+        expect(result[:passed]).to be true
+      end
+    end
+
+    context 'when the zip did not change' do
+      # This is the regression that a structural check cannot see: the swap
+      # silently stopping while every other check still reports a clean pass.
+      it 'fails' do
+        v = verifier_for({ '_id' => fake_id, 'addresses' => [{ 'zip' => '02101' }] }, '02101')
+        result = v.send(:check_zip_prehash)
+        expect(result[:passed]).to be false
+        expect(result[:issues]).to match(/Unchanged zip/)
+      end
+    end
+
+    context 'when a record has several addresses and none changed' do
+      it 'fails' do
+        stored = '02101,02110'
+        v = verifier_for({ '_id' => fake_id, 'addresses' => [{ 'zip' => '02101' }, { 'zip' => '02110' }] }, stored)
+        result = v.send(:check_zip_prehash)
+        expect(result[:passed]).to be false
+      end
+    end
+  end
+
   # @!group check_name_dob_prehash — canonical prehash verification tests
 
   describe '#check_name_dob_prehash' do

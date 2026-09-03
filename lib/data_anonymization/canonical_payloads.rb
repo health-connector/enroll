@@ -51,6 +51,30 @@ module DataAnonymizer
       "#{normalize(doc['legal_name'])}|#{profiles}"
     end
 
+    # Zip-only canonical string. Kept separate because
+    # {#canonical_person_payload} includes address_1 and city, which always
+    # change, so its digest cannot prove the zip moved.
+    # @param doc [Hash] raw person Mongo document
+    # @return [String] comma-delimited zips
+    def canonical_person_zip_payload(doc)
+      Array(doc['addresses']).map { |addr| normalize((addr || {})['zip']) }.join(',')
+    end
+
+    # Zip-only canonical string for a census_member, including dependents.
+    # @param doc [Hash] raw census_member Mongo document
+    # @return [String] comma-delimited zips
+    def canonical_census_zip_payload(doc)
+      own = normalize((doc['address'] || {})['zip'])
+      dependents = Array(doc['census_dependents']).map { |dep| normalize(((dep || {})['address'] || {})['zip']) }
+      ([own] + dependents).join(',')
+    end
+
+    # @param payload [String] output of a zip payload helper
+    # @return [Boolean] whether any zip is present
+    def zip_payload_present?(payload)
+      payload.to_s.match?(/\d/)
+    end
+
     def normalize(str)
       str&.to_s&.strip&.downcase || ''
     end
