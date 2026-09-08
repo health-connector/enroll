@@ -21,7 +21,7 @@ class ZipFileGenerator
   # Zip the input directory.
   def write()
     entries = Dir.entries(@inputDir); entries.delete("."); entries.delete("..")
-    io = Zip::File.open(@outputFile, create: true);
+    io = Zip::File.open(@outputFile, create: true)
 
     writeEntries(entries, "", io)
     io.close();
