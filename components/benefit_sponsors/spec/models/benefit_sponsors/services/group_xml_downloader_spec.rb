@@ -65,9 +65,9 @@ RSpec.describe BenefitSponsors::Services::GroupXmlDownloader, type: :service do
       it 'creates a zip file and returns success with zip path' do
         expect(Tempfile).to receive(:new).with("employer_events_digest").and_return(double(path: zip_path, close: nil, unlink: nil))
 
-        expect(Zip::File).to receive(:open) do |path, create_flag, &block|
+        expect(Zip::File).to receive(:open) do |path, create:, &block|
           expect(path).to match(/employer_events_digest.*\.zip$/)
-          expect(create_flag).to eq(Zip::File::CREATE)
+          expect(create).to eq(true)
           block.call(zip_file)
         end
 

@@ -66,7 +66,7 @@ module BenefitSponsors
       end
 
       def write_to_zip(carrier_files, zip_path)
-        ::Zip::File.open(zip_path, ::Zip::File::CREATE) do |zip|
+        ::Zip::File.open(zip_path, create: true) do |zip|
           carrier_files.each do |car|
             car.write_to_zip(zip) unless car.rendered_employers.empty?
           end

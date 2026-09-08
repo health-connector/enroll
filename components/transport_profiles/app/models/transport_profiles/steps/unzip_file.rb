@@ -47,7 +47,7 @@ module TransportProfiles
             while (entry = io.get_next_entry)
               if !entry.name_is_directory?
                 output_name = File.join(tmp_dir, entry.name)
-                entry.extract(output_name)
+                entry.extract(entry.name, destination_directory: tmp_dir)
                 process_context.update(@files_key, []) do |f_list|
                   f_list + [URI.join("file://", CGI.escape(output_name))]
                 end
