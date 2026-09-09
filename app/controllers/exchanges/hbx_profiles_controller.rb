@@ -9,6 +9,8 @@ class Exchanges::HbxProfilesController < ApplicationController
   include ::Config::AcaHelper
   include HtmlScrubberUtil
   include StringScrubberUtil
+  include ::Datatables::FragmentRendering
+  include ::Datatables::CsvStreaming
 
   before_action :check_hbx_staff_role, except: [:configuration, :show, :assister_index, :family_index, :update_cancel_enrollment, :update_terminate_enrollment]
   before_action :set_hbx_profile, only: :edit
@@ -251,10 +253,29 @@ class Exchanges::HbxProfilesController < ApplicationController
 
   def user_account_index
     authorize HbxProfile, :can_access_user_account_tab?
-    @datatable = Effective::Datatables::UserAccountDatatable.new
+    if EnrollRegistry.feature_enabled?(:refactored_datatables)
+      @user_accounts_datatable_locals = datatable_locals(::Datatables::UserAccountsTable.new, url: user_accounts_datatable_exchanges_hbx_profiles_path)
+    else
+      @datatable = Effective::Datatables::UserAccountDatatable.new
+    end
     respond_to do |format|
       format.js
       format.html { render '/exchanges/hbx_profiles/user_account_index_datatable' }
+    end
+  end
+
+  def user_accounts_datatable
+    raise ActionController::RoutingError, 'Not Found' unless EnrollRegistry.feature_enabled?(:refactored_datatables)
+
+    authorize HbxProfile, :can_access_user_account_tab?
+    table = ::Datatables::UserAccountsTable.new
+    respond_to do |format|
+      format.html { render_datatable_fragment(table, url: user_accounts_datatable_exchanges_hbx_profiles_path) }
+      format.csv do
+        stream_datatable_csv(filename: 'user_accounts.csv',
+                             headers: table.csv_headers,
+                             rows: datatable_csv_rows(table, datatable_scoped(table)))
+      end
     end
   end
 
