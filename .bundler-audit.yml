@@ -7,3 +7,22 @@ ignore:
   # as it does not impact this particular application.
   # Further information available in the SECURITY.md file.
   - GHSA-vvfq-8hwr-qm4m
+  # ckeditor 4.2.4 advisories: no 4.x patched release exists for any of these; the only fix is
+  # CKEditor 5 (>= 5.1.2), a major-version migration of the editor integration and assets, not a
+  # version bump. ckeditor is reachable only through Pundit-authorized, staff/admin-only notice
+  # template authoring (components/notifier), not public/untrusted end-user input.
+  # Further information available in the SECURITY.md file.
+  - CVE-2020-27193
+  - CVE-2020-9281
+  - CVE-2021-26271
+  - CVE-2021-26272
+  - CVE-2021-32809
+  - CVE-2021-37695
+  - CVE-2021-41164
+  - CVE-2021-41165
+  - CVE-2022-24728
+  - CVE-2023-4771
+  - CVE-2024-24815
+  - CVE-2024-24816
+  - CVE-2024-43407
+  - CVE-2024-43411

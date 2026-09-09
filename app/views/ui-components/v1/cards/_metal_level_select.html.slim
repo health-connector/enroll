@@ -210,16 +210,6 @@ javascript:
     });
   }
 
-  // Apply conditional margin for compare buttons feature
-  if (isPlanComparisonEnabled) {
-    document.addEventListener('DOMContentLoaded', function() {
-      var yourSponsorContributionsElement = document.getElementById('yourSponsorContributions');
-      if (yourSponsorContributionsElement) {
-        yourSponsorContributionsElement.classList.add('with-compare-buttons');
-      }
-    });
-  }
-
   function radioSelected(element) {
     setCircle(element)
     disableNewPlanYearButton()
@@ -437,7 +427,7 @@ javascript:
 
     if (isPlanComparisonEnabled) {
       document.getElementById('comparePlansButtons').innerHTML =
-        `<div class="col-md-12 text-center mt-3 mb-3">
+        `<div class="text-center">
           <button type="button" class="btn btn-primary disabled" id="compareSelectedPlansButton" onclick="compareSelectedPlans(event); return false;" disabled>${comparePlansText}</button>
           <button type="button" class="btn btn-default" id="clear-comparison-button" onclick="clearSelectedPlans()">${clearAllText}</button>
         </div>`;
@@ -579,12 +569,14 @@ javascript:
 
   function disableNewAddBenefitPackageButton() {
     var addBenefitPackageButton = document.getElementById('addBenefitPackage');
-    addBenefitPackageButton.classList.add('disabled')
+    addBenefitPackageButton.classList.add('disabled');
+    addBenefitPackageButton.setAttribute('disabled', true);
   }
 
   function enableNewAddBenefitPackageButton() {
     var addBenefitPackageButton = document.getElementById('addBenefitPackage');
-    addBenefitPackageButton.classList.remove('disabled')
+    addBenefitPackageButton.classList.remove('disabled');
+    addBenefitPackageButton.removeAttribute('disabled');
   }
 
   function enableEmpDetailedCostsLink() {

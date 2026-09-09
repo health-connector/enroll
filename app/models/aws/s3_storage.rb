@@ -13,13 +13,14 @@ module Aws
       uri = "urn:openhbx:terms:v1:file_storage:s3:bucket:#{bucket_name}##{key}"
 
       begin
-        object = get_object(bucket_name, key)
-        if object.upload_file(file_path, :server_side_encryption => 'AES256')
+        if transfer_manager.upload_file(file_path, :bucket => bucket_name, :key => key, :server_side_encryption => 'AES256')
           uri
         else
           nil
         end
-      rescue Exception => e
+      rescue StandardError => e
+        log_error("unable to upload file to bucket #{bucket_name} due to #{e.class}")
+        nil
       end
     end
 
@@ -64,6 +65,10 @@ module Aws
       @resource.bucket(bucket_name).object(key)
     end
 
+    def transfer_manager
+      Aws::S3::TransferManager.new(:client => @resource.client)
+    end
+
     def set_correct_env_bucket_name(bucket_name)
       bucket_name_segment = bucket_name.split('-')
       if ENV_LIST.include? bucket_name_segment.last && bucket_name_segment.last == aws_env
@@ -85,6 +90,10 @@ module Aws
     def setup
       client=Aws::S3::Client.new(stub_responses: (Rails.env.development? || Rails.env.test?))
       @resource=Aws::S3::Resource.new(client: client)
+    end
+
+    def log_error(message)
+      Rails.logger.tagged(self.class.name) { Rails.logger.error(message) }
     end
   end
 end

@@ -52,7 +52,7 @@ class TimeKeeper
     last_advanced = instance.last_advanced_on
 
     if last_advanced.blank?
-      log("date_of_record advance ledger missing - running events for #{new_date}", {:severity => :critical})
+      log("date_of_record advance ledger missing - running events for #{new_date}", {:severity => :warn})
       instance.advance_date_of_record(new_date)
     elsif last_advanced != new_date
       if last_advanced > new_date
@@ -79,9 +79,15 @@ class TimeKeeper
     instance.date_of_record
   end
 
+  # Built through Time.zone.local, not date.to_datetime, so the time of day comes
+  # from the exchange zone instead of being mislabeled UTC. Returned as a DateTime
+  # rather than a TimeWithZone, since is_a?(::Date) checks elsewhere depend on that type.
   def self.datetime_of_record
-    instant = Time.current
-    instance.date_of_record.to_datetime + instant.hour.hours + instant.min.minutes + instant.sec.seconds
+    date = instance.date_of_record
+    instant = Time.current.in_time_zone(exchange_zone)
+    Time.use_zone(exchange_zone) do
+      Time.zone.local(date.year, date.month, date.day, instant.hour, instant.min, instant.sec)
+    end.to_datetime
   end
 
   def advance_date_of_record(new_date)
@@ -116,8 +122,11 @@ class TimeKeeper
     tl_value = thread_local_date_of_record
     return tl_value unless tl_value.blank?
     found_value = Rails.cache.fetch(CACHE_KEY) do
-      log("date_of_record not available for TimeKeeper - using Date.current")
-      Date.current.strftime("%Y-%m-%d")
+      # The exchange business day is Eastern. This process runs in UTC, so
+      # Date.current is a day ahead between UTC midnight and the start of the
+      # Eastern day, which would hand the app tomorrow's date on a cache miss.
+      log("date_of_record cache miss - returning and restoring the exchange date via date_according_to_exchange_at")
+      self.class.date_according_to_exchange_at(Time.current).strftime("%Y-%m-%d")
     end
     Date.strptime(found_value, "%Y-%m-%d")
   end

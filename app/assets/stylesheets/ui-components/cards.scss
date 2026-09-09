@@ -288,14 +288,16 @@
   }
 }
 
-#yourSponsorContributions.with-compare-buttons {
-  margin-top: 100px;
+#comparePlansButtons {
+  margin-bottom: 15px;
+  margin-top: 15px;
 }
 
 #sponsorContributions {
   border:1px solid $mhc-light-gray;
   background-color:$primary-white;
-  height:330px;
+  overflow: hidden;
+
   p {
     width:190px;
     font-size: 14px;
