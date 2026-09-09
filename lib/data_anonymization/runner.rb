@@ -55,6 +55,13 @@ module DataAnonymizer
     COUNTY_ZIP_COLLECTION   = :benefit_markets_locations_county_zips
     RATING_AREA_COLLECTION  = :benefit_markets_locations_rating_areas
     SERVICE_AREA_COLLECTION = :benefit_markets_locations_service_areas
+    # Legacy carrier service areas resolve by zip alone, ignoring county, and
+    # still drive employer plan availability. Held constant alongside the newer
+    # service areas so a swapped employer zip offers the same products.
+    LEGACY_SERVICE_AREA_COLLECTION = :carrier_service_areas
+
+    # Redraw attempts when a generated zip collides with the stored one.
+    RANDOM_ZIP_ATTEMPTS = 10
 
     attr_reader :batch_size, :client, :db
 
@@ -62,9 +69,9 @@ module DataAnonymizer
     #   Larger values improve throughput at the cost of memory.
     # @param dry_run [Boolean] when true, logs actions without writing to the database.
     # @param force [Boolean] when true, skips the idempotency guard and re-anonymizes.
-    # @param anonymize_zip [Boolean] opt in to a fully random zip; by default zip is swapped
+    # @param anonymize_zip [Boolean] opt in to a fully random zip. By default zip is swapped
     #   for a different real zip in the same rating area, which leaves rating unchanged.
-    # @param anonymize_county [Boolean] opt in to a fully random county; by default employer
+    # @param anonymize_county [Boolean] opt in to a fully random county. By default employer
     #   county moves with the swapped zip and member county is left blank.
     # @param anonymize_dob [Boolean] opt in to shift DOB +/-30 days; preserved by default to protect age-band eligibility.
     # @param anonymize_state [Boolean] opt in to anonymize state; preserved by default to protect plan availability.
@@ -997,8 +1004,17 @@ module DataAnonymizer
       }
       fields['encrypted_ssn'] = person_vals['encrypted_ssn'] if doc['encrypted_ssn'].present? && person_vals['encrypted_ssn'].present?
       fields['dob']           = person_vals['dob']           if @anonymize_dob && doc['dob'].present? && person_vals['dob'].present?
-      fields['gender']        = person_vals['gender']        if doc['gender'].present? && person_vals['gender'].present?
+      fields['gender'] = census_gender_from(doc, person_vals) if doc['gender'].present?
       fields
+    end
+
+    # Person gender is optional, so falling back keeps the census record from
+    # retaining its real value when there is nothing to copy.
+    # @param doc [Hash] raw census_member document
+    # @param person_vals [Hash] anonymized values from the linked person
+    # @return [String] replacement gender
+    def census_gender_from(doc, person_vals)
+      person_vals['gender'].presence || gender_for(doc['gender'], [doc['address']].compact)
     end
 
     def build_census_member_fields_random(doc, shift_days)
@@ -1458,7 +1474,7 @@ module DataAnonymizer
       if strict_geo
         @geo_swap_skipped += 1
       else
-        addr['zip'] = AnonymizedData.zip
+        addr['zip'] = random_zip_other_than(addr['zip'])
         @geo_swap_randomized += 1
       end
       addr
@@ -1473,6 +1489,7 @@ module DataAnonymizer
       # Employer county must move with the zip, since rating area lookup matches
       # on both. Person county is blank and is left that way.
       addr['county'] = replacement['county'] if addr['county'].to_s.strip.present?
+      addr['state'] = replacement['state'] if addr.key?('state') && replacement['state'].present?
       @geo_swap_applied += 1
       addr
     end
@@ -1493,19 +1510,20 @@ module DataAnonymizer
     def build_geo_swap_maps
       county_zips = db[COUNTY_ZIP_COLLECTION].find.to_a
       if county_zips.empty?
-        log '  Geographic reference data not found - zip and county will be preserved'
+        log '  Geographic reference data not found - employer zips preserved, member zips randomized'
         return { strict: {}, relaxed: {} }
       end
 
       rating_membership  = county_zip_membership(RATING_AREA_COLLECTION)
       service_membership = county_zip_membership(SERVICE_AREA_COLLECTION)
+      legacy_membership  = legacy_service_membership_by_zip
 
       strict_signatures  = {}
       relaxed_signatures = {}
       county_zips.each do |county_zip|
         id = county_zip['_id']
         rating = rating_membership[id].sort
-        strict_signatures[id]  = [rating, service_membership[id].sort]
+        strict_signatures[id]  = [rating, service_membership[id].sort, legacy_membership[county_zip['zip'].to_s.strip]]
         relaxed_signatures[id] = [rating]
       end
 
@@ -1557,12 +1575,32 @@ module DataAnonymizer
           key = reference_key(county_zip, strict_geo)
           next if ambiguous_keys.include?(key)
 
-          alternatives = members.reject { |other| other['_id'] == county_zip['_id'] }
+          # Reject by zip, not by id: a zip spanning several counties appears as
+          # multiple records in one group, and picking a sibling would leave the
+          # zip unchanged.
+          alternatives = members.reject { |other| same_zip?(other['zip'], county_zip['zip']) }
+          next if alternatives.empty?
+
           map[key] = alternatives.map do |other|
             { 'zip' => other['zip'], 'county' => other['county_name'], 'state' => other['state'] }
           end
         end
       end
+    end
+
+    # Legacy carrier service areas key on zip alone. Records serving the whole
+    # state cover every zip and so constrain nothing.
+    # @return [Hash] zip => sorted Array of owning document ids
+    def legacy_service_membership_by_zip
+      membership = Hash.new { |hash, key| hash[key] = [] }
+      return membership unless db.collection_names.include?(LEGACY_SERVICE_AREA_COLLECTION.to_s)
+
+      db[LEGACY_SERVICE_AREA_COLLECTION]
+        .find('serves_entire_state' => { '$ne' => true })
+        .projection('service_area_zipcode' => 1)
+        .each { |doc| membership[doc['service_area_zipcode'].to_s.strip] << doc['_id'] }
+      membership.each_value(&:sort!)
+      membership
     end
 
     # Inverts a rating-area or service-area collection into county_zip id =>
@@ -1584,8 +1622,7 @@ module DataAnonymizer
     # @param addresses [Array<Hash>] the record's address sub-documents
     # @return [String] replacement gender
     def gender_for(current_gender, addresses)
-      return AnonymizedData.gender if addresses.blank?
-      return AnonymizedData.gender if addresses.any? { |addr| exposes_zip?(addr) }
+      return AnonymizedData.gender if Array(addresses).any? { |addr| exposes_zip?(addr) }
 
       @forced_gender_changes += 1
       AnonymizedData.gender_other_than(current_gender)
@@ -1619,6 +1656,25 @@ module DataAnonymizer
       return geo_key(addr['zip'], addr['county'], addr['state']) if strict_geo
 
       person_geo_key(addr['zip'], addr['state'])
+    end
+
+    # Generated zips are trimmed to five digits to match how stored zips look,
+    # and redrawn if they match the original, which would otherwise leave the
+    # record unchanged and fail the zip prehash check.
+    # @param current [String, nil] the stored zip
+    # @return [String] five digit zip differing from +current+
+    def random_zip_other_than(current)
+      candidate = nil
+      RANDOM_ZIP_ATTEMPTS.times do
+        candidate = AnonymizedData.zip.to_s[0, 5]
+        break unless same_zip?(candidate, current)
+      end
+      candidate
+    end
+
+    # @return [Boolean] whether two stored zips are the same value
+    def same_zip?(one, other)
+      one.to_s.strip == other.to_s.strip
     end
 
     # @param county_zip [Hash] reference record

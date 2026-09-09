@@ -1364,6 +1364,13 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
           expect(results.uniq.sort).to eq(%w[female male])
         end
 
+        it 'forces gender to change when the record has no addresses at all' do
+          20.times do
+            fields = runner.send(:build_person_update, { 'first_name' => 'A', 'gender' => 'male' }, shift_days: 0)
+            expect(fields['gender']).to eq('female')
+          end
+        end
+
         it 'forces gender to change when the record stores no zip at all' do
           20.times do
             fields = runner.send(:build_person_update, addressless_doc('male'), shift_days: 0)
@@ -1400,6 +1407,20 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
           person_vals = { 'first_name' => 'A', 'last_name' => 'B', 'gender' => 'female' }
           fields = runner.send(:build_census_member_fields_from_person, {}, person_vals)
           expect(fields.keys).not_to include('gender')
+        end
+      end
+
+      describe 'census gender when the linked person has none' do
+        it 'does not leave the census member with its real gender' do
+          person_vals = { 'first_name' => 'A', 'last_name' => 'B', 'gender' => nil }
+          fields = runner.send(:build_census_member_fields_from_person, { 'gender' => 'male' }, person_vals)
+          expect(fields['gender']).to eq('female')
+        end
+
+        it 'copies the person gender when there is one' do
+          person_vals = { 'first_name' => 'A', 'last_name' => 'B', 'gender' => 'female' }
+          fields = runner.send(:build_census_member_fields_from_person, { 'gender' => 'male' }, person_vals)
+          expect(fields['gender']).to eq('female')
         end
       end
 
@@ -1552,6 +1573,76 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
         it 'still swaps unaffected pairs in the same run' do
           result = runner.send(:anonymize_address_hash, address('02101', 'Suffolk'))
           expect(result['zip']).to eq('01367 ')
+        end
+      end
+
+      context 'when one zip spans several counties in the same group' do
+        # A multi-county zip appears as several county_zip records. Offering a
+        # sibling as the replacement would leave the zip unchanged, which the
+        # zip prehash check then reports as a failure.
+        let!(:split_a) { FactoryBot.create(:benefit_markets_locations_county_zip, county_name: 'Hampden', zip: '01011', state: 'MA') }
+        let!(:split_b) { FactoryBot.create(:benefit_markets_locations_county_zip, county_name: 'Hampshire', zip: '01011', state: 'MA') }
+
+        before do
+          FactoryBot.create(
+            :benefit_markets_locations_rating_area,
+            covered_states: nil, county_zip_ids: [split_a.id, split_b.id, suffolk.id]
+          )
+        end
+
+        it 'never returns the same zip as the replacement' do
+          25.times do
+            result = runner.send(:anonymize_address_hash, address('01011', 'Hampden'), strict_geo: false)
+            expect(result['zip']).not_to eq('01011')
+          end
+        end
+
+        it 'still offers the other members of the group' do
+          result = runner.send(:anonymize_address_hash, address('01011', 'Hampden'), strict_geo: false)
+          expect(result['zip']).to eq('02101')
+        end
+      end
+
+      context 'when legacy carrier service areas differ between two zips' do
+        # Legacy CarrierServiceArea resolves by zip alone and still drives
+        # employer plan availability.
+        before do
+          FactoryBot.create(
+            :benefit_markets_locations_rating_area,
+            covered_states: nil, county_zip_ids: [suffolk.id, norfolk.id]
+          )
+          FactoryBot.create(
+            :benefit_markets_locations_service_area,
+            covered_states: nil, county_zip_ids: [suffolk.id, norfolk.id]
+          )
+          runner.db[:carrier_service_areas].insert_one(
+            'service_area_zipcode' => '02101', 'serves_entire_state' => false
+          )
+        end
+
+        it 'does not swap an employer zip onto a different legacy service area' do
+          result = runner.send(:anonymize_address_hash, address('02101', 'Suffolk'), strict_geo: true)
+          expect(result['zip']).to eq('02101')
+        end
+
+        it 'still swaps the member address, which does not read service areas' do
+          result = runner.send(:anonymize_address_hash, address('02101', 'Suffolk'), strict_geo: false)
+          expect(result['zip']).to eq('02108')
+        end
+      end
+
+      context 'when a member zip has to be randomized' do
+        it 'produces a five digit zip, matching how stored zips look' do
+          20.times do
+            result = runner.send(:anonymize_address_hash, address('99999', 'Nowhere'), strict_geo: false)
+            expect(result['zip']).to match(/\A\d{5}\z/)
+          end
+        end
+
+        it 'never returns the original zip, which would fail the prehash check' do
+          allow(DataAnonymizer::AnonymizedData).to receive(:zip).and_return('99999', '99999', '12345')
+          result = runner.send(:anonymize_address_hash, address('99999', 'Nowhere'), strict_geo: false)
+          expect(result['zip']).to eq('12345')
         end
       end
 

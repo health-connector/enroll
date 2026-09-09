@@ -2,6 +2,7 @@
 
 require 'csv'
 require 'openssl'
+require_relative 'anonymized_data'
 require_relative 'canonical_payloads'
 
 module DataAnonymizer
