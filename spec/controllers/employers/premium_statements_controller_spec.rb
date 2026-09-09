@@ -114,4 +114,88 @@ RSpec.describe Employers::PremiumStatementsController do
     # end
   end
 
+  describe "Action # premium_billing_datatable (:refactored_datatables)" do
+    render_views
+
+    let(:query_result) { double(:hbx_enrollments => hbx_enrollments) }
+    let(:query) { double(:execute => query_result) }
+
+    before do
+      allow(user).to receive(:person).and_return(person)
+      allow(EmployerProfile).to receive(:find).and_return(employer_profile)
+      allow(Queries::EmployerPremiumStatement).to receive(:new).with(employer_profile, TimeKeeper.date_of_record.next_month.beginning_of_month).and_return(query)
+      allow(census_employee).to receive(:is_active?).and_return(true)
+      hbx_enrollments.each do |hbx_enrollment|
+        allow(hbx_enrollment).to receive(:census_employee).and_return(census_employee)
+        allow(hbx_enrollment).to receive(:_id).and_return(nil)
+      end
+      allow(EnrollRegistry).to receive(:feature_enabled?).and_call_original
+      allow(EnrollRegistry).to receive(:feature_enabled?).with(:refactored_datatables).and_return(true)
+      sign_in(user)
+    end
+
+    context "when the :refactored_datatables flag is disabled" do
+      before do
+        allow(EnrollRegistry).to receive(:feature_enabled?).with(:refactored_datatables).and_return(false)
+      end
+
+      it "404s the fragment endpoint" do
+        expect { get :premium_billing_datatable, params: { id: "test" } }.to raise_error(ActionController::RoutingError)
+      end
+
+      it "builds the legacy datatable on show" do
+        get :show, params: { id: "test" }, xhr: true
+        expect(assigns(:datatable)).to be_a(Effective::Datatables::PremiumBillingReportDataTable)
+        expect(assigns(:premium_billing_datatable_locals)).to be_nil
+      end
+    end
+
+    context "when the user may not list enrollments" do
+      let(:permission) { double(list_enrollments: false) }
+      let(:hbx_staff_role) { double("hbx_staff_role", permission: permission) }
+
+      before do
+        allow(person).to receive(:hbx_staff_role).and_return(hbx_staff_role)
+      end
+
+      it "denies access" do
+        get :premium_billing_datatable, params: { id: "test" }
+        expect(response).not_to have_http_status(:success)
+      end
+    end
+
+    context "when authorized with the flag enabled" do
+      it "renders the table fragment without a layout" do
+        get :premium_billing_datatable, params: { id: "test" }
+        expect(response).to have_http_status(:success)
+        expect(response).to render_template(partial: 'datatables/_table')
+        expect(response.body).to include('Employee Profile')
+        expect(response.body).to include('COST')
+      end
+
+      it "carries the selected billing period on the fragment url" do
+        billing_date = TimeKeeper.date_of_record.next_month.beginning_of_month
+        allow(Queries::EmployerPremiumStatement).to receive(:new).with(employer_profile, billing_date).and_return(query)
+        get :show, params: { id: "test", billing_date: billing_date.strftime("%m/%d/%Y") }, xhr: true
+        expect(assigns(:datatable)).to be_nil
+        locals = assigns(:premium_billing_datatable_locals)
+        expect(locals[:table]).to be_a(Datatables::PremiumBillingTable)
+        expect(locals[:url]).to include(CGI.escape(billing_date.strftime("%m/%d/%Y")))
+      end
+
+      it "renders the report layout with an All page-length option and no export button" do
+        get :premium_billing_datatable, params: { id: "test" }
+        expect(response.body).to include('<option value="-1">All</option>')
+        expect(response.body).not_to include('buttons-csv')
+        expect(response.body).not_to include('dt-buttons')
+      end
+
+      it "keeps the full-dataset CSV on the show action rather than the fragment endpoint" do
+        get :show, params: { id: "test" }, xhr: true, format: :csv
+        expect(response.headers['Content-Type']).to have_content 'text/csv'
+        expect(response.header["Content-Disposition"]).to match(/DCHealthLink_Premium_Billing_Report/)
+        expect(response.body).to have_content(/#{census_employee.full_name}/)
+      end
+    end
+  end
 end

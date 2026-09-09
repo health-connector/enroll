@@ -8,6 +8,10 @@ module Notifier
       can_view_notices?
     end
 
+    def notices_datatable?
+      index?
+    end
+
     def show?
       can_view_notices?
     end

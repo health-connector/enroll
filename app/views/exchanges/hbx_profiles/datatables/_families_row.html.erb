@@ -1,0 +1,49 @@
+<%# One Families table row. person is resolved once and reused by the cells and
+    the action dropdown. sorting_1 stays on col-name: it is the default-order
+    column (index 0, asc), so its cells carry the sort shading. Each row-action
+    link type ('ajax', 'static', 'disabled') is consumed by
+    datatables/shared/_dropdown. %>
+<%
+  person = row.primary_applicant.person
+  row_actions_id = "family_actions_#{row.id}"
+
+  dropdown = [
+    ['Add SEP', add_sep_form_exchanges_hbx_profiles_path(family: row.id, family_actions_id: row_actions_id), table.add_sep_link_type(pundit_allow(HbxProfile, :can_add_sep?))],
+    ['View SEP History', show_sep_history_exchanges_hbx_profiles_path(family: row.id, family_actions_id: row_actions_id), 'ajax'],
+    ['Cancel Enrollment', cancel_enrollment_exchanges_hbx_profiles_path(family: row.id, family_actions_id: row_actions_id), table.cancel_enrollment_type(row, pundit_allow(Family, :can_update_ssn?))],
+    ['Terminate Enrollment', terminate_enrollment_exchanges_hbx_profiles_path(family: row.id, family_actions_id: row_actions_id), table.terminate_enrollment_type(row, pundit_allow(Family, :can_update_ssn?))],
+    ['Change Enrollment End Date', view_enrollment_to_update_end_date_exchanges_hbx_profiles_path(family: row.id, person_id: person.id, family_actions_id: row_actions_id), table.update_terminated_enrollment_type(row, pundit_allow(Family, :can_update_ssn?))]
+  ]
+
+  if enrollments_reinstate_enabled?
+    dropdown << ['Reinstate', view_terminated_hbx_enrollments_exchanges_hbx_profiles_path(family: row.id, person_id: person.id, family_actions_id: row_actions_id), table.reinstate_enrollment_type(row, pundit_allow(Family, :can_update_ssn?))]
+  end
+
+  dropdown += [
+    [tag.div(' Edit DOB / SSN ', class: pundit_class(Family, :can_update_ssn?)), edit_dob_ssn_path(id: person.id, family_actions_id: row_actions_id), 'ajax'],
+    ['Send Secure Message', new_insured_inbox_path(id: person.id, profile_id: current_user.person.hbx_staff_role.hbx_profile.id, to: "#{person.last_name}, #{person.first_name}", family_actions_id: row_actions_id), table.secure_message_link_type(row, current_user)],
+    ['View Username and Email', get_user_info_exchanges_hbx_profiles_path(person_id: person.id, family_actions_id: row_actions_id), individual_market_is_enabled? && pundit_allow(Family, :can_view_username_and_email?) ? 'ajax' : 'disabled'],
+    ['Collapse Form', hide_form_exchanges_hbx_profiles_path(family_id: row.id, person_id: person.id, family_actions_id: row_actions_id), 'ajax']
+  ]
+
+  if individual_market_is_enabled?
+    dropdown += [
+      ['Edit APTC / CSR', edit_aptc_csr_path(family_id: row.id, person_id: person.id), table.aptc_csr_link_type(row, pundit_allow(Family, :can_update_ssn?))],
+      ['Paper', resume_enrollment_exchanges_agents_path(person_id: person.id, original_application_type: 'paper'), 'static']
+    ]
+  end
+%>
+<tr class="<%= row_class %>">
+  <td class="col-string col-name sorting_1"><%= link_to person.full_name, resume_enrollment_exchanges_agents_path(person_id: person.id) %></td>
+  <td class="col-string col-ssn"><%= truncate(number_to_obscured_ssn(person.ssn)) %></td>
+  <td class="col-string col-dob"><%= format_date(person.dob) %></td>
+  <td class="col-integer col-hbx_id"><%= person.hbx_id %></td>
+  <td class="col-string col-count"><%= row.active_family_members.size %></td>
+  <td class="col-string col-active_enrollments"><%= row.active_household.hbx_enrollments.non_external.active.enrolled_and_renewing.present? ? 'Yes' : 'No' %></td>
+  <td class="col-string col-registered?"><%= person.user.present? ? 'Yes' : 'No' %></td>
+  <% if individual_market_is_enabled? %>
+    <td class="col-string col-consumer?"><%= person.consumer_role.present? ? 'Yes' : 'No' %></td>
+  <% end %>
+  <td class="col-string col-employee?"><%= person.active_employee_roles.present? ? 'Yes' : 'No' %></td>
+  <td class="col-string col-actions"><%= render partial: 'datatables/shared/dropdown', locals: { dropdowns: dropdown, row_actions_id: row_actions_id } %></td>
+</tr>

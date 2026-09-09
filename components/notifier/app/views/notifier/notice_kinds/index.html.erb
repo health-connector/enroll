@@ -33,7 +33,11 @@
                       </button>
                       <%= link_to "<i class='fa fa-cloud-download' aria-hidden='true'></i> Download Notices".html_safe, download_notices_notice_kinds_path, class: "btn btn-primary", target: "_blank", rel: "noopener noreferrer" %>
                     </span>
-                  <%= render_datatable(@datatable) %>
+                  <% if EnrollRegistry.feature_enabled?(:refactored_datatables) %>
+                    <%= render partial: 'datatables/datatable', locals: @notices_datatable_locals %>
+                  <% else %>
+                    <%= render_datatable(@datatable) %>
+                  <% end %>
                 </div>
               </div>
             </div>
@@ -71,7 +75,9 @@
 
 
 <script type="text/javascript" charset="utf-8">
+  <% unless EnrollRegistry.feature_enabled?(:refactored_datatables) %>
   initializeDataTables();
+  <% end %>
 
   $(document).ajaxComplete(function() {
     CKEDITOR.replace('notice_kind_template_raw_body');

@@ -1,5 +1,7 @@
 module Notifier
   class NoticeKindsController < Notifier::ApplicationController
+    include ::Datatables::FragmentRendering
+    include ::Datatables::CsvStreaming
 
     rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
 
@@ -9,8 +11,26 @@ module Notifier
       authorize ::Notifier::NoticeKind
 
       @notice_kinds = Notifier::NoticeKind.all
-      @datatable = Effective::Datatables::NoticesDatatable.new
+      load_notices_datatable
       @errors = []
+    end
+
+    # Renders the Notices table fragment for Stimulus redraws and streams its CSV
+    # export. The page's own "Download Notices" link is a separate export and is
+    # unaffected.
+    def notices_datatable
+      raise ActionController::RoutingError, 'Not Found' unless EnrollRegistry.feature_enabled?(:refactored_datatables)
+
+      authorize ::Notifier::NoticeKind
+      table = ::Datatables::NoticesTable.new
+      respond_to do |format|
+        format.html { render_datatable_fragment(table, url: notices_datatable_notice_kinds_path) }
+        format.csv do
+          stream_datatable_csv(filename: 'notices.csv',
+                               headers: table.csv_headers,
+                               rows: datatable_csv_rows(table, datatable_scoped(table)))
+        end
+      end
     end
 
     def show
@@ -49,7 +69,7 @@ module Notifier
         @errors = notice_kind.errors.messages
 
         @notice_kinds = Notifier::NoticeKind.all
-        @datatable = Effective::Datatables::NoticesDatatable.new
+        load_notices_datatable
 
         render :action => 'index'
       end
@@ -126,7 +146,7 @@ module Notifier
       end
 
       @notice_kinds = Notifier::NoticeKind.all
-      @datatable = Effective::Datatables::NoticesDatatable.new
+      load_notices_datatable
 
       render :action => 'index'
     end
@@ -155,6 +175,14 @@ module Notifier
     end
 
     private
+
+    def load_notices_datatable
+      if EnrollRegistry.feature_enabled?(:refactored_datatables)
+        @notices_datatable_locals = datatable_locals(::Datatables::NoticesTable.new, url: notices_datatable_notice_kinds_path)
+      else
+        @datatable = Effective::Datatables::NoticesDatatable.new
+      end
+    end
 
     def notice_params
       params.require(:notice_kind).permit(:title, :description, :notice_number, :recipient, :event_name, {:template => [:raw_body]})

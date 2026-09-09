@@ -12,7 +12,11 @@
   </div>
 
   <div class="row effectivedatatable">
-    <%= render_datatable(@datatable) %>
+    <% if EnrollRegistry.feature_enabled?(:refactored_datatables) %>
+      <%= render partial: 'datatables/datatable', locals: @employer_documents_datatable_locals %>
+    <% else %>
+      <%= render_datatable(@datatable) %>
+    <% end %>
     <% @documents.each do |doc| %>
       <div class="modal fade" id="employeeModal_<%= doc.id %>" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
         <div class="modal-dialog document-modal" role="document">
@@ -35,9 +39,11 @@
   </div>
 
   <script type="text/javascript" charset="utf-8">
+      <% unless EnrollRegistry.feature_enabled?(:refactored_datatables) %>
       initializeDataTables();
       jQuery('.buttons-csv').hide();
       jQuery('.buttons-excel').hide();
+      <% end %>
       function printDoc(id){
           var window_obj=window.open();
           window_obj.document.write($('#print_'+id).html());

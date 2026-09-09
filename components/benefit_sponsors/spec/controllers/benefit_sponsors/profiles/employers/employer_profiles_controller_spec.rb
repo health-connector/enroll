@@ -151,6 +151,13 @@ module BenefitSponsors
 
 
     describe "GET coverage_reports" do
+      # These examples assert the legacy datatable assignment, so they pin the
+      # flag off rather than inheriting whatever the environment sets.
+      before do
+        allow(EnrollRegistry).to receive(:feature_enabled?).and_call_original
+        allow(EnrollRegistry).to receive(:feature_enabled?).with(:refactored_datatables).and_return(false)
+      end
+
       context "without today's date billing_date param" do
         let!(:employees) do
           FactoryBot.create_list(:census_employee, 2, employer_profile: employer_profile, benefit_sponsorship: benefit_sponsorship)
@@ -317,6 +324,114 @@ module BenefitSponsors
         get :export_census_employees, params: {employer_profile_id: employer_profile}, format: :csv
         expect(response).to have_http_status(:success)
         expect(response).not_to have_content("SSN")
+      end
+    end
+
+    describe "datatable fragment endpoints" do
+      let(:profile_id) { benefit_sponsor.profiles.first.id }
+      let(:outsider) { FactoryBot.create(:user, person: FactoryBot.create(:person)) }
+
+      let(:actions) do
+        {
+          employees_datatable: :employees_datatable,
+          documents_datatable: :documents_datatable,
+          coverage_reports_datatable: :coverage_reports_datatable
+        }
+      end
+
+      context "when the :refactored_datatables flag is disabled" do
+        before do
+          allow(EnrollRegistry).to receive(:feature_enabled?).and_call_original
+          allow(EnrollRegistry).to receive(:feature_enabled?).with(:refactored_datatables).and_return(false)
+        end
+
+        it "404s every fragment endpoint" do
+          sign_in user
+          actions.each_value do |action|
+            expect { get action, params: { employer_profile_id: profile_id } }.to raise_error(ActionController::RoutingError)
+          end
+        end
+      end
+
+      context "when the :refactored_datatables flag is enabled" do
+        before do
+          allow(EnrollRegistry).to receive(:feature_enabled?).and_call_original
+          allow(EnrollRegistry).to receive(:feature_enabled?).with(:refactored_datatables).and_return(true)
+        end
+
+        it "denies a user with no relationship to the employer" do
+          sign_in outsider
+          actions.each_value do |action|
+            get action, params: { employer_profile_id: profile_id }
+            expect(response).to have_http_status(:redirect)
+          end
+        end
+
+        it "answers each endpoint for a user authorized on the employer" do
+          sign_in user
+          actions.each_value do |action|
+            get action, params: { employer_profile_id: profile_id }
+            expect(response).to have_http_status(:success)
+          end
+        end
+
+        it "carries the selected billing period on the coverage reports fragment" do
+          sign_in user
+          get :coverage_reports_datatable, params: { employer_profile_id: profile_id, billing_date: "09/01/2026" }
+          expect(assigns(:billing_date)).to eq(Date.new(2026, 9, 1))
+        end
+      end
+
+      # Scoped to the fragment renders: the full-page renders on this controller
+      # pull in unrelated portal chrome.
+      context "fragment body", :render_views do
+        render_views
+
+        before do
+          allow(EnrollRegistry).to receive(:feature_enabled?).and_call_original
+          allow(EnrollRegistry).to receive(:feature_enabled?).with(:refactored_datatables).and_return(true)
+          sign_in user
+        end
+
+        it "renders the employees table with its parity classes" do
+          get :employees_datatable, params: { employer_profile_id: profile_id }
+          expect(response.body).to include('class="effective-datatable table table-striped table-hover dataTable no-footer"')
+          expect(response.body).to include('col-string col-employee_name')
+        end
+
+        it "renders the documents table without a search box" do
+          get :documents_datatable, params: { employer_profile_id: profile_id }
+          expect(response.body).to include('col-string col-Doc Status')
+          expect(response.body).not_to include('dataTables_filter')
+        end
+
+        it "renders the coverage reports table with a search box and no export buttons" do
+          get :coverage_reports_datatable, params: { employer_profile_id: profile_id }
+          expect(response.body).to include('col-string col-full_name')
+          expect(response.body).to include('dataTables_filter')
+          expect(response.body).not_to include('buttons-csv')
+        end
+      end
+    end
+
+    describe "GET show with the :refactored_datatables flag enabled" do
+      before do
+        allow(EnrollRegistry).to receive(:feature_enabled?).and_call_original
+        allow(EnrollRegistry).to receive(:feature_enabled?).with(:refactored_datatables).and_return(true)
+        allow(controller).to receive(:authorize).and_return(true)
+        sign_in user
+      end
+
+      it "builds the employees table locals instead of the legacy datatable" do
+        get :show, params: { id: benefit_sponsor.profiles.first.id.to_s, tab: 'employees' }
+        expect(assigns(:datatable)).to be_nil
+        expect(assigns(:employees_datatable_locals)[:table]).to be_a(::Datatables::EmployeesTable)
+      end
+
+      it "builds the documents table locals instead of the legacy datatable" do
+        get :show, params: { id: benefit_sponsor.profiles.first.id.to_s, tab: 'documents' }
+        expect(assigns(:datatable)).to be_nil
+        expect(assigns(:employer_documents_datatable_locals)[:table]).to be_a(BenefitSponsors::Datatables::EmployerDocumentsTable)
       end
     end
   end

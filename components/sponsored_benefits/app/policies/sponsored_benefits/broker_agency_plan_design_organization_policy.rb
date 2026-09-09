@@ -3,6 +3,10 @@
 module SponsoredBenefits
   # Determines access rights for working with broker agency quotes.
   class BrokerAgencyPlanDesignOrganizationPolicy < Policy
+    def employers_datatable?
+      manage_quotes?
+    end
+
     def manage_quotes?
       return false unless user
       return true if user.has_hbx_staff_role?

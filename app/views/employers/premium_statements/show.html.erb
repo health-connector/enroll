@@ -53,7 +53,9 @@ $(function() {
   });
 });
 
+<% unless EnrollRegistry.feature_enabled?(:refactored_datatables) %>
 initializeDataTables();
 $("div.custom_level_1").children('div').hide()
+<% end %>
 
 </script>

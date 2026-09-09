@@ -73,17 +73,21 @@ Rails.application.routes.draw do
         post :reinstate_enrollment
         get :family_index
         get :family_index_dt
+        get :families_datatable
         get :outstanding_verification_dt
+        get :outstanding_verifications_datatable
         post :families_index_datatable
         get :employer_index
         post :employer_poc_datatable
         get :employer_invoice
         get :employer_datatable
+        get :employers_datatable
         post :employer_invoice_datatable
         post :generate_invoice
         get :edit_force_publish
         post :force_publish
         get :broker_agency_index
+        get :broker_agencies_datatable
         get :issuer_index
         match "marketplace_plan_years/:market" => "hbx_profiles#marketplace_plan_years", as: :marketplace_plan_years, via: :get
         match "marketplace_plan_years/:market/:year" => "hbx_profiles#marketplace_plan_year", as: :marketplace_plan_year, via: :get
@@ -116,6 +120,7 @@ Rails.application.routes.draw do
         post :update_enrollment_termianted_on_date
         get :calendar_index
         get :user_account_index
+        get :user_accounts_datatable
         get :get_user_info
         get :oe_extendable_applications
         get :oe_extended_applications
@@ -302,7 +307,11 @@ Rails.application.routes.draw do
     #match '/employer_profiles/:id' , to: redirect('/'), via: [:get, :post]
     match '/', to: redirect('/benefit_sponsors/profiles/registrations/new?profile_type=benefit_sponsor'), via: [:get, :post]
 
-    resources :premium_statements, :only => [:show]
+    resources :premium_statements, :only => [:show] do
+      member do
+        get :premium_billing_datatable
+      end
+    end
 
     resources :employer_attestations do
       member do
@@ -412,6 +421,7 @@ Rails.application.routes.draw do
           get :download_pdf
           get :dental_plans_data
           get :my_quotes
+          get :quotes_datatable
           get :employees_list
           get :employee_type
         end

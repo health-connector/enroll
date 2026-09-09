@@ -2,6 +2,10 @@
   $('table.effective-datatable').each ->
     return if $.fn.DataTable.fnIsDataTable(this)
 
+    # A table with no ajax source is rendered and redrawn server-side; this
+    # initializer has no column config for it and would throw on init.
+    return unless $(this).data('source')
+
     datatable = $(this)
     searching = (datatable.data('searching') == true)
     simple = (datatable.data('simple') == true)

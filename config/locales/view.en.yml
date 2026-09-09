@@ -1,6 +1,20 @@
 en:
   button:
     continue: "Continue"
+  datatables:
+    csv: "CSV"
+    excel: "Excel"
+    print: "Print"
+    bulk_actions: "Bulk Actions"
+    search_label: "Search:"
+    per_page: "per page"
+    per_page_all: "All"
+    showing_entries: "Showing %{from} to %{to} of %{count} entries"
+    processing: "Processing..."
+    no_matching_records: "No matching records found"
+    no_data: "No data available in table"
+    previous: "Previous"
+    next: "Next"
   welcome:
     employee:
         title: "Employee Coverage"

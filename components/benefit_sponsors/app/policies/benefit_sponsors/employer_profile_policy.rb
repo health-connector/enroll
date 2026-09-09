@@ -43,6 +43,18 @@ module BenefitSponsors
       is_staff_role_for_employer?
     end
 
+    def employees_datatable?
+      show?
+    end
+
+    def documents_datatable?
+      show?
+    end
+
+    def coverage_reports_datatable?
+      coverage_reports?
+    end
+
     def export_census_employees?
       show?
     end

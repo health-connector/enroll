@@ -1,0 +1,6 @@
+<%# Per-row checkbox cell for tables whose column list declares a bulk-actions
+    column. data-role="bulk-actions-resource" is what the bulk-actions Stimulus
+    controller collects; the inline stopPropagation keeps a click on the box from
+    reaching the row's own click handlers. A cell carrying no data-status is
+    ineligible for the check-all box, which selects Eligible rows only. %>
+<td class="col-bulk_actions_column col-bulk_actions"><%= check_box_tag 'bulk_actions_resources[]', id, false, autocomplete: 'off', id: "bulk_actions_resource_#{id}", data: { role: 'bulk-actions-resource' }, onClick: 'event.stopPropagation();' %></td>

@@ -31,6 +31,9 @@ BenefitSponsors::Engine.routes.draw do
         get :export_census_employees
         post :bulk_employee_upload
         get :coverage_reports
+        get :employees_datatable
+        get :documents_datatable
+        get :coverage_reports_datatable
         get :estimate_cost
         get :run_eligibility_check
         collection do

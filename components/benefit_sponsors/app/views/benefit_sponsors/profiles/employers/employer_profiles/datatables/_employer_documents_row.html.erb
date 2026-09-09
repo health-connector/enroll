@@ -1,0 +1,22 @@
+<%# One Documents tab row. The status icon is an approval check for accepted
+    documents and a warning carrying the rejection reason as its title otherwise.
+    The Doc Name link opens the document's preview modal rendered by the tab.
+    sorting_1 marks the default-ordered first column. %>
+<%
+  row_actions_id = "employer_actions_#{table.employer_profile_id}"
+  download_path = main_app.document_employer_attestation_document_download_path(row.id) +
+                  "?id=#{table.employer_profile_id}&content_type=#{row.format}&filename=#{row.title.gsub(/[^0-9a-z]/i, '')}"
+
+  dropdown = [
+    ['Download', download_path, 'static'],
+    ['Delete', main_app.employers_employer_attestation_delete_attestation_documents_path(row.id), table.delete_link_type(row), 'Do you want to Delete this document?']
+  ]
+%>
+<tr class="<%= row_class %>">
+  <td class="col-string col-Doc Status sorting_1"><% if row.accepted? %><span class='glyphicon glyphicon-ok text-success' aria-hidden='true' title='Approved'></span> <% elsif row.reason_for_rejection.present? %><span class='glyphicon glyphicon-exclamation-sign text-danger' aria-hidden='true' title='<%= row.reason_for_rejection %>'></span> <% end %><%= row.aasm_state.humanize %></td>
+  <td class="col-string col-name"><%= link_to raw('<i class="far fa-file-alt pull-left mr-1"></i> ') + row.title, "", 'target' => "iframe_#{row.id}", 'data-target' => "#employeeModal_#{row.id}", "data-toggle" => "modal", "class" => "word-break-attestation" %></td>
+  <td class="col-string col-type">Employer Attestation</td>
+  <td class="col-string col-size"><%= number_to_human_size(row.size, precision: 2) %></td>
+  <td class="col-string col-date"><%= TimeKeeper.local_time(row.created_at).strftime('%m/%d/%Y %I:%M%p') %></td>
+  <td class="col-string col-actions"><%= render partial: 'datatables/shared/dropdown', locals: { dropdowns: dropdown, row_actions_id: row_actions_id } %></td>
+</tr>

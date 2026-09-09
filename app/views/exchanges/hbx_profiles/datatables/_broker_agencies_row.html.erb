@@ -1,0 +1,8 @@
+<%# One Broker Agencies table row. Cell values must stay identical to the legacy BrokerAgencyDatatable column procs while both stacks coexist. %>
+<tr class="<%= row_class %>">
+  <td class="col-string col-legal_name sorting_1"><%= link_to row.legal_name, benefit_sponsors.profiles_broker_agencies_broker_agency_profile_path(row.broker_agency_profile) %></td>
+  <td class="col-string col-dba"><%= row.dba %></td>
+  <td class="col-string col-fein"><%= row.fein %></td>
+  <td class="col-string col-entity_kind"><%= row.entity_kind.to_s.titleize %></td>
+  <td class="col-string col-market_kind"><%= row.broker_agency_profile.market_kind.to_s.titleize %></td>
+</tr>
