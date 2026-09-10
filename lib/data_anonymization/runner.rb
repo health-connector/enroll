@@ -63,6 +63,9 @@ module DataAnonymizer
     # Redraw attempts when a generated zip collides with the stored one.
     RANDOM_ZIP_ATTEMPTS = 10
 
+    # Redraw attempts when a generated state collides with the stored one.
+    RANDOM_STATE_ATTEMPTS = 10
+
     attr_reader :batch_size, :client, :db
 
     # @param batch_size [Integer] documents per bulk_write batch (default 1000).
@@ -71,8 +74,8 @@ module DataAnonymizer
     # @param force [Boolean] when true, skips the idempotency guard and re-anonymizes.
     # @param anonymize_zip [Boolean] opt in to a fully random zip. By default zip is swapped
     #   for a different real zip in the same rating area, which leaves rating unchanged.
-    # @param anonymize_county [Boolean] opt in to a fully random county. By default employer
-    #   county moves with the swapped zip and member county is left blank.
+    # @param anonymize_county [Boolean] opt in to a fully random county. By default a stored
+    #   county moves with the swapped zip, and a blank one is left blank.
     # @param anonymize_dob [Boolean] opt in to shift DOB +/-30 days; preserved by default to protect age-band eligibility.
     # @param anonymize_state [Boolean] opt in to anonymize state; preserved by default to protect plan availability.
     # rubocop:disable Metrics/ParameterLists
@@ -1440,20 +1443,21 @@ module DataAnonymizer
       addr['address_3'] = nil if addr.key?('address_3')
       addr['city'] = AnonymizedData.city
       apply_geo_swap(addr, strict_geo: strict_geo)
-      if addr.key?('state') && @anonymize_state
-        original_state = addr['state']
-        new_state = AnonymizedData.state
-        attempts = 0
-        # Try a few times to avoid returning the same state by chance
-        while new_state == original_state && attempts < 10
-          new_state = AnonymizedData.state
-          attempts += 1
-        end
-        addr['state'] = new_state
-      end
+      addr['state'] = random_state_other_than(addr['state']) if addr.key?('state') && @anonymize_state
       addr['zip']    = AnonymizedData.zip    if @anonymize_zip
       addr['county'] = AnonymizedData.county if addr.key?('county') && @anonymize_county
       addr
+    end
+
+    # Tries a few times to avoid returning the same state by chance.
+    # @param current [String, nil] the stored state
+    # @return [String] replacement state
+    def random_state_other_than(current)
+      RANDOM_STATE_ATTEMPTS.times do
+        candidate = AnonymizedData.state
+        return candidate unless candidate == current
+      end
+      AnonymizedData.state
     end
 
     # Replaces zip with a different real zip from the same rating area.
@@ -1520,9 +1524,17 @@ module DataAnonymizer
       service_membership = county_zip_membership(SERVICE_AREA_COLLECTION)
       legacy_membership  = legacy_service_membership_by_zip
 
+      # A record belonging to no rating area resolves to none, or to a statewide
+      # area that covers every zip regardless. Grouping those together would
+      # make unrelated zips look interchangeable, so they are left out and their
+      # addresses are preserved or randomized instead.
+      swappable = county_zips.select { |county_zip| rating_membership[county_zip['_id']].any? }
+      excluded = county_zips.size - swappable.size
+      log "  Excluding #{excluded} county/zip pairs with no rating area from the swap maps" if excluded.positive?
+
       strict_signatures  = {}
       relaxed_signatures = {}
-      county_zips.each do |county_zip|
+      swappable.each do |county_zip|
         id = county_zip['_id']
         rating = rating_membership[id].sort
         strict_signatures[id]  = [rating, service_membership[id].sort, legacy_membership[county_zip['zip'].to_s.strip]]
@@ -1530,8 +1542,8 @@ module DataAnonymizer
       end
 
       {
-        strict: build_named_swap_map(county_zips, strict_signatures, 'employer', true),
-        relaxed: build_named_swap_map(county_zips, relaxed_signatures, 'person', false)
+        strict: build_named_swap_map(swappable, strict_signatures, 'employer', true),
+        relaxed: build_named_swap_map(swappable, relaxed_signatures, 'person', false)
       }
     end
 

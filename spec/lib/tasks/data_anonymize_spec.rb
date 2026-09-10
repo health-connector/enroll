@@ -1631,6 +1631,24 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
         end
       end
 
+      context 'when a county zip belongs to no rating area' do
+        # Grouping every orphan together would make unrelated zips look
+        # interchangeable.
+        let!(:orphan_a) { FactoryBot.create(:benefit_markets_locations_county_zip, county_name: 'Dukes', zip: '02535', state: 'MA') }
+        let!(:orphan_b) { FactoryBot.create(:benefit_markets_locations_county_zip, county_name: 'Nantucket', zip: '02554', state: 'MA') }
+
+        it 'preserves an employer address rather than swapping between orphans' do
+          result = runner.send(:anonymize_address_hash, address('02535', 'Dukes'), strict_geo: true)
+          expect(result['zip']).to eq('02535')
+        end
+
+        it 'randomizes a member address instead of swapping to another orphan' do
+          result = runner.send(:anonymize_address_hash, address('02535', 'Dukes'), strict_geo: false)
+          expect(result['zip']).not_to eq('02554')
+          expect(result['zip']).not_to eq('02535')
+        end
+      end
+
       context 'when a member zip has to be randomized' do
         it 'produces a five digit zip, matching how stored zips look' do
           20.times do

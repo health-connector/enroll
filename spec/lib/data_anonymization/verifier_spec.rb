@@ -160,6 +160,24 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
       end
     end
 
+    context 'when credentials are supplied but no digests were stored' do
+      # An expired TTL or a wrong RUN_ID must not read as a clean pass over
+      # zero records.
+      it 'fails rather than reporting a pass' do
+        v = described_class.new(
+          mode: :audit, zip_prehash_map: { people: {} }, hmac_key: hmac_key, run_id: 'stale-run-id'
+        )
+        result = v.send(:check_zip_prehash)
+        expect(result[:passed]).to be false
+        expect(result[:issues]).to match(/No zip digests stored/)
+      end
+
+      it 'still passes for an in-run verification, which supplies no run_id' do
+        v = described_class.new(mode: :audit, zip_prehash_map: { people: {} }, hmac_key: hmac_key)
+        expect(v.send(:check_zip_prehash)[:passed]).to be true
+      end
+    end
+
     context 'when the zip changed' do
       it 'passes' do
         v = verifier_for({ '_id' => fake_id, 'addresses' => [{ 'zip' => '02108' }] }, ['02101'])

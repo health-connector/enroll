@@ -245,6 +245,8 @@ module DataAnonymizer
         return build_result("Zip prehash", 0, [], "SKIPPED - RUN_ID/HMAC_KEY not provided. Zip mutation NOT verified")
       end
 
+      return build_result("Zip prehash", 0, ["No zip digests stored for run_id #{@run_id}"], "") if stale_run_credentials?
+
       issues = []
       samples = []
       total = 0
@@ -267,6 +269,14 @@ module DataAnonymizer
       end
 
       build_result("Zip prehash", total, issues, samples.first(5).join(', '))
+    end
+
+    # A run_id is only set for out-of-process verification. An empty map there
+    # means the credentials were wrong or the 7 day TTL expired, which must not
+    # read as a clean pass over zero records.
+    # @return [Boolean]
+    def stale_run_credentials?
+      @run_id.present? && @zip_prehash_map.values.sum(&:size).zero?
     end
 
     # Compares each address slot on its own. Comparing a single digest over all
