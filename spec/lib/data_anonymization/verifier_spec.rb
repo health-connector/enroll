@@ -88,6 +88,39 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
 
   # @!group check_zip_prehash - geographic swap verification tests
 
+  describe '#load_prehash_map_from_ttl' do
+    let(:run_id) { 'run-abc-123' }
+    let(:person_id) { BSON::ObjectId.new }
+    let(:census_id) { BSON::ObjectId.new }
+
+    let(:rows) do
+      [
+        { 'collection' => 'people', 'record_id' => person_id, 'scope' => 'zip_prehash', 'digest' => %w[aaa] },
+        { 'collection' => 'census_members', 'record_id' => census_id, 'scope' => 'zip_prehash', 'digest' => %w[bbb] }
+      ]
+    end
+
+    before do
+      collection_double = instance_double(Mongo::Collection)
+      allow(db_double).to receive(:collection_names).and_return(['data_anonymizer_prehashes'])
+      allow(db_double).to receive(:[]).with(:data_anonymizer_prehashes).and_return(collection_double)
+      allow(collection_double).to receive(:find)
+        .with('run_id' => run_id, 'scope' => 'zip_prehash')
+        .and_return(rows)
+    end
+
+    it 'groups digests by their own collection, not by the requested scope' do
+      map = verifier.send(:load_prehash_map_from_ttl, run_id, 'zip_prehash')
+      expect(map.keys).to contain_exactly(:people, :census_members)
+    end
+
+    it 'keys each record by its id' do
+      map = verifier.send(:load_prehash_map_from_ttl, run_id, 'zip_prehash')
+      expect(map[:people][person_id.to_s]).to eq(%w[aaa])
+      expect(map[:census_members][census_id.to_s]).to eq(%w[bbb])
+    end
+  end
+
   describe '#check_zip_prehash' do
     let(:hmac_key) { 'test_key_abcdef1234567890' }
     let(:fake_id)  { BSON::ObjectId.new }

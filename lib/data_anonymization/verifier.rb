@@ -147,9 +147,9 @@ module DataAnonymizer
       return map unless @db.collection_names.include?('data_anonymizer_prehashes')
 
       @db[:data_anonymizer_prehashes].find('run_id' => run_id.to_s, 'scope' => scope).each do |doc|
-        scope = doc['collection'].to_sym
+        collection_sym = doc['collection'].to_sym
         rec_id = doc['record_id'].to_s
-        map[scope][rec_id] = doc['digest']
+        map[collection_sym][rec_id] = doc['digest']
       end
       map
     end
@@ -279,9 +279,10 @@ module DataAnonymizer
       current = zip_payloads_for_collection(collection_sym, doc)
 
       Array(stored_digests).each_with_index.select do |stored, index|
-        # A slot with no pre-run digest never held a zip. A slot now blank had
-        # its zip removed, which is a change.
-        next false if stored.blank? || current[index].blank?
+        # Nothing to compare: this slot never held a zip before the run.
+        next false if stored.blank?
+        # The zip was removed outright, which is itself a change.
+        next false if current[index].blank?
 
         OpenSSL::HMAC.hexdigest('SHA256', @hmac_key, current[index]) == stored
       end.map(&:last)
