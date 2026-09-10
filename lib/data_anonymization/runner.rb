@@ -1485,11 +1485,13 @@ module DataAnonymizer
     # @return [Hash] the same hash, updated
     def swap_within_group(addr, alternatives)
       replacement = alternatives.sample
-      addr['zip'] = replacement['zip']
+      # Reference data holds a few padded zips, so values are trimmed rather
+      # than copied verbatim into a record.
+      addr['zip'] = replacement['zip'].to_s.strip
       # Employer county must move with the zip, since rating area lookup matches
       # on both. Person county is blank and is left that way.
-      addr['county'] = replacement['county'] if addr['county'].to_s.strip.present?
-      addr['state'] = replacement['state'] if addr.key?('state') && replacement['state'].present?
+      addr['county'] = replacement['county'].to_s.strip if addr['county'].to_s.strip.present?
+      addr['state'] = replacement['state'].to_s.strip if addr.key?('state') && replacement['state'].present?
       @geo_swap_applied += 1
       addr
     end
@@ -1664,12 +1666,11 @@ module DataAnonymizer
     # @param current [String, nil] the stored zip
     # @return [String] five digit zip differing from +current+
     def random_zip_other_than(current)
-      candidate = nil
       RANDOM_ZIP_ATTEMPTS.times do
         candidate = AnonymizedData.zip.to_s[0, 5]
-        break unless same_zip?(candidate, current)
+        return candidate unless same_zip?(candidate, current)
       end
-      candidate
+      raise "Failed to generate a zip differing from the original after #{RANDOM_ZIP_ATTEMPTS} attempts"
     end
 
     # @return [Boolean] whether two stored zips are the same value
@@ -1741,20 +1742,32 @@ module DataAnonymizer
       cursor.batch_size(batch_size).each do |doc|
         next if protected_person_ids.include?(doc['_id'])
 
-        payload = canonical_person_zip_payload(doc)
-        next unless zip_payload_present?(payload)
+        payloads = canonical_person_zip_payloads(doc)
+        next unless zip_payload_present?(payloads)
 
-        map[:people][doc['_id'].to_s] = OpenSSL::HMAC.hexdigest('SHA256', @prehash_hmac_key, payload)
+        map[:people][doc['_id'].to_s] = zip_slot_digests(payloads)
       end
     end
 
     def generate_zip_prehash_for_census_members(map)
       cursor = db[:census_members].find.projection('address' => 1, 'census_dependents' => 1)
       cursor.batch_size(batch_size).each do |doc|
-        payload = canonical_census_zip_payload(doc)
-        next unless zip_payload_present?(payload)
+        payloads = canonical_census_zip_payloads(doc)
+        next unless zip_payload_present?(payloads)
 
-        map[:census_members][doc['_id'].to_s] = OpenSSL::HMAC.hexdigest('SHA256', @prehash_hmac_key, payload)
+        map[:census_members][doc['_id'].to_s] = zip_slot_digests(payloads)
+      end
+    end
+
+    # One digest per address slot, in stored order. Blank slots carry nil so a
+    # slot that never held a zip is not later mistaken for a stale one.
+    # @param payloads [Array<String>] normalized zip per slot
+    # @return [Array<String, nil>]
+    def zip_slot_digests(payloads)
+      payloads.map do |zip|
+        next if zip.blank?
+
+        OpenSSL::HMAC.hexdigest('SHA256', @prehash_hmac_key, zip)
       end
     end
 

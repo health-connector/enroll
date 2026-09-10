@@ -51,28 +51,28 @@ module DataAnonymizer
       "#{normalize(doc['legal_name'])}|#{profiles}"
     end
 
-    # Zip-only canonical string. Kept separate because
+    # Zip-only payloads, one per stored address. Kept separate because
     # {#canonical_person_payload} includes address_1 and city, which always
-    # change, so its digest cannot prove the zip moved.
+    # change, so its digest cannot prove the zip moved. Returned per slot rather
+    # than joined so that one stale zip cannot hide behind a sibling that moved.
     # @param doc [Hash] raw person Mongo document
-    # @return [String] comma-delimited zips
-    def canonical_person_zip_payload(doc)
-      Array(doc['addresses']).map { |addr| normalize((addr || {})['zip']) }.join(',')
+    # @return [Array<String>] normalized zip per address, in stored order
+    def canonical_person_zip_payloads(doc)
+      Array(doc['addresses']).map { |addr| normalize((addr || {})['zip']) }
     end
 
-    # Zip-only canonical string for a census_member, including dependents.
     # @param doc [Hash] raw census_member Mongo document
-    # @return [String] comma-delimited zips
-    def canonical_census_zip_payload(doc)
+    # @return [Array<String>] own zip followed by each dependent zip
+    def canonical_census_zip_payloads(doc)
       own = normalize((doc['address'] || {})['zip'])
       dependents = Array(doc['census_dependents']).map { |dep| normalize(((dep || {})['address'] || {})['zip']) }
-      ([own] + dependents).join(',')
+      [own] + dependents
     end
 
-    # @param payload [String] output of a zip payload helper
-    # @return [Boolean] whether any zip is present
-    def zip_payload_present?(payload)
-      payload.to_s.match?(/\d/)
+    # @param payloads [Array<String>] output of a zip payload helper
+    # @return [Boolean] whether any slot holds a zip
+    def zip_payload_present?(payloads)
+      Array(payloads).any? { |zip| zip.to_s.match?(/\d/) }
     end
 
     def normalize(str)

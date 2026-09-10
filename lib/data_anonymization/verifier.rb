@@ -253,15 +253,15 @@ module DataAnonymizer
         col = collection_sym.to_s
         next unless @db.collection_names.include?(col)
 
-        id_map.each do |id_str, stored_hmac|
+        id_map.each do |id_str, stored_digests|
           doc = find_by_id_string(col, id_str)
           next unless doc
 
           total += 1
-          payload = zip_payload_for_collection(collection_sym, doc)
-          next if OpenSSL::HMAC.hexdigest('SHA256', @hmac_key, payload) != stored_hmac
+          stale = stale_zip_slots(collection_sym, doc, stored_digests)
+          next if stale.empty?
 
-          issues << "Unchanged zip for #{col}:#{id_str}"
+          issues << "Unchanged zip for #{col}:#{id_str} slot(s) #{stale.join(',')}"
           samples << "#{col}:#{id_str}"
         end
       end
@@ -269,14 +269,32 @@ module DataAnonymizer
       build_result("Zip prehash", total, issues, samples.first(5).join(', '))
     end
 
+    # Compares each address slot on its own. Comparing a single digest over all
+    # of a record's zips would let one that moved mask a sibling that did not.
     # @param collection_sym [Symbol] :people or :census_members
     # @param doc [Hash] raw document
-    # @return [String] zip-only canonical payload
-    def zip_payload_for_collection(collection_sym, doc)
+    # @param stored_digests [Array<String, nil>] pre-run digest per slot
+    # @return [Array<Integer>] indexes whose zip is unchanged
+    def stale_zip_slots(collection_sym, doc, stored_digests)
+      current = zip_payloads_for_collection(collection_sym, doc)
+
+      Array(stored_digests).each_with_index.select do |stored, index|
+        # A slot with no pre-run digest never held a zip. A slot now blank had
+        # its zip removed, which is a change.
+        next false if stored.blank? || current[index].blank?
+
+        OpenSSL::HMAC.hexdigest('SHA256', @hmac_key, current[index]) == stored
+      end.map(&:last)
+    end
+
+    # @param collection_sym [Symbol] :people or :census_members
+    # @param doc [Hash] raw document
+    # @return [Array<String>] normalized zip per slot
+    def zip_payloads_for_collection(collection_sym, doc)
       case collection_sym
-      when :people then canonical_person_zip_payload(doc)
-      when :census_members then canonical_census_zip_payload(doc)
-      else ''
+      when :people then canonical_person_zip_payloads(doc)
+      when :census_members then canonical_census_zip_payloads(doc)
+      else []
       end
     end
 

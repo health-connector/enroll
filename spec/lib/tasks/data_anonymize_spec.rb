@@ -1570,9 +1570,9 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
           expect(result['county']).to eq('Franklin')
         end
 
-        it 'still swaps unaffected pairs in the same run' do
+        it 'writes the padded reference zip trimmed' do
           result = runner.send(:anonymize_address_hash, address('02101', 'Suffolk'))
-          expect(result['zip']).to eq('01367 ')
+          expect(result['zip']).to eq('01367')
         end
       end
 

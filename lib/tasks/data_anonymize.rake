@@ -77,7 +77,8 @@ require_relative '../data_anonymization/verifier'
 # @env FORCE_REANONYMIZE [Boolean] Set to 'true' to bypass the idempotency guard
 # @env ANONYMIZE_ZIP     [Boolean] Replace zip with a fully random value (off by default - protects rating
 #   calculations). Overrides the default rating-area-preserving swap described above.
-# @env ANONYMIZE_COUNTY  [Boolean] Anonymize county fields (off by default — protects rating calculations)
+# @env ANONYMIZE_COUNTY  [Boolean] Replace county with a fully random value (off by default). By
+#   default an employer county moves with its swapped zip, and a member county is left as stored.
 # @env ANONYMIZE_DOB     [Boolean] Shift DOB ±30 days (off by default — protects age-band eligibility)
 # @env ANONYMIZE_STATE   [Boolean] Anonymize state fields (off by default — protects plan availability)
 # @env RUN_ID            [String]  UUID printed at end of a successful run; pass to :verify for re-verification

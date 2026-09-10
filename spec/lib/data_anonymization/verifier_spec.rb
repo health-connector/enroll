@@ -96,10 +96,12 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
       OpenSSL::HMAC.hexdigest('SHA256', hmac_key, zip)
     end
 
-    def verifier_for(doc_after, stored_zip)
+    # +stored_zips+ is the pre-run zip per address slot, in stored order.
+    def verifier_for(doc_after, stored_zips)
+      digests = Array(stored_zips).map { |zip| zip.presence && digest_for(zip) }
       v = described_class.new(
         mode: :audit,
-        zip_prehash_map: { people: { fake_id.to_s => digest_for(stored_zip) } },
+        zip_prehash_map: { people: { fake_id.to_s => digests } },
         hmac_key: hmac_key
       )
       collection_double = instance_double(Mongo::Collection)
@@ -127,7 +129,7 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
 
     context 'when the zip changed' do
       it 'passes' do
-        v = verifier_for({ '_id' => fake_id, 'addresses' => [{ 'zip' => '02108' }] }, '02101')
+        v = verifier_for({ '_id' => fake_id, 'addresses' => [{ 'zip' => '02108' }] }, ['02101'])
         result = v.send(:check_zip_prehash)
         expect(result[:passed]).to be true
       end
@@ -137,7 +139,7 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
       # This is the regression that a structural check cannot see: the swap
       # silently stopping while every other check still reports a clean pass.
       it 'fails' do
-        v = verifier_for({ '_id' => fake_id, 'addresses' => [{ 'zip' => '02101' }] }, '02101')
+        v = verifier_for({ '_id' => fake_id, 'addresses' => [{ 'zip' => '02101' }] }, ['02101'])
         result = v.send(:check_zip_prehash)
         expect(result[:passed]).to be false
         expect(result[:issues]).to match(/Unchanged zip/)
@@ -146,10 +148,44 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
 
     context 'when a record has several addresses and none changed' do
       it 'fails' do
-        stored = '02101,02110'
-        v = verifier_for({ '_id' => fake_id, 'addresses' => [{ 'zip' => '02101' }, { 'zip' => '02110' }] }, stored)
+        v = verifier_for(
+          { '_id' => fake_id, 'addresses' => [{ 'zip' => '02101' }, { 'zip' => '02110' }] },
+          %w[02101 02110]
+        )
+        expect(v.send(:check_zip_prehash)[:passed]).to be false
+      end
+    end
+
+    context 'when one address changed but a sibling kept its real zip' do
+      # A single digest over every zip on a record would pass here, because the
+      # aggregate changed. Each slot is compared on its own so the stale one is
+      # still caught.
+      it 'fails and names the stale slot' do
+        v = verifier_for(
+          { '_id' => fake_id, 'addresses' => [{ 'zip' => '02199' }, { 'zip' => '02110' }] },
+          %w[02101 02110]
+        )
         result = v.send(:check_zip_prehash)
         expect(result[:passed]).to be false
+        expect(result[:issues]).to match(/slot\(s\) 1/)
+      end
+
+      it 'passes only once every slot has moved' do
+        v = verifier_for(
+          { '_id' => fake_id, 'addresses' => [{ 'zip' => '02199' }, { 'zip' => '02120' }] },
+          %w[02101 02110]
+        )
+        expect(v.send(:check_zip_prehash)[:passed]).to be true
+      end
+    end
+
+    context 'when a slot never held a zip' do
+      it 'does not treat the blank slot as stale' do
+        v = verifier_for(
+          { '_id' => fake_id, 'addresses' => [{ 'zip' => '02199' }, { 'zip' => '' }] },
+          ['02101', '']
+        )
+        expect(v.send(:check_zip_prehash)[:passed]).to be true
       end
     end
   end
