@@ -86,6 +86,161 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
     end
   end
 
+  # @!group check_zip_prehash - geographic swap verification tests
+
+  describe '#load_prehash_map_from_ttl' do
+    let(:run_id) { 'run-abc-123' }
+    let(:person_id) { BSON::ObjectId.new }
+    let(:census_id) { BSON::ObjectId.new }
+
+    let(:rows) do
+      [
+        { 'collection' => 'people', 'record_id' => person_id, 'scope' => 'zip_prehash', 'digest' => %w[aaa] },
+        { 'collection' => 'census_members', 'record_id' => census_id, 'scope' => 'zip_prehash', 'digest' => %w[bbb] }
+      ]
+    end
+
+    before do
+      collection_double = instance_double(Mongo::Collection)
+      allow(db_double).to receive(:collection_names).and_return(['data_anonymizer_prehashes'])
+      allow(db_double).to receive(:[]).with(:data_anonymizer_prehashes).and_return(collection_double)
+      allow(collection_double).to receive(:find)
+        .with('run_id' => run_id, 'scope' => 'zip_prehash')
+        .and_return(rows)
+    end
+
+    it 'groups digests by their own collection, not by the requested scope' do
+      map = verifier.send(:load_prehash_map_from_ttl, run_id, 'zip_prehash')
+      expect(map.keys).to contain_exactly(:people, :census_members)
+    end
+
+    it 'keys each record by its id' do
+      map = verifier.send(:load_prehash_map_from_ttl, run_id, 'zip_prehash')
+      expect(map[:people][person_id.to_s]).to eq(%w[aaa])
+      expect(map[:census_members][census_id.to_s]).to eq(%w[bbb])
+    end
+  end
+
+  describe '#check_zip_prehash' do
+    let(:hmac_key) { 'test_key_abcdef1234567890' }
+    let(:fake_id)  { BSON::ObjectId.new }
+
+    def digest_for(zip)
+      OpenSSL::HMAC.hexdigest('SHA256', hmac_key, zip)
+    end
+
+    # +stored_zips+ is the pre-run zip per address slot, in stored order.
+    def verifier_for(doc_after, stored_zips)
+      digests = Array(stored_zips).map { |zip| zip.presence && digest_for(zip) }
+      v = described_class.new(
+        mode: :audit,
+        zip_prehash_map: { people: { fake_id.to_s => digests } },
+        hmac_key: hmac_key
+      )
+      collection_double = instance_double(Mongo::Collection)
+      view_double = instance_double(Mongo::Collection::View)
+      allow(db_double).to receive(:collection_names).and_return(['people'])
+      allow(db_double).to receive(:[]).with(:people).and_return(collection_double)
+      allow(collection_double).to receive(:find).and_return(view_double)
+      allow(view_double).to receive(:first).and_return(doc_after)
+      v
+    end
+
+    context 'when credentials are missing' do
+      it 'passes as skipped rather than blocking the sentinel' do
+        result = verifier.send(:check_zip_prehash)
+        expect(result[:passed]).to be true
+        expect(result[:samples]).to include('SKIPPED')
+        expect(result[:samples]).to include('Zip mutation NOT verified')
+      end
+
+      it 'emits a WARNING so the gap is visible' do
+        expect(Rails.logger).to receive(:info).with(a_string_including('WARNING'))
+        verifier.send(:check_zip_prehash)
+      end
+    end
+
+    context 'when credentials are supplied but no digests were stored' do
+      # An expired TTL or a wrong RUN_ID must not read as a clean pass over
+      # zero records.
+      it 'fails rather than reporting a pass' do
+        v = described_class.new(
+          mode: :audit, zip_prehash_map: { people: {} }, hmac_key: hmac_key, run_id: 'stale-run-id'
+        )
+        result = v.send(:check_zip_prehash)
+        expect(result[:passed]).to be false
+        expect(result[:issues]).to match(/No zip digests stored/)
+      end
+
+      it 'still passes for an in-run verification, which supplies no run_id' do
+        v = described_class.new(mode: :audit, zip_prehash_map: { people: {} }, hmac_key: hmac_key)
+        expect(v.send(:check_zip_prehash)[:passed]).to be true
+      end
+    end
+
+    context 'when the zip changed' do
+      it 'passes' do
+        v = verifier_for({ '_id' => fake_id, 'addresses' => [{ 'zip' => '02108' }] }, ['02101'])
+        result = v.send(:check_zip_prehash)
+        expect(result[:passed]).to be true
+      end
+    end
+
+    context 'when the zip did not change' do
+      # This is the regression that a structural check cannot see: the swap
+      # silently stopping while every other check still reports a clean pass.
+      it 'fails' do
+        v = verifier_for({ '_id' => fake_id, 'addresses' => [{ 'zip' => '02101' }] }, ['02101'])
+        result = v.send(:check_zip_prehash)
+        expect(result[:passed]).to be false
+        expect(result[:issues]).to match(/Unchanged zip/)
+      end
+    end
+
+    context 'when a record has several addresses and none changed' do
+      it 'fails' do
+        v = verifier_for(
+          { '_id' => fake_id, 'addresses' => [{ 'zip' => '02101' }, { 'zip' => '02110' }] },
+          %w[02101 02110]
+        )
+        expect(v.send(:check_zip_prehash)[:passed]).to be false
+      end
+    end
+
+    context 'when one address changed but a sibling kept its real zip' do
+      # A single digest over every zip on a record would pass here, because the
+      # aggregate changed. Each slot is compared on its own so the stale one is
+      # still caught.
+      it 'fails and names the stale slot' do
+        v = verifier_for(
+          { '_id' => fake_id, 'addresses' => [{ 'zip' => '02199' }, { 'zip' => '02110' }] },
+          %w[02101 02110]
+        )
+        result = v.send(:check_zip_prehash)
+        expect(result[:passed]).to be false
+        expect(result[:issues]).to match(/slot\(s\) 1/)
+      end
+
+      it 'passes only once every slot has moved' do
+        v = verifier_for(
+          { '_id' => fake_id, 'addresses' => [{ 'zip' => '02199' }, { 'zip' => '02120' }] },
+          %w[02101 02110]
+        )
+        expect(v.send(:check_zip_prehash)[:passed]).to be true
+      end
+    end
+
+    context 'when a slot never held a zip' do
+      it 'does not treat the blank slot as stale' do
+        v = verifier_for(
+          { '_id' => fake_id, 'addresses' => [{ 'zip' => '02199' }, { 'zip' => '' }] },
+          ['02101', '']
+        )
+        expect(v.send(:check_zip_prehash)[:passed]).to be true
+      end
+    end
+  end
+
   # @!group check_name_dob_prehash — canonical prehash verification tests
 
   describe '#check_name_dob_prehash' do

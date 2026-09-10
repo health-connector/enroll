@@ -10,7 +10,7 @@ module DataAnonymizer
   # (name, DOB, SSN, address) is independently randomized, making it negligible
   # probability the result maps to any real person.
   #
-  # Inbox messages are intentionally NOT anonymized (no PII in CCA inboxes).
+  # Inbox message bodies and sender names are anonymized in Phase 7.
   # FFaker seeding (+FFaker.seed = integer+) is supported but not enabled by default.
   #
   # Call as module functions: +DataAnonymizer::AnonymizedData.first_name+
@@ -52,6 +52,26 @@ module DataAnonymizer
     # @return [String] random last name containing only Unicode letters and spaces
     def last_name
       sanitize_name(FFaker::Name.last_name)
+    end
+
+    # Mirrors +Person::GENDER_KINDS+, duplicated to keep this module free of
+    # model dependencies.
+    GENDERS = %w[male female].freeze
+
+    # Drawn independently rather than flipped, so the original cannot be
+    # recovered by reversing a known mapping.
+    # @return [String] 'male' or 'female'
+    def gender
+      GENDERS.sample
+    end
+
+    # Gender guaranteed to differ from +current+, so that at least one of
+    # zip/gender/dob changes on records whose zip could not be replaced.
+    # @param current [String, nil] the existing gender
+    # @return [String] 'male' or 'female'
+    def gender_other_than(current)
+      remaining = GENDERS - [current.to_s.strip.downcase]
+      remaining.length == 1 ? remaining.first : GENDERS.sample
     end
 
     # Valid SSN area-code ranges (excludes 000, 666, 900-999 per SSA rules).

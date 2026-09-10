@@ -51,6 +51,30 @@ module DataAnonymizer
       "#{normalize(doc['legal_name'])}|#{profiles}"
     end
 
+    # Zip-only payloads, one per stored address. Kept separate because
+    # {#canonical_person_payload} includes address_1 and city, which always
+    # change, so its digest cannot prove the zip moved. Returned per slot rather
+    # than joined so that one stale zip cannot hide behind a sibling that moved.
+    # @param doc [Hash] raw person Mongo document
+    # @return [Array<String>] normalized zip per address, in stored order
+    def canonical_person_zip_payloads(doc)
+      Array(doc['addresses']).map { |addr| normalize((addr || {})['zip']) }
+    end
+
+    # @param doc [Hash] raw census_member Mongo document
+    # @return [Array<String>] own zip followed by each dependent zip
+    def canonical_census_zip_payloads(doc)
+      own = normalize((doc['address'] || {})['zip'])
+      dependents = Array(doc['census_dependents']).map { |dep| normalize(((dep || {})['address'] || {})['zip']) }
+      [own] + dependents
+    end
+
+    # @param payloads [Array<String>] output of a zip payload helper
+    # @return [Boolean] whether any slot holds a zip
+    def zip_payload_present?(payloads)
+      Array(payloads).any? { |zip| zip.to_s.match?(/\d/) }
+    end
+
     def normalize(str)
       str&.to_s&.strip&.downcase || ''
     end
