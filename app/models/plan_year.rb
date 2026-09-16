@@ -447,7 +447,9 @@ class PlanYear
 
   def is_publish_date_valid?
     event_name = aasm.current_event.to_s.gsub(/!/, '')
-    event_name == "force_publish" ? true : (TimeKeeper.datetime_of_record <= due_date_for_publish.end_of_day)
+    # The deadline is the end of the exchange day. end_of_day here would resolve
+    # in the process zone (UTC), which cuts publishing off at 19:59 Eastern.
+    event_name == "force_publish" ? true : (TimeKeeper.datetime_of_record < TimeKeeper.end_of_exchange_day_from_utc(due_date_for_publish))
   end
 
   def open_enrollment_date_errors

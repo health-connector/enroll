@@ -1,0 +1,19 @@
+name: Ticket Check
+
+on:
+  pull_request:
+    types: ['opened', 'edited', 'reopened', 'synchronize']
+
+jobs:
+  title:
+    name: ticket check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check for ticket
+        uses: neofinancial/ticket-check-action@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ticketLink: 'https://dchbx.atlassian.net/browse/%ticketNumber%'
+          bodyRegex: '(?<ticketNumber>[A-Z]+-\d+)'
+          bodyURLRegex: 'https?:\/\/dchbx\.atlassian\.net\/browse\/(?<ticketNumber>[A-Z]+-\d+)'

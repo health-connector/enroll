@@ -118,6 +118,21 @@ And(/^.+ sees quote for (.*) employer$/) do |employer_name|
   expect(page).to have_content("Quote for #{employer_name}")
 end
 
+And(/^the broker clicks on Back to Employer Index button$/) do
+  find('.interaction-click-control-return-to-quote-management').click
+end
+
+And(/^the broker should see the Effective Date formatted$/) do
+  wait_for_ajax(3, 2)
+  within('.effective-datatable') do
+    effective_dates = all('tbody tr td:nth-child(2)').map { |cell| cell.text.strip }
+    expect(effective_dates).not_to be_empty
+    effective_dates.each do |date_text|
+      expect(date_text).to match(%r{\A\d{2}/\d{2}/\d{4}\z})
+    end
+  end
+end
+
 And(/^the broker clicks on Select Health Benefits button$/) do
   find('.interaction-click-control-select-health-benefits', wait: 10).click
 end
