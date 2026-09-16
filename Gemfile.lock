@@ -2160,7 +2160,7 @@ GEM
       monetize (~> 1.9)
       money (~> 6.13)
       railties (>= 3.0)
-    mongo (2.23.0)
+    mongo (2.26.0)
       base64
       bson (>= 4.14.1, < 6.0.0)
     mongo_session_store (3.2.1)
