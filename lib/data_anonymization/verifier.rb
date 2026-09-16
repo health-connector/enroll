@@ -85,16 +85,11 @@ module DataAnonymizer
       log "Time: #{Time.current}"
 
       results    = collect_check_results
-      all_passed = results.all? { |r| r[:passed] }
+      status     = overall_status(results)
+      all_passed = status == :pass
       report_path = write_csv_report(results)
       log_summary(results)
-
-      if all_passed
-        log "\nSTATUS: PASS - All checks passed. Safe to dump and share."
-      else
-        log "\nSTATUS: FAIL - Some checks failed. Review issues above."
-      end
-
+      log "\n#{status_line(status)}"
       log "Report written to: #{report_path}"
 
       # Return results for callers that want to gate on verification
@@ -102,6 +97,32 @@ module DataAnonymizer
     end
 
     private
+
+    # A check that did not run is neither a pass nor a failure. Reporting it as
+    # INCOMPLETE keeps a dump whose strongest checks were skipped from reading
+    # as verified.
+    # @return [Symbol] :fail, :incomplete or :pass
+    def overall_status(results)
+      return :fail unless results.all? { |r| r[:passed] }
+      return :incomplete if results.any? { |r| r[:skipped] }
+
+      :pass
+    end
+
+    # @param status [Symbol]
+    # @return [String]
+    def status_line(status)
+      case status
+      when :fail
+        "STATUS: FAIL - Some checks failed. Review issues above."
+      when :incomplete
+        "STATUS: INCOMPLETE - Cryptographic checks did not run, so mutation is unverified. " \
+        "Re-run with the RUN_ID and HMAC_KEY printed at anonymization time. " \
+        "Digests expire 7 days after the run."
+      else
+        "STATUS: PASS - All checks passed. Safe to dump and share."
+      end
+    end
 
     # Runs all verification checks and returns the results array.
     # @return [Array<Hash>]
@@ -242,7 +263,7 @@ module DataAnonymizer
       unless @zip_prehash_map && @hmac_key
         log "WARNING: Zip prehash check SKIPPED - RUN_ID/HMAC_KEY not provided. " \
             "Geographic swap is NOT verified by this run."
-        return build_result("Zip prehash", 0, [], "SKIPPED - RUN_ID/HMAC_KEY not provided. Zip mutation NOT verified")
+        return build_result("Zip prehash", 0, [], "SKIPPED - RUN_ID/HMAC_KEY not provided. Zip mutation NOT verified", skipped: true)
       end
 
       return build_result("Zip prehash", 0, ["No zip digests stored for run_id #{@run_id}"], "") if stale_run_credentials?
@@ -327,7 +348,7 @@ module DataAnonymizer
             "Name and DOB mutation is NOT verified by this run. " \
             "To enable this check, pass the RUN_ID and HMAC_KEY printed at anonymization time: " \
             "bundle exec rake data:anonymize:verify RUN_ID=<value> HMAC_KEY=<value>"
-        return build_result("Canonical prehash", 0, [], "SKIPPED - RUN_ID/HMAC_KEY not provided; name+DOB mutation NOT verified")
+        return build_result("Canonical prehash", 0, [], "SKIPPED - RUN_ID/HMAC_KEY not provided. Name and DOB mutation NOT verified", skipped: true)
       end
 
       issues = []
@@ -384,8 +405,8 @@ module DataAnonymizer
       FileUtils.mkdir_p(report_dir)
       report_path = File.join(report_dir, "anonymization_report_#{Date.today.strftime('%Y%m%d')}.csv")
       CSV.open(report_path, 'w') do |csv|
-        csv << %w[collection total_records passed issues sample_values]
-        results.each { |r| csv << [r[:collection], r[:total], r[:passed], r[:issues], r[:samples]] }
+        csv << %w[collection total_records passed skipped issues sample_values]
+        results.each { |r| csv << [r[:collection], r[:total], r[:passed], r[:skipped], r[:issues], r[:samples]] }
       end
       report_path
     end
@@ -396,7 +417,11 @@ module DataAnonymizer
     def log_summary(results)
       log "\n--- Summary ---"
       results.each do |r|
-        status = r[:passed] ? 'PASS' : 'FAIL'
+        status = if r[:skipped]
+                   'SKIP'
+                 else
+                   r[:passed] ? 'PASS' : 'FAIL'
+                 end
         log "  #{r[:collection].ljust(55)} #{r[:total].to_s.rjust(8)} records | #{status} | #{r[:issues]}"
       end
     end
@@ -683,11 +708,14 @@ module DataAnonymizer
       count
     end
 
-    def build_result(collection_name, total, issues, samples)
+    # A skipped check has not passed. It is reported separately so that a check
+    # which never ran can never present as a clean pass.
+    def build_result(collection_name, total, issues, samples, skipped: false)
       {
         collection: collection_name,
         total: total,
         passed: issues.empty?,
+        skipped: skipped,
         issues: issues.empty? ? "None" : issues.join("; "),
         samples: samples
       }

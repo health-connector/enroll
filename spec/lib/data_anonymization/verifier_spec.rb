@@ -86,6 +86,41 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
     end
   end
 
+  # @!group overall status - pass, fail and incomplete
+
+  describe '#overall_status' do
+    def result(passed:, skipped: false)
+      { collection: 'x', total: 1, passed: passed, skipped: skipped, issues: 'None', samples: '' }
+    end
+
+    it 'is pass when every check ran and passed' do
+      expect(verifier.send(:overall_status, [result(passed: true), result(passed: true)])).to eq(:pass)
+    end
+
+    it 'is fail when any check failed' do
+      expect(verifier.send(:overall_status, [result(passed: true), result(passed: false)])).to eq(:fail)
+    end
+
+    it 'is incomplete when nothing failed but a check was skipped' do
+      results = [result(passed: true), result(passed: true, skipped: true)]
+      expect(verifier.send(:overall_status, results)).to eq(:incomplete)
+    end
+
+    it 'reports fail ahead of incomplete when both are present' do
+      results = [result(passed: false), result(passed: true, skipped: true)]
+      expect(verifier.send(:overall_status, results)).to eq(:fail)
+    end
+
+    it 'never lets an incomplete run read as safe to share' do
+      expect(verifier.send(:status_line, :incomplete)).to include('INCOMPLETE')
+      expect(verifier.send(:status_line, :incomplete)).not_to include('Safe to dump')
+    end
+
+    it 'tells the operator the digests expire' do
+      expect(verifier.send(:status_line, :incomplete)).to include('7 days')
+    end
+  end
+
   # @!group check_zip_prehash - geographic swap verification tests
 
   describe '#load_prehash_map_from_ttl' do
@@ -245,12 +280,12 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
 
   describe '#check_name_dob_prehash' do
     context 'when prehash_map or hmac_key is missing' do
-      it 'passes (skipped) with a prominent SKIPPED note in samples when both are nil' do
+      it 'marks itself skipped rather than passing when both are nil' do
         result = verifier.send(:check_name_dob_prehash)
-        expect(result[:passed]).to be true
+        expect(result[:skipped]).to be true
         expect(result[:issues]).to eq('None')
         expect(result[:samples]).to include('SKIPPED')
-        expect(result[:samples]).to include('name+DOB mutation NOT verified')
+        expect(result[:samples]).to include('Name and DOB mutation NOT verified')
       end
 
       it 'emits a WARNING log line when skipped' do

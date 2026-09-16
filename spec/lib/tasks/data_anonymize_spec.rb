@@ -2468,7 +2468,12 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       results, all_passed, = captured
       users_result = results.find { |r| r[:collection] =~ /Users/ }
       expect(users_result[:passed]).to be true
-      expect(all_passed).to be true
+      # Without RUN_ID/HMAC_KEY the cryptographic checks are skipped, so the run
+      # is INCOMPLETE rather than a pass. The account itself is still clean.
+      expect(all_passed).to be false
+      expect(results.select { |r| r[:skipped] }.map { |r| r[:collection] })
+        .to contain_exactly('Canonical prehash', 'Zip prehash')
+      expect(results.reject { |r| r[:skipped] }).to all(include(passed: true))
     end
   end
 end
