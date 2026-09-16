@@ -30,6 +30,8 @@ module DataAnonymizer
     SAMPLE_SIZE = 5000
     # A value outside this set would fail model validation on the next save.
     ALLOWED_GENDERS = AnonymizedData::GENDERS
+    # Collections whose zips may legitimately stay unchanged.
+    EMPLOYER_ZIP_COLLECTIONS = %i[organizations benefit_sponsors_organizations_organizations].freeze
     UNREDACTED_FILENAME_PATTERN = /filename=(?!document-redacted)/
     ANONYMIZED_IDENTIFIER_PATTERN = /^urn:openhbx:terms:v1:file_storage:s3:bucket:anonymized#/
     INBOX_MESSAGE_PATHS = [
@@ -64,10 +66,12 @@ module DataAnonymizer
     SKIP_FIELDS = %w[_id encrypted_ssn fein ach_routing_number ach_routing_number_confirmation npn corporate_npn content versions].freeze
 
     # rubocop:disable Metrics/ParameterLists
-    def initialize(mode: :smoke, prehash_map: nil, zip_prehash_map: nil, hmac_key: nil, run_id: nil, sample_size: SAMPLE_SIZE, protected_oim_ids: [])
+    def initialize(mode: :smoke, prehash_map: nil, zip_prehash_map: nil, hmac_key: nil, run_id: nil, sample_size: SAMPLE_SIZE,
+                   protected_oim_ids: [], geo_swap_skipped: nil)
       @mode = mode
       @prehash_map = prehash_map
       @zip_prehash_map = zip_prehash_map
+      @geo_swap_skipped = geo_swap_skipped
       @hmac_key = hmac_key
       @run_id = run_id
       @sample_size = sample_size
@@ -272,6 +276,8 @@ module DataAnonymizer
       samples = []
       total = 0
 
+      employer_stale = 0
+
       @zip_prehash_map.each do |collection_sym, id_map|
         col = collection_sym.to_s
         next unless @db.collection_names.include?(col)
@@ -284,12 +290,49 @@ module DataAnonymizer
           stale = stale_zip_slots(collection_sym, doc, stored_digests)
           next if stale.empty?
 
+          if EMPLOYER_ZIP_COLLECTIONS.include?(collection_sym)
+            employer_stale += stale.size
+            next
+          end
+
           issues << "Unchanged zip for #{col}:#{id_str} slot(s) #{stale.join(',')}"
           samples << "#{col}:#{id_str}"
         end
       end
 
+      issues.concat(employer_zip_issues(employer_stale))
       build_result("Zip prehash", total, issues, samples.first(5).join(', '))
+    end
+
+    # An employer zip with no service-area-compatible partner is preserved by
+    # design, so "every one changed" is not a valid assertion. The runner
+    # records how many it skipped, which turns "some are legitimately
+    # unchanged" into an exact expected number.
+    # @param employer_stale [Integer] employer zips found unchanged
+    # @return [Array<String>]
+    def employer_zip_issues(employer_stale)
+      allowed = expected_employer_skips
+      return ["#{employer_stale} employer zips unchanged and no skip tally recorded"] if allowed.nil? && employer_stale.positive?
+      return [] if allowed.nil? || employer_stale <= allowed
+
+      ["#{employer_stale} employer zips unchanged, more than the #{allowed} the run reported skipping"]
+    end
+
+    # @return [Integer, nil] tally recorded by the run, or nil when unavailable
+    def expected_employer_skips
+      return @geo_swap_skipped if @geo_swap_skipped
+
+      @expected_employer_skips ||= load_geo_swap_stats&.dig('skipped')
+    end
+
+    # @return [Hash, nil]
+    def load_geo_swap_stats
+      return nil if @run_id.blank?
+      return nil unless @db.collection_names.include?('data_anonymizer_prehashes')
+
+      @db[:data_anonymizer_prehashes]
+        .find('run_id' => @run_id.to_s, 'scope' => 'geo_swap_stats')
+        .first&.dig('digest')
     end
 
     # A run_id is only set for out-of-process verification. An empty map there
@@ -326,6 +369,7 @@ module DataAnonymizer
       case collection_sym
       when :people then canonical_person_zip_payloads(doc)
       when :census_members then canonical_census_zip_payloads(doc)
+      when *EMPLOYER_ZIP_COLLECTIONS then canonical_org_zip_payloads(doc)
       else []
       end
     end

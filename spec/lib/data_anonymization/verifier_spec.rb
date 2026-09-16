@@ -86,6 +86,43 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
     end
   end
 
+  # @!group employer zip bound - unchanged employer zips are allowed, but counted
+
+  describe '#employer_zip_issues' do
+    def verifier_with(skipped)
+      described_class.new(mode: :audit, hmac_key: 'k', geo_swap_skipped: skipped)
+    end
+
+    it 'allows unchanged employer zips up to the tally the run reported' do
+      expect(verifier_with(5).send(:employer_zip_issues, 5)).to be_empty
+    end
+
+    it 'allows fewer unchanged than were skipped' do
+      expect(verifier_with(5).send(:employer_zip_issues, 2)).to be_empty
+    end
+
+    it 'fails when more are unchanged than the run skipped' do
+      issues = verifier_with(2).send(:employer_zip_issues, 40)
+      expect(issues.first).to match(/40 employer zips unchanged, more than the 2/)
+    end
+
+    it 'catches a wholesale failure where nothing was swapped' do
+      # The case an unbounded check cannot see: the strict map came back empty
+      # so every employer zip was preserved, while members still passed.
+      issues = verifier_with(0).send(:employer_zip_issues, 300)
+      expect(issues).not_to be_empty
+    end
+
+    it 'fails when zips are unchanged but no tally was recorded' do
+      issues = described_class.new(mode: :audit, hmac_key: 'k').send(:employer_zip_issues, 7)
+      expect(issues.first).to match(/no skip tally recorded/)
+    end
+
+    it 'stays quiet when nothing is unchanged and no tally exists' do
+      expect(described_class.new(mode: :audit, hmac_key: 'k').send(:employer_zip_issues, 0)).to be_empty
+    end
+  end
+
   # @!group overall status - pass, fail and incomplete
 
   describe '#overall_status' do

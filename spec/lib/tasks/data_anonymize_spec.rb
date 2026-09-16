@@ -1235,6 +1235,39 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       end
     end
 
+    # @!group Employer zip digests and persisted swap tallies
+
+    describe 'employer zip prehash' do
+      let!(:org) { FactoryBot.create(:organization) }
+
+      before { runner.instance_variable_set(:@prehash_hmac_key, 'spec_key_1234567890') }
+
+      it 'records a digest for an organization office location zip' do
+        map = runner.send(:generate_zip_prehash_map)
+        expect(map[:organizations]).to have_key(org.id.to_s)
+      end
+
+      it 'covers both member and employer collections' do
+        map = runner.send(:generate_zip_prehash_map)
+        expect(map.keys).to include(:people, :census_members, :organizations, :benefit_sponsors_organizations_organizations)
+      end
+    end
+
+    describe '#persist_geo_swap_stats' do
+      before do
+        runner.instance_variable_set(:@prehash_run_id, 'run-xyz')
+        runner.instance_variable_set(:@geo_swap_applied, 12)
+        runner.instance_variable_set(:@geo_swap_skipped, 3)
+        runner.instance_variable_set(:@geo_swap_randomized, 4)
+      end
+
+      it 'stores the tallies so verification can bound unchanged employer zips' do
+        runner.send(:persist_geo_swap_stats)
+        doc = runner.db[:data_anonymizer_prehashes].find('run_id' => 'run-xyz', 'scope' => 'geo_swap_stats').first
+        expect(doc['digest']).to include('applied' => 12, 'skipped' => 3, 'randomized' => 4)
+      end
+    end
+
     # @!group Producer numbers - consistent remap across collections
 
     describe 'producer number anonymization' do

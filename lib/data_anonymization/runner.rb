@@ -178,6 +178,7 @@ module DataAnonymizer
       stats = run_phases
       log_stats(stats, process_end_time_formatted(start_time))
       log_geo_swap_stats
+      persist_geo_swap_stats unless @dry_run
 
       ensure_protected_users!
 
@@ -191,6 +192,7 @@ module DataAnonymizer
         mode: :audit,
         prehash_map: @prehash_map,
         zip_prehash_map: @zip_prehash_map,
+        geo_swap_skipped: @geo_swap_skipped,
         hmac_key: @prehash_hmac_key,
         protected_oim_ids: PROTECTED_OIM_IDS
       )
@@ -238,6 +240,25 @@ module DataAnonymizer
 
     # Skipped counts are expected: an employer zip with no interchangeable
     # partner is left alone rather than moved to another rating area.
+    # Stores the swap tallies so verification can bound how many employer zips
+    # are legitimately unchanged. Written after the phases and before the
+    # verifier, since the sentinel is only recorded once verification passes.
+    # @return [void]
+    def persist_geo_swap_stats
+      db[:data_anonymizer_prehashes].insert_one(
+        'run_id' => @prehash_run_id,
+        'scope' => 'geo_swap_stats',
+        'collection' => 'geo_swap_stats',
+        'record_id' => 'geo_swap_stats',
+        'digest' => {
+          'applied' => @geo_swap_applied,
+          'skipped' => @geo_swap_skipped,
+          'randomized' => @geo_swap_randomized
+        },
+        'created_at' => Time.current
+      )
+    end
+
     # @return [void]
     def log_geo_swap_stats
       log "  geographic swap: #{@geo_swap_applied} addresses swapped, #{@geo_swap_randomized} given a random zip, #{@geo_swap_skipped} preserved"
@@ -1825,10 +1846,29 @@ module DataAnonymizer
     # unmatched employer zip is preserved by design.
     # @return [Hash{Symbol => Hash{String => String}}]
     def generate_zip_prehash_map
-      map = { people: {}, census_members: {} }
+      map = { people: {}, census_members: {}, organizations: {}, benefit_sponsors_organizations_organizations: {} }
       generate_zip_prehash_for_people(map)
       generate_zip_prehash_for_census_members(map)
+      generate_zip_prehash_for_orgs(map, :organizations)
+      generate_zip_prehash_for_orgs(map, :benefit_sponsors_organizations_organizations)
       map
+    end
+
+    # Employer zips are digested too, but unlike member zips they are not
+    # required to change: one with no service-area-compatible partner is
+    # preserved by design. The verifier bounds the unchanged count against the
+    # runner's own skipped tally instead of asserting every one moved.
+    # @param map [Hash] accumulator
+    # @param collection_name [Symbol]
+    # @return [void]
+    def generate_zip_prehash_for_orgs(map, collection_name)
+      cursor = db[collection_name].find.projection('office_locations' => 1, 'profiles.office_locations' => 1)
+      cursor.batch_size(batch_size).each do |doc|
+        payloads = canonical_org_zip_payloads(doc)
+        next unless zip_payload_present?(payloads)
+
+        map[collection_name][doc['_id'].to_s] = zip_slot_digests(payloads)
+      end
     end
 
     def generate_zip_prehash_for_people(map)

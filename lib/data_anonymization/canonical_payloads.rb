@@ -69,6 +69,18 @@ module DataAnonymizer
       [own] + dependents
     end
 
+    # Zip per office location on an organization, covering both the legacy
+    # +office_locations+ array and the one nested under each profile.
+    # @param doc [Hash] raw organization Mongo document
+    # @return [Array<String>] normalized zip per office location
+    def canonical_org_zip_payloads(doc)
+      own = Array(doc['office_locations']).map { |loc| normalize(((loc || {})['address'] || {})['zip']) }
+      nested = Array(doc['profiles']).flat_map do |profile|
+        Array((profile || {})['office_locations']).map { |loc| normalize(((loc || {})['address'] || {})['zip']) }
+      end
+      own + nested
+    end
+
     # @param payloads [Array<String>] output of a zip payload helper
     # @return [Boolean] whether any slot holds a zip
     def zip_payload_present?(payloads)
