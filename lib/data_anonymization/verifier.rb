@@ -53,15 +53,15 @@ module DataAnonymizer
     # digits) intentionally preserved by the runner.
     # +content+ is free-text on Comment / Announcement and may incidentally contain
     # 9-digit tokens (check numbers, group ids) that are not SSNs.
-    # +dba+ is the organization's "doing business as" name; some organizations use a
-    # numeric identifier (e.g. a group ID) as their DBA and it is intentionally preserved
-    # per anonymization policy alongside +fein+ and +npn+.
+    # +npn+ / +corporate_npn+ replacements are still numeric, so they stay skipped to
+    # avoid reading as SSNs. +dba+ is no longer skipped: it is now replaced with a
+    # generated company name, so the sweep can catch any left unanonymized.
     # +versions+ is the inline mongoid-history snapshot array embedded in each document.
     # It holds pre-anonymization field snapshots (e.g. phone +full_phone_number+,
     # +ach_account_number+) that are not touched by the runner; 9-digit tokens in those
     # snapshots are not SSNs. The separate +history_trackers+ collection is dropped by
     # the runner; this covers the remaining per-document version trail.
-    SKIP_FIELDS = %w[_id encrypted_ssn fein ach_routing_number ach_routing_number_confirmation npn corporate_npn content dba versions].freeze
+    SKIP_FIELDS = %w[_id encrypted_ssn fein ach_routing_number ach_routing_number_confirmation npn corporate_npn content versions].freeze
 
     # rubocop:disable Metrics/ParameterLists
     def initialize(mode: :smoke, prehash_map: nil, zip_prehash_map: nil, hmac_key: nil, run_id: nil, sample_size: SAMPLE_SIZE, protected_oim_ids: [])

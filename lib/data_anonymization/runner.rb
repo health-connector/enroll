@@ -66,6 +66,9 @@ module DataAnonymizer
     # Redraw attempts when a generated state collides with the stored one.
     RANDOM_STATE_ATTEMPTS = 10
 
+    # Redraw attempts when a generated producer number is already in use.
+    MAX_NPN_ATTEMPTS = 100
+
     attr_reader :batch_size, :client, :db
 
     # @param batch_size [Integer] documents per bulk_write batch (default 1000).
@@ -501,6 +504,7 @@ module DataAnonymizer
         fields['encrypted_ssn'] = enc_ssn
       end
       fields['tribal_id'] = nil if doc['tribal_id'].present?
+      fields['broker_roles'] = anonymize_broker_roles(doc['broker_roles']) if doc['broker_roles'].present?
       fields['gender'] = gender_for(doc['gender'], Array(doc['addresses'])) if doc['gender'].present?
       fields.merge!(anonymize_person_dates(doc, shift_days))
       fields.merge!(anonymize_person_embedded(doc))
@@ -519,6 +523,17 @@ module DataAnonymizer
       fields
     end
 
+    # Replaces the producer number on each embedded broker role.
+    # @param roles [Array<Hash>] raw broker_roles array
+    # @return [Array<Hash>] anonymized copies
+    def anonymize_broker_roles(roles)
+      roles.map do |role|
+        role = role.dup
+        role['npn'] = replacement_npn(role['npn']) if role['npn'].present?
+        role
+      end
+    end
+
     # Anonymizes embedded address, phone, and email arrays in a person document.
     # @param doc [Hash] raw person document
     # @return [Hash] embedded array fields for +$set+
@@ -528,6 +543,67 @@ module DataAnonymizer
       fields['phones']    = doc['phones'].map    { |phone| anonymize_phone_hash(phone) }  if doc['phones'].present?
       fields['emails']    = doc['emails'].map    { |email| anonymize_email_hash(email) }  if doc['emails'].present?
       fields
+    end
+
+    # Maps each real producer number to a single replacement, so a broker keeps
+    # one identity across people, organizations and benefit sponsor profiles.
+    # Without a shared map each collection would get a different value and any
+    # test flow joining on NPN would break.
+    # @return [Hash] original npn => replacement npn
+    def npn_map
+      @npn_map ||= build_npn_map
+    end
+
+    # @return [Hash]
+    def build_npn_map
+      originals = Set.new
+      db[:people].find('broker_roles.npn' => { '$nin' => [nil, ''] })
+                 .projection('broker_roles.npn' => 1)
+                 .each { |doc| Array(doc['broker_roles']).each { |role| originals.add(role['npn'].to_s) if role['npn'].present? } }
+      collect_corporate_npns(:organizations, 'broker_agency_profile', originals)
+      collect_corporate_npns(:benefit_sponsors_organizations_organizations, 'profiles', originals)
+
+      map = originals.each_with_object({}) { |original, memo| memo[original] = unique_npn }
+      log "  Built producer number map for #{map.size} distinct values"
+      map
+    end
+
+    # Returns the replacement for +original+, generating one if it was not seen
+    # when the map was built. Falling back to the original would silently leave
+    # a real, publicly searchable producer number in the dump.
+    # @param original [String]
+    # @return [String]
+    def replacement_npn(original)
+      npn_map[original.to_s] ||= unique_npn
+    end
+
+    # @return [Set] replacements already issued in this run
+    def npn_used
+      @npn_used ||= Set.new
+    end
+
+    # @param collection_name [Symbol]
+    # @param path [String] embedded profile field holding +corporate_npn+
+    # @param originals [Set] accumulator
+    # @return [void]
+    def collect_corporate_npns(collection_name, path, originals)
+      db[collection_name].find("#{path}.corporate_npn" => { '$nin' => [nil, ''] })
+                         .projection("#{path}.corporate_npn" => 1)
+                         .each do |doc|
+        Array(doc[path]).each { |profile| originals.add(profile['corporate_npn'].to_s) if profile['corporate_npn'].present? }
+      end
+    end
+
+    # @return [String] producer number not yet issued in this run
+    def unique_npn
+      MAX_NPN_ATTEMPTS.times do
+        candidate = AnonymizedData.npn
+        next if npn_used.include?(candidate)
+
+        npn_used.add(candidate)
+        return candidate
+      end
+      raise "Failed to generate a unique npn after #{MAX_NPN_ATTEMPTS} attempts"
     end
 
     # Builds a map of person_id => shift_days by iterating all families.
@@ -869,7 +945,7 @@ module DataAnonymizer
     #
     # @note CCA Individual Market is disabled. +consumer_role+, +resident_role+,
     #   and VLP documents are not present for census members and are not processed.
-    # @note +dba+, +fein+, and +npn+ are never touched by this phase.
+    # @note +fein+ is never touched by this phase.
     # @return [Integer] number of census member documents processed
     def anonymize_census_members
       collection = db[:census_members]
@@ -1057,7 +1133,7 @@ module DataAnonymizer
     # Replaces: legal_name, broker_agency_profile ACH fields (ach_routing_number,
     # ach_account_number), and office location addresses and phones.
     #
-    # @note +dba+, +fein+, and +npn+ are intentionally NOT anonymized.
+    # @note +fein+ is intentionally NOT anonymized.
     # @return [Integer] number of organization documents processed
     def anonymize_organizations
       collection = db[:organizations]
@@ -1091,6 +1167,9 @@ module DataAnonymizer
     # @return [Hash] fields for +$set+
     def build_org_update(doc)
       set_fields = { 'legal_name' => AnonymizedData.company_name }
+      # dba is the public trading name, not an opaque key, so it identifies the
+      # employer just as legal_name does.
+      set_fields['dba'] = AnonymizedData.company_name if doc['dba'].present?
 
       if doc['broker_agency_profile'].present?
         bap = doc['broker_agency_profile'].dup
@@ -1100,6 +1179,7 @@ module DataAnonymizer
           bap['ach_routing_number_confirmation'] = fake_rn
         end
         bap['ach_account_number'] = AnonymizedData.account_number if bap['ach_account_number'].present?
+        bap['corporate_npn'] = replacement_npn(bap['corporate_npn']) if bap['corporate_npn'].present?
         set_fields['broker_agency_profile'] = bap
       end
 
@@ -1128,7 +1208,7 @@ module DataAnonymizer
     # from +legal_name+ anonymization because downstream code (e.g. +carrier_logo+) relies on
     # the real carrier name to resolve logo assets.
     #
-    # @note +dba+, +fein+, and +npn+ are intentionally NOT anonymized.
+    # @note +fein+ is intentionally NOT anonymized.
     # @return [Integer] number of BS organization documents processed
     def anonymize_bs_organizations
       collection = db[:benefit_sponsors_organizations_organizations]
@@ -1166,6 +1246,7 @@ module DataAnonymizer
     def build_bs_org_update(doc)
       issuer_org = doc['profiles']&.any? { |p| p['_type'] == 'BenefitSponsors::Organizations::IssuerProfile' }
       set_fields = issuer_org ? {} : { 'legal_name' => AnonymizedData.company_name }
+      set_fields['dba'] = AnonymizedData.company_name if !issuer_org && doc['dba'].present?
       set_fields['profiles'] = doc['profiles'].map { |p| anonymize_bs_profile(p) } if doc['profiles'].present?
       set_fields
     end
@@ -1183,6 +1264,7 @@ module DataAnonymizer
         profile['ach_routing_number_confirmation'] = fake_rn
       end
       profile['ach_account_number']  = AnonymizedData.account_number if profile['ach_account_number'].present?
+      profile['corporate_npn']       = replacement_npn(profile['corporate_npn']) if profile['corporate_npn'].present?
       profile['office_locations']    = anonymize_office_locations(profile['office_locations']) if profile['office_locations'].present?
       profile['employer_attestation'] = anonymize_employer_attestation(profile['employer_attestation']) if profile['employer_attestation'].present?
       profile

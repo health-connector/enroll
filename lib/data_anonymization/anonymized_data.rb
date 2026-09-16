@@ -201,6 +201,15 @@ module DataAnonymizer
       sanitize_name(FFaker::Company.name, fallback: SAFE_COMPANY_FALLBACK)
     end
 
+    # National Producer Numbers are public: NIPR's free licensee search maps an
+    # NPN straight to a named broker, so a real one is a single-lookup
+    # re-identification. Replacements keep the numeric shape so any flow that
+    # parses or joins on the value still works.
+    # @return [String] numeric producer number
+    def npn
+      format('%08d', rand(1..99_999_999))
+    end
+
     # @return [String] 9-digit routing number string (never starts with 0).
     #   Length satisfies +AchRecord+'s +validates :routing_number, length: { is: 9 }+.
     def routing_number

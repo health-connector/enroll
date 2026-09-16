@@ -444,8 +444,8 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
       expect(skip_fields).to include('content')
     end
 
-    it 'includes dba — organization doing-business-as name intentionally preserved per policy' do
-      expect(skip_fields).to include('dba')
+    it 'no longer includes dba, which is now replaced and so can be policed' do
+      expect(skip_fields).not_to include('dba')
     end
 
     it 'includes versions — inline mongoid-history snapshot array is not scanned for SSN patterns' do
@@ -495,9 +495,9 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
       expect(verifier.send(:doc_strings, doc).to_a).to eq(['42'])
     end
 
-    it 'skips dba so numeric doing-business-as names are not yielded' do
+    it 'yields dba so an unanonymized numeric one is caught' do
       doc = { 'dba' => '125000024', 'legal_name' => 'Acme Corp' }
-      expect(verifier.send(:doc_strings, doc).to_a).to eq(['Acme Corp'])
+      expect(verifier.send(:doc_strings, doc).to_a).to contain_exactly('125000024', 'Acme Corp')
     end
 
     it 'skips the versions key so inline mongoid-history snapshots are not scanned' do

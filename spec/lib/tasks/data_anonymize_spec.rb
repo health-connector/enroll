@@ -925,9 +925,10 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
         expect(doc['fein']).to eq(org.fein)
       end
 
-      it 'does not change dba' do
+      it 'replaces dba, which names the business as publicly as legal_name does' do
         doc = raw_doc('organizations', org.id)
-        expect(doc['dba']).to eq(org.dba)
+        expect(doc['dba']).to be_present
+        expect(doc['dba']).not_to eq(org.dba)
       end
     end
 
@@ -1231,6 +1232,71 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
         original_city = addr['city']
         result
         expect(addr['city']).to eq(original_city)
+      end
+    end
+
+    # @!group Producer numbers - consistent remap across collections
+
+    describe 'producer number anonymization' do
+      let(:real_npn) { '120002398' }
+
+      it 'replaces the npn on a broker role' do
+        roles = runner.send(:anonymize_broker_roles, [{ 'npn' => real_npn, 'aasm_state' => 'active' }])
+        expect(roles.first['npn']).not_to eq(real_npn)
+        expect(roles.first['npn']).to match(/\A\d+\z/)
+      end
+
+      it 'leaves a role with no npn alone' do
+        roles = runner.send(:anonymize_broker_roles, [{ 'aasm_state' => 'active' }])
+        expect(roles.first).not_to have_key('npn')
+      end
+
+      it 'maps one real npn to one replacement, so broker joins still resolve' do
+        allow(runner).to receive(:npn_map).and_return({ real_npn => '88887777' })
+        role = runner.send(:anonymize_broker_roles, [{ 'npn' => real_npn }]).first
+        org  = runner.send(:build_org_update, { 'broker_agency_profile' => { 'corporate_npn' => real_npn } })
+        expect(role['npn']).to eq(org['broker_agency_profile']['corporate_npn'])
+      end
+
+      it 'gives distinct originals distinct replacements' do
+        values = Array.new(50) { runner.send(:unique_npn) }
+        expect(values.uniq.size).to eq(50)
+      end
+
+      it 'generates one for an npn absent from the map rather than keeping the real value' do
+        allow(runner).to receive(:npn_map).and_return({})
+        role = runner.send(:anonymize_broker_roles, [{ 'npn' => real_npn }]).first
+        expect(role['npn']).not_to eq(real_npn)
+      end
+    end
+
+    # @!group Doing business as - public trading name
+
+    describe 'dba anonymization' do
+      it 'replaces dba on a legacy organization' do
+        fields = runner.send(:build_org_update, { 'legal_name' => 'Real Co', 'dba' => 'Real Trading Name' })
+        expect(fields['dba']).to be_present
+        expect(fields['dba']).not_to eq('Real Trading Name')
+      end
+
+      it 'does not add dba when the record has none' do
+        fields = runner.send(:build_org_update, { 'legal_name' => 'Real Co' })
+        expect(fields.keys).not_to include('dba')
+      end
+
+      it 'replaces dba on a benefit sponsors organization' do
+        fields = runner.send(:build_bs_org_update, { 'legal_name' => 'Real Co', 'dba' => 'Real Trading Name' })
+        expect(fields['dba']).not_to eq('Real Trading Name')
+      end
+
+      it 'preserves dba on an issuer organization, as it does legal_name' do
+        doc = {
+          'legal_name' => 'Carrier Co', 'dba' => 'Carrier Trading Name',
+          'profiles' => [{ '_type' => 'BenefitSponsors::Organizations::IssuerProfile' }]
+        }
+        fields = runner.send(:build_bs_org_update, doc)
+        expect(fields.keys).not_to include('dba')
+        expect(fields.keys).not_to include('legal_name')
       end
     end
 
