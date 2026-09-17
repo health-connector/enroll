@@ -3,6 +3,9 @@
 require 'rails_helper'
 require_relative '../../../lib/data_anonymization/anonymized_data'
 require_relative '../../../lib/data_anonymization/verifier'
+# Loaded so the collection constants can be cross-checked. The verifier itself
+# deliberately does not depend on the runner at load time.
+require_relative '../../../lib/data_anonymization/runner'
 
 RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
   let(:db_double) { instance_double(Mongo::Database, name: 'test_db', collection_names: []) }
@@ -83,6 +86,26 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
 
     it 'reports None when there are no issues' do
       expect(result[:issues]).to eq('None')
+    end
+  end
+
+  # @!group prehash collection resolution
+
+  describe 'PREHASH_COLLECTIONS' do
+    it 'resolves bs_organizations to its real collection' do
+      expect(described_class::PREHASH_COLLECTIONS[:bs_organizations])
+        .to eq(:benefit_sponsors_organizations_organizations)
+    end
+
+    it 'stays in step with the runner constant it mirrors' do
+      expect(described_class::PREHASH_COLLECTIONS[:plan_design_organizations])
+        .to eq(DataAnonymizer::Runner::PLAN_DESIGN_ORG_COLLECTION)
+    end
+
+    it 'resolves every key to a name the database would recognise' do
+      described_class::PREHASH_COLLECTIONS.each_value do |collection|
+        expect(collection.to_s).to match(/\A[a-z_]+\z/)
+      end
     end
   end
 

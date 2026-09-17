@@ -201,6 +201,12 @@ module DataAnonymizer
       sanitize_name(FFaker::Company.name, fallback: SAFE_COMPANY_FALLBACK)
     end
 
+    # A company web address names the business as plainly as its legal name.
+    # @return [String] fake http url
+    def website
+      FFaker::Internet.http_url
+    end
+
     # National Producer Numbers are public: NIPR's free licensee search maps an
     # NPN straight to a named broker, so a real one is a single-lookup
     # re-identification. Replacements keep the numeric shape so any flow that

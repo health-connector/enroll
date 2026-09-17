@@ -69,6 +69,9 @@ module DataAnonymizer
     # Redraw attempts when a generated producer number is already in use.
     MAX_NPN_ATTEMPTS = 100
 
+    # Broker quoting workspace, which names the employer being quoted.
+    PLAN_DESIGN_ORG_COLLECTION = :sponsored_benefits_organizations_plan_design_organizations
+
     attr_reader :batch_size, :client, :db
 
     # @param batch_size [Integer] documents per bulk_write batch (default 1000).
@@ -226,6 +229,7 @@ module DataAnonymizer
         census_members: anonymize_census_members,
         organizations: anonymize_organizations,
         bs_organizations: anonymize_bs_organizations,
+        plan_design_organizations: anonymize_plan_design_organizations,
         families: anonymize_families,
         inbox_messages: anonymize_inbox_messages,
         document_identifiers: anonymize_document_identifiers
@@ -1191,6 +1195,7 @@ module DataAnonymizer
       # dba is the public trading name, not an opaque key, so it identifies the
       # employer just as legal_name does.
       set_fields['dba'] = AnonymizedData.company_name if doc['dba'].present?
+      set_fields['home_page'] = AnonymizedData.website if doc['home_page'].present?
 
       if doc['broker_agency_profile'].present?
         bap = doc['broker_agency_profile'].dup
@@ -1268,6 +1273,7 @@ module DataAnonymizer
       issuer_org = doc['profiles']&.any? { |p| p['_type'] == 'BenefitSponsors::Organizations::IssuerProfile' }
       set_fields = issuer_org ? {} : { 'legal_name' => AnonymizedData.company_name }
       set_fields['dba'] = AnonymizedData.company_name if !issuer_org && doc['dba'].present?
+      set_fields['home_page'] = AnonymizedData.website if !issuer_org && doc['home_page'].present?
       set_fields['profiles'] = doc['profiles'].map { |p| anonymize_bs_profile(p) } if doc['profiles'].present?
       set_fields
     end
@@ -1314,6 +1320,53 @@ module DataAnonymizer
         doc
       end
       attestation
+    end
+
+    # Anonymizes the broker quoting workspace.
+    #
+    # These records name the employer a broker built a quote for, and carry
+    # +sponsor_profile_id+ pointing back at an already-anonymized organization.
+    # Left alone they re-identify that employer by following the key. The
+    # employee rosters beneath them live in +census_members+ and are covered by
+    # Phase 3.
+    #
+    # @note +fein+ is intentionally NOT anonymized.
+    # @return [Integer] documents processed
+    def anonymize_plan_design_organizations
+      return 0 unless db.collection_names.include?(PLAN_DESIGN_ORG_COLLECTION.to_s)
+
+      collection = db[PLAN_DESIGN_ORG_COLLECTION]
+      total = collection.count_documents({})
+      return 0 if total.zero?
+
+      log "\n--- Phase 6: Anonymizing Plan Design Organizations (#{total}) ---"
+      processed = 0
+
+      collection.find.batch_size(batch_size).each_slice(batch_size) do |batch|
+        updates = batch.map do |doc|
+          { update_one: { filter: { '_id' => doc['_id'] }, update: { '$set' => build_plan_design_org_update(doc) } } }
+        end
+
+        if @dry_run
+          log "  [DRY RUN] Would update #{updates.size} plan design organizations in this batch"
+        else
+          bulk_write_batch(collection, updates)
+        end
+        processed += batch.size
+        log "  #{processed}/#{total} plan design organizations" if (processed % (batch_size * 5)).zero? || processed >= total
+      end
+      processed
+    end
+
+    # @param doc [Hash] raw plan design organization document
+    # @return [Hash] fields for +$set+
+    def build_plan_design_org_update(doc)
+      set_fields = {}
+      set_fields['legal_name'] = AnonymizedData.company_name if doc['legal_name'].present?
+      set_fields['dba'] = AnonymizedData.company_name if doc['dba'].present?
+      set_fields['home_page'] = AnonymizedData.website if doc['home_page'].present?
+      set_fields['office_locations'] = anonymize_office_locations(doc['office_locations']) if doc['office_locations'].present?
+      set_fields
     end
 
     # Clears the +e_case_id+ field on all family documents.
@@ -1834,12 +1887,25 @@ module DataAnonymizer
     # Returns a hash with keys :people, :census_members, :organizations, :bs_organizations
     # where each value is a map of id_str => hmac.
     def generate_prehash_map
-      map = { people: {}, census_members: {}, organizations: {}, bs_organizations: {} }
+      map = { people: {}, census_members: {}, organizations: {}, bs_organizations: {}, plan_design_organizations: {} }
       generate_prehash_for_people(map)
       generate_prehash_for_census_members(map)
       generate_prehash_for_organizations(map)
       generate_prehash_for_bs_organizations(map)
+      generate_prehash_for_plan_design_orgs(map)
       map
+    end
+
+    def generate_prehash_for_plan_design_orgs(map)
+      return unless db.collection_names.include?(PLAN_DESIGN_ORG_COLLECTION.to_s)
+
+      cursor = db[PLAN_DESIGN_ORG_COLLECTION].find.projection('legal_name' => 1, 'dba' => 1, 'home_page' => 1)
+      cursor.batch_size(batch_size).each do |doc|
+        next if doc['legal_name'].to_s.strip.empty?
+
+        map[:plan_design_organizations][doc['_id'].to_s] =
+          OpenSSL::HMAC.hexdigest('SHA256', @prehash_hmac_key, canonical_plan_design_org_payload(doc))
+      end
     end
 
     # Zip-only digests proving the swap ran. Employers are excluded because an

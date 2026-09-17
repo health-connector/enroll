@@ -1235,6 +1235,62 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       end
     end
 
+    # @!group Plan design organizations - the broker quoting workspace
+
+    describe '#build_plan_design_org_update' do
+      it 'replaces the employer name a broker quoted' do
+        fields = runner.send(:build_plan_design_org_update, { 'legal_name' => 'Real Employer Inc' })
+        expect(fields['legal_name']).to be_present
+        expect(fields['legal_name']).not_to eq('Real Employer Inc')
+      end
+
+      it 'replaces dba and home_page, which name the business just as plainly' do
+        doc = { 'legal_name' => 'Real Employer Inc', 'dba' => 'Real Trading', 'home_page' => 'http://realemployer.com' }
+        fields = runner.send(:build_plan_design_org_update, doc)
+        expect(fields['dba']).not_to eq('Real Trading')
+        expect(fields['home_page']).not_to eq('http://realemployer.com')
+      end
+
+      it 'swaps office location zips through the same rules as any employer address' do
+        doc = { 'office_locations' => [{ 'address' => { 'zip' => '02101', 'county' => 'Suffolk', 'state' => 'MA' } }] }
+        fields = runner.send(:build_plan_design_org_update, doc)
+        expect(fields['office_locations'].first['address']['address_1']).not_to eq('1 Real St')
+      end
+
+      it 'adds nothing for fields the record does not carry' do
+        expect(runner.send(:build_plan_design_org_update, {})).to eq({})
+      end
+
+      it 'leaves fein alone, matching the policy on other organizations' do
+        fields = runner.send(:build_plan_design_org_update, { 'legal_name' => 'X', 'fein' => '123456789' })
+        expect(fields.keys).not_to include('fein')
+      end
+    end
+
+    describe '#anonymize_plan_design_organizations' do
+      it 'returns zero when the collection is absent' do
+        allow(runner.db).to receive(:collection_names).and_return([])
+        expect(runner.send(:anonymize_plan_design_organizations)).to eq(0)
+      end
+    end
+
+    describe 'home_page on organizations' do
+      it 'replaces a company url on a legacy organization' do
+        fields = runner.send(:build_org_update, { 'legal_name' => 'X', 'home_page' => 'http://realemployer.com' })
+        expect(fields['home_page']).not_to eq('http://realemployer.com')
+      end
+
+      it 'replaces a company url on a benefit sponsors organization' do
+        fields = runner.send(:build_bs_org_update, { 'legal_name' => 'X', 'home_page' => 'http://realemployer.com' })
+        expect(fields['home_page']).not_to eq('http://realemployer.com')
+      end
+
+      it 'leaves an issuer url alone, as it does issuer legal_name' do
+        doc = { 'home_page' => 'http://carrier.com', 'profiles' => [{ '_type' => 'BenefitSponsors::Organizations::IssuerProfile' }] }
+        expect(runner.send(:build_bs_org_update, doc).keys).not_to include('home_page')
+      end
+    end
+
     # @!group Employer zip digests and persisted swap tallies
 
     describe 'employer zip prehash' do

@@ -87,6 +87,14 @@ module DataAnonymizer
       Array(payloads).any? { |zip| zip.to_s.match?(/\d/) }
     end
 
+    # Canonical string for a plan design organization, the broker quoting
+    # workspace that names the employer being quoted.
+    # @param doc [Hash] raw plan design organization document
+    # @return [String] pipe-delimited, downcased canonical string
+    def canonical_plan_design_org_payload(doc)
+      "#{normalize(doc['legal_name'])}|#{normalize(doc['dba'])}|#{normalize(doc['home_page'])}"
+    end
+
     def normalize(str)
       str&.to_s&.strip&.downcase || ''
     end

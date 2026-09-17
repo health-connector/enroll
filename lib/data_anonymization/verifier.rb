@@ -30,6 +30,16 @@ module DataAnonymizer
     SAMPLE_SIZE = 5000
     # A value outside this set would fail model validation on the next save.
     ALLOWED_GENDERS = AnonymizedData::GENDERS
+    # Prehash map keys are not all collection names, so they are resolved here.
+    PREHASH_COLLECTIONS = {
+      people: :people,
+      census_members: :census_members,
+      organizations: :organizations,
+      bs_organizations: :benefit_sponsors_organizations_organizations,
+      # Mirrors Runner::PLAN_DESIGN_ORG_COLLECTION. Kept as a literal so this
+      # class carries no load-time dependency on the runner.
+      plan_design_organizations: :sponsored_benefits_organizations_plan_design_organizations
+    }.freeze
     # Collections whose zips may legitimately stay unchanged.
     EMPLOYER_ZIP_COLLECTIONS = %i[organizations benefit_sponsors_organizations_organizations].freeze
     UNREDACTED_FILENAME_PATTERN = /filename=(?!document-redacted)/
@@ -400,7 +410,7 @@ module DataAnonymizer
       total = 0
 
       @prehash_map.each do |collection_sym, id_map|
-        col = collection_sym.to_s
+        col = PREHASH_COLLECTIONS.fetch(collection_sym.to_sym, collection_sym).to_s
         next unless @db.collection_names.include?(col)
 
         id_map.each do |id_str, stored_hmac|
@@ -436,6 +446,8 @@ module DataAnonymizer
         canonical_org_payload(doc)
       when :bs_organizations
         canonical_bs_org_payload(doc)
+      when :plan_design_organizations
+        canonical_plan_design_org_payload(doc)
       else
         ""
       end
