@@ -1412,6 +1412,38 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
         expect(role['npn']).to eq(org['broker_agency_profile']['corporate_npn'])
       end
 
+      it 'reads a legacy broker profile without raising' do
+        # broker_agency_profile is a single embedded hash. Array() on a hash
+        # yields key/value pairs, which raised TypeError and aborted the run.
+        org = FactoryBot.create(:organization)
+        runner.db[:organizations].update_one(
+          { '_id' => org.id },
+          { '$set' => { 'broker_agency_profile' => { 'corporate_npn' => '216179133' } } }
+        )
+        expect { runner.send(:build_npn_map) }.not_to raise_error
+      end
+
+      it 'discovers a legacy corporate npn' do
+        org = FactoryBot.create(:organization)
+        runner.db[:organizations].update_one(
+          { '_id' => org.id },
+          { '$set' => { 'broker_agency_profile' => { 'corporate_npn' => '216179133' } } }
+        )
+        expect(runner.send(:build_npn_map)).to have_key('216179133')
+      end
+
+      it 'never reuses an npn that still exists in the database' do
+        # An original is still present while the phases run, and
+        # people.broker_role.npn is uniquely indexed, so a collision would fail
+        # the bulk write. Eight digits so a collision is actually possible.
+        person = FactoryBot.create(:person)
+        person.build_broker_role(npn: '12000239', provider_kind: 'broker')
+        person.save(validate: false)
+        allow(DataAnonymizer::AnonymizedData).to receive(:npn).and_return('12000239', '87654321')
+
+        expect(runner.send(:build_npn_map)['12000239']).to eq('87654321')
+      end
+
       it 'produces a value the BrokerRole model accepts' do
         person = FactoryBot.create(:person)
         person.build_broker_role(npn: DataAnonymizer::AnonymizedData.npn, provider_kind: 'broker')
@@ -1844,9 +1876,20 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
           expect(result['county']).to eq('Franklin')
         end
 
-        it 'writes the padded reference zip trimmed' do
-          result = runner.send(:anonymize_address_hash, address('02101', 'Suffolk'))
-          expect(result['zip']).to eq('01367')
+        it 'never offers the ambiguous record as a replacement either' do
+          # Writing it trimmed would produce '01367', which then resolves to the
+          # clean record in a different rating area and moves the premium.
+          suffolk_group = FactoryBot.create(:benefit_markets_locations_county_zip, county_name: 'Suffolk', zip: '02111', state: 'MA')
+          FactoryBot.create(
+            :benefit_markets_locations_rating_area,
+            covered_states: nil, county_zip_ids: [suffolk.id, suffolk_group.id]
+          )
+
+          25.times do
+            result = runner.send(:anonymize_address_hash, address('02101', 'Suffolk'))
+            expect(result['zip']).not_to eq('01367')
+            expect(result['zip']).not_to eq('01367 ')
+          end
         end
       end
 

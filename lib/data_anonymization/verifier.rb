@@ -44,7 +44,8 @@ module DataAnonymizer
       plan_design_organizations: :sponsored_benefits_organizations_plan_design_organizations
     }.freeze
     # Collections whose zips may legitimately stay unchanged.
-    EMPLOYER_ZIP_COLLECTIONS = %i[organizations benefit_sponsors_organizations_organizations].freeze
+    EMPLOYER_ZIP_COLLECTIONS = %i[organizations benefit_sponsors_organizations_organizations
+                                  sponsored_benefits_organizations_plan_design_organizations].freeze
     UNREDACTED_FILENAME_PATTERN = /filename=(?!document-redacted)/
     ANONYMIZED_IDENTIFIER_PATTERN = /^urn:openhbx:terms:v1:file_storage:s3:bucket:anonymized#/
     INBOX_MESSAGE_PATHS = [
@@ -289,36 +290,41 @@ module DataAnonymizer
       blocker = zip_prehash_blocker
       return build_result("Zip prehash", 0, [blocker], "") if blocker
 
-      issues = []
-      samples = []
-      total = 0
-
-      employer_stale = 0
+      tally = { issues: [], samples: [], total: 0, employer_stale: 0 }
 
       @zip_prehash_map.each do |collection_sym, id_map|
         col = collection_sym.to_s
         next unless @db.collection_names.include?(col)
 
-        id_map.each do |id_str, stored_digests|
-          doc = find_by_id_string(col, id_str)
-          next unless doc
-
-          total += 1
-          stale = stale_zip_slots(collection_sym, doc, stored_digests)
-          next if stale.empty?
-
-          if EMPLOYER_ZIP_COLLECTIONS.include?(collection_sym)
-            employer_stale += stale.size
-            next
-          end
-
-          issues << "Unchanged zip for #{col}:#{id_str} slot(s) #{stale.join(',')}"
-          samples << "#{col}:#{id_str}"
-        end
+        id_map.each { |id_str, stored| inspect_zip_record(collection_sym, col, id_str, stored, tally) }
       end
 
-      issues.concat(employer_zip_issues(employer_stale))
-      build_result("Zip prehash", total, issues, samples.first(5).join(', '))
+      tally[:issues].concat(employer_zip_issues(tally[:employer_stale]))
+      build_result("Zip prehash", tally[:total], tally[:issues], tally[:samples].first(5).join(', '))
+    end
+
+    # Compares one record and folds the outcome into +tally+.
+    # @return [void]
+    def inspect_zip_record(collection_sym, col, id_str, stored_digests, tally)
+      doc = find_by_id_string(col, id_str)
+      return unless doc
+
+      tally[:total] += 1
+      record = "#{col}:#{id_str}"
+      comparison = compare_slots(zip_payloads_for_collection(collection_sym, doc), stored_digests)
+
+      cleared = zip_cleared_issue(comparison, record)
+      if cleared
+        tally[:issues] << cleared
+        tally[:samples] << record
+      end
+
+      stale = comparison[:stale]
+      return if stale.empty?
+      return tally[:employer_stale] += stale.size if EMPLOYER_ZIP_COLLECTIONS.include?(collection_sym)
+
+      tally[:issues] << "Unchanged zip for #{record} slot(s) #{stale.join(',')}"
+      tally[:samples] << record
     end
 
     # An employer zip with no service-area-compatible partner is preserved by
@@ -372,15 +378,41 @@ module DataAnonymizer
           next unless doc
 
           total += 1
-          stale = stale_slots(canonical_identity_payloads(doc), stored_digests)
-          next if stale.empty?
-
-          issues << "Unchanged #{stale.map { |i| IDENTITY_FIELDS[i] }.join(',')} for #{col}:#{id_str}"
-          samples << "#{col}:#{id_str}"
+          record = "#{col}:#{id_str}"
+          issues.concat(identity_issues(doc, stored_digests, record)).tap do
+            samples << record if issues.last&.include?(record)
+          end
         end
       end
 
       build_result("Identity prehash", total, issues, samples.first(5).join(', '))
+    end
+
+    # @param comparison [Hash] output of compare_slots
+    # @param record [String] collection and id
+    # @return [String, nil]
+    def zip_cleared_issue(comparison, record)
+      return nil if comparison[:cleared].empty?
+
+      "Zip cleared rather than replaced for #{record} slot(s) #{comparison[:cleared].join(',')}"
+    end
+
+    # @param doc [Hash] raw organization document
+    # @param stored_digests [Array<String, nil>]
+    # @param record [String] collection and id
+    # @return [Array<String>]
+    def identity_issues(doc, stored_digests, record)
+      comparison = compare_slots(canonical_identity_payloads(doc), stored_digests)
+      found = []
+      found << "Cleared #{field_names(comparison[:cleared])} for #{record}" if comparison[:cleared].any?
+      found << "Unchanged #{field_names(comparison[:stale])} for #{record}" if comparison[:stale].any?
+      found
+    end
+
+    # @param indexes [Array<Integer>]
+    # @return [String]
+    def field_names(indexes)
+      indexes.map { |index| IDENTITY_FIELDS[index] }.join(',')
     end
 
     # @return [Boolean] whether the identity map still needs loading from the TTL collection
@@ -445,14 +477,32 @@ module DataAnonymizer
     # @param stored_digests [Array<String, nil>] pre-run digest per slot
     # @return [Array<Integer>] indexes whose value is unchanged
     def stale_slots(current, stored_digests)
-      Array(stored_digests).each_with_index.select do |stored, index|
-        # Nothing to compare: this slot never held a zip before the run.
-        next false if stored.blank?
-        # The zip was removed outright, which is itself a change.
-        next false if current[index].blank?
+      compare_slots(current, stored_digests)[:stale]
+    end
 
-        OpenSSL::HMAC.hexdigest('SHA256', @hmac_key, current[index]) == stored
-      end.map(&:last)
+    # Splits unchanged slots from ones that were populated before the run and
+    # are now blank. Clearing a value removes the original, but it is data loss
+    # rather than anonymization and nothing else would report it.
+    # @param current [Array<String>] values now stored, one per slot
+    # @param stored_digests [Array<String, nil>] pre-run digest per slot
+    # @return [Hash{Symbol => Array<Integer>}] :stale and :cleared indexes
+    def compare_slots(current, stored_digests)
+      stale = []
+      cleared = []
+
+      Array(stored_digests).each_with_index do |stored, index|
+        # Nothing to compare: this slot held no value before the run.
+        next if stored.blank?
+
+        if current[index].blank?
+          cleared << index
+          next
+        end
+
+        stale << index if OpenSSL::HMAC.hexdigest('SHA256', @hmac_key, current[index]) == stored
+      end
+
+      { stale: stale, cleared: cleared }
     end
 
     # @param collection_sym [Symbol] :people or :census_members

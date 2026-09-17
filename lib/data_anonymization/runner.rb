@@ -619,6 +619,9 @@ module DataAnonymizer
       collect_corporate_npns(:organizations, 'broker_agency_profile', originals)
       collect_corporate_npns(:benefit_sponsors_organizations_organizations, 'profiles', originals)
 
+      # people.broker_role.npn carries a unique index, and originals are still
+      # present while the phases run, so replacements must avoid them too.
+      originals.each { |original| npn_used.add(original) }
       map = originals.each_with_object({}) { |original, memo| memo[original] = unique_npn }
       log "  Built producer number map for #{map.size} distinct values"
       map
@@ -646,8 +649,18 @@ module DataAnonymizer
       db[collection_name].find("#{path}.corporate_npn" => { '$nin' => [nil, ''] })
                          .projection("#{path}.corporate_npn" => 1)
                          .each do |doc|
-        Array(doc[path]).each { |profile| originals.add(profile['corporate_npn'].to_s) if profile['corporate_npn'].present? }
+        embedded_profiles(doc[path]).each { |profile| originals.add(profile['corporate_npn'].to_s) if profile['corporate_npn'].present? }
       end
+    end
+
+    # +broker_agency_profile+ is a single embedded hash while +profiles+ is a
+    # list. Array() on a hash yields key/value pairs, so the shape is checked.
+    # @param value [Hash, Array, nil]
+    # @return [Array<Hash>]
+    def embedded_profiles(value)
+      return [] if value.blank?
+
+      value.is_a?(Hash) ? [value] : Array(value)
     end
 
     # @return [String] producer number not yet issued in this run
@@ -1773,16 +1786,19 @@ module DataAnonymizer
     # @return [Hash] key => Array<Hash> of interchangeable pairs
     def build_swap_pairs(groups, ambiguous_keys, strict_geo)
       groups.each_value.with_object({}) do |members, map|
-        next if members.size < 2
+        # Ambiguous records are dropped entirely, not just as sources. Offering
+        # one as a replacement writes its trimmed zip, which then resolves to
+        # the other record sharing that key and a different rating area.
+        eligible = members.reject { |county_zip| ambiguous_keys.include?(reference_key(county_zip, strict_geo)) }
+        next if eligible.size < 2
 
-        members.each do |county_zip|
+        eligible.each do |county_zip|
           key = reference_key(county_zip, strict_geo)
-          next if ambiguous_keys.include?(key)
 
           # Reject by zip, not by id: a zip spanning several counties appears as
           # multiple records in one group, and picking a sibling would leave the
           # zip unchanged.
-          alternatives = members.reject { |other| same_zip?(other['zip'], county_zip['zip']) }
+          alternatives = eligible.reject { |other| same_zip?(other['zip'], county_zip['zip']) }
           next if alternatives.empty?
 
           map[key] = alternatives.map do |other|
@@ -1994,11 +2010,13 @@ module DataAnonymizer
     # than requiring every one to move.
     # @return [Hash{Symbol => Hash{String => String}}]
     def generate_zip_prehash_map
-      map = { people: {}, census_members: {}, organizations: {}, benefit_sponsors_organizations_organizations: {} }
+      map = { people: {}, census_members: {}, organizations: {},
+              benefit_sponsors_organizations_organizations: {}, PLAN_DESIGN_ORG_COLLECTION => {} }
       generate_zip_prehash_for_people(map)
       generate_zip_prehash_for_census_members(map)
       generate_zip_prehash_for_orgs(map, :organizations)
       generate_zip_prehash_for_orgs(map, :benefit_sponsors_organizations_organizations)
+      generate_zip_prehash_for_orgs(map, PLAN_DESIGN_ORG_COLLECTION)
       map
     end
 
@@ -2010,6 +2028,8 @@ module DataAnonymizer
     # @param collection_name [Symbol]
     # @return [void]
     def generate_zip_prehash_for_orgs(map, collection_name)
+      return unless db.collection_names.include?(collection_name.to_s)
+
       cursor = db[collection_name].find.projection('office_locations' => 1, 'profiles.office_locations' => 1)
       cursor.batch_size(batch_size).each do |doc|
         payloads = canonical_org_zip_payloads(doc)

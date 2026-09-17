@@ -237,6 +237,11 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
       expect(issues.first).to match(/40 employer zips unchanged, more than the 2/)
     end
 
+    it 'counts plan design organizations as employer zips too' do
+      expect(described_class::EMPLOYER_ZIP_COLLECTIONS)
+        .to include(:sponsored_benefits_organizations_plan_design_organizations)
+    end
+
     it 'catches a wholesale failure where nothing was swapped' do
       # The case an unbounded check cannot see: the strict map came back empty
       # so every employer zip was preserved, while members still passed.
@@ -430,6 +435,28 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
           %w[02101 02110]
         )
         expect(v.send(:check_zip_prehash)[:passed]).to be true
+      end
+    end
+
+    context 'when a zip was cleared instead of replaced' do
+      # Blanking a value removes the original, so an unchanged check passes it.
+      # Nothing else validates zip presence, so a regression that wipes every
+      # member zip would otherwise report a clean pass.
+      it 'fails rather than counting the blank as a successful change' do
+        v = verifier_for({ '_id' => fake_id, 'addresses' => [{ 'zip' => '' }] }, ['02101'])
+        result = v.send(:check_zip_prehash)
+        expect(result[:passed]).to be false
+        expect(result[:issues]).to match(/cleared rather than replaced/)
+      end
+
+      it 'reports the cleared slot separately from an unchanged one' do
+        v = verifier_for(
+          { '_id' => fake_id, 'addresses' => [{ 'zip' => '' }, { 'zip' => '02110' }] },
+          %w[02101 02110]
+        )
+        issues = v.send(:check_zip_prehash)[:issues]
+        expect(issues).to match(/cleared rather than replaced/)
+        expect(issues).to match(/Unchanged zip/)
       end
     end
 
