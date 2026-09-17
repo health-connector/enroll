@@ -89,6 +89,48 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
     end
   end
 
+  # @!group hmac key validation
+
+  describe '#wrong_hmac_key?' do
+    let(:real_key) { 'the_key_the_run_used' }
+    let(:fingerprint) do
+      OpenSSL::HMAC.hexdigest('SHA256', real_key, DataAnonymizer::Runner::KEY_FINGERPRINT_MESSAGE)
+    end
+
+    def verifier_with_key(supplied)
+      v = described_class.new(mode: :audit, hmac_key: supplied, run_id: 'run-1')
+      collection_double = instance_double(Mongo::Collection)
+      view_double = instance_double(Mongo::Collection::View)
+      allow(db_double).to receive(:collection_names).and_return(['data_anonymizer_prehashes'])
+      allow(db_double).to receive(:[]).with(:data_anonymizer_prehashes).and_return(collection_double)
+      allow(collection_double).to receive(:find).and_return(view_double)
+      allow(view_double).to receive(:first).and_return({ 'digest' => fingerprint })
+      v
+    end
+
+    it 'accepts the key the run actually used' do
+      expect(verifier_with_key(real_key).send(:wrong_hmac_key?)).to be false
+    end
+
+    it 'rejects a mistyped key instead of reading every digest as changed' do
+      expect(verifier_with_key('a_different_key').send(:wrong_hmac_key?)).to be true
+    end
+
+    it 'fails the zip check outright when the key is wrong' do
+      v = verifier_with_key('a_different_key')
+      v.instance_variable_set(:@zip_prehash_map, { people: { 'x' => ['d'] } })
+      result = v.send(:check_zip_prehash)
+      expect(result[:passed]).to be false
+      expect(result[:issues]).to match(/does not match the key/)
+    end
+
+    it 'stays quiet for older runs that stored no fingerprint' do
+      v = described_class.new(mode: :audit, hmac_key: 'anything', run_id: 'run-1')
+      allow(db_double).to receive(:collection_names).and_return([])
+      expect(v.send(:wrong_hmac_key?)).to be false
+    end
+  end
+
   # @!group prehash collection resolution
 
   describe 'PREHASH_COLLECTIONS' do

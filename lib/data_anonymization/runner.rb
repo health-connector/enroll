@@ -60,6 +60,14 @@ module DataAnonymizer
     # service areas so a swapped employer zip offers the same products.
     LEGACY_SERVICE_AREA_COLLECTION = :carrier_service_areas
 
+    # Legacy rating areas, still consulted by EmployerProfile#rating_area.
+    LEGACY_RATING_AREA_COLLECTION = :rating_areas
+
+    # Fixed message hashed with the run key so verification can prove the key it
+    # was handed is the one the run used.
+    KEY_FINGERPRINT_SCOPE = 'key_fingerprint'
+    KEY_FINGERPRINT_MESSAGE = 'data_anonymizer_key_check'
+
     # Redraw attempts when a generated zip collides with the stored one.
     RANDOM_ZIP_ATTEMPTS = 10
 
@@ -175,6 +183,7 @@ module DataAnonymizer
         persist_prehashes_to_ttl_collection(@prehash_map, @prehash_run_id)
         @zip_prehash_map = generate_zip_prehash_map
         persist_prehashes_to_ttl_collection(@zip_prehash_map, @prehash_run_id, 'zip_prehash')
+        persist_key_fingerprint
         log "Prehash map: people=#{@prehash_map[:people].size}, census_members=#{@prehash_map[:census_members].size}, organizations=#{@prehash_map[:organizations].size}, bs_organizations=#{@prehash_map[:bs_organizations].size}"
       end
 
@@ -244,6 +253,21 @@ module DataAnonymizer
 
     # Skipped counts are expected: an employer zip with no interchangeable
     # partner is left alone rather than moved to another rating area.
+    # Stores a fingerprint of the run key. Without it a mistyped HMAC_KEY makes
+    # every recomputed digest differ from the stored one, which reads as
+    # successful mutation and lets verification pass without checking anything.
+    # @return [void]
+    def persist_key_fingerprint
+      db[:data_anonymizer_prehashes].insert_one(
+        'run_id' => @prehash_run_id,
+        'scope' => KEY_FINGERPRINT_SCOPE,
+        'collection' => KEY_FINGERPRINT_SCOPE,
+        'record_id' => KEY_FINGERPRINT_SCOPE,
+        'digest' => OpenSSL::HMAC.hexdigest('SHA256', @prehash_hmac_key, KEY_FINGERPRINT_MESSAGE),
+        'created_at' => Time.current
+      )
+    end
+
     # Stores the swap tallies so verification can bound how many employer zips
     # are legitimately unchanged. Written after the phases and before the
     # verifier, since the sentinel is only recorded once verification passes.
@@ -529,7 +553,7 @@ module DataAnonymizer
         fields['encrypted_ssn'] = enc_ssn
       end
       fields['tribal_id'] = nil if doc['tribal_id'].present?
-      fields['broker_roles'] = anonymize_broker_roles(doc['broker_roles']) if doc['broker_roles'].present?
+      fields['broker_role'] = anonymize_broker_role(doc['broker_role']) if doc['broker_role'].present?
       fields['gender'] = gender_for(doc['gender'], Array(doc['addresses'])) if doc['gender'].present?
       fields.merge!(anonymize_person_dates(doc, shift_days))
       fields.merge!(anonymize_person_embedded(doc))
@@ -548,15 +572,14 @@ module DataAnonymizer
       fields
     end
 
-    # Replaces the producer number on each embedded broker role.
-    # @param roles [Array<Hash>] raw broker_roles array
-    # @return [Array<Hash>] anonymized copies
-    def anonymize_broker_roles(roles)
-      roles.map do |role|
-        role = role.dup
-        role['npn'] = replacement_npn(role['npn']) if role['npn'].present?
-        role
-      end
+    # Replaces the producer number on the embedded broker role. Person stores
+    # this as a single embedded document, not a list.
+    # @param role [Hash] raw broker_role sub-document
+    # @return [Hash] anonymized copy
+    def anonymize_broker_role(role)
+      role = role.dup
+      role['npn'] = replacement_npn(role['npn']) if role['npn'].present?
+      role
     end
 
     # Anonymizes embedded address, phone, and email arrays in a person document.
@@ -582,9 +605,9 @@ module DataAnonymizer
     # @return [Hash]
     def build_npn_map
       originals = Set.new
-      db[:people].find('broker_roles.npn' => { '$nin' => [nil, ''] })
-                 .projection('broker_roles.npn' => 1)
-                 .each { |doc| Array(doc['broker_roles']).each { |role| originals.add(role['npn'].to_s) if role['npn'].present? } }
+      db[:people].find('broker_role.npn' => { '$nin' => [nil, ''] })
+                 .projection('broker_role.npn' => 1)
+                 .each { |doc| originals.add(doc.dig('broker_role', 'npn').to_s) if doc.dig('broker_role', 'npn').present? }
       collect_corporate_npns(:organizations, 'broker_agency_profile', originals)
       collect_corporate_npns(:benefit_sponsors_organizations_organizations, 'profiles', originals)
 
@@ -1679,6 +1702,7 @@ module DataAnonymizer
       rating_membership  = county_zip_membership(RATING_AREA_COLLECTION)
       service_membership = county_zip_membership(SERVICE_AREA_COLLECTION)
       legacy_membership  = legacy_service_membership_by_zip
+      legacy_rating      = legacy_rating_membership
 
       # A record belonging to no rating area resolves to none, or to a statewide
       # area that covers every zip regardless. Grouping those together would
@@ -1693,7 +1717,9 @@ module DataAnonymizer
       swappable.each do |county_zip|
         id = county_zip['_id']
         rating = rating_membership[id].sort
-        strict_signatures[id]  = [rating, service_membership[id].sort, legacy_membership[county_zip['zip'].to_s.strip]]
+        legacy_key = geo_key(county_zip['zip'], county_zip['county_name'], county_zip['state'])
+        strict_signatures[id]  = [rating, service_membership[id].sort,
+                                  legacy_membership[county_zip['zip'].to_s.strip], legacy_rating[legacy_key]]
         relaxed_signatures[id] = [rating]
       end
 
@@ -1756,6 +1782,25 @@ module DataAnonymizer
           end
         end
       end
+    end
+
+    # Legacy rating areas key on zip and county and still drive employer rating
+    # through EmployerProfile#rating_area, so they are held constant alongside
+    # the newer ones.
+    # @return [Hash] geo_key => sorted Array of rating area codes
+    def legacy_rating_membership
+      membership = Hash.new { |hash, key| hash[key] = [] }
+      return membership unless db.collection_names.include?(LEGACY_RATING_AREA_COLLECTION.to_s)
+
+      db[LEGACY_RATING_AREA_COLLECTION]
+        .find
+        .projection('zip_code' => 1, 'county_name' => 1, 'rating_area' => 1, 'active_years' => 1)
+        .each do |doc|
+          key = geo_key(doc['zip_code'], doc['county_name'], Settings.aca.state_abbreviation)
+          Array(doc['active_years']).each { |year| membership[key] << "#{year}:#{doc['rating_area']}" }
+        end
+      membership.each_value { |codes| codes.sort!.uniq! }
+      membership
     end
 
     # Legacy carrier service areas key on zip alone. Records serving the whole
@@ -1908,8 +1953,10 @@ module DataAnonymizer
       end
     end
 
-    # Zip-only digests proving the swap ran. Employers are excluded because an
-    # unmatched employer zip is preserved by design.
+    # Zip-only digests proving the swap ran. Member zips must all change.
+    # Employer zips are digested too, but an unmatched one is preserved by
+    # design, so the verifier bounds them against the run's skip tally rather
+    # than requiring every one to move.
     # @return [Hash{Symbol => Hash{String => String}}]
     def generate_zip_prehash_map
       map = { people: {}, census_members: {}, organizations: {}, benefit_sponsors_organizations_organizations: {} }

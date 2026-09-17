@@ -1329,20 +1329,38 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
     describe 'producer number anonymization' do
       let(:real_npn) { '120002398' }
 
-      it 'replaces the npn on a broker role' do
-        roles = runner.send(:anonymize_broker_roles, [{ 'npn' => real_npn, 'aasm_state' => 'active' }])
-        expect(roles.first['npn']).not_to eq(real_npn)
-        expect(roles.first['npn']).to match(/\A\d+\z/)
+      it 'replaces the npn on the embedded broker role' do
+        role = runner.send(:anonymize_broker_role, { 'npn' => real_npn, 'provider_kind' => 'broker' })
+        expect(role['npn']).not_to eq(real_npn)
+        expect(role['npn']).to match(/\A\d+\z/)
       end
 
       it 'leaves a role with no npn alone' do
-        roles = runner.send(:anonymize_broker_roles, [{ 'aasm_state' => 'active' }])
-        expect(roles.first).not_to have_key('npn')
+        role = runner.send(:anonymize_broker_role, { 'provider_kind' => 'broker' })
+        expect(role).not_to have_key('npn')
+      end
+
+      it 'reaches the npn through build_person_update, as a real person document stores it' do
+        person = FactoryBot.create(:person)
+        person.build_broker_role(npn: real_npn, provider_kind: 'broker')
+        person.save(validate: false)
+        doc = raw_doc('people', person.id)
+
+        fields = runner.send(:build_person_update, doc, shift_days: 0)
+        expect(fields['broker_role']['npn']).not_to eq(real_npn)
+      end
+
+      it 'discovers person npns when building the map' do
+        person = FactoryBot.create(:person)
+        person.build_broker_role(npn: real_npn, provider_kind: 'broker')
+        person.save(validate: false)
+
+        expect(runner.send(:build_npn_map)).to have_key(real_npn)
       end
 
       it 'maps one real npn to one replacement, so broker joins still resolve' do
         allow(runner).to receive(:npn_map).and_return({ real_npn => '88887777' })
-        role = runner.send(:anonymize_broker_roles, [{ 'npn' => real_npn }]).first
+        role = runner.send(:anonymize_broker_role, { 'npn' => real_npn })
         org  = runner.send(:build_org_update, { 'broker_agency_profile' => { 'corporate_npn' => real_npn } })
         expect(role['npn']).to eq(org['broker_agency_profile']['corporate_npn'])
       end
@@ -1354,7 +1372,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
 
       it 'generates one for an npn absent from the map rather than keeping the real value' do
         allow(runner).to receive(:npn_map).and_return({})
-        role = runner.send(:anonymize_broker_roles, [{ 'npn' => real_npn }]).first
+        role = runner.send(:anonymize_broker_role, { 'npn' => real_npn })
         expect(role['npn']).not_to eq(real_npn)
       end
     end

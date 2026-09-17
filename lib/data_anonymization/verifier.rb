@@ -30,6 +30,7 @@ module DataAnonymizer
     SAMPLE_SIZE = 5000
     # A value outside this set would fail model validation on the next save.
     ALLOWED_GENDERS = AnonymizedData::GENDERS
+    WRONG_KEY_MESSAGE = 'Supplied HMAC_KEY does not match the key this run was anonymized with'
     # Prehash map keys are not all collection names, so they are resolved here.
     PREHASH_COLLECTIONS = {
       people: :people,
@@ -280,7 +281,8 @@ module DataAnonymizer
         return build_result("Zip prehash", 0, [], "SKIPPED - RUN_ID/HMAC_KEY not provided. Zip mutation NOT verified", skipped: true)
       end
 
-      return build_result("Zip prehash", 0, ["No zip digests stored for run_id #{@run_id}"], "") if stale_run_credentials?
+      blocker = zip_prehash_blocker
+      return build_result("Zip prehash", 0, [blocker], "") if blocker
 
       issues = []
       samples = []
@@ -345,6 +347,36 @@ module DataAnonymizer
         .first&.dig('digest')
     end
 
+    # Conditions that stop the comparison being meaningful at all.
+    # @return [String, nil] the issue to report, or nil to proceed
+    def zip_prehash_blocker
+      return "No zip digests stored for run_id #{@run_id}" if stale_run_credentials?
+      return WRONG_KEY_MESSAGE if wrong_hmac_key?
+
+      nil
+    end
+
+    # A mistyped key makes every recomputed digest differ from the stored one,
+    # which would otherwise read as successful mutation. The run stores a
+    # fingerprint of its key so the supplied one can be checked first.
+    # @return [Boolean]
+    def wrong_hmac_key?
+      stored = stored_key_fingerprint
+      return false if stored.blank?
+
+      OpenSSL::HMAC.hexdigest('SHA256', @hmac_key, DataAnonymizer::Runner::KEY_FINGERPRINT_MESSAGE) != stored
+    end
+
+    # @return [String, nil]
+    def stored_key_fingerprint
+      return nil if @run_id.blank?
+      return nil unless @db.collection_names.include?('data_anonymizer_prehashes')
+
+      @stored_key_fingerprint ||= @db[:data_anonymizer_prehashes]
+                                  .find('run_id' => @run_id.to_s, 'scope' => DataAnonymizer::Runner::KEY_FINGERPRINT_SCOPE)
+                                  .first&.dig('digest')
+    end
+
     # A run_id is only set for out-of-process verification. An empty map there
     # means the credentials were wrong or the 7 day TTL expired, which must not
     # read as a clean pass over zero records.
@@ -404,6 +436,8 @@ module DataAnonymizer
             "bundle exec rake data:anonymize:verify RUN_ID=<value> HMAC_KEY=<value>"
         return build_result("Canonical prehash", 0, [], "SKIPPED - RUN_ID/HMAC_KEY not provided. Name and DOB mutation NOT verified", skipped: true)
       end
+
+      return build_result("Canonical prehash", 0, [WRONG_KEY_MESSAGE], "") if wrong_hmac_key?
 
       issues = []
       samples = []
