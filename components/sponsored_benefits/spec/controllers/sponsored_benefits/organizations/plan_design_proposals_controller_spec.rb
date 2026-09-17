@@ -109,6 +109,10 @@ module SponsoredBenefits
       allow(controller).to receive(:set_broker_agency_profile_from_user).and_return(broker_agency_profile)
       allow(BenefitSponsors::Organizations::Profile).to receive(:find).with(BSON::ObjectId.from_string(broker_agency_profile.id)).and_return(broker_agency_profile)
       allow(BenefitSponsors::Organizations::Profile).to receive(:find).with(BSON::ObjectId.from_string(sponsor.id)).and_return(sponsor)
+      # These examples stub the legacy datatable builders, so they pin the flag
+      # rather than inheriting whatever the environment sets.
+      allow(EnrollRegistry).to receive(:feature_enabled?).and_call_original
+      allow(EnrollRegistry).to receive(:feature_enabled?).with(:refactored_datatables).and_return(false)
       sign_in(active_user)
     end
 
@@ -118,6 +122,96 @@ module SponsoredBenefits
           get :index, params: { plan_design_organization_id: plan_design_organization.id }
 
           expect(response).to be_successful
+        end
+      end
+    end
+
+    describe "datatable fragment endpoints" do
+      context "when the :refactored_datatables flag is enabled" do
+        before { allow(EnrollRegistry).to receive(:feature_enabled?).with(:refactored_datatables).and_return(true) }
+
+        it "builds the proposals table locals on index instead of the legacy datatable" do
+          get :index, params: { plan_design_organization_id: plan_design_organization.id }
+
+          expect(assigns(:datatable)).to be_nil
+          expect(assigns(:plan_design_proposals_datatable_locals)[:table]).to be_a(Datatables::PlanDesignProposalsTable)
+        end
+
+        it "answers the proposals fragment endpoint" do
+          get :plan_design_proposals_datatable, params: { plan_design_organization_id: plan_design_organization.id }
+
+          expect(response).to have_http_status(:success)
+        end
+
+        it "streams the proposals CSV export" do
+          get :plan_design_proposals_datatable, params: { plan_design_organization_id: plan_design_organization.id }, format: :csv
+
+          expect(response.headers['Content-Type']).to eq('text/csv; charset=utf-8')
+          expect(response.headers['Content-Disposition']).to include('plan_design_proposals.csv')
+          expect(response.body.to_a.join).to start_with('Quote Name,Effective Date,Claim Code')
+        end
+
+        it "answers the employee roster fragment endpoint" do
+          get :plan_design_employees_datatable, params: { plan_design_organization_id: plan_design_organization.id, id: plan_design_proposal.id }
+
+          expect(response).to have_http_status(:success)
+        end
+
+        it "denies a user with no relationship to the plan design organization" do
+          sign_in(fake_user)
+          get :plan_design_proposals_datatable, params: { plan_design_organization_id: plan_design_organization.id }
+
+          expect(flash[:error]).to eq("Access not allowed for plan_design_proposals_datatable?, (Pundit policy)")
+        end
+
+        it "denies the employee roster fragment to the same user" do
+          sign_in(fake_user)
+          get :plan_design_employees_datatable, params: { plan_design_organization_id: plan_design_organization.id, id: plan_design_proposal.id }
+
+          expect(flash[:error]).to eq("Access not allowed for plan_design_employees_datatable?, (Pundit policy)")
+        end
+      end
+
+      context "when the :refactored_datatables flag is disabled" do
+        it "404s both fragment endpoints" do
+          expect do
+            get :plan_design_proposals_datatable, params: { plan_design_organization_id: plan_design_organization.id }
+          end.to raise_error(ActionController::RoutingError)
+          expect do
+            get :plan_design_employees_datatable, params: { plan_design_organization_id: plan_design_organization.id, id: plan_design_proposal.id }
+          end.to raise_error(ActionController::RoutingError)
+        end
+      end
+
+      # Scoped to the fragment renders: the full-page renders on this controller
+      # pull in unrelated broker portal chrome.
+      context "fragment body" do
+        render_views
+
+        before { allow(EnrollRegistry).to receive(:feature_enabled?).with(:refactored_datatables).and_return(true) }
+
+        it "renders the proposals table with a clickable effective_date header" do
+          get :plan_design_proposals_datatable, params: { plan_design_organization_id: plan_design_organization.id }
+
+          expect(response.body).to include('class="effective-datatable table table-striped table-hover dataTable no-footer"')
+          expect(response.body).to include('col-string col-effective_date sorting')
+          expect(response.body).to include('data-column="effective_date"')
+        end
+
+        it "moves the sort indicator off Quote Name once effective_date is the active order" do
+          get :plan_design_proposals_datatable, params: { plan_design_organization_id: plan_design_organization.id, order: 'effective_date', dir: 'desc' }
+
+          expect(response.body).to include('col-string col-effective_date sorting sorting_desc')
+          expect(response.body).to include('col-string col-title sorting_disabled"')
+        end
+
+        it "renders the employee roster with no search box and its bulk actions" do
+          get :plan_design_employees_datatable, params: { plan_design_organization_id: plan_design_organization.id, id: plan_design_proposal.id }
+
+          expect(response.body).to include('col-string col-employee_name')
+          expect(response.body).not_to include('dataTables_filter')
+          expect(response.body).to include('buttons-bulk-actions')
+          expect(response.body).not_to include('buttons-csv')
         end
       end
     end

@@ -1,0 +1,17 @@
+<%# One Notices row. The first cell is a link glyph whose tooltip names the
+    event the notice is triggered by, greyed out when the notice has no event.
+    sorting_1 marks the default-ordered mpi_indicator column. %>
+<%
+  dropdown = [
+    ['Edit', notifier.edit_notice_kind_path(row), 'ajax']
+  ]
+%>
+<tr class="<%= row_class %>">
+  <%= render partial: 'datatables/bulk_actions_cell', locals: { id: row.to_param } %>
+  <td class="col-string col-mpi_indicator sorting_1"><%= prepend_glyph_to_text(row) %></td>
+  <td class="col-string col-title"><%= link_to row.title, notifier.preview_notice_kind_path(row), target: '_blank' %></td>
+  <td class="col-string col-description"><%= row.description %></td>
+  <td class="col-string col-recipient"><%= table.recipient(row) %></td>
+  <td class="col-string col-last_updated_at"><%= table.last_updated_at(row) %></td>
+  <td class="col-string col-actions"><%= render partial: 'datatables/shared/dropdown', locals: { dropdowns: dropdown, row_actions_id: "notice_actions_#{row.id}" } %></td>
+</tr>

@@ -3,7 +3,10 @@ p#notice
 h1.heading-text
   = l10n("hbx_profiles.employees")
 
-= h render_datatable(@datatable)
+- if EnrollRegistry.feature_enabled?(:refactored_datatables)
+  = render partial: 'datatables/datatable', locals: @families_datatable_locals
+- else
+  = h render_datatable(@datatable)
 
 div
   ul.col-xs-12.col-md-5.col-lg-5
@@ -24,10 +27,21 @@ br
 div
   p After working on an enrollment return to this page via the person icon in the header
 
-javascript:
-  initializeDataTables();
-
-- if @selector == 'assited'
+- if EnrollRegistry.feature_enabled?(:refactored_datatables)
+  - if @selector == 'assited'
+    javascript:
+      // Activate the assisted filter tab on arrival from the APTC edit
+      // back-link. Deferred a tick so the datatable Stimulus controller has
+      // connected before the tab receives its click.
+      setTimeout(function() {
+        $('#Tab\\:by_enrollment_individual_market').click();
+        $('#Tab\\:by_enrollment_individual_market-all_assistance_receiving').addClass('active');
+      });
+- else
   javascript:
-    $('#Tab\\:by_enrollment_individual_market').click();
-    $('#Tab\\:by_enrollment_individual_market-all_assistance_receiving').addClass('active');
+    initializeDataTables();
+
+  - if @selector == 'assited'
+    javascript:
+      $('#Tab\\:by_enrollment_individual_market').click();
+      $('#Tab\\:by_enrollment_individual_market-all_assistance_receiving').addClass('active');

@@ -3,9 +3,13 @@
 <h1 class="heading-text">Notices</h1>
 
 
-<%= render_datatable(@datatable) %>
+<% if EnrollRegistry.feature_enabled?(:refactored_datatables) %>
+  <%= render partial: 'datatables/datatable', locals: @notices_datatable_locals %>
+<% else %>
+  <%= render_datatable(@datatable) %>
 
-<script type="text/javascript" charset="utf-8">
-  initializeDataTables();
-</script>
+  <script type="text/javascript" charset="utf-8">
+    initializeDataTables();
+  </script>
+<% end %>
 </div>

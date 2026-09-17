@@ -6,14 +6,20 @@
 
   <div class="effectivedatatable col-md-12">
     <!-- sDom: "<'row'<'col-sm-4'> <'col-sm-4'f> >" + "<'row'<'col-sm-10'tr>>"+ "<'row'<'col-sm-7'i> <'col-sm-2'l>>"+ "<'row'<'col-sm-10'p>>" -->
-    <%= raw render_datatable(@datatable,{ })  %>
+    <% if EnrollRegistry.feature_enabled?(:refactored_datatables) %>
+      <%= render partial: 'datatables/datatable', locals: @employees_datatable_locals %>
+    <% else %>
+      <%= raw render_datatable(@datatable,{ })  %>
+    <% end %>
   </div>
 
+<% unless EnrollRegistry.feature_enabled?(:refactored_datatables) %>
 <script type="text/javascript" charset="utf-8">
     initializeDataTables();
     $('.buttons-csv').hide()
     $('.buttons-excel').hide()
 </script>
+<% end %>
 
 <%= paginate @census_employees, param_name: :pagina, remote: true if params[:page].present? %>
 

@@ -1,0 +1,16 @@
+<%# One Coverage Reports row, built from a coverage report calculator result.
+    Two spacing quirks are carried over verbatim so the report reads as it does
+    today: "HIRED:" is followed by two spaces, and "Employee Contribution:" by
+    none. sorting_1 marks the default-ordered first column. %>
+<%
+  primary_member = row.primary_member
+  member_info = primary_member.member_info
+  sponsored_benefit = primary_member.sponsored_benefit
+  product = row.group_enrollment.product
+%>
+<tr class="<%= row_class %>">
+  <td class="col-string col-full_name sorting_1"><span><%= format_name(first_name: member_info.first_name, last_name: member_info.last_name, middle_name: member_info.middle_name, name_sfx: member_info.suffix) %></span><span><p>DOB: <%= format_date primary_member.dob %></p></span><span><p>SSN: <%= number_to_obscured_ssn member_info.ssn %></p></span><span>HIRED:  <%= format_date primary_member.employee_role.hired_on %></span></td>
+  <td class="col-string col-title"><span class="benefit-group"><%= sponsored_benefit.benefit_package.title.to_s.humanize %></span></td>
+  <td class="col-string col-coverage_kind"><span><span class="name"><%= mixed_case(sponsored_benefit.product_kind.to_s.humanize) %></span><span> | # Dep(s) Covered: <%= row.members.size - 1 %></span><p><%= table.issuer_name(product[:issuer_profile_id]) %> -- <%= table.product_title(product[:id]) %></p></span></td>
+  <td class="col-string col-cost"><span>Employer Contribution: <%= number_to_currency row.group_enrollment.sponsor_contribution_total.to_s %></span><div>Employee Contribution:<%= number_to_currency (row.group_enrollment.product_cost_total.to_f - row.group_enrollment.sponsor_contribution_total.to_f).to_s %></div><p><strong>Total:</strong><strong><%= number_to_currency row.group_enrollment.product_cost_total.to_s %></strong></p></td>
+</tr>

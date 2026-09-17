@@ -162,6 +162,26 @@ class HbxProfilePolicy < ApplicationPolicy
     index?
   end
 
+  # Mirrors the legacy FamilyDataTable#authorized? (and the family_index_dt
+  # page action's check_hbx_staff_role guard); gates the families fragment/CSV
+  # endpoint.
+  def family_index_dt?
+    @user.has_hbx_staff_role?
+  end
+
+  # Mirrors the legacy OutstandingVerificationDataTable#authorized? (and the
+  # outstanding_verification_dt page action's check_hbx_staff_role guard).
+  def outstanding_verification_dt?
+    @user.has_hbx_staff_role?
+  end
+
+  # Mirrors the legacy BenefitSponsorsEmployerDatatable#authorized? (and the
+  # employer_datatable / employer_invoice page actions' check_hbx_staff_role
+  # guard); gates the employers fragment/CSV endpoint.
+  def employer_datatable?
+    @user.has_hbx_staff_role?
+  end
+
   def issuer_index?
     index?
   end

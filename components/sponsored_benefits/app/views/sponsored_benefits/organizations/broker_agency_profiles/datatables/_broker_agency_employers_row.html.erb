@@ -1,0 +1,23 @@
+<%# One Broker Agency Employers row. A former client's legal name is plain text
+    because the broker can no longer open that employer's profile. Editing and
+    removal are offered only for prospect employers, which exist solely inside
+    the broker's own quoting workspace. sorting_1 marks the default-ordered
+    legal_name column. %>
+<%
+  dropdown = [
+    ['View Quotes', sponsored_benefits.organizations_plan_design_organization_plan_design_proposals_path(row), 'ajax'],
+    ['Create Quote', sponsored_benefits.new_organizations_plan_design_organization_plan_design_proposal_path(row), 'static'],
+    ['Edit Employer Details', sponsored_benefits.edit_organizations_plan_design_organization_path(row), table.edit_employer_link_type(row)],
+    ['Remove Employer', sponsored_benefits.organizations_plan_design_organization_path(row), table.remove_employer_link_type(row), 'Are you sure you want to remove this employer?']
+  ]
+%>
+<tr class="<%= row_class %>">
+  <% if table.show_bulk_actions_column? %><%= render partial: 'datatables/bulk_actions_cell', locals: { id: row.to_param } %><% end %>
+  <td class="col-string col-legal_name sorting_1"><% if row.broker_relationship_inactive? %><%= row.legal_name %><% else %><%= link_to row.legal_name, benefit_sponsors.profiles_employers_employer_profile_path(row.sponsor_profile_id, tab: 'home') %><% end %></td>
+  <td class="col-string col-fein"><%= table.fein(row) %></td>
+  <td class="col-string col-ee_count"><%= table.employee_count(row) %></td>
+  <td class="col-string col-er_state"><%= table.employer_state(row) %></td>
+  <td class="col-string col-effective_date"><%= table.effective_date(row) %></td>
+  <td class="col-string col-broker"><%= table.broker_name(row) %></td>
+  <td class="col-string col-actions"><%= render partial: 'datatables/shared/dropdown', locals: { dropdowns: dropdown, row_actions_id: "employers_actions_#{row.id}" } %></td>
+</tr>

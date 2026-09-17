@@ -100,6 +100,10 @@ class BrokerRolePolicy < ApplicationPolicy
     show?
   end
 
+  def quotes_datatable?
+    show?
+  end
+
   def set_plan?
     show?
   end

@@ -326,4 +326,109 @@ RSpec.describe BrokerAgencies::QuotesController, type: :controller, dbclean: :af
       end
     end
   end
+  describe "Action # quotes_datatable (:refactored_datatables)", dbclean: :after_each do
+    render_views
+
+    let!(:broker_quote) do
+      FactoryBot.create(:quote, broker_role_id: person.broker_role.id, quote_name: 'Summer Quote',
+                                employer_type: 'prospect', aasm_state: 'draft')
+    end
+    let!(:other_brokers_quote) do
+      FactoryBot.create(:quote, broker_role_id: FactoryBot.create(:broker_role).id, quote_name: 'Someone Elses Quote',
+                                employer_type: 'prospect', aasm_state: 'draft')
+    end
+
+    before do
+      allow(EnrollRegistry).to receive(:feature_enabled?).and_call_original
+      allow(EnrollRegistry).to receive(:feature_enabled?).with(:refactored_datatables).and_return(true)
+    end
+
+    context "when the :refactored_datatables flag is disabled" do
+      before do
+        allow(EnrollRegistry).to receive(:feature_enabled?).with(:refactored_datatables).and_return(false)
+      end
+
+      it "404s the fragment endpoint" do
+        expect do
+          get :quotes_datatable, params: { broker_role_id: person.broker_role.id }, format: :html
+        end.to raise_error(ActionController::RoutingError)
+      end
+
+    end
+
+    context "when the broker role is not active" do
+      before do
+        person.broker_role.aasm_state = 'applicant'
+      end
+
+      it "denies access" do
+        get :quotes_datatable, params: { broker_role_id: person.broker_role.id }, format: :html
+        expect(response).to have_http_status(:redirect)
+        expect(flash[:error]).to match(/Access not allowed for broker_role_policy/)
+      end
+    end
+
+    context "when authorized with the flag enabled" do
+      it "renders the table fragment without a layout" do
+        get :quotes_datatable, params: { broker_role_id: person.broker_role.id }, format: :html
+        expect(response).to have_http_status(:success)
+        expect(response).to render_template(partial: 'datatables/_table')
+        expect(response.body).to include('Summer Quote')
+      end
+
+      it "scopes the fragment to the route broker" do
+        get :quotes_datatable, params: { broker_role_id: person.broker_role.id }, format: :html
+        expect(response.body).not_to include('Someone Elses Quote')
+      end
+
+      it "ignores a collection_scope param naming another broker" do
+        scoped_params = { broker_role_id: person.broker_role.id, collection_scope: other_brokers_quote.broker_role_id.to_s }
+        get :quotes_datatable, params: scoped_params, format: :html
+        expect(response.body).to include('Summer Quote')
+        expect(response.body).not_to include('Someone Elses Quote')
+      end
+
+      it "narrows the fragment by the filter tab scopes" do
+        filtered_params = { broker_role_id: person.broker_role.id, employer_types: 'prospect', states: 'published' }
+        get :quotes_datatable, params: filtered_params, format: :html
+        expect(response.body).not_to include('Summer Quote')
+      end
+
+      it "narrows the fragment by the quote-name search" do
+        get :quotes_datatable, params: { broker_role_id: person.broker_role.id, search: 'Summer' }, format: :html
+        expect(response.body).to include('Summer Quote')
+      end
+
+      it "streams the full filtered set as CSV" do
+        get :quotes_datatable, params: { broker_role_id: person.broker_role.id }, format: :csv
+        expect(response.headers['Content-Type']).to include('text/csv')
+        expect(response.headers['Content-Disposition']).to match(/quotes\.csv/)
+        rows = CSV.parse(response.body.to_a.join)
+        expect(rows.first).to eq(['Employer Name', 'Employer Type', 'Quote', 'Effective Date', 'Claim Code',
+                                  'Family Count', 'State'])
+        expect(rows.length).to eq(2)
+      end
+    end
+  end
+  describe "Action # my_quotes (:refactored_datatables)", dbclean: :after_each do
+    before do
+      allow(EnrollRegistry).to receive(:feature_enabled?).and_call_original
+      allow(EnrollRegistry).to receive(:feature_enabled?).with(:refactored_datatables).and_return(true)
+    end
+
+    it "builds the new table locals when the flag is enabled" do
+      get :my_quotes, params: { broker_role_id: person.broker_role.id }, format: :html
+      expect(assigns(:datatable)).to be_nil
+      locals = assigns(:quotes_datatable_locals)
+      expect(locals[:table]).to be_a(Datatables::QuotesTable)
+      expect(locals[:url]).to eq(quotes_datatable_broker_agencies_broker_role_quotes_path(person.broker_role.id))
+    end
+
+    it "builds the legacy datatable when the flag is disabled" do
+      allow(EnrollRegistry).to receive(:feature_enabled?).with(:refactored_datatables).and_return(false)
+      get :my_quotes, params: { broker_role_id: person.broker_role.id }, format: :html
+      expect(assigns(:datatable)).to be_a(Effective::Datatables::QuoteDatatable)
+      expect(assigns(:quotes_datatable_locals)).to be_nil
+    end
+  end
 end

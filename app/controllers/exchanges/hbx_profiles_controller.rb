@@ -9,6 +9,8 @@ class Exchanges::HbxProfilesController < ApplicationController
   include ::Config::AcaHelper
   include HtmlScrubberUtil
   include StringScrubberUtil
+  include ::Datatables::FragmentRendering
+  include ::Datatables::CsvStreaming
 
   before_action :check_hbx_staff_role, except: [:configuration, :show, :assister_index, :family_index, :update_cancel_enrollment, :update_terminate_enrollment]
   before_action :set_hbx_profile, only: :edit
@@ -180,7 +182,11 @@ class Exchanges::HbxProfilesController < ApplicationController
     @next_60_day = @next_30_day.next_month
     @next_90_day = @next_60_day.next_month
 
-    @datatable = Effective::Datatables::BenefitSponsorsEmployerDatatable.new
+    if EnrollRegistry.feature_enabled?(:refactored_datatables)
+      @employers_datatable_locals = datatable_locals(::Datatables::EmployersTable.new, url: employers_datatable_exchanges_hbx_profiles_path)
+    else
+      @datatable = Effective::Datatables::BenefitSponsorsEmployerDatatable.new
+    end
 
     respond_to do |format|
       format.js
@@ -190,10 +196,29 @@ class Exchanges::HbxProfilesController < ApplicationController
   def employer_datatable
     # copy the link and open in new tab
     last_visited_url = current_user.try(:last_portal_visited) || root_path if current_user.present?
-    @datatable = Effective::Datatables::BenefitSponsorsEmployerDatatable.new
+    if EnrollRegistry.feature_enabled?(:refactored_datatables)
+      @employers_datatable_locals = datatable_locals(::Datatables::EmployersTable.new, url: employers_datatable_exchanges_hbx_profiles_path)
+    else
+      @datatable = Effective::Datatables::BenefitSponsorsEmployerDatatable.new
+    end
     respond_to do |format|
       format.html { redirect_to(last_visited_url, allow_other_host: true) }
       format.js
+    end
+  end
+
+  def employers_datatable
+    raise ActionController::RoutingError, 'Not Found' unless EnrollRegistry.feature_enabled?(:refactored_datatables)
+
+    authorize HbxProfile, :employer_datatable?
+    table = ::Datatables::EmployersTable.new
+    respond_to do |format|
+      format.html { render_datatable_fragment(table, url: employers_datatable_exchanges_hbx_profiles_path) }
+      format.csv do
+        stream_datatable_csv(filename: 'employers.csv',
+                             headers: table.csv_headers,
+                             rows: datatable_csv_rows(table, datatable_scoped(table)))
+      end
     end
   end
 
@@ -245,22 +270,79 @@ class Exchanges::HbxProfilesController < ApplicationController
 
   def family_index_dt
     @selector = params[:scopes][:selector] if params[:scopes].present?
-    @datatable = Effective::Datatables::FamilyDataTable.new(params[:scopes])
-    #render '/exchanges/hbx_profiles/family_index_datatable'
+    if EnrollRegistry.feature_enabled?(:refactored_datatables)
+      @families_datatable_locals = datatable_locals(::Datatables::FamiliesTable.new, url: families_datatable_exchanges_hbx_profiles_path)
+    else
+      @datatable = Effective::Datatables::FamilyDataTable.new(params[:scopes])
+      #render '/exchanges/hbx_profiles/family_index_datatable'
+    end
+  end
+
+  def families_datatable
+    raise ActionController::RoutingError, 'Not Found' unless EnrollRegistry.feature_enabled?(:refactored_datatables)
+
+    authorize HbxProfile, :family_index_dt?
+    table = ::Datatables::FamiliesTable.new
+    respond_to do |format|
+      format.html { render_datatable_fragment(table, url: families_datatable_exchanges_hbx_profiles_path) }
+      format.csv do
+        stream_datatable_csv(filename: 'families.csv',
+                             headers: table.csv_headers,
+                             rows: datatable_csv_rows(table, datatable_scoped(table)))
+      end
+    end
   end
 
   def user_account_index
     authorize HbxProfile, :can_access_user_account_tab?
-    @datatable = Effective::Datatables::UserAccountDatatable.new
+    if EnrollRegistry.feature_enabled?(:refactored_datatables)
+      @user_accounts_datatable_locals = datatable_locals(::Datatables::UserAccountsTable.new, url: user_accounts_datatable_exchanges_hbx_profiles_path)
+    else
+      @datatable = Effective::Datatables::UserAccountDatatable.new
+    end
     respond_to do |format|
       format.js
       format.html { render '/exchanges/hbx_profiles/user_account_index_datatable' }
     end
   end
 
+  def user_accounts_datatable
+    raise ActionController::RoutingError, 'Not Found' unless EnrollRegistry.feature_enabled?(:refactored_datatables)
+
+    authorize HbxProfile, :can_access_user_account_tab?
+    table = ::Datatables::UserAccountsTable.new
+    respond_to do |format|
+      format.html { render_datatable_fragment(table, url: user_accounts_datatable_exchanges_hbx_profiles_path) }
+      format.csv do
+        stream_datatable_csv(filename: 'user_accounts.csv',
+                             headers: table.csv_headers,
+                             rows: datatable_csv_rows(table, datatable_scoped(table)))
+      end
+    end
+  end
+
   def outstanding_verification_dt
     @selector = params[:scopes][:selector] if params[:scopes].present?
-    @datatable = Effective::Datatables::OutstandingVerificationDataTable.new(params[:scopes])
+    if EnrollRegistry.feature_enabled?(:refactored_datatables)
+      @outstanding_verifications_datatable_locals = datatable_locals(::Datatables::OutstandingVerificationsTable.new, url: outstanding_verifications_datatable_exchanges_hbx_profiles_path)
+    else
+      @datatable = Effective::Datatables::OutstandingVerificationDataTable.new(params[:scopes])
+    end
+  end
+
+  def outstanding_verifications_datatable
+    raise ActionController::RoutingError, 'Not Found' unless EnrollRegistry.feature_enabled?(:refactored_datatables)
+
+    authorize HbxProfile, :outstanding_verification_dt?
+    table = ::Datatables::OutstandingVerificationsTable.new
+    respond_to do |format|
+      format.html { render_datatable_fragment(table, url: outstanding_verifications_datatable_exchanges_hbx_profiles_path) }
+      format.csv do
+        stream_datatable_csv(filename: 'outstanding_verifications.csv',
+                             headers: table.csv_headers,
+                             rows: datatable_csv_rows(table, datatable_scoped(table)))
+      end
+    end
   end
 
   def hide_form
@@ -385,7 +467,11 @@ class Exchanges::HbxProfilesController < ApplicationController
   end
 
   def broker_agency_index
-    @datatable = Effective::Datatables::BrokerAgencyDatatable.new
+    if EnrollRegistry.feature_enabled?(:refactored_datatables)
+      @broker_agencies_datatable_locals = datatable_locals(::Datatables::BrokerAgenciesTable.new, url: broker_agencies_datatable_exchanges_hbx_profiles_path)
+    else
+      @datatable = Effective::Datatables::BrokerAgencyDatatable.new
+    end
 
     #@q = params.permit(:q)[:q]
     #@broker_agency_profiles = HbxProfile.search_random(@q)
@@ -393,6 +479,21 @@ class Exchanges::HbxProfilesController < ApplicationController
 
     respond_to do |format|
       format.js {}
+    end
+  end
+
+  def broker_agencies_datatable
+    raise ActionController::RoutingError, 'Not Found' unless EnrollRegistry.feature_enabled?(:refactored_datatables)
+
+    authorize HbxProfile, :broker_agency_index?
+    table = ::Datatables::BrokerAgenciesTable.new
+    respond_to do |format|
+      format.html { render_datatable_fragment(table, url: broker_agencies_datatable_exchanges_hbx_profiles_path) }
+      format.csv do
+        stream_datatable_csv(filename: 'broker_agencies.csv',
+                             headers: table.csv_headers,
+                             rows: datatable_csv_rows(table, datatable_scoped(table)))
+      end
     end
   end
 

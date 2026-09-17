@@ -1,0 +1,25 @@
+<%# One Quotes table row. Cell values must stay identical to the legacy
+    QuoteDatatable column procs while both stacks coexist. sorting_1 stays on
+    col-employer_name: it is the default-order column (index 0, asc), so its
+    cells carry the sort shading. Each row-action link type ('ajax', 'static',
+    'disabled') is consumed by datatables/shared/_dropdown. %>
+<%
+  row_actions_id = "quote_actions_#{row.id}"
+
+  dropdown = [
+    ['Edit Roster', edit_broker_agencies_broker_role_quote_path(broker_role_id: row.broker_role_id, id: row.id), 'static'],
+    ['View Published Quote', publish_broker_agencies_broker_role_quotes_path(broker_role_id: row.broker_role_id, quote_id: row.id, format: :pdf), table.published_quote_link_type(row)],
+    ['Delete Quote', delete_quote_broker_agencies_broker_role_quote_path(broker_role_id: row.broker_role_id, id: row.id), 'ajax'],
+    ['Copy Quote', copy_broker_agencies_broker_role_quotes_path(broker_role_id: row.broker_role_id, quote_id: row.id), 'ajax']
+  ]
+%>
+<tr class="<%= row_class %>">
+  <td class="col-string col-employer_name sorting_1"><%= table.employer_name(row) %></td>
+  <td class="col-string col-employer_type"><%= row.employer_type %></td>
+  <td class="col-string col-quote"><%= link_to row.quote_name.titleize, broker_agencies_broker_role_quote_path(row.broker_role_id, row), data: { no_turbolink: true } %></td>
+  <td class="col-string col-effective_date"><%= row.start_on %></td>
+  <td class="col-string col-claim_code"><%= row.claim_code %></td>
+  <td class="col-string col-family_count"><%= row.quote_households.count %></td>
+  <td class="col-string col-state"><%= row.aasm_state %></td>
+  <td class="col-string col-actions"><%= render partial: 'datatables/shared/dropdown', locals: { dropdowns: dropdown, row_actions_id: row_actions_id } %></td>
+</tr>

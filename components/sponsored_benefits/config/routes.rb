@@ -16,10 +16,13 @@ SponsoredBenefits::Engine.routes.draw do
 
     resources :broker_agency_profiles, only: [] do
       get :employers, on: :member
+      get :employers_datatable, on: :member
     end
 
     resources :plan_design_organizations do
       resources :plan_design_proposals do
+        get :plan_design_proposals_datatable, on: :collection
+        get :plan_design_employees_datatable, on: :member
         resources :contributions, controller: 'plan_design_proposals/contributions', only: [:index]
       end
       resources :carriers, controller: 'plan_design_proposals/carriers', only: [:index]

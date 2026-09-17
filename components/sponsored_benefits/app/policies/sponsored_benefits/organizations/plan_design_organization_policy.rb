@@ -20,6 +20,14 @@ module SponsoredBenefits
         plan_design_organization_access?
       end
 
+      def plan_design_proposals_datatable?
+        plan_design_proposal_index?
+      end
+
+      def plan_design_employees_datatable?
+        plan_design_proposal_edit?
+      end
+
       def plan_design_proposal_publish?
         plan_design_organization_access?
       end

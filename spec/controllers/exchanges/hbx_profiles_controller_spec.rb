@@ -156,6 +156,470 @@ RSpec.describe Exchanges::HbxProfilesController, dbclean: :after_each do
       expect(response).to redirect_to("www.google.com")
     end
   end
+
+  describe "Action # user_accounts_datatable (:refactored_datatables)", dbclean: :after_each do
+    let(:permission) { double(can_access_user_account_tab: true) }
+    let(:hbx_staff_role) { double("hbx_staff_role", permission: permission) }
+    let(:person) { double("person", hbx_staff_role: hbx_staff_role) }
+    let(:user) { double("user", :has_hbx_staff_role? => true, :person => person, :last_portal_visited => nil) }
+
+    before :each do
+      allow(user).to receive(:has_role?).with(:hbx_staff).and_return(true)
+      allow(EnrollRegistry).to receive(:feature_enabled?).and_call_original
+      allow(EnrollRegistry).to receive(:feature_enabled?).with(:refactored_datatables).and_return(true)
+      sign_in(user)
+    end
+
+    context "when the :refactored_datatables flag is disabled" do
+      before do
+        allow(EnrollRegistry).to receive(:feature_enabled?).with(:refactored_datatables).and_return(false)
+      end
+
+      it "404s the fragment endpoint" do
+        expect { get :user_accounts_datatable, format: :html }.to raise_error(ActionController::RoutingError)
+      end
+
+      it "builds the legacy datatable on user_account_index" do
+        get :user_account_index, format: :html
+        expect(assigns(:datatable)).to be_a(Effective::Datatables::UserAccountDatatable)
+        expect(assigns(:user_accounts_datatable_locals)).to be_nil
+      end
+    end
+
+    context "when the user lacks the user-account permission" do
+      let(:permission) { double(can_access_user_account_tab: false) }
+
+      it "denies access" do
+        get :user_accounts_datatable, format: :html
+        expect(response).not_to have_http_status(:success)
+      end
+    end
+
+    context "when authorized with the flag enabled" do
+      let!(:locked_employee) do
+        FactoryBot.create(:user, oim_id: "locked_employee1", email: "locked_employee@example.com",
+                                 roles: ["employee"], locked_at: Time.now)
+      end
+      let!(:unlocked_broker) do
+        FactoryBot.create(:user, oim_id: "unlocked_broker1", email: "unlocked_broker@example.com",
+                                 roles: ["broker"])
+      end
+
+      it "renders the chrome fragment without a layout" do
+        get :user_accounts_datatable, format: :html
+        expect(response).to have_http_status(:success)
+        expect(response).to render_template("datatables/_table")
+      end
+
+      it "prepares the datatable locals on user_account_index" do
+        get :user_account_index, format: :html
+        expect(assigns(:user_accounts_datatable_locals)).to include(:table, :pagy, :records, :url)
+        expect(assigns(:datatable)).to be_nil
+      end
+
+      # The action streams via response_body=Enumerator, so the test response
+      # body must be materialized before parsing.
+      def streamed_csv_rows
+        body = response.body
+        CSV.parse(body.is_a?(String) ? body : body.to_a.join)
+      end
+
+      it "streams a CSV of all filtered rows, not just one page" do
+        get :user_accounts_datatable, params: { users: "all", per: 10 }, format: :csv
+        expect(response.headers["Content-Type"]).to eq("text/csv; charset=utf-8")
+        expect(response.headers["Content-Disposition"]).to include('filename="user_accounts.csv"')
+        rows = streamed_csv_rows
+        expect(rows.first).to eq(["USERNAME", "SSN", "DOB", "HBX ID", "USER EMAIL", "Status", "Role Type"])
+        expect(rows.length).to eq(User.count + 1)
+      end
+
+      it "applies the nested filter attributes to the CSV export" do
+        get :user_accounts_datatable, params: { users: "all", lock_unlock: "locked" }, format: :csv
+        rows = streamed_csv_rows
+        expect(rows.map(&:first)).to include("locked_employee1")
+        expect(rows.map(&:first)).not_to include("unlocked_broker1")
+      end
+    end
+  end
+
+  describe "Action # broker_agencies_datatable (:refactored_datatables)", dbclean: :after_each do
+    let(:permission) { double(modify_family: true) }
+    let(:hbx_staff_role) { double("hbx_staff_role", permission: permission) }
+    let(:person) { double("person", hbx_staff_role: hbx_staff_role) }
+    let(:user) { double("user", :has_hbx_staff_role? => true, :person => person, :last_portal_visited => nil) }
+
+    before :each do
+      allow(user).to receive(:has_role?).with(:hbx_staff).and_return(true)
+      allow(EnrollRegistry).to receive(:feature_enabled?).and_call_original
+      allow(EnrollRegistry).to receive(:feature_enabled?).with(:refactored_datatables).and_return(true)
+      sign_in(user)
+    end
+
+    context "when the :refactored_datatables flag is disabled" do
+      before do
+        allow(EnrollRegistry).to receive(:feature_enabled?).with(:refactored_datatables).and_return(false)
+      end
+
+      it "404s the fragment endpoint" do
+        expect { get :broker_agencies_datatable, format: :html }.to raise_error(ActionController::RoutingError)
+      end
+
+      it "builds the legacy datatable on broker_agency_index" do
+        get :broker_agency_index, xhr: true, format: :js
+        expect(assigns(:datatable)).to be_a(Effective::Datatables::BrokerAgencyDatatable)
+        expect(assigns(:broker_agencies_datatable_locals)).to be_nil
+      end
+    end
+
+    context "when the user is not a shop market admin" do
+      let(:permission) { double(modify_family: false) }
+
+      it "denies access" do
+        get :broker_agencies_datatable, format: :html
+        expect(response).not_to have_http_status(:success)
+      end
+    end
+
+    context "when authorized with the flag enabled" do
+      let!(:zeta_brokerage) do
+        FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_site,
+                          :with_broker_agency_profile, legal_name: "Zeta Brokerage")
+      end
+      let!(:alpha_brokerage) do
+        FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_site,
+                          :with_broker_agency_profile, legal_name: "Alpha Brokerage")
+      end
+
+      it "renders the table fragment without a layout" do
+        get :broker_agencies_datatable, format: :html
+        expect(response).to have_http_status(:success)
+        expect(response).to render_template("datatables/_table")
+      end
+
+      it "prepares the datatable locals on broker_agency_index" do
+        get :broker_agency_index, xhr: true, format: :js
+        expect(assigns(:broker_agencies_datatable_locals)).to include(:table, :pagy, :records, :url)
+        expect(assigns(:datatable)).to be_nil
+      end
+
+      # The action streams via response_body=Enumerator, so the test response
+      # body must be materialized before parsing.
+      def streamed_csv_rows
+        body = response.body
+        CSV.parse(body.is_a?(String) ? body : body.to_a.join)
+      end
+
+      it "streams a CSV of all broker agencies sorted by legal name" do
+        get :broker_agencies_datatable, params: { broker_agencies: "all", per: 10 }, format: :csv
+        expect(response.headers["Content-Type"]).to eq("text/csv; charset=utf-8")
+        expect(response.headers["Content-Disposition"]).to include('filename="broker_agencies.csv"')
+        rows = streamed_csv_rows
+        expect(rows.first).to eq(["Legal Name", "Dba", "FEIN", "Entity Kind", "Market Kind"])
+        expect(rows.map(&:first)).to eq(["Legal Name", "Alpha Brokerage", "Zeta Brokerage"])
+      end
+
+      it "applies the global search to the CSV export" do
+        get :broker_agencies_datatable, params: { search: "Zeta" }, format: :csv
+        rows = streamed_csv_rows
+        expect(rows.map(&:first)).to eq(["Legal Name", "Zeta Brokerage"])
+      end
+    end
+  end
+
+  describe "Action # outstanding_verifications_datatable (:refactored_datatables)", dbclean: :after_each do
+    let(:person) { double("person", hbx_staff_role: double("hbx_staff_role")) }
+    let(:user) { double("user", :has_hbx_staff_role? => true, :person => person, :last_portal_visited => nil) }
+
+    before :each do
+      allow(user).to receive(:has_role?).with(:hbx_staff).and_return(true)
+      allow(EnrollRegistry).to receive(:feature_enabled?).and_call_original
+      allow(EnrollRegistry).to receive(:feature_enabled?).with(:refactored_datatables).and_return(true)
+      sign_in(user)
+    end
+
+    context "when the :refactored_datatables flag is disabled" do
+      before do
+        allow(EnrollRegistry).to receive(:feature_enabled?).with(:refactored_datatables).and_return(false)
+      end
+
+      it "404s the fragment endpoint" do
+        expect { get :outstanding_verifications_datatable, format: :html }.to raise_error(ActionController::RoutingError)
+      end
+
+      it "builds the legacy datatable on outstanding_verification_dt" do
+        get :outstanding_verification_dt, xhr: true, format: :js
+        expect(assigns(:datatable)).to be_a(Effective::Datatables::OutstandingVerificationDataTable)
+        expect(assigns(:outstanding_verifications_datatable_locals)).to be_nil
+      end
+    end
+
+    context "when the user is not an HBX staff member" do
+      let(:user) { double("user", :has_hbx_staff_role? => false, :person => person, :last_portal_visited => nil) }
+
+      it "denies access" do
+        get :outstanding_verifications_datatable, format: :html
+        expect(response).not_to have_http_status(:success)
+      end
+    end
+
+    context "when authorized with the flag enabled" do
+      it "renders the table fragment without a layout" do
+        get :outstanding_verifications_datatable, format: :html
+        expect(response).to have_http_status(:success)
+        expect(response).to render_template("datatables/_table")
+      end
+
+      it "prepares the datatable locals (incl. date range) on outstanding_verification_dt" do
+        get :outstanding_verification_dt, xhr: true, format: :js
+        expect(assigns(:outstanding_verifications_datatable_locals)).to include(:table, :pagy, :records, :url, :date_from, :date_to)
+        expect(assigns(:datatable)).to be_nil
+      end
+
+      # The action streams via response_body=Enumerator, so the test response
+      # body must be materialized before parsing.
+      def streamed_csv_rows
+        body = response.body
+        CSV.parse(body.is_a?(String) ? body : body.to_a.join)
+      end
+
+      it "streams a CSV with the excluded-actions header row" do
+        get :outstanding_verifications_datatable, params: { documents_uploaded: "all" }, format: :csv
+        expect(response.headers["Content-Type"]).to eq("text/csv; charset=utf-8")
+        expect(response.headers["Content-Disposition"]).to include('filename="outstanding_verifications.csv"')
+        rows = streamed_csv_rows
+        expect(rows.first).to eq(["Name", "SSN", "DOB", "HBX ID", "Count", "Documents Uploaded", "Verification Due"])
+      end
+
+      it "passes the date-range params through to the export without error" do
+        get :outstanding_verifications_datatable,
+            params: { documents_uploaded: "all", custom_datatable_date_from: "2026-01-01", custom_datatable_date_to: "2026-12-31" },
+            format: :csv
+        expect(response.headers["Content-Disposition"]).to include('filename="outstanding_verifications.csv"')
+        expect(streamed_csv_rows.first).to eq(["Name", "SSN", "DOB", "HBX ID", "Count", "Documents Uploaded", "Verification Due"])
+      end
+    end
+  end
+
+  describe "Action # employers_datatable (:refactored_datatables)", dbclean: :after_each do
+    let(:person) { double("person", hbx_staff_role: double("hbx_staff_role")) }
+    let(:user) { double("user", :has_hbx_staff_role? => true, :person => person, :last_portal_visited => nil) }
+
+    before :each do
+      allow(user).to receive(:has_role?).with(:hbx_staff).and_return(true)
+      allow(EnrollRegistry).to receive(:feature_enabled?).and_call_original
+      allow(EnrollRegistry).to receive(:feature_enabled?).with(:refactored_datatables).and_return(true)
+      sign_in(user)
+    end
+
+    context "when the :refactored_datatables flag is disabled" do
+      before do
+        allow(EnrollRegistry).to receive(:feature_enabled?).with(:refactored_datatables).and_return(false)
+      end
+
+      it "404s the fragment endpoint" do
+        expect { get :employers_datatable, format: :html }.to raise_error(ActionController::RoutingError)
+      end
+
+      it "builds the legacy datatable on employer_datatable" do
+        get :employer_datatable, format: :js
+        expect(assigns(:datatable)).to be_a(Effective::Datatables::BenefitSponsorsEmployerDatatable)
+        expect(assigns(:employers_datatable_locals)).to be_nil
+      end
+    end
+
+    context "when the user is not an HBX staff member" do
+      let(:user) { double("user", :has_hbx_staff_role? => false, :person => person, :last_portal_visited => nil) }
+
+      it "denies access" do
+        get :employers_datatable, format: :html
+        expect(response).not_to have_http_status(:success)
+      end
+    end
+
+    context "when authorized with the flag enabled" do
+      it "renders the table fragment without a layout" do
+        get :employers_datatable, format: :html
+        expect(response).to have_http_status(:success)
+        expect(response).to render_template("datatables/_table")
+      end
+
+      it "prepares the datatable locals on employer_datatable and employer_invoice" do
+        get :employer_datatable, format: :js
+        expect(assigns(:employers_datatable_locals)).to include(:table, :pagy, :records, :url, :column_filters)
+        expect(assigns(:datatable)).to be_nil
+
+        get :employer_invoice, xhr: true
+        expect(assigns(:employers_datatable_locals)).to include(:table, :pagy, :records, :url)
+      end
+
+      # The action streams via response_body=Enumerator, so the test response
+      # body must be materialized before parsing.
+      def streamed_csv_rows
+        body = response.body
+        CSV.parse(body.is_a?(String) ? body : body.to_a.join)
+      end
+
+      it "streams a CSV with the excluded-actions/bulk-actions header row" do
+        get :employers_datatable, params: { employers: "all" }, format: :csv
+        expect(response.headers["Content-Type"]).to eq("text/csv; charset=utf-8")
+        expect(response.headers["Content-Disposition"]).to include('filename="employers.csv"')
+        expect(streamed_csv_rows.first).to start_with("Legal Name", "FEIN", "HBX ID", "Broker", "Source Kind")
+      end
+
+      it "routes the source_kind column filter param through to the table search_column hook" do
+        expect_any_instance_of(Datatables::EmployersTable).to receive(:search_column).with(anything, "source_kind", "conversion").and_call_original
+        get :employers_datatable, params: { columns: { source_kind: "conversion" } }, format: :csv
+      end
+
+      context "with real employer data" do
+        let(:site) { FactoryBot.create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
+        let!(:self_serve_org) do
+          FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile,
+                            site: site, legal_name: "Self Serve Co").tap do |org|
+            org.employer_profile.add_benefit_sponsorship.tap { |bs| bs.update(source_kind: :self_serve) }
+          end
+        end
+        let!(:conversion_org) do
+          FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile,
+                            site: site, legal_name: "Conversion Co").tap do |org|
+            org.employer_profile.add_benefit_sponsorship.tap { |bs| bs.update(source_kind: :conversion) }
+          end
+        end
+
+        it "streams every employer when no column filter is active" do
+          get :employers_datatable, params: { employers: "all" }, format: :csv
+          legal_names = streamed_csv_rows.drop(1).map(&:first)
+          expect(legal_names).to include("Self Serve Co", "Conversion Co")
+        end
+
+        it "restricts the CSV to the selected source_kind" do
+          get :employers_datatable, params: { employers: "all", columns: { source_kind: "conversion" } }, format: :csv
+          legal_names = streamed_csv_rows.drop(1).map(&:first)
+          expect(legal_names).to include("Conversion Co")
+          expect(legal_names).not_to include("Self Serve Co")
+        end
+      end
+    end
+  end
+
+  describe "Action # families_datatable (:refactored_datatables)", dbclean: :after_each do
+    let(:person) { double("person", hbx_staff_role: double("hbx_staff_role")) }
+    let(:user) { double("user", :has_hbx_staff_role? => true, :person => person, :last_portal_visited => nil) }
+
+    before :each do
+      allow(user).to receive(:has_role?).with(:hbx_staff).and_return(true)
+      allow(EnrollRegistry).to receive(:feature_enabled?).and_call_original
+      allow(EnrollRegistry).to receive(:feature_enabled?).with(:refactored_datatables).and_return(true)
+      sign_in(user)
+    end
+
+    context "when the :refactored_datatables flag is disabled" do
+      before do
+        allow(EnrollRegistry).to receive(:feature_enabled?).with(:refactored_datatables).and_return(false)
+      end
+
+      it "404s the fragment endpoint" do
+        expect { get :families_datatable, format: :html }.to raise_error(ActionController::RoutingError)
+      end
+
+      it "builds the legacy datatable on family_index_dt" do
+        get :family_index_dt, xhr: true, format: :js
+        expect(assigns(:datatable)).to be_a(Effective::Datatables::FamilyDataTable)
+        expect(assigns(:families_datatable_locals)).to be_nil
+      end
+    end
+
+    context "when the user is not an HBX staff member" do
+      let(:user) { double("user", :has_hbx_staff_role? => false, :person => person, :last_portal_visited => nil) }
+
+      it "denies access" do
+        get :families_datatable, format: :html
+        expect(response).not_to have_http_status(:success)
+      end
+    end
+
+    context "when authorized with the flag enabled" do
+      it "renders the table fragment without a layout" do
+        get :families_datatable, format: :html
+        expect(response).to have_http_status(:success)
+        expect(response).to render_template("datatables/_table")
+      end
+
+      it "prepares the datatable locals and the selector on family_index_dt" do
+        get :family_index_dt, xhr: true, format: :js, params: { scopes: { selector: "assited" } }
+        expect(assigns(:families_datatable_locals)).to include(:table, :pagy, :records, :url)
+        expect(assigns(:selector)).to eq("assited")
+        expect(assigns(:datatable)).to be_nil
+      end
+
+      # The action streams via response_body=Enumerator, so the test response
+      # body must be materialized before parsing.
+      def streamed_csv_rows
+        body = response.body
+        CSV.parse(body.is_a?(String) ? body : body.to_a.join)
+      end
+
+      it "streams a CSV with the excluded-actions header row" do
+        get :families_datatable, params: { families: "all" }, format: :csv
+        expect(response.headers["Content-Type"]).to eq("text/csv; charset=utf-8")
+        expect(response.headers["Content-Disposition"]).to include('filename="families.csv"')
+        expect(streamed_csv_rows.first).to eq(
+          ["Name", "SSN", "DOB", "HBX ID", "Count", "Active Enrollments?", "Registered?", "Employee?"]
+        )
+      end
+
+      it "hands the active filter tab to the query wrapper for the export" do
+        expect(Queries::FamilyDatatableQuery).to receive(:new)
+          .with(hash_including("families" => "non_enrolled")).and_call_original
+        get :families_datatable, params: { families: "non_enrolled" }, format: :csv
+        expect(response.headers["Content-Disposition"]).to include('filename="families.csv"')
+      end
+
+      context "with real family data" do
+        let!(:family_one) { FactoryBot.create(:family, :with_primary_family_member) }
+        let!(:family_two) { FactoryBot.create(:family, :with_primary_family_member) }
+
+        it "streams every active family, not just the visible page" do
+          get :families_datatable, params: { families: "all" }, format: :csv
+          rows = streamed_csv_rows
+          expect(rows.size).to eq(3)
+          expect(rows.drop(1).map(&:first)).to match_array(
+            [family_one.primary_applicant.person.full_name, family_two.primary_applicant.person.full_name]
+          )
+        end
+      end
+    end
+  end
+
+  describe "Action # bulk actions (Generate Invoice / Mark Binder Paid round-trip)", dbclean: :after_each do
+    let(:site) { FactoryBot.create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
+    let(:employer_organization) do
+      FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site).tap do |org|
+        org.employer_profile.add_benefit_sponsorship.save
+      end
+    end
+    let(:benefit_sponsorship) { employer_organization.benefit_sponsorships.first }
+    let(:person) do
+      FactoryBot.create(:person, :with_hbx_staff_role).tap do |staff|
+        FactoryBot.create(:permission, :super_admin).tap { |permission| staff.hbx_staff_role.update_attributes(permission_id: permission.id) }
+      end
+    end
+    let(:user) { FactoryBot.create(:user, person: person) }
+
+    before { sign_in(user) }
+
+    it "marks the selected employers binder paid and returns the surfaced JSON message" do
+      allow(BenefitSponsors::BenefitSponsorships::AcaShopBenefitSponsorshipService).to receive(:set_binder_paid).with([benefit_sponsorship.id.to_s])
+      post :binder_paid, params: { ids: [benefit_sponsorship.id.to_s] }, format: :json
+      expect(response).to have_http_status(:success)
+      expect(JSON.parse(response.body)["message"]).to include("binder paid")
+    end
+
+    it "submits the selected employers for invoice generation" do
+      get :generate_invoice, params: { ids: [benefit_sponsorship.id.to_s] }, format: :js
+      expect(response).to have_http_status(:success)
+    end
+  end
 =begin
   describe "#create" do
     let(:user) { double("User")}
