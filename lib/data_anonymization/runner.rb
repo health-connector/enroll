@@ -68,6 +68,10 @@ module DataAnonymizer
     KEY_FINGERPRINT_SCOPE = 'key_fingerprint'
     KEY_FINGERPRINT_MESSAGE = 'data_anonymizer_key_check'
 
+    # Organization collections whose naming fields must change.
+    IDENTITY_COLLECTIONS = %i[organizations benefit_sponsors_organizations_organizations
+                              sponsored_benefits_organizations_plan_design_organizations].freeze
+
     # Redraw attempts when a generated zip collides with the stored one.
     RANDOM_ZIP_ATTEMPTS = 10
 
@@ -175,6 +179,7 @@ module DataAnonymizer
         log "Skipping prehash generation (dry run)"
         @prehash_map = nil
         @zip_prehash_map = nil
+        @identity_prehash_map = nil
         @prehash_hmac_key = nil
       else
         @prehash_hmac_key = SecureRandom.hex(32)
@@ -184,6 +189,8 @@ module DataAnonymizer
         @zip_prehash_map = generate_zip_prehash_map
         persist_prehashes_to_ttl_collection(@zip_prehash_map, @prehash_run_id, 'zip_prehash')
         persist_key_fingerprint
+        @identity_prehash_map = generate_identity_prehash_map
+        persist_prehashes_to_ttl_collection(@identity_prehash_map, @prehash_run_id, 'identity_prehash')
         log "Prehash map: people=#{@prehash_map[:people].size}, census_members=#{@prehash_map[:census_members].size}, organizations=#{@prehash_map[:organizations].size}, bs_organizations=#{@prehash_map[:bs_organizations].size}"
       end
 
@@ -204,6 +211,7 @@ module DataAnonymizer
         mode: :audit,
         prehash_map: @prehash_map,
         zip_prehash_map: @zip_prehash_map,
+        identity_prehash_map: @identity_prehash_map,
         geo_swap_skipped: @geo_swap_skipped,
         hmac_key: @prehash_hmac_key,
         protected_oim_ids: PROTECTED_OIM_IDS
@@ -1951,6 +1959,33 @@ module DataAnonymizer
         map[:plan_design_organizations][doc['_id'].to_s] =
           OpenSSL::HMAC.hexdigest('SHA256', @prehash_hmac_key, canonical_plan_design_org_payload(doc))
       end
+    end
+
+    # Per-field digests of the names an organization is known by, so a silent
+    # failure on any one of them is caught. Issuer organizations are excluded
+    # because their legal_name and dba are preserved on purpose.
+    # @return [Hash{Symbol => Hash{String => Array}}]
+    def generate_identity_prehash_map
+      IDENTITY_COLLECTIONS.each_with_object({}) do |collection_name, map|
+        map[collection_name] = {}
+        next unless db.collection_names.include?(collection_name.to_s)
+
+        cursor = db[collection_name].find.projection('legal_name' => 1, 'dba' => 1, 'home_page' => 1, 'profiles._type' => 1)
+        cursor.batch_size(batch_size).each do |doc|
+          next if issuer_organization?(doc)
+
+          payloads = canonical_identity_payloads(doc)
+          next if payloads.all?(&:blank?)
+
+          map[collection_name][doc['_id'].to_s] = zip_slot_digests(payloads)
+        end
+      end
+    end
+
+    # @param doc [Hash] raw organization document
+    # @return [Boolean]
+    def issuer_organization?(doc)
+      Array(doc['profiles']).any? { |profile| profile['_type'] == 'BenefitSponsors::Organizations::IssuerProfile' }
     end
 
     # Zip-only digests proving the swap ran. Member zips must all change.

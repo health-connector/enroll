@@ -81,6 +81,16 @@ module DataAnonymizer
       own + nested
     end
 
+    # Identity fields an organization is named by, one per slot. Returned
+    # separately rather than joined because the combined organization digest
+    # already changes whenever legal_name does, so it cannot prove that dba or
+    # home_page moved.
+    # @param doc [Hash] raw organization document
+    # @return [Array<String>] legal_name, dba and home_page
+    def canonical_identity_payloads(doc)
+      [normalize(doc['legal_name']), normalize(doc['dba']), normalize(doc['home_page'])]
+    end
+
     # @param payloads [Array<String>] output of a zip payload helper
     # @return [Boolean] whether any slot holds a zip
     def zip_payload_present?(payloads)

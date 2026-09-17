@@ -31,6 +31,8 @@ module DataAnonymizer
     # A value outside this set would fail model validation on the next save.
     ALLOWED_GENDERS = AnonymizedData::GENDERS
     WRONG_KEY_MESSAGE = 'Supplied HMAC_KEY does not match the key this run was anonymized with'
+    # Slot order used by +canonical_identity_payloads+.
+    IDENTITY_FIELDS = %w[legal_name dba home_page].freeze
     # Prehash map keys are not all collection names, so they are resolved here.
     PREHASH_COLLECTIONS = {
       people: :people,
@@ -78,11 +80,12 @@ module DataAnonymizer
 
     # rubocop:disable Metrics/ParameterLists
     def initialize(mode: :smoke, prehash_map: nil, zip_prehash_map: nil, hmac_key: nil, run_id: nil, sample_size: SAMPLE_SIZE,
-                   protected_oim_ids: [], geo_swap_skipped: nil)
+                   protected_oim_ids: [], geo_swap_skipped: nil, identity_prehash_map: nil)
       @mode = mode
       @prehash_map = prehash_map
       @zip_prehash_map = zip_prehash_map
       @geo_swap_skipped = geo_swap_skipped
+      @identity_prehash_map = identity_prehash_map
       @hmac_key = hmac_key
       @run_id = run_id
       @sample_size = sample_size
@@ -161,6 +164,7 @@ module DataAnonymizer
           @prehash_map = load_prehash_map_from_ttl(@run_id)
           log "Loaded #{@prehash_map.values.sum(&:size)} prehash digests from TTL collection (run_id=#{@run_id})."
         end
+        @identity_prehash_map = load_prehash_map_from_ttl(@run_id, 'identity_prehash') if load_identity_map?
         if @zip_prehash_map.nil? && @hmac_key.present? && @run_id.present?
           @zip_prehash_map = load_prehash_map_from_ttl(@run_id, 'zip_prehash')
           log "Loaded #{@zip_prehash_map.values.sum(&:size)} zip prehash digests from TTL collection (run_id=#{@run_id})."
@@ -168,6 +172,7 @@ module DataAnonymizer
         checks << check_streaming_ssn_patterns
         checks << check_name_dob_prehash
         checks << check_zip_prehash
+        checks << check_identity_prehash
       end
 
       checks
@@ -347,6 +352,47 @@ module DataAnonymizer
         .first&.dig('digest')
     end
 
+    # Proves each name an organization is known by actually changed. The
+    # combined organization digest cannot do this, because it already differs
+    # whenever legal_name changes.
+    def check_identity_prehash
+      return identity_skipped_result unless @identity_prehash_map && @hmac_key
+      return build_result("Identity prehash", 0, [WRONG_KEY_MESSAGE], "") if wrong_hmac_key?
+
+      issues = []
+      samples = []
+      total = 0
+
+      @identity_prehash_map.each do |collection_sym, id_map|
+        col = collection_sym.to_s
+        next unless @db.collection_names.include?(col)
+
+        id_map.each do |id_str, stored_digests|
+          doc = find_by_id_string(col, id_str)
+          next unless doc
+
+          total += 1
+          stale = stale_slots(canonical_identity_payloads(doc), stored_digests)
+          next if stale.empty?
+
+          issues << "Unchanged #{stale.map { |i| IDENTITY_FIELDS[i] }.join(',')} for #{col}:#{id_str}"
+          samples << "#{col}:#{id_str}"
+        end
+      end
+
+      build_result("Identity prehash", total, issues, samples.first(5).join(', '))
+    end
+
+    # @return [Boolean] whether the identity map still needs loading from the TTL collection
+    def load_identity_map?
+      @identity_prehash_map.nil? && @hmac_key.present? && @run_id.present?
+    end
+
+    # @return [Hash] a skipped result
+    def identity_skipped_result
+      build_result("Identity prehash", 0, [], "SKIPPED - RUN_ID/HMAC_KEY not provided. Employer naming NOT verified", skipped: true)
+    end
+
     # Conditions that stop the comparison being meaningful at all.
     # @return [String, nil] the issue to report, or nil to proceed
     def zip_prehash_blocker
@@ -392,8 +438,13 @@ module DataAnonymizer
     # @param stored_digests [Array<String, nil>] pre-run digest per slot
     # @return [Array<Integer>] indexes whose zip is unchanged
     def stale_zip_slots(collection_sym, doc, stored_digests)
-      current = zip_payloads_for_collection(collection_sym, doc)
+      stale_slots(zip_payloads_for_collection(collection_sym, doc), stored_digests)
+    end
 
+    # @param current [Array<String>] values now stored, one per slot
+    # @param stored_digests [Array<String, nil>] pre-run digest per slot
+    # @return [Array<Integer>] indexes whose value is unchanged
+    def stale_slots(current, stored_digests)
       Array(stored_digests).each_with_index.select do |stored, index|
         # Nothing to compare: this slot never held a zip before the run.
         next false if stored.blank?

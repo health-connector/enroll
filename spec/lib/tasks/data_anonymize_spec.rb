@@ -1324,6 +1324,53 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       end
     end
 
+    describe 'identity prehash generation' do
+      before { runner.instance_variable_set(:@prehash_hmac_key, 'spec_key_1234567890') }
+
+      it 'records digests for an organization it will rename' do
+        org = FactoryBot.create(:organization)
+        map = runner.send(:generate_identity_prehash_map)
+        expect(map[:organizations]).to have_key(org.id.to_s)
+      end
+
+      it 'covers all three organization collections' do
+        map = runner.send(:generate_identity_prehash_map)
+        expect(map.keys).to match_array(DataAnonymizer::Runner::IDENTITY_COLLECTIONS)
+      end
+
+      it 'skips issuer organizations, whose names are preserved on purpose' do
+        expect(runner.send(:issuer_organization?, { 'profiles' => [{ '_type' => 'BenefitSponsors::Organizations::IssuerProfile' }] })).to be true
+        expect(runner.send(:issuer_organization?, { 'profiles' => [{ '_type' => 'BenefitSponsors::Organizations::AcaShopCcaEmployerProfile' }] })).to be false
+      end
+
+      it 'passes verification end to end once the phase has run' do
+        org = FactoryBot.create(:organization)
+        runner.db[:organizations].update_one(
+          { '_id' => org.id },
+          { '$set' => { 'dba' => 'Real Trading', 'home_page' => 'http://realemployer.com' } }
+        )
+        map = runner.send(:generate_identity_prehash_map)
+        runner.send(:anonymize_organizations)
+
+        verifier = DataAnonymizer::Verifier.new(
+          mode: :audit, identity_prehash_map: map, hmac_key: 'spec_key_1234567890'
+        )
+        expect(verifier.send(:check_identity_prehash)[:passed]).to be true
+      end
+
+      it 'fails end to end if the phase silently stops renaming' do
+        org = FactoryBot.create(:organization)
+        runner.db[:organizations].update_one({ '_id' => org.id }, { '$set' => { 'dba' => 'Real Trading' } })
+        map = runner.send(:generate_identity_prehash_map)
+        # phase deliberately not run
+
+        verifier = DataAnonymizer::Verifier.new(
+          mode: :audit, identity_prehash_map: map, hmac_key: 'spec_key_1234567890'
+        )
+        expect(verifier.send(:check_identity_prehash)[:passed]).to be false
+      end
+    end
+
     # @!group Producer numbers - consistent remap across collections
 
     describe 'producer number anonymization' do
@@ -2633,7 +2680,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       # is INCOMPLETE rather than a pass. The account itself is still clean.
       expect(all_passed).to be false
       expect(results.select { |r| r[:skipped] }.map { |r| r[:collection] })
-        .to contain_exactly('Canonical prehash', 'Zip prehash')
+        .to contain_exactly('Canonical prehash', 'Zip prehash', 'Identity prehash')
       expect(results.reject { |r| r[:skipped] }).to all(include(passed: true))
     end
   end

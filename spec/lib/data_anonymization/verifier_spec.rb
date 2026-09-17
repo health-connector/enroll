@@ -89,6 +89,72 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
     end
   end
 
+  # @!group identity prehash - each employer name proven individually
+
+  describe '#check_identity_prehash' do
+    let(:hmac_key) { 'identity_key_123456' }
+    let(:fake_id)  { BSON::ObjectId.new }
+
+    def digests_for(values)
+      values.map { |v| v.presence && OpenSSL::HMAC.hexdigest('SHA256', hmac_key, v) }
+    end
+
+    def verifier_for(doc_after, stored_values)
+      v = described_class.new(
+        mode: :audit,
+        identity_prehash_map: { organizations: { fake_id.to_s => digests_for(stored_values) } },
+        hmac_key: hmac_key
+      )
+      collection_double = instance_double(Mongo::Collection)
+      view_double = instance_double(Mongo::Collection::View)
+      allow(db_double).to receive(:collection_names).and_return(['organizations'])
+      allow(db_double).to receive(:[]).with(:organizations).and_return(collection_double)
+      allow(collection_double).to receive(:find).and_return(view_double)
+      allow(view_double).to receive(:first).and_return(doc_after)
+      v
+    end
+
+    it 'passes when every name changed' do
+      after = { 'legal_name' => 'nienow inc', 'dba' => 'orn llc', 'home_page' => 'http://roob.info' }
+      v = verifier_for(after, ['real co', 'real trading', 'http://real.com'])
+      expect(v.send(:check_identity_prehash)[:passed]).to be true
+    end
+
+    it 'catches a dba left behind while legal_name changed' do
+      # The combined organization digest cannot see this, because legal_name
+      # moving is enough to make it differ.
+      after = { 'legal_name' => 'nienow inc', 'dba' => 'real trading', 'home_page' => 'http://roob.info' }
+      v = verifier_for(after, ['real co', 'real trading', 'http://real.com'])
+      result = v.send(:check_identity_prehash)
+      expect(result[:passed]).to be false
+      expect(result[:issues]).to match(/Unchanged dba/)
+    end
+
+    it 'catches a home_page left behind' do
+      after = { 'legal_name' => 'nienow inc', 'dba' => 'orn llc', 'home_page' => 'http://real.com' }
+      v = verifier_for(after, ['real co', 'real trading', 'http://real.com'])
+      expect(v.send(:check_identity_prehash)[:issues]).to match(/Unchanged home_page/)
+    end
+
+    it 'names every field that was left behind' do
+      after = { 'legal_name' => 'real co', 'dba' => 'real trading', 'home_page' => 'http://roob.info' }
+      v = verifier_for(after, ['real co', 'real trading', 'http://real.com'])
+      expect(v.send(:check_identity_prehash)[:issues]).to match(/legal_name,dba/)
+    end
+
+    it 'ignores a field the record never held' do
+      after = { 'legal_name' => 'nienow inc', 'dba' => '', 'home_page' => '' }
+      v = verifier_for(after, ['real co', '', ''])
+      expect(v.send(:check_identity_prehash)[:passed]).to be true
+    end
+
+    it 'marks itself skipped without credentials rather than passing' do
+      result = verifier.send(:check_identity_prehash)
+      expect(result[:skipped]).to be true
+      expect(result[:samples]).to include('Employer naming NOT verified')
+    end
+  end
+
   # @!group hmac key validation
 
   describe '#wrong_hmac_key?' do
