@@ -3,6 +3,9 @@
 require 'rails_helper'
 require_relative '../../../lib/data_anonymization/anonymized_data'
 require_relative '../../../lib/data_anonymization/verifier'
+# Loaded so the collection constants can be cross-checked. The verifier itself
+# deliberately does not depend on the runner at load time.
+require_relative '../../../lib/data_anonymization/runner'
 
 RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
   let(:db_double) { instance_double(Mongo::Database, name: 'test_db', collection_names: []) }
@@ -86,16 +89,398 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
     end
   end
 
+  # @!group identity prehash - each employer name proven individually
+
+  describe '#check_identity_prehash' do
+    let(:hmac_key) { 'identity_key_123456' }
+    let(:fake_id)  { BSON::ObjectId.new }
+
+    def digests_for(values)
+      values.map { |v| v.presence && OpenSSL::HMAC.hexdigest('SHA256', hmac_key, v) }
+    end
+
+    def verifier_for(doc_after, stored_values)
+      v = described_class.new(
+        mode: :audit,
+        identity_prehash_map: { organizations: { fake_id.to_s => digests_for(stored_values) } },
+        hmac_key: hmac_key
+      )
+      collection_double = instance_double(Mongo::Collection)
+      view_double = instance_double(Mongo::Collection::View)
+      allow(db_double).to receive(:collection_names).and_return(['organizations'])
+      allow(db_double).to receive(:[]).with(:organizations).and_return(collection_double)
+      allow(collection_double).to receive(:find).and_return(view_double)
+      allow(view_double).to receive(:first).and_return(doc_after)
+      v
+    end
+
+    it 'passes when every name changed' do
+      after = { 'legal_name' => 'nienow inc', 'dba' => 'orn llc', 'home_page' => 'http://roob.info' }
+      v = verifier_for(after, ['real co', 'real trading', 'http://real.com'])
+      expect(v.send(:check_identity_prehash)[:passed]).to be true
+    end
+
+    it 'catches a dba left behind while legal_name changed' do
+      # The combined organization digest cannot see this, because legal_name
+      # moving is enough to make it differ.
+      after = { 'legal_name' => 'nienow inc', 'dba' => 'real trading', 'home_page' => 'http://roob.info' }
+      v = verifier_for(after, ['real co', 'real trading', 'http://real.com'])
+      result = v.send(:check_identity_prehash)
+      expect(result[:passed]).to be false
+      expect(result[:issues]).to match(/Unchanged dba/)
+    end
+
+    it 'catches a home_page left behind' do
+      after = { 'legal_name' => 'nienow inc', 'dba' => 'orn llc', 'home_page' => 'http://real.com' }
+      v = verifier_for(after, ['real co', 'real trading', 'http://real.com'])
+      expect(v.send(:check_identity_prehash)[:issues]).to match(/Unchanged home_page/)
+    end
+
+    it 'names every field that was left behind' do
+      after = { 'legal_name' => 'real co', 'dba' => 'real trading', 'home_page' => 'http://roob.info' }
+      v = verifier_for(after, ['real co', 'real trading', 'http://real.com'])
+      expect(v.send(:check_identity_prehash)[:issues]).to match(/legal_name,dba/)
+    end
+
+    it 'ignores a field the record never held' do
+      after = { 'legal_name' => 'nienow inc', 'dba' => '', 'home_page' => '' }
+      v = verifier_for(after, ['real co', '', ''])
+      expect(v.send(:check_identity_prehash)[:passed]).to be true
+    end
+
+    it 'marks itself skipped without credentials rather than passing' do
+      result = verifier.send(:check_identity_prehash)
+      expect(result[:skipped]).to be true
+      expect(result[:samples]).to include('Employer naming NOT verified')
+    end
+  end
+
+  # @!group hmac key validation
+
+  describe '#wrong_hmac_key?' do
+    let(:real_key) { 'the_key_the_run_used' }
+    let(:fingerprint) do
+      OpenSSL::HMAC.hexdigest('SHA256', real_key, DataAnonymizer::Runner::KEY_FINGERPRINT_MESSAGE)
+    end
+
+    def verifier_with_key(supplied)
+      v = described_class.new(mode: :audit, hmac_key: supplied, run_id: 'run-1')
+      collection_double = instance_double(Mongo::Collection)
+      view_double = instance_double(Mongo::Collection::View)
+      allow(db_double).to receive(:collection_names).and_return(['data_anonymizer_prehashes'])
+      allow(db_double).to receive(:[]).with(:data_anonymizer_prehashes).and_return(collection_double)
+      allow(collection_double).to receive(:find).and_return(view_double)
+      allow(view_double).to receive(:first).and_return({ 'digest' => fingerprint })
+      v
+    end
+
+    it 'accepts the key the run actually used' do
+      expect(verifier_with_key(real_key).send(:wrong_hmac_key?)).to be false
+    end
+
+    it 'rejects a mistyped key instead of reading every digest as changed' do
+      expect(verifier_with_key('a_different_key').send(:wrong_hmac_key?)).to be true
+    end
+
+    it 'fails the zip check outright when the key is wrong' do
+      v = verifier_with_key('a_different_key')
+      v.instance_variable_set(:@zip_prehash_map, { people: { 'x' => ['d'] } })
+      result = v.send(:check_zip_prehash)
+      expect(result[:passed]).to be false
+      expect(result[:issues]).to match(/does not match the key/)
+    end
+
+    it 'stays quiet for older runs that stored no fingerprint' do
+      v = described_class.new(mode: :audit, hmac_key: 'anything', run_id: 'run-1')
+      allow(db_double).to receive(:collection_names).and_return([])
+      expect(v.send(:wrong_hmac_key?)).to be false
+    end
+  end
+
+  # @!group prehash collection resolution
+
+  describe 'PREHASH_COLLECTIONS' do
+    it 'resolves bs_organizations to its real collection' do
+      expect(described_class::PREHASH_COLLECTIONS[:bs_organizations])
+        .to eq(:benefit_sponsors_organizations_organizations)
+    end
+
+    it 'stays in step with the runner constant it mirrors' do
+      expect(described_class::PREHASH_COLLECTIONS[:plan_design_organizations])
+        .to eq(DataAnonymizer::Runner::PLAN_DESIGN_ORG_COLLECTION)
+    end
+
+    it 'resolves every key to a name the database would recognise' do
+      described_class::PREHASH_COLLECTIONS.each_value do |collection|
+        expect(collection.to_s).to match(/\A[a-z_]+\z/)
+      end
+    end
+  end
+
+  # @!group employer zip bound - unchanged employer zips are allowed, but counted
+
+  describe '#employer_zip_issues' do
+    def verifier_with(skipped)
+      described_class.new(mode: :audit, hmac_key: 'k', geo_swap_skipped: skipped)
+    end
+
+    it 'allows unchanged employer zips up to the tally the run reported' do
+      expect(verifier_with(5).send(:employer_zip_issues, 5)).to be_empty
+    end
+
+    it 'allows fewer unchanged than were skipped' do
+      expect(verifier_with(5).send(:employer_zip_issues, 2)).to be_empty
+    end
+
+    it 'fails when more are unchanged than the run skipped' do
+      issues = verifier_with(2).send(:employer_zip_issues, 40)
+      expect(issues.first).to match(/40 employer zips unchanged, more than the 2/)
+    end
+
+    it 'counts plan design organizations as employer zips too' do
+      expect(described_class::EMPLOYER_ZIP_COLLECTIONS)
+        .to include(:sponsored_benefits_organizations_plan_design_organizations)
+    end
+
+    it 'catches a wholesale failure where nothing was swapped' do
+      # The case an unbounded check cannot see: the strict map came back empty
+      # so every employer zip was preserved, while members still passed.
+      issues = verifier_with(0).send(:employer_zip_issues, 300)
+      expect(issues).not_to be_empty
+    end
+
+    it 'fails when zips are unchanged but no tally was recorded' do
+      issues = described_class.new(mode: :audit, hmac_key: 'k').send(:employer_zip_issues, 7)
+      expect(issues.first).to match(/no skip tally recorded/)
+    end
+
+    it 'stays quiet when nothing is unchanged and no tally exists' do
+      expect(described_class.new(mode: :audit, hmac_key: 'k').send(:employer_zip_issues, 0)).to be_empty
+    end
+  end
+
+  # @!group overall status - pass, fail and incomplete
+
+  describe '#overall_status' do
+    def result(passed:, skipped: false)
+      { collection: 'x', total: 1, passed: passed, skipped: skipped, issues: 'None', samples: '' }
+    end
+
+    it 'is pass when every check ran and passed' do
+      expect(verifier.send(:overall_status, [result(passed: true), result(passed: true)])).to eq(:pass)
+    end
+
+    it 'is fail when any check failed' do
+      expect(verifier.send(:overall_status, [result(passed: true), result(passed: false)])).to eq(:fail)
+    end
+
+    it 'is incomplete when nothing failed but a check was skipped' do
+      results = [result(passed: true), result(passed: true, skipped: true)]
+      expect(verifier.send(:overall_status, results)).to eq(:incomplete)
+    end
+
+    it 'reports fail ahead of incomplete when both are present' do
+      results = [result(passed: false), result(passed: true, skipped: true)]
+      expect(verifier.send(:overall_status, results)).to eq(:fail)
+    end
+
+    it 'never lets an incomplete run read as safe to share' do
+      expect(verifier.send(:status_line, :incomplete)).to include('INCOMPLETE')
+      expect(verifier.send(:status_line, :incomplete)).not_to include('Safe to dump')
+    end
+
+    it 'tells the operator the digests expire' do
+      expect(verifier.send(:status_line, :incomplete)).to include('7 days')
+    end
+  end
+
+  # @!group check_zip_prehash - geographic swap verification tests
+
+  describe '#load_prehash_map_from_ttl' do
+    let(:run_id) { 'run-abc-123' }
+    let(:person_id) { BSON::ObjectId.new }
+    let(:census_id) { BSON::ObjectId.new }
+
+    let(:rows) do
+      [
+        { 'collection' => 'people', 'record_id' => person_id, 'scope' => 'zip_prehash', 'digest' => %w[aaa] },
+        { 'collection' => 'census_members', 'record_id' => census_id, 'scope' => 'zip_prehash', 'digest' => %w[bbb] }
+      ]
+    end
+
+    before do
+      collection_double = instance_double(Mongo::Collection)
+      allow(db_double).to receive(:collection_names).and_return(['data_anonymizer_prehashes'])
+      allow(db_double).to receive(:[]).with(:data_anonymizer_prehashes).and_return(collection_double)
+      allow(collection_double).to receive(:find)
+        .with('run_id' => run_id, 'scope' => 'zip_prehash')
+        .and_return(rows)
+    end
+
+    it 'groups digests by their own collection, not by the requested scope' do
+      map = verifier.send(:load_prehash_map_from_ttl, run_id, 'zip_prehash')
+      expect(map.keys).to contain_exactly(:people, :census_members)
+    end
+
+    it 'keys each record by its id' do
+      map = verifier.send(:load_prehash_map_from_ttl, run_id, 'zip_prehash')
+      expect(map[:people][person_id.to_s]).to eq(%w[aaa])
+      expect(map[:census_members][census_id.to_s]).to eq(%w[bbb])
+    end
+  end
+
+  describe '#check_zip_prehash' do
+    let(:hmac_key) { 'test_key_abcdef1234567890' }
+    let(:fake_id)  { BSON::ObjectId.new }
+
+    def digest_for(zip)
+      OpenSSL::HMAC.hexdigest('SHA256', hmac_key, zip)
+    end
+
+    # +stored_zips+ is the pre-run zip per address slot, in stored order.
+    def verifier_for(doc_after, stored_zips)
+      digests = Array(stored_zips).map { |zip| zip.presence && digest_for(zip) }
+      v = described_class.new(
+        mode: :audit,
+        zip_prehash_map: { people: { fake_id.to_s => digests } },
+        hmac_key: hmac_key
+      )
+      collection_double = instance_double(Mongo::Collection)
+      view_double = instance_double(Mongo::Collection::View)
+      allow(db_double).to receive(:collection_names).and_return(['people'])
+      allow(db_double).to receive(:[]).with(:people).and_return(collection_double)
+      allow(collection_double).to receive(:find).and_return(view_double)
+      allow(view_double).to receive(:first).and_return(doc_after)
+      v
+    end
+
+    context 'when credentials are missing' do
+      it 'passes as skipped rather than blocking the sentinel' do
+        result = verifier.send(:check_zip_prehash)
+        expect(result[:passed]).to be true
+        expect(result[:samples]).to include('SKIPPED')
+        expect(result[:samples]).to include('Zip mutation NOT verified')
+      end
+
+      it 'emits a WARNING so the gap is visible' do
+        expect(Rails.logger).to receive(:info).with(a_string_including('WARNING'))
+        verifier.send(:check_zip_prehash)
+      end
+    end
+
+    context 'when credentials are supplied but no digests were stored' do
+      # An expired TTL or a wrong RUN_ID must not read as a clean pass over
+      # zero records.
+      it 'fails rather than reporting a pass' do
+        v = described_class.new(
+          mode: :audit, zip_prehash_map: { people: {} }, hmac_key: hmac_key, run_id: 'stale-run-id'
+        )
+        result = v.send(:check_zip_prehash)
+        expect(result[:passed]).to be false
+        expect(result[:issues]).to match(/No zip digests stored/)
+      end
+
+      it 'still passes for an in-run verification, which supplies no run_id' do
+        v = described_class.new(mode: :audit, zip_prehash_map: { people: {} }, hmac_key: hmac_key)
+        expect(v.send(:check_zip_prehash)[:passed]).to be true
+      end
+    end
+
+    context 'when the zip changed' do
+      it 'passes' do
+        v = verifier_for({ '_id' => fake_id, 'addresses' => [{ 'zip' => '02108' }] }, ['02101'])
+        result = v.send(:check_zip_prehash)
+        expect(result[:passed]).to be true
+      end
+    end
+
+    context 'when the zip did not change' do
+      # This is the regression that a structural check cannot see: the swap
+      # silently stopping while every other check still reports a clean pass.
+      it 'fails' do
+        v = verifier_for({ '_id' => fake_id, 'addresses' => [{ 'zip' => '02101' }] }, ['02101'])
+        result = v.send(:check_zip_prehash)
+        expect(result[:passed]).to be false
+        expect(result[:issues]).to match(/Unchanged zip/)
+      end
+    end
+
+    context 'when a record has several addresses and none changed' do
+      it 'fails' do
+        v = verifier_for(
+          { '_id' => fake_id, 'addresses' => [{ 'zip' => '02101' }, { 'zip' => '02110' }] },
+          %w[02101 02110]
+        )
+        expect(v.send(:check_zip_prehash)[:passed]).to be false
+      end
+    end
+
+    context 'when one address changed but a sibling kept its real zip' do
+      # A single digest over every zip on a record would pass here, because the
+      # aggregate changed. Each slot is compared on its own so the stale one is
+      # still caught.
+      it 'fails and names the stale slot' do
+        v = verifier_for(
+          { '_id' => fake_id, 'addresses' => [{ 'zip' => '02199' }, { 'zip' => '02110' }] },
+          %w[02101 02110]
+        )
+        result = v.send(:check_zip_prehash)
+        expect(result[:passed]).to be false
+        expect(result[:issues]).to match(/slot\(s\) 1/)
+      end
+
+      it 'passes only once every slot has moved' do
+        v = verifier_for(
+          { '_id' => fake_id, 'addresses' => [{ 'zip' => '02199' }, { 'zip' => '02120' }] },
+          %w[02101 02110]
+        )
+        expect(v.send(:check_zip_prehash)[:passed]).to be true
+      end
+    end
+
+    context 'when a zip was cleared instead of replaced' do
+      # Blanking a value removes the original, so an unchanged check passes it.
+      # Nothing else validates zip presence, so a regression that wipes every
+      # member zip would otherwise report a clean pass.
+      it 'fails rather than counting the blank as a successful change' do
+        v = verifier_for({ '_id' => fake_id, 'addresses' => [{ 'zip' => '' }] }, ['02101'])
+        result = v.send(:check_zip_prehash)
+        expect(result[:passed]).to be false
+        expect(result[:issues]).to match(/cleared rather than replaced/)
+      end
+
+      it 'reports the cleared slot separately from an unchanged one' do
+        v = verifier_for(
+          { '_id' => fake_id, 'addresses' => [{ 'zip' => '' }, { 'zip' => '02110' }] },
+          %w[02101 02110]
+        )
+        issues = v.send(:check_zip_prehash)[:issues]
+        expect(issues).to match(/cleared rather than replaced/)
+        expect(issues).to match(/Unchanged zip/)
+      end
+    end
+
+    context 'when a slot never held a zip' do
+      it 'does not treat the blank slot as stale' do
+        v = verifier_for(
+          { '_id' => fake_id, 'addresses' => [{ 'zip' => '02199' }, { 'zip' => '' }] },
+          ['02101', '']
+        )
+        expect(v.send(:check_zip_prehash)[:passed]).to be true
+      end
+    end
+  end
+
   # @!group check_name_dob_prehash — canonical prehash verification tests
 
   describe '#check_name_dob_prehash' do
     context 'when prehash_map or hmac_key is missing' do
-      it 'passes (skipped) with a prominent SKIPPED note in samples when both are nil' do
+      it 'marks itself skipped rather than passing when both are nil' do
         result = verifier.send(:check_name_dob_prehash)
-        expect(result[:passed]).to be true
+        expect(result[:skipped]).to be true
         expect(result[:issues]).to eq('None')
         expect(result[:samples]).to include('SKIPPED')
-        expect(result[:samples]).to include('name+DOB mutation NOT verified')
+        expect(result[:samples]).to include('Name and DOB mutation NOT verified')
       end
 
       it 'emits a WARNING log line when skipped' do
@@ -289,8 +674,8 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
       expect(skip_fields).to include('content')
     end
 
-    it 'includes dba — organization doing-business-as name intentionally preserved per policy' do
-      expect(skip_fields).to include('dba')
+    it 'no longer includes dba, which is now replaced and so can be policed' do
+      expect(skip_fields).not_to include('dba')
     end
 
     it 'includes versions — inline mongoid-history snapshot array is not scanned for SSN patterns' do
@@ -340,9 +725,9 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
       expect(verifier.send(:doc_strings, doc).to_a).to eq(['42'])
     end
 
-    it 'skips dba so numeric doing-business-as names are not yielded' do
+    it 'yields dba so an unanonymized numeric one is caught' do
       doc = { 'dba' => '125000024', 'legal_name' => 'Acme Corp' }
-      expect(verifier.send(:doc_strings, doc).to_a).to eq(['Acme Corp'])
+      expect(verifier.send(:doc_strings, doc).to_a).to contain_exactly('125000024', 'Acme Corp')
     end
 
     it 'skips the versions key so inline mongoid-history snapshots are not scanned' do

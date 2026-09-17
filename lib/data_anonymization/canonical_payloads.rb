@@ -51,6 +51,60 @@ module DataAnonymizer
       "#{normalize(doc['legal_name'])}|#{profiles}"
     end
 
+    # Zip-only payloads, one per stored address. Kept separate because
+    # {#canonical_person_payload} includes address_1 and city, which always
+    # change, so its digest cannot prove the zip moved. Returned per slot rather
+    # than joined so that one stale zip cannot hide behind a sibling that moved.
+    # @param doc [Hash] raw person Mongo document
+    # @return [Array<String>] normalized zip per address, in stored order
+    def canonical_person_zip_payloads(doc)
+      Array(doc['addresses']).map { |addr| normalize((addr || {})['zip']) }
+    end
+
+    # @param doc [Hash] raw census_member Mongo document
+    # @return [Array<String>] own zip followed by each dependent zip
+    def canonical_census_zip_payloads(doc)
+      own = normalize((doc['address'] || {})['zip'])
+      dependents = Array(doc['census_dependents']).map { |dep| normalize(((dep || {})['address'] || {})['zip']) }
+      [own] + dependents
+    end
+
+    # Zip per office location on an organization, covering both the legacy
+    # +office_locations+ array and the one nested under each profile.
+    # @param doc [Hash] raw organization Mongo document
+    # @return [Array<String>] normalized zip per office location
+    def canonical_org_zip_payloads(doc)
+      own = Array(doc['office_locations']).map { |loc| normalize(((loc || {})['address'] || {})['zip']) }
+      nested = Array(doc['profiles']).flat_map do |profile|
+        Array((profile || {})['office_locations']).map { |loc| normalize(((loc || {})['address'] || {})['zip']) }
+      end
+      own + nested
+    end
+
+    # Identity fields an organization is named by, one per slot. Returned
+    # separately rather than joined because the combined organization digest
+    # already changes whenever legal_name does, so it cannot prove that dba or
+    # home_page moved.
+    # @param doc [Hash] raw organization document
+    # @return [Array<String>] legal_name, dba and home_page
+    def canonical_identity_payloads(doc)
+      [normalize(doc['legal_name']), normalize(doc['dba']), normalize(doc['home_page'])]
+    end
+
+    # @param payloads [Array<String>] output of a zip payload helper
+    # @return [Boolean] whether any slot holds a zip
+    def zip_payload_present?(payloads)
+      Array(payloads).any? { |zip| zip.to_s.match?(/\d/) }
+    end
+
+    # Canonical string for a plan design organization, the broker quoting
+    # workspace that names the employer being quoted.
+    # @param doc [Hash] raw plan design organization document
+    # @return [String] pipe-delimited, downcased canonical string
+    def canonical_plan_design_org_payload(doc)
+      "#{normalize(doc['legal_name'])}|#{normalize(doc['dba'])}|#{normalize(doc['home_page'])}"
+    end
+
     def normalize(str)
       str&.to_s&.strip&.downcase || ''
     end
