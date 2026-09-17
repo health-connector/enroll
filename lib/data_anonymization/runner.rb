@@ -1403,7 +1403,7 @@ module DataAnonymizer
     def anonymize_families
       collection = db[:families]
       total = collection.count_documents('e_case_id' => { '$exists' => true, '$ne' => nil })
-      log "\n--- Phase 6: Anonymizing Families (#{total} with e_case_id) ---"
+      log "\n--- Phase 7: Anonymizing Families (#{total} with e_case_id) ---"
       return 0 if total.zero?
 
       if @dry_run
@@ -1419,13 +1419,13 @@ module DataAnonymizer
     end
 
     def anonymize_inbox_messages
-      log "\n--- Phase 7: Anonymizing Inbox Message Bodies ---"
+      log "\n--- Phase 8: Anonymizing Inbox Message Bodies ---"
       total  = redact_inbox_messages_at_path(db[:people], 'inbox')
       total += redact_inbox_messages_at_path(db[:organizations], 'employer_profile.inbox')
       total += redact_inbox_messages_at_path(db[:organizations], 'broker_agency_profile.inbox')
       total += redact_inbox_messages_at_path(db[:organizations], 'hbx_profile.inbox')
       total += redact_bs_org_inbox_messages
-      log "  Phase 7 complete: #{total} documents processed" if total.positive?
+      log "  Phase 8 complete: #{total} documents processed" if total.positive?
       total
     end
 
@@ -1518,13 +1518,13 @@ module DataAnonymizer
     end
 
     def anonymize_document_identifiers
-      log "\n--- Phase 8: Anonymizing Document S3 References ---"
+      log "\n--- Phase 9: Anonymizing Document S3 References ---"
       total  = redact_document_identifiers_at_path(db[:people], 'documents')
       total += redact_document_identifiers_at_path(db[:organizations], 'documents')
       total += redact_document_identifiers_at_path(db[:organizations], 'employer_profile.documents')
       total += redact_document_identifiers_at_path(db[:organizations], 'broker_agency_profile.documents')
       total += redact_bs_document_identifiers
-      log "  Phase 8 complete: #{total} documents processed" if total.positive?
+      log "  Phase 9 complete: #{total} documents processed" if total.positive?
       total
     end
 

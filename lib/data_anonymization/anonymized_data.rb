@@ -10,7 +10,7 @@ module DataAnonymizer
   # (name, DOB, SSN, address) is independently randomized, making it negligible
   # probability the result maps to any real person.
   #
-  # Inbox message bodies and sender names are anonymized in Phase 7.
+  # Inbox message bodies and sender names are anonymized in Phase 8.
   # FFaker seeding (+FFaker.seed = integer+) is supported but not enabled by default.
   #
   # Call as module functions: +DataAnonymizer::AnonymizedData.first_name+
