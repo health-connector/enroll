@@ -1365,15 +1365,69 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
         expect(role['npn']).to eq(org['broker_agency_profile']['corporate_npn'])
       end
 
+      it 'produces a value the BrokerRole model accepts' do
+        person = FactoryBot.create(:person)
+        person.build_broker_role(npn: DataAnonymizer::AnonymizedData.npn, provider_kind: 'broker')
+        person.broker_role.valid?
+        expect(person.broker_role.errors[:npn]).to be_empty
+      end
+
+      it 'never emits a leading zero, which would not survive an integer round trip' do
+        values = Array.new(200) { DataAnonymizer::AnonymizedData.npn }
+        expect(values.none? { |v| v.start_with?('0') }).to be true
+      end
+
+      it 'stays inside the length the models allow' do
+        values = Array.new(200) { DataAnonymizer::AnonymizedData.npn }
+        expect(values.all? { |v| v.length.between?(1, 10) && v.match?(/\A\d+\z/) }).to be true
+      end
+
+      # person.broker_role.npn carries a unique index, so two records must never
+      # land on the same replacement.
       it 'gives distinct originals distinct replacements' do
-        values = Array.new(50) { runner.send(:unique_npn) }
-        expect(values.uniq.size).to eq(50)
+        values = Array.new(200) { runner.send(:unique_npn) }
+        expect(values.uniq.size).to eq(200)
       end
 
       it 'generates one for an npn absent from the map rather than keeping the real value' do
         allow(runner).to receive(:npn_map).and_return({})
         role = runner.send(:anonymize_broker_role, { 'npn' => real_npn })
         expect(role['npn']).not_to eq(real_npn)
+      end
+    end
+
+    describe 'producer numbers survive a real phase run' do
+      let!(:broker_person) do
+        person = FactoryBot.create(:person)
+        person.build_broker_role(npn: '120002398', provider_kind: 'broker')
+        person.save(validate: false)
+        person
+      end
+
+      it 'replaces the stored npn and leaves the record valid' do
+        runner.send(:anonymize_people)
+        doc = raw_doc('people', broker_person.id)
+
+        expect(doc['broker_role']['npn']).not_to eq('120002398')
+        reloaded = Person.find(broker_person.id)
+        reloaded.broker_role.valid?
+        expect(reloaded.broker_role.errors[:npn]).to be_empty
+      end
+
+      it 'does not trip the unique index when several brokers are anonymized' do
+        second = FactoryBot.create(:person)
+        second.build_broker_role(npn: '216179133', provider_kind: 'broker')
+        second.save(validate: false)
+
+        runner.send(:anonymize_people)
+        npns = [broker_person, second].map { |p| raw_doc('people', p.id)['broker_role']['npn'] }
+        expect(npns.uniq.size).to eq(2)
+      end
+
+      it 'stays invisible to the ssn sweep, since a producer number is numeric' do
+        runner.send(:anonymize_people)
+        verifier = DataAnonymizer::Verifier.new(mode: :audit)
+        expect(verifier.send(:check_streaming_ssn_patterns)[:passed]).to be true
       end
     end
 

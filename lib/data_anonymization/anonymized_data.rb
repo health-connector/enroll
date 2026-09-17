@@ -207,13 +207,13 @@ module DataAnonymizer
       FFaker::Internet.http_url
     end
 
-    # National Producer Numbers are public: NIPR's free licensee search maps an
-    # NPN straight to a named broker, so a real one is a single-lookup
-    # re-identification. Replacements keep the numeric shape so any flow that
-    # parses or joins on the value still works.
-    # @return [String] numeric producer number
+    # Producer numbers are public licensing identifiers rather than PII, but a
+    # real one names a broker in one lookup, so replacements are used. The shape
+    # matches what the models accept: integer only, 1 to 10 digits, and no
+    # leading zero, which would not survive an integer round trip.
+    # @return [String] eight digit producer number
     def npn
-      format('%08d', rand(1..99_999_999))
+      rand(10_000_000..99_999_999).to_s
     end
 
     # @return [String] 9-digit routing number string (never starts with 0).
