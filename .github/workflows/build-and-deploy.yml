@@ -5,18 +5,14 @@ on:
   push:
     branches:
       - master
-      - enroll_uat
-      - rc-release-*
-      - upgrade_to_rails_7_2
-      - upgrade_to_rails_7_2_with_shakapacker
+      - '*-pre-release'
       - 868knqw5y_buildx-multiarch
     tags:
       - 'v*'
   pull_request:
     branches:
       - master
-      - upgrade_to_rails_7_2
-      - upgrade_to_rails_7_2_with_shakapacker
+      - '*-pre-release'
       - 868knqw5y_buildx-multiarch
 
 concurrency:
