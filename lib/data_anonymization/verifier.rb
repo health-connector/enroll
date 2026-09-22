@@ -21,13 +21,16 @@ module DataAnonymizer
   #
   # Writes a CSV report to +tmp/anonymization_report_YYYYMMDD.csv+.
   #
-  # @note +dba+, +fein+, and +npn+ are not checked - they are intentionally unchanged.
+  # @note +fein+ is not checked, as it is intentionally unchanged. +dba+ is
+  #   verified through the identity digest, +npn+ through its own remap.
   # rubocop:disable Metrics/ClassLength
   class Verifier
     include CanonicalPayloads
 
     GENERATED_EMAIL_PATTERN = /@(exampleanonymizer|testanonymizer)\.com\z/
     SAMPLE_SIZE = 5000
+    PREHASH_BATCH_SIZE = 1000
+    GENDER_NOOP_MINIMUM = 20
     # A value outside this set would fail model validation on the next save.
     ALLOWED_GENDERS = AnonymizedData::GENDERS
     WRONG_KEY_MESSAGE = 'Supplied HMAC_KEY does not match the key this run was anonymized with'
@@ -66,7 +69,7 @@ module DataAnonymizer
     # +ach_routing_number+ is an ABA routing number - always exactly 9 digits by spec;
     # it is validated separately by +check_organizations+ / +check_bs_organizations+.
     # +npn+ / +corporate_npn+ are public broker National Producer Numbers (up to 10
-    # digits) intentionally preserved by the runner.
+    # digits) whose replacements would otherwise read as SSNs.
     # +content+ is free-text on Comment / Announcement and may incidentally contain
     # 9-digit tokens (check numbers, group ids) that are not SSNs.
     # +npn+ / +corporate_npn+ replacements are still numeric, so they stay skipped to
@@ -81,12 +84,13 @@ module DataAnonymizer
 
     # rubocop:disable Metrics/ParameterLists
     def initialize(mode: :smoke, prehash_map: nil, zip_prehash_map: nil, hmac_key: nil, run_id: nil, sample_size: SAMPLE_SIZE,
-                   protected_oim_ids: [], geo_swap_skipped: nil, identity_prehash_map: nil)
+                   protected_oim_ids: [], geo_swap_skipped: nil, identity_prehash_map: nil, gender_prehash_map: nil)
       @mode = mode
       @prehash_map = prehash_map
       @zip_prehash_map = zip_prehash_map
       @geo_swap_skipped = geo_swap_skipped
       @identity_prehash_map = identity_prehash_map
+      @gender_prehash_map = gender_prehash_map
       @hmac_key = hmac_key
       @run_id = run_id
       @sample_size = sample_size
@@ -160,23 +164,26 @@ module DataAnonymizer
 
       # Audit-only, more expensive checks
       if @mode.to_sym == :audit
-        # Option A: load prehash map from TTL collection when not provided in-memory
-        if @prehash_map.nil? && @hmac_key.present? && @run_id.present?
-          @prehash_map = load_prehash_map_from_ttl(@run_id)
-          log "Loaded #{@prehash_map.values.sum(&:size)} prehash digests from TTL collection (run_id=#{@run_id})."
-        end
-        @identity_prehash_map = load_prehash_map_from_ttl(@run_id, 'identity_prehash') if load_identity_map?
-        if @zip_prehash_map.nil? && @hmac_key.present? && @run_id.present?
-          @zip_prehash_map = load_prehash_map_from_ttl(@run_id, 'zip_prehash')
-          log "Loaded #{@zip_prehash_map.values.sum(&:size)} zip prehash digests from TTL collection (run_id=#{@run_id})."
-        end
+        @prehash_map = load_audit_prehashes(@prehash_map, 'canonical_prehash')
+        @identity_prehash_map = load_audit_prehashes(@identity_prehash_map, 'identity_prehash')
+        @gender_prehash_map = load_audit_prehashes(@gender_prehash_map, 'gender_prehash')
+        @zip_prehash_map = load_audit_prehashes(@zip_prehash_map, 'zip_prehash')
         checks << check_streaming_ssn_patterns
         checks << check_name_dob_prehash
         checks << check_zip_prehash
         checks << check_identity_prehash
+        checks << check_gender_prehash
       end
 
       checks
+    end
+
+    def load_audit_prehashes(map, scope)
+      return map unless map.nil? && @hmac_key.present? && @run_id.present?
+
+      loaded = load_prehash_map_from_ttl(@run_id, scope)
+      log "Loaded #{loaded.values.sum(&:size)} #{scope} digests from TTL collection (run_id=#{@run_id})."
+      loaded
     end
 
     # Loads prehash digests from the +data_anonymizer_prehashes+ TTL collection
@@ -232,7 +239,8 @@ module DataAnonymizer
       hits = []
       total_checked = 0
 
-      collections = %w[people census_members families organizations benefit_sponsors_organizations_organizations users]
+      collections = %w[people census_members families organizations benefit_sponsors_organizations_organizations
+                       sponsored_benefits_organizations_plan_design_organizations users]
       collections.each do |col|
         next unless @db.collection_names.include?(col)
 
@@ -296,7 +304,9 @@ module DataAnonymizer
         col = collection_sym.to_s
         next unless @db.collection_names.include?(col)
 
-        id_map.each { |id_str, stored| inspect_zip_record(collection_sym, col, id_str, stored, tally) }
+        each_prehash_record(col, id_map) do |doc, stored|
+          inspect_zip_record(collection_sym, doc, stored, tally)
+        end
       end
 
       tally[:issues].concat(employer_zip_issues(tally[:employer_stale]))
@@ -305,12 +315,9 @@ module DataAnonymizer
 
     # Compares one record and folds the outcome into +tally+.
     # @return [void]
-    def inspect_zip_record(collection_sym, col, id_str, stored_digests, tally)
-      doc = find_by_id_string(col, id_str)
-      return unless doc
-
+    def inspect_zip_record(collection_sym, doc, stored_digests, tally)
       tally[:total] += 1
-      record = "#{col}:#{id_str}"
+      record = "#{collection_sym}:#{doc['_id']}"
       comparison = compare_slots(zip_payloads_for_collection(collection_sym, doc), stored_digests)
 
       cleared = zip_cleared_issue(comparison, record)
@@ -353,17 +360,16 @@ module DataAnonymizer
       return nil if @run_id.blank?
       return nil unless @db.collection_names.include?('data_anonymizer_prehashes')
 
-      @db[:data_anonymizer_prehashes]
-        .find('run_id' => @run_id.to_s, 'scope' => 'geo_swap_stats')
-        .first&.dig('digest')
+      record = @db[:data_anonymizer_prehashes].find('run_id' => @run_id.to_s, 'scope' => 'geo_swap_stats').first
+      record&.dig('stats') || record&.dig('digest')
     end
 
-    # Proves each name an organization is known by actually changed. The
-    # combined organization digest cannot do this, because it already differs
-    # whenever legal_name changes.
+    # Proves each name an organization is known by changed.
     def check_identity_prehash
       return identity_skipped_result unless @identity_prehash_map && @hmac_key
-      return build_result("Identity prehash", 0, [WRONG_KEY_MESSAGE], "") if wrong_hmac_key?
+
+      blocker = identity_prehash_blocker
+      return build_result("Identity prehash", 0, [blocker], "") if blocker
 
       issues = []
       samples = []
@@ -379,13 +385,46 @@ module DataAnonymizer
 
           total += 1
           record = "#{col}:#{id_str}"
-          issues.concat(identity_issues(doc, stored_digests, record)).tap do
-            samples << record if issues.last&.include?(record)
-          end
+          record_issues = identity_issues(doc, stored_digests, record)
+          issues.concat(record_issues)
+          samples << record if record_issues.any?
         end
       end
 
       build_result("Identity prehash", total, issues, samples.first(5).join(', '))
+    end
+
+    def check_gender_prehash
+      return build_result('Gender prehash', 0, [], 'SKIPPED - Gender mutation NOT verified', skipped: true) unless @gender_prehash_map && @hmac_key
+      return build_result('Gender prehash', 0, ["No gender digests stored for run_id #{@run_id}"], '') if stale_run_credentials?(@gender_prehash_map)
+      return build_result('Gender prehash', 0, [WRONG_KEY_MESSAGE], '') if wrong_hmac_key?
+
+      tallies = Hash.new { |hash, key| hash[key] = { total: 0, stale: 0 } }
+      issues = []
+      @gender_prehash_map.each do |collection_name, id_map|
+        each_prehash_record(collection_name, id_map) do |doc, stored|
+          tally_gender_record(collection_name, doc, stored, tallies, issues)
+        end
+      end
+      tallies.each do |population, tally|
+        next unless tally[:total] >= GENDER_NOOP_MINIMUM && tally[:stale] == tally[:total]
+
+        issues << "All #{tally[:total]} gender slots unchanged for #{population}"
+      end
+      build_result('Gender prehash', tallies.values.sum { |tally| tally[:total] }, issues,
+                   "No-op detection requires at least #{GENDER_NOOP_MINIMUM} populated slots per population")
+    end
+
+    def tally_gender_record(collection_name, doc, stored, tallies, issues)
+      comparison = compare_slots(canonical_gender_payloads(doc), stored)
+      issues << "Gender cleared rather than replaced for #{collection_name}:#{doc['_id']}" if comparison[:cleared].any?
+      Array(stored).each_with_index do |digest, index|
+        next if digest.blank?
+
+        population = index.zero? ? collection_name.to_s : "#{collection_name}.census_dependents"
+        tallies[population][:total] += 1
+        tallies[population][:stale] += 1 if comparison[:stale].include?(index)
+      end
     end
 
     # @param comparison [Hash] output of compare_slots
@@ -412,12 +451,16 @@ module DataAnonymizer
     # @param indexes [Array<Integer>]
     # @return [String]
     def field_names(indexes)
-      indexes.map { |index| IDENTITY_FIELDS[index] }.join(',')
+      indexes.map { |index| IDENTITY_FIELDS[index] || "profiles[#{index - IDENTITY_FIELDS.size}].home_page" }.join(',')
     end
 
-    # @return [Boolean] whether the identity map still needs loading from the TTL collection
-    def load_identity_map?
-      @identity_prehash_map.nil? && @hmac_key.present? && @run_id.present?
+    # Reasons the identity comparison cannot be trusted.
+    # @return [String, nil] reason the comparison cannot be trusted
+    def identity_prehash_blocker
+      return "No identity digests stored for run_id #{@run_id}" if stale_run_credentials?(@identity_prehash_map)
+      return WRONG_KEY_MESSAGE if wrong_hmac_key?
+
+      nil
     end
 
     # @return [Hash] a skipped result
@@ -458,31 +501,13 @@ module DataAnonymizer
     # A run_id is only set for out-of-process verification. An empty map there
     # means the credentials were wrong or the 7 day TTL expired, which must not
     # read as a clean pass over zero records.
-    # @return [Boolean]
-    def stale_run_credentials?
-      @run_id.present? && @zip_prehash_map.values.sum(&:size).zero?
+    # @param map [Hash, nil] digest map to test, defaulting to the zip map
+    # @return [Boolean] credentials were supplied but no digests were found
+    def stale_run_credentials?(map = @zip_prehash_map)
+      @run_id.present? && map.to_h.values.sum(&:size).zero?
     end
 
-    # Compares each address slot on its own. Comparing a single digest over all
-    # of a record's zips would let one that moved mask a sibling that did not.
-    # @param collection_sym [Symbol] :people or :census_members
-    # @param doc [Hash] raw document
-    # @param stored_digests [Array<String, nil>] pre-run digest per slot
-    # @return [Array<Integer>] indexes whose zip is unchanged
-    def stale_zip_slots(collection_sym, doc, stored_digests)
-      stale_slots(zip_payloads_for_collection(collection_sym, doc), stored_digests)
-    end
-
-    # @param current [Array<String>] values now stored, one per slot
-    # @param stored_digests [Array<String, nil>] pre-run digest per slot
-    # @return [Array<Integer>] indexes whose value is unchanged
-    def stale_slots(current, stored_digests)
-      compare_slots(current, stored_digests)[:stale]
-    end
-
-    # Splits unchanged slots from ones that were populated before the run and
-    # are now blank. Clearing a value removes the original, but it is data loss
-    # rather than anonymization and nothing else would report it.
+    # Splits unchanged slots from ones that were populated and are now blank.
     # @param current [Array<String>] values now stored, one per slot
     # @param stored_digests [Array<String, nil>] pre-run digest per slot
     # @return [Hash{Symbol => Array<Integer>}] :stale and :cleared indexes
@@ -517,6 +542,18 @@ module DataAnonymizer
       end
     end
 
+    def each_prehash_record(collection_name, id_map)
+      id_map.each_slice(PREHASH_BATCH_SIZE) do |entries|
+        stored = entries.to_h
+        ids = stored.keys.filter_map { |id| BSON::ObjectId.from_string(id) if BSON::ObjectId.legal?(id) }
+        next if ids.empty?
+
+        @db[collection_name.to_sym].find('_id' => { '$in' => ids }).batch_size(PREHASH_BATCH_SIZE).each do |doc|
+          yield doc, stored.fetch(doc['_id'].to_s)
+        end
+      end
+    end
+
     # @param col [String] collection name
     # @param id_str [String] stringified record id
     # @return [Hash, nil]
@@ -527,9 +564,6 @@ module DataAnonymizer
     end
 
     def check_name_dob_prehash
-      # No credentials supplied - treat as skipped (PASS) so that verify-only
-      # invocations without RUN_ID/HMAC_KEY don't block the overall sentinel.
-      # A hard FAIL only applies when credentials were supplied but verification fails.
       unless @prehash_map && @hmac_key
         log "WARNING: Canonical prehash check SKIPPED - RUN_ID/HMAC_KEY not provided. " \
             "Name and DOB mutation is NOT verified by this run. " \
@@ -538,7 +572,8 @@ module DataAnonymizer
         return build_result("Canonical prehash", 0, [], "SKIPPED - RUN_ID/HMAC_KEY not provided. Name and DOB mutation NOT verified", skipped: true)
       end
 
-      return build_result("Canonical prehash", 0, [WRONG_KEY_MESSAGE], "") if wrong_hmac_key?
+      blocker = canonical_prehash_blocker
+      return build_result('Canonical prehash', 0, [blocker], '') if blocker
 
       issues = []
       samples = []
@@ -569,6 +604,13 @@ module DataAnonymizer
       end
 
       build_result("Canonical prehash", total, issues, samples.first(5).join(', '))
+    end
+
+    def canonical_prehash_blocker
+      return "No canonical digests stored for run_id #{@run_id}" if stale_run_credentials?(@prehash_map)
+      return WRONG_KEY_MESSAGE if wrong_hmac_key?
+
+      nil
     end
 
     def canonical_payload_for_collection(collection_sym, doc)
@@ -707,8 +749,12 @@ module DataAnonymizer
     # @param collection [Mongo::Collection]
     # @return [Integer]
     def count_invalid_genders(collection)
+      allowed = ALLOWED_GENDERS + [nil, '']
       collection.count_documents(
-        'gender' => { '$nin' => ALLOWED_GENDERS + [nil, ''] }
+        '$or' => [
+          { 'gender' => { '$nin' => allowed } },
+          { 'census_dependents' => { '$elemMatch' => { 'gender' => { '$nin' => allowed } } } }
+        ]
       )
     end
 
@@ -837,31 +883,45 @@ module DataAnonymizer
         return build_result("Cross-model: Census <-> Person (sample 0)", 0, [], "skipped - no linked records")
       end
 
-      person_map = {}
-      @db[:people].find(
-        'employee_roles._id' => { '$in' => role_ids }
-      ).projection('first_name' => 1, 'gender' => 1, 'employee_roles._id' => 1).each do |person|
-        (person['employee_roles'] || []).each do |er|
-          person_map[er['_id']] = { 'first_name' => person['first_name'], 'gender' => person['gender'] }
-        end
-      end
+      person_map = person_map_for(role_ids)
 
       gender_mismatches = 0
       census_sample.each do |ce|
-        er_id = ce['employee_role_id']
-        next unless person_map.key?(er_id)
+        person = person_map[ce['employee_role_id']]
+        next unless person
 
         checked += 1
-        mismatches += 1 if ce['first_name'] != person_map[er_id]['first_name']
-        # Census gender is stored separately from Person gender, so missing
-        # either side leaves one individual with two genders.
-        gender_mismatches += 1 if ce['gender'].present? && person_map[er_id]['gender'].present? && ce['gender'] != person_map[er_id]['gender']
+        mismatches += 1 if ce['first_name'] != person['first_name']
+        gender_mismatches += 1 if gender_mismatch?(ce, person)
       end
 
       issues << "#{mismatches}/#{checked} linked census members have first_name mismatch with Person" if mismatches > 0
       issues << "#{gender_mismatches}/#{checked} linked census members have gender mismatch with Person" if gender_mismatches > 0
 
       build_result("Cross-model: Census <-> Person (sample #{checked})", checked, issues, "")
+    end
+
+    # @param role_ids [Array] employee role ids to look up
+    # @return [Hash] employee role id => person first_name and gender
+    def person_map_for(role_ids)
+      map = {}
+      @db[:people].find(
+        'employee_roles._id' => { '$in' => role_ids }
+      ).projection('first_name' => 1, 'gender' => 1, 'employee_roles._id' => 1).each do |person|
+        Array(person['employee_roles']).each do |er|
+          map[er['_id']] = { 'first_name' => person['first_name'], 'gender' => person['gender'] }
+        end
+      end
+      map
+    end
+
+    # Census gender is stored separately from Person gender, so a divergence
+    # leaves one individual with two genders.
+    # @param census [Hash] census member document
+    # @param person [Hash] first_name and gender for the linked person
+    # @return [Boolean]
+    def gender_mismatch?(census, person)
+      census['gender'].present? && person['gender'].present? && census['gender'] != person['gender']
     end
 
     def check_bs_organizations
@@ -913,8 +973,7 @@ module DataAnonymizer
     end
 
     def log(msg)
-      puts msg unless Rails.env.test?
-      Rails.logger.info("[DataAnonymizer::Verifier] #{msg}")
+      Rails.logger.tagged(self.class.name) { Rails.logger.info(msg) }
     end
   end
   # rubocop:enable Metrics/ClassLength

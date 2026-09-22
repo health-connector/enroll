@@ -3,8 +3,7 @@
 require 'rails_helper'
 require_relative '../../../lib/data_anonymization/anonymized_data'
 require_relative '../../../lib/data_anonymization/verifier'
-# Loaded so the collection constants can be cross-checked. The verifier itself
-# deliberately does not depend on the runner at load time.
+# Loaded so the collection constants can be cross-checked.
 require_relative '../../../lib/data_anonymization/runner'
 
 RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
@@ -16,6 +15,16 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
   end
 
   subject(:verifier) { described_class.new }
+
+  describe '#log' do
+    it 'logs with the class tag and does not duplicate messages on stdout' do
+      allow(Rails.env).to receive(:test?).and_return(false)
+      expect(Rails.logger).to receive(:tagged).with(described_class.name).and_call_original
+      expect(Rails.logger).to receive(:info).with('Checked 5 records')
+
+      expect { verifier.send(:log, 'Checked 5 records') }.not_to output.to_stdout
+    end
+  end
 
   # @!group Generated email pattern — tests for GENERATED_EMAIL_PATTERN
 
@@ -121,8 +130,6 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
     end
 
     it 'catches a dba left behind while legal_name changed' do
-      # The combined organization digest cannot see this, because legal_name
-      # moving is enough to make it differ.
       after = { 'legal_name' => 'nienow inc', 'dba' => 'real trading', 'home_page' => 'http://roob.info' }
       v = verifier_for(after, ['real co', 'real trading', 'http://real.com'])
       result = v.send(:check_identity_prehash)
@@ -146,6 +153,14 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
       after = { 'legal_name' => 'nienow inc', 'dba' => '', 'home_page' => '' }
       v = verifier_for(after, ['real co', '', ''])
       expect(v.send(:check_identity_prehash)[:passed]).to be true
+    end
+
+    it 'fails rather than passing when the digests have expired' do
+      v = described_class.new(mode: :audit, identity_prehash_map: {}, hmac_key: hmac_key, run_id: 'expired-run')
+      allow(v).to receive(:wrong_hmac_key?).and_return(false)
+      result = v.send(:check_identity_prehash)
+      expect(result[:passed]).to be false
+      expect(result[:issues]).to match(/No identity digests stored/)
     end
 
     it 'marks itself skipped without credentials rather than passing' do
@@ -243,8 +258,6 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
     end
 
     it 'catches a wholesale failure where nothing was swapped' do
-      # The case an unbounded check cannot see: the strict map came back empty
-      # so every employer zip was preserved, while members still passed.
       issues = verifier_with(0).send(:employer_zip_issues, 300)
       expect(issues).not_to be_empty
     end
@@ -350,7 +363,8 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
       allow(db_double).to receive(:collection_names).and_return(['people'])
       allow(db_double).to receive(:[]).with(:people).and_return(collection_double)
       allow(collection_double).to receive(:find).and_return(view_double)
-      allow(view_double).to receive(:first).and_return(doc_after)
+      allow(view_double).to receive(:batch_size).and_return(view_double)
+      allow(view_double).to receive(:each).and_yield(doc_after)
       v
     end
 
@@ -369,8 +383,6 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
     end
 
     context 'when credentials are supplied but no digests were stored' do
-      # An expired TTL or a wrong RUN_ID must not read as a clean pass over
-      # zero records.
       it 'fails rather than reporting a pass' do
         v = described_class.new(
           mode: :audit, zip_prehash_map: { people: {} }, hmac_key: hmac_key, run_id: 'stale-run-id'
@@ -395,8 +407,6 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
     end
 
     context 'when the zip did not change' do
-      # This is the regression that a structural check cannot see: the swap
-      # silently stopping while every other check still reports a clean pass.
       it 'fails' do
         v = verifier_for({ '_id' => fake_id, 'addresses' => [{ 'zip' => '02101' }] }, ['02101'])
         result = v.send(:check_zip_prehash)
@@ -416,9 +426,7 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
     end
 
     context 'when one address changed but a sibling kept its real zip' do
-      # A single digest over every zip on a record would pass here, because the
-      # aggregate changed. Each slot is compared on its own so the stale one is
-      # still caught.
+      # Each slot is compared on its own.
       it 'fails and names the stale slot' do
         v = verifier_for(
           { '_id' => fake_id, 'addresses' => [{ 'zip' => '02199' }, { 'zip' => '02110' }] },
@@ -439,9 +447,6 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
     end
 
     context 'when a zip was cleared instead of replaced' do
-      # Blanking a value removes the original, so an unchanged check passes it.
-      # Nothing else validates zip presence, so a regression that wipes every
-      # member zip would otherwise report a clean pass.
       it 'fails rather than counting the blank as a successful change' do
         v = verifier_for({ '_id' => fake_id, 'addresses' => [{ 'zip' => '' }] }, ['02101'])
         result = v.send(:check_zip_prehash)
@@ -473,7 +478,31 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
 
   # @!group check_name_dob_prehash — canonical prehash verification tests
 
+  describe '#each_prehash_record' do
+    it 'fetches multiple records together while keeping batches bounded' do
+      stub_const('DataAnonymizer::Verifier::PREHASH_BATCH_SIZE', 2)
+      documents = Array.new(3) { { '_id' => BSON::ObjectId.new } }
+      digests = documents.to_h { |doc| [doc['_id'].to_s, ['digest']] }
+      collection = instance_double(Mongo::Collection)
+      allow(db_double).to receive(:[]).with(:people).and_return(collection)
+      documents.each_slice(2) do |batch|
+        cursor = instance_double(Mongo::Collection::View)
+        expect(collection).to receive(:find).with('_id' => { '$in' => batch.map { |doc| doc['_id'] } }).once.and_return(cursor)
+        allow(cursor).to receive(:batch_size).with(2).and_return(batch)
+      end
+
+      found = []
+      verifier.send(:each_prehash_record, 'people', digests) { |doc, stored| found << [doc, stored] }
+      expect(found).to eq(documents.map { |doc| [doc, ['digest']] })
+    end
+  end
+
   describe '#check_name_dob_prehash' do
+    it 'fails when an external run has no remaining canonical digests' do
+      verifier = described_class.new(prehash_map: {}, hmac_key: 'key', run_id: 'expired-run')
+      expect(verifier.send(:check_name_dob_prehash)[:issues]).to include('No canonical digests stored')
+    end
+
     context 'when prehash_map or hmac_key is missing' do
       it 'marks itself skipped rather than passing when both are nil' do
         result = verifier.send(:check_name_dob_prehash)

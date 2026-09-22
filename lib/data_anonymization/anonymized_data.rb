@@ -14,6 +14,7 @@ module DataAnonymizer
   # FFaker seeding (+FFaker.seed = integer+) is supported but not enabled by default.
   #
   # Call as module functions: +DataAnonymizer::AnonymizedData.first_name+
+  # rubocop:disable Metrics/ModuleLength
   module AnonymizedData
     module_function
 
@@ -54,19 +55,16 @@ module DataAnonymizer
       sanitize_name(FFaker::Name.last_name)
     end
 
-    # Mirrors +Person::GENDER_KINDS+, duplicated to keep this module free of
-    # model dependencies.
+    # Mirrors +Person::GENDER_KINDS+.
     GENDERS = %w[male female].freeze
 
-    # Drawn independently rather than flipped, so the original cannot be
-    # recovered by reversing a known mapping.
+    # Random gender, independent of the stored value.
     # @return [String] 'male' or 'female'
     def gender
       GENDERS.sample
     end
 
-    # Gender guaranteed to differ from +current+, so that at least one of
-    # zip/gender/dob changes on records whose zip could not be replaced.
+    # Gender guaranteed to differ from +current+.
     # @param current [String, nil] the existing gender
     # @return [String] 'male' or 'female'
     def gender_other_than(current)
@@ -201,16 +199,13 @@ module DataAnonymizer
       sanitize_name(FFaker::Company.name, fallback: SAFE_COMPANY_FALLBACK)
     end
 
-    # A company web address names the business as plainly as its legal name.
     # @return [String] fake http url
     def website
       FFaker::Internet.http_url
     end
 
-    # Producer numbers are public licensing identifiers rather than PII, but a
-    # real one names a broker in one lookup, so replacements are used. The shape
-    # matches what the models accept: integer only, 1 to 10 digits, and no
-    # leading zero, which would not survive an integer round trip.
+    # Producer number in the shape the models accept: 1 to 10 digits,
+    # no leading zero.
     # @return [String] eight digit producer number
     def npn
       rand(10_000_000..99_999_999).to_s
@@ -228,4 +223,5 @@ module DataAnonymizer
       rand(1_000_000_000_000_000..9_999_999_999_999_999).to_s
     end
   end
+  # rubocop:enable Metrics/ModuleLength
 end

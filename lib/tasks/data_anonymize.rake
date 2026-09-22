@@ -43,8 +43,16 @@ require_relative '../data_anonymization/verifier'
 # @example Standard live run
 #   ENV_NAME=pvt bundle exec rake data:anonymize SKIP_CONFIRMATION=true
 #
-# @example Verify PII was removed after the run
-#   ENV_NAME=pvt bundle exec rake data:anonymize:verify
+# Verification compares canonical, ZIP, identity and gender digests, which expire
+# after seven days. Missing credentials produce INCOMPLETE, not PASS. Gender
+# no-op detection flags populations of at least 20 populated slots only when
+# every value is unchanged. People, census members and dependents are checked
+# separately. Smaller populations cannot reliably prove randomization.
+# Runs made before gender digests were introduced cannot verify that mutation.
+# Restore a fresh backup and rerun anonymization to capture all baseline digests.
+#
+# @example Verify PII was removed after the run using the saved credentials
+#   ENV_NAME=pvt bundle exec rake data:anonymize:verify RUN_ID=<uuid> HMAC_KEY=<hex>
 #
 # @example Reset anonymizer state after a fresh DB refresh from a prior environment
 #   ENV_NAME=pvt bundle exec rake data:anonymize:reset

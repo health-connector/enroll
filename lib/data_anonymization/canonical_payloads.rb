@@ -51,10 +51,7 @@ module DataAnonymizer
       "#{normalize(doc['legal_name'])}|#{profiles}"
     end
 
-    # Zip-only payloads, one per stored address. Kept separate because
-    # {#canonical_person_payload} includes address_1 and city, which always
-    # change, so its digest cannot prove the zip moved. Returned per slot rather
-    # than joined so that one stale zip cannot hide behind a sibling that moved.
+    # Zip per stored address, one slot each.
     # @param doc [Hash] raw person Mongo document
     # @return [Array<String>] normalized zip per address, in stored order
     def canonical_person_zip_payloads(doc)
@@ -69,8 +66,7 @@ module DataAnonymizer
       [own] + dependents
     end
 
-    # Zip per office location on an organization, covering both the legacy
-    # +office_locations+ array and the one nested under each profile.
+    # Zip per office location, covering the top level array and each profile.
     # @param doc [Hash] raw organization Mongo document
     # @return [Array<String>] normalized zip per office location
     def canonical_org_zip_payloads(doc)
@@ -81,14 +77,16 @@ module DataAnonymizer
       own + nested
     end
 
-    # Identity fields an organization is named by, one per slot. Returned
-    # separately rather than joined because the combined organization digest
-    # already changes whenever legal_name does, so it cannot prove that dba or
-    # home_page moved.
+    # Identity fields an organization is named by, one slot each.
     # @param doc [Hash] raw organization document
-    # @return [Array<String>] legal_name, dba and home_page
+    # @return [Array<String>] root identity fields followed by profile websites
     def canonical_identity_payloads(doc)
-      [normalize(doc['legal_name']), normalize(doc['dba']), normalize(doc['home_page'])]
+      root = [normalize(doc['legal_name']), normalize(doc['dba']), normalize(doc['home_page'])]
+      root + Array(doc['profiles']).map { |profile| normalize(profile['home_page']) }
+    end
+
+    def canonical_gender_payloads(doc)
+      [normalize(doc['gender'])] + Array(doc['census_dependents']).map { |dependent| normalize(dependent['gender']) }
     end
 
     # @param payloads [Array<String>] output of a zip payload helper
@@ -97,8 +95,7 @@ module DataAnonymizer
       Array(payloads).any? { |zip| zip.to_s.match?(/\d/) }
     end
 
-    # Canonical string for a plan design organization, the broker quoting
-    # workspace that names the employer being quoted.
+    # Canonical string for a plan design organization.
     # @param doc [Hash] raw plan design organization document
     # @return [String] pipe-delimited, downcased canonical string
     def canonical_plan_design_org_payload(doc)
