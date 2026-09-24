@@ -25,6 +25,7 @@ require_relative '../data_anonymization/verifier'
 #
 # Employer office locations are swapped only within the same rating area and the
 # same issuer service areas, and are left unchanged when no such pair exists.
+# Employer ZIP+4 values are also left unchanged, since rating lookups match them exactly.
 # Member addresses are swapped within the same rating area alone, and are given
 # a random zip when no pair exists, so no member retains a real zip. Premiums are
 # unchanged either way, since premium is looked up by rating area code.

@@ -1226,17 +1226,18 @@ module DataAnonymizer
         set_fields['broker_agency_profile'] = bap
       end
 
-      set_fields['office_locations'] = anonymize_office_locations(doc['office_locations']) if doc['office_locations'].present?
+      set_fields['office_locations'] = anonymize_office_locations(doc['office_locations'], doc.dig('employer_profile', '_id')) if doc['office_locations'].present?
       set_fields
     end
 
     # Replaces addresses and phones in an array of office_location sub-documents.
     # @param locations [Array<Hash>] raw office_locations array
+    # @param owner_id [BSON::ObjectId, nil] employer profile the locations belong to
     # @return [Array<Hash>] anonymized copies
-    def anonymize_office_locations(locations)
+    def anonymize_office_locations(locations, owner_id = nil)
       locations.map do |ol|
         ol = ol.dup
-        ol['address'] = anonymize_address_hash(ol['address']) if ol['address'].present?
+        ol['address'] = anonymize_address_hash(ol['address'], owner_id: owner_id) if ol['address'].present?
         ol['phone']   = anonymize_phone_hash(ol['phone'])     if ol['phone'].present?
         ol
       end
@@ -1310,7 +1311,7 @@ module DataAnonymizer
       profile['ach_account_number']  = AnonymizedData.account_number if profile['ach_account_number'].present?
       profile['corporate_npn']       = replacement_npn(profile['corporate_npn']) if profile['corporate_npn'].present?
       profile['home_page']           = AnonymizedData.website if profile['home_page'].present? && !issuer_profile?(profile)
-      profile['office_locations']    = anonymize_office_locations(profile['office_locations']) if profile['office_locations'].present?
+      profile['office_locations']    = anonymize_office_locations(profile['office_locations'], profile['_id']) if profile['office_locations'].present?
       profile['employer_attestation'] = anonymize_employer_attestation(profile['employer_attestation']) if profile['employer_attestation'].present?
       profile
     end
@@ -1386,10 +1387,17 @@ module DataAnonymizer
     def anonymized_broker_name(profile_id)
       return AnonymizedData.company_name if profile_id.blank?
 
+      @anonymized_broker_names ||= {}
+      @anonymized_broker_names[profile_id] ||= broker_legal_name(profile_id).presence || AnonymizedData.company_name
+    end
+
+    # @param profile_id [BSON::ObjectId] broker agency profile id
+    # @return [String, nil] legal name already written by the organization phases
+    def broker_legal_name(profile_id)
       organization = db[:benefit_sponsors_organizations_organizations]
                      .find('profiles._id' => profile_id).projection('legal_name' => 1).first
       organization ||= db[:organizations].find('broker_agency_profile._id' => profile_id).projection('legal_name' => 1).first
-      organization&.dig('legal_name').presence || AnonymizedData.company_name
+      organization&.dig('legal_name')
     end
 
     # @return [Hash] proposal with every nested benefit group title rewritten
@@ -1429,7 +1437,7 @@ module DataAnonymizer
       set_fields = { 'legal_name' => AnonymizedData.company_name }
       set_fields['dba'] = AnonymizedData.company_name if doc['dba'].present?
       set_fields['home_page'] = AnonymizedData.website if doc['home_page'].present?
-      set_fields['office_locations'] = anonymize_office_locations(doc['office_locations']) if doc['office_locations'].present?
+      set_fields['office_locations'] = anonymize_office_locations(doc['office_locations'], doc['sponsor_profile_id']) if doc['office_locations'].present?
       proposals = anonymize_plan_design_proposals(doc, set_fields['legal_name'])
       set_fields['plan_design_proposals'] = proposals if proposals
       set_fields
@@ -1668,8 +1676,9 @@ module DataAnonymizer
     # @param addr [Hash, nil] embedded address sub-document
     # @param strict_geo [Boolean] true for employer addresses, which must also
     #   keep their service areas
+    # @param owner_id [BSON::ObjectId, nil] employer profile the address belongs to
     # @return [Hash, nil] anonymized copy, or nil if input is nil
-    def anonymize_address_hash(addr, strict_geo: true)
+    def anonymize_address_hash(addr, strict_geo: true, owner_id: nil)
       return addr if addr.nil?
 
       addr = addr.dup
@@ -1677,14 +1686,24 @@ module DataAnonymizer
       addr['address_2'] = nil
       addr['address_3'] = nil if addr.key?('address_3')
       addr['city'] = AnonymizedData.city
-      if @anonymize_zip
-        addr['zip'] = random_zip_other_than(addr['zip'])
-        @geo_swap_randomized += 1
-      else
-        apply_geo_swap(addr, strict_geo: strict_geo)
-      end
+      replace_zip(addr, strict_geo, owner_id)
       addr['state'] = random_state_other_than(addr['state']) if addr.key?('state') && @anonymize_state
       addr['county'] = AnonymizedData.county if addr.key?('county') && @anonymize_county
+      addr
+    end
+
+    # @param addr [Hash] address sub-document being anonymized
+    # @param strict_geo [Boolean] true for employer addresses
+    # @param owner_id [BSON::ObjectId, nil] employer profile the address belongs to
+    # @return [Hash] the same hash
+    def replace_zip(addr, strict_geo, owner_id)
+      return apply_geo_swap(addr, strict_geo: strict_geo, owner_id: owner_id) unless @anonymize_zip
+
+      # Filling in a blank zip would add data the record never held.
+      return addr if addr['zip'].to_s.strip.empty?
+
+      addr['zip'] = random_zip_other_than(addr['zip'])
+      @geo_swap_randomized += 1
       addr
     end
 
@@ -1703,13 +1722,14 @@ module DataAnonymizer
     # Mutates +addr+ in place.
     # @param addr [Hash] address sub-document being anonymized
     # @param strict_geo [Boolean] true for employer addresses
+    # @param owner_id [BSON::ObjectId, nil] employer profile the address belongs to
     # @return [Hash] the same hash
-    def apply_geo_swap(addr, strict_geo: true)
+    def apply_geo_swap(addr, strict_geo: true, owner_id: nil)
       # Filling in a blank zip would add data the record never held.
       return addr if addr['zip'].to_s.strip.empty?
 
       alternatives = geo_swap_map(strict_geo: strict_geo)[address_key(addr, strict_geo)]
-      return swap_within_group(addr, alternatives, strict_geo: strict_geo) if alternatives.present?
+      return swap_within_group(addr, alternatives, owner_id: owner_id) if alternatives.present?
 
       # An employer zip is left alone so it keeps resolving to its rating area.
       # An unmatched person zip resolves to none, so it is randomized.
@@ -1724,11 +1744,13 @@ module DataAnonymizer
 
     # @param addr [Hash] address being anonymized
     # @param alternatives [Array<Hash>] interchangeable zip/county pairs
+    # @param owner_id [BSON::ObjectId, nil] employer profile the address belongs to
     # @return [Hash] the same hash, updated
-    def swap_within_group(addr, alternatives, strict_geo: true)
-      replacement = if strict_geo
-                      @employer_geo_replacements ||= {}
-                      @employer_geo_replacements[address_key(addr, true)] ||= alternatives.sample
+    def swap_within_group(addr, alternatives, owner_id: nil)
+      # A quote must match its employer zip and county to be claimed, so they share a replacement.
+      replacement = if owner_id.present?
+                      @linked_geo_replacements ||= {}
+                      @linked_geo_replacements[[owner_id.to_s, address_key(addr, true)]] ||= alternatives.sample
                     else
                       alternatives.sample
                     end
@@ -2021,7 +2043,7 @@ module DataAnonymizer
           payloads = canonical_identity_payloads(doc)
           next if payloads.all?(&:blank?)
 
-          map[collection_name][doc['_id'].to_s] = zip_slot_digests(doc['_id'], payloads)
+          map[collection_name][doc['_id'].to_s] = slot_digests(doc['_id'], payloads)
         end
       end
     end
@@ -2036,7 +2058,7 @@ module DataAnonymizer
           payloads = canonical_gender_payloads(doc)
           next if payloads.all?(&:blank?)
 
-          map[collection_name][doc['_id'].to_s] = zip_slot_digests(doc['_id'], payloads)
+          map[collection_name][doc['_id'].to_s] = slot_digests(doc['_id'], payloads)
         end
       end
     end
@@ -2080,7 +2102,7 @@ module DataAnonymizer
         payloads = canonical_org_zip_payloads(doc)
         next unless zip_payload_present?(payloads)
 
-        map[collection_name][doc['_id'].to_s] = zip_slot_digests(doc['_id'], payloads)
+        map[collection_name][doc['_id'].to_s] = slot_digests(doc['_id'], payloads)
       end
     end
 
@@ -2092,7 +2114,7 @@ module DataAnonymizer
         payloads = canonical_person_zip_payloads(doc)
         next unless zip_payload_present?(payloads)
 
-        map[:people][doc['_id'].to_s] = zip_slot_digests(doc['_id'], payloads)
+        map[:people][doc['_id'].to_s] = slot_digests(doc['_id'], payloads)
       end
     end
 
@@ -2102,7 +2124,7 @@ module DataAnonymizer
         payloads = canonical_census_zip_payloads(doc)
         next unless zip_payload_present?(payloads)
 
-        map[:census_members][doc['_id'].to_s] = zip_slot_digests(doc['_id'], payloads)
+        map[:census_members][doc['_id'].to_s] = slot_digests(doc['_id'], payloads)
       end
     end
 
@@ -2111,7 +2133,7 @@ module DataAnonymizer
     # @param record_id [BSON::ObjectId, String] owning record
     # @param payloads [Array<String>] normalized field values
     # @return [Array<String, nil>]
-    def zip_slot_digests(record_id, payloads)
+    def slot_digests(record_id, payloads)
       payloads.each_with_index.map do |payload, index|
         next if payload.blank?
 

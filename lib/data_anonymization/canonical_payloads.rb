@@ -82,11 +82,11 @@ module DataAnonymizer
     # @return [Array<String>] root identity fields followed by profile websites
     def canonical_identity_payloads(doc)
       root = [normalize(doc['legal_name']), normalize(doc['dba']), normalize(doc['home_page'])]
-      root + Array(doc['profiles']).map { |profile| normalize(profile['home_page']) }
+      root + Array(doc['profiles']).map { |profile| normalize((profile || {})['home_page']) }
     end
 
     def canonical_gender_payloads(doc)
-      [normalize(doc['gender'])] + Array(doc['census_dependents']).map { |dependent| normalize(dependent['gender']) }
+      [normalize(doc['gender'])] + Array(doc['census_dependents']).map { |dependent| normalize((dependent || {})['gender']) }
     end
 
     # Binds a slot value to its record so equal originals never share a digest.

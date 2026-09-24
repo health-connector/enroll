@@ -496,6 +496,18 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
       verifier.send(:each_prehash_record, 'people', digests) { |doc, stored| found << [doc, stored] }
       expect(found).to eq(documents.map { |doc| [doc, ['digest']] })
     end
+
+    it 'looks up a record whose id is not an ObjectId instead of skipping it' do
+      collection = instance_double(Mongo::Collection)
+      cursor = instance_double(Mongo::Collection::View)
+      allow(db_double).to receive(:[]).with(:people).and_return(collection)
+      expect(collection).to receive(:find).with('_id' => { '$in' => ['legacy-id'] }).and_return(cursor)
+      allow(cursor).to receive(:batch_size).and_return([{ '_id' => 'legacy-id' }])
+
+      found = []
+      verifier.send(:each_prehash_record, 'people', { 'legacy-id' => ['digest'] }) { |doc, _stored| found << doc['_id'] }
+      expect(found).to eq(['legacy-id'])
+    end
   end
 
   describe '#check_name_dob_prehash' do
@@ -648,6 +660,13 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
         ]
       }
       expect(verifier.send(:canonical_bs_org_payload, doc)).to eq('bs corp|111000025:12345')
+    end
+  end
+
+  describe 'slot payloads with missing embedded entries' do
+    it 'treats a nil profile or dependent as an empty slot' do
+      expect(verifier.send(:canonical_identity_payloads, { 'legal_name' => 'X', 'profiles' => [nil] })).to eq(['x', '', '', ''])
+      expect(verifier.send(:canonical_gender_payloads, { 'gender' => 'male', 'census_dependents' => [nil] })).to eq(['male', ''])
     end
   end
 

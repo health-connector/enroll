@@ -543,8 +543,8 @@ module DataAnonymizer
     def each_prehash_record(collection_name, id_map)
       id_map.each_slice(PREHASH_BATCH_SIZE) do |entries|
         stored = entries.to_h
-        ids = stored.keys.filter_map { |id| BSON::ObjectId.from_string(id) if BSON::ObjectId.legal?(id) }
-        next if ids.empty?
+        # Most ids are ObjectIds, but a string id must still be looked up rather than skipped.
+        ids = stored.keys.map { |id| BSON::ObjectId.legal?(id) ? BSON::ObjectId.from_string(id) : id }
 
         @db[collection_name.to_sym].find('_id' => { '$in' => ids }).batch_size(PREHASH_BATCH_SIZE).each do |doc|
           yield doc, stored.fetch(doc['_id'].to_s)
@@ -741,8 +741,8 @@ module DataAnonymizer
       allowed = ALLOWED_GENDERS + [nil, '']
       collection.count_documents(
         '$or' => [
-          { 'gender' => { '$nin' => allowed } },
-          { 'census_dependents' => { '$elemMatch' => { 'gender' => { '$nin' => allowed } } } }
+          { 'gender' => { '$exists' => true, '$nin' => allowed } },
+          { 'census_dependents' => { '$elemMatch' => { 'gender' => { '$exists' => true, '$nin' => allowed } } } }
         ]
       )
     end

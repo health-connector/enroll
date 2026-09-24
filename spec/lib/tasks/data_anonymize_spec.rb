@@ -1232,6 +1232,12 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
           res = zip_runner.send(:anonymize_address_hash, addr)
           expect(res['zip']).not_to eq('99999')
         end
+
+        it 'leaves a blank zip blank rather than inventing one' do
+          zip_runner = DataAnonymizer::Runner.new(batch_size: 5, force: true, anonymize_zip: true)
+          expect(zip_runner.send(:anonymize_address_hash, addr.merge('zip' => ''))['zip']).to eq('')
+          expect(zip_runner.instance_variable_get(:@geo_swap_randomized)).to eq(0)
+        end
       end
 
       context 'when anonymize_county: true' do
@@ -1264,17 +1270,36 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
         expect(addr['city']).to eq(original_city)
       end
 
-      it 'keeps quote and employer zip and county equal across repeated swaps' do
+      it 'keeps a quote and its linked employer on the same zip and county' do
         alternatives = [
           { 'zip' => '02108', 'county' => 'Suffolk', 'state' => 'MA' },
           { 'zip' => '02109', 'county' => 'Suffolk', 'state' => 'MA' }
         ]
+        employer_profile_id = BSON::ObjectId.new
         allow(runner).to receive(:geo_swap_map).and_return({ runner.send(:address_key, addr, true) => alternatives })
         expect(alternatives).to receive(:sample).once.and_return(alternatives.first)
 
-        employer = runner.send(:anonymize_address_hash, addr)
-        quote = runner.send(:anonymize_address_hash, addr)
+        employer = runner.send(:anonymize_address_hash, addr, owner_id: employer_profile_id)
+        quote = runner.send(:anonymize_address_hash, addr, owner_id: employer_profile_id)
         expect(quote.values_at('zip', 'county')).to eq(employer.values_at('zip', 'county'))
+      end
+
+      it 'draws separately for unlinked employers so a zip is not relabeled as a whole' do
+        alternatives = [{ 'zip' => '02108', 'county' => 'Suffolk', 'state' => 'MA' }]
+        allow(runner).to receive(:geo_swap_map).and_return({ runner.send(:address_key, addr, true) => alternatives })
+        expect(alternatives).to receive(:sample).twice.and_call_original
+
+        runner.send(:anonymize_address_hash, addr, owner_id: BSON::ObjectId.new)
+        runner.send(:anonymize_address_hash, addr, owner_id: BSON::ObjectId.new)
+      end
+
+      it 'pairs a plan design organization with the employer profile it quotes' do
+        employer_profile_id = BSON::ObjectId.new
+        location = [{ 'address' => addr }]
+        expect(runner).to receive(:anonymize_address_hash).with(addr, owner_id: employer_profile_id).twice.and_return(addr)
+
+        runner.send(:anonymize_bs_profile, { '_id' => employer_profile_id, 'office_locations' => location })
+        runner.send(:build_plan_design_org_update, { 'sponsor_profile_id' => employer_profile_id, 'office_locations' => location })
       end
     end
 
@@ -1413,6 +1438,12 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
 
       it 'leaves a record with no proposals untouched' do
         expect(runner.send(:build_plan_design_org_update, { 'legal_name' => 'X' })).not_to have_key('plan_design_proposals')
+      end
+
+      it 'looks up each broker agency name once across its quotes' do
+        owner_id = BSON::ObjectId.new
+        expect(runner).to receive(:broker_legal_name).with(owner_id).once.and_return('Replacement Agency')
+        2.times { runner.send(:build_plan_design_org_update, org_with_title.merge('owner_profile_id' => owner_id)) }
       end
 
       it 'rewrites saved benefit groups using the anonymized broker name and preserves their IDs' do
