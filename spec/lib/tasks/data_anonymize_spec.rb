@@ -1168,6 +1168,25 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
         runner.run
         expect(runner.db[:data_anonymizer_runs].count_documents({})).to eq(0)
       end
+
+      it 'returns the run key to the caller without writing it to the Rails log' do
+        logged = []
+        allow(Rails.logger).to receive(:info).and_wrap_original do |method, message|
+          logged << message.to_s
+          method.call(message)
+        end
+
+        result = runner.run
+
+        expect(result).to include(:run_id, report_path: '/tmp/report.csv')
+        expect(result[:hmac_key]).to be_present
+        expect(logged.join("\n")).not_to include(result[:hmac_key])
+      end
+
+      it 'returns no run key when verification fails' do
+        allow_any_instance_of(DataAnonymizer::Verifier).to receive(:run).and_return([[], false, '/tmp/report.csv', 'STATUS: FAIL'])
+        expect(runner.run).to eq(status_line: 'STATUS: FAIL', report_path: '/tmp/report.csv')
+      end
     end
 
     # @!group Helper: anonymize_address_hash — address anonymization helper tests
@@ -1454,6 +1473,16 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
 
         verifier = DataAnonymizer::Verifier.new
         expect(verifier.send(:count_invalid_genders, collection)).to eq(1)
+      end
+
+      it 'does not count a person or dependent whose gender field is absent' do
+        collection = runner.db[:census_members]
+        collection.insert_one('first_name' => 'A', 'census_dependents' => [{ 'first_name' => 'B' }])
+        runner.db[:people].insert_one('first_name' => 'C')
+
+        verifier = DataAnonymizer::Verifier.new
+        expect(verifier.send(:count_invalid_genders, collection)).to eq(0)
+        expect(verifier.send(:count_invalid_genders, runner.db[:people])).to eq(0)
       end
     end
 
@@ -1770,6 +1799,15 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
         expect(map[:people]).to have_key(person.id.to_s)
       end
 
+      it 'gives records that share an original zip different digests' do
+        other = FactoryBot.create(:person)
+        address = runner.db[:people].find('_id' => person.id).first['addresses']
+        runner.db[:people].update_one({ '_id' => other.id }, { '$set' => { 'addresses' => address } })
+
+        map = runner.send(:generate_zip_prehash_map)
+        expect(map[:people][person.id.to_s]).not_to eq(map[:people][other.id.to_s])
+      end
+
       it 'passes verification once the swap has run' do
         map = runner.send(:generate_zip_prehash_map)
         runner.send(:anonymize_people)
@@ -1831,7 +1869,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
         end
       end
 
-      describe 'guaranteeing at least one attribute changes' do
+      describe 'gender is random whether or not a zip is stored' do
         let!(:suffolk) { FactoryBot.create(:benefit_markets_locations_county_zip, county_name: 'Suffolk', zip: '02101', state: 'MA') }
         let!(:norfolk) { FactoryBot.create(:benefit_markets_locations_county_zip, county_name: 'Norfolk', zip: '02108', state: 'MA') }
         let!(:lonely)  { FactoryBot.create(:benefit_markets_locations_county_zip, county_name: 'Dukes', zip: '02535', state: 'MA') }
@@ -1875,35 +1913,29 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
           expect(results.uniq.sort).to eq(%w[female male])
         end
 
-        it 'forces gender to change when the record has no addresses at all' do
-          20.times do
-            fields = runner.send(:build_person_update, { 'first_name' => 'A', 'gender' => 'male' }, shift_days: 0)
-            expect(fields['gender']).to eq('female')
+        # A deterministic flip on zip-less records would let anyone recover the original.
+        it 'draws gender at random when the record has no addresses at all' do
+          results = Array.new(40) do
+            runner.send(:build_person_update, { 'first_name' => 'A', 'gender' => 'male' }, shift_days: 0)['gender']
           end
+          expect(results.uniq.sort).to eq(%w[female male])
         end
 
-        it 'forces gender to change when the record stores no zip at all' do
-          20.times do
-            fields = runner.send(:build_person_update, addressless_doc('male'), shift_days: 0)
-            expect(fields['gender']).to eq('female')
-          end
+        it 'draws gender at random when the record stores no zip at all' do
+          results = Array.new(40) { runner.send(:build_person_update, addressless_doc('male'), shift_days: 0)['gender'] }
+          expect(results.uniq.sort).to eq(%w[female male])
         end
 
-        it 'forces the opposite direction too' do
-          fields = runner.send(:build_person_update, addressless_doc('female'), shift_days: 0)
-          expect(fields['gender']).to eq('male')
-        end
-
-        it 'forces the change for a census member storing no zip' do
+        it 'draws gender at random for a census member storing no zip' do
           doc = { 'gender' => 'male', 'address' => { 'state' => 'MA' } }
-          fields = runner.send(:build_census_member_fields_random, doc, 0)
-          expect(fields['gender']).to eq('female')
+          results = Array.new(40) { runner.send(:build_census_member_fields_random, doc, 0)['gender'] }
+          expect(results.uniq.sort).to eq(%w[female male])
         end
 
-        it 'forces the change for a dependent storing no zip' do
+        it 'draws gender at random for a dependent storing no zip' do
           dep = { 'gender' => 'female', 'address' => { 'state' => 'MA' } }
-          result = runner.send(:anonymize_census_dependent_hash, dep, shift_days: 0)
-          expect(result['gender']).to eq('male')
+          results = Array.new(40) { runner.send(:anonymize_census_dependent_hash, dep, shift_days: 0)['gender'] }
+          expect(results.uniq.sort).to eq(%w[female male])
         end
       end
 
@@ -1922,10 +1954,10 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       end
 
       describe 'census gender when the linked person has none' do
-        it 'does not leave the census member with its real gender' do
+        it 'gives the census member a random gender rather than keeping its real one' do
           person_vals = { 'first_name' => 'A', 'last_name' => 'B', 'gender' => nil }
-          fields = runner.send(:build_census_member_fields_from_person, { 'gender' => 'male' }, person_vals)
-          expect(fields['gender']).to eq('female')
+          results = Array.new(40) { runner.send(:build_census_member_fields_from_person, { 'gender' => 'male' }, person_vals)['gender'] }
+          expect(results.uniq.sort).to eq(%w[female male])
         end
 
         it 'copies the person gender when there is one' do
@@ -2173,8 +2205,14 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
           expect(result['zip']).to eq('02108')
         end
 
-        it 'matches a ZIP+4 employer address to the five-digit reference data' do
+        it 'preserves a ZIP+4 employer address, whose lookups match the stored zip exactly' do
           result = runner.send(:anonymize_address_hash, address('02101-0001', 'Suffolk'), strict_geo: true)
+          expect(result['zip']).to eq('02101-0001')
+          expect(runner.instance_variable_get(:@geo_swap_skipped)).to eq(1)
+        end
+
+        it 'swaps a ZIP+4 member address using its five digit prefix' do
+          result = runner.send(:anonymize_address_hash, address('02101-0001', ''), strict_geo: false)
           expect(result['zip']).to eq('02108')
         end
 
@@ -2961,6 +2999,32 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       expect(results.select { |r| r[:skipped] }.map { |r| r[:collection] })
         .to contain_exactly('Canonical prehash', 'Zip prehash', 'Identity prehash', 'Gender prehash')
       expect(results.reject { |r| r[:skipped] }).to all(include(passed: true))
+    end
+
+    it 'prints the status and report path to the terminal' do
+      expect { Rake::Task['data:anonymize:verify'].invoke }
+        .to output(/STATUS: INCOMPLETE.*Report written to: /m).to_stdout
+    end
+  end
+
+  describe 'data:anonymize rake task' do
+    before do
+      load File.expand_path("#{Rails.root}/lib/tasks/data_anonymize.rake", __FILE__)
+      Rake::Task.define_task(:environment)
+      Rake::Task['data:anonymize'].reenable
+    end
+
+    it 'prints the status and re-verification credentials to the terminal' do
+      allow_any_instance_of(DataAnonymizer::Runner).to receive(:run).and_return(
+        status_line: 'STATUS: PASS', report_path: '/tmp/report.csv', run_id: 'run-123', hmac_key: 'key-456'
+      )
+      expect { Rake::Task['data:anonymize'].invoke }
+        .to output(%r{STATUS: PASS.*/tmp/report\.csv.*RUN_ID=run-123 HMAC_KEY=key-456}m).to_stdout
+    end
+
+    it 'prints no credentials when verification fails' do
+      allow_any_instance_of(DataAnonymizer::Runner).to receive(:run).and_return(status_line: 'STATUS: FAIL', report_path: '/tmp/report.csv')
+      expect { Rake::Task['data:anonymize'].invoke }.not_to output(/HMAC_KEY=/).to_stdout
     end
   end
 end

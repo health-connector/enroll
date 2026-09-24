@@ -105,7 +105,7 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
     let(:fake_id)  { BSON::ObjectId.new }
 
     def digests_for(values)
-      values.map { |v| v.presence && OpenSSL::HMAC.hexdigest('SHA256', hmac_key, v) }
+      values.each_with_index.map { |v, i| v.presence && OpenSSL::HMAC.hexdigest('SHA256', hmac_key, "#{fake_id}:#{i}:#{v}") }
     end
 
     def verifier_for(doc_after, stored_values)
@@ -118,8 +118,9 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
       view_double = instance_double(Mongo::Collection::View)
       allow(db_double).to receive(:collection_names).and_return(['organizations'])
       allow(db_double).to receive(:[]).with(:organizations).and_return(collection_double)
-      allow(collection_double).to receive(:find).and_return(view_double)
-      allow(view_double).to receive(:first).and_return(doc_after)
+      allow(collection_double).to receive(:find).with('_id' => { '$in' => [fake_id] }).and_return(view_double)
+      allow(view_double).to receive(:batch_size).and_return(view_double)
+      allow(view_double).to receive(:each).and_yield(doc_after.merge('_id' => fake_id))
       v
     end
 
@@ -346,13 +347,13 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
     let(:hmac_key) { 'test_key_abcdef1234567890' }
     let(:fake_id)  { BSON::ObjectId.new }
 
-    def digest_for(zip)
-      OpenSSL::HMAC.hexdigest('SHA256', hmac_key, zip)
+    def digest_for(index, zip)
+      OpenSSL::HMAC.hexdigest('SHA256', hmac_key, "#{fake_id}:#{index}:#{zip}")
     end
 
     # +stored_zips+ is the pre-run zip per address slot, in stored order.
     def verifier_for(doc_after, stored_zips)
-      digests = Array(stored_zips).map { |zip| zip.presence && digest_for(zip) }
+      digests = Array(stored_zips).each_with_index.map { |zip, index| zip.presence && digest_for(index, zip) }
       v = described_class.new(
         mode: :audit,
         zip_prehash_map: { people: { fake_id.to_s => digests } },

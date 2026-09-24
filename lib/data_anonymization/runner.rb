@@ -111,7 +111,6 @@ module DataAnonymizer
       @geo_swap_applied = 0
       @geo_swap_skipped = 0
       @geo_swap_randomized = 0
-      @forced_gender_changes = 0
     end
     # rubocop:enable Metrics/ParameterLists
 
@@ -159,7 +158,7 @@ module DataAnonymizer
     # People must run before census_members so that
     # {#build_person_values_map_for_census} can read already-anonymized values.
     #
-    # @return [void]
+    # @return [Hash] operator summary for the rake task, including the run key on success
     def run
       abort_if_production!
       check_idempotency!
@@ -182,7 +181,7 @@ module DataAnonymizer
       # Post-run: run audit verifier (expensive) and require pass before recording sentinel
       if @dry_run
         log "Skipping verifier (dry run)"
-        return
+        return { status_line: 'DRY RUN complete - no data was written. Record counts are in the Rails log.' }
       end
 
       verifier = DataAnonymizer::Verifier.new(
@@ -195,18 +194,20 @@ module DataAnonymizer
         hmac_key: @prehash_hmac_key,
         protected_oim_ids: PROTECTED_OIM_IDS
       )
-      _results, all_passed, report_path = verifier.run
+      _results, all_passed, report_path, status_line = verifier.run
+      summary = { status_line: status_line, report_path: report_path }
 
       unless all_passed
         log "VERIFIER FAILED - report: #{report_path}"
         log "Sentinel will NOT be recorded; investigate and remediate before sharing dumps."
-        return
+        return summary
       end
 
       record_run_sentinel
-      log "Re-verification credentials - RUN_ID=#{@prehash_run_id} HMAC_KEY=#{@prehash_hmac_key}"
-      log "Store these values to re-run: bundle exec rake data:anonymize:verify RUN_ID=<value> HMAC_KEY=<value>"
+      # The key unlocks the stored digests, so it goes to the operator terminal only.
+      log "Re-verification RUN_ID=#{@prehash_run_id}. HMAC_KEY is printed to the terminal only."
       log_admin_access_hint
+      summary.merge(run_id: @prehash_run_id, hmac_key: @prehash_hmac_key)
     end
 
     private
@@ -291,7 +292,6 @@ module DataAnonymizer
     # @return [void]
     def log_geo_swap_stats
       log "  geographic swap: #{@geo_swap_applied} addresses swapped, #{@geo_swap_randomized} given a random zip, #{@geo_swap_skipped} preserved"
-      log "  forced gender change for #{@forced_gender_changes} records whose zip could not be swapped"
     end
 
     # Prints the admin portal access details so an operator can immediately
@@ -555,7 +555,7 @@ module DataAnonymizer
       end
       fields['tribal_id'] = nil if doc['tribal_id'].present?
       fields['broker_role'] = anonymize_broker_role(doc['broker_role']) if doc['broker_role'].present?
-      fields['gender'] = gender_for(doc['gender'], Array(doc['addresses'])) if doc['gender'].present?
+      fields['gender'] = AnonymizedData.gender if doc['gender'].present?
       fields.merge!(anonymize_person_dates(doc, shift_days))
       fields.merge!(anonymize_person_embedded(doc))
     end
@@ -1136,16 +1136,8 @@ module DataAnonymizer
       }
       fields['encrypted_ssn'] = person_vals['encrypted_ssn'] if doc['encrypted_ssn'].present? && person_vals['encrypted_ssn'].present?
       fields['dob']           = person_vals['dob']           if @anonymize_dob && doc['dob'].present? && person_vals['dob'].present?
-      fields['gender'] = census_gender_from(doc, person_vals) if doc['gender'].present?
+      fields['gender'] = person_vals['gender'].presence || AnonymizedData.gender if doc['gender'].present?
       fields
-    end
-
-    # Person gender is optional.
-    # @param doc [Hash] raw census_member document
-    # @param person_vals [Hash] anonymized values from the linked person
-    # @return [String] replacement gender
-    def census_gender_from(doc, person_vals)
-      person_vals['gender'].presence || gender_for(doc['gender'], [doc['address']].compact)
     end
 
     def build_census_member_fields_random(doc, shift_days)
@@ -1157,7 +1149,7 @@ module DataAnonymizer
       }
       fields['encrypted_ssn'] = AnonymizedData.encrypted_ssn if doc['encrypted_ssn'].present?
       fields['dob'] = AnonymizedData.shift_dob(doc['dob'].to_date, shift_days: shift_days) if @anonymize_dob && doc['dob'].present?
-      fields['gender'] = gender_for(doc['gender'], [doc['address']].compact) if doc['gender'].present?
+      fields['gender'] = AnonymizedData.gender if doc['gender'].present?
       fields
     end
 
@@ -1173,7 +1165,7 @@ module DataAnonymizer
       dep['middle_name'] = nil
       dep['name_sfx'] = nil
       dep['encrypted_ssn'] = AnonymizedData.encrypted_ssn if dep['encrypted_ssn'].present?
-      dep['gender'] = gender_for(dep['gender'], [dep['address']].compact) if dep['gender'].present?
+      dep['gender'] = AnonymizedData.gender if dep['gender'].present?
       dep['dob'] = AnonymizedData.shift_dob(dep['dob'].to_date, shift_days: shift_days) if @anonymize_dob && dep['dob'].present?
       dep['address'] = anonymize_address_hash(dep['address'], strict_geo: false) if dep['address'].present?
       dep['email']   = anonymize_email_hash(dep['email'])     if dep['email'].present?
@@ -1348,8 +1340,6 @@ module DataAnonymizer
       attestation
     end
 
-    # Anonymizes the broker quoting workspace.
-    #
     # Anonymizes the broker quoting workspace.
     #
     # @note +fein+ is intentionally NOT anonymized.
@@ -1907,23 +1897,6 @@ module DataAnonymizer
       membership
     end
 
-    # Forces a change only where the record stores no zip.
-    # @param current_gender [String, nil] existing value
-    # @param addresses [Array<Hash>] the record's address sub-documents
-    # @return [String] replacement gender
-    def gender_for(current_gender, addresses)
-      return AnonymizedData.gender if Array(addresses).any? { |addr| exposes_zip?(addr) }
-
-      @forced_gender_changes += 1
-      AnonymizedData.gender_other_than(current_gender)
-    end
-
-    # @param addr [Hash, nil] address sub-document
-    # @return [Boolean]
-    def exposes_zip?(addr)
-      addr.present? && addr['zip'].to_s.strip.present?
-    end
-
     # Employer addresses key on zip, county and state, matching rating area
     # lookup. Member addresses key on zip and state only, because county is
     # blank on effectively every stored member address.
@@ -1941,11 +1914,10 @@ module DataAnonymizer
     # @param strict_geo [Boolean]
     # @return [Array<String>] lookup key for this address
     def address_key(addr, strict_geo)
-      # Reference data is five digit.
-      zip = five_digit_zip(addr['zip'])
-      return geo_key(zip, addr['county'], addr['state']) if strict_geo
+      # Employer lookups match the stored zip exactly, so an extended zip finds no partner.
+      return geo_key(addr['zip'], addr['county'], addr['state']) if strict_geo
 
-      person_geo_key(zip, addr['state'])
+      person_geo_key(five_digit_zip(addr['zip']), addr['state'])
     end
 
     # @param zip [String, nil]
@@ -2049,7 +2021,7 @@ module DataAnonymizer
           payloads = canonical_identity_payloads(doc)
           next if payloads.all?(&:blank?)
 
-          map[collection_name][doc['_id'].to_s] = zip_slot_digests(payloads)
+          map[collection_name][doc['_id'].to_s] = zip_slot_digests(doc['_id'], payloads)
         end
       end
     end
@@ -2064,7 +2036,7 @@ module DataAnonymizer
           payloads = canonical_gender_payloads(doc)
           next if payloads.all?(&:blank?)
 
-          map[collection_name][doc['_id'].to_s] = zip_slot_digests(payloads)
+          map[collection_name][doc['_id'].to_s] = zip_slot_digests(doc['_id'], payloads)
         end
       end
     end
@@ -2108,7 +2080,7 @@ module DataAnonymizer
         payloads = canonical_org_zip_payloads(doc)
         next unless zip_payload_present?(payloads)
 
-        map[collection_name][doc['_id'].to_s] = zip_slot_digests(payloads)
+        map[collection_name][doc['_id'].to_s] = zip_slot_digests(doc['_id'], payloads)
       end
     end
 
@@ -2120,7 +2092,7 @@ module DataAnonymizer
         payloads = canonical_person_zip_payloads(doc)
         next unless zip_payload_present?(payloads)
 
-        map[:people][doc['_id'].to_s] = zip_slot_digests(payloads)
+        map[:people][doc['_id'].to_s] = zip_slot_digests(doc['_id'], payloads)
       end
     end
 
@@ -2130,19 +2102,20 @@ module DataAnonymizer
         payloads = canonical_census_zip_payloads(doc)
         next unless zip_payload_present?(payloads)
 
-        map[:census_members][doc['_id'].to_s] = zip_slot_digests(payloads)
+        map[:census_members][doc['_id'].to_s] = zip_slot_digests(doc['_id'], payloads)
       end
     end
 
     # One digest per field slot, in stored order. Blank slots carry nil so a
     # slot that never held a value is not later mistaken for a stale one.
+    # @param record_id [BSON::ObjectId, String] owning record
     # @param payloads [Array<String>] normalized field values
     # @return [Array<String, nil>]
-    def zip_slot_digests(payloads)
-      payloads.map do |payload|
+    def zip_slot_digests(record_id, payloads)
+      payloads.each_with_index.map do |payload, index|
         next if payload.blank?
 
-        OpenSSL::HMAC.hexdigest('SHA256', @prehash_hmac_key, payload)
+        OpenSSL::HMAC.hexdigest('SHA256', @prehash_hmac_key, slot_digest_payload(record_id, index, payload))
       end
     end
 

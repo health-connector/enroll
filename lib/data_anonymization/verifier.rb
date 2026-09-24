@@ -22,7 +22,7 @@ module DataAnonymizer
   # Writes a CSV report to +tmp/anonymization_report_YYYYMMDD.csv+.
   #
   # @note +fein+ is not checked, as it is intentionally unchanged. +dba+ is
-  #   verified through the identity digest, +npn+ through its own remap.
+  #   verified through the identity digest. +npn+ is remapped by the runner but not verified.
   # rubocop:disable Metrics/ClassLength
   class Verifier
     include CanonicalPayloads
@@ -116,7 +116,7 @@ module DataAnonymizer
       log "Report written to: #{report_path}"
 
       # Return results for callers that want to gate on verification
-      [results, all_passed, report_path]
+      [results, all_passed, report_path, status_line(status)]
     end
 
     private
@@ -143,7 +143,7 @@ module DataAnonymizer
         "Re-run with the RUN_ID and HMAC_KEY printed at anonymization time. " \
         "Digests expire 7 days after the run."
       else
-        "STATUS: PASS - All checks passed. Safe to dump and share."
+        "STATUS: PASS - All checks passed. Safe to dump and share with data_anonymizer_prehashes excluded."
       end
     end
 
@@ -318,7 +318,7 @@ module DataAnonymizer
     def inspect_zip_record(collection_sym, doc, stored_digests, tally)
       tally[:total] += 1
       record = "#{collection_sym}:#{doc['_id']}"
-      comparison = compare_slots(zip_payloads_for_collection(collection_sym, doc), stored_digests)
+      comparison = compare_slots(doc['_id'], zip_payloads_for_collection(collection_sym, doc), stored_digests)
 
       cleared = zip_cleared_issue(comparison, record)
       if cleared
@@ -379,12 +379,9 @@ module DataAnonymizer
         col = collection_sym.to_s
         next unless @db.collection_names.include?(col)
 
-        id_map.each do |id_str, stored_digests|
-          doc = find_by_id_string(col, id_str)
-          next unless doc
-
+        each_prehash_record(col, id_map) do |doc, stored_digests|
           total += 1
-          record = "#{col}:#{id_str}"
+          record = "#{col}:#{doc['_id']}"
           record_issues = identity_issues(doc, stored_digests, record)
           issues.concat(record_issues)
           samples << record if record_issues.any?
@@ -416,7 +413,7 @@ module DataAnonymizer
     end
 
     def tally_gender_record(collection_name, doc, stored, tallies, issues)
-      comparison = compare_slots(canonical_gender_payloads(doc), stored)
+      comparison = compare_slots(doc['_id'], canonical_gender_payloads(doc), stored)
       issues << "Gender cleared rather than replaced for #{collection_name}:#{doc['_id']}" if comparison[:cleared].any?
       Array(stored).each_with_index do |digest, index|
         next if digest.blank?
@@ -441,7 +438,7 @@ module DataAnonymizer
     # @param record [String] collection and id
     # @return [Array<String>]
     def identity_issues(doc, stored_digests, record)
-      comparison = compare_slots(canonical_identity_payloads(doc), stored_digests)
+      comparison = compare_slots(doc['_id'], canonical_identity_payloads(doc), stored_digests)
       found = []
       found << "Cleared #{field_names(comparison[:cleared])} for #{record}" if comparison[:cleared].any?
       found << "Unchanged #{field_names(comparison[:stale])} for #{record}" if comparison[:stale].any?
@@ -508,10 +505,11 @@ module DataAnonymizer
     end
 
     # Splits unchanged slots from ones that were populated and are now blank.
+    # @param record_id [BSON::ObjectId, String] owning record
     # @param current [Array<String>] values now stored, one per slot
     # @param stored_digests [Array<String, nil>] pre-run digest per slot
     # @return [Hash{Symbol => Array<Integer>}] :stale and :cleared indexes
-    def compare_slots(current, stored_digests)
+    def compare_slots(record_id, current, stored_digests)
       stale = []
       cleared = []
 
@@ -524,7 +522,7 @@ module DataAnonymizer
           next
         end
 
-        stale << index if OpenSSL::HMAC.hexdigest('SHA256', @hmac_key, current[index]) == stored
+        stale << index if OpenSSL::HMAC.hexdigest('SHA256', @hmac_key, slot_digest_payload(record_id, index, current[index])) == stored
       end
 
       { stale: stale, cleared: cleared }
@@ -552,15 +550,6 @@ module DataAnonymizer
           yield doc, stored.fetch(doc['_id'].to_s)
         end
       end
-    end
-
-    # @param col [String] collection name
-    # @param id_str [String] stringified record id
-    # @return [Hash, nil]
-    def find_by_id_string(col, id_str)
-      return nil unless BSON::ObjectId.legal?(id_str)
-
-      @db[col.to_sym].find('_id' => BSON::ObjectId.from_string(id_str)).first
     end
 
     def check_name_dob_prehash

@@ -89,6 +89,15 @@ module DataAnonymizer
       [normalize(doc['gender'])] + Array(doc['census_dependents']).map { |dependent| normalize(dependent['gender']) }
     end
 
+    # Binds a slot value to its record so equal originals never share a digest.
+    # @param record_id [BSON::ObjectId, String]
+    # @param index [Integer] slot position
+    # @param value [String] normalized slot value
+    # @return [String]
+    def slot_digest_payload(record_id, index, value)
+      "#{record_id}:#{index}:#{value}"
+    end
+
     # @param payloads [Array<String>] output of a zip payload helper
     # @return [Boolean] whether any slot holds a zip
     def zip_payload_present?(payloads)

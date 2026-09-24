@@ -64,14 +64,6 @@ module DataAnonymizer
       GENDERS.sample
     end
 
-    # Gender guaranteed to differ from +current+.
-    # @param current [String, nil] the existing gender
-    # @return [String] 'male' or 'female'
-    def gender_other_than(current)
-      remaining = GENDERS - [current.to_s.strip.downcase]
-      remaining.length == 1 ? remaining.first : GENDERS.sample
-    end
-
     # Valid SSN area-code ranges (excludes 000, 666, 900-999 per SSA rules).
     SSN_VALID_AREAS = ([*1..665] + [*667..899]).freeze
 
