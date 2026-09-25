@@ -91,6 +91,17 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       end
     end
 
+    describe '.gender' do
+      it 'returns an allowed gender value' do
+        expect(described_class::GENDERS).to include(described_class.gender)
+      end
+
+      it 'draws independently rather than returning a constant' do
+        results = Array.new(50) { described_class.gender }
+        expect(results.uniq.length).to eq(2)
+      end
+    end
+
     describe '.dob_shift_days' do
       it 'returns an integer within ±30 days' do
         100.times do
@@ -914,9 +925,10 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
         expect(doc['fein']).to eq(org.fein)
       end
 
-      it 'does not change dba' do
+      it 'replaces dba, which names the business as publicly as legal_name does' do
         doc = raw_doc('organizations', org.id)
-        expect(doc['dba']).to eq(org.dba)
+        expect(doc['dba']).to be_present
+        expect(doc['dba']).not_to eq(org.dba)
       end
     end
 
@@ -1156,6 +1168,25 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
         runner.run
         expect(runner.db[:data_anonymizer_runs].count_documents({})).to eq(0)
       end
+
+      it 'returns the run key to the caller without writing it to the Rails log' do
+        logged = []
+        allow(Rails.logger).to receive(:info).and_wrap_original do |method, message|
+          logged << message.to_s
+          method.call(message)
+        end
+
+        result = runner.run
+
+        expect(result).to include(:run_id, report_path: '/tmp/report.csv')
+        expect(result[:hmac_key]).to be_present
+        expect(logged.join("\n")).not_to include(result[:hmac_key])
+      end
+
+      it 'returns no run key when verification fails' do
+        allow_any_instance_of(DataAnonymizer::Verifier).to receive(:run).and_return([[], false, '/tmp/report.csv', 'STATUS: FAIL'])
+        expect(runner.run).to eq(status_line: 'STATUS: FAIL', report_path: '/tmp/report.csv')
+      end
     end
 
     # @!group Helper: anonymize_address_hash — address anonymization helper tests
@@ -1185,10 +1216,27 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       end
 
       context 'when anonymize_zip: true' do
+        it 'redraws collisions without building or counting geographic swaps' do
+          zip_runner = DataAnonymizer::Runner.new(batch_size: 5, force: true, anonymize_zip: true)
+          allow(DataAnonymizer::AnonymizedData).to receive(:zip).and_return('99999', '02108')
+          expect(zip_runner).not_to receive(:apply_geo_swap)
+
+          expect(zip_runner.send(:anonymize_address_hash, addr)['zip']).to eq('02108')
+          expect(zip_runner.instance_variable_get(:@geo_swap_skipped)).to eq(0)
+          expect(zip_runner.instance_variable_get(:@geo_swap_applied)).to eq(0)
+          expect(zip_runner.instance_variable_get(:@geo_swap_randomized)).to eq(1)
+        end
+
         it 'replaces zip' do
           zip_runner = DataAnonymizer::Runner.new(batch_size: 5, dry_run: false, force: true, anonymize_zip: true)
           res = zip_runner.send(:anonymize_address_hash, addr)
           expect(res['zip']).not_to eq('99999')
+        end
+
+        it 'leaves a blank zip blank rather than inventing one' do
+          zip_runner = DataAnonymizer::Runner.new(batch_size: 5, force: true, anonymize_zip: true)
+          expect(zip_runner.send(:anonymize_address_hash, addr.merge('zip' => ''))['zip']).to eq('')
+          expect(zip_runner.instance_variable_get(:@geo_swap_randomized)).to eq(0)
         end
       end
 
@@ -1220,6 +1268,1162 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
         original_city = addr['city']
         result
         expect(addr['city']).to eq(original_city)
+      end
+
+      it 'keeps a quote and its linked employer on the same zip and county' do
+        alternatives = [
+          { 'zip' => '02108', 'county' => 'Suffolk', 'state' => 'MA' },
+          { 'zip' => '02109', 'county' => 'Suffolk', 'state' => 'MA' }
+        ]
+        employer_profile_id = BSON::ObjectId.new
+        allow(runner).to receive(:geo_swap_map).and_return({ runner.send(:address_key, addr, true) => alternatives })
+        expect(alternatives).to receive(:sample).once.and_return(alternatives.first)
+
+        employer = runner.send(:anonymize_address_hash, addr, owner_id: employer_profile_id)
+        quote = runner.send(:anonymize_address_hash, addr, owner_id: employer_profile_id)
+        expect(quote.values_at('zip', 'county')).to eq(employer.values_at('zip', 'county'))
+      end
+
+      it 'draws separately for unlinked employers so a zip is not relabeled as a whole' do
+        alternatives = [{ 'zip' => '02108', 'county' => 'Suffolk', 'state' => 'MA' }]
+        allow(runner).to receive(:geo_swap_map).and_return({ runner.send(:address_key, addr, true) => alternatives })
+        expect(alternatives).to receive(:sample).twice.and_call_original
+
+        runner.send(:anonymize_address_hash, addr, owner_id: BSON::ObjectId.new)
+        runner.send(:anonymize_address_hash, addr, owner_id: BSON::ObjectId.new)
+      end
+
+      it 'pairs a plan design organization with the employer profile it quotes' do
+        employer_profile_id = BSON::ObjectId.new
+        location = [{ 'address' => addr }]
+        expect(runner).to receive(:anonymize_address_hash).with(addr, owner_id: employer_profile_id).twice.and_return(addr)
+
+        runner.send(:anonymize_bs_profile, { '_id' => employer_profile_id, 'office_locations' => location })
+        runner.send(:build_plan_design_org_update, { 'sponsor_profile_id' => employer_profile_id, 'office_locations' => location })
+      end
+    end
+
+    # @!group Plan design organizations - the broker quoting workspace
+
+    describe '#build_plan_design_org_update' do
+      it 'replaces the employer name a broker quoted' do
+        fields = runner.send(:build_plan_design_org_update, { 'legal_name' => 'Real Employer Inc' })
+        expect(fields['legal_name']).to be_present
+        expect(fields['legal_name']).not_to eq('Real Employer Inc')
+      end
+
+      it 'replaces dba and home_page, which name the business just as plainly' do
+        doc = { 'legal_name' => 'Real Employer Inc', 'dba' => 'Real Trading', 'home_page' => 'http://realemployer.com' }
+        fields = runner.send(:build_plan_design_org_update, doc)
+        expect(fields['dba']).not_to eq('Real Trading')
+        expect(fields['home_page']).not_to eq('http://realemployer.com')
+      end
+
+      it 'swaps office location zips through the same rules as any employer address' do
+        doc = { 'office_locations' => [{ 'address' => { 'zip' => '02101', 'county' => 'Suffolk', 'state' => 'MA' } }] }
+        fields = runner.send(:build_plan_design_org_update, doc)
+        expect(fields['office_locations'].first['address']['address_1']).not_to eq('1 Real St')
+      end
+
+      it 'adds nothing beyond legal_name for fields the record does not carry' do
+        # An empty $set aborts the bulk write, so legal_name is always present.
+        expect(runner.send(:build_plan_design_org_update, {}).keys).to eq(['legal_name'])
+      end
+
+      it 'leaves fein alone, matching the policy on other organizations' do
+        fields = runner.send(:build_plan_design_org_update, { 'legal_name' => 'X', 'fein' => '123456789' })
+        expect(fields.keys).not_to include('fein')
+      end
+    end
+
+    describe '#anonymize_plan_design_organizations' do
+      it 'returns zero when the collection is absent' do
+        allow(runner.db).to receive(:collection_names).and_return([])
+        expect(runner.send(:anonymize_plan_design_organizations)).to eq(0)
+      end
+    end
+
+    describe 'home_page on organizations' do
+      it 'replaces a company url on a legacy organization' do
+        fields = runner.send(:build_org_update, { 'legal_name' => 'X', 'home_page' => 'http://realemployer.com' })
+        expect(fields['home_page']).not_to eq('http://realemployer.com')
+      end
+
+      it 'replaces a company url on a benefit sponsors organization' do
+        fields = runner.send(:build_bs_org_update, { 'legal_name' => 'X', 'home_page' => 'http://realemployer.com' })
+        expect(fields['home_page']).not_to eq('http://realemployer.com')
+      end
+
+      it 'leaves an issuer url alone, as it does issuer legal_name' do
+        doc = { 'home_page' => 'http://carrier.com', 'profiles' => [{ '_type' => 'BenefitSponsors::Organizations::IssuerProfile' }] }
+        expect(runner.send(:build_bs_org_update, doc).keys).not_to include('home_page')
+      end
+    end
+
+    # @!group Employer zip digests and persisted swap tallies
+
+    describe 'employer zip prehash' do
+      let!(:org) { FactoryBot.create(:organization) }
+
+      before { runner.instance_variable_set(:@prehash_hmac_key, 'spec_key_1234567890') }
+
+      it 'records a digest for an organization office location zip' do
+        map = runner.send(:generate_zip_prehash_map)
+        expect(map[:organizations]).to have_key(org.id.to_s)
+      end
+
+      it 'covers both member and employer collections' do
+        map = runner.send(:generate_zip_prehash_map)
+        expect(map.keys).to include(:people, :census_members, :organizations, :benefit_sponsors_organizations_organizations)
+      end
+    end
+
+    describe '#persist_geo_swap_stats' do
+      before do
+        runner.instance_variable_set(:@prehash_run_id, 'run-xyz')
+        runner.instance_variable_set(:@geo_swap_applied, 12)
+        runner.instance_variable_set(:@geo_swap_skipped, 3)
+        runner.instance_variable_set(:@geo_swap_randomized, 4)
+      end
+
+      it 'stores the tallies so verification can bound unchanged employer zips' do
+        runner.send(:persist_geo_swap_stats)
+        doc = runner.db[:data_anonymizer_prehashes].find('run_id' => 'run-xyz', 'scope' => 'geo_swap_stats').first
+        expect(doc['stats']).to include('applied' => 12, 'skipped' => 3, 'randomized' => 4)
+        verifier = DataAnonymizer::Verifier.new(run_id: 'run-xyz')
+        expect(verifier.send(:expected_employer_skips)).to eq(3)
+      end
+    end
+
+    describe 'issuer organizations in the canonical prehash' do
+      it 'excludes them, since their names are preserved and they carry no ACH fields' do
+        runner.instance_variable_set(:@prehash_hmac_key, 'spec_key_1234567890')
+        issuer_id = BSON::ObjectId.new
+        runner.db[:benefit_sponsors_organizations_organizations].insert_one(
+          '_id' => issuer_id, 'legal_name' => 'Real Issuer',
+          'profiles' => [{ '_type' => 'BenefitSponsors::Organizations::IssuerProfile' }]
+        )
+        map = { bs_organizations: {} }
+        runner.send(:generate_prehash_for_bs_organizations, map)
+        expect(map[:bs_organizations]).not_to have_key(issuer_id.to_s)
+      end
+    end
+
+    describe 'plan design proposal titles' do
+      let(:title) { 'Benefit Group Created for: Real Employer Inc by Real Broker Agency' }
+
+      def org_with_title
+        {
+          'legal_name' => 'Real Employer Inc',
+          'plan_design_proposals' => [
+            { 'profile' => { 'benefit_sponsorships' => [
+              { 'benefit_applications' => [{ 'benefit_groups' => [{ 'title' => title }] }] }
+            ] } }
+          ]
+        }
+      end
+
+      it 'rewrites a title that names the real employer and broker' do
+        update = runner.send(:build_plan_design_org_update, org_with_title)
+        rewritten = update['plan_design_proposals'][0]['profile']['benefit_sponsorships'][0]['benefit_applications'][0]['benefit_groups'][0]['title']
+        expect(rewritten).not_to include('Real Employer Inc')
+        expect(rewritten).not_to include('Real Broker Agency')
+      end
+
+      it 'reuses the replacement chosen for this record, so the title stays consistent' do
+        update = runner.send(:build_plan_design_org_update, org_with_title)
+        rewritten = update['plan_design_proposals'][0]['profile']['benefit_sponsorships'][0]['benefit_applications'][0]['benefit_groups'][0]['title']
+        expect(rewritten).to include(update['legal_name'])
+      end
+
+      it 'leaves a record with no proposals untouched' do
+        expect(runner.send(:build_plan_design_org_update, { 'legal_name' => 'X' })).not_to have_key('plan_design_proposals')
+      end
+
+      it 'looks up each broker agency name once across its quotes' do
+        owner_id = BSON::ObjectId.new
+        expect(runner).to receive(:broker_legal_name).with(owner_id).once.and_return('Replacement Agency')
+        2.times { runner.send(:build_plan_design_org_update, org_with_title.merge('owner_profile_id' => owner_id)) }
+      end
+
+      it 'rewrites saved benefit groups using the anonymized broker name and preserves their IDs' do
+        organization = FactoryBot.create(:sponsored_benefits_plan_design_organization, :with_profile)
+        proposal = organization.plan_design_proposals.first
+        sponsorship = proposal.profile.benefit_sponsorships.first
+        application = FactoryBot.create(:plan_design_benefit_application, :with_benefit_group, benefit_sponsorship: sponsorship)
+        group = application.benefit_groups.first
+        group.update!(title: title)
+        runner.db[:benefit_sponsors_organizations_organizations].insert_one(
+          'legal_name' => 'Replacement Broker Agency',
+          'profiles' => [{ '_id' => organization.owner_profile_id, '_type' => 'BenefitSponsors::Organizations::BrokerAgencyProfile' }]
+        )
+
+        runner.send(:anonymize_plan_design_organizations)
+
+        saved_org = organization.reload
+        saved_group = saved_org.plan_design_proposals.first.profile.benefit_sponsorships.first.benefit_applications.first.benefit_groups.first
+        expect(saved_group.id).to eq(group.id)
+        expect(saved_group.title).to eq("Benefit Group Created for: #{saved_org.legal_name} by Replacement Broker Agency")
+      end
+    end
+
+    describe 'nested broker agency website' do
+      it 'replaces the profile level home_page, which the root field does not cover' do
+        profile = { '_type' => 'BenefitSponsors::Organizations::BrokerAgencyProfile', 'home_page' => 'http://realagency.com' }
+        expect(runner.send(:anonymize_bs_profile, profile)['home_page']).not_to eq('http://realagency.com')
+      end
+
+      it 'preserves an issuer profile website' do
+        profile = { '_type' => 'BenefitSponsors::Organizations::IssuerProfile', 'home_page' => 'http://issuer.com' }
+        expect(runner.send(:anonymize_bs_profile, profile)['home_page']).to eq('http://issuer.com')
+      end
+    end
+
+    describe 'random address overrides' do
+      it 'redraws a state regardless of the stored capitalization' do
+        allow(DataAnonymizer::AnonymizedData).to receive(:state).and_return('MA', 'NY')
+        expect(runner.send(:random_state_other_than, 'ma')).to eq('NY')
+      end
+
+      it 'fails instead of silently retaining the state after repeated collisions' do
+        allow(DataAnonymizer::AnonymizedData).to receive(:state).and_return('MA')
+        expect { runner.send(:random_state_other_than, 'ma') }.to raise_error(/Failed to generate a state/)
+      end
+
+      it 'redraws a zip whose prefix matches an original ZIP+4' do
+        allow(DataAnonymizer::AnonymizedData).to receive(:zip).and_return('02101', '02108')
+        expect(runner.send(:random_zip_other_than, '02101-0001')).to eq('02108')
+      end
+    end
+
+    describe 'dependent gender verification' do
+      it 'detects an invalid dependent even when its siblings have valid genders' do
+        collection = runner.db[:census_members]
+        collection.insert_one('gender' => 'male', 'census_dependents' => [{ 'gender' => 'female' }, { 'gender' => 'invalid' }])
+        collection.insert_one('gender' => 'female', 'census_dependents' => [{ 'gender' => 'male' }, {}])
+
+        verifier = DataAnonymizer::Verifier.new
+        expect(verifier.send(:count_invalid_genders, collection)).to eq(1)
+      end
+
+      it 'does not count a person or dependent whose gender field is absent' do
+        collection = runner.db[:census_members]
+        collection.insert_one('first_name' => 'A', 'census_dependents' => [{ 'first_name' => 'B' }])
+        runner.db[:people].insert_one('first_name' => 'C')
+
+        verifier = DataAnonymizer::Verifier.new
+        expect(verifier.send(:count_invalid_genders, collection)).to eq(0)
+        expect(verifier.send(:count_invalid_genders, runner.db[:people])).to eq(0)
+      end
+    end
+
+    describe 'gender mutation verification' do
+      let(:key) { 'gender_spec_key' }
+      let(:collection) { runner.db[:people] }
+
+      before do
+        runner.instance_variable_set(:@prehash_hmac_key, key)
+        collection.insert_many(Array.new(24) { { 'gender' => 'male' } })
+      end
+
+      it 'fails a silent no-op but permits half of the values to match' do
+        map = runner.send(:generate_gender_prehash_map)
+        verifier = DataAnonymizer::Verifier.new(mode: :audit, gender_prehash_map: map, hmac_key: key)
+        expect(verifier.send(:check_gender_prehash)[:issues]).to include('All 24 gender slots unchanged for people')
+
+        changed_ids = collection.find.limit(12).map { |doc| doc['_id'] }
+        collection.update_many({ '_id' => { '$in' => changed_ids } }, { '$set' => { 'gender' => 'female' } })
+        expect(verifier.send(:check_gender_prehash)[:passed]).to be true
+      end
+
+      it 'checks dependent mutations separately from parent mutations and reloads stored digests' do
+        runner.db[:census_members].insert_many(Array.new(24) { { 'gender' => 'male', 'census_dependents' => [{ 'gender' => 'female' }] } })
+        map = runner.send(:generate_gender_prehash_map)
+        runner.send(:persist_prehashes_to_ttl_collection, map, 'gender-run', 'gender_prehash')
+        runner.db[:census_members].update_many({}, { '$set' => { 'gender' => 'female' } })
+        collection.update_many({}, { '$set' => { 'gender' => 'female' } })
+        verifier = DataAnonymizer::Verifier.new(mode: :audit, hmac_key: key)
+        loaded = verifier.send(:load_prehash_map_from_ttl, 'gender-run', 'gender_prehash')
+        verifier.instance_variable_set(:@gender_prehash_map, loaded)
+
+        expect(verifier.send(:check_gender_prehash)[:issues]).to include('All 24 gender slots unchanged for census_members.census_dependents')
+      end
+
+      it 'does not require a change in a small population or treat an expired run as verified' do
+        collection.drop
+        collection.insert_one('gender' => 'male')
+        map = runner.send(:generate_gender_prehash_map)
+        verifier = DataAnonymizer::Verifier.new(mode: :audit, gender_prehash_map: map, hmac_key: key)
+        expect(verifier.send(:check_gender_prehash)[:passed]).to be true
+
+        expired = DataAnonymizer::Verifier.new(mode: :audit, gender_prehash_map: {}, hmac_key: key, run_id: 'expired')
+        expect(expired.send(:check_gender_prehash)[:passed]).to be false
+      end
+    end
+
+    describe 'commission statement titles' do
+      it 'remaps the NPN prefix even when the document has no S3 identifier' do
+        collection = runner.db[:benefit_sponsors_documents_documents]
+        record_id = BSON::ObjectId.new
+        collection.insert_one(
+          '_id' => record_id, 'title' => '12345678_1_01012026_COMMISSION.pdf',
+          'subject' => 'commission-statement', 'documentable_type' => 'BenefitSponsors::Organizations::BrokerAgencyProfile'
+        )
+        replacement = runner.send(:replacement_npn, '12345678')
+
+        runner.send(:redact_bs_document_identifiers)
+
+        expect(collection.find('_id' => record_id).first['title']).to eq("#{replacement}_1_01012026_COMMISSION.pdf")
+      end
+    end
+
+    describe 'identity prehash generation' do
+      before { runner.instance_variable_set(:@prehash_hmac_key, 'spec_key_1234567890') }
+
+      it 'detects an unchanged profile website even after the organization name changes' do
+        collection = runner.db[:benefit_sponsors_organizations_organizations]
+        record_id = BSON::ObjectId.new
+        collection.insert_one(
+          '_id' => record_id, 'legal_name' => 'Real Agency',
+          'profiles' => [{ '_type' => 'BenefitSponsors::Organizations::BrokerAgencyProfile', 'home_page' => 'http://realagency.com' }]
+        )
+        map = runner.send(:generate_identity_prehash_map)
+        collection.update_one({ '_id' => record_id }, { '$set' => { 'legal_name' => 'Replacement Agency' } })
+        verifier = DataAnonymizer::Verifier.new(mode: :audit, identity_prehash_map: map, hmac_key: 'spec_key_1234567890')
+
+        expect(verifier.send(:check_identity_prehash)[:issues]).to include('Unchanged profiles[0].home_page')
+        runner.send(:anonymize_bs_organizations)
+        expect(verifier.send(:check_identity_prehash)[:passed]).to be true
+      end
+
+      it 'records digests for an organization it will rename' do
+        org = FactoryBot.create(:organization)
+        map = runner.send(:generate_identity_prehash_map)
+        expect(map[:organizations]).to have_key(org.id.to_s)
+      end
+
+      it 'covers all three organization collections' do
+        map = runner.send(:generate_identity_prehash_map)
+        expect(map.keys).to match_array(DataAnonymizer::Runner::IDENTITY_COLLECTIONS)
+      end
+
+      it 'skips issuer organizations, whose names are preserved on purpose' do
+        expect(runner.send(:issuer_organization?, { 'profiles' => [{ '_type' => 'BenefitSponsors::Organizations::IssuerProfile' }] })).to be true
+        expect(runner.send(:issuer_organization?, { 'profiles' => [{ '_type' => 'BenefitSponsors::Organizations::AcaShopCcaEmployerProfile' }] })).to be false
+      end
+
+      it 'passes verification end to end once the phase has run' do
+        org = FactoryBot.create(:organization)
+        runner.db[:organizations].update_one(
+          { '_id' => org.id },
+          { '$set' => { 'dba' => 'Real Trading', 'home_page' => 'http://realemployer.com' } }
+        )
+        map = runner.send(:generate_identity_prehash_map)
+        runner.send(:anonymize_organizations)
+
+        verifier = DataAnonymizer::Verifier.new(
+          mode: :audit, identity_prehash_map: map, hmac_key: 'spec_key_1234567890'
+        )
+        expect(verifier.send(:check_identity_prehash)[:passed]).to be true
+      end
+
+      it 'fails end to end if the phase silently stops renaming' do
+        org = FactoryBot.create(:organization)
+        runner.db[:organizations].update_one({ '_id' => org.id }, { '$set' => { 'dba' => 'Real Trading' } })
+        map = runner.send(:generate_identity_prehash_map)
+        # phase deliberately not run
+
+        verifier = DataAnonymizer::Verifier.new(
+          mode: :audit, identity_prehash_map: map, hmac_key: 'spec_key_1234567890'
+        )
+        expect(verifier.send(:check_identity_prehash)[:passed]).to be false
+      end
+    end
+
+    # @!group Producer numbers - consistent remap across collections
+
+    describe 'producer number anonymization' do
+      let(:real_npn) { '120002398' }
+
+      it 'replaces the npn on the embedded broker role' do
+        role = runner.send(:anonymize_broker_role, { 'npn' => real_npn, 'provider_kind' => 'broker' })
+        expect(role['npn']).not_to eq(real_npn)
+        expect(role['npn']).to match(/\A\d+\z/)
+      end
+
+      it 'leaves a role with no npn alone' do
+        role = runner.send(:anonymize_broker_role, { 'provider_kind' => 'broker' })
+        expect(role).not_to have_key('npn')
+      end
+
+      it 'reaches the npn through build_person_update, as a real person document stores it' do
+        person = FactoryBot.create(:person)
+        person.build_broker_role(npn: real_npn, provider_kind: 'broker')
+        person.save(validate: false)
+        doc = raw_doc('people', person.id)
+
+        fields = runner.send(:build_person_update, doc, shift_days: 0)
+        expect(fields['broker_role']['npn']).not_to eq(real_npn)
+      end
+
+      it 'discovers person npns when building the map' do
+        person = FactoryBot.create(:person)
+        person.build_broker_role(npn: real_npn, provider_kind: 'broker')
+        person.save(validate: false)
+
+        expect(runner.send(:build_npn_map)).to have_key(real_npn)
+      end
+
+      it 'maps one real npn to one replacement, so broker joins still resolve' do
+        allow(runner).to receive(:npn_map).and_return({ real_npn => '88887777' })
+        role = runner.send(:anonymize_broker_role, { 'npn' => real_npn })
+        org  = runner.send(:build_org_update, { 'broker_agency_profile' => { 'corporate_npn' => real_npn } })
+        expect(role['npn']).to eq(org['broker_agency_profile']['corporate_npn'])
+      end
+
+      it 'reads a legacy broker profile without raising' do
+        # broker_agency_profile is a single embedded hash, not a list.
+        org = FactoryBot.create(:organization)
+        runner.db[:organizations].update_one(
+          { '_id' => org.id },
+          { '$set' => { 'broker_agency_profile' => { 'corporate_npn' => '216179133' } } }
+        )
+        expect { runner.send(:build_npn_map) }.not_to raise_error
+      end
+
+      it 'discovers a legacy corporate npn' do
+        org = FactoryBot.create(:organization)
+        runner.db[:organizations].update_one(
+          { '_id' => org.id },
+          { '$set' => { 'broker_agency_profile' => { 'corporate_npn' => '216179133' } } }
+        )
+        expect(runner.send(:build_npn_map)).to have_key('216179133')
+      end
+
+      it 'never reuses an npn that still exists in the database' do
+        # Eight digits so a collision with the stored original is possible.
+        person = FactoryBot.create(:person)
+        person.build_broker_role(npn: '12000239', provider_kind: 'broker')
+        person.save(validate: false)
+        allow(DataAnonymizer::AnonymizedData).to receive(:npn).and_return('12000239', '87654321')
+
+        expect(runner.send(:build_npn_map)['12000239']).to eq('87654321')
+      end
+
+      it 'produces a value the BrokerRole model accepts' do
+        person = FactoryBot.create(:person)
+        person.build_broker_role(npn: DataAnonymizer::AnonymizedData.npn, provider_kind: 'broker')
+        person.broker_role.valid?
+        expect(person.broker_role.errors[:npn]).to be_empty
+      end
+
+      it 'never emits a leading zero, which would not survive an integer round trip' do
+        values = Array.new(200) { DataAnonymizer::AnonymizedData.npn }
+        expect(values.none? { |v| v.start_with?('0') }).to be true
+      end
+
+      it 'stays inside the length the models allow' do
+        values = Array.new(200) { DataAnonymizer::AnonymizedData.npn }
+        expect(values.all? { |v| v.length.between?(1, 10) && v.match?(/\A\d+\z/) }).to be true
+      end
+
+      # npn is uniquely indexed.
+      it 'gives distinct originals distinct replacements' do
+        values = Array.new(200) { runner.send(:unique_npn) }
+        expect(values.uniq.size).to eq(200)
+      end
+
+      it 'generates one for an npn absent from the map rather than keeping the real value' do
+        allow(runner).to receive(:npn_map).and_return({})
+        role = runner.send(:anonymize_broker_role, { 'npn' => real_npn })
+        expect(role['npn']).not_to eq(real_npn)
+      end
+    end
+
+    describe 'producer numbers survive a real phase run' do
+      let!(:broker_person) do
+        person = FactoryBot.create(:person)
+        person.build_broker_role(npn: '120002398', provider_kind: 'broker')
+        person.save(validate: false)
+        person
+      end
+
+      it 'replaces the stored npn and leaves the record valid' do
+        runner.send(:anonymize_people)
+        doc = raw_doc('people', broker_person.id)
+
+        expect(doc['broker_role']['npn']).not_to eq('120002398')
+        reloaded = Person.find(broker_person.id)
+        reloaded.broker_role.valid?
+        expect(reloaded.broker_role.errors[:npn]).to be_empty
+      end
+
+      it 'does not trip the unique index when several brokers are anonymized' do
+        second = FactoryBot.create(:person)
+        second.build_broker_role(npn: '216179133', provider_kind: 'broker')
+        second.save(validate: false)
+
+        runner.send(:anonymize_people)
+        npns = [broker_person, second].map { |p| raw_doc('people', p.id)['broker_role']['npn'] }
+        expect(npns.uniq.size).to eq(2)
+      end
+
+      it 'stays invisible to the ssn sweep, since a producer number is numeric' do
+        runner.send(:anonymize_people)
+        verifier = DataAnonymizer::Verifier.new(mode: :audit)
+        expect(verifier.send(:check_streaming_ssn_patterns)[:passed]).to be true
+      end
+    end
+
+    # @!group Doing business as - public trading name
+
+    describe 'dba anonymization' do
+      it 'replaces dba on a legacy organization' do
+        fields = runner.send(:build_org_update, { 'legal_name' => 'Real Co', 'dba' => 'Real Trading Name' })
+        expect(fields['dba']).to be_present
+        expect(fields['dba']).not_to eq('Real Trading Name')
+      end
+
+      it 'does not add dba when the record has none' do
+        fields = runner.send(:build_org_update, { 'legal_name' => 'Real Co' })
+        expect(fields.keys).not_to include('dba')
+      end
+
+      it 'replaces dba on a benefit sponsors organization' do
+        fields = runner.send(:build_bs_org_update, { 'legal_name' => 'Real Co', 'dba' => 'Real Trading Name' })
+        expect(fields['dba']).not_to eq('Real Trading Name')
+      end
+
+      it 'preserves dba on an issuer organization, as it does legal_name' do
+        doc = {
+          'legal_name' => 'Carrier Co', 'dba' => 'Carrier Trading Name',
+          'profiles' => [{ '_type' => 'BenefitSponsors::Organizations::IssuerProfile' }]
+        }
+        fields = runner.send(:build_bs_org_update, doc)
+        expect(fields.keys).not_to include('dba')
+        expect(fields.keys).not_to include('legal_name')
+      end
+    end
+
+    # @!group Zip prehash - end to end proof the swap ran
+
+    describe 'zip prehash round trip' do
+      let!(:suffolk) { FactoryBot.create(:benefit_markets_locations_county_zip, county_name: 'Suffolk', zip: '02101', state: 'MA') }
+      let!(:norfolk) { FactoryBot.create(:benefit_markets_locations_county_zip, county_name: 'Norfolk', zip: '02108', state: 'MA') }
+      let!(:person)  { FactoryBot.create(:person) }
+
+      before do
+        FactoryBot.create(
+          :benefit_markets_locations_rating_area,
+          covered_states: nil, county_zip_ids: [suffolk.id, norfolk.id]
+        )
+        runner.db[:people].update_one(
+          { '_id' => person.id },
+          { '$set' => { 'addresses' => [{ 'kind' => 'home', 'address_1' => '1 Real St', 'city' => 'Boston',
+                                          'zip' => '02101', 'county' => '', 'state' => 'MA' }] } }
+        )
+        runner.instance_variable_set(:@prehash_hmac_key, 'spec_key_1234567890')
+      end
+
+      it 'records a digest for a person carrying a zip' do
+        map = runner.send(:generate_zip_prehash_map)
+        expect(map[:people]).to have_key(person.id.to_s)
+      end
+
+      it 'gives records that share an original zip different digests' do
+        other = FactoryBot.create(:person)
+        address = runner.db[:people].find('_id' => person.id).first['addresses']
+        runner.db[:people].update_one({ '_id' => other.id }, { '$set' => { 'addresses' => address } })
+
+        map = runner.send(:generate_zip_prehash_map)
+        expect(map[:people][person.id.to_s]).not_to eq(map[:people][other.id.to_s])
+      end
+
+      it 'passes verification once the swap has run' do
+        map = runner.send(:generate_zip_prehash_map)
+        runner.send(:anonymize_people)
+
+        verifier = DataAnonymizer::Verifier.new(
+          mode: :audit, zip_prehash_map: map, hmac_key: 'spec_key_1234567890'
+        )
+        expect(verifier.send(:check_zip_prehash)[:passed]).to be true
+      end
+
+      it 'fails verification if the swap silently does not run' do
+        map = runner.send(:generate_zip_prehash_map)
+        # person left exactly as-is, standing in for the swap regressing
+
+        verifier = DataAnonymizer::Verifier.new(
+          mode: :audit, zip_prehash_map: map, hmac_key: 'spec_key_1234567890'
+        )
+        result = verifier.send(:check_zip_prehash)
+        expect(result[:passed]).to be false
+        expect(result[:issues]).to match(/Unchanged zip/)
+      end
+
+      it 'skips records that store no zip' do
+        runner.db[:people].update_one(
+          { '_id' => person.id },
+          { '$set' => { 'addresses' => [{ 'kind' => 'home', 'state' => 'MA' }] } }
+        )
+        map = runner.send(:generate_zip_prehash_map)
+        expect(map[:people]).not_to have_key(person.id.to_s)
+      end
+    end
+
+    # @!group Gender - independent randomization with person/census sync
+
+    describe 'gender anonymization' do
+      describe '#build_person_update' do
+        it 'replaces gender with an allowed value when one is present' do
+          fields = runner.send(:build_person_update, { 'first_name' => 'A', 'gender' => 'male' }, shift_days: 0)
+          expect(DataAnonymizer::AnonymizedData::GENDERS).to include(fields['gender'])
+        end
+
+        it 'does not add a gender when the record has none' do
+          fields = runner.send(:build_person_update, { 'first_name' => 'A' }, shift_days: 0)
+          expect(fields.keys).not_to include('gender')
+        end
+      end
+
+      describe '#anonymize_people' do
+        let!(:person) { FactoryBot.create(:person, gender: 'male') }
+
+        it 'writes an allowed gender value' do
+          runner.send(:anonymize_people)
+          expect(DataAnonymizer::AnonymizedData::GENDERS).to include(raw_doc('people', person.id)['gender'])
+        end
+
+        it 'does not produce a value the model would reject' do
+          runner.send(:anonymize_people)
+          expect(Person.find(person.id)).to be_valid
+        end
+      end
+
+      describe 'gender is random whether or not a zip is stored' do
+        let!(:suffolk) { FactoryBot.create(:benefit_markets_locations_county_zip, county_name: 'Suffolk', zip: '02101', state: 'MA') }
+        let!(:norfolk) { FactoryBot.create(:benefit_markets_locations_county_zip, county_name: 'Norfolk', zip: '02108', state: 'MA') }
+        let!(:lonely)  { FactoryBot.create(:benefit_markets_locations_county_zip, county_name: 'Dukes', zip: '02535', state: 'MA') }
+
+        before do
+          FactoryBot.create(
+            :benefit_markets_locations_rating_area,
+            covered_states: nil, county_zip_ids: [suffolk.id, norfolk.id]
+          )
+          FactoryBot.create(
+            :benefit_markets_locations_rating_area,
+            covered_states: nil, county_zip_ids: [lonely.id]
+          )
+        end
+
+        def person_doc(zip, county, gender)
+          { 'first_name' => 'A', 'gender' => gender,
+            'addresses' => [{ 'kind' => 'home', 'zip' => zip, 'county' => county, 'state' => 'MA' }] }
+        end
+
+        def addressless_doc(gender)
+          { 'first_name' => 'A', 'gender' => gender, 'addresses' => [{ 'kind' => 'home', 'state' => 'MA' }] }
+        end
+
+        it 'replaces the zip even when it has no interchangeable pair' do
+          fields = runner.send(:build_person_update, person_doc('02535', 'Dukes', 'male'), shift_days: 0)
+          expect(fields['addresses'].first['zip']).not_to eq('02535')
+        end
+
+        it 'draws gender at random once the zip has been replaced' do
+          results = Array.new(40) do
+            runner.send(:build_person_update, person_doc('02535', 'Dukes', 'male'), shift_days: 0)['gender']
+          end
+          expect(results.uniq.sort).to eq(%w[female male])
+        end
+
+        it 'draws gender at random when the zip was swapped within its group' do
+          results = Array.new(40) do
+            runner.send(:build_person_update, person_doc('02101', 'Suffolk', 'male'), shift_days: 0)['gender']
+          end
+          expect(results.uniq.sort).to eq(%w[female male])
+        end
+
+        # A deterministic flip on zip-less records would let anyone recover the original.
+        it 'draws gender at random when the record has no addresses at all' do
+          results = Array.new(40) do
+            runner.send(:build_person_update, { 'first_name' => 'A', 'gender' => 'male' }, shift_days: 0)['gender']
+          end
+          expect(results.uniq.sort).to eq(%w[female male])
+        end
+
+        it 'draws gender at random when the record stores no zip at all' do
+          results = Array.new(40) { runner.send(:build_person_update, addressless_doc('male'), shift_days: 0)['gender'] }
+          expect(results.uniq.sort).to eq(%w[female male])
+        end
+
+        it 'draws gender at random for a census member storing no zip' do
+          doc = { 'gender' => 'male', 'address' => { 'state' => 'MA' } }
+          results = Array.new(40) { runner.send(:build_census_member_fields_random, doc, 0)['gender'] }
+          expect(results.uniq.sort).to eq(%w[female male])
+        end
+
+        it 'draws gender at random for a dependent storing no zip' do
+          dep = { 'gender' => 'female', 'address' => { 'state' => 'MA' } }
+          results = Array.new(40) { runner.send(:anonymize_census_dependent_hash, dep, shift_days: 0)['gender'] }
+          expect(results.uniq.sort).to eq(%w[female male])
+        end
+      end
+
+      describe '#build_census_member_fields_from_person' do
+        it 'copies the person gender so both collections agree' do
+          person_vals = { 'first_name' => 'A', 'last_name' => 'B', 'gender' => 'female' }
+          fields = runner.send(:build_census_member_fields_from_person, { 'gender' => 'male' }, person_vals)
+          expect(fields['gender']).to eq('female')
+        end
+
+        it 'omits gender when the census record has none' do
+          person_vals = { 'first_name' => 'A', 'last_name' => 'B', 'gender' => 'female' }
+          fields = runner.send(:build_census_member_fields_from_person, {}, person_vals)
+          expect(fields.keys).not_to include('gender')
+        end
+      end
+
+      describe 'census gender when the linked person has none' do
+        it 'gives the census member a random gender rather than keeping its real one' do
+          person_vals = { 'first_name' => 'A', 'last_name' => 'B', 'gender' => nil }
+          results = Array.new(40) { runner.send(:build_census_member_fields_from_person, { 'gender' => 'male' }, person_vals)['gender'] }
+          expect(results.uniq.sort).to eq(%w[female male])
+        end
+
+        it 'copies the person gender when there is one' do
+          person_vals = { 'first_name' => 'A', 'last_name' => 'B', 'gender' => 'female' }
+          fields = runner.send(:build_census_member_fields_from_person, { 'gender' => 'male' }, person_vals)
+          expect(fields['gender']).to eq('female')
+        end
+      end
+
+      describe '#build_census_member_fields_random' do
+        it 'generates an allowed gender when one is present' do
+          fields = runner.send(:build_census_member_fields_random, { 'gender' => 'male' }, 0)
+          expect(DataAnonymizer::AnonymizedData::GENDERS).to include(fields['gender'])
+        end
+      end
+
+      describe '#anonymize_census_dependent_hash' do
+        it 'randomizes dependent gender' do
+          dep = runner.send(:anonymize_census_dependent_hash, { 'gender' => 'male' }, shift_days: 0)
+          expect(DataAnonymizer::AnonymizedData::GENDERS).to include(dep['gender'])
+        end
+      end
+
+      describe 'person and census stay in sync' do
+        let!(:person) { FactoryBot.create(:person, first_name: 'LinkedFirst', gender: 'male') }
+        let!(:linked_census) do
+          emp = FactoryBot.create(:census_employee, gender: 'male')
+          role_id = BSON::ObjectId.new
+          runner.db[:people].update_one(
+            { '_id' => person.id },
+            { '$push' => { 'employee_roles' => { '_id' => role_id, 'aasm_state' => 'eligible' } } }
+          )
+          runner.db[:census_members].update_one({ '_id' => emp.id }, { '$set' => { 'employee_role_id' => role_id } })
+          runner.send(:anonymize_people)
+          emp
+        end
+
+        it 'gives the linked census member the same gender as the person' do
+          runner.send(:anonymize_census_members)
+          expect(raw_doc('census_members', linked_census.id)['gender']).to eq(raw_doc('people', person.id)['gender'])
+        end
+      end
+    end
+
+    # @!group Geographic swap - rating-area-preserving zip/county replacement
+
+    describe 'geographic zip and county swap' do
+      let!(:suffolk) { FactoryBot.create(:benefit_markets_locations_county_zip, county_name: 'Suffolk', zip: '02101', state: 'MA') }
+      let!(:norfolk) { FactoryBot.create(:benefit_markets_locations_county_zip, county_name: 'Norfolk', zip: '02108', state: 'MA') }
+
+      def address(zip, county)
+        { 'kind' => 'home', 'address_1' => '1 Real St', 'city' => 'RealCity',
+          'zip' => zip, 'county' => county, 'state' => 'MA' }
+      end
+
+      context 'when two pairs share both a rating area and a service area' do
+        before do
+          FactoryBot.create(
+            :benefit_markets_locations_rating_area,
+            covered_states: nil, county_zip_ids: [suffolk.id, norfolk.id]
+          )
+          FactoryBot.create(
+            :benefit_markets_locations_service_area,
+            covered_states: nil, county_zip_ids: [suffolk.id, norfolk.id]
+          )
+        end
+
+        it 'replaces the zip with its interchangeable partner' do
+          result = runner.send(:anonymize_address_hash, address('02101', 'Suffolk'))
+          expect(result['zip']).to eq('02108')
+        end
+
+        it 'moves county together with zip so rating area lookup still resolves' do
+          result = runner.send(:anonymize_address_hash, address('02101', 'Suffolk'))
+          expect(result['county']).to eq('Norfolk')
+        end
+
+        it 'matches the reference data regardless of stored county casing' do
+          result = runner.send(:anonymize_address_hash, address('02101', 'suffolk'))
+          expect(result['zip']).to eq('02108')
+        end
+      end
+
+      context 'verifying the invariant against the real rating area lookup' do
+        before do
+          FactoryBot.create(
+            :benefit_markets_locations_rating_area,
+            covered_states: nil, county_zip_ids: [suffolk.id, norfolk.id]
+          )
+          FactoryBot.create(
+            :benefit_markets_locations_service_area,
+            covered_states: nil, county_zip_ids: [suffolk.id, norfolk.id]
+          )
+        end
+
+        it 'resolves to the same rating area before and after the swap' do
+          original = address('02101', 'Suffolk')
+          before_area = BenefitMarkets::Locations::RatingArea.rating_area_for(
+            Address.new(kind: 'home', address_1: '1 Real St', city: 'Boston',
+                        state: original['state'], zip: original['zip'], county: original['county'])
+          )
+
+          swapped = runner.send(:anonymize_address_hash, original)
+          after_area = BenefitMarkets::Locations::RatingArea.rating_area_for(
+            Address.new(kind: 'home', address_1: '1 Fake St', city: 'Faketown',
+                        state: swapped['state'], zip: swapped['zip'], county: swapped['county'])
+          )
+
+          expect(swapped['zip']).not_to eq(original['zip'])
+          expect(before_area).to be_present
+          expect(after_area&.id).to eq(before_area.id)
+        end
+      end
+
+      context 'when the pairs share a rating area but not a service area' do
+        before do
+          FactoryBot.create(
+            :benefit_markets_locations_rating_area,
+            covered_states: nil, county_zip_ids: [suffolk.id, norfolk.id]
+          )
+          FactoryBot.create(
+            :benefit_markets_locations_service_area,
+            covered_states: nil, county_zip_ids: [suffolk.id]
+          )
+        end
+
+        it 'preserves zip rather than changing which plans are available' do
+          result = runner.send(:anonymize_address_hash, address('02101', 'Suffolk'))
+          expect(result['zip']).to eq('02101')
+        end
+      end
+
+      context 'when stray whitespace makes two records normalize to the same key' do
+        # Real reference data holds '01367 ' and '01367' as separate records
+        # in different rating areas.
+        let!(:padded) { FactoryBot.create(:benefit_markets_locations_county_zip, county_name: 'Franklin', zip: '01367 ', state: 'MA') }
+        let!(:clean)  { FactoryBot.create(:benefit_markets_locations_county_zip, county_name: 'Franklin', zip: '01367', state: 'MA') }
+
+        before do
+          FactoryBot.create(
+            :benefit_markets_locations_rating_area,
+            covered_states: nil, county_zip_ids: [padded.id, suffolk.id]
+          )
+          FactoryBot.create(
+            :benefit_markets_locations_rating_area,
+            covered_states: nil, county_zip_ids: [clean.id, norfolk.id]
+          )
+        end
+
+        it 'preserves the address rather than guessing which record applies' do
+          result = runner.send(:anonymize_address_hash, address('01367', 'Franklin'))
+          expect(result['zip']).to eq('01367')
+          expect(result['county']).to eq('Franklin')
+        end
+
+        it 'never offers the ambiguous record as a replacement either' do
+          suffolk_group = FactoryBot.create(:benefit_markets_locations_county_zip, county_name: 'Suffolk', zip: '02111', state: 'MA')
+          FactoryBot.create(
+            :benefit_markets_locations_rating_area,
+            covered_states: nil, county_zip_ids: [suffolk.id, suffolk_group.id]
+          )
+
+          25.times do
+            result = runner.send(:anonymize_address_hash, address('02101', 'Suffolk'))
+            expect(result['zip']).not_to eq('01367')
+            expect(result['zip']).not_to eq('01367 ')
+          end
+        end
+      end
+
+      context 'when one zip spans several counties in the same group' do
+        # A multi-county zip appears as several county_zip records. Offering a
+        # sibling as the replacement would leave the zip unchanged, which the
+        # zip prehash check then reports as a failure.
+        let!(:split_a) { FactoryBot.create(:benefit_markets_locations_county_zip, county_name: 'Hampden', zip: '01011', state: 'MA') }
+        let!(:split_b) { FactoryBot.create(:benefit_markets_locations_county_zip, county_name: 'Hampshire', zip: '01011', state: 'MA') }
+
+        before do
+          FactoryBot.create(
+            :benefit_markets_locations_rating_area,
+            covered_states: nil, county_zip_ids: [split_a.id, split_b.id, suffolk.id]
+          )
+        end
+
+        it 'never returns the same zip as the replacement' do
+          25.times do
+            result = runner.send(:anonymize_address_hash, address('01011', 'Hampden'), strict_geo: false)
+            expect(result['zip']).not_to eq('01011')
+          end
+        end
+
+        it 'still offers the other members of the group' do
+          result = runner.send(:anonymize_address_hash, address('01011', 'Hampden'), strict_geo: false)
+          expect(result['zip']).to eq('02101')
+        end
+      end
+
+      context 'when legacy carrier service areas differ between two zips' do
+        # Legacy CarrierServiceArea resolves by zip alone and still drives
+        # employer plan availability.
+        before do
+          FactoryBot.create(
+            :benefit_markets_locations_rating_area,
+            covered_states: nil, county_zip_ids: [suffolk.id, norfolk.id]
+          )
+          FactoryBot.create(
+            :benefit_markets_locations_service_area,
+            covered_states: nil, county_zip_ids: [suffolk.id, norfolk.id]
+          )
+          runner.db[:carrier_service_areas].insert_one(
+            'service_area_zipcode' => '02101', 'serves_entire_state' => false
+          )
+        end
+
+        it 'does not swap an employer zip onto a different legacy service area' do
+          result = runner.send(:anonymize_address_hash, address('02101', 'Suffolk'), strict_geo: true)
+          expect(result['zip']).to eq('02101')
+        end
+
+        it 'still swaps the member address, which does not read service areas' do
+          result = runner.send(:anonymize_address_hash, address('02101', 'Suffolk'), strict_geo: false)
+          expect(result['zip']).to eq('02108')
+        end
+      end
+
+      context 'when two employer zips sit in the same legacy service area' do
+        # One CarrierServiceArea document exists per covered zip.
+        before do
+          FactoryBot.create(
+            :benefit_markets_locations_rating_area,
+            covered_states: nil, county_zip_ids: [suffolk.id, norfolk.id]
+          )
+          runner.db[:carrier_service_areas].insert_many(
+            [
+              { 'service_area_zipcode' => '02101', 'serves_entire_state' => false,
+                'issuer_hios_id' => '99999', 'active_year' => 2018, 'service_area_id' => 'MAS001' },
+              { 'service_area_zipcode' => '02108', 'serves_entire_state' => false,
+                'issuer_hios_id' => '99999', 'active_year' => 2018, 'service_area_id' => 'MAS001' }
+            ]
+          )
+        end
+
+        it 'swaps the employer zip, because both keep the same plan availability' do
+          result = runner.send(:anonymize_address_hash, address('02101', 'Suffolk'), strict_geo: true)
+          expect(result['zip']).to eq('02108')
+        end
+
+        it 'preserves a ZIP+4 employer address, whose lookups match the stored zip exactly' do
+          result = runner.send(:anonymize_address_hash, address('02101-0001', 'Suffolk'), strict_geo: true)
+          expect(result['zip']).to eq('02101-0001')
+          expect(runner.instance_variable_get(:@geo_swap_skipped)).to eq(1)
+        end
+
+        it 'swaps a ZIP+4 member address using its five digit prefix' do
+          result = runner.send(:anonymize_address_hash, address('02101-0001', ''), strict_geo: false)
+          expect(result['zip']).to eq('02108')
+        end
+
+        it 'does not record the address as unswappable' do
+          runner.send(:anonymize_address_hash, address('02101', 'Suffolk'), strict_geo: true)
+          expect(runner.instance_variable_get(:@geo_swap_skipped)).to eq(0)
+        end
+      end
+
+      context 'when a county zip belongs to no rating area' do
+        # Grouping every orphan together would make unrelated zips look
+        # interchangeable.
+        let!(:orphan_a) { FactoryBot.create(:benefit_markets_locations_county_zip, county_name: 'Dukes', zip: '02535', state: 'MA') }
+        let!(:orphan_b) { FactoryBot.create(:benefit_markets_locations_county_zip, county_name: 'Nantucket', zip: '02554', state: 'MA') }
+
+        it 'preserves an employer address rather than swapping between orphans' do
+          result = runner.send(:anonymize_address_hash, address('02535', 'Dukes'), strict_geo: true)
+          expect(result['zip']).to eq('02535')
+        end
+
+        it 'randomizes a member address instead of swapping to another orphan' do
+          result = runner.send(:anonymize_address_hash, address('02535', 'Dukes'), strict_geo: false)
+          expect(result['zip']).not_to eq('02554')
+          expect(result['zip']).not_to eq('02535')
+        end
+      end
+
+      context 'when a member zip has to be randomized' do
+        it 'produces a five digit zip, matching how stored zips look' do
+          20.times do
+            result = runner.send(:anonymize_address_hash, address('99999', 'Nowhere'), strict_geo: false)
+            expect(result['zip']).to match(/\A\d{5}\z/)
+          end
+        end
+
+        it 'never returns the original zip, which would fail the prehash check' do
+          allow(DataAnonymizer::AnonymizedData).to receive(:zip).and_return('99999', '99999', '12345')
+          result = runner.send(:anonymize_address_hash, address('99999', 'Nowhere'), strict_geo: false)
+          expect(result['zip']).to eq('12345')
+        end
+      end
+
+      context 'when the stored zip is blank' do
+        before do
+          FactoryBot.create(
+            :benefit_markets_locations_rating_area,
+            covered_states: nil, county_zip_ids: [suffolk.id, norfolk.id]
+          )
+        end
+
+        it 'leaves it blank rather than inventing one' do
+          addr = { 'kind' => 'home', 'zip' => '', 'county' => '', 'state' => 'MA' }
+          result = runner.send(:anonymize_address_hash, addr, strict_geo: false)
+          expect(result['zip']).to eq('')
+        end
+
+        it 'leaves a nil zip nil' do
+          addr = { 'kind' => 'home', 'zip' => nil, 'county' => '', 'state' => 'MA' }
+          result = runner.send(:anonymize_address_hash, addr, strict_geo: false)
+          expect(result['zip']).to be_nil
+        end
+      end
+
+      context 'when the stored address has a blank county, as person addresses do' do
+        before do
+          FactoryBot.create(
+            :benefit_markets_locations_rating_area,
+            covered_states: nil, county_zip_ids: [suffolk.id, norfolk.id]
+          )
+          FactoryBot.create(
+            :benefit_markets_locations_service_area,
+            covered_states: nil, county_zip_ids: [suffolk.id, norfolk.id]
+          )
+        end
+
+        let(:blank_county_address) do
+          { 'kind' => 'home', 'address_1' => '1 Real St', 'city' => 'RealCity',
+            'zip' => '02101', 'county' => '', 'state' => 'MA' }
+        end
+
+        it 'still swaps the zip' do
+          result = runner.send(:anonymize_address_hash, blank_county_address, strict_geo: false)
+          expect(result['zip']).to eq('02108')
+        end
+
+        it 'leaves county blank rather than adding one the record never had' do
+          result = runner.send(:anonymize_address_hash, blank_county_address, strict_geo: false)
+          expect(result['county']).to eq('')
+        end
+
+        it 'does not match under the strict rule, which needs a county' do
+          result = runner.send(:anonymize_address_hash, blank_county_address, strict_geo: true)
+          expect(result['zip']).to eq('02101')
+        end
+
+        it 'moves county with the zip when the address does have one' do
+          result = runner.send(:anonymize_address_hash, address('02101', 'Suffolk'), strict_geo: true)
+          expect(result['zip']).to eq('02108')
+          expect(result['county']).to eq('Norfolk')
+        end
+      end
+
+      context 'when rating area matches but service area does not' do
+        before do
+          FactoryBot.create(
+            :benefit_markets_locations_rating_area,
+            covered_states: nil, county_zip_ids: [suffolk.id, norfolk.id]
+          )
+          FactoryBot.create(
+            :benefit_markets_locations_service_area,
+            covered_states: nil, county_zip_ids: [suffolk.id]
+          )
+        end
+
+        it 'swaps a person address, since nothing reads a person zip' do
+          result = runner.send(:anonymize_address_hash, address('02101', 'Suffolk'), strict_geo: false)
+          expect(result['zip']).to eq('02108')
+        end
+
+        it 'preserves an employer address, since service area is validated on plan years' do
+          result = runner.send(:anonymize_address_hash, address('02101', 'Suffolk'), strict_geo: true)
+          expect(result['zip']).to eq('02101')
+        end
+
+        it 'defaults to the strict rule when no mode is given' do
+          result = runner.send(:anonymize_address_hash, address('02101', 'Suffolk'))
+          expect(result['zip']).to eq('02101')
+        end
+
+        it 'applies the relaxed rule to census member addresses' do
+          doc = { 'address' => { 'zip' => '02101', 'county' => 'Suffolk', 'state' => 'MA' } }
+          fields = runner.send(:build_census_member_update, doc, shift_days: 0)
+          expect(fields['address']['zip']).to eq('02108')
+        end
+
+        it 'applies the strict rule to employer office locations' do
+          locations = [{ 'address' => address('02101', 'Suffolk') }]
+          result = runner.send(:anonymize_office_locations, locations)
+          expect(result.first['address']['zip']).to eq('02101')
+        end
+      end
+
+      context 'when a pair has no interchangeable partner in its rating area' do
+        before do
+          FactoryBot.create(
+            :benefit_markets_locations_rating_area,
+            covered_states: nil, county_zip_ids: [suffolk.id]
+          )
+        end
+
+        it 'preserves zip and county' do
+          result = runner.send(:anonymize_address_hash, address('02101', 'Suffolk'))
+          expect(result['zip']).to eq('02101')
+          expect(result['county']).to eq('Suffolk')
+        end
+      end
+
+      context 'when the geographic reference data is absent' do
+        before { Mongoid.default_client.database[:benefit_markets_locations_county_zips].drop }
+
+        it 'preserves zip and county rather than guessing' do
+          result = runner.send(:anonymize_address_hash, address('02101', 'Suffolk'))
+          expect(result['zip']).to eq('02101')
+          expect(result['county']).to eq('Suffolk')
+        end
+      end
+
+      context 'when a statewide service area covers everything' do
+        before do
+          FactoryBot.create(
+            :benefit_markets_locations_rating_area,
+            covered_states: nil, county_zip_ids: [suffolk.id, norfolk.id]
+          )
+          FactoryBot.create(:benefit_markets_locations_service_area, covered_states: ['MA'], county_zip_ids: nil)
+        end
+
+        it 'still allows the swap because a statewide area constrains nothing' do
+          result = runner.send(:anonymize_address_hash, address('02101', 'Suffolk'))
+          expect(result['zip']).to eq('02108')
+        end
       end
     end
 
@@ -1429,6 +2633,35 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
           result = verifier.send(:check_people)
           expect(result[:passed]).to be false
           expect(result[:issues]).to match(/tribal_id/)
+        end
+      end
+
+      context 'when a gender value is outside the allowed set' do
+        let!(:person) { FactoryBot.create(:person) }
+
+        before { db[:people].update_one({ '_id' => person.id }, { '$set' => { 'gender' => 'unspecified' } }) }
+
+        it 'fails' do
+          result = verifier.send(:check_people)
+          expect(result[:passed]).to be false
+          expect(result[:issues]).to match(/gender outside/)
+        end
+      end
+
+      context 'when gender is blank' do
+        let!(:person) { FactoryBot.create(:person) }
+
+        before do
+          db[:people].update_one(
+            { '_id' => person.id },
+            { '$set' => { 'gender' => nil, 'emails' => [{ 'address' => 'user1@exampleanonymizer.com', 'kind' => 'home' }] },
+              '$unset' => { 'ssn' => '', 'tribal_id' => '' } }
+          )
+        end
+
+        it 'passes, since the anonymizer only replaces a populated gender' do
+          result = verifier.send(:check_people)
+          expect(result[:passed]).to be true
         end
       end
 
@@ -1699,6 +2932,23 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
         end
       end
 
+      context 'when genders are inconsistent between census and person' do
+        let!(:person) { FactoryBot.create(:person, first_name: 'SyntheticFirst', gender: 'male') }
+        let!(:census) { FactoryBot.create(:census_employee, first_name: 'SyntheticFirst', gender: 'female') }
+
+        before do
+          role_id = BSON::ObjectId.new
+          db[:people].update_one({ '_id' => person.id }, { '$push' => { 'employee_roles' => { '_id' => role_id } } })
+          db[:census_members].update_one({ '_id' => census.id }, { '$set' => { 'employee_role_id' => role_id } })
+        end
+
+        it 'fails and reports the gender mismatch' do
+          result = verifier.send(:check_census_person_consistency)
+          expect(result[:passed]).to be false
+          expect(result[:issues]).to match(/gender mismatch/)
+        end
+      end
+
       context 'when first_names are inconsistent' do
         let!(:person) { FactoryBot.create(:person, first_name: 'PersonFake') }
         let!(:census)  { FactoryBot.create(:census_employee, first_name: 'DifferentName') }
@@ -1774,7 +3024,38 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       results, all_passed, = captured
       users_result = results.find { |r| r[:collection] =~ /Users/ }
       expect(users_result[:passed]).to be true
-      expect(all_passed).to be true
+      # Without RUN_ID/HMAC_KEY the cryptographic checks are skipped, so the run
+      # is INCOMPLETE rather than a pass. The account itself is still clean.
+      expect(all_passed).to be false
+      expect(results.select { |r| r[:skipped] }.map { |r| r[:collection] })
+        .to contain_exactly('Canonical prehash', 'Zip prehash', 'Identity prehash', 'Gender prehash')
+      expect(results.reject { |r| r[:skipped] }).to all(include(passed: true))
+    end
+
+    it 'prints the status and report path to the terminal' do
+      expect { Rake::Task['data:anonymize:verify'].invoke }
+        .to output(/STATUS: INCOMPLETE.*Report written to: /m).to_stdout
+    end
+  end
+
+  describe 'data:anonymize rake task' do
+    before do
+      load File.expand_path("#{Rails.root}/lib/tasks/data_anonymize.rake", __FILE__)
+      Rake::Task.define_task(:environment)
+      Rake::Task['data:anonymize'].reenable
+    end
+
+    it 'prints the status and re-verification credentials to the terminal' do
+      allow_any_instance_of(DataAnonymizer::Runner).to receive(:run).and_return(
+        status_line: 'STATUS: PASS', report_path: '/tmp/report.csv', run_id: 'run-123', hmac_key: 'key-456'
+      )
+      expect { Rake::Task['data:anonymize'].invoke }
+        .to output(%r{STATUS: PASS.*/tmp/report\.csv.*RUN_ID=run-123 HMAC_KEY=key-456}m).to_stdout
+    end
+
+    it 'prints no credentials when verification fails' do
+      allow_any_instance_of(DataAnonymizer::Runner).to receive(:run).and_return(status_line: 'STATUS: FAIL', report_path: '/tmp/report.csv')
+      expect { Rake::Task['data:anonymize'].invoke }.not_to output(/HMAC_KEY=/).to_stdout
     end
   end
 end

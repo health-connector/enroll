@@ -15,7 +15,20 @@ require_relative '../data_anonymization/verifier'
 #   2. Run data:anonymize:reset if a prior sentinel exists (fresh DB refresh).
 #   3. Run data:anonymize (dry-run first, then live).
 #   4. Run data:anonymize:verify to confirm PII is gone.
-#   5. Dump and share the anonymized database.
+#   5. Dump and share the anonymized database, excluding the digest collection:
+#      mongodump --db <database> --excludeCollection=data_anonymizer_prehashes
+#
+# == Demographics handled by default
+#
+# Gender and zip are both replaced on every run, with no flag required.
+# DOB is NOT shifted by default - see ANONYMIZE_DOB.
+#
+# Employer office locations are swapped only within the same rating area and the
+# same issuer service areas, and are left unchanged when no such pair exists.
+# Employer ZIP+4 values are also left unchanged, since rating lookups match them exactly.
+# Member addresses are swapped within the same rating area alone, and are given
+# a random zip when no pair exists, so no member retains a real zip. Premiums are
+# unchanged either way, since premium is looked up by rating area code.
 #
 # == ENV_NAME requirement
 #
@@ -32,8 +45,16 @@ require_relative '../data_anonymization/verifier'
 # @example Standard live run
 #   ENV_NAME=pvt bundle exec rake data:anonymize SKIP_CONFIRMATION=true
 #
-# @example Verify PII was removed after the run
-#   ENV_NAME=pvt bundle exec rake data:anonymize:verify
+# Verification compares canonical, ZIP, identity and gender digests, which expire
+# after seven days. Missing credentials produce INCOMPLETE, not PASS. Gender
+# no-op detection flags populations of at least 20 populated slots only when
+# every value is unchanged. People, census members and dependents are checked
+# separately. Smaller populations cannot reliably prove randomization.
+# Runs made before gender digests were introduced cannot verify that mutation.
+# Restore a fresh backup and rerun anonymization to capture all baseline digests.
+#
+# @example Verify PII was removed after the run using the saved credentials
+#   ENV_NAME=pvt bundle exec rake data:anonymize:verify RUN_ID=<uuid> HMAC_KEY=<hex>
 #
 # @example Reset anonymizer state after a fresh DB refresh from a prior environment
 #   ENV_NAME=pvt bundle exec rake data:anonymize:reset
@@ -64,8 +85,10 @@ require_relative '../data_anonymization/verifier'
 # @env DRY_RUN           [Boolean] Set to 'true' to preview counts without writing
 # @env BATCH_SIZE        [Integer] Documents per bulk_write batch (default: 1000)
 # @env FORCE_REANONYMIZE [Boolean] Set to 'true' to bypass the idempotency guard
-# @env ANONYMIZE_ZIP     [Boolean] Anonymize zip fields (off by default — protects rating calculations)
-# @env ANONYMIZE_COUNTY  [Boolean] Anonymize county fields (off by default — protects rating calculations)
+# @env ANONYMIZE_ZIP     [Boolean] Replace zip with a fully random value (off by default - protects rating
+#   calculations). Overrides the default rating-area-preserving swap described above.
+# @env ANONYMIZE_COUNTY  [Boolean] Replace county with a fully random value (off by default). By
+#   default a stored county moves with its swapped zip, and a blank one is left blank.
 # @env ANONYMIZE_DOB     [Boolean] Shift DOB ±30 days (off by default — protects age-band eligibility)
 # @env ANONYMIZE_STATE   [Boolean] Anonymize state fields (off by default — protects plan availability)
 # @env RUN_ID            [String]  UUID printed at end of a successful run; pass to :verify for re-verification
@@ -75,7 +98,7 @@ require_relative '../data_anonymization/verifier'
 namespace :data do
   desc "Anonymize all PII data in the current database (CCA). NOT safe for production."
   task :anonymize => :environment do
-    DataAnonymizer::Runner.new(
+    result = DataAnonymizer::Runner.new(
       batch_size: ENV.fetch('BATCH_SIZE', 1000).to_i,
       dry_run: ENV.fetch('DRY_RUN', 'false') == 'true',
       force: ENV.fetch('FORCE_REANONYMIZE', 'false') == 'true',
@@ -84,6 +107,14 @@ namespace :data do
       anonymize_dob: ENV.fetch('ANONYMIZE_DOB', 'false') == 'true',
       anonymize_state: ENV.fetch('ANONYMIZE_STATE', 'false') == 'true'
     ).run
+
+    # The Rails logger does not reach the terminal, and the run key must never be logged.
+    puts result[:status_line] if result[:status_line]
+    puts "Report written to: #{result[:report_path]}" if result[:report_path]
+    if result[:hmac_key]
+      puts "Re-verification credentials - RUN_ID=#{result[:run_id]} HMAC_KEY=#{result[:hmac_key]}"
+      puts "Store these values to re-run: bundle exec rake data:anonymize:verify RUN_ID=<value> HMAC_KEY=<value>"
+    end
   end
 
   namespace :anonymize do
@@ -94,7 +125,9 @@ namespace :data do
       verifier_opts = { mode: :audit, protected_oim_ids: DataAnonymizer::Runner::PROTECTED_OIM_IDS }
       verifier_opts[:run_id] = ENV['RUN_ID'] if ENV['RUN_ID'].present?
       verifier_opts[:hmac_key] = ENV['HMAC_KEY'] if ENV['HMAC_KEY'].present?
-      DataAnonymizer::Verifier.new(**verifier_opts).run
+      _results, _all_passed, report_path, status_line = DataAnonymizer::Verifier.new(**verifier_opts).run
+      puts status_line
+      puts "Report written to: #{report_path}"
     end
 
     desc "Drop the history_trackers collection. Use to clean up tracker docs

@@ -49,14 +49,49 @@ module DataAnonymizer
     # non-prod environments (the runner aborts in production).
     PROTECTED_USER_PASSWORD = 'aA1!aA1!aA1!'
 
+    # Reference collections for the zip swap.
+    COUNTY_ZIP_COLLECTION   = :benefit_markets_locations_county_zips
+    RATING_AREA_COLLECTION  = :benefit_markets_locations_rating_areas
+    SERVICE_AREA_COLLECTION = :benefit_markets_locations_service_areas
+    # Legacy carrier service areas, which resolve by zip alone.
+    LEGACY_SERVICE_AREA_COLLECTION = :carrier_service_areas
+
+    # Legacy rating areas, still consulted by EmployerProfile#rating_area.
+    LEGACY_RATING_AREA_COLLECTION = :rating_areas
+
+    # Fixed message hashed with the run key to identify which key a run used.
+    KEY_FINGERPRINT_SCOPE = 'key_fingerprint'
+    KEY_FINGERPRINT_MESSAGE = 'data_anonymizer_key_check'
+
+    # Organization collections whose naming fields must change.
+    IDENTITY_COLLECTIONS = %i[organizations benefit_sponsors_organizations_organizations
+                              sponsored_benefits_organizations_plan_design_organizations].freeze
+
+    # Redraw attempts when a generated zip collides with the stored one.
+    RANDOM_ZIP_ATTEMPTS = 10
+
+    # Redraw attempts when a generated state collides with the stored one.
+    RANDOM_STATE_ATTEMPTS = 10
+
+    # Redraw attempts when a generated producer number is already in use.
+    MAX_NPN_ATTEMPTS = 100
+
+    # Broker quoting workspace, which names the employer being quoted.
+    PLAN_DESIGN_ORG_COLLECTION = :sponsored_benefits_organizations_plan_design_organizations
+    ISSUER_PROFILE_TYPE = 'BenefitSponsors::Organizations::IssuerProfile'
+    # Prefix written by SponsoredBenefits::Services::PlanDesignProposalService.
+    BENEFIT_GROUP_TITLE_MARKER = 'Benefit Group Created for:'
+
     attr_reader :batch_size, :client, :db
 
     # @param batch_size [Integer] documents per bulk_write batch (default 1000).
     #   Larger values improve throughput at the cost of memory.
     # @param dry_run [Boolean] when true, logs actions without writing to the database.
     # @param force [Boolean] when true, skips the idempotency guard and re-anonymizes.
-    # @param anonymize_zip [Boolean] opt in to anonymize zip; preserved by default to protect rating calculations.
-    # @param anonymize_county [Boolean] opt in to anonymize county; preserved by default to protect rating calculations.
+    # @param anonymize_zip [Boolean] opt in to a fully random zip. By default zip is swapped
+    #   for a different real zip in the same rating area, which leaves rating unchanged.
+    # @param anonymize_county [Boolean] opt in to a fully random county. By default a stored
+    #   county moves with the swapped zip, and a blank one is left blank.
     # @param anonymize_dob [Boolean] opt in to shift DOB +/-30 days; preserved by default to protect age-band eligibility.
     # @param anonymize_state [Boolean] opt in to anonymize state; preserved by default to protect plan availability.
     # rubocop:disable Metrics/ParameterLists
@@ -73,6 +108,9 @@ module DataAnonymizer
       @client = Mongoid.default_client
       @db = @client.database
       @reference_date = TimeKeeper.date_of_record
+      @geo_swap_applied = 0
+      @geo_swap_skipped = 0
+      @geo_swap_randomized = 0
     end
     # rubocop:enable Metrics/ParameterLists
 
@@ -120,7 +158,7 @@ module DataAnonymizer
     # People must run before census_members so that
     # {#build_person_values_map_for_census} can read already-anonymized values.
     #
-    # @return [void]
+    # @return [Hash] operator summary for the rake task, including the run key on success
     def run
       abort_if_production!
       check_idempotency!
@@ -131,53 +169,68 @@ module DataAnonymizer
       log "Time: #{Time.current}"
       start_time = process_start_time
 
-      # Pre-run: generate HMAC prehashes for records that lack SSN so we can
-      # verify name+dob were changed after anonymization. Kept in-memory and
-      # passed to the verifier after the run.
-      if @dry_run
-        log "Skipping prehash generation (dry run)"
-        @prehash_map = nil
-        @prehash_hmac_key = nil
-      else
-        @prehash_hmac_key = SecureRandom.hex(32)
-        @prehash_run_id = SecureRandom.uuid
-        @prehash_map = generate_prehash_map
-        persist_prehashes_to_ttl_collection(@prehash_map, @prehash_run_id)
-        log "Prehash map: people=#{@prehash_map[:people].size}, census_members=#{@prehash_map[:census_members].size}, organizations=#{@prehash_map[:organizations].size}, bs_organizations=#{@prehash_map[:bs_organizations].size}"
-      end
+      prepare_prehashes
 
       stats = run_phases
       log_stats(stats, process_end_time_formatted(start_time))
+      log_geo_swap_stats
+      persist_geo_swap_stats unless @dry_run
 
       ensure_protected_users!
 
       # Post-run: run audit verifier (expensive) and require pass before recording sentinel
       if @dry_run
         log "Skipping verifier (dry run)"
-        return
+        return { status_line: 'DRY RUN complete - no data was written. Record counts are in the Rails log.' }
       end
 
       verifier = DataAnonymizer::Verifier.new(
         mode: :audit,
         prehash_map: @prehash_map,
+        zip_prehash_map: @zip_prehash_map,
+        identity_prehash_map: @identity_prehash_map,
+        gender_prehash_map: @gender_prehash_map,
+        geo_swap_skipped: @geo_swap_skipped,
         hmac_key: @prehash_hmac_key,
         protected_oim_ids: PROTECTED_OIM_IDS
       )
-      _results, all_passed, report_path = verifier.run
+      _results, all_passed, report_path, status_line = verifier.run
+      summary = { status_line: status_line, report_path: report_path }
 
       unless all_passed
         log "VERIFIER FAILED - report: #{report_path}"
         log "Sentinel will NOT be recorded; investigate and remediate before sharing dumps."
-        return
+        return summary
       end
 
       record_run_sentinel
-      log "Re-verification credentials - RUN_ID=#{@prehash_run_id} HMAC_KEY=#{@prehash_hmac_key}"
-      log "Store these values to re-run: bundle exec rake data:anonymize:verify RUN_ID=<value> HMAC_KEY=<value>"
+      # The key unlocks the stored digests, so it goes to the operator terminal only.
+      log "Re-verification RUN_ID=#{@prehash_run_id}. HMAC_KEY is printed to the terminal only."
       log_admin_access_hint
+      summary.merge(run_id: @prehash_run_id, hmac_key: @prehash_hmac_key)
     end
 
     private
+
+    def prepare_prehashes
+      if @dry_run
+        log "Skipping prehash generation (dry run)"
+        return
+      end
+
+      @prehash_hmac_key = SecureRandom.hex(32)
+      @prehash_run_id = SecureRandom.uuid
+      @prehash_map = generate_prehash_map
+      persist_prehashes_to_ttl_collection(@prehash_map, @prehash_run_id)
+      @zip_prehash_map = generate_zip_prehash_map
+      persist_prehashes_to_ttl_collection(@zip_prehash_map, @prehash_run_id, 'zip_prehash')
+      persist_key_fingerprint
+      @identity_prehash_map = generate_identity_prehash_map
+      persist_prehashes_to_ttl_collection(@identity_prehash_map, @prehash_run_id, 'identity_prehash')
+      @gender_prehash_map = generate_gender_prehash_map
+      persist_prehashes_to_ttl_collection(@gender_prehash_map, @prehash_run_id, 'gender_prehash')
+      log "Prehash map: people=#{@prehash_map[:people].size}, census_members=#{@prehash_map[:census_members].size}, organizations=#{@prehash_map[:organizations].size}, bs_organizations=#{@prehash_map[:bs_organizations].size}"
+    end
 
     # Executes all anonymization phases in dependency order and returns a stats hash.
     #
@@ -193,6 +246,7 @@ module DataAnonymizer
         census_members: anonymize_census_members,
         organizations: anonymize_organizations,
         bs_organizations: anonymize_bs_organizations,
+        plan_design_organizations: anonymize_plan_design_organizations,
         families: anonymize_families,
         inbox_messages: anonymize_inbox_messages,
         document_identifiers: anonymize_document_identifiers
@@ -203,6 +257,41 @@ module DataAnonymizer
     def log_stats(stats, elapsed_str)
       log "\n=== Anonymization Complete#{' (DRY RUN - no writes)' if @dry_run} (#{elapsed_str}) ==="
       stats.each { |k, v| log "  #{k}: #{v} records processed" }
+    end
+
+    # Stores a fingerprint of the run key.
+    # @return [void]
+    def persist_key_fingerprint
+      db[:data_anonymizer_prehashes].insert_one(
+        'run_id' => @prehash_run_id,
+        'scope' => KEY_FINGERPRINT_SCOPE,
+        'collection' => KEY_FINGERPRINT_SCOPE,
+        'record_id' => KEY_FINGERPRINT_SCOPE,
+        'digest' => OpenSSL::HMAC.hexdigest('SHA256', @prehash_hmac_key, KEY_FINGERPRINT_MESSAGE),
+        'created_at' => Time.current
+      )
+    end
+
+    # Stores the swap tallies, which bound how many employer zips stay unchanged.
+    # @return [void]
+    def persist_geo_swap_stats
+      db[:data_anonymizer_prehashes].insert_one(
+        'run_id' => @prehash_run_id,
+        'scope' => 'geo_swap_stats',
+        'collection' => 'geo_swap_stats',
+        'record_id' => 'geo_swap_stats',
+        'stats' => {
+          'applied' => @geo_swap_applied,
+          'skipped' => @geo_swap_skipped,
+          'randomized' => @geo_swap_randomized
+        },
+        'created_at' => Time.current
+      )
+    end
+
+    # @return [void]
+    def log_geo_swap_stats
+      log "  geographic swap: #{@geo_swap_applied} addresses swapped, #{@geo_swap_randomized} given a random zip, #{@geo_swap_skipped} preserved"
     end
 
     # Prints the admin portal access details so an operator can immediately
@@ -465,6 +554,8 @@ module DataAnonymizer
         fields['encrypted_ssn'] = enc_ssn
       end
       fields['tribal_id'] = nil if doc['tribal_id'].present?
+      fields['broker_role'] = anonymize_broker_role(doc['broker_role']) if doc['broker_role'].present?
+      fields['gender'] = AnonymizedData.gender if doc['gender'].present?
       fields.merge!(anonymize_person_dates(doc, shift_days))
       fields.merge!(anonymize_person_embedded(doc))
     end
@@ -482,15 +573,90 @@ module DataAnonymizer
       fields
     end
 
+    # Replaces the producer number on the embedded broker role.
+    # @param role [Hash] raw broker_role sub-document
+    # @return [Hash] anonymized copy
+    def anonymize_broker_role(role)
+      role = role.dup
+      role['npn'] = replacement_npn(role['npn']) if role['npn'].present?
+      role
+    end
+
     # Anonymizes embedded address, phone, and email arrays in a person document.
     # @param doc [Hash] raw person document
     # @return [Hash] embedded array fields for +$set+
     def anonymize_person_embedded(doc)
       fields = {}
-      fields['addresses'] = doc['addresses'].map { |addr| anonymize_address_hash(addr) } if doc['addresses'].present?
+      fields['addresses'] = doc['addresses'].map { |addr| anonymize_address_hash(addr, strict_geo: false) } if doc['addresses'].present?
       fields['phones']    = doc['phones'].map    { |phone| anonymize_phone_hash(phone) }  if doc['phones'].present?
       fields['emails']    = doc['emails'].map    { |email| anonymize_email_hash(email) }  if doc['emails'].present?
       fields
+    end
+
+    # Maps each real producer number to one replacement, shared across collections.
+    # @return [Hash] original npn => replacement npn
+    def npn_map
+      @npn_map ||= build_npn_map
+    end
+
+    # @return [Hash]
+    def build_npn_map
+      originals = Set.new
+      db[:people].find('broker_role.npn' => { '$nin' => [nil, ''] })
+                 .projection('broker_role.npn' => 1)
+                 .each { |doc| originals.add(doc.dig('broker_role', 'npn').to_s) if doc.dig('broker_role', 'npn').present? }
+      collect_corporate_npns(:organizations, 'broker_agency_profile', originals)
+      collect_corporate_npns(:benefit_sponsors_organizations_organizations, 'profiles', originals)
+
+      originals.each { |original| npn_used.add(original) }
+      map = originals.each_with_object({}) { |original, memo| memo[original] = unique_npn }
+      log "  Built producer number map for #{map.size} distinct values"
+      map
+    end
+
+    # Returns the replacement for +original+, generating one if it was not seen.
+    # @param original [String]
+    # @return [String]
+    def replacement_npn(original)
+      npn_map[original.to_s] ||= unique_npn
+    end
+
+    # @return [Set] replacements already issued in this run
+    def npn_used
+      @npn_used ||= Set.new
+    end
+
+    # @param collection_name [Symbol]
+    # @param path [String] embedded profile field holding +corporate_npn+
+    # @param originals [Set] accumulator
+    # @return [void]
+    def collect_corporate_npns(collection_name, path, originals)
+      db[collection_name].find("#{path}.corporate_npn" => { '$nin' => [nil, ''] })
+                         .projection("#{path}.corporate_npn" => 1)
+                         .each do |doc|
+        embedded_profiles(doc[path]).each { |profile| originals.add(profile['corporate_npn'].to_s) if profile['corporate_npn'].present? }
+      end
+    end
+
+    # Normalizes a single embedded profile hash or a list of them into a list.
+    # @param value [Hash, Array, nil]
+    # @return [Array<Hash>]
+    def embedded_profiles(value)
+      return [] if value.blank?
+
+      value.is_a?(Hash) ? [value] : Array(value)
+    end
+
+    # @return [String] producer number not yet issued in this run
+    def unique_npn
+      MAX_NPN_ATTEMPTS.times do
+        candidate = AnonymizedData.npn
+        next if npn_used.include?(candidate)
+
+        npn_used.add(candidate)
+        return candidate
+      end
+      raise "Failed to generate a unique npn after #{MAX_NPN_ATTEMPTS} attempts"
     end
 
     # Builds a map of person_id => shift_days by iterating all families.
@@ -832,7 +998,7 @@ module DataAnonymizer
     #
     # @note CCA Individual Market is disabled. +consumer_role+, +resident_role+,
     #   and VLP documents are not present for census members and are not processed.
-    # @note +dba+, +fein+, and +npn+ are never touched by this phase.
+    # @note +fein+ is never touched by this phase.
     # @return [Integer] number of census member documents processed
     def anonymize_census_members
       collection = db[:census_members]
@@ -920,13 +1086,15 @@ module DataAnonymizer
         'last_name' => 1,
         'dob' => 1,
         'encrypted_ssn' => 1,
+        'gender' => 1,
         'employee_roles._id' => 1
       ).each do |person|
         vals = {
           'first_name' => person['first_name'],
           'last_name' => person['last_name'],
           'dob' => person['dob'],
-          'encrypted_ssn' => person['encrypted_ssn']
+          'encrypted_ssn' => person['encrypted_ssn'],
+          'gender' => person['gender']
         }
         (person['employee_roles'] || []).each do |er|
           map[er['_id']] = vals
@@ -954,7 +1122,7 @@ module DataAnonymizer
                  build_census_member_fields_random(doc, shift_days)
                end
 
-      fields['address'] = anonymize_address_hash(doc['address']) if doc['address'].present?
+      fields['address'] = anonymize_address_hash(doc['address'], strict_geo: false) if doc['address'].present?
       fields['email']   = anonymize_email_hash(doc['email'])     if doc['email'].present?
       fields
     end
@@ -968,6 +1136,7 @@ module DataAnonymizer
       }
       fields['encrypted_ssn'] = person_vals['encrypted_ssn'] if doc['encrypted_ssn'].present? && person_vals['encrypted_ssn'].present?
       fields['dob']           = person_vals['dob']           if @anonymize_dob && doc['dob'].present? && person_vals['dob'].present?
+      fields['gender'] = person_vals['gender'].presence || AnonymizedData.gender if doc['gender'].present?
       fields
     end
 
@@ -980,6 +1149,7 @@ module DataAnonymizer
       }
       fields['encrypted_ssn'] = AnonymizedData.encrypted_ssn if doc['encrypted_ssn'].present?
       fields['dob'] = AnonymizedData.shift_dob(doc['dob'].to_date, shift_days: shift_days) if @anonymize_dob && doc['dob'].present?
+      fields['gender'] = AnonymizedData.gender if doc['gender'].present?
       fields
     end
 
@@ -995,8 +1165,9 @@ module DataAnonymizer
       dep['middle_name'] = nil
       dep['name_sfx'] = nil
       dep['encrypted_ssn'] = AnonymizedData.encrypted_ssn if dep['encrypted_ssn'].present?
+      dep['gender'] = AnonymizedData.gender if dep['gender'].present?
       dep['dob'] = AnonymizedData.shift_dob(dep['dob'].to_date, shift_days: shift_days) if @anonymize_dob && dep['dob'].present?
-      dep['address'] = anonymize_address_hash(dep['address']) if dep['address'].present?
+      dep['address'] = anonymize_address_hash(dep['address'], strict_geo: false) if dep['address'].present?
       dep['email']   = anonymize_email_hash(dep['email'])     if dep['email'].present?
       dep
     end
@@ -1006,7 +1177,7 @@ module DataAnonymizer
     # Replaces: legal_name, broker_agency_profile ACH fields (ach_routing_number,
     # ach_account_number), and office location addresses and phones.
     #
-    # @note +dba+, +fein+, and +npn+ are intentionally NOT anonymized.
+    # @note +fein+ is intentionally NOT anonymized.
     # @return [Integer] number of organization documents processed
     def anonymize_organizations
       collection = db[:organizations]
@@ -1040,6 +1211,8 @@ module DataAnonymizer
     # @return [Hash] fields for +$set+
     def build_org_update(doc)
       set_fields = { 'legal_name' => AnonymizedData.company_name }
+      set_fields['dba'] = AnonymizedData.company_name if doc['dba'].present?
+      set_fields['home_page'] = AnonymizedData.website if doc['home_page'].present?
 
       if doc['broker_agency_profile'].present?
         bap = doc['broker_agency_profile'].dup
@@ -1049,20 +1222,22 @@ module DataAnonymizer
           bap['ach_routing_number_confirmation'] = fake_rn
         end
         bap['ach_account_number'] = AnonymizedData.account_number if bap['ach_account_number'].present?
+        bap['corporate_npn'] = replacement_npn(bap['corporate_npn']) if bap['corporate_npn'].present?
         set_fields['broker_agency_profile'] = bap
       end
 
-      set_fields['office_locations'] = anonymize_office_locations(doc['office_locations']) if doc['office_locations'].present?
+      set_fields['office_locations'] = anonymize_office_locations(doc['office_locations'], doc.dig('employer_profile', '_id')) if doc['office_locations'].present?
       set_fields
     end
 
     # Replaces addresses and phones in an array of office_location sub-documents.
     # @param locations [Array<Hash>] raw office_locations array
+    # @param owner_id [BSON::ObjectId, nil] employer profile the locations belong to
     # @return [Array<Hash>] anonymized copies
-    def anonymize_office_locations(locations)
+    def anonymize_office_locations(locations, owner_id = nil)
       locations.map do |ol|
         ol = ol.dup
-        ol['address'] = anonymize_address_hash(ol['address']) if ol['address'].present?
+        ol['address'] = anonymize_address_hash(ol['address'], owner_id: owner_id) if ol['address'].present?
         ol['phone']   = anonymize_phone_hash(ol['phone'])     if ol['phone'].present?
         ol
       end
@@ -1077,7 +1252,7 @@ module DataAnonymizer
     # from +legal_name+ anonymization because downstream code (e.g. +carrier_logo+) relies on
     # the real carrier name to resolve logo assets.
     #
-    # @note +dba+, +fein+, and +npn+ are intentionally NOT anonymized.
+    # @note +fein+ is intentionally NOT anonymized.
     # @return [Integer] number of BS organization documents processed
     def anonymize_bs_organizations
       collection = db[:benefit_sponsors_organizations_organizations]
@@ -1115,6 +1290,8 @@ module DataAnonymizer
     def build_bs_org_update(doc)
       issuer_org = doc['profiles']&.any? { |p| p['_type'] == 'BenefitSponsors::Organizations::IssuerProfile' }
       set_fields = issuer_org ? {} : { 'legal_name' => AnonymizedData.company_name }
+      set_fields['dba'] = AnonymizedData.company_name if !issuer_org && doc['dba'].present?
+      set_fields['home_page'] = AnonymizedData.website if !issuer_org && doc['home_page'].present?
       set_fields['profiles'] = doc['profiles'].map { |p| anonymize_bs_profile(p) } if doc['profiles'].present?
       set_fields
     end
@@ -1132,7 +1309,9 @@ module DataAnonymizer
         profile['ach_routing_number_confirmation'] = fake_rn
       end
       profile['ach_account_number']  = AnonymizedData.account_number if profile['ach_account_number'].present?
-      profile['office_locations']    = anonymize_office_locations(profile['office_locations']) if profile['office_locations'].present?
+      profile['corporate_npn']       = replacement_npn(profile['corporate_npn']) if profile['corporate_npn'].present?
+      profile['home_page']           = AnonymizedData.website if profile['home_page'].present? && !issuer_profile?(profile)
+      profile['office_locations']    = anonymize_office_locations(profile['office_locations'], profile['_id']) if profile['office_locations'].present?
       profile['employer_attestation'] = anonymize_employer_attestation(profile['employer_attestation']) if profile['employer_attestation'].present?
       profile
     end
@@ -1162,6 +1341,108 @@ module DataAnonymizer
       attestation
     end
 
+    # Anonymizes the broker quoting workspace.
+    #
+    # @note +fein+ is intentionally NOT anonymized.
+    # @return [Integer] documents processed
+    def anonymize_plan_design_organizations
+      return 0 unless db.collection_names.include?(PLAN_DESIGN_ORG_COLLECTION.to_s)
+
+      collection = db[PLAN_DESIGN_ORG_COLLECTION]
+      total = collection.count_documents({})
+      return 0 if total.zero?
+
+      log "\n--- Phase 6: Anonymizing Plan Design Organizations (#{total}) ---"
+      processed = 0
+
+      collection.find.batch_size(batch_size).each_slice(batch_size) do |batch|
+        updates = batch.map do |doc|
+          { update_one: { filter: { '_id' => doc['_id'] }, update: { '$set' => build_plan_design_org_update(doc) } } }
+        end
+
+        if @dry_run
+          log "  [DRY RUN] Would update #{updates.size} plan design organizations in this batch"
+        else
+          bulk_write_batch(collection, updates)
+        end
+        processed += batch.size
+        log "  #{processed}/#{total} plan design organizations" if (processed % (batch_size * 5)).zero? || processed >= total
+      end
+      processed
+    end
+
+    # Rewrites benefit group titles, which embed the employer and broker names.
+    # @param doc [Hash] raw plan design organization document
+    # @param employer_name [String, nil] replacement already chosen for this record
+    # @return [Array<Hash>, nil] rewritten proposals, or nil when none apply
+    def anonymize_plan_design_proposals(doc, employer_name)
+      proposals = doc['plan_design_proposals']
+      return nil if proposals.blank?
+
+      broker_name = anonymized_broker_name(doc['owner_profile_id'])
+      rewritten = Array(proposals).map { |proposal| rewrite_proposal_titles(proposal, employer_name, broker_name) }
+      rewritten == Array(proposals) ? nil : rewritten
+    end
+
+    def anonymized_broker_name(profile_id)
+      return AnonymizedData.company_name if profile_id.blank?
+
+      @anonymized_broker_names ||= {}
+      @anonymized_broker_names[profile_id] ||= broker_legal_name(profile_id).presence || AnonymizedData.company_name
+    end
+
+    # @param profile_id [BSON::ObjectId] broker agency profile id
+    # @return [String, nil] legal name already written by the organization phases
+    def broker_legal_name(profile_id)
+      organization = db[:benefit_sponsors_organizations_organizations]
+                     .find('profiles._id' => profile_id).projection('legal_name' => 1).first
+      organization ||= db[:organizations].find('broker_agency_profile._id' => profile_id).projection('legal_name' => 1).first
+      organization&.dig('legal_name')
+    end
+
+    # @return [Hash] proposal with every nested benefit group title rewritten
+    def rewrite_proposal_titles(proposal, employer_name, broker_name)
+      proposal = proposal.dup
+      sponsorships = proposal.dig('profile', 'benefit_sponsorships')
+      return proposal if sponsorships.blank?
+
+      proposal['profile'] = proposal['profile'].dup
+      proposal['profile']['benefit_sponsorships'] = Array(sponsorships).map do |sponsorship|
+        sponsorship = sponsorship.dup
+        sponsorship['benefit_applications'] = Array(sponsorship['benefit_applications']).map do |application|
+          application = application.dup
+          application['benefit_groups'] = Array(application['benefit_groups']).map do |group|
+            rewrite_benefit_group_title(group, employer_name, broker_name)
+          end
+          application
+        end
+        sponsorship
+      end
+      proposal
+    end
+
+    # @return [Hash] benefit group whose title names no real organization
+    def rewrite_benefit_group_title(group, employer_name, broker_name)
+      return group unless group['title'].to_s.include?(BENEFIT_GROUP_TITLE_MARKER)
+
+      group = group.dup
+      group['title'] = "#{BENEFIT_GROUP_TITLE_MARKER} #{employer_name || AnonymizedData.company_name} by #{broker_name}"
+      group
+    end
+
+    # @param doc [Hash] raw plan design organization document
+    # @return [Hash] fields for +$set+
+    def build_plan_design_org_update(doc)
+      # An empty $set is rejected by the bulk write.
+      set_fields = { 'legal_name' => AnonymizedData.company_name }
+      set_fields['dba'] = AnonymizedData.company_name if doc['dba'].present?
+      set_fields['home_page'] = AnonymizedData.website if doc['home_page'].present?
+      set_fields['office_locations'] = anonymize_office_locations(doc['office_locations'], doc['sponsor_profile_id']) if doc['office_locations'].present?
+      proposals = anonymize_plan_design_proposals(doc, set_fields['legal_name'])
+      set_fields['plan_design_proposals'] = proposals if proposals
+      set_fields
+    end
+
     # Clears the +e_case_id+ field on all family documents.
     #
     # +e_case_id+ is a foreign key to an external eligibility case management system.
@@ -1173,7 +1454,7 @@ module DataAnonymizer
     def anonymize_families
       collection = db[:families]
       total = collection.count_documents('e_case_id' => { '$exists' => true, '$ne' => nil })
-      log "\n--- Phase 6: Anonymizing Families (#{total} with e_case_id) ---"
+      log "\n--- Phase 7: Anonymizing Families (#{total} with e_case_id) ---"
       return 0 if total.zero?
 
       if @dry_run
@@ -1189,13 +1470,13 @@ module DataAnonymizer
     end
 
     def anonymize_inbox_messages
-      log "\n--- Phase 7: Anonymizing Inbox Message Bodies ---"
+      log "\n--- Phase 8: Anonymizing Inbox Message Bodies ---"
       total  = redact_inbox_messages_at_path(db[:people], 'inbox')
       total += redact_inbox_messages_at_path(db[:organizations], 'employer_profile.inbox')
       total += redact_inbox_messages_at_path(db[:organizations], 'broker_agency_profile.inbox')
       total += redact_inbox_messages_at_path(db[:organizations], 'hbx_profile.inbox')
       total += redact_bs_org_inbox_messages
-      log "  Phase 7 complete: #{total} documents processed" if total.positive?
+      log "  Phase 8 complete: #{total} documents processed" if total.positive?
       total
     end
 
@@ -1288,13 +1569,13 @@ module DataAnonymizer
     end
 
     def anonymize_document_identifiers
-      log "\n--- Phase 8: Anonymizing Document S3 References ---"
+      log "\n--- Phase 9: Anonymizing Document S3 References ---"
       total  = redact_document_identifiers_at_path(db[:people], 'documents')
       total += redact_document_identifiers_at_path(db[:organizations], 'documents')
       total += redact_document_identifiers_at_path(db[:organizations], 'employer_profile.documents')
       total += redact_document_identifiers_at_path(db[:organizations], 'broker_agency_profile.documents')
       total += redact_bs_document_identifiers
-      log "  Phase 8 complete: #{total} documents processed" if total.positive?
+      log "  Phase 9 complete: #{total} documents processed" if total.positive?
       total
     end
 
@@ -1345,7 +1626,10 @@ module DataAnonymizer
       return 0 unless db.collection_names.include?(collection.name)
 
       filter = {
-        'identifier' => { '$exists' => true, '$nin' => [nil, '', 'missing_uri'] },
+        '$or' => [
+          { 'identifier' => { '$exists' => true, '$nin' => [nil, '', 'missing_uri'] } },
+          { 'subject' => 'commission-statement' }
+        ],
         'documentable_type' => { '$ne' => 'BenefitSponsors::Organizations::IssuerProfile' }
       }
       total = collection.count_documents(filter)
@@ -1354,9 +1638,12 @@ module DataAnonymizer
       log "  #{collection.name}: #{total} documents with S3 identifiers"
       processed = 0
 
-      collection.find(filter).projection('_id' => 1).batch_size(batch_size).each_slice(batch_size) do |batch|
+      collection.find(filter).projection('identifier' => 1, 'title' => 1, 'subject' => 1).batch_size(batch_size).each_slice(batch_size) do |batch|
         updates = batch.map do |doc|
-          { update_one: { filter: { '_id' => doc['_id'] }, update: { '$set' => { 'identifier' => anonymized_document_identifier } } } }
+          fields = {}
+          fields['identifier'] = anonymized_document_identifier if doc['identifier'].present? && doc['identifier'] != 'missing_uri'
+          fields['title'] = anonymized_commission_title(doc['title']) if doc['subject'] == 'commission-statement'
+          { update_one: { filter: { '_id' => doc['_id'] }, update: { '$set' => fields } } }
         end
 
         if @dry_run
@@ -1369,19 +1656,29 @@ module DataAnonymizer
       processed
     end
 
+    def anonymized_commission_title(title)
+      match = title.to_s.match(/\A(\d+)(_\d+_\d{8}_COMMISSION.*)\z/)
+      return 'document.pdf' unless match
+
+      "#{replacement_npn(match[1])}#{match[2]}"
+    end
+
     def anonymized_document_identifier
       "urn:openhbx:terms:v1:file_storage:s3:bucket:anonymized##{SecureRandom.uuid}"
     end
 
     # Replaces address PII fields in an embedded address hash.
     #
-    # ZIP and county are preserved by default to avoid impacting premium/rating
-    # calculations. Pass +anonymize_zip: true+ or +anonymize_county: true+ to
-    # the Runner constructor (or use ENV flags in the rake task) to override.
+    # Zip is swapped for a different real zip that resolves to the same rating
+    # area. +anonymize_zip+ / +anonymize_county+ / +anonymize_state+ override
+    # this with fully random values and will change rating.
     #
     # @param addr [Hash, nil] embedded address sub-document
+    # @param strict_geo [Boolean] true for employer addresses, which must also
+    #   keep their service areas
+    # @param owner_id [BSON::ObjectId, nil] employer profile the address belongs to
     # @return [Hash, nil] anonymized copy, or nil if input is nil
-    def anonymize_address_hash(addr)
+    def anonymize_address_hash(addr, strict_geo: true, owner_id: nil)
       return addr if addr.nil?
 
       addr = addr.dup
@@ -1389,20 +1686,292 @@ module DataAnonymizer
       addr['address_2'] = nil
       addr['address_3'] = nil if addr.key?('address_3')
       addr['city'] = AnonymizedData.city
-      if addr.key?('state') && @anonymize_state
-        original_state = addr['state']
-        new_state = AnonymizedData.state
-        attempts = 0
-        # Try a few times to avoid returning the same state by chance
-        while new_state == original_state && attempts < 10
-          new_state = AnonymizedData.state
-          attempts += 1
-        end
-        addr['state'] = new_state
-      end
-      addr['zip']    = AnonymizedData.zip    if @anonymize_zip
+      replace_zip(addr, strict_geo, owner_id)
+      addr['state'] = random_state_other_than(addr['state']) if addr.key?('state') && @anonymize_state
       addr['county'] = AnonymizedData.county if addr.key?('county') && @anonymize_county
       addr
+    end
+
+    # @param addr [Hash] address sub-document being anonymized
+    # @param strict_geo [Boolean] true for employer addresses
+    # @param owner_id [BSON::ObjectId, nil] employer profile the address belongs to
+    # @return [Hash] the same hash
+    def replace_zip(addr, strict_geo, owner_id)
+      return apply_geo_swap(addr, strict_geo: strict_geo, owner_id: owner_id) unless @anonymize_zip
+
+      # Filling in a blank zip would add data the record never held.
+      return addr if addr['zip'].to_s.strip.empty?
+
+      addr['zip'] = random_zip_other_than(addr['zip'])
+      @geo_swap_randomized += 1
+      addr
+    end
+
+    # Tries a few times to avoid returning the same state by chance.
+    # @param current [String, nil] the stored state
+    # @return [String] replacement state
+    def random_state_other_than(current)
+      RANDOM_STATE_ATTEMPTS.times do
+        candidate = AnonymizedData.state
+        return candidate unless candidate.to_s.casecmp?(current.to_s)
+      end
+      raise "Failed to generate a state differing from the original after #{RANDOM_STATE_ATTEMPTS} attempts"
+    end
+
+    # Replaces zip with a different real zip from the same rating area.
+    # Mutates +addr+ in place.
+    # @param addr [Hash] address sub-document being anonymized
+    # @param strict_geo [Boolean] true for employer addresses
+    # @param owner_id [BSON::ObjectId, nil] employer profile the address belongs to
+    # @return [Hash] the same hash
+    def apply_geo_swap(addr, strict_geo: true, owner_id: nil)
+      # Filling in a blank zip would add data the record never held.
+      return addr if addr['zip'].to_s.strip.empty?
+
+      alternatives = geo_swap_map(strict_geo: strict_geo)[address_key(addr, strict_geo)]
+      return swap_within_group(addr, alternatives, owner_id: owner_id) if alternatives.present?
+
+      # An employer zip is left alone so it keeps resolving to its rating area.
+      # An unmatched person zip resolves to none, so it is randomized.
+      if strict_geo
+        @geo_swap_skipped += 1
+      else
+        addr['zip'] = random_zip_other_than(addr['zip'])
+        @geo_swap_randomized += 1
+      end
+      addr
+    end
+
+    # @param addr [Hash] address being anonymized
+    # @param alternatives [Array<Hash>] interchangeable zip/county pairs
+    # @param owner_id [BSON::ObjectId, nil] employer profile the address belongs to
+    # @return [Hash] the same hash, updated
+    def swap_within_group(addr, alternatives, owner_id: nil)
+      # A quote must match its employer zip and county to be claimed, so they share a replacement.
+      replacement = if owner_id.present?
+                      @linked_geo_replacements ||= {}
+                      @linked_geo_replacements[[owner_id.to_s, address_key(addr, true)]] ||= alternatives.sample
+                    else
+                      alternatives.sample
+                    end
+      # Reference data holds a few padded zips, so values are trimmed rather
+      # than copied verbatim into a record.
+      addr['zip'] = replacement['zip'].to_s.strip
+      # Employer county must move with the zip, since rating area lookup matches
+      # on both. Person county is blank and is left that way.
+      addr['county'] = replacement['county'].to_s.strip if addr['county'].to_s.strip.present?
+      addr['state'] = replacement['state'].to_s.strip if addr.key?('state') && replacement['state'].present?
+      @geo_swap_applied += 1
+      addr
+    end
+
+    # Employers match on rating area AND service area, since service area is
+    # validated on plan years. Members match on rating area alone, since no
+    # application code reads a member zip.
+    # @param strict_geo [Boolean] true for employer addresses
+    # @return [Hash] geo_key => Array<Hash> of {'zip','county','state'}
+    def geo_swap_map(strict_geo: true)
+      @geo_swap_maps ||= build_geo_swap_maps
+      @geo_swap_maps[strict_geo ? :strict : :relaxed]
+    end
+
+    # Membership is compared across all active years.
+    # @return [Hash{Symbol => Hash}] :strict and :relaxed maps
+    def build_geo_swap_maps
+      county_zips = db[COUNTY_ZIP_COLLECTION].find.to_a
+      if county_zips.empty?
+        log '  Geographic reference data not found - employer zips preserved, member zips randomized'
+        return { strict: {}, relaxed: {} }
+      end
+
+      rating_membership  = county_zip_membership(RATING_AREA_COLLECTION)
+      service_membership = county_zip_membership(SERVICE_AREA_COLLECTION)
+      legacy_membership  = legacy_service_membership_by_zip
+      legacy_rating      = legacy_rating_membership
+
+      # Records with no rating area, or only a statewide one, are excluded so
+      # unrelated zips are not treated as interchangeable.
+      swappable = county_zips.select { |county_zip| rating_membership[county_zip['_id']].any? }
+      excluded = county_zips.size - swappable.size
+      log "  Excluding #{excluded} county/zip pairs with no rating area from the swap maps" if excluded.positive?
+
+      strict_signatures  = {}
+      relaxed_signatures = {}
+      swappable.each do |county_zip|
+        id = county_zip['_id']
+        rating = rating_membership[id].sort
+        legacy_key = geo_key(county_zip['zip'], county_zip['county_name'], county_zip['state'])
+        strict_signatures[id]  = [rating, service_membership[id].sort,
+                                  legacy_membership[county_zip['zip'].to_s.strip], legacy_rating[legacy_key]]
+        relaxed_signatures[id] = [rating]
+      end
+
+      {
+        strict: build_named_swap_map(swappable, strict_signatures, 'employer', true),
+        relaxed: build_named_swap_map(swappable, relaxed_signatures, 'person', false)
+      }
+    end
+
+    # @param county_zips [Array<Hash>] raw county_zip documents
+    # @param signatures [Hash] county_zip id => membership signature
+    # @param label [String] which address kind this map serves, for logging
+    # @return [Hash] geo_key => Array<Hash> of interchangeable pairs
+    def build_named_swap_map(county_zips, signatures, label, strict_geo)
+      ambiguous = ambiguous_geo_keys(county_zips, signatures, strict_geo)
+      groups = county_zips.group_by { |county_zip| signatures[county_zip['_id']] }
+      map = build_swap_pairs(groups, ambiguous, strict_geo)
+      log "  #{label} address swap map covers #{map.size} of #{county_zips.size} county/zip pairs (#{ambiguous.size} ambiguous excluded)"
+      map
+    end
+
+    # Reference zips carrying stray whitespace can normalize to the same key
+    # in different rating areas, so both are excluded.
+    #
+    # @param county_zips [Array<Hash>] raw county_zip documents
+    # @param signatures [Hash] county_zip id => membership signature
+    # @return [Set] geo_key values that must not be swapped
+    def ambiguous_geo_keys(county_zips, signatures, strict_geo)
+      by_key = Hash.new { |hash, key| hash[key] = [] }
+      county_zips.each do |county_zip|
+        by_key[reference_key(county_zip, strict_geo)] << signatures[county_zip['_id']]
+      end
+
+      by_key.each_with_object(Set.new) do |(key, key_signatures), ambiguous|
+        ambiguous.add(key) if key_signatures.uniq.size > 1
+      end
+    end
+
+    # @param groups [Hash] membership signature => Array of county_zip documents
+    # @param ambiguous_keys [Set] keys excluded by {#ambiguous_geo_keys}
+    # @param strict_geo [Boolean] which key form to build
+    # @return [Hash] key => Array<Hash> of interchangeable pairs
+    def build_swap_pairs(groups, ambiguous_keys, strict_geo)
+      groups.each_value.with_object({}) do |members, map|
+        # Ambiguous records are excluded as sources and as replacements.
+        eligible = members.reject { |county_zip| ambiguous_keys.include?(reference_key(county_zip, strict_geo)) }
+        next if eligible.size < 2
+
+        eligible.each do |county_zip|
+          key = reference_key(county_zip, strict_geo)
+
+          # Reject by zip, not by id: a zip spanning several counties appears as
+          # multiple records in one group, and picking a sibling would leave the
+          # zip unchanged.
+          alternatives = eligible.reject { |other| same_zip?(other['zip'], county_zip['zip']) }
+          next if alternatives.empty?
+
+          map[key] = alternatives.map do |other|
+            { 'zip' => other['zip'], 'county' => other['county_name'], 'state' => other['state'] }
+          end
+        end
+      end
+    end
+
+    # Legacy rating areas key on zip and county and still drive employer rating
+    # through EmployerProfile#rating_area, so they are held constant alongside
+    # the newer ones.
+    # @return [Hash] geo_key => sorted Array of rating area codes
+    def legacy_rating_membership
+      membership = Hash.new { |hash, key| hash[key] = [] }
+      return membership unless db.collection_names.include?(LEGACY_RATING_AREA_COLLECTION.to_s)
+
+      db[LEGACY_RATING_AREA_COLLECTION]
+        .find
+        .projection('zip_code' => 1, 'county_name' => 1, 'rating_area' => 1, 'active_years' => 1)
+        .each do |doc|
+          key = geo_key(doc['zip_code'], doc['county_name'], Settings.aca.state_abbreviation)
+          Array(doc['active_years']).each { |year| membership[key] << "#{year}:#{doc['rating_area']}" }
+        end
+      membership.each_value { |codes| codes.sort!.uniq! }
+      membership
+    end
+
+    # Legacy carrier service areas key on zip alone. Records serving the whole
+    # state cover every zip and so constrain nothing.
+    # @return [Hash] zip => sorted Array of owning document ids
+    def legacy_service_membership_by_zip
+      membership = Hash.new { |hash, key| hash[key] = [] }
+      return membership unless db.collection_names.include?(LEGACY_SERVICE_AREA_COLLECTION.to_s)
+
+      db[LEGACY_SERVICE_AREA_COLLECTION]
+        .find('serves_entire_state' => { '$ne' => true })
+        .projection('service_area_zipcode' => 1, 'issuer_hios_id' => 1,
+                    'active_year' => 1, 'service_area_id' => 1)
+        .each do |doc|
+          # Keyed on the area a zip belongs to, which two zips can share.
+          key = doc['service_area_zipcode'].to_s.strip
+          membership[key] << "#{doc['issuer_hios_id']}:#{doc['active_year']}:#{doc['service_area_id']}"
+        end
+      membership.each_value { |ids| ids.sort!.uniq! }
+      membership
+    end
+
+    # Inverts a rating-area or service-area collection into county_zip id =>
+    # containing document ids. Records covering a whole state carry no
+    # +county_zip_ids+ and so constrain nothing.
+    # @param collection_name [Symbol]
+    # @return [Hash] county_zip id => Array of owning document ids
+    def county_zip_membership(collection_name)
+      membership = Hash.new { |hash, key| hash[key] = [] }
+      db[collection_name].find.projection('county_zip_ids' => 1).each do |doc|
+        Array(doc['county_zip_ids']).each { |county_zip_id| membership[county_zip_id] << doc['_id'] }
+      end
+      membership
+    end
+
+    # Employer addresses key on zip, county and state, matching rating area
+    # lookup. Member addresses key on zip and state only, because county is
+    # blank on effectively every stored member address.
+    # @return [Array<String>]
+    def geo_key(zip, county, state)
+      [zip.to_s.strip, county.to_s.strip.downcase, state.to_s.strip.upcase]
+    end
+
+    # @return [Array<String>] zip and state only
+    def person_geo_key(zip, state)
+      [zip.to_s.strip, state.to_s.strip.upcase]
+    end
+
+    # @param addr [Hash] stored address sub-document
+    # @param strict_geo [Boolean]
+    # @return [Array<String>] lookup key for this address
+    def address_key(addr, strict_geo)
+      # Employer lookups match the stored zip exactly, so an extended zip finds no partner.
+      return geo_key(addr['zip'], addr['county'], addr['state']) if strict_geo
+
+      person_geo_key(five_digit_zip(addr['zip']), addr['state'])
+    end
+
+    # @param zip [String, nil]
+    # @return [String] leading five digits
+    def five_digit_zip(zip)
+      zip.to_s.strip[0, 5].to_s
+    end
+
+    # Generated zips are trimmed to five digits and redrawn if they match
+    # the original.
+    # @param current [String, nil] the stored zip
+    # @return [String] five digit zip differing from +current+
+    def random_zip_other_than(current)
+      RANDOM_ZIP_ATTEMPTS.times do
+        candidate = AnonymizedData.zip.to_s[0, 5]
+        return candidate unless same_zip?(candidate, current)
+      end
+      raise "Failed to generate a zip differing from the original after #{RANDOM_ZIP_ATTEMPTS} attempts"
+    end
+
+    # @return [Boolean] whether two stored zips are the same value
+    def same_zip?(one, other)
+      five_digit_zip(one) == five_digit_zip(other)
+    end
+
+    # @param county_zip [Hash] reference record
+    # @param strict_geo [Boolean]
+    # @return [Array<String>] lookup key for this reference record
+    def reference_key(county_zip, strict_geo)
+      return geo_key(county_zip['zip'], county_zip['county_name'], county_zip['state']) if strict_geo
+
+      person_geo_key(county_zip['zip'], county_zip['state'])
     end
 
     # Replaces phone PII fields in an embedded phone hash.
@@ -1437,12 +2006,139 @@ module DataAnonymizer
     # Returns a hash with keys :people, :census_members, :organizations, :bs_organizations
     # where each value is a map of id_str => hmac.
     def generate_prehash_map
-      map = { people: {}, census_members: {}, organizations: {}, bs_organizations: {} }
+      map = { people: {}, census_members: {}, organizations: {}, bs_organizations: {}, plan_design_organizations: {} }
       generate_prehash_for_people(map)
       generate_prehash_for_census_members(map)
       generate_prehash_for_organizations(map)
       generate_prehash_for_bs_organizations(map)
+      generate_prehash_for_plan_design_orgs(map)
       map
+    end
+
+    def generate_prehash_for_plan_design_orgs(map)
+      return unless db.collection_names.include?(PLAN_DESIGN_ORG_COLLECTION.to_s)
+
+      cursor = db[PLAN_DESIGN_ORG_COLLECTION].find.projection('legal_name' => 1, 'dba' => 1, 'home_page' => 1)
+      cursor.batch_size(batch_size).each do |doc|
+        next if doc['legal_name'].to_s.strip.empty?
+
+        map[:plan_design_organizations][doc['_id'].to_s] =
+          OpenSSL::HMAC.hexdigest('SHA256', @prehash_hmac_key, canonical_plan_design_org_payload(doc))
+      end
+    end
+
+    # Per-field digests of the names an organization is known by, so a silent
+    # failure on any one of them is caught. Issuer organizations are excluded
+    # because their legal_name and dba are preserved on purpose.
+    # @return [Hash{Symbol => Hash{String => Array}}]
+    def generate_identity_prehash_map
+      IDENTITY_COLLECTIONS.each_with_object({}) do |collection_name, map|
+        map[collection_name] = {}
+        next unless db.collection_names.include?(collection_name.to_s)
+
+        cursor = db[collection_name].find.projection('legal_name' => 1, 'dba' => 1, 'home_page' => 1, 'profiles._type' => 1, 'profiles.home_page' => 1)
+        cursor.batch_size(batch_size).each do |doc|
+          next if issuer_organization?(doc)
+
+          payloads = canonical_identity_payloads(doc)
+          next if payloads.all?(&:blank?)
+
+          map[collection_name][doc['_id'].to_s] = slot_digests(doc['_id'], payloads)
+        end
+      end
+    end
+
+    def generate_gender_prehash_map
+      %i[people census_members].each_with_object({}) do |collection_name, map|
+        map[collection_name] = {}
+        cursor = db[collection_name].find.projection('gender' => 1, 'census_dependents.gender' => 1)
+        cursor.batch_size(batch_size).each do |doc|
+          next if collection_name == :people && protected_person_ids.include?(doc['_id'])
+
+          payloads = canonical_gender_payloads(doc)
+          next if payloads.all?(&:blank?)
+
+          map[collection_name][doc['_id'].to_s] = slot_digests(doc['_id'], payloads)
+        end
+      end
+    end
+
+    # @param profile [Hash] embedded profile document
+    # @return [Boolean]
+    def issuer_profile?(profile)
+      profile['_type'] == ISSUER_PROFILE_TYPE
+    end
+
+    # @param doc [Hash] raw organization document
+    # @return [Boolean]
+    def issuer_organization?(doc)
+      Array(doc['profiles']).any? { |profile| issuer_profile?(profile) }
+    end
+
+    # Zip-only digests proving the swap ran. Member zips must all change.
+    # Employer zips may stay unchanged when no compatible partner exists.
+    # @return [Hash{Symbol => Hash{String => String}}]
+    def generate_zip_prehash_map
+      map = { people: {}, census_members: {}, organizations: {},
+              benefit_sponsors_organizations_organizations: {}, PLAN_DESIGN_ORG_COLLECTION => {} }
+      generate_zip_prehash_for_people(map)
+      generate_zip_prehash_for_census_members(map)
+      generate_zip_prehash_for_orgs(map, :organizations)
+      generate_zip_prehash_for_orgs(map, :benefit_sponsors_organizations_organizations)
+      generate_zip_prehash_for_orgs(map, PLAN_DESIGN_ORG_COLLECTION)
+      map
+    end
+
+    # Employer zips may stay unchanged, so the verifier bounds them against
+    # the runner skip tally rather than requiring every one to move.
+    # @param map [Hash] accumulator
+    # @param collection_name [Symbol]
+    # @return [void]
+    def generate_zip_prehash_for_orgs(map, collection_name)
+      return unless db.collection_names.include?(collection_name.to_s)
+
+      cursor = db[collection_name].find.projection('office_locations' => 1, 'profiles.office_locations' => 1)
+      cursor.batch_size(batch_size).each do |doc|
+        payloads = canonical_org_zip_payloads(doc)
+        next unless zip_payload_present?(payloads)
+
+        map[collection_name][doc['_id'].to_s] = slot_digests(doc['_id'], payloads)
+      end
+    end
+
+    def generate_zip_prehash_for_people(map)
+      cursor = db[:people].find('addresses' => { '$exists' => true, '$ne' => [] }).projection('addresses' => 1)
+      cursor.batch_size(batch_size).each do |doc|
+        next if protected_person_ids.include?(doc['_id'])
+
+        payloads = canonical_person_zip_payloads(doc)
+        next unless zip_payload_present?(payloads)
+
+        map[:people][doc['_id'].to_s] = slot_digests(doc['_id'], payloads)
+      end
+    end
+
+    def generate_zip_prehash_for_census_members(map)
+      cursor = db[:census_members].find.projection('address' => 1, 'census_dependents' => 1)
+      cursor.batch_size(batch_size).each do |doc|
+        payloads = canonical_census_zip_payloads(doc)
+        next unless zip_payload_present?(payloads)
+
+        map[:census_members][doc['_id'].to_s] = slot_digests(doc['_id'], payloads)
+      end
+    end
+
+    # One digest per field slot, in stored order. Blank slots carry nil so a
+    # slot that never held a value is not later mistaken for a stale one.
+    # @param record_id [BSON::ObjectId, String] owning record
+    # @param payloads [Array<String>] normalized field values
+    # @return [Array<String, nil>]
+    def slot_digests(record_id, payloads)
+      payloads.each_with_index.map do |payload, index|
+        next if payload.blank?
+
+        OpenSSL::HMAC.hexdigest('SHA256', @prehash_hmac_key, slot_digest_payload(record_id, index, payload))
+      end
     end
 
     def generate_prehash_for_people(map)
@@ -1479,6 +2175,8 @@ module DataAnonymizer
       cursor = db[:benefit_sponsors_organizations_organizations].find.projection('legal_name' => 1, 'profiles' => 1)
       cursor.batch_size(batch_size).each do |b|
         next if b['legal_name'].to_s.strip.empty?
+        # Issuer names are preserved, so their digest never changes.
+        next if issuer_organization?(b)
 
         map[:bs_organizations][b['_id'].to_s] = OpenSSL::HMAC.hexdigest('SHA256', @prehash_hmac_key, canonical_bs_org_payload(b))
       end
@@ -1486,7 +2184,11 @@ module DataAnonymizer
 
     # Persist prehash digests to a temporary TTL collection for crash tolerance.
     # Documents expire after 7 days.
-    def persist_prehashes_to_ttl_collection(map, run_id)
+    # @param map [Hash{Symbol => Hash{String => String}}] digests by collection
+    # @param run_id [String] UUID recorded for this run
+    # @param scope [String] which digest set these belong to
+    # @return [void]
+    def persist_prehashes_to_ttl_collection(map, run_id, scope = 'canonical_prehash')
       col = db[:data_anonymizer_prehashes]
       # ensure TTL index exists
       begin
@@ -1508,7 +2210,7 @@ module DataAnonymizer
             'run_id' => run_id,
             'collection' => collection_name,
             'record_id' => rec_id,
-            'scope' => 'canonical_prehash',
+            'scope' => scope,
             'digest' => digest,
             'created_at' => Time.current
           }
@@ -1516,7 +2218,7 @@ module DataAnonymizer
       end
 
       col.insert_many(inserts) unless inserts.empty?
-      log "Persisted #{inserts.size} prehash digests to data_anonymizer_prehashes (TTL 7d, run_id=#{run_id})."
+      log "Persisted #{inserts.size} #{scope} digests to data_anonymizer_prehashes (TTL 7d, run_id=#{run_id})."
     end
 
     # Executes a bulk write and re-raises any +BulkWriteError+ after logging context.
@@ -1534,8 +2236,7 @@ module DataAnonymizer
     end
 
     def log(msg)
-      puts msg unless Rails.env.test?
-      Rails.logger.info("[DataAnonymizer] #{msg}")
+      Rails.logger.tagged(self.class.name) { Rails.logger.info(msg) }
     end
   end
   # rubocop:enable Metrics/ClassLength

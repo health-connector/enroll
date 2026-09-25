@@ -10,10 +10,11 @@ module DataAnonymizer
   # (name, DOB, SSN, address) is independently randomized, making it negligible
   # probability the result maps to any real person.
   #
-  # Inbox messages are intentionally NOT anonymized (no PII in CCA inboxes).
+  # Inbox message bodies and sender names are anonymized in Phase 8.
   # FFaker seeding (+FFaker.seed = integer+) is supported but not enabled by default.
   #
   # Call as module functions: +DataAnonymizer::AnonymizedData.first_name+
+  # rubocop:disable Metrics/ModuleLength
   module AnonymizedData
     module_function
 
@@ -52,6 +53,15 @@ module DataAnonymizer
     # @return [String] random last name containing only Unicode letters and spaces
     def last_name
       sanitize_name(FFaker::Name.last_name)
+    end
+
+    # Mirrors +Person::GENDER_KINDS+.
+    GENDERS = %w[male female].freeze
+
+    # Random gender, independent of the stored value.
+    # @return [String] 'male' or 'female'
+    def gender
+      GENDERS.sample
     end
 
     # Valid SSN area-code ranges (excludes 000, 666, 900-999 per SSA rules).
@@ -181,6 +191,18 @@ module DataAnonymizer
       sanitize_name(FFaker::Company.name, fallback: SAFE_COMPANY_FALLBACK)
     end
 
+    # @return [String] fake http url
+    def website
+      FFaker::Internet.http_url
+    end
+
+    # Producer number in the shape the models accept: 1 to 10 digits,
+    # no leading zero.
+    # @return [String] eight digit producer number
+    def npn
+      rand(10_000_000..99_999_999).to_s
+    end
+
     # @return [String] 9-digit routing number string (never starts with 0).
     #   Length satisfies +AchRecord+'s +validates :routing_number, length: { is: 9 }+.
     def routing_number
@@ -193,4 +215,5 @@ module DataAnonymizer
       rand(1_000_000_000_000_000..9_999_999_999_999_999).to_s
     end
   end
+  # rubocop:enable Metrics/ModuleLength
 end
