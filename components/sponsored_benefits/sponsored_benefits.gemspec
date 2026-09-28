@@ -22,7 +22,7 @@ Gem::Specification.new do |s|
   s.add_dependency "aasm", "~> 4.8.0"
   s.add_dependency 'config', '~> 5.5', '>= 5.5.2'
   s.add_dependency 'symmetric-encryption', '~> 4.6.0'
-  s.add_dependency 'roo', '~> 2.10'
+  s.add_dependency 'roo', '~> 3.0'
   s.add_dependency 'dry-types'
   s.add_dependency 'dry-schema', '~> 1.0'
   s.add_dependency 'dry-validation', '~> 1.0'

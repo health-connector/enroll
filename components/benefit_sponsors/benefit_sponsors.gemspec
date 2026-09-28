@@ -24,7 +24,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'config', '~> 5.5', '>= 5.5.2'
   s.add_dependency 'symmetric-encryption', '~> 4.6.0'
   s.add_dependency 'pundit', '~> 2.0'
-  s.add_dependency 'roo', '~> 2.10'
+  s.add_dependency 'roo', '~> 3.0'
   s.add_dependency 'money-rails', '~> 1.13'
   s.add_dependency 'virtus', '~> 1.0.5'
   s.add_dependency 'active_model_serializers'

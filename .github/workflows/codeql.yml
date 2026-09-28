@@ -13,9 +13,9 @@ name: "CodeQL"
 
 on:
   push:
-    branches: [ "master", "enroll_uat", "rc-release-*" ]
+    branches: [ "master", "*-pre-release" ]
   pull_request:
-    branches: [ "master", "enroll_uat", "rc-release-*" ]
+    branches: [ "master", "*-pre-release" ]
   schedule:
     - cron: '0 7 * * *'
 

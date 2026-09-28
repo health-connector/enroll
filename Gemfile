@@ -63,7 +63,7 @@ gem 'hiredis' # Optional but recommended for performance in Rails 8
 gem 'rack', '>= 3.2.5'
 gem 'resque'
 gem 'sinatra', '>= 4.2.0' # update sub-dependency for resque
-gem 'roo', '~> 2.10'
+gem 'roo', '~> 3.0'
 gem 'ruby-saml', '~> 1.18.0'
 gem 'slim-rails'
 gem 'sprockets', '~> 4.2'
