@@ -111,9 +111,11 @@ module DataAnonymizer
       encrypt_ssn(ssn)
     end
 
-    # @return [Integer] random day offset in the range [-30, 30] (±30 days)
+    # A zero shift would leave the DOB unchanged, so the offset is always nonzero.
+    # @return [Integer] random nonzero day offset within 30 days in either direction
     def dob_shift_days
-      rand(-30..30) # ±30 days
+      offset = rand(1..30)
+      [offset, -offset].sample
     end
 
     # The shift is deterministic when +shift_days+ is provided, or random within ±30 days when nil.

@@ -113,10 +113,11 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
     end
 
     describe '.dob_shift_days' do
-      it 'returns an integer within ±30 days' do
+      it 'returns a nonzero integer within 30 days in either direction' do
         100.times do
           shift = described_class.dob_shift_days
           expect(shift).to be_between(-30, 30)
+          expect(shift).not_to eq(0)
         end
       end
     end
@@ -139,9 +140,9 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
         expect(result).to be >= Date.new(1920, 1, 1)
       end
 
-      it 'never returns today or a future date' do
-        result = described_class.shift_dob(Date.today - 365, shift_days: 1000)
-        expect(result).to be < Date.today
+      it 'never returns the date of record or a future date' do
+        result = described_class.shift_dob(TimeKeeper.date_of_record - 365, shift_days: 1000)
+        expect(result).to be < TimeKeeper.date_of_record
       end
 
       it 'uses a random shift when shift_days is nil' do
