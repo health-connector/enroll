@@ -180,4 +180,35 @@ describe BenefitSponsors::EmployerEvents::CarrierFile, "given a carrier", :dbcle
       subject.render_event_using(event_renderer, employer_event)
     end
   end
+
+  describe "#result", :dbclean => :after_each do
+    include_context "setup benefit market with market catalogs and product packages"
+    include_context "setup initial benefit application"
+
+    let(:carrier) { initial_application.benefit_packages.first.health_sponsored_benefit.reference_product.issuer_profile }
+    let(:employer_event) do
+      instance_double(BenefitSponsors::Services::EmployerEvent, employer_profile_id: benefit_sponsorship.hbx_id)
+    end
+    let(:event_renderer) { instance_double(BenefitSponsors::EmployerEvents::Renderer, timestamp: Time.utc(2026, 9, 29, 20, 4, 1)) }
+    let(:xml) { subject.result.last }
+
+    subject { BenefitSponsors::EmployerEvents::CarrierFile.new(carrier) }
+
+    before do
+      carrier.abbrev = "THPP"
+      allow(event_renderer).to receive(:render_for) do |_carrier, buffer|
+        buffer << "<employer_event/>"
+        true
+      end
+      subject.render_event_using(event_renderer, employer_event)
+    end
+
+    it "starts with the xml declaration" do
+      expect(xml).to start_with("<?xml version='1.0' encoding='UTF-8'?>")
+    end
+
+    it "is well formed under strict parsing" do
+      expect { Nokogiri::XML(xml, &:strict) }.not_to raise_error
+    end
+  end
 end
