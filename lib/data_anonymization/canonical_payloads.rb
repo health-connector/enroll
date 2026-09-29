@@ -70,11 +70,17 @@ module DataAnonymizer
     # @param doc [Hash] raw organization Mongo document
     # @return [Array<String>] normalized zip per office location
     def canonical_org_zip_payloads(doc)
-      own = Array(doc['office_locations']).map { |loc| normalize(((loc || {})['address'] || {})['zip']) }
+      own = Array(doc['office_locations']).map { |loc| office_location_zip(loc) }
       nested = Array(doc['profiles']).flat_map do |profile|
-        Array((profile || {})['office_locations']).map { |loc| normalize(((loc || {})['address'] || {})['zip']) }
+        Array((profile || {})['office_locations']).map { |loc| office_location_zip(loc) }
       end
       own + nested
+    end
+
+    # @param loc [Hash, nil] office location document
+    # @return [String] normalized zip for the location
+    def office_location_zip(loc)
+      normalize(((loc || {})['address'] || {})['zip'])
     end
 
     # Identity fields an organization is named by, one slot each.
