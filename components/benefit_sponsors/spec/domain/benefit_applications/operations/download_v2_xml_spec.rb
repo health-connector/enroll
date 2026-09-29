@@ -165,5 +165,14 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::DownloadV2Xml, 
       expect(xml_contents.join).to match(/<carrier>/)
       expect(xml_contents.join).to match(/<plan_year_start>/)
     end
+
+    it 'nests the employer xml under the event body without blank lines' do
+      xml = ""
+      Zip::File.open(subject.call(**params).value!) { |zip| xml = zip.first.get_input_stream.read }
+
+      expect(xml.lines.select { |line| line.strip.empty? }).to be_empty
+      expect(xml).to match(/^ {8}<body>\n {10}<organization /)
+      expect(xml).to match(%r{^ {10}</organization>\n {8}</body>\n {6}</employer_event>$})
+    end
   end
 end

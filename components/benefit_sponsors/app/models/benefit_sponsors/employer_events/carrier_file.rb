@@ -64,7 +64,7 @@ module BenefitSponsors
             xsi:schemaLocation="http://openhbx.org/api/terms/1.0 organization.xsd http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
             <event_name>urn:openhbx:events:v1:employer#digest_period_ended</event_name>
             <resource_instance_uri>
-                    <id>urn:openhbx:resources:v1:carrier:abbreviation##{carrier_abbrev}</id>
+              <id>urn:openhbx:resources:v1:carrier:abbreviation##{carrier_abbrev}</id>
             </resource_instance_uri>
             <body>
               <employer_events>
@@ -73,10 +73,10 @@ module BenefitSponsors
                   <end_datetime>#{@end_timestamp.iso8601}</end_datetime>
                 </coverage_period>
         XMLHEADER
-        trailer = <<-XMLTRAILER
-        </employer_events>
-          </body>
-        </employer_digest_event>
+        trailer = <<~XMLTRAILER
+              </employer_events>
+            </body>
+          </employer_digest_event>
         XMLTRAILER
         @buffer << trailer
         header += @buffer.string

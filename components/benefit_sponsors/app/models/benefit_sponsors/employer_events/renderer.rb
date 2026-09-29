@@ -233,8 +233,10 @@ module BenefitSponsors
         filter_xml(doc, carrier)
         event_header = build_event_header(carrier, employer_event, employer_profile)
         event_trailer = build_event_trailer
+        # filtered nodes leave whitespace behind, which blocks reformatting
+        doc.xpath("//*[*]/text()[normalize-space()='']").each(&:remove)
         out << event_header
-        out << doc.to_xml(save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION, indent: 2).gsub(/^/, '  ')
+        out << "#{doc.root.to_xml(indent: 2).indent(10)}\n"
         out << event_trailer
         true
       end
@@ -278,7 +280,7 @@ module BenefitSponsors
       # rubocop:enable Metrics/CyclomaticComplexity
 
       def build_event_header(carrier, employer_event, employer_profile)
-        <<-XMLHEADER
+        <<~XMLHEADER.indent(6)
           <employer_event>
             <event_name>urn:openhbx:events:v1:employer##{update_event_name(carrier, employer_event)}</event_name>
             <resource_instance_uri>
@@ -289,7 +291,7 @@ module BenefitSponsors
       end
 
       def build_event_trailer
-        <<-XMLTRAILER
+        <<~XMLTRAILER.indent(6)
             </body>
           </employer_event>
         XMLTRAILER
