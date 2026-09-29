@@ -164,10 +164,6 @@ module DataAnonymizer
 
       # Audit-only, more expensive checks
       if @mode.to_sym == :audit
-        @prehash_map = load_audit_prehashes(@prehash_map, 'canonical_prehash')
-        @identity_prehash_map = load_audit_prehashes(@identity_prehash_map, 'identity_prehash')
-        @gender_prehash_map = load_audit_prehashes(@gender_prehash_map, 'gender_prehash')
-        @zip_prehash_map = load_audit_prehashes(@zip_prehash_map, 'zip_prehash')
         checks << check_streaming_ssn_patterns
         checks << check_name_dob_prehash
         checks << check_zip_prehash
@@ -178,29 +174,34 @@ module DataAnonymizer
       checks
     end
 
-    def load_audit_prehashes(map, scope)
-      return map unless map.nil? && @hmac_key.present? && @run_id.present?
-
-      loaded = load_prehash_map_from_ttl(@run_id, scope)
-      log "Loaded #{loaded.values.sum(&:size)} #{scope} digests from TTL collection (run_id=#{@run_id})."
-      loaded
+    # Digests come from a supplied map, or from the TTL collection when a run id is given.
+    # @param map [Hash, nil]
+    # @return [Boolean]
+    def digest_source?(map)
+      !map.nil? || @run_id.present?
     end
 
-    # Loads prehash digests from the +data_anonymizer_prehashes+ TTL collection
-    # for a given run_id. Used for out-of-process (separate-task) verification.
-    # @param run_id [String] UUID recorded during the anonymizer run
-    # @param scope [String] digest set to load
-    # @return [Hash{Symbol => Hash{String => String}}] prehash map suitable for check_name_dob_prehash
-    def load_prehash_map_from_ttl(run_id, scope = 'canonical_prehash')
-      map = Hash.new { |h, k| h[k] = {} }
-      return map unless @db.collection_names.include?('data_anonymizer_prehashes')
-
-      @db[:data_anonymizer_prehashes].find('run_id' => run_id.to_s, 'scope' => scope).each do |doc|
-        collection_sym = doc['collection'].to_sym
-        rec_id = doc['record_id'].to_s
-        map[collection_sym][rec_id] = doc['digest']
+    # Yields digests one bounded batch at a time, from a supplied map or streamed
+    # from the +data_anonymizer_prehashes+ TTL collection, so a full scope is never
+    # held in memory.
+    # @param map [Hash, nil] digests supplied in memory
+    # @param scope [String] TTL scope streamed when no map is supplied
+    # @yieldparam collection [Symbol]
+    # @yieldparam batch [Hash{String => Object}] record id => stored digest
+    def each_digest_batch(map, scope)
+      if map
+        map.each { |collection, id_map| id_map.each_slice(PREHASH_BATCH_SIZE) { |slice| yield collection.to_sym, slice.to_h } }
+        return
       end
-      map
+      return unless @db.collection_names.include?('data_anonymizer_prehashes')
+
+      pending = Hash.new { |hash, key| hash[key] = {} }
+      @db[:data_anonymizer_prehashes].find('run_id' => @run_id.to_s, 'scope' => scope).batch_size(PREHASH_BATCH_SIZE).each do |doc|
+        collection = doc['collection'].to_sym
+        pending[collection][doc['record_id'].to_s] = doc['digest']
+        yield collection, pending.delete(collection) if pending[collection].size >= PREHASH_BATCH_SIZE
+      end
+      pending.each_key { |collection| yield collection, pending[collection] }
     end
 
     # Set of +users._id+ values whose +oim_id+ is in +@protected_oim_ids+.
@@ -289,22 +290,22 @@ module DataAnonymizer
     # replaces a real zip with another real zip.
     # @return [Hash] check result
     def check_zip_prehash
-      unless @zip_prehash_map && @hmac_key
+      unless digest_source?(@zip_prehash_map) && @hmac_key
         log "WARNING: Zip prehash check SKIPPED - RUN_ID/HMAC_KEY not provided. " \
             "Geographic swap is NOT verified by this run."
         return build_result("Zip prehash", 0, [], "SKIPPED - RUN_ID/HMAC_KEY not provided. Zip mutation NOT verified", skipped: true)
       end
 
-      blocker = zip_prehash_blocker
+      blocker = run_blocker('zip')
       return build_result("Zip prehash", 0, [blocker], "") if blocker
 
       tally = { issues: [], samples: [], total: 0, employer_stale: 0 }
 
-      @zip_prehash_map.each do |collection_sym, id_map|
+      each_digest_batch(@zip_prehash_map, 'zip_prehash') do |collection_sym, batch|
         col = collection_sym.to_s
         next unless @db.collection_names.include?(col)
 
-        each_prehash_record(col, id_map) do |doc, stored|
+        each_prehash_record(col, batch) do |doc, stored|
           inspect_zip_record(collection_sym, doc, stored, tally)
         end
       end
@@ -335,17 +336,19 @@ module DataAnonymizer
     end
 
     # An employer zip with no service-area-compatible partner is preserved by
-    # design, so "every one changed" is not a valid assertion. The runner
-    # records how many it skipped, which turns "some are legitimately
-    # unchanged" into an exact expected number.
+    # design, and every one the runner skips is also digested, so the unchanged
+    # count must equal the skip tally exactly. Fewer or more means some zips were
+    # handled differently from what the run reported.
     # @param employer_stale [Integer] employer zips found unchanged
     # @return [Array<String>]
     def employer_zip_issues(employer_stale)
       allowed = expected_employer_skips
-      return ["#{employer_stale} employer zips unchanged and no skip tally recorded"] if allowed.nil? && employer_stale.positive?
-      return [] if allowed.nil? || employer_stale <= allowed
+      return [] if allowed.nil? && employer_stale.zero?
+      return ["#{employer_stale} employer zips unchanged and no skip tally recorded"] if allowed.nil?
+      return [] if employer_stale == allowed
 
-      ["#{employer_stale} employer zips unchanged, more than the #{allowed} the run reported skipping"]
+      comparison = employer_stale > allowed ? 'more' : 'fewer'
+      ["#{employer_stale} employer zips unchanged, #{comparison} than the #{allowed} the run reported skipping"]
     end
 
     # @return [Integer, nil] tally recorded by the run, or nil when unavailable
@@ -366,20 +369,20 @@ module DataAnonymizer
 
     # Proves each name an organization is known by changed.
     def check_identity_prehash
-      return identity_skipped_result unless @identity_prehash_map && @hmac_key
+      return identity_skipped_result unless digest_source?(@identity_prehash_map) && @hmac_key
 
-      blocker = identity_prehash_blocker
+      blocker = run_blocker('identity')
       return build_result("Identity prehash", 0, [blocker], "") if blocker
 
       issues = []
       samples = []
       total = 0
 
-      @identity_prehash_map.each do |collection_sym, id_map|
+      each_digest_batch(@identity_prehash_map, 'identity_prehash') do |collection_sym, batch|
         col = collection_sym.to_s
         next unless @db.collection_names.include?(col)
 
-        each_prehash_record(col, id_map) do |doc, stored_digests|
+        each_prehash_record(col, batch) do |doc, stored_digests|
           total += 1
           record = "#{col}:#{doc['_id']}"
           record_issues = identity_issues(doc, stored_digests, record)
@@ -392,14 +395,15 @@ module DataAnonymizer
     end
 
     def check_gender_prehash
-      return build_result('Gender prehash', 0, [], 'SKIPPED - Gender mutation NOT verified', skipped: true) unless @gender_prehash_map && @hmac_key
-      return build_result('Gender prehash', 0, ["No gender digests stored for run_id #{@run_id}"], '') if stale_run_credentials?(@gender_prehash_map)
-      return build_result('Gender prehash', 0, [WRONG_KEY_MESSAGE], '') if wrong_hmac_key?
+      return build_result('Gender prehash', 0, [], 'SKIPPED - Gender mutation NOT verified', skipped: true) unless digest_source?(@gender_prehash_map) && @hmac_key
+
+      blocker = run_blocker('gender')
+      return build_result('Gender prehash', 0, [blocker], '') if blocker
 
       tallies = Hash.new { |hash, key| hash[key] = { total: 0, stale: 0 } }
       issues = []
-      @gender_prehash_map.each do |collection_name, id_map|
-        each_prehash_record(collection_name, id_map) do |doc, stored|
+      each_digest_batch(@gender_prehash_map, 'gender_prehash') do |collection_name, batch|
+        each_prehash_record(collection_name, batch) do |doc, stored|
           tally_gender_record(collection_name, doc, stored, tallies, issues)
         end
       end
@@ -451,10 +455,12 @@ module DataAnonymizer
       indexes.map { |index| IDENTITY_FIELDS[index] || "profiles[#{index - IDENTITY_FIELDS.size}].home_page" }.join(',')
     end
 
-    # Reasons the identity comparison cannot be trusted.
+    # A run id whose key fingerprint is gone is unknown or expired. The
+    # fingerprint is written before, and so expires before, its digests.
+    # @param label [String] digest scope named in the message
     # @return [String, nil] reason the comparison cannot be trusted
-    def identity_prehash_blocker
-      return "No identity digests stored for run_id #{@run_id}" if stale_run_credentials?(@identity_prehash_map)
+    def run_blocker(label)
+      return "No #{label} digests stored for run_id #{@run_id}" if @run_id.present? && stored_key_fingerprint.blank?
       return WRONG_KEY_MESSAGE if wrong_hmac_key?
 
       nil
@@ -465,22 +471,14 @@ module DataAnonymizer
       build_result("Identity prehash", 0, [], "SKIPPED - RUN_ID/HMAC_KEY not provided. Employer naming NOT verified", skipped: true)
     end
 
-    # Conditions that stop the comparison being meaningful at all.
-    # @return [String, nil] the issue to report, or nil to proceed
-    def zip_prehash_blocker
-      return "No zip digests stored for run_id #{@run_id}" if stale_run_credentials?
-      return WRONG_KEY_MESSAGE if wrong_hmac_key?
-
-      nil
-    end
-
     # A mistyped key makes every recomputed digest differ from the stored one,
     # which would otherwise read as successful mutation. The run stores a
     # fingerprint of its key so the supplied one can be checked first.
     # @return [Boolean]
     def wrong_hmac_key?
       stored = stored_key_fingerprint
-      return false if stored.blank?
+      # Without a fingerprint the key cannot be authenticated for a stored run.
+      return @run_id.present? if stored.blank?
 
       OpenSSL::HMAC.hexdigest('SHA256', @hmac_key, DataAnonymizer::Runner::KEY_FINGERPRINT_MESSAGE) != stored
     end
@@ -488,20 +486,12 @@ module DataAnonymizer
     # @return [String, nil]
     def stored_key_fingerprint
       return nil if @run_id.blank?
+      return @stored_key_fingerprint if defined?(@stored_key_fingerprint)
       return nil unless @db.collection_names.include?('data_anonymizer_prehashes')
 
-      @stored_key_fingerprint ||= @db[:data_anonymizer_prehashes]
-                                  .find('run_id' => @run_id.to_s, 'scope' => DataAnonymizer::Runner::KEY_FINGERPRINT_SCOPE)
-                                  .first&.dig('digest')
-    end
-
-    # A run_id is only set for out-of-process verification. An empty map there
-    # means the credentials were wrong or the 7 day TTL expired, which must not
-    # read as a clean pass over zero records.
-    # @param map [Hash, nil] digest map to test, defaulting to the zip map
-    # @return [Boolean] credentials were supplied but no digests were found
-    def stale_run_credentials?(map = @zip_prehash_map)
-      @run_id.present? && map.to_h.values.sum(&:size).zero?
+      @stored_key_fingerprint = @db[:data_anonymizer_prehashes]
+                                .find('run_id' => @run_id.to_s, 'scope' => DataAnonymizer::Runner::KEY_FINGERPRINT_SCOPE)
+                                .first&.dig('digest')
     end
 
     # Splits unchanged slots from ones that were populated and are now blank.
@@ -553,7 +543,7 @@ module DataAnonymizer
     end
 
     def check_name_dob_prehash
-      unless @prehash_map && @hmac_key
+      unless digest_source?(@prehash_map) && @hmac_key
         log "WARNING: Canonical prehash check SKIPPED - RUN_ID/HMAC_KEY not provided. " \
             "Name and DOB mutation is NOT verified by this run. " \
             "To enable this check, pass the RUN_ID and HMAC_KEY printed at anonymization time: " \
@@ -561,45 +551,29 @@ module DataAnonymizer
         return build_result("Canonical prehash", 0, [], "SKIPPED - RUN_ID/HMAC_KEY not provided. Name and DOB mutation NOT verified", skipped: true)
       end
 
-      blocker = canonical_prehash_blocker
+      blocker = run_blocker('canonical')
       return build_result('Canonical prehash', 0, [blocker], '') if blocker
 
       issues = []
       samples = []
       total = 0
 
-      @prehash_map.each do |collection_sym, id_map|
-        col = PREHASH_COLLECTIONS.fetch(collection_sym.to_sym, collection_sym).to_s
+      each_digest_batch(@prehash_map, 'canonical_prehash') do |collection_sym, batch|
+        col = PREHASH_COLLECTIONS.fetch(collection_sym, collection_sym).to_s
         next unless @db.collection_names.include?(col)
 
-        id_map.each do |id_str, stored_hmac|
-          begin
-            oid = BSON::ObjectId.from_string(id_str)
-          rescue StandardError
-            next
-          end
-          doc = @db[col.to_sym].find('_id' => oid).first
-          next unless doc
-
+        each_prehash_record(col, batch) do |doc, stored_hmac|
           total += 1
+          current_hmac = OpenSSL::HMAC.hexdigest('SHA256', @hmac_key, canonical_payload_for_collection(collection_sym, doc))
+          next unless current_hmac == stored_hmac
 
-          canon = canonical_payload_for_collection(collection_sym, doc)
-          current_hmac = OpenSSL::HMAC.hexdigest('SHA256', @hmac_key, canon)
-          if current_hmac == stored_hmac
-            issues << "Unchanged canonical payload for #{col}:#{id_str}"
-            samples << "#{col}:#{id_str}"
-          end
+          record = "#{col}:#{doc['_id']}"
+          issues << "Unchanged canonical payload for #{record}"
+          samples << record
         end
       end
 
       build_result("Canonical prehash", total, issues, samples.first(5).join(', '))
-    end
-
-    def canonical_prehash_blocker
-      return "No canonical digests stored for run_id #{@run_id}" if stale_run_credentials?(@prehash_map)
-      return WRONG_KEY_MESSAGE if wrong_hmac_key?
-
-      nil
     end
 
     def canonical_payload_for_collection(collection_sym, doc)

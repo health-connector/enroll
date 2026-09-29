@@ -206,10 +206,15 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
       expect(result[:issues]).to match(/does not match the key/)
     end
 
-    it 'stays quiet for older runs that stored no fingerprint' do
+    it 'rejects a run with no stored fingerprint, since the key cannot be authenticated' do
       v = described_class.new(mode: :audit, hmac_key: 'anything', run_id: 'run-1')
       allow(db_double).to receive(:collection_names).and_return([])
-      expect(v.send(:wrong_hmac_key?)).to be false
+      expect(v.send(:wrong_hmac_key?)).to be true
+      expect(v.send(:check_zip_prehash)[:issues]).to match(/No zip digests stored for run_id run-1/)
+    end
+
+    it 'needs no fingerprint for an in-memory verification, which supplies no run id' do
+      expect(described_class.new(mode: :audit, hmac_key: 'anything').send(:wrong_hmac_key?)).to be false
     end
   end
 
@@ -240,12 +245,13 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
       described_class.new(mode: :audit, hmac_key: 'k', geo_swap_skipped: skipped)
     end
 
-    it 'allows unchanged employer zips up to the tally the run reported' do
+    it 'allows unchanged employer zips exactly matching the tally the run reported' do
       expect(verifier_with(5).send(:employer_zip_issues, 5)).to be_empty
     end
 
-    it 'allows fewer unchanged than were skipped' do
-      expect(verifier_with(5).send(:employer_zip_issues, 2)).to be_empty
+    it 'fails when fewer are unchanged than were skipped' do
+      issues = verifier_with(5).send(:employer_zip_issues, 2)
+      expect(issues.first).to match(/2 employer zips unchanged, fewer than the 5/)
     end
 
     it 'fails when more are unchanged than the run skipped' do
@@ -310,10 +316,11 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
 
   # @!group check_zip_prehash - geographic swap verification tests
 
-  describe '#load_prehash_map_from_ttl' do
+  describe '#each_digest_batch' do
     let(:run_id) { 'run-abc-123' }
     let(:person_id) { BSON::ObjectId.new }
     let(:census_id) { BSON::ObjectId.new }
+    let(:streaming) { described_class.new(run_id: run_id) }
 
     let(:rows) do
       [
@@ -324,22 +331,30 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
 
     before do
       collection_double = instance_double(Mongo::Collection)
+      view_double = instance_double(Mongo::Collection::View)
       allow(db_double).to receive(:collection_names).and_return(['data_anonymizer_prehashes'])
       allow(db_double).to receive(:[]).with(:data_anonymizer_prehashes).and_return(collection_double)
-      allow(collection_double).to receive(:find)
-        .with('run_id' => run_id, 'scope' => 'zip_prehash')
-        .and_return(rows)
+      allow(collection_double).to receive(:find).with('run_id' => run_id, 'scope' => 'zip_prehash').and_return(view_double)
+      allow(view_double).to receive(:batch_size).and_return(rows)
     end
 
-    it 'groups digests by their own collection, not by the requested scope' do
-      map = verifier.send(:load_prehash_map_from_ttl, run_id, 'zip_prehash')
-      expect(map.keys).to contain_exactly(:people, :census_members)
+    def batches(map = nil)
+      collected = []
+      streaming.send(:each_digest_batch, map, 'zip_prehash') { |collection, batch| collected << [collection, batch] }
+      collected
     end
 
-    it 'keys each record by its id' do
-      map = verifier.send(:load_prehash_map_from_ttl, run_id, 'zip_prehash')
-      expect(map[:people][person_id.to_s]).to eq(%w[aaa])
-      expect(map[:census_members][census_id.to_s]).to eq(%w[bbb])
+    it 'streams stored digests grouped by their own collection' do
+      expect(batches).to contain_exactly([:people, { person_id.to_s => %w[aaa] }], [:census_members, { census_id.to_s => %w[bbb] }])
+    end
+
+    it 'hands over each batch once it is full instead of holding the whole scope' do
+      stub_const('DataAnonymizer::Verifier::PREHASH_BATCH_SIZE', 1)
+      expect(batches.map { |_collection, batch| batch.size }).to eq([1, 1])
+    end
+
+    it 'uses a supplied map instead of reading the TTL collection' do
+      expect(batches({ people: { 'a' => 'd' } })).to eq([[:people, { 'a' => 'd' }]])
     end
   end
 
@@ -563,7 +578,7 @@ RSpec.describe DataAnonymizer::Verifier, dbclean: :around_each do
         allow(db_double).to receive(:collection_names).and_return(['people'])
         allow(db_double).to receive(:[]).with(:people).and_return(collection_double)
         allow(collection_double).to receive(:find).and_return(view_double)
-        allow(view_double).to receive(:first).and_return(doc_after)
+        allow(view_double).to receive(:batch_size).and_return([doc_after])
       end
 
       context 'when the record was changed (HMAC differs)' do

@@ -17,6 +17,16 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
     Mongoid.default_client.database[collection_name].find('_id' => id).first
   end
 
+  # Collects a streamed digest source into the map form the verifier accepts.
+  def digest_map(runner, source)
+    map = Hash.new { |hash, key| hash[key] = {} }
+    sink = lambda do |collection, record_id, digest|
+      map[collection][record_id.to_s] = digest
+    end
+    runner.send(source, sink)
+    map
+  end
+
   # ============================================================================
   # AnonymizedData module — pure unit tests, no database required
   # ============================================================================
@@ -1187,6 +1197,15 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
         allow_any_instance_of(DataAnonymizer::Verifier).to receive(:run).and_return([[], false, '/tmp/report.csv', 'STATUS: FAIL'])
         expect(runner.run).to eq(status_line: 'STATUS: FAIL', report_path: '/tmp/report.csv')
       end
+
+      it 'hands the verifier a run id to stream from, not digest maps held in memory' do
+        expect(DataAnonymizer::Verifier).to receive(:new).and_wrap_original do |method, **options|
+          expect(options[:run_id]).to be_present
+          expect(options.keys).not_to include(:prehash_map, :zip_prehash_map, :identity_prehash_map, :gender_prehash_map)
+          method.call(**options)
+        end
+        runner.run
+      end
     end
 
     # @!group Helper: anonymize_address_hash — address anonymization helper tests
@@ -1368,13 +1387,70 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       before { runner.instance_variable_set(:@prehash_hmac_key, 'spec_key_1234567890') }
 
       it 'records a digest for an organization office location zip' do
-        map = runner.send(:generate_zip_prehash_map)
+        map = digest_map(runner, :generate_zip_prehashes)
         expect(map[:organizations]).to have_key(org.id.to_s)
       end
 
       it 'covers both member and employer collections' do
-        map = runner.send(:generate_zip_prehash_map)
-        expect(map.keys).to include(:people, :census_members, :organizations, :benefit_sponsors_organizations_organizations)
+        zip = { 'zip' => '02101' }
+        runner.db[:people].insert_one('addresses' => [zip])
+        runner.db[:census_members].insert_one('address' => zip)
+        runner.db[:benefit_sponsors_organizations_organizations].insert_one('profiles' => [{ 'office_locations' => [{ 'address' => zip }] }])
+        runner.db[DataAnonymizer::Runner::PLAN_DESIGN_ORG_COLLECTION].insert_one('office_locations' => [{ 'address' => zip }])
+        map = digest_map(runner, :generate_zip_prehashes)
+        expect(map.keys).to include(:people, :census_members, :organizations, :benefit_sponsors_organizations_organizations,
+                                    DataAnonymizer::Runner::PLAN_DESIGN_ORG_COLLECTION)
+      end
+
+      it 'passes with an exact skip tally when employer zips have no partner, including a malformed one' do
+        runner.db[:organizations].update_one(
+          { '_id' => org.id },
+          { '$set' => { 'office_locations' => [
+            { 'address' => { 'kind' => 'primary', 'zip' => '99999', 'county' => 'Nowhere', 'state' => 'MA' } },
+            { 'address' => { 'kind' => 'branch', 'zip' => 'N/A', 'county' => 'Nowhere', 'state' => 'MA' } }
+          ] } }
+        )
+        map = digest_map(runner, :generate_zip_prehashes)
+        runner.send(:anonymize_organizations)
+        skipped = runner.instance_variable_get(:@geo_swap_skipped)
+
+        verifier = DataAnonymizer::Verifier.new(mode: :audit, zip_prehash_map: map, hmac_key: 'spec_key_1234567890', geo_swap_skipped: skipped)
+        expect(skipped).to eq(2)
+        expect(verifier.send(:check_zip_prehash)[:passed]).to be true
+      end
+    end
+
+    describe 'streamed prehash persistence' do
+      before do
+        runner.instance_variable_set(:@prehash_hmac_key, 'spec_key_1234567890')
+        runner.instance_variable_set(:@prehash_run_id, 'stream-run')
+        runner.db[:people].insert_many(Array.new(12) { { 'gender' => 'male' } })
+      end
+
+      it 'writes digests in batches no larger than batch_size' do
+        sizes = []
+        allow_any_instance_of(Mongo::Collection).to receive(:insert_many).and_wrap_original do |method, documents, *rest|
+          sizes << documents.size
+          method.call(documents, *rest)
+        end
+
+        runner.send(:persist_digest_stream, 'gender_prehash', :generate_gender_prehashes)
+        expect(sizes).to eq([5, 5, 2])
+        expect(runner.db[:data_anonymizer_prehashes].count_documents('scope' => 'gender_prehash')).to eq(12)
+      end
+
+      it 'writes the key fingerprint before any digest, so it expires first' do
+        runner.send(:prepare_prehashes)
+        first = runner.db[:data_anonymizer_prehashes].find('run_id' => runner.instance_variable_get(:@prehash_run_id)).sort('_id' => 1).first
+        expect(first['scope']).to eq(DataAnonymizer::Runner::KEY_FINGERPRINT_SCOPE)
+      end
+
+      it 'verifies by streaming the stored digests rather than holding them in memory' do
+        runner.db[:people].insert_many(Array.new(12) { { 'gender' => 'male' } })
+        runner.send(:prepare_prehashes)
+        verifier = DataAnonymizer::Verifier.new(mode: :audit, hmac_key: runner.instance_variable_get(:@prehash_hmac_key),
+                                                run_id: runner.instance_variable_get(:@prehash_run_id))
+        expect(verifier.send(:check_gender_prehash)[:issues]).to include('All 24 gender slots unchanged for people')
       end
     end
 
@@ -1404,7 +1480,10 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
           'profiles' => [{ '_type' => 'BenefitSponsors::Organizations::IssuerProfile' }]
         )
         map = { bs_organizations: {} }
-        runner.send(:generate_prehash_for_bs_organizations, map)
+        sink = lambda do |collection, record_id, digest|
+          map[collection][record_id.to_s] = digest
+        end
+        runner.send(:generate_prehash_for_bs_organizations, sink)
         expect(map[:bs_organizations]).not_to have_key(issuer_id.to_s)
       end
     end
@@ -1527,7 +1606,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       end
 
       it 'fails a silent no-op but permits half of the values to match' do
-        map = runner.send(:generate_gender_prehash_map)
+        map = digest_map(runner, :generate_gender_prehashes)
         verifier = DataAnonymizer::Verifier.new(mode: :audit, gender_prehash_map: map, hmac_key: key)
         expect(verifier.send(:check_gender_prehash)[:issues]).to include('All 24 gender slots unchanged for people')
 
@@ -1538,13 +1617,12 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
 
       it 'checks dependent mutations separately from parent mutations and reloads stored digests' do
         runner.db[:census_members].insert_many(Array.new(24) { { 'gender' => 'male', 'census_dependents' => [{ 'gender' => 'female' }] } })
-        map = runner.send(:generate_gender_prehash_map)
-        runner.send(:persist_prehashes_to_ttl_collection, map, 'gender-run', 'gender_prehash')
+        runner.instance_variable_set(:@prehash_run_id, 'gender-run')
+        runner.send(:persist_key_fingerprint)
+        runner.send(:persist_digest_stream, 'gender_prehash', :generate_gender_prehashes)
         runner.db[:census_members].update_many({}, { '$set' => { 'gender' => 'female' } })
         collection.update_many({}, { '$set' => { 'gender' => 'female' } })
-        verifier = DataAnonymizer::Verifier.new(mode: :audit, hmac_key: key)
-        loaded = verifier.send(:load_prehash_map_from_ttl, 'gender-run', 'gender_prehash')
-        verifier.instance_variable_set(:@gender_prehash_map, loaded)
+        verifier = DataAnonymizer::Verifier.new(mode: :audit, hmac_key: key, run_id: 'gender-run')
 
         expect(verifier.send(:check_gender_prehash)[:issues]).to include('All 24 gender slots unchanged for census_members.census_dependents')
       end
@@ -1552,7 +1630,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       it 'does not require a change in a small population or treat an expired run as verified' do
         collection.drop
         collection.insert_one('gender' => 'male')
-        map = runner.send(:generate_gender_prehash_map)
+        map = digest_map(runner, :generate_gender_prehashes)
         verifier = DataAnonymizer::Verifier.new(mode: :audit, gender_prehash_map: map, hmac_key: key)
         expect(verifier.send(:check_gender_prehash)[:passed]).to be true
 
@@ -1587,7 +1665,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
           '_id' => record_id, 'legal_name' => 'Real Agency',
           'profiles' => [{ '_type' => 'BenefitSponsors::Organizations::BrokerAgencyProfile', 'home_page' => 'http://realagency.com' }]
         )
-        map = runner.send(:generate_identity_prehash_map)
+        map = digest_map(runner, :generate_identity_prehashes)
         collection.update_one({ '_id' => record_id }, { '$set' => { 'legal_name' => 'Replacement Agency' } })
         verifier = DataAnonymizer::Verifier.new(mode: :audit, identity_prehash_map: map, hmac_key: 'spec_key_1234567890')
 
@@ -1598,12 +1676,13 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
 
       it 'records digests for an organization it will rename' do
         org = FactoryBot.create(:organization)
-        map = runner.send(:generate_identity_prehash_map)
+        map = digest_map(runner, :generate_identity_prehashes)
         expect(map[:organizations]).to have_key(org.id.to_s)
       end
 
       it 'covers all three organization collections' do
-        map = runner.send(:generate_identity_prehash_map)
+        DataAnonymizer::Runner::IDENTITY_COLLECTIONS.each { |name| runner.db[name].insert_one('legal_name' => 'Real Co') }
+        map = digest_map(runner, :generate_identity_prehashes)
         expect(map.keys).to match_array(DataAnonymizer::Runner::IDENTITY_COLLECTIONS)
       end
 
@@ -1618,7 +1697,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
           { '_id' => org.id },
           { '$set' => { 'dba' => 'Real Trading', 'home_page' => 'http://realemployer.com' } }
         )
-        map = runner.send(:generate_identity_prehash_map)
+        map = digest_map(runner, :generate_identity_prehashes)
         runner.send(:anonymize_organizations)
 
         verifier = DataAnonymizer::Verifier.new(
@@ -1630,7 +1709,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       it 'fails end to end if the phase silently stops renaming' do
         org = FactoryBot.create(:organization)
         runner.db[:organizations].update_one({ '_id' => org.id }, { '$set' => { 'dba' => 'Real Trading' } })
-        map = runner.send(:generate_identity_prehash_map)
+        map = digest_map(runner, :generate_identity_prehashes)
         # phase deliberately not run
 
         verifier = DataAnonymizer::Verifier.new(
@@ -1826,7 +1905,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       end
 
       it 'records a digest for a person carrying a zip' do
-        map = runner.send(:generate_zip_prehash_map)
+        map = digest_map(runner, :generate_zip_prehashes)
         expect(map[:people]).to have_key(person.id.to_s)
       end
 
@@ -1835,12 +1914,12 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
         address = runner.db[:people].find('_id' => person.id).first['addresses']
         runner.db[:people].update_one({ '_id' => other.id }, { '$set' => { 'addresses' => address } })
 
-        map = runner.send(:generate_zip_prehash_map)
+        map = digest_map(runner, :generate_zip_prehashes)
         expect(map[:people][person.id.to_s]).not_to eq(map[:people][other.id.to_s])
       end
 
       it 'passes verification once the swap has run' do
-        map = runner.send(:generate_zip_prehash_map)
+        map = digest_map(runner, :generate_zip_prehashes)
         runner.send(:anonymize_people)
 
         verifier = DataAnonymizer::Verifier.new(
@@ -1850,7 +1929,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       end
 
       it 'fails verification if the swap silently does not run' do
-        map = runner.send(:generate_zip_prehash_map)
+        map = digest_map(runner, :generate_zip_prehashes)
         # person left exactly as-is, standing in for the swap regressing
 
         verifier = DataAnonymizer::Verifier.new(
@@ -1866,7 +1945,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
           { '_id' => person.id },
           { '$set' => { 'addresses' => [{ 'kind' => 'home', 'state' => 'MA' }] } }
         )
-        map = runner.send(:generate_zip_prehash_map)
+        map = digest_map(runner, :generate_zip_prehashes)
         expect(map[:people]).not_to have_key(person.id.to_s)
       end
     end

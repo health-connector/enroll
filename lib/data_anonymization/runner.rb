@@ -82,6 +82,14 @@ module DataAnonymizer
     # Prefix written by SponsoredBenefits::Services::PlanDesignProposalService.
     BENEFIT_GROUP_TITLE_MARKER = 'Benefit Group Created for:'
 
+    # Digest scope => source method, each streamed to the TTL collection in batches.
+    PREHASH_SOURCES = {
+      'canonical_prehash' => :generate_canonical_prehashes,
+      'zip_prehash' => :generate_zip_prehashes,
+      'identity_prehash' => :generate_identity_prehashes,
+      'gender_prehash' => :generate_gender_prehashes
+    }.freeze
+
     attr_reader :batch_size, :client, :db
 
     # @param batch_size [Integer] documents per bulk_write batch (default 1000).
@@ -186,10 +194,7 @@ module DataAnonymizer
 
       verifier = DataAnonymizer::Verifier.new(
         mode: :audit,
-        prehash_map: @prehash_map,
-        zip_prehash_map: @zip_prehash_map,
-        identity_prehash_map: @identity_prehash_map,
-        gender_prehash_map: @gender_prehash_map,
+        run_id: @prehash_run_id,
         geo_swap_skipped: @geo_swap_skipped,
         hmac_key: @prehash_hmac_key,
         protected_oim_ids: PROTECTED_OIM_IDS
@@ -220,16 +225,10 @@ module DataAnonymizer
 
       @prehash_hmac_key = SecureRandom.hex(32)
       @prehash_run_id = SecureRandom.uuid
-      @prehash_map = generate_prehash_map
-      persist_prehashes_to_ttl_collection(@prehash_map, @prehash_run_id)
-      @zip_prehash_map = generate_zip_prehash_map
-      persist_prehashes_to_ttl_collection(@zip_prehash_map, @prehash_run_id, 'zip_prehash')
+      ensure_prehash_indexes
+      # Written first so it expires before any digest it vouches for.
       persist_key_fingerprint
-      @identity_prehash_map = generate_identity_prehash_map
-      persist_prehashes_to_ttl_collection(@identity_prehash_map, @prehash_run_id, 'identity_prehash')
-      @gender_prehash_map = generate_gender_prehash_map
-      persist_prehashes_to_ttl_collection(@gender_prehash_map, @prehash_run_id, 'gender_prehash')
-      log "Prehash map: people=#{@prehash_map[:people].size}, census_members=#{@prehash_map[:census_members].size}, organizations=#{@prehash_map[:organizations].size}, bs_organizations=#{@prehash_map[:bs_organizations].size}"
+      PREHASH_SOURCES.each { |scope, source| persist_digest_stream(scope, source) }
     end
 
     # Executes all anonymization phases in dependency order and returns a stats hash.
@@ -2001,39 +2000,34 @@ module DataAnonymizer
       email_hash
     end
 
-    # Build a prehash map of canonical HMACs for records that should be
-    # deterministically proven changed. Excludes DOB per policy decision.
-    # Returns a hash with keys :people, :census_members, :organizations, :bs_organizations
-    # where each value is a map of id_str => hmac.
-    def generate_prehash_map
-      map = { people: {}, census_members: {}, organizations: {}, bs_organizations: {}, plan_design_organizations: {} }
-      generate_prehash_for_people(map)
-      generate_prehash_for_census_members(map)
-      generate_prehash_for_organizations(map)
-      generate_prehash_for_bs_organizations(map)
-      generate_prehash_for_plan_design_orgs(map)
-      map
+    # Canonical HMACs for records that should be deterministically proven
+    # changed. Excludes DOB per policy decision.
+    # @param sink [#call] receives the prehash key the verifier resolves to a
+    #   collection, the record id and the digest
+    def generate_canonical_prehashes(sink)
+      generate_prehash_for_people(sink)
+      generate_prehash_for_census_members(sink)
+      generate_prehash_for_organizations(sink)
+      generate_prehash_for_bs_organizations(sink)
+      generate_prehash_for_plan_design_orgs(sink)
     end
 
-    def generate_prehash_for_plan_design_orgs(map)
+    def generate_prehash_for_plan_design_orgs(sink)
       return unless db.collection_names.include?(PLAN_DESIGN_ORG_COLLECTION.to_s)
 
       cursor = db[PLAN_DESIGN_ORG_COLLECTION].find.projection('legal_name' => 1, 'dba' => 1, 'home_page' => 1)
       cursor.batch_size(batch_size).each do |doc|
         next if doc['legal_name'].to_s.strip.empty?
 
-        map[:plan_design_organizations][doc['_id'].to_s] =
-          OpenSSL::HMAC.hexdigest('SHA256', @prehash_hmac_key, canonical_plan_design_org_payload(doc))
+        sink.call(:plan_design_organizations, doc['_id'], OpenSSL::HMAC.hexdigest('SHA256', @prehash_hmac_key, canonical_plan_design_org_payload(doc)))
       end
     end
 
     # Per-field digests of the names an organization is known by, so a silent
     # failure on any one of them is caught. Issuer organizations are excluded
     # because their legal_name and dba are preserved on purpose.
-    # @return [Hash{Symbol => Hash{String => Array}}]
-    def generate_identity_prehash_map
-      IDENTITY_COLLECTIONS.each_with_object({}) do |collection_name, map|
-        map[collection_name] = {}
+    def generate_identity_prehashes(sink)
+      IDENTITY_COLLECTIONS.each do |collection_name|
         next unless db.collection_names.include?(collection_name.to_s)
 
         cursor = db[collection_name].find.projection('legal_name' => 1, 'dba' => 1, 'home_page' => 1, 'profiles._type' => 1, 'profiles.home_page' => 1)
@@ -2043,14 +2037,13 @@ module DataAnonymizer
           payloads = canonical_identity_payloads(doc)
           next if payloads.all?(&:blank?)
 
-          map[collection_name][doc['_id'].to_s] = slot_digests(doc['_id'], payloads)
+          sink.call(collection_name, doc['_id'], slot_digests(doc['_id'], payloads))
         end
       end
     end
 
-    def generate_gender_prehash_map
-      %i[people census_members].each_with_object({}) do |collection_name, map|
-        map[collection_name] = {}
+    def generate_gender_prehashes(sink)
+      %i[people census_members].each do |collection_name|
         cursor = db[collection_name].find.projection('gender' => 1, 'census_dependents.gender' => 1)
         cursor.batch_size(batch_size).each do |doc|
           next if collection_name == :people && protected_person_ids.include?(doc['_id'])
@@ -2058,7 +2051,7 @@ module DataAnonymizer
           payloads = canonical_gender_payloads(doc)
           next if payloads.all?(&:blank?)
 
-          map[collection_name][doc['_id'].to_s] = slot_digests(doc['_id'], payloads)
+          sink.call(collection_name, doc['_id'], slot_digests(doc['_id'], payloads))
         end
       end
     end
@@ -2077,24 +2070,20 @@ module DataAnonymizer
 
     # Zip-only digests proving the swap ran. Member zips must all change.
     # Employer zips may stay unchanged when no compatible partner exists.
-    # @return [Hash{Symbol => Hash{String => String}}]
-    def generate_zip_prehash_map
-      map = { people: {}, census_members: {}, organizations: {},
-              benefit_sponsors_organizations_organizations: {}, PLAN_DESIGN_ORG_COLLECTION => {} }
-      generate_zip_prehash_for_people(map)
-      generate_zip_prehash_for_census_members(map)
-      generate_zip_prehash_for_orgs(map, :organizations)
-      generate_zip_prehash_for_orgs(map, :benefit_sponsors_organizations_organizations)
-      generate_zip_prehash_for_orgs(map, PLAN_DESIGN_ORG_COLLECTION)
-      map
+    def generate_zip_prehashes(sink)
+      generate_zip_prehash_for_people(sink)
+      generate_zip_prehash_for_census_members(sink)
+      generate_zip_prehash_for_orgs(:organizations, sink)
+      generate_zip_prehash_for_orgs(:benefit_sponsors_organizations_organizations, sink)
+      generate_zip_prehash_for_orgs(PLAN_DESIGN_ORG_COLLECTION, sink)
     end
 
-    # Employer zips may stay unchanged, so the verifier bounds them against
-    # the runner skip tally rather than requiring every one to move.
-    # @param map [Hash] accumulator
+    # Employer zips may stay unchanged, so the verifier requires the unchanged
+    # count to equal the runner skip tally rather than requiring every one to move.
     # @param collection_name [Symbol]
+    # @param sink [#call]
     # @return [void]
-    def generate_zip_prehash_for_orgs(map, collection_name)
+    def generate_zip_prehash_for_orgs(collection_name, sink)
       return unless db.collection_names.include?(collection_name.to_s)
 
       cursor = db[collection_name].find.projection('office_locations' => 1, 'profiles.office_locations' => 1)
@@ -2102,11 +2091,11 @@ module DataAnonymizer
         payloads = canonical_org_zip_payloads(doc)
         next unless zip_payload_present?(payloads)
 
-        map[collection_name][doc['_id'].to_s] = slot_digests(doc['_id'], payloads)
+        sink.call(collection_name, doc['_id'], slot_digests(doc['_id'], payloads))
       end
     end
 
-    def generate_zip_prehash_for_people(map)
+    def generate_zip_prehash_for_people(sink)
       cursor = db[:people].find('addresses' => { '$exists' => true, '$ne' => [] }).projection('addresses' => 1)
       cursor.batch_size(batch_size).each do |doc|
         next if protected_person_ids.include?(doc['_id'])
@@ -2114,17 +2103,17 @@ module DataAnonymizer
         payloads = canonical_person_zip_payloads(doc)
         next unless zip_payload_present?(payloads)
 
-        map[:people][doc['_id'].to_s] = slot_digests(doc['_id'], payloads)
+        sink.call(:people, doc['_id'], slot_digests(doc['_id'], payloads))
       end
     end
 
-    def generate_zip_prehash_for_census_members(map)
+    def generate_zip_prehash_for_census_members(sink)
       cursor = db[:census_members].find.projection('address' => 1, 'census_dependents' => 1)
       cursor.batch_size(batch_size).each do |doc|
         payloads = canonical_census_zip_payloads(doc)
         next unless zip_payload_present?(payloads)
 
-        map[:census_members][doc['_id'].to_s] = slot_digests(doc['_id'], payloads)
+        sink.call(:census_members, doc['_id'], slot_digests(doc['_id'], payloads))
       end
     end
 
@@ -2141,84 +2130,90 @@ module DataAnonymizer
       end
     end
 
-    def generate_prehash_for_people(map)
+    def generate_prehash_for_people(sink)
       no_ssn_filter = { '$or' => [{ 'ssn' => { '$exists' => false } }, { 'ssn' => nil }, { 'ssn' => '' }] }
       cursor = db[:people].find(no_ssn_filter).projection('first_name' => 1, 'last_name' => 1, 'addresses' => 1, 'phones' => 1)
       cursor.batch_size(batch_size).each do |p|
         next if p['first_name'].to_s.strip.empty? || p['last_name'].to_s.strip.empty?
         next if protected_person_ids.include?(p['_id'])
 
-        map[:people][p['_id'].to_s] = OpenSSL::HMAC.hexdigest('SHA256', @prehash_hmac_key, canonical_person_payload(p))
+        sink.call(:people, p['_id'], OpenSSL::HMAC.hexdigest('SHA256', @prehash_hmac_key, canonical_person_payload(p)))
       end
     end
 
-    def generate_prehash_for_census_members(map)
+    def generate_prehash_for_census_members(sink)
       no_ssn_filter = { '$or' => [{ 'ssn' => { '$exists' => false } }, { 'ssn' => nil }, { 'ssn' => '' }] }
       cursor = db[:census_members].find(no_ssn_filter).projection('first_name' => 1, 'last_name' => 1, 'address' => 1, 'phone' => 1)
       cursor.batch_size(batch_size).each do |c|
         next if c['first_name'].to_s.strip.empty? || c['last_name'].to_s.strip.empty?
 
-        map[:census_members][c['_id'].to_s] = OpenSSL::HMAC.hexdigest('SHA256', @prehash_hmac_key, canonical_census_payload(c))
+        sink.call(:census_members, c['_id'], OpenSSL::HMAC.hexdigest('SHA256', @prehash_hmac_key, canonical_census_payload(c)))
       end
     end
 
-    def generate_prehash_for_organizations(map)
+    def generate_prehash_for_organizations(sink)
       cursor = db[:organizations].find.projection('legal_name' => 1, 'broker_agency_profile' => 1)
       cursor.batch_size(batch_size).each do |o|
         next if o['legal_name'].to_s.strip.empty?
 
-        map[:organizations][o['_id'].to_s] = OpenSSL::HMAC.hexdigest('SHA256', @prehash_hmac_key, canonical_org_payload(o))
+        sink.call(:organizations, o['_id'], OpenSSL::HMAC.hexdigest('SHA256', @prehash_hmac_key, canonical_org_payload(o)))
       end
     end
 
-    def generate_prehash_for_bs_organizations(map)
+    def generate_prehash_for_bs_organizations(sink)
       cursor = db[:benefit_sponsors_organizations_organizations].find.projection('legal_name' => 1, 'profiles' => 1)
       cursor.batch_size(batch_size).each do |b|
         next if b['legal_name'].to_s.strip.empty?
         # Issuer names are preserved, so their digest never changes.
         next if issuer_organization?(b)
 
-        map[:bs_organizations][b['_id'].to_s] = OpenSSL::HMAC.hexdigest('SHA256', @prehash_hmac_key, canonical_bs_org_payload(b))
+        sink.call(:bs_organizations, b['_id'], OpenSSL::HMAC.hexdigest('SHA256', @prehash_hmac_key, canonical_bs_org_payload(b)))
       end
     end
 
-    # Persist prehash digests to a temporary TTL collection for crash tolerance.
-    # Documents expire after 7 days.
-    # @param map [Hash{Symbol => Hash{String => String}}] digests by collection
-    # @param run_id [String] UUID recorded for this run
-    # @param scope [String] which digest set these belong to
+    # Documents expire after 7 days. The run_id and scope index keeps
+    # verification from scanning the whole collection once per scope.
     # @return [void]
-    def persist_prehashes_to_ttl_collection(map, run_id, scope = 'canonical_prehash')
-      col = db[:data_anonymizer_prehashes]
-      # ensure TTL index exists
-      begin
-        col.indexes.create_one({ created_at: 1 }, expire_after_seconds: 7 * 24 * 3600)
+    def ensure_prehash_indexes
+      [[{ created_at: 1 }, { expire_after_seconds: 7 * 24 * 3600 }], [{ run_id: 1, scope: 1 }, {}]].each do |keys, options|
+        db[:data_anonymizer_prehashes].indexes.create_one(keys, **options)
       rescue Mongo::Error => e
-        log "TTL index on data_anonymizer_prehashes already exists or failed to create: #{e.message}"
+        log "Index #{keys.keys.join(',')} on data_anonymizer_prehashes already exists or failed to create: #{e.message}"
       end
+    end
 
-      inserts = []
-      map.each do |collection_sym, id_map|
-        collection_name = collection_sym.to_s
-        id_map.each do |id_str, digest|
-          rec_id = begin
-            BSON::ObjectId.from_string(id_str)
-          rescue StandardError
-            id_str
-          end
-          inserts << {
-            'run_id' => run_id,
-            'collection' => collection_name,
-            'record_id' => rec_id,
-            'scope' => scope,
-            'digest' => digest,
-            'created_at' => Time.current
-          }
-        end
+    # Writes one digest scope in bounded batches, so a scope is never held in
+    # memory whole.
+    # @param scope [String] digest set these belong to
+    # @param source [Symbol] generator that calls a sink with collection, record id and digest
+    # @return [void]
+    def persist_digest_stream(scope, source)
+      buffer = []
+      total = 0
+      sink = lambda do |collection, record_id, digest|
+        buffer << prehash_document(scope, collection, record_id, digest)
+        total += flush_prehashes(buffer) if buffer.size >= batch_size
       end
+      send(source, sink)
+      total += flush_prehashes(buffer)
+      log "Persisted #{total} #{scope} digests to data_anonymizer_prehashes (TTL 7d, run_id=#{@prehash_run_id})."
+    end
 
-      col.insert_many(inserts) unless inserts.empty?
-      log "Persisted #{inserts.size} #{scope} digests to data_anonymizer_prehashes (TTL 7d, run_id=#{run_id})."
+    # @return [Hash] TTL document for one record digest
+    def prehash_document(scope, collection, record_id, digest)
+      { 'run_id' => @prehash_run_id, 'collection' => collection.to_s, 'record_id' => record_id,
+        'scope' => scope, 'digest' => digest, 'created_at' => Time.current }
+    end
+
+    # @param buffer [Array<Hash>] pending documents, emptied once written
+    # @return [Integer] documents written
+    def flush_prehashes(buffer)
+      return 0 if buffer.empty?
+
+      db[:data_anonymizer_prehashes].insert_many(buffer)
+      written = buffer.size
+      buffer.clear
+      written
     end
 
     # Executes a bulk write and re-raises any +BulkWriteError+ after logging context.

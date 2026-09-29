@@ -98,10 +98,12 @@ module DataAnonymizer
       "#{record_id}:#{index}:#{value}"
     end
 
+    # A malformed employer zip is still preserved and counted as skipped, so it
+    # must be digested for the unchanged count to match the skip tally exactly.
     # @param payloads [Array<String>] output of a zip payload helper
     # @return [Boolean] whether any slot holds a zip
     def zip_payload_present?(payloads)
-      Array(payloads).any? { |zip| zip.to_s.match?(/\d/) }
+      Array(payloads).any?(&:present?)
     end
 
     # Canonical string for a plan design organization.
