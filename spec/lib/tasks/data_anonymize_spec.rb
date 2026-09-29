@@ -2266,8 +2266,8 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       end
 
       context 'when legacy carrier service areas differ between two zips' do
-        # Legacy CarrierServiceArea resolves by zip alone and still drives
-        # employer plan availability.
+        # Legacy CarrierServiceArea resolves by zip, and by zip and county, and
+        # still drives employer plan availability.
         before do
           FactoryBot.create(
             :benefit_markets_locations_rating_area,
@@ -2278,7 +2278,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
             covered_states: nil, county_zip_ids: [suffolk.id, norfolk.id]
           )
           runner.db[:carrier_service_areas].insert_one(
-            'service_area_zipcode' => '02101', 'serves_entire_state' => false
+            'service_area_zipcode' => '02101', 'county_name' => 'Suffolk', 'serves_entire_state' => false
           )
         end
 
@@ -2302,9 +2302,9 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
           )
           runner.db[:carrier_service_areas].insert_many(
             [
-              { 'service_area_zipcode' => '02101', 'serves_entire_state' => false,
+              { 'service_area_zipcode' => '02101', 'county_name' => 'Suffolk', 'serves_entire_state' => false,
                 'issuer_hios_id' => '99999', 'active_year' => 2018, 'service_area_id' => 'MAS001' },
-              { 'service_area_zipcode' => '02108', 'serves_entire_state' => false,
+              { 'service_area_zipcode' => '02108', 'county_name' => 'Norfolk', 'serves_entire_state' => false,
                 'issuer_hios_id' => '99999', 'active_year' => 2018, 'service_area_id' => 'MAS001' }
             ]
           )
@@ -2329,6 +2329,41 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
         it 'does not record the address as unswappable' do
           runner.send(:anonymize_address_hash, address('02101', 'Suffolk'), strict_geo: true)
           expect(runner.instance_variable_get(:@geo_swap_skipped)).to eq(0)
+        end
+      end
+
+      context 'when a multi-county zip has different legacy service areas per county' do
+        # service_areas_available_on filters by zip and county, so the zip level
+        # union alone would hide the Hampden half being outside the area.
+        let!(:split_hampden)   { FactoryBot.create(:benefit_markets_locations_county_zip, county_name: 'Hampden', zip: '01011', state: 'MA') }
+        let!(:split_hampshire) { FactoryBot.create(:benefit_markets_locations_county_zip, county_name: 'Hampshire', zip: '01011', state: 'MA') }
+        let!(:other_hampden)   { FactoryBot.create(:benefit_markets_locations_county_zip, county_name: 'Hampden', zip: '01020', state: 'MA') }
+
+        before do
+          FactoryBot.create(
+            :benefit_markets_locations_rating_area,
+            covered_states: nil, county_zip_ids: [split_hampden.id, split_hampshire.id, other_hampden.id]
+          )
+          runner.db[:carrier_service_areas].insert_many(
+            [
+              { 'service_area_zipcode' => '01011', 'county_name' => 'Hampshire', 'serves_entire_state' => false,
+                'issuer_hios_id' => '99999', 'active_year' => 2018, 'service_area_id' => 'MAS002' },
+              { 'service_area_zipcode' => '01020', 'county_name' => 'Hampden', 'serves_entire_state' => false,
+                'issuer_hios_id' => '99999', 'active_year' => 2018, 'service_area_id' => 'MAS002' }
+            ]
+          )
+        end
+
+        it 'does not swap the county outside the area onto one inside it' do
+          result = runner.send(:anonymize_address_hash, address('01011', 'Hampden'), strict_geo: true)
+          expect(result['zip']).to eq('01011')
+          expect(result['county']).to eq('Hampden')
+        end
+
+        it 'swaps the county whose zip and county areas match' do
+          result = runner.send(:anonymize_address_hash, address('01011', 'Hampshire'), strict_geo: true)
+          expect(result['zip']).to eq('01020')
+          expect(result['county']).to eq('Hampden')
         end
       end
 

@@ -1785,8 +1785,8 @@ module DataAnonymizer
 
       rating_membership  = county_zip_membership(RATING_AREA_COLLECTION)
       service_membership = county_zip_membership(SERVICE_AREA_COLLECTION)
-      legacy_membership  = legacy_service_membership_by_zip
-      legacy_rating      = legacy_rating_membership
+      legacy_by_zip, legacy_by_county = legacy_service_memberships
+      legacy_rating = legacy_rating_membership
 
       # Records with no rating area, or only a statewide one, are excluded so
       # unrelated zips are not treated as interchangeable.
@@ -1800,8 +1800,8 @@ module DataAnonymizer
         id = county_zip['_id']
         rating = rating_membership[id].sort
         legacy_key = geo_key(county_zip['zip'], county_zip['county_name'], county_zip['state'])
-        strict_signatures[id]  = [rating, service_membership[id].sort,
-                                  legacy_membership[county_zip['zip'].to_s.strip], legacy_rating[legacy_key]]
+        strict_signatures[id]  = [rating, service_membership[id].sort, legacy_by_zip[county_zip['zip'].to_s.strip],
+                                  legacy_by_county[legacy_key], legacy_rating[legacy_key]]
         relaxed_signatures[id] = [rating]
       end
 
@@ -1885,24 +1885,27 @@ module DataAnonymizer
       membership
     end
 
-    # Legacy carrier service areas key on zip alone. Records serving the whole
-    # state cover every zip and so constrain nothing.
-    # @return [Hash] zip => sorted Array of owning document ids
-    def legacy_service_membership_by_zip
-      membership = Hash.new { |hash, key| hash[key] = [] }
-      return membership unless db.collection_names.include?(LEGACY_SERVICE_AREA_COLLECTION.to_s)
+    # Legacy carrier service areas are looked up by zip alone in
+    # CarrierServiceArea.valid_for? and by zip and county in
+    # service_areas_available_on, so both are held constant. Records serving
+    # the whole state cover every zip and so constrain nothing.
+    # @return [Array<Hash>] zip => area ids, and geo_key => area ids
+    def legacy_service_memberships
+      by_zip    = Hash.new { |hash, key| hash[key] = [] }
+      by_county = Hash.new { |hash, key| hash[key] = [] }
+      return [by_zip, by_county] unless db.collection_names.include?(LEGACY_SERVICE_AREA_COLLECTION.to_s)
 
       db[LEGACY_SERVICE_AREA_COLLECTION]
         .find('serves_entire_state' => { '$ne' => true })
-        .projection('service_area_zipcode' => 1, 'issuer_hios_id' => 1,
+        .projection('service_area_zipcode' => 1, 'county_name' => 1, 'issuer_hios_id' => 1,
                     'active_year' => 1, 'service_area_id' => 1)
         .each do |doc|
           # Keyed on the area a zip belongs to, which two zips can share.
-          key = doc['service_area_zipcode'].to_s.strip
-          membership[key] << "#{doc['issuer_hios_id']}:#{doc['active_year']}:#{doc['service_area_id']}"
+          area = "#{doc['issuer_hios_id']}:#{doc['active_year']}:#{doc['service_area_id']}"
+          by_zip[doc['service_area_zipcode'].to_s.strip] << area
+          by_county[geo_key(doc['service_area_zipcode'], doc['county_name'], Settings.aca.state_abbreviation)] << area
         end
-      membership.each_value { |ids| ids.sort!.uniq! }
-      membership
+      [by_zip, by_county].each { |membership| membership.each_value { |ids| ids.sort!.uniq! } }
     end
 
     # Inverts a rating-area or service-area collection into county_zip id =>
