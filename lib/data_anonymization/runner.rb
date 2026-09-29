@@ -153,8 +153,8 @@ module DataAnonymizer
     private_class_method :env_name_reasons
 
     # Runs all anonymization phases in dependency order.
-    # Phases 1-5 process people, users, census_members, organizations, and
-    # bs_organizations. Phase 6 clears PII fields in families.
+    # Phases 1-6 process people, users, census_members, organizations,
+    # bs_organizations and plan design organizations. Phase 7 clears PII fields in families.
     # People must run before census_members so that
     # {#build_person_values_map_for_census} can read already-anonymized values.
     #
@@ -1635,7 +1635,7 @@ module DataAnonymizer
       total = collection.count_documents(filter)
       return 0 if total.zero?
 
-      log "  #{collection.name}: #{total} documents with S3 identifiers"
+      log "  #{collection.name}: #{total} documents with S3 identifiers or commission titles"
       processed = 0
 
       collection.find(filter).projection('identifier' => 1, 'title' => 1, 'subject' => 1).batch_size(batch_size).each_slice(batch_size) do |batch|

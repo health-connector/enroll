@@ -2427,7 +2427,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       end
     end
 
-    # @!group Helper: anonymize_phone_hash — phone anonymization helper tests
+    # @!group Helper: anonymize_phone_hash - phone anonymization helper tests
 
     describe '#anonymize_phone_hash' do
       let(:phone) { { 'kind' => 'work', 'area_code' => '617', 'number' => '5551234', 'extension' => '99' } }
@@ -2455,7 +2455,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       end
     end
 
-    # @!group Helper: anonymize_email_hash — email anonymization helper tests
+    # @!group Helper: anonymize_email_hash - email anonymization helper tests
 
     describe '#anonymize_email_hash' do
       let(:email_doc) { { 'kind' => 'home', 'address' => 'real@personal.com' } }
@@ -2482,7 +2482,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       end
     end
 
-    # @!group Age-band preservation — age-band correctness tests
+    # @!group Age-band preservation - age-band correctness tests
 
     describe '#age_band' do
       let(:ref) { Date.new(2026, 5, 6) }
@@ -2540,7 +2540,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       end
     end
 
-    # ── Idempotent re-run ───
+    # -- Idempotent re-run --
 
     describe 'idempotent re-run with force: true' do
       let!(:person) { FactoryBot.create(:person, first_name: 'Original', dob: Date.new(1985, 1, 1)) }
@@ -2552,7 +2552,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
         runner.send(:anonymize_people)
         second_run_name = raw_doc('people', person.id)['first_name']
 
-        # Names are random — extremely unlikely to match twice in a row
+        # Names are random - extremely unlikely to match twice in a row
         # This validates re-anonymization works without error
         expect(first_run_name).not_to eq('Original')
         expect(second_run_name).not_to eq('Original')
@@ -2568,7 +2568,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
     let(:verifier) { DataAnonymizer::Verifier.new }
     let(:db) { Mongoid.default_client.database }
 
-    # ── check_history_trackers ────
+    # -- check_history_trackers --
 
     describe '#check_history_trackers' do
       context 'when history_trackers does not exist' do
@@ -2592,7 +2592,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       end
     end
 
-    # ── check_people ───
+    # -- check_people --
 
     describe '#check_people' do
       context 'when people have been properly anonymized' do
@@ -2704,7 +2704,7 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       end
     end
 
-    # ── check_users ───
+    # -- check_users --
 
     describe '#check_users' do
       context 'when users are fully anonymized' do

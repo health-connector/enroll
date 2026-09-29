@@ -847,7 +847,7 @@ module DataAnonymizer
     #
     # Samples up to SAMPLE_SIZE census_members that carry an +employee_role_id+
     # and verifies that +first_name+ matches the linked Person's +first_name+.
-    # A mismatch indicates the Phase 1 -> Phase 3 person-sync failed for some
+    # A mismatch indicates the Phase 1 to Phase 3 person-sync failed for some
     # documents.
     #
     # Uses a single +$in+ query to load all matched Person documents rather than

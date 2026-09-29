@@ -14,7 +14,6 @@ module DataAnonymizer
   # FFaker seeding (+FFaker.seed = integer+) is supported but not enabled by default.
   #
   # Call as module functions: +DataAnonymizer::AnonymizedData.first_name+
-  # rubocop:disable Metrics/ModuleLength
   module AnonymizedData
     module_function
 
@@ -215,5 +214,4 @@ module DataAnonymizer
       rand(1_000_000_000_000_000..9_999_999_999_999_999).to_s
     end
   end
-  # rubocop:enable Metrics/ModuleLength
 end
