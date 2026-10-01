@@ -190,13 +190,13 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::DownloadV2Xml, 
       expect(xml_contents.join).to match(/<plan_year_start>/)
     end
 
-    it 'nests the employer xml under the event body without blank lines' do
+    it 'lays out the employer xml like the manual group xml script' do
       xml = ""
       Zip::File.open(subject.call(**params).value!) { |zip| xml = zip.first.get_input_stream.read }
 
-      expect(xml.lines.select { |line| line.strip.empty? }).to be_empty
-      expect(xml).to match(/^ {8}<body>\n {10}<organization /)
-      expect(xml).to match(%r{^ {10}</organization>\n {8}</body>\n {6}</employer_event>$})
+      expect(xml).to start_with("<?xml version='1.0' encoding='utf-8' ?>\n<employer_digest_event xmlns='http://openhbx.org/api/terms/1.0'")
+      expect(xml).to match(/^<body>\n<organization /)
+      expect(xml).to end_with("</organization>\n\n</body>\n</employer_event>\n</employer_events>\n</body>\n</employer_digest_event>\n")
     end
 
     it 'only renders files for carriers on the selected application' do

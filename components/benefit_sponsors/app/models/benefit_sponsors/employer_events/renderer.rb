@@ -233,10 +233,8 @@ module BenefitSponsors
         filter_xml(doc, carrier)
         event_header = build_event_header(carrier, employer_event, employer_profile)
         event_trailer = build_event_trailer
-        # filtered nodes leave whitespace behind, which blocks reformatting
-        doc.xpath("//*[*]/text()[normalize-space()='']").each(&:remove)
         out << event_header
-        out << "#{doc.root.to_xml(indent: 2).indent(10)}\n"
+        out << doc.to_xml(save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION)
         out << event_trailer
         true
       end
@@ -280,19 +278,21 @@ module BenefitSponsors
       # rubocop:enable Metrics/CyclomaticComplexity
 
       def build_event_header(carrier, employer_event, employer_profile)
-        <<~XMLHEADER.indent(6)
+        <<~XMLHEADER
           <employer_event>
-            <event_name>urn:openhbx:events:v1:employer##{update_event_name(carrier, employer_event)}</event_name>
-            <resource_instance_uri>
-              <id>urn:openhbx:resource:organization:id##{employer_profile&.organization&.hbx_id}</id>
-            </resource_instance_uri>
-            <body>
+          <event_name>urn:openhbx:events:v1:employer##{update_event_name(carrier, employer_event)}</event_name>
+          <resource_instance_uri>
+          <id>urn:openhbx:resource:organization:id##{employer_profile&.organization&.hbx_id}</id>
+          </resource_instance_uri>
+          <body>
         XMLHEADER
       end
 
+      # the leading blank line matches the newline the script template adds after the employer xml
       def build_event_trailer
-        <<~XMLTRAILER.indent(6)
-            </body>
+        <<~XMLTRAILER
+
+          </body>
           </employer_event>
         XMLTRAILER
       end

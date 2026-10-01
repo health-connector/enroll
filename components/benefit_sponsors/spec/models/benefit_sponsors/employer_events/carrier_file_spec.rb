@@ -204,11 +204,20 @@ describe BenefitSponsors::EmployerEvents::CarrierFile, "given a carrier", :dbcle
     end
 
     it "starts with the xml declaration" do
-      expect(xml).to start_with("<?xml version='1.0' encoding='UTF-8'?>")
+      expect(xml).to start_with("<?xml version='1.0' encoding='utf-8' ?>")
     end
 
     it "is well formed under strict parsing" do
       expect { Nokogiri::XML(xml, &:strict) }.not_to raise_error
+    end
+
+    it "names the file after the carrier" do
+      expect(subject.result.first).to eq("#{carrier.legal_name}.xml")
+    end
+
+    it "writes the header lines unindented with the carrier abbreviation" do
+      expect(xml.lines[0, 12].map { |line| line[/\A\s*/] }.uniq).to eq([""])
+      expect(xml.lines[4]).to eq("<id>urn:openhbx:resources:v1:carrier:abbreviation#THPP</id>\n")
     end
 
     context "with a coverage period" do
@@ -217,10 +226,6 @@ describe BenefitSponsors::EmployerEvents::CarrierFile, "given a carrier", :dbcle
       it "writes the plan year dates instead of the event timestamps" do
         expect(xml).to include("<begin_datetime>2026-07-01T00:00:00</begin_datetime>")
         expect(xml).to include("<end_datetime>2027-06-30T00:00:00</end_datetime>")
-      end
-
-      it "keeps the event timestamp in the file name" do
-        expect(subject.result.first).to eq("THPP_20260929200401_20260929200401.xml")
       end
     end
   end
