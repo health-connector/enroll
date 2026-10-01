@@ -6,20 +6,25 @@ module BenefitSponsors
   module Services
     class EmployerEvent
 
-      attr_accessor :event_time, :event_name, :resource_body, :employer_profile_id
+      attr_accessor :event_time, :event_name, :resource_body, :employer_profile_id, :carrier_ids
 
-      def initialize(event_name, resource_body, employer_profile_id)
+      # @param carrier_ids [Array<Integer>, nil] hbx_carrier_ids to render files for, nil renders every carrier
+      def initialize(event_name, resource_body, employer_profile_id, carrier_ids: nil)
         @event_time = Time.current
         @event_name = event_name
         @resource_body = resource_body
         # employer_profile_id is a benefit_sponsorship.hbx_id
         @employer_profile_id = employer_profile_id
+        @carrier_ids = carrier_ids
       end
 
       def render_payloads
         issuer_profiles = BenefitSponsors::Organizations::ExemptOrganization.issuer_profiles || []
 
-        carrier_files = issuer_profiles.flat_map(&:issuer_profile).compact.map do |car|
+        carriers = issuer_profiles.flat_map(&:issuer_profile).compact
+        carriers = carriers.select { |car| carrier_ids.include?(car.hbx_carrier_id) } unless carrier_ids.nil?
+
+        carrier_files = carriers.map do |car|
           BenefitSponsors::EmployerEvents::CarrierFile.new(car)
         end
 

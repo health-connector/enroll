@@ -101,17 +101,42 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::DownloadV2Xml, 
       subject.call(**params)
     end
 
-    context 'when the selected benefit application is not eligible for export' do
+    context 'when the selected benefit application is canceled' do
       before do
         initial_application.update_attributes(aasm_state: :canceled)
       end
 
-      it 'still passes the benefit application id to the xml template as a string' do
-        expect(BenefitSponsors::ApplicationController).to receive(:render) do |args|
-          expect(args[:locals][:benefit_application_id]).to eq(initial_application.id.to_s)
-          "<organization></organization>"
+      it 'returns failure without rendering the payload' do
+        expect(BenefitSponsors::ApplicationController).not_to receive(:render)
+
+        result = subject.call(**params)
+
+        expect(result).to be_failure
+        expect(result.failure[:employer_application_id].first).to match(/active, termination pending, terminated or expired/)
+      end
+    end
+
+    [:termination_pending, :terminated, :expired].each do |state|
+      context "when the selected benefit application is #{state}" do
+        before do
+          initial_application.update_attributes(aasm_state: state)
         end
-        subject.call(**params)
+
+        it 'downloads successfully' do
+          expect(subject.call(**params)).to be_success
+        end
+      end
+    end
+
+    [:enrollment_open, :enrollment_eligible, :retroactive_canceled, :suspended, :reinstated].each do |state|
+      context "when the selected benefit application is #{state}" do
+        before do
+          initial_application.update_attributes(aasm_state: state)
+        end
+
+        it 'returns failure' do
+          expect(subject.call(**params)).to be_failure
+        end
       end
     end
 
@@ -135,7 +160,6 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::DownloadV2Xml, 
 
     before do
       allow(benefit_sponsorship).to receive(:benefit_applications).and_return([initial_application])
-      initial_application.update_attributes(aasm_state: :canceled)
       # real carriers are ExemptOrganization records, but the shared factory builds a plain
       # GeneralOrganization that the ExemptOrganization.issuer_profiles lookup in
       # EmployerEvent#render_payloads cannot find, and it sets neither of the two
@@ -173,6 +197,70 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::DownloadV2Xml, 
       expect(xml.lines.select { |line| line.strip.empty? }).to be_empty
       expect(xml).to match(/^ {8}<body>\n {10}<organization /)
       expect(xml).to match(%r{^ {10}</organization>\n {8}</body>\n {6}</employer_event>$})
+    end
+
+    it 'only renders files for carriers on the selected application' do
+      other_carrier = create(:benefit_sponsors_organizations_issuer_profile, hbx_carrier_id: 88_888, abbrev: "OTHER")
+      other_carrier.organization.update_attributes!(_type: "BenefitSponsors::Organizations::ExemptOrganization")
+
+      expect(BenefitSponsors::EmployerEvents::CarrierFile).to receive(:new).with(issuer_profile).once.and_call_original
+      expect(BenefitSponsors::EmployerEvents::CarrierFile).not_to receive(:new).with(other_carrier)
+
+      expect(subject.call(**params)).to be_success
+    end
+  end
+
+  describe '#fetch_carrier_ids' do
+    let(:application_carrier_ids) do
+      products = initial_application.benefit_packages.flat_map(&:sponsored_benefits).flat_map { |sponsored_benefit| sponsored_benefit.products(initial_application.start_on) }
+      products.map { |product| product.issuer_profile.hbx_carrier_id }.uniq
+    end
+
+    it 'returns only the carriers offered on the selected application' do
+      result = subject.send(:fetch_carrier_ids, 'benefit_coverage_initial_application_eligible', initial_application)
+
+      expect(result).to be_success
+      expect(result.value!).to match_array(application_carrier_ids)
+    end
+
+    it 'fails a carrier drop when the application has no predecessor' do
+      result = subject.send(:fetch_carrier_ids, 'benefit_coverage_renewal_carrier_dropped', initial_application)
+
+      expect(result).to be_failure
+      expect(result.failure[:selected_event].first).to match(/No previous plan year/)
+    end
+
+    context 'with a predecessor application' do
+      let(:predecessor) { instance_double(BenefitSponsors::BenefitApplications::BenefitApplication) }
+
+      before do
+        allow(initial_application).to receive(:predecessor).and_return(predecessor)
+        allow(subject).to receive(:application_carrier_ids).with(initial_application).and_return([20_001])
+      end
+
+      it 'returns only the carriers dropped since the predecessor for a carrier drop' do
+        allow(subject).to receive(:application_carrier_ids).with(predecessor).and_return([20_001, 20_004])
+
+        result = subject.send(:fetch_carrier_ids, 'benefit_coverage_renewal_carrier_dropped', initial_application)
+
+        expect(result.value!).to eq([20_004])
+      end
+
+      it 'fails a carrier drop when no carrier was dropped' do
+        allow(subject).to receive(:application_carrier_ids).with(predecessor).and_return([20_001])
+
+        result = subject.send(:fetch_carrier_ids, 'benefit_coverage_renewal_carrier_dropped', initial_application)
+
+        expect(result.failure[:selected_event].first).to match(/No carriers found/)
+      end
+    end
+  end
+
+  describe '#create_employer_event' do
+    it 'passes the carrier ids to the employer event' do
+      result = subject.send(:create_employer_event, 'benefit_coverage_initial_application_eligible', '<organization/>', benefit_sponsorship, [20_011])
+
+      expect(result.value!.carrier_ids).to eq([20_011])
     end
   end
 end
