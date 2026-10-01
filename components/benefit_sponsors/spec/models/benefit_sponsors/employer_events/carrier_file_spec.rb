@@ -210,5 +210,18 @@ describe BenefitSponsors::EmployerEvents::CarrierFile, "given a carrier", :dbcle
     it "is well formed under strict parsing" do
       expect { Nokogiri::XML(xml, &:strict) }.not_to raise_error
     end
+
+    context "with a coverage period" do
+      subject { BenefitSponsors::EmployerEvents::CarrierFile.new(carrier, coverage_period: Date.new(2026, 7, 1)..Date.new(2027, 6, 30)) }
+
+      it "writes the plan year dates instead of the event timestamps" do
+        expect(xml).to include("<begin_datetime>2026-07-01T00:00:00</begin_datetime>")
+        expect(xml).to include("<end_datetime>2027-06-30T00:00:00</end_datetime>")
+      end
+
+      it "keeps the event timestamp in the file name" do
+        expect(subject.result.first).to eq("THPP_20260929200401_20260929200401.xml")
+      end
+    end
   end
 end

@@ -5,10 +5,12 @@ require 'zip'
 module BenefitSponsors
   module EmployerEvents
     class CarrierFile
-      attr_accessor :carrier, :buffer, :begin_timestamp, :end_timestamp, :rendered_employers, :render_reason
+      attr_accessor :carrier, :buffer, :begin_timestamp, :end_timestamp, :rendered_employers, :render_reason, :coverage_period
 
-      def initialize(carrier)
+      # @param coverage_period [Range<Date>, nil] plan year dates for the digest, nil falls back to the event timestamps
+      def initialize(carrier, coverage_period: nil)
         @carrier = carrier
+        @coverage_period = coverage_period
         @empty = true
         @buffer = StringIO.new
         @begin_timestamp = nil
@@ -56,6 +58,8 @@ module BenefitSponsors
         return nil if @empty
 
         carrier_abbrev = carrier.abbrev.upcase
+        begin_datetime = coverage_period ? coverage_period.begin.strftime("%Y-%m-%dT00:00:00") : @begin_timestamp.iso8601
+        end_datetime = coverage_period ? coverage_period.end.strftime("%Y-%m-%dT00:00:00") : @end_timestamp.iso8601
         header = <<~XMLHEADER
           <?xml version='1.0' encoding='UTF-8'?>
           <employer_digest_event
@@ -69,8 +73,8 @@ module BenefitSponsors
             <body>
               <employer_events>
                 <coverage_period>
-                  <begin_datetime>#{@begin_timestamp.iso8601}</begin_datetime>
-                  <end_datetime>#{@end_timestamp.iso8601}</end_datetime>
+                  <begin_datetime>#{begin_datetime}</begin_datetime>
+                  <end_datetime>#{end_datetime}</end_datetime>
                 </coverage_period>
         XMLHEADER
         trailer = <<~XMLTRAILER

@@ -18,7 +18,7 @@ module BenefitSponsors
           carrier_ids = yield fetch_carrier_ids(values[:selected_event], application)
           employer = yield fetch_employer(values)
           event_payload = yield generate_event_payload(employer, application)
-          employer_event = yield create_employer_event(values[:selected_event], event_payload, values[:benefit_sponsorship], carrier_ids)
+          employer_event = yield create_employer_event(values[:selected_event], event_payload, values[:benefit_sponsorship], carrier_ids, application)
           download_result = yield download_group_xml(employer_event)
 
           Success(download_result)
@@ -96,9 +96,10 @@ module BenefitSponsors
           products.map { |product| product.issuer_profile.hbx_carrier_id }.uniq
         end
 
-        def create_employer_event(event_name, event_payload, benefit_sponsorship, carrier_ids)
+        def create_employer_event(event_name, event_payload, benefit_sponsorship, carrier_ids, application)
           employer_profile_hbx_id = benefit_sponsorship.hbx_id
-          Success(BenefitSponsors::Services::EmployerEvent.new(event_name, event_payload, employer_profile_hbx_id, carrier_ids: carrier_ids))
+          coverage_period = application.start_on.to_date..application.end_on.to_date
+          Success(BenefitSponsors::Services::EmployerEvent.new(event_name, event_payload, employer_profile_hbx_id, carrier_ids: carrier_ids, coverage_period: coverage_period))
         end
 
         def download_group_xml(employer_event)

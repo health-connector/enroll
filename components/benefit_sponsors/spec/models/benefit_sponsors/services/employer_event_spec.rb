@@ -60,7 +60,7 @@ RSpec.describe BenefitSponsors::Services::EmployerEvent, :dbclean => :after_each
     context 'when issuer profiles and profiles exist' do
       before do
         allow(BenefitSponsors::Organizations::ExemptOrganization).to receive(:issuer_profiles).and_return([profile1.organization])
-        allow(BenefitSponsors::EmployerEvents::CarrierFile).to receive(:new).with(profile1).and_return(carrier_file_1)
+        allow(BenefitSponsors::EmployerEvents::CarrierFile).to receive(:new).with(profile1, coverage_period: nil).and_return(carrier_file_1)
         allow(BenefitSponsors::EmployerEvents::Renderer).to receive(:new).with(subject).and_return(event_renderer)
         allow(carrier_file_1).to receive(:render_event_using).with(event_renderer, subject).and_return([carrier_file_1])
         allow(carrier_file_1).to receive(:carrier).and_return(profile1)
@@ -75,19 +75,20 @@ RSpec.describe BenefitSponsors::Services::EmployerEvent, :dbclean => :after_each
 
     context 'when carrier_ids are given' do
       let(:profile2) { create(:benefit_sponsors_organizations_issuer_profile, hbx_carrier_id: 20_011) }
-      let(:subject) { described_class.new(event_name, resource_body, employer_profile_id, carrier_ids: [20_011]) }
+      let(:coverage_period) { Date.new(2026, 7, 1)..Date.new(2027, 6, 30) }
+      let(:subject) { described_class.new(event_name, resource_body, employer_profile_id, carrier_ids: [20_011], coverage_period: coverage_period) }
       let(:carrier_file_2) { instance_double(BenefitSponsors::EmployerEvents::CarrierFile) }
 
       before do
         allow(BenefitSponsors::Organizations::ExemptOrganization).to receive(:issuer_profiles).and_return([profile1.organization, profile2.organization])
-        allow(BenefitSponsors::EmployerEvents::CarrierFile).to receive(:new).with(profile2).and_return(carrier_file_2)
+        allow(BenefitSponsors::EmployerEvents::CarrierFile).to receive(:new).with(profile2, coverage_period: coverage_period).and_return(carrier_file_2)
         allow(BenefitSponsors::EmployerEvents::Renderer).to receive(:new).with(subject).and_return(event_renderer)
         allow(carrier_file_2).to receive(:render_event_using).with(event_renderer, subject)
         allow(carrier_file_2).to receive(:carrier).and_return(profile2)
       end
 
-      it 'only renders files for the given carriers' do
-        expect(BenefitSponsors::EmployerEvents::CarrierFile).not_to receive(:new).with(profile1)
+      it 'only renders files for the given carriers, with the coverage period' do
+        expect(BenefitSponsors::EmployerEvents::CarrierFile).not_to receive(:new).with(profile1, anything)
         expect(subject.render_payloads).to eq([carrier_file_2])
       end
     end

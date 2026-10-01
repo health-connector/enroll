@@ -203,10 +203,18 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::DownloadV2Xml, 
       other_carrier = create(:benefit_sponsors_organizations_issuer_profile, hbx_carrier_id: 88_888, abbrev: "OTHER")
       other_carrier.organization.update_attributes!(_type: "BenefitSponsors::Organizations::ExemptOrganization")
 
-      expect(BenefitSponsors::EmployerEvents::CarrierFile).to receive(:new).with(issuer_profile).once.and_call_original
-      expect(BenefitSponsors::EmployerEvents::CarrierFile).not_to receive(:new).with(other_carrier)
+      expect(BenefitSponsors::EmployerEvents::CarrierFile).to receive(:new).with(issuer_profile, anything).once.and_call_original
+      expect(BenefitSponsors::EmployerEvents::CarrierFile).not_to receive(:new).with(other_carrier, anything)
 
       expect(subject.call(**params)).to be_success
+    end
+
+    it 'writes the selected plan year dates as the coverage period' do
+      xml = ""
+      Zip::File.open(subject.call(**params).value!) { |zip| xml = zip.first.get_input_stream.read }
+
+      expect(xml).to include("<begin_datetime>#{initial_application.start_on.to_date}T00:00:00</begin_datetime>")
+      expect(xml).to include("<end_datetime>#{initial_application.end_on.to_date}T00:00:00</end_datetime>")
     end
   end
 
@@ -257,10 +265,11 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::DownloadV2Xml, 
   end
 
   describe '#create_employer_event' do
-    it 'passes the carrier ids to the employer event' do
-      result = subject.send(:create_employer_event, 'benefit_coverage_initial_application_eligible', '<organization/>', benefit_sponsorship, [20_011])
+    it 'passes the carrier ids and plan year dates to the employer event' do
+      result = subject.send(:create_employer_event, 'benefit_coverage_initial_application_eligible', '<organization/>', benefit_sponsorship, [20_011], initial_application)
 
       expect(result.value!.carrier_ids).to eq([20_011])
+      expect(result.value!.coverage_period).to eq(initial_application.start_on.to_date..initial_application.end_on.to_date)
     end
   end
 end
