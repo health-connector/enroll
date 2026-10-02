@@ -1489,6 +1489,66 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
       end
     end
 
+    describe 'legacy quotes' do
+      let(:member) do
+        { 'first_name' => 'Real', 'middle_name' => 'M', 'last_name' => 'Member', 'name_sfx' => 'Jr',
+          'gender' => 'female', 'dob' => Date.new(1980, 6, 15) }
+      end
+      let(:quote) do
+        { 'employer_name' => 'Real Employer Inc', 'quote_name' => 'Real Employer Inc 2026', 'claim_code' => 'AB12-CD34',
+          'quote_households' => [{ 'quote_members' => [member, member.merge('first_name' => 'Kid', 'dob' => Date.new(2010, 1, 1))] }] }
+      end
+
+      it 'replaces employer and member names' do
+        update = runner.send(:build_quote_update, quote)
+        members = update['quote_households'][0]['quote_members']
+        expect(update['employer_name']).not_to eq('Real Employer Inc')
+        expect(update['quote_name']).to eq("#{update['employer_name']} quote")
+        expect(members.map { |m| m['first_name'] }).not_to include('Real', 'Kid')
+        expect(members.map { |m| m['last_name'] }).not_to include('Member')
+        expect(members.map { |m| [m['middle_name'], m['name_sfx']] }.flatten.compact).to be_empty
+      end
+
+      it 'keeps gender within the allowed values' do
+        update = runner.send(:build_quote_update, quote)
+        genders = update['quote_households'][0]['quote_members'].map { |m| m['gender'] }
+        expect(genders).to all(be_in(DataAnonymizer::AnonymizedData::GENDERS))
+      end
+
+      it 'leaves dob alone unless dob anonymization is enabled' do
+        update = runner.send(:build_quote_update, quote)
+        expect(update['quote_households'][0]['quote_members'][0]['dob']).to eq(Date.new(1980, 6, 15))
+      end
+
+      it 'shifts every member of a household by the same offset' do
+        members = dob_runner.send(:build_quote_update, quote)['quote_households'][0]['quote_members']
+        offsets = [members[0]['dob'] - Date.new(1980, 6, 15), members[1]['dob'] - Date.new(2010, 1, 1)]
+        expect(offsets.uniq.size).to eq(1)
+        expect(offsets.first).not_to eq(0)
+      end
+
+      it 'leaves claim_code alone, since it is a generated code' do
+        expect(runner.send(:build_quote_update, quote)).not_to have_key('claim_code')
+      end
+
+      it 'returns nothing to set for a quote holding no names' do
+        expect(runner.send(:build_quote_update, { 'claim_code' => 'AB12-CD34' })).to eq({})
+      end
+
+      it 'anonymizes stored quotes and skips ones with nothing to replace' do
+        runner.db[:quotes].insert_many([quote.merge('_id' => BSON::ObjectId.new), { '_id' => BSON::ObjectId.new, 'claim_code' => 'ZZ99-YY88' }])
+        expect(runner.send(:anonymize_quotes)).to eq(2)
+        stored = runner.db[:quotes].find('claim_code' => 'AB12-CD34').first
+        expect(stored['employer_name']).not_to eq('Real Employer Inc')
+        expect(stored['quote_households'][0]['quote_members'][0]['first_name']).not_to eq('Real')
+      end
+
+      it 'does nothing when the collection is absent' do
+        runner.db[:quotes].drop
+        expect(runner.send(:anonymize_quotes)).to eq(0)
+      end
+    end
+
     describe 'plan design proposal titles' do
       let(:title) { 'Benefit Group Created for: Real Employer Inc by Real Broker Agency' }
 
@@ -1518,6 +1578,19 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
 
       it 'leaves a record with no proposals untouched' do
         expect(runner.send(:build_plan_design_org_update, { 'legal_name' => 'X' })).not_to have_key('plan_design_proposals')
+      end
+
+      it 'rewrites the broker entered quote name on the proposal itself' do
+        doc = org_with_title
+        doc['plan_design_proposals'][0]['title'] = 'Real Employer Inc 2026 renewal'
+        update = runner.send(:build_plan_design_org_update, doc)
+        expect(update['plan_design_proposals'][0]['title']).to eq("#{update['legal_name']} quote")
+      end
+
+      it 'rewrites the quote name on a proposal with no sponsorships' do
+        doc = { 'legal_name' => 'Real Employer Inc', 'plan_design_proposals' => [{ 'title' => 'Real Employer Inc quote' }] }
+        update = runner.send(:build_plan_design_org_update, doc)
+        expect(update['plan_design_proposals'][0]['title']).not_to include('Real Employer Inc')
       end
 
       it 'looks up each broker agency name once across its quotes' do

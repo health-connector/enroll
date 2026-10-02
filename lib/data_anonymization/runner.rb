@@ -78,6 +78,8 @@ module DataAnonymizer
 
     # Broker quoting workspace, which names the employer being quoted.
     PLAN_DESIGN_ORG_COLLECTION = :sponsored_benefits_organizations_plan_design_organizations
+    # Legacy broker quoting tool.
+    QUOTE_COLLECTION = :quotes
     ISSUER_PROFILE_TYPE = 'BenefitSponsors::Organizations::IssuerProfile'
     # Prefix written by SponsoredBenefits::Services::PlanDesignProposalService.
     BENEFIT_GROUP_TITLE_MARKER = 'Benefit Group Created for:'
@@ -248,7 +250,8 @@ module DataAnonymizer
         plan_design_organizations: anonymize_plan_design_organizations,
         families: anonymize_families,
         inbox_messages: anonymize_inbox_messages,
-        document_identifiers: anonymize_document_identifiers
+        document_identifiers: anonymize_document_identifiers,
+        quotes: anonymize_quotes
       }
     end
 
@@ -1402,6 +1405,7 @@ module DataAnonymizer
     # @return [Hash] proposal with every nested benefit group title rewritten
     def rewrite_proposal_titles(proposal, employer_name, broker_name)
       proposal = proposal.dup
+      proposal['title'] = quote_title(employer_name) if proposal['title'].present?
       sponsorships = proposal.dig('profile', 'benefit_sponsorships')
       return proposal if sponsorships.blank?
 
@@ -1418,6 +1422,12 @@ module DataAnonymizer
         sponsorship
       end
       proposal
+    end
+
+    # @param employer_name [String, nil] replacement already chosen for the employer
+    # @return [String] quote label naming no real organization
+    def quote_title(employer_name)
+      "#{employer_name || AnonymizedData.company_name} quote"
     end
 
     # @return [Hash] benefit group whose title names no real organization
@@ -1576,6 +1586,76 @@ module DataAnonymizer
       total += redact_bs_document_identifiers
       log "  Phase 9 complete: #{total} documents processed" if total.positive?
       total
+    end
+
+    # Anonymizes the legacy broker quoting tool. Each household holds member
+    # names, dates of birth and genders.
+    # @return [Integer] quotes processed
+    def anonymize_quotes
+      return 0 unless db.collection_names.include?(QUOTE_COLLECTION.to_s)
+
+      collection = db[QUOTE_COLLECTION]
+      total = collection.count_documents({})
+      return 0 if total.zero?
+
+      log "\n--- Phase 10: Anonymizing Quotes (#{total}) ---"
+      processed = 0
+
+      collection.find.batch_size(batch_size).each_slice(batch_size) do |batch|
+        updates = batch.filter_map do |doc|
+          set_fields = build_quote_update(doc)
+          next if set_fields.empty?
+
+          { update_one: { filter: { '_id' => doc['_id'] }, update: { '$set' => set_fields } } }
+        end
+
+        if @dry_run
+          log "  [DRY RUN] Would update #{updates.size} quotes in this batch"
+        elsif updates.any?
+          bulk_write_batch(collection, updates)
+        end
+        processed += batch.size
+        log "  #{processed}/#{total} quotes" if (processed % (batch_size * 5)).zero? || processed >= total
+      end
+      processed
+    end
+
+    # @param doc [Hash] raw quote document
+    # @return [Hash] fields to $set, empty when the quote holds nothing to replace
+    def build_quote_update(doc)
+      employer_name = AnonymizedData.company_name
+      set_fields = {}
+      set_fields['employer_name'] = employer_name if doc['employer_name'].present?
+      set_fields['quote_name'] = quote_title(employer_name) if doc['quote_name'].present?
+      households = Array(doc['quote_households'])
+      set_fields['quote_households'] = households.map { |household| anonymize_quote_household(household) } if households.any?
+      set_fields
+    end
+
+    # One shift per household keeps the age gaps between its members.
+    # @param household [Hash] embedded quote household
+    # @return [Hash]
+    def anonymize_quote_household(household)
+      household = household.dup
+      shift_days = AnonymizedData.dob_shift_days
+      household['quote_members'] = Array(household['quote_members']).map do |member|
+        anonymize_quote_member(member, shift_days)
+      end
+      household
+    end
+
+    # @param member [Hash] embedded quote member
+    # @param shift_days [Integer] household DOB offset
+    # @return [Hash]
+    def anonymize_quote_member(member, shift_days)
+      member = member.dup
+      member['first_name'] = AnonymizedData.first_name if member['first_name'].present?
+      member['last_name'] = AnonymizedData.last_name if member['last_name'].present?
+      member['middle_name'] = nil
+      member['name_sfx'] = nil
+      member['gender'] = AnonymizedData.gender if member['gender'].present?
+      member['dob'] = AnonymizedData.shift_dob(member['dob'].to_date, shift_days: shift_days) if @anonymize_dob && member['dob'].present?
+      member
     end
 
     def redact_document_identifiers_at_path(collection, docs_path)
