@@ -5,10 +5,12 @@ require 'zip'
 module BenefitSponsors
   module EmployerEvents
     class CarrierFile
-      attr_accessor :carrier, :buffer, :begin_timestamp, :end_timestamp, :rendered_employers, :render_reason
+      attr_accessor :carrier, :buffer, :begin_timestamp, :end_timestamp, :rendered_employers, :render_reason, :coverage_period
 
-      def initialize(carrier)
+      # @param coverage_period [Range<Date>, nil] plan year dates for the digest, nil falls back to the event timestamps
+      def initialize(carrier, coverage_period: nil)
         @carrier = carrier
+        @coverage_period = coverage_period
         @empty = true
         @buffer = StringIO.new
         @begin_timestamp = nil
@@ -21,13 +23,9 @@ module BenefitSponsors
         @empty
       end
 
+      # matches the file names written by lib/v2_group_xml_generator.rb
       def file_name
-        return nil if @begin_timestamp.blank?
-        return nil if @end_timestamp.blank?
-
-        start_timestamp_string = @begin_timestamp.strftime("%Y%m%d%H%M%S")
-        end_timestamp_string = @end_timestamp.strftime("%Y%m%d%H%M%S")
-        "#{carrier.abbrev.upcase}_#{start_timestamp_string}_#{end_timestamp_string}.xml"
+        "#{carrier.legal_name.tr('/\\', '-')}.xml"
       end
 
       def render_event_using(renderer, event)
@@ -55,28 +53,28 @@ module BenefitSponsors
       def result
         return nil if @empty
 
-        carrier_abbrev = carrier.abbrev.upcase
-        header = <<-XMLHEADER
-        <?xml version='1.0' encoding='UTF-8'?>
-        <employer_digest_event
-          xmlns="http://openhbx.org/api/terms/1.0"
-          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:schemaLocation="http://openhbx.org/api/terms/1.0 organization.xsd http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+        carrier_abbrev = carrier.abbrev.to_s.upcase
+        begin_datetime = coverage_period ? coverage_period.begin.strftime("%Y-%m-%dT00:00:00") : @begin_timestamp.iso8601
+        end_datetime = coverage_period ? coverage_period.end.strftime("%Y-%m-%dT00:00:00") : @end_timestamp.iso8601
+        # layout mirrors events/v2/employers/group_xml.haml used by lib/v2_group_xml_generator.rb
+        header = <<~XMLHEADER
+          <?xml version='1.0' encoding='utf-8' ?>
+          <employer_digest_event xmlns='http://openhbx.org/api/terms/1.0' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://openhbx.org/api/terms/1.0 organization.xsd http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd'>
           <event_name>urn:openhbx:events:v1:employer#digest_period_ended</event_name>
           <resource_instance_uri>
-                  <id>urn:openhbx:resources:v1:carrier:abbreviation##{carrier_abbrev}</id>
+          <id>urn:openhbx:resources:v1:carrier:abbreviation##{carrier_abbrev}</id>
           </resource_instance_uri>
           <body>
-            <employer_events>
-              <coverage_period>
-                <begin_datetime>#{@begin_timestamp.iso8601}</begin_datetime>
-                <end_datetime>#{@end_timestamp.iso8601}</end_datetime>
-              </coverage_period>
+          <employer_events>
+          <coverage_period>
+          <begin_datetime>#{begin_datetime}</begin_datetime>
+          <end_datetime>#{end_datetime}</end_datetime>
+          </coverage_period>
         XMLHEADER
-        trailer = <<-XMLTRAILER
-        </employer_events>
+        trailer = <<~XMLTRAILER
+          </employer_events>
           </body>
-        </employer_digest_event>
+          </employer_digest_event>
         XMLTRAILER
         @buffer << trailer
         header += @buffer.string

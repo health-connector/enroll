@@ -35,13 +35,6 @@ class V2GroupXmlGenerator
   end
 
   def generate_xmls
-    view_paths = ActionController::Base.view_paths
-    lookup_context = ActionView::LookupContext.new(view_paths)
-    view_context = ActionView::Base.with_empty_template_cache.new(lookup_context, {}, nil)
-    view_context.extend(EventsHelper)
-    view_context.extend(Config::AcaHelper)
-    view_context.extend(FloatHelper)
-
     organizations_hash = {} # key is carrier name, value is the return object of remove_other_carrier_nodes()
 
     #for each employer (fein)
@@ -65,7 +58,7 @@ class V2GroupXmlGenerator
 
         cv_xml = nil
         carrier_profiles.each do |carrier|
-          cv_xml = view_context.render(
+          cv_xml = ApplicationController.render(
             template: "events/v2/employers/updated",
             formats: [:xml],
             handlers: [:haml],
@@ -83,7 +76,7 @@ class V2GroupXmlGenerator
             cv_xml,
             switched_carrier.legal_name,
             employer_profile,
-            predecessor_application(benefit_application).effective_period.min.strftime("%Y%m%d"),
+            benefit_application,
             {event: "urn:openhbx:events:v1:employer#benefit_coverage_renewal_carrier_dropped"}
           )
         end
@@ -94,7 +87,7 @@ class V2GroupXmlGenerator
 
     # iterate the hash and generate group xml v2 for each carrier, including all employers for that carrier
     organizations_hash.each do |carrier, organizations|
-      xml = view_context.render(
+      xml = ApplicationController.render(
         template: "events/v2/employers/group_xml",
         formats: [:xml],
         handlers: [:haml],
