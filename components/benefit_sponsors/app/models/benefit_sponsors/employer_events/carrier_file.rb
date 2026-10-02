@@ -53,7 +53,7 @@ module BenefitSponsors
       def result
         return nil if @empty
 
-        carrier_abbrev = carrier.abbrev.upcase
+        carrier_abbrev = carrier.abbrev.to_s.upcase
         begin_datetime = coverage_period ? coverage_period.begin.strftime("%Y-%m-%dT00:00:00") : @begin_timestamp.iso8601
         end_datetime = coverage_period ? coverage_period.end.strftime("%Y-%m-%dT00:00:00") : @end_timestamp.iso8601
         # layout mirrors events/v2/employers/group_xml.haml used by lib/v2_group_xml_generator.rb

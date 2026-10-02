@@ -220,6 +220,14 @@ describe BenefitSponsors::EmployerEvents::CarrierFile, "given a carrier", :dbcle
       expect(xml.lines[4]).to eq("<id>urn:openhbx:resources:v1:carrier:abbreviation#THPP</id>\n")
     end
 
+    context "when the carrier has no abbreviation" do
+      before { carrier.abbrev = nil }
+
+      it "still renders the file" do
+        expect(xml).to include("<id>urn:openhbx:resources:v1:carrier:abbreviation#</id>")
+      end
+    end
+
     context "with a coverage period" do
       subject { BenefitSponsors::EmployerEvents::CarrierFile.new(carrier, coverage_period: Date.new(2026, 7, 1)..Date.new(2027, 6, 30)) }
 

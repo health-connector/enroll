@@ -318,3 +318,61 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::DownloadV2Xml, 
     end
   end
 end
+
+RSpec.describe BenefitSponsors::Operations::BenefitApplications::DownloadV2Xml, 'renewal carrier dropped download', dbclean: :after_each do
+  include_context "setup benefit market with market catalogs and product packages"
+  include_context "setup initial benefit application"
+
+  let(:aasm_state) { :expired }
+  let(:renewal_effective_period) { renewal_effective_date..renewal_effective_date.next_year.prev_day }
+  let!(:renewal_application) do
+    create(
+      :benefit_sponsors_benefit_application,
+      :with_benefit_sponsor_catalog,
+      :with_benefit_package,
+      passed_benefit_sponsor_catalog: benefit_sponsorship.benefit_sponsor_catalog_for(renewal_effective_date),
+      benefit_sponsorship: benefit_sponsorship,
+      predecessor_id: initial_application.id,
+      aasm_state: :active,
+      open_enrollment_period: open_enrollment_period.min.next_year..open_enrollment_period.max.next_year,
+      recorded_rating_area: renewal_rating_area,
+      recorded_service_areas: benefit_sponsorship.service_areas_on(renewal_effective_date),
+      package_kind: :metal_level,
+      benefit_application_items: [build(:benefit_sponsors_benefit_application_item, effective_period: renewal_effective_period, state: :active)]
+    )
+  end
+  let(:renewal_carrier) { create(:benefit_sponsors_organizations_issuer_profile, assigned_site: site) }
+  let(:params) do
+    {
+      selected_event: BenefitSponsors::EmployerEvents::EventNames::RENEWAL_CARRIER_CHANGE_EVENT,
+      employer_application_id: renewal_application.id.to_s,
+      employer_actions_id: '123456',
+      benefit_sponsorship: benefit_sponsorship
+    }
+  end
+
+  before do
+    [issuer_profile, renewal_carrier].each do |carrier|
+      carrier.organization.update_attributes!(_type: "BenefitSponsors::Organizations::ExemptOrganization")
+    end
+    issuer_profile.update_attributes!(hbx_carrier_id: 88_888, abbrev: "DROP")
+    renewal_carrier.update_attributes!(hbx_carrier_id: 99_999, abbrev: "STAY")
+    renewal_application.benefit_sponsor_catalog.product_packages.flat_map(&:products).each { |product| product.set(issuer_profile_id: renewal_carrier.id) }
+  end
+
+  it 'downloads the dropped carrier file with the predecessor plan year' do
+    result = subject.call(**params)
+
+    expect(result).to be_success
+    Zip::File.open(result.value!) do |zip|
+      expect(zip.map(&:name)).to eq(["#{issuer_profile.legal_name}.xml"])
+      document = Nokogiri::XML(zip.first.get_input_stream.read)
+      namespace = { 'cv' => 'http://openhbx.org/api/terms/1.0' }
+      plan_year_starts = document.xpath('//cv:plan_year/cv:plan_year_start', namespace).map(&:text)
+      carrier_ids = document.xpath('//cv:elected_plan/cv:carrier/cv:id/cv:id', namespace).map(&:text).uniq
+
+      expect(plan_year_starts).to eq([initial_application.start_on.strftime("%Y%m%d")])
+      expect(carrier_ids).to eq(['88888'])
+    end
+  end
+end
