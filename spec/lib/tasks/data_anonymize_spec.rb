@@ -1535,6 +1535,25 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
         expect(runner.send(:build_quote_update, { 'claim_code' => 'AB12-CD34' })).to eq({})
       end
 
+      it 'uses the anonymized name of the linked client employer' do
+        profile_id = BSON::ObjectId.new
+        runner.db[:organizations].insert_one('legal_name' => 'Anonymized Employer', 'employer_profile' => { '_id' => profile_id })
+        update = runner.send(:build_quote_update, quote.merge('employer_type' => 'client', 'employer_profile_id' => profile_id))
+        expect(update['employer_name']).to eq('Anonymized Employer')
+        expect(update['quote_name']).to eq('Anonymized Employer quote')
+      end
+
+      it 'invents a name for a prospect with no linked employer' do
+        update = runner.send(:build_quote_update, quote.merge('employer_type' => 'prospect'))
+        expect(update['employer_name']).to be_present
+        expect(update['employer_name']).not_to eq('Real Employer Inc')
+      end
+
+      it 'never writes the quoted plans' do
+        update = runner.send(:build_quote_update, quote.merge('quote_benefit_groups' => [{ 'published_reference_plan' => BSON::ObjectId.new }]))
+        expect(update).not_to have_key('quote_benefit_groups')
+      end
+
       it 'anonymizes stored quotes and skips ones with nothing to replace' do
         runner.db[:quotes].insert_many([quote.merge('_id' => BSON::ObjectId.new), { '_id' => BSON::ObjectId.new, 'claim_code' => 'ZZ99-YY88' }])
         expect(runner.send(:anonymize_quotes)).to eq(2)
@@ -1578,6 +1597,37 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
 
       it 'leaves a record with no proposals untouched' do
         expect(runner.send(:build_plan_design_org_update, { 'legal_name' => 'X' })).not_to have_key('plan_design_proposals')
+      end
+
+      it 'takes the anonymized legal name and dba of the linked employer' do
+        profile_id = BSON::ObjectId.new
+        runner.db[:benefit_sponsors_organizations_organizations].insert_one(
+          'legal_name' => 'Anonymized Employer', 'dba' => 'Anonymized Trading', 'profiles' => [{ '_id' => profile_id }]
+        )
+        update = runner.send(:build_plan_design_org_update, org_with_title.merge('sponsor_profile_id' => profile_id, 'dba' => 'Real Trading'))
+        expect(update['legal_name']).to eq('Anonymized Employer')
+        expect(update['dba']).to eq('Anonymized Trading')
+      end
+
+      it 'names the proposal after the linked employer' do
+        profile_id = BSON::ObjectId.new
+        runner.db[:benefit_sponsors_organizations_organizations].insert_one('legal_name' => 'Anonymized Employer', 'profiles' => [{ '_id' => profile_id }])
+        doc = org_with_title.merge('sponsor_profile_id' => profile_id)
+        doc['plan_design_proposals'][0]['title'] = 'Real Employer Inc renewal'
+        update = runner.send(:build_plan_design_org_update, doc)
+        expect(update['plan_design_proposals'][0]['title']).to eq('Anonymized Employer quote')
+      end
+
+      it 'invents a name for a prospect with no linked employer' do
+        expect(runner.send(:build_plan_design_org_update, org_with_title)['legal_name']).not_to eq('Real Employer Inc')
+      end
+
+      it 'keeps the plans chosen on the benefit group' do
+        plan_id = BSON::ObjectId.new
+        doc = org_with_title
+        doc['plan_design_proposals'][0]['profile']['benefit_sponsorships'][0]['benefit_applications'][0]['benefit_groups'][0]['reference_plan_id'] = plan_id
+        group = runner.send(:build_plan_design_org_update, doc)['plan_design_proposals'][0]['profile']['benefit_sponsorships'][0]['benefit_applications'][0]['benefit_groups'][0]
+        expect(group['reference_plan_id']).to eq(plan_id)
       end
 
       it 'rewrites the broker entered quote name on the proposal itself' do

@@ -1402,6 +1402,22 @@ module DataAnonymizer
       organization&.dig('legal_name')
     end
 
+    # Names the organization phases already wrote for an employer, so a quote
+    # built for that employer keeps showing the same name.
+    # @param profile_id [BSON::ObjectId, nil] employer profile id
+    # @return [Hash] legal_name and dba, empty when the employer is not found
+    def employer_names(profile_id)
+      return {} if profile_id.blank?
+
+      @employer_names ||= {}
+      @employer_names[profile_id] ||= begin
+        projection = { 'legal_name' => 1, 'dba' => 1 }
+        organization = db[:benefit_sponsors_organizations_organizations].find('profiles._id' => profile_id).projection(projection).first
+        organization ||= db[:organizations].find('employer_profile._id' => profile_id).projection(projection).first
+        organization.to_h.slice('legal_name', 'dba')
+      end
+    end
+
     # @return [Hash] proposal with every nested benefit group title rewritten
     def rewrite_proposal_titles(proposal, employer_name, broker_name)
       proposal = proposal.dup
@@ -1443,8 +1459,9 @@ module DataAnonymizer
     # @return [Hash] fields for +$set+
     def build_plan_design_org_update(doc)
       # An empty $set is rejected by the bulk write.
-      set_fields = { 'legal_name' => AnonymizedData.company_name }
-      set_fields['dba'] = AnonymizedData.company_name if doc['dba'].present?
+      employer = employer_names(doc['sponsor_profile_id'])
+      set_fields = { 'legal_name' => employer['legal_name'].presence || AnonymizedData.company_name }
+      set_fields['dba'] = employer['dba'].presence || AnonymizedData.company_name if doc['dba'].present?
       set_fields['home_page'] = AnonymizedData.website if doc['home_page'].present?
       set_fields['office_locations'] = anonymize_office_locations(doc['office_locations'], doc['sponsor_profile_id']) if doc['office_locations'].present?
       proposals = anonymize_plan_design_proposals(doc, set_fields['legal_name'])
@@ -1623,7 +1640,7 @@ module DataAnonymizer
     # @param doc [Hash] raw quote document
     # @return [Hash] fields to $set, empty when the quote holds nothing to replace
     def build_quote_update(doc)
-      employer_name = AnonymizedData.company_name
+      employer_name = employer_names(doc['employer_profile_id'])['legal_name'].presence || AnonymizedData.company_name
       set_fields = {}
       set_fields['employer_name'] = employer_name if doc['employer_name'].present?
       set_fields['quote_name'] = quote_title(employer_name) if doc['quote_name'].present?
