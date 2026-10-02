@@ -216,6 +216,51 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::DownloadV2Xml, 
       expect(xml).to include("<begin_datetime>#{initial_application.start_on.to_date}T00:00:00</begin_datetime>")
       expect(xml).to include("<end_datetime>#{initial_application.end_on.to_date}T00:00:00</end_datetime>")
     end
+
+    context 'when the selected event drops a carrier' do
+      let(:selected_event) { BenefitSponsors::EmployerEvents::EventNames::RENEWAL_CARRIER_CHANGE_EVENT }
+
+      it 'downloads only the dropped carrier with its previous plan year' do
+        dropped_carrier = create(:benefit_sponsors_organizations_issuer_profile, hbx_carrier_id: 88_888, abbrev: 'DROP')
+        dropped_carrier.organization.update_attributes!(_type: "BenefitSponsors::Organizations::ExemptOrganization")
+        predecessor = instance_double(BenefitSponsors::BenefitApplications::BenefitApplication)
+        allow(initial_application).to receive(:predecessor).and_return(predecessor)
+        allow(subject).to receive(:application_carrier_ids).with(initial_application).and_return([99_999])
+        allow(subject).to receive(:application_carrier_ids).with(predecessor).and_return([99_999, 88_888])
+        allow(BenefitSponsors::ApplicationController).to receive(:render).and_return(<<~XML)
+          <organization xmlns="http://openhbx.org/api/terms/1.0">
+            <id><id>#{benefit_sponsorship.profile.hbx_id}</id></id>
+            <employer_profile><plan_years>
+              <plan_year><plan_year_start>20240901</plan_year_start><plan_year_end>20250831</plan_year_end>
+                <benefit_groups><benefit_group><elected_plans>
+                  <elected_plan><carrier><id><id>99999</id></id></carrier></elected_plan>
+                  <elected_plan><carrier><id><id>88888</id></id></carrier></elected_plan>
+                </elected_plans></benefit_group></benefit_groups>
+              </plan_year>
+              <plan_year><plan_year_start>20250901</plan_year_start><plan_year_end>20260831</plan_year_end>
+                <benefit_groups><benefit_group><elected_plans>
+                  <elected_plan><carrier><id><id>99999</id></id></carrier></elected_plan>
+                </elected_plans></benefit_group></benefit_groups>
+              </plan_year>
+            </plan_years></employer_profile>
+          </organization>
+        XML
+
+        result = subject.call(**params)
+
+        expect(result).to be_success
+        Zip::File.open(result.value!) do |zip|
+          expect(zip.map(&:name)).to eq(["#{dropped_carrier.legal_name}.xml"])
+          xml = zip.first.get_input_stream.read
+          document = Nokogiri::XML(xml)
+          namespace = { 'cv' => 'http://openhbx.org/api/terms/1.0' }
+          carrier_ids = document.xpath('//cv:elected_plan/cv:carrier/cv:id/cv:id/text()', namespace).map(&:text)
+
+          expect(carrier_ids).to eq(['88888'])
+          expect(document.at_xpath('//cv:employer_event/cv:event_name', namespace).text).to eq("urn:openhbx:events:v1:employer##{selected_event}")
+        end
+      end
+    end
   end
 
   describe '#fetch_carrier_ids' do

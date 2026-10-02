@@ -39,6 +39,7 @@ EXCHANGE_TRANSLATIONS = {
   "en.exchange.employer_applications.download_v2_xml.no_carriers" => "No carriers found for the selected plan year and event.",
   "en.exchange.employer_applications.upload_v2_xml.success_message" => "Successfully uploaded V2 digest XML for employer FEIN: %{fein}.",
   "en.exchange.employer_applications.upload_v2_xml.failure_message" => "Failed to upload XML. %{errors}",
+  "en.exchange.employer_applications.upload_v2_xml.invalid_xml" => "The uploaded XML is malformed.",
   "en.exchange.employer_applications.upload_v2_xml.invalid_file_error" => "Invalid file upload.",
   "en.exchange.employer_applications.confirmation_page" => "Confirmation Page",
   "en.exchange.employer_applications.current_status" => "Current Status:",
