@@ -68,7 +68,7 @@ module Services
 
     def sheet1
       worksheet = workbook[0]
-      worksheet.sheet_name = 'Report1'
+      worksheet.sheet_name = 'Plan Count'
       headers = %w[PlanYearId CarrierId CarrierName PlanTypeCode Tier Count]
       generate_excel(headers, worksheet)
       a = 1
@@ -91,7 +91,7 @@ module Services
     end
 
     def sheet2
-      worksheet2 = workbook.add_worksheet('Report2')
+      worksheet2 = workbook.add_worksheet('Rating Area Rates')
       headers = %w[PlanYearId CarrierId CarrierName RatingArea Age(Range) IndividualRate EffectiveDate ExpirationDate]
       generate_excel(headers, worksheet2)
       b = 1
@@ -121,7 +121,7 @@ module Services
     end
 
     def sheet3
-      worksheet3 = workbook.add_worksheet('Report3')
+      worksheet3 = workbook.add_worksheet('Service Areas')
       headers = %w[PlanYearId CarrierId CarrierName ServiceAreaCode PlanCount County_Count Zip_Count]
       generate_excel(headers, worksheet3)
       c = 1
@@ -150,7 +150,7 @@ module Services
     end
 
     def sheet4
-      worksheet4 = workbook.add_worksheet('Report4')
+      worksheet4 = workbook.add_worksheet('Group Size Factors')
       headers = %w[PlanYearId CarrierId CarrierName GroupSizeSum GroupSizeFactorSum]
       generate_excel(headers, worksheet4)
       d = 1
@@ -177,7 +177,7 @@ module Services
     end
 
     def sheet5
-      worksheet5 = workbook.add_worksheet('Report5')
+      worksheet5 = workbook.add_worksheet('Participation Factors')
       headers = %w[PlanYearId CarrierId CarrierName GroupSizeSum ParticipationRateSum]
       generate_excel(headers, worksheet5)
       e = 1
@@ -204,7 +204,7 @@ module Services
     end
 
     def sheet6
-      worksheet6 = workbook.add_worksheet('Report6')
+      worksheet6 = workbook.add_worksheet('SIC Code Factors')
       headers = %w[PlanYearId CarrierId CarrierName SIC_Count SICRateSum]
       generate_excel(headers, worksheet6)
       f = 1
@@ -230,7 +230,7 @@ module Services
     end
 
     def sheet7
-      worksheet7 = workbook.add_worksheet('Report7')
+      worksheet7 = workbook.add_worksheet('Product Model')
       headers = %w[CarrierId CarrierName ProductModel PlanCount]
       generate_excel(headers, worksheet7)
       g = 1
@@ -253,7 +253,7 @@ module Services
     end
 
     def sheet8
-      worksheet8 = workbook.add_worksheet('Report8')
+      worksheet8 = workbook.add_worksheet('HIOS ID Crosswalk')
       headers = %w[CarrierId CarrierName HIOS_ID Renewal_HIOS_ID]
       generate_excel(headers, worksheet8)
       h = 1
@@ -272,7 +272,7 @@ module Services
     end
 
     def sheet9
-      worksheet9 = workbook.add_worksheet('Report9')
+      worksheet9 = workbook.add_worksheet('Super Group IDs')
       headers = %w[PlanYearId CarrierId CarrierName HIOS_Plan_ID SG_ID]
       generate_excel(headers, worksheet9)
       i = 1

@@ -38,8 +38,14 @@ describe 'reports generation after plan loading', :dbclean => :after_each do
     end
   end
 
+  let(:report_dir) { "#{Rails.root}/CCA_PlanLoadValidation_#{current_date}" }
+
   def report_path(slug)
-    "#{Rails.root}/CCA_PlanLoadValidation_Report_#{slug}_#{current_date}.xlsx"
+    "#{report_dir}/per_carrier/CCA_PlanLoadValidation_Report_#{slug}_#{current_date}.xlsx"
+  end
+
+  def combined_path
+    "#{report_dir}/CCA_PlanLoadValidation_Report_ALL_#{current_date}.xlsx"
   end
 
   # CarrierId (hios id) values found in the data rows of a report's first sheet.
@@ -55,7 +61,7 @@ describe 'reports generation after plan loading', :dbclean => :after_each do
   end
 
   after do
-    FileUtils.rm_f(Dir.glob(report_path("*")))
+    FileUtils.rm_rf(report_dir)
   end
 
   context 'with a single carrier' do
@@ -68,6 +74,13 @@ describe 'reports generation after plan loading', :dbclean => :after_each do
 
     it 'generates a workbook for the carrier' do
       expect(File).to exist(file_name)
+    end
+
+    it 'names every sheet by its contents' do
+      sheet_names = ['Plan Count', 'Rating Area Rates', 'Service Areas', 'Group Size Factors', 'Participation Factors',
+                     'SIC Code Factors', 'Product Model', 'HIOS ID Crosswalk', 'Super Group IDs']
+
+      expect(RubyXL::Parser.parse(file_name).worksheets.map(&:sheet_name)).to eq(sheet_names)
     end
 
     it 'writes the expected headers on every sheet' do
@@ -111,9 +124,18 @@ describe 'reports generation after plan loading', :dbclean => :after_each do
       generate_reports
     end
 
-    it 'generates one file per carrier' do
+    it 'generates one file per carrier in the per_carrier folder' do
       expect(File).to exist(report_path("TEST_88888"))
       expect(File).to exist(report_path("BTWO_99999"))
+    end
+
+    it 'also generates a combined workbook with every carrier' do
+      expect(File).to exist(combined_path)
+      expect(carrier_ids_in(combined_path)).to match_array([88_888, 99_999])
+    end
+
+    it 'keeps the combined workbook sheet names' do
+      expect(RubyXL::Parser.parse(combined_path).worksheets.map(&:sheet_name)).to eq(RubyXL::Parser.parse(report_path("TEST_88888")).worksheets.map(&:sheet_name))
     end
 
     it 'scopes each workbook to only that carrier data' do
