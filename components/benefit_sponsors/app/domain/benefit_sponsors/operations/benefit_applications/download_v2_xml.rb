@@ -8,7 +8,7 @@ module BenefitSponsors
         include Dry::Monads[:result, :do]
         include L10nHelper
 
-        # Renewing statuses shown in the admin table are these same states on a renewal application
+        # Benefit application states a V2 XML can be generated for. Renewing statuses in the admin table use these same states.
         ELIGIBLE_STATES = [:active, :termination_pending, :terminated, :expired].freeze
 
         def call(selected_event:, employer_application_id:, employer_actions_id:, benefit_sponsorship:)
@@ -42,6 +42,8 @@ module BenefitSponsors
           application ? Success(application) : Failure("Application not found")
         end
 
+        # @param application [BenefitSponsors::BenefitApplications::BenefitApplication] selected plan year
+        # @return [Dry::Monads::Result] Success with the application, or Failure when its state is not in ELIGIBLE_STATES
         def validate_application_state(application)
           return Success(application) if ELIGIBLE_STATES.include?(application.aasm_state)
 
@@ -69,13 +71,12 @@ module BenefitSponsors
           Success(payload)
         end
 
-        # Carriers that should receive a file for this download. The payload carries every
-        # exportable plan year, so without this every carrier the employer has ever had
-        # gets a file holding only its last (often years old) plan year.
+        # Finds the carriers that get a file for the selected event. For the carrier dropped event these
+        # are the dropped carriers, for any other event the carriers on the selected plan year.
         #
         # @param event_name [String] selected V2 event
-        # @param application [BenefitSponsors::BenefitApplications::BenefitApplication] selected application
-        # @return [Dry::Monads::Result::Success] wraps an Array of hbx_carrier_ids
+        # @param application [BenefitSponsors::BenefitApplications::BenefitApplication] selected plan year
+        # @return [Dry::Monads::Result] Success with an Array of hbx_carrier_ids, or Failure when no carrier is found
         def fetch_carrier_ids(event_name, application)
           carrier_ids = application_carrier_ids(application)
           carrier_ids = yield dropped_carrier_ids(application, carrier_ids) if event_name == BenefitSponsors::EmployerEvents::EventNames::RENEWAL_CARRIER_CHANGE_EVENT
@@ -84,8 +85,12 @@ module BenefitSponsors
           Success(carrier_ids)
         end
 
-        # The selected application is the plan year being left when its renewal has already gone out,
-        # otherwise it is the renewal itself.
+        # Finds the carriers on the plan year being left that are not on its renewal. When the selected
+        # plan year has a renewal that went out it is the plan year being left, otherwise it is the renewal.
+        #
+        # @param application [BenefitSponsors::BenefitApplications::BenefitApplication] selected plan year
+        # @param carrier_ids [Array<Integer>] hbx_carrier_ids on the selected plan year
+        # @return [Dry::Monads::Result] Success with the dropped hbx_carrier_ids, or Failure when there is no renewal or previous plan year
         def dropped_carrier_ids(application, carrier_ids)
           renewal = application.successors.detect(&:eligible_for_export?)
           return Success(carrier_ids - application_carrier_ids(renewal)) if renewal
@@ -96,6 +101,8 @@ module BenefitSponsors
           Success(application_carrier_ids(predecessor) - carrier_ids)
         end
 
+        # @param application [BenefitSponsors::BenefitApplications::BenefitApplication] plan year to read
+        # @return [Array<Integer>] hbx_carrier_ids of the products offered on the plan year
         def application_carrier_ids(application)
           products = application.benefit_packages.flat_map do |benefit_package|
             benefit_package.sponsored_benefits.flat_map { |sponsored_benefit| sponsored_benefit.products(benefit_package.start_on) }
@@ -103,6 +110,14 @@ module BenefitSponsors
           products.map { |product| product.issuer_profile.hbx_carrier_id }.uniq
         end
 
+        # Builds the employer event that renders one file per carrier, dated with the selected plan year.
+        #
+        # @param event_name [String] selected V2 event
+        # @param event_payload [String] employer CV2 XML
+        # @param benefit_sponsorship [BenefitSponsors::BenefitSponsorships::BenefitSponsorship] employer sponsorship
+        # @param carrier_ids [Array<Integer>] hbx_carrier_ids that get a file
+        # @param application [BenefitSponsors::BenefitApplications::BenefitApplication] selected plan year
+        # @return [Dry::Monads::Result::Success] wraps a BenefitSponsors::Services::EmployerEvent
         def create_employer_event(event_name, event_payload, benefit_sponsorship, carrier_ids, application)
           employer_profile_hbx_id = benefit_sponsorship.hbx_id
           coverage_period = application.start_on.to_date..application.end_on.to_date

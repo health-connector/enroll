@@ -191,8 +191,12 @@ class V2GroupXmlGenerator
     carrier_profiles
   end
 
-  #returns an array of carriers which were switched from and need to be informed
-  # when the given plan year already has a renewal that went out, it is the plan year being left
+  # Finds the carriers dropped at renewal. When the given plan year has a renewal that went out it is the
+  # plan year being left, otherwise it is the renewal and is compared with its previous plan year.
+  #
+  # @param employer_profile [BenefitSponsors::Organizations::AcaShopCcaEmployerProfile] employer being generated
+  # @param benefit_application [BenefitSponsors::BenefitApplications::BenefitApplication] plan year passed to the script
+  # @return [Array<BenefitSponsors::Organizations::IssuerProfile>] dropped carriers
   def switched_carriers(employer_profile, benefit_application)
     renewal = benefit_application.successors.detect(&:eligible_for_export?)
     return benefit_application_carriers(benefit_application).flatten.uniq - benefit_application_carriers(renewal).flatten.uniq if renewal

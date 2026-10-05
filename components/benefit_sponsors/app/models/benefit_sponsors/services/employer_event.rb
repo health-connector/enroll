@@ -8,6 +8,9 @@ module BenefitSponsors
 
       attr_accessor :event_time, :event_name, :resource_body, :employer_profile_id, :carrier_ids, :coverage_period
 
+      # @param event_name [String] V2 event name
+      # @param resource_body [String] employer CV2 XML
+      # @param employer_profile_id [String] benefit sponsorship hbx_id
       # @param carrier_ids [Array<Integer>, nil] hbx_carrier_ids to render files for, nil renders every carrier
       # @param coverage_period [Range<Date>, nil] plan year dates written to each carrier file
       def initialize(event_name, resource_body, employer_profile_id, carrier_ids: nil, coverage_period: nil)

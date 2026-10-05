@@ -7,7 +7,8 @@ module BenefitSponsors
     class CarrierFile
       attr_accessor :carrier, :buffer, :begin_timestamp, :end_timestamp, :rendered_employers, :render_reason, :coverage_period
 
-      # @param coverage_period [Range<Date>, nil] plan year dates for the digest, nil falls back to the event timestamps
+      # @param carrier [BenefitSponsors::Organizations::IssuerProfile] carrier the file is written for
+      # @param coverage_period [Range<Date>, nil] plan year dates for the coverage period, nil uses the event timestamps
       def initialize(carrier, coverage_period: nil)
         @carrier = carrier
         @coverage_period = coverage_period
@@ -23,7 +24,7 @@ module BenefitSponsors
         @empty
       end
 
-      # matches the file names written by lib/v2_group_xml_generator.rb
+      # @return [String] carrier legal name with path separators replaced, used as the file name in the zip
       def file_name
         "#{carrier.legal_name.tr('/\\', '-')}.xml"
       end
@@ -50,13 +51,15 @@ module BenefitSponsors
         @end_timestamp = [@end_timestamp, timestamp].compact.max
       end
 
+      # Builds the employer digest XML for the carrier, wrapping the rendered employer events.
+      #
+      # @return [Array<String>, nil] file name and XML, or nil when no employer was rendered
       def result
         return nil if @empty
 
         carrier_abbrev = carrier.abbrev.to_s.upcase
         begin_datetime = coverage_period ? coverage_period.begin.strftime("%Y-%m-%dT00:00:00") : @begin_timestamp.iso8601
         end_datetime = coverage_period ? coverage_period.end.strftime("%Y-%m-%dT00:00:00") : @end_timestamp.iso8601
-        # layout mirrors events/v2/employers/group_xml.haml used by lib/v2_group_xml_generator.rb
         header = <<~XMLHEADER
           <?xml version='1.0' encoding='utf-8' ?>
           <employer_digest_event xmlns='http://openhbx.org/api/terms/1.0' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://openhbx.org/api/terms/1.0 organization.xsd http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd'>

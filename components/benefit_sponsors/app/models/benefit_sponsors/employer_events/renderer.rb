@@ -288,7 +288,7 @@ module BenefitSponsors
         XMLHEADER
       end
 
-      # the leading blank line matches the newline the script template adds after the employer xml
+      # @return [String] closing tags for an employer event, preceded by a blank line after the employer XML
       def build_event_trailer
         <<~XMLTRAILER
 
