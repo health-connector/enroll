@@ -372,7 +372,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::DownloadV2Xml, 
       selected_event: BenefitSponsors::EmployerEvents::EventNames::RENEWAL_CARRIER_CHANGE_EVENT,
       employer_application_id: selected_application.id.to_s,
       employer_actions_id: '123456',
-      benefit_sponsorship: benefit_sponsorship
+      benefit_sponsorship: BenefitSponsors::BenefitSponsorships::BenefitSponsorship.find(benefit_sponsorship.id)
     }
   end
 
@@ -382,7 +382,8 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::DownloadV2Xml, 
     end
     issuer_profile.update_attributes!(hbx_carrier_id: 88_888, abbrev: "DROP")
     renewal_carrier.update_attributes!(hbx_carrier_id: 99_999, abbrev: "STAY")
-    renewal_application.benefit_sponsor_catalog.product_packages.flat_map(&:products).each { |product| product.set(issuer_profile_id: renewal_carrier.id) }
+    renewal_catalog = renewal_application.benefit_sponsor_catalog
+    renewal_catalog.class.collection.update_one({ _id: renewal_catalog.id }, { '$set' => { 'product_packages.$[].products.$[].issuer_profile_id' => renewal_carrier.id } })
   end
 
   shared_examples 'a dropped carrier download' do

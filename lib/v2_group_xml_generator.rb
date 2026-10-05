@@ -56,21 +56,22 @@ class V2GroupXmlGenerator
         carrier_profiles = benefit_application_carriers(benefit_application).flatten.uniq
         next if carrier_profiles.length == 0
 
-        cv_xml = nil
-        carrier_profiles.each do |carrier|
-          cv_xml = ApplicationController.render(
-            template: "events/v2/employers/updated",
-            formats: [:xml],
-            handlers: [:haml],
-            locals: {employer: employer_profile, manual_gen: true}
-          )
+        cv_xml = ApplicationController.render(
+          template: "events/v2/employers/updated",
+          formats: [:xml],
+          handlers: [:haml],
+          locals: {employer: employer_profile, manual_gen: true}
+        )
+        dropped_carriers = switched_carriers(employer_profile, benefit_application).uniq
 
+        # a dropped carrier only gets the carrier dropped event
+        (carrier_profiles - dropped_carriers).each do |carrier|
           organizations_hash[carrier.legal_name] ||= []
           organizations_hash[carrier.legal_name] << remove_other_carrier_nodes(cv_xml, carrier.legal_name, employer_profile, benefit_application)
         end
 
         # carrier switch scenario
-        switched_carriers(employer_profile, benefit_application).uniq.each do |switched_carrier|
+        dropped_carriers.each do |switched_carrier|
           organizations_hash[switched_carrier.legal_name] ||= []
           organizations_hash[switched_carrier.legal_name] << remove_other_carrier_nodes(
             cv_xml,
@@ -191,7 +192,11 @@ class V2GroupXmlGenerator
   end
 
   #returns an array of carriers which were switched from and need to be informed
+  # when the given plan year already has a renewal that went out, it is the plan year being left
   def switched_carriers(employer_profile, benefit_application)
+    renewal = benefit_application.successors.detect(&:eligible_for_export?)
+    return benefit_application_carriers(benefit_application).flatten.uniq - benefit_application_carriers(renewal).flatten.uniq if renewal
+
     previous_plan_year_value = predecessor_application(benefit_application)
     return [] if previous_plan_year_value.nil? #no previous plan year
     this_plan_year = find_benefit_application(employer_profile)

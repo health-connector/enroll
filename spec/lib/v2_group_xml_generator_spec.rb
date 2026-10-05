@@ -57,4 +57,68 @@ RSpec.describe V2GroupXmlGenerator, dbclean: :after_each do
       end
     end
   end
+
+  context 'when a carrier is dropped at renewal' do
+    let(:aasm_state) { :expired }
+    let(:renewal_effective_period) { renewal_effective_date..renewal_effective_date.next_year.prev_day }
+    let!(:renewal_application) do
+      create(
+        :benefit_sponsors_benefit_application,
+        :with_benefit_sponsor_catalog,
+        :with_benefit_package,
+        passed_benefit_sponsor_catalog: benefit_sponsorship.benefit_sponsor_catalog_for(renewal_effective_date),
+        benefit_sponsorship: benefit_sponsorship,
+        predecessor_id: initial_application.id,
+        aasm_state: :active,
+        open_enrollment_period: open_enrollment_period.min.next_year..open_enrollment_period.max.next_year,
+        recorded_rating_area: renewal_rating_area,
+        recorded_service_areas: benefit_sponsorship.service_areas_on(renewal_effective_date),
+        package_kind: :metal_level,
+        benefit_application_items: [build(:benefit_sponsors_benefit_application_item, effective_period: renewal_effective_period, state: :active)]
+      )
+    end
+    let(:renewal_carrier) { create(:benefit_sponsors_organizations_issuer_profile, assigned_site: site) }
+    let(:dropped_event) { 'urn:openhbx:events:v1:employer#benefit_coverage_renewal_carrier_dropped' }
+    let(:namespace) { { 'cv' => 'http://openhbx.org/api/terms/1.0' } }
+
+    before do
+      renewal_carrier.organization.update_attributes!(legal_name: 'Renewal Carrier')
+      renewal_catalog = renewal_application.benefit_sponsor_catalog
+      renewal_catalog.class.collection.update_one({ _id: renewal_catalog.id }, { '$set' => { 'product_packages.$[].products.$[].issuer_profile_id' => renewal_carrier.id } })
+    end
+
+    def generate_for(application)
+      Dir.mktmpdir do |directory|
+        Dir.chdir(directory) do
+          described_class.new([abc_organization.fein], application.start_on.strftime("%Y%m%d"), application.end_on.strftime("%Y%m%d")).generate_xmls
+          Dir.glob("employer_xmls.v2/*.xml").to_h { |path| [File.basename(path, ".xml"), Nokogiri::XML(File.read(path))] }
+        end
+      end
+    end
+
+    def event_names(document)
+      document.xpath('//cv:employer_event/cv:event_name', namespace).map(&:text)
+    end
+
+    def plan_year_starts(document)
+      document.xpath('//cv:plan_year/cv:plan_year_start', namespace).map(&:text)
+    end
+
+    it 'writes only the carrier dropped event for the dropped carrier when the prior plan year is given' do
+      files = generate_for(initial_application)
+
+      expect(files.keys).to eq([issuer_profile.legal_name])
+      expect(event_names(files[issuer_profile.legal_name])).to eq([dropped_event])
+      expect(plan_year_starts(files[issuer_profile.legal_name])).to eq([initial_application.start_on.strftime("%Y%m%d")])
+    end
+
+    it 'writes the carrier dropped event for the dropped carrier when the renewal plan year is given' do
+      files = generate_for(renewal_application)
+
+      expect(files.keys).to match_array([issuer_profile.legal_name, renewal_carrier.legal_name])
+      expect(event_names(files[issuer_profile.legal_name])).to eq([dropped_event])
+      expect(plan_year_starts(files[issuer_profile.legal_name])).to eq([initial_application.start_on.strftime("%Y%m%d")])
+      expect(event_names(files[renewal_carrier.legal_name])).not_to include(dropped_event)
+    end
+  end
 end
