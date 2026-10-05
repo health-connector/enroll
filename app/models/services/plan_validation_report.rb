@@ -90,30 +90,39 @@ module Services
       puts "Successfully generated 1st Plan validation report for Plan Count" unless Rails.env.test?
     end
 
+    # One row per plan (identified by its filed HIOS_ID) per rating area per period per age,
+    # so a carrier can verify an individual plan's own rate rather than a carrier-wide total.
     def sheet2
       worksheet2 = workbook.add_worksheet('Rating Area Rates')
-      headers = %w[PlanYearId CarrierId CarrierName RatingArea Age(Range) IndividualRate EffectiveDate ExpirationDate]
+      headers = %w[PlanYearId CarrierId CarrierName HIOS_ID RatingArea Age(Range) IndividualRate EffectiveDate ExpirationDate]
       generate_excel(headers, worksheet2)
       b = 1
       issuer_hios_ids.each do |issuer_hios_id|
         issuer_products = products(active_year).where(hios_id: /#{issuer_hios_id}/i)
-        rating_area_ids(issuer_products).each do |rating_area_key, rating_area_value|
-          rating_area_tables = issuer_products.map(&:premium_tables).flatten.select do |prem_tab|
-            prem_tab.rating_area_id.to_s == rating_area_key
-          end
-          premium_tables_by_period = rating_area_tables.group_by do |prem_tab|
-            [prem_tab.effective_period.min.to_date, prem_tab.effective_period.max.to_date]
-          end
+        carrier_name = issuer_products.first&.issuer_profile&.legal_name
+        rating_area_lookup = rating_area_ids(issuer_products)
 
-          premium_tables_by_period.sort_by { |period, _| period.first }.each do |(effective_start, effective_end), premium_tables|
-            row_context = {
-              issuer_hios_id: issuer_hios_id,
-              carrier_name: issuer_products.first.issuer_profile.legal_name,
-              rating_area_value: rating_area_value,
-              effective_start: effective_start,
-              effective_end: effective_end
-            }
-            b = write_sheet2_age_rows(worksheet2, premium_tables, row_context, b)
+        issuer_products.group_by(&:hios_base_id).sort.each do |hios_base_id, plan_products|
+          plan_premium_tables = plan_products.map(&:premium_tables).flatten
+          plan_premium_tables.group_by { |prem_tab| prem_tab.rating_area_id.to_s }.each do |rating_area_key, tables_for_area|
+            rating_area_value = rating_area_lookup[rating_area_key]
+            next if rating_area_value.blank?
+
+            premium_tables_by_period = tables_for_area.group_by do |prem_tab|
+              [prem_tab.effective_period.min.to_date, prem_tab.effective_period.max.to_date]
+            end
+
+            premium_tables_by_period.sort_by { |period, _| period.first }.each do |(effective_start, effective_end), premium_tables|
+              row_context = {
+                issuer_hios_id: issuer_hios_id,
+                hios_base_id: hios_base_id,
+                carrier_name: carrier_name,
+                rating_area_value: rating_area_value,
+                effective_start: effective_start,
+                effective_end: effective_end
+              }
+              b = write_sheet2_age_rows(worksheet2, premium_tables, row_context, b)
+            end
           end
         end
       end
@@ -294,6 +303,7 @@ module Services
 
     def write_sheet2_age_rows(worksheet, premium_tables, row_context, row_index)
       issuer_hios_id = row_context[:issuer_hios_id]
+      hios_base_id = row_context[:hios_base_id]
       carrier_name = row_context[:carrier_name]
       ra_val = row_context[:rating_area_value].gsub("R-MA00", "Rating Area ")
       effective_start = row_context[:effective_start]
@@ -305,7 +315,7 @@ module Services
               else value
               end
         age_cost = premium_tables.map(&:premium_tuples).flatten.select { |tuple| tuple.age == value }.map(&:cost).sum
-        data = [active_year, issuer_hios_id, carrier_name, ra_val, age, age_cost.round(2).to_s, effective_start.to_s, effective_end.to_s]
+        data = [active_year, issuer_hios_id, carrier_name, hios_base_id, ra_val, age, age_cost.round(2).to_s, effective_start.to_s, effective_end.to_s]
         generate_data(worksheet, data, row_index)
         row_index += 1
       rescue StandardError
