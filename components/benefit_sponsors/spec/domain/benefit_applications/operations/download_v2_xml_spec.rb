@@ -276,11 +276,36 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::DownloadV2Xml, 
       expect(result.value!).to match_array(application_carrier_ids)
     end
 
-    it 'fails a carrier drop when the application has no predecessor' do
+    it 'fails a carrier drop when the application has no renewal or predecessor' do
       result = subject.send(:fetch_carrier_ids, 'benefit_coverage_renewal_carrier_dropped', initial_application)
 
       expect(result).to be_failure
-      expect(result.failure[:selected_event].first).to match(/No previous plan year/)
+      expect(result.failure[:selected_event].first).to match(/No renewal or previous plan year/)
+    end
+
+    context 'with a renewal application' do
+      let(:renewal) { instance_double(BenefitSponsors::BenefitApplications::BenefitApplication, eligible_for_export?: true) }
+
+      before do
+        allow(initial_application).to receive(:successors).and_return([renewal])
+        allow(subject).to receive(:application_carrier_ids).with(initial_application).and_return([20_001, 20_004])
+      end
+
+      it 'returns the carriers on the selected application that are not on the renewal' do
+        allow(subject).to receive(:application_carrier_ids).with(renewal).and_return([20_001])
+
+        result = subject.send(:fetch_carrier_ids, 'benefit_coverage_renewal_carrier_dropped', initial_application)
+
+        expect(result.value!).to eq([20_004])
+      end
+
+      it 'ignores a renewal that has not gone out' do
+        allow(renewal).to receive(:eligible_for_export?).and_return(false)
+
+        result = subject.send(:fetch_carrier_ids, 'benefit_coverage_renewal_carrier_dropped', initial_application)
+
+        expect(result.failure[:selected_event].first).to match(/No renewal or previous plan year/)
+      end
     end
 
     context 'with a predecessor application' do
@@ -345,7 +370,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::DownloadV2Xml, 
   let(:params) do
     {
       selected_event: BenefitSponsors::EmployerEvents::EventNames::RENEWAL_CARRIER_CHANGE_EVENT,
-      employer_application_id: renewal_application.id.to_s,
+      employer_application_id: selected_application.id.to_s,
       employer_actions_id: '123456',
       benefit_sponsorship: benefit_sponsorship
     }
@@ -360,19 +385,34 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::DownloadV2Xml, 
     renewal_application.benefit_sponsor_catalog.product_packages.flat_map(&:products).each { |product| product.set(issuer_profile_id: renewal_carrier.id) }
   end
 
-  it 'downloads the dropped carrier file with the predecessor plan year' do
-    result = subject.call(**params)
+  shared_examples 'a dropped carrier download' do
+    it 'downloads only the dropped carrier file with the prior plan year' do
+      result = subject.call(**params)
 
-    expect(result).to be_success
-    Zip::File.open(result.value!) do |zip|
-      expect(zip.map(&:name)).to eq(["#{issuer_profile.legal_name}.xml"])
-      document = Nokogiri::XML(zip.first.get_input_stream.read)
-      namespace = { 'cv' => 'http://openhbx.org/api/terms/1.0' }
-      plan_year_starts = document.xpath('//cv:plan_year/cv:plan_year_start', namespace).map(&:text)
-      carrier_ids = document.xpath('//cv:elected_plan/cv:carrier/cv:id/cv:id', namespace).map(&:text).uniq
+      expect(result).to be_success
+      Zip::File.open(result.value!) do |zip|
+        expect(zip.map(&:name)).to eq(["#{issuer_profile.legal_name}.xml"])
+        document = Nokogiri::XML(zip.first.get_input_stream.read)
+        namespace = { 'cv' => 'http://openhbx.org/api/terms/1.0' }
+        plan_year_starts = document.xpath('//cv:plan_year/cv:plan_year_start', namespace).map(&:text)
+        carrier_ids = document.xpath('//cv:elected_plan/cv:carrier/cv:id/cv:id', namespace).map(&:text).uniq
 
-      expect(plan_year_starts).to eq([initial_application.start_on.strftime("%Y%m%d")])
-      expect(carrier_ids).to eq(['88888'])
+        expect(plan_year_starts).to eq([initial_application.start_on.strftime("%Y%m%d")])
+        expect(carrier_ids).to eq(['88888'])
+        expect(document.at_xpath('//cv:coverage_period/cv:begin_datetime', namespace).text).to eq("#{selected_application.start_on.to_date}T00:00:00")
+      end
     end
+  end
+
+  context 'when the renewal is selected' do
+    let(:selected_application) { renewal_application }
+
+    it_behaves_like 'a dropped carrier download'
+  end
+
+  context 'when the prior plan year is selected' do
+    let(:selected_application) { initial_application }
+
+    it_behaves_like 'a dropped carrier download'
   end
 end

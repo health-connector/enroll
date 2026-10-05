@@ -78,15 +78,22 @@ module BenefitSponsors
         # @return [Dry::Monads::Result::Success] wraps an Array of hbx_carrier_ids
         def fetch_carrier_ids(event_name, application)
           carrier_ids = application_carrier_ids(application)
-          if event_name == BenefitSponsors::EmployerEvents::EventNames::RENEWAL_CARRIER_CHANGE_EVENT
-            predecessor = application.predecessor
-            return Failure(selected_event: [l10n("exchange.employer_applications.download_v2_xml.no_predecessor")]) if predecessor.blank?
-
-            carrier_ids = application_carrier_ids(predecessor) - carrier_ids
-          end
+          carrier_ids = yield dropped_carrier_ids(application, carrier_ids) if event_name == BenefitSponsors::EmployerEvents::EventNames::RENEWAL_CARRIER_CHANGE_EVENT
           return Failure(selected_event: [l10n("exchange.employer_applications.download_v2_xml.no_carriers")]) if carrier_ids.empty?
 
           Success(carrier_ids)
+        end
+
+        # The selected application is the plan year being left when its renewal has already gone out,
+        # otherwise it is the renewal itself.
+        def dropped_carrier_ids(application, carrier_ids)
+          renewal = application.successors.detect(&:eligible_for_export?)
+          return Success(carrier_ids - application_carrier_ids(renewal)) if renewal
+
+          predecessor = application.predecessor
+          return Failure(selected_event: [l10n("exchange.employer_applications.download_v2_xml.no_predecessor")]) if predecessor.blank?
+
+          Success(application_carrier_ids(predecessor) - carrier_ids)
         end
 
         def application_carrier_ids(application)
