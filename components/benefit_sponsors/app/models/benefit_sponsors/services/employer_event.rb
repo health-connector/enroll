@@ -24,12 +24,7 @@ module BenefitSponsors
       end
 
       def render_payloads
-        issuer_profiles = BenefitSponsors::Organizations::ExemptOrganization.issuer_profiles || []
-
-        carriers = issuer_profiles.flat_map(&:issuer_profile).compact
-        carriers = carriers.select { |car| carrier_ids.include?(car.hbx_carrier_id) } unless carrier_ids.nil?
-
-        carrier_files = carriers.map do |car|
+        carrier_files = carriers_to_render.map do |car|
           BenefitSponsors::EmployerEvents::CarrierFile.new(car, coverage_period: coverage_period)
         end
 
@@ -47,6 +42,14 @@ module BenefitSponsors
       end
 
       private
+
+      # @return [Array<BenefitSponsors::Organizations::IssuerProfile>] carriers in carrier_ids, or every carrier when carrier_ids is nil
+      def carriers_to_render
+        carriers = (BenefitSponsors::Organizations::ExemptOrganization.issuer_profiles || []).flat_map(&:issuer_profile).compact
+        return carriers if carrier_ids.nil?
+
+        carriers.select { |car| carrier_ids.include?(car.hbx_carrier_id) }
+      end
 
       def log_info(message)
         Rails.logger.tagged(self.class.name) { Rails.logger.info(message) }
