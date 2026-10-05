@@ -33,7 +33,13 @@ module Services
     end
 
     def issuer_hios_ids
-      profiles.flat_map(&:issuer_hios_ids).map(&:to_i)
+      profiles.flat_map { |profile| issuer_hios_ids_for(profile) }.map(&:to_i)
+    end
+
+    # Issuer HIOS ids for a profile, excluding any that have no products loaded for
+    # the active year (e.g. legacy off-exchange ids like Fallon's 52710).
+    def issuer_hios_ids_for(profile)
+      profile.issuer_hios_ids.map(&:to_s).select { |hios_id| products(active_year).where(hios_id: /\A#{hios_id}/i).present? }
     end
 
     def profiles
@@ -62,7 +68,7 @@ module Services
 
     def sheet1
       worksheet = workbook[0]
-      worksheet.sheet_name = 'Report1'
+      worksheet.sheet_name = 'Plan Count'
       headers = %w[PlanYearId CarrierId CarrierName PlanTypeCode Tier Count]
       generate_excel(headers, worksheet)
       a = 1
@@ -84,36 +90,39 @@ module Services
       puts "Successfully generated 1st Plan validation report for Plan Count" unless Rails.env.test?
     end
 
+    # One row per plan (identified by its filed HIOS_ID) per rating area per period per age,
+    # so a carrier can verify an individual plan's own rate rather than a carrier-wide total.
     def sheet2
-      worksheet2 = workbook.add_worksheet('Report2')
-      headers = %w[PlanYearId CarrierId CarrierName RatingArea Age(Range) IndividualRate]
+      worksheet2 = workbook.add_worksheet('Rating Area Rates')
+      headers = %w[PlanYearId CarrierId CarrierName HIOS_ID RatingArea Age(Range) IndividualRate EffectiveDate ExpirationDate]
       generate_excel(headers, worksheet2)
       b = 1
       issuer_hios_ids.each do |issuer_hios_id|
         issuer_products = products(active_year).where(hios_id: /#{issuer_hios_id}/i)
-        rating_area_ids(issuer_products).each do |rating_area_key, rating_area_value|
-          premium_tables = issuer_products.map(&:premium_tables).flatten.select do |prem_tab|
-            start_date = prem_tab.effective_period.min.to_date
-            end_date = prem_tab.effective_period.max.to_date
-            (start_date..end_date).cover?(active_date) && prem_tab.rating_area_id.to_s == rating_area_key
-          end
-          (14..64).each do |value|
-            age = case value
-                  when 14
-                    "0-14"
-                  when 64
-                    "64 and over"
-                  else
-                    value
-                  end
-            age_cost = premium_tables.map(&:premium_tuples).flatten.select{|tuple| tuple.age == value}.map(&:cost).sum
-            carrier_name = issuer_products.first.issuer_profile.legal_name
-            ra_val = rating_area_value.gsub("R-MA00", "Rating Area ")
-            data = [active_year, issuer_hios_id, carrier_name, ra_val, age, age_cost.round(2).to_s]
-            generate_data(worksheet2, data, b)
-            b += 1
-          rescue StandardError
-            puts "Report2 Plan validation issue for issuer_hios_id: #{issuer_hios_id}" unless Rails.env.test?
+        carrier_name = issuer_products.first&.issuer_profile&.legal_name
+        rating_area_lookup = rating_area_ids(issuer_products)
+
+        issuer_products.group_by(&:hios_base_id).sort.each do |hios_base_id, plan_products|
+          plan_premium_tables = plan_products.map(&:premium_tables).flatten
+          plan_premium_tables.group_by { |prem_tab| prem_tab.rating_area_id.to_s }.each do |rating_area_key, tables_for_area|
+            rating_area_value = rating_area_lookup[rating_area_key]
+            next if rating_area_value.blank?
+
+            premium_tables_by_period = tables_for_area.group_by do |prem_tab|
+              [prem_tab.effective_period.min.to_date, prem_tab.effective_period.max.to_date]
+            end
+
+            premium_tables_by_period.sort_by { |period, _| period.first }.each do |(effective_start, effective_end), premium_tables|
+              row_context = {
+                issuer_hios_id: issuer_hios_id,
+                hios_base_id: hios_base_id,
+                carrier_name: carrier_name,
+                rating_area_value: rating_area_value,
+                effective_start: effective_start,
+                effective_end: effective_end
+              }
+              b = write_sheet2_age_rows(worksheet2, premium_tables, row_context, b)
+            end
           end
         end
       end
@@ -121,7 +130,7 @@ module Services
     end
 
     def sheet3
-      worksheet3 = workbook.add_worksheet('Report3')
+      worksheet3 = workbook.add_worksheet('Service Areas')
       headers = %w[PlanYearId CarrierId CarrierName ServiceAreaCode PlanCount County_Count Zip_Count]
       generate_excel(headers, worksheet3)
       c = 1
@@ -150,14 +159,14 @@ module Services
     end
 
     def sheet4
-      worksheet4 = workbook.add_worksheet('Report4')
+      worksheet4 = workbook.add_worksheet('Group Size Factors')
       headers = %w[PlanYearId CarrierId CarrierName GroupSizeSum GroupSizeFactorSum]
       generate_excel(headers, worksheet4)
       d = 1
       profiles.each do |profile|
         carrier_name = profile.abbrev
         profile_id = profile.id.to_s
-        profile.issuer_hios_ids.each do |issuer_hios_id|
+        issuer_hios_ids_for(profile).each do |issuer_hios_id|
           group_sizes = BenefitMarkets::Products::ActuarialFactors::GroupSizeActuarialFactor.where(active_year: active_year, issuer_profile_id: profile_id)
           group_sizes.each do |group_size|
             group_size_sum = group_size.actuarial_factor_entries.map(&:factor_key).flatten.inject(0) do |sum,i|
@@ -177,14 +186,14 @@ module Services
     end
 
     def sheet5
-      worksheet5 = workbook.add_worksheet('Report5')
+      worksheet5 = workbook.add_worksheet('Participation Factors')
       headers = %w[PlanYearId CarrierId CarrierName GroupSizeSum ParticipationRateSum]
       generate_excel(headers, worksheet5)
       e = 1
       profiles.each do |profile|
         carrier_name = profile.abbrev
         profile_id = profile.id.to_s
-        profile.issuer_hios_ids.each do |issuer_hios_id|
+        issuer_hios_ids_for(profile).each do |issuer_hios_id|
           part_rates = ::BenefitMarkets::Products::ActuarialFactors::ParticipationRateActuarialFactor.where(active_year: active_year, issuer_profile_id: profile_id)
           part_rates.each do |part_rate|
             group_size_sum = part_rate.actuarial_factor_entries.map(&:factor_key).flatten.inject(0) do |sum,i|
@@ -204,14 +213,14 @@ module Services
     end
 
     def sheet6
-      worksheet6 = workbook.add_worksheet('Report6')
+      worksheet6 = workbook.add_worksheet('SIC Code Factors')
       headers = %w[PlanYearId CarrierId CarrierName SIC_Count SICRateSum]
       generate_excel(headers, worksheet6)
       f = 1
       profiles.each do |profile|
         carrier_name = profile.abbrev
         profile_id = profile.id.to_s
-        profile.issuer_hios_ids.each do |issuer_hios_id|
+        issuer_hios_ids_for(profile).each do |issuer_hios_id|
           sic_codes = ::BenefitMarkets::Products::ActuarialFactors::SicActuarialFactor.where(active_year: active_year, issuer_profile_id: profile_id)
           sic_codes.all.each do |sic_code|
             sic_count = sic_code.actuarial_factor_entries.count
@@ -230,7 +239,7 @@ module Services
     end
 
     def sheet7
-      worksheet7 = workbook.add_worksheet('Report7')
+      worksheet7 = workbook.add_worksheet('Product Model')
       headers = %w[CarrierId CarrierName ProductModel PlanCount]
       generate_excel(headers, worksheet7)
       g = 1
@@ -253,7 +262,7 @@ module Services
     end
 
     def sheet8
-      worksheet8 = workbook.add_worksheet('Report8')
+      worksheet8 = workbook.add_worksheet('HIOS ID Crosswalk')
       headers = %w[CarrierId CarrierName HIOS_ID Renewal_HIOS_ID]
       generate_excel(headers, worksheet8)
       h = 1
@@ -272,7 +281,7 @@ module Services
     end
 
     def sheet9
-      worksheet9 = workbook.add_worksheet('Report9')
+      worksheet9 = workbook.add_worksheet('Super Group IDs')
       headers = %w[PlanYearId CarrierId CarrierName HIOS_Plan_ID SG_ID]
       generate_excel(headers, worksheet9)
       i = 1
@@ -288,6 +297,31 @@ module Services
         puts "Report9 plan validation issue for Product_id: #{product.id}" unless Rails.env.test?
       end
       puts "Successfully generated 9th Plan validation report for Super Group ID's" unless Rails.env.test?
+    end
+
+    private
+
+    def write_sheet2_age_rows(worksheet, premium_tables, row_context, row_index)
+      issuer_hios_id = row_context[:issuer_hios_id]
+      hios_base_id = row_context[:hios_base_id]
+      carrier_name = row_context[:carrier_name]
+      ra_val = row_context[:rating_area_value].gsub("R-MA00", "Rating Area ")
+      effective_start = row_context[:effective_start]
+      effective_end = row_context[:effective_end]
+      (14..64).each do |value|
+        age = case value
+              when 14 then "0-14"
+              when 64 then "64 and over"
+              else value
+              end
+        age_cost = premium_tables.map(&:premium_tuples).flatten.select { |tuple| tuple.age == value }.map(&:cost).sum
+        data = [active_year, issuer_hios_id, carrier_name, hios_base_id, ra_val, age, age_cost.round(2).to_s, effective_start.to_s, effective_end.to_s]
+        generate_data(worksheet, data, row_index)
+        row_index += 1
+      rescue StandardError
+        puts "Report2 Plan validation issue for issuer_hios_id: #{issuer_hios_id}" unless Rails.env.test?
+      end
+      row_index
     end
   end
 end
