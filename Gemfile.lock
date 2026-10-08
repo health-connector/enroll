@@ -2673,7 +2673,7 @@ DEPENDENCIES
   yard-mongoid (~> 0.1.0)
 
 RUBY VERSION
-  ruby 3.4.7p58
+   ruby 3.4.7p58
 
 BUNDLED WITH
-  4.0.20
+   2.5.23
