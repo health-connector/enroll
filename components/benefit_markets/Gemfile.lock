@@ -1,6 +1,6 @@
 GIT
-  remote: https://github.com/ideacrew/resource_registry
-  revision: beed36ad6dd062238296579bf34e4cf72f46df76
+  remote: https://github.com/health-connector/resource_registry
+  revision: b21d2fc17b2e951164cfc813786fd83a92addb95
   tag: v0.10.0
   specs:
     resource_registry (0.10.0)
