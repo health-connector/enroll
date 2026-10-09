@@ -359,3 +359,22 @@ Given no non-breaking patch exists and the exposure is limited to a trusted, Pun
 1. Track the CKEditor 5 migration as a standalone initiative.
 2. Re-run `bundler-audit` after the migration lands to confirm these entries can be removed from the ignore list.
 3. Periodically re-check for a compatible CKEditor 4.x patch release that would allow closing individual advisories sooner.
+
+### GHSA-42qh-8mx8-7wqm - rack-proxy HTTP response smuggling via ambiguous backend framing
+
+**Vulnerability:** rack-proxy below `1.0.3` can forward an incorrect `Content-Length` when a backend response carries both `Transfer-Encoding` and `Content-Length`, letting a malicious or compromised backend desynchronize a persistent downstream connection. Upstream confirmed 1.0.0-1.0.2 as affected and did not assess pre-1.0 releases; bundler-audit flags our `0.7.7`.
+
+**Current Status:** `rack-proxy` is not a direct dependency. It is pulled in only by `shakapacker` 9.6.1 (npm package 9.5.0) (root lockfile). It cannot be bumped on its own: since rack-proxy 1.0, a proxy with no explicit backend returns 502 by default, and shakapacker 9.x's `DevServerProxy` never supplies one, so every asset request proxied to the local dev server would fail. The compatibility fix shipped only in shakapacker 10.3.1 (shakacode/shakapacker#1222); there is no 9.x backport.
+
+**Exploitability:** Shakapacker mounts `DevServerProxy` only when `dev_server` is configured, and `config/shakapacker.yml` defines `dev_server` only under `development`. The proxy is not in the middleware stack in test, staging, or production, which serve precompiled assets. In development it forwards only `/packs/*` requests, only while `bin/shakapacker-dev-server` is running, and only to that local webpack dev server, a trusted backend running our own code. The attack requires an attacker-controlled backend, which does not exist in any environment.
+
+**Mitigation:** Added `GHSA-42qh-8mx8-7wqm` to `.bundler-audit.yml` until shakapacker is upgraded to `>= 10.3.1`, which works with rack-proxy `>= 1.0.3`.
+
+**Actions Taken:**
+1. Documented the vulnerability, exploitability, and exit plan in this file.
+2. Added `GHSA-42qh-8mx8-7wqm` to the bundler-audit ignore list.
+3. Tracked the shakapacker 10.3.1 upgrade as a separate ticket.
+
+**Ongoing Measures:**
+1. Remove the ignore entry and bump rack-proxy when the shakapacker upgrade lands.
+2. Revisit sooner if `dev_server` is added to a non-development environment in `config/shakapacker.yml`, or if another gem starts depending on `rack-proxy`.
