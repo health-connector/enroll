@@ -35,7 +35,7 @@ function replaceGlossaryTerm(text, term, replacement) {
         if (endIndex < text.length && lowerText[endIndex] === 's') {
             // Check if 's' is a word character boundary (part of plural)
             var nextCharIndex = endIndex + 1;
-            var nextCharValid = nextCharIndex >= text.length || /\s|[^a-zA-Z0-9]/.test(text[nextCharIndex]);
+            var nextCharValid = nextCharIndex >= text.length || /\s|[^a-zA-Z0-9_]/.test(text[nextCharIndex]);
             if (nextCharValid) {
                 matchesPlural = true;
                 endIndex++;
@@ -43,11 +43,11 @@ function replaceGlossaryTerm(text, term, replacement) {
         }
 
         // Check word boundary before match
-        var isWordBoundaryBefore = searchIndex === 0 || /\s|[^a-zA-Z0-9]/.test(text[searchIndex - 1]);
+        var isWordBoundaryBefore = searchIndex === 0 || /\s|[^a-zA-Z0-9_]/.test(text[searchIndex - 1]);
 
         // Check word boundary after match (or after plural 's')
         var charAfterMatch = endIndex < text.length ? text[endIndex] : '';
-        var isWordBoundaryAfter = endIndex === text.length || /\s|[^a-zA-Z0-9]/.test(charAfterMatch);
+        var isWordBoundaryAfter = endIndex === text.length || /\s|[^a-zA-Z0-9_]/.test(charAfterMatch);
 
         if (isWordBoundaryBefore && isWordBoundaryAfter) {
             result += text.substring(lastIndex, searchIndex) + replacement;
