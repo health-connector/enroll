@@ -101,17 +101,42 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::DownloadV2Xml, 
       subject.call(**params)
     end
 
-    context 'when the selected benefit application is not eligible for export' do
+    context 'when the selected benefit application is canceled' do
       before do
         initial_application.update_attributes(aasm_state: :canceled)
       end
 
-      it 'still passes the benefit application id to the xml template as a string' do
-        expect(BenefitSponsors::ApplicationController).to receive(:render) do |args|
-          expect(args[:locals][:benefit_application_id]).to eq(initial_application.id.to_s)
-          "<organization></organization>"
+      it 'returns failure without rendering the payload' do
+        expect(BenefitSponsors::ApplicationController).not_to receive(:render)
+
+        result = subject.call(**params)
+
+        expect(result).to be_failure
+        expect(result.failure[:employer_application_id].first).to match(/active, termination pending, terminated or expired/)
+      end
+    end
+
+    [:termination_pending, :terminated, :expired].each do |state|
+      context "when the selected benefit application is #{state}" do
+        before do
+          initial_application.update_attributes(aasm_state: state)
         end
-        subject.call(**params)
+
+        it 'downloads successfully' do
+          expect(subject.call(**params)).to be_success
+        end
+      end
+    end
+
+    [:enrollment_open, :enrollment_eligible, :retroactive_canceled, :suspended, :reinstated].each do |state|
+      context "when the selected benefit application is #{state}" do
+        before do
+          initial_application.update_attributes(aasm_state: state)
+        end
+
+        it 'returns failure' do
+          expect(subject.call(**params)).to be_failure
+        end
       end
     end
 
@@ -135,7 +160,6 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::DownloadV2Xml, 
 
     before do
       allow(benefit_sponsorship).to receive(:benefit_applications).and_return([initial_application])
-      initial_application.update_attributes(aasm_state: :canceled)
       # real carriers are ExemptOrganization records, but the shared factory builds a plain
       # GeneralOrganization that the ExemptOrganization.issuer_profiles lookup in
       # EmployerEvent#render_payloads cannot find, and it sets neither of the two
@@ -165,5 +189,231 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::DownloadV2Xml, 
       expect(xml_contents.join).to match(/<carrier>/)
       expect(xml_contents.join).to match(/<plan_year_start>/)
     end
+
+    it 'lays out the employer xml like the manual group xml script' do
+      xml = ""
+      Zip::File.open(subject.call(**params).value!) { |zip| xml = zip.first.get_input_stream.read }
+
+      expect(xml).to start_with("<?xml version='1.0' encoding='utf-8' ?>\n<employer_digest_event xmlns='http://openhbx.org/api/terms/1.0'")
+      expect(xml).to match(/^<body>\n<organization /)
+      expect(xml).to end_with("</organization>\n\n</body>\n</employer_event>\n</employer_events>\n</body>\n</employer_digest_event>\n")
+    end
+
+    it 'only renders files for carriers on the selected application' do
+      other_carrier = create(:benefit_sponsors_organizations_issuer_profile, hbx_carrier_id: 88_888, abbrev: "OTHER")
+      other_carrier.organization.update_attributes!(_type: "BenefitSponsors::Organizations::ExemptOrganization")
+
+      expect(BenefitSponsors::EmployerEvents::CarrierFile).to receive(:new).with(issuer_profile, anything).once.and_call_original
+      expect(BenefitSponsors::EmployerEvents::CarrierFile).not_to receive(:new).with(other_carrier, anything)
+
+      expect(subject.call(**params)).to be_success
+    end
+
+    it 'writes the selected plan year dates as the coverage period' do
+      xml = ""
+      Zip::File.open(subject.call(**params).value!) { |zip| xml = zip.first.get_input_stream.read }
+
+      expect(xml).to include("<begin_datetime>#{initial_application.start_on.to_date}T00:00:00</begin_datetime>")
+      expect(xml).to include("<end_datetime>#{initial_application.end_on.to_date}T00:00:00</end_datetime>")
+    end
+
+    context 'when the selected event drops a carrier' do
+      let(:selected_event) { BenefitSponsors::EmployerEvents::EventNames::RENEWAL_CARRIER_CHANGE_EVENT }
+
+      it 'downloads only the dropped carrier with its previous plan year' do
+        dropped_carrier = create(:benefit_sponsors_organizations_issuer_profile, hbx_carrier_id: 88_888, abbrev: 'DROP')
+        dropped_carrier.organization.update_attributes!(_type: "BenefitSponsors::Organizations::ExemptOrganization")
+        predecessor = instance_double(BenefitSponsors::BenefitApplications::BenefitApplication)
+        allow(initial_application).to receive(:predecessor).and_return(predecessor)
+        allow(subject).to receive(:application_carrier_ids).with(initial_application).and_return([99_999])
+        allow(subject).to receive(:application_carrier_ids).with(predecessor).and_return([99_999, 88_888])
+        allow(BenefitSponsors::ApplicationController).to receive(:render).and_return(<<~XML)
+          <organization xmlns="http://openhbx.org/api/terms/1.0">
+            <id><id>#{benefit_sponsorship.profile.hbx_id}</id></id>
+            <employer_profile><plan_years>
+              <plan_year><plan_year_start>20240901</plan_year_start><plan_year_end>20250831</plan_year_end>
+                <benefit_groups><benefit_group><elected_plans>
+                  <elected_plan><carrier><id><id>99999</id></id></carrier></elected_plan>
+                  <elected_plan><carrier><id><id>88888</id></id></carrier></elected_plan>
+                </elected_plans></benefit_group></benefit_groups>
+              </plan_year>
+              <plan_year><plan_year_start>20250901</plan_year_start><plan_year_end>20260831</plan_year_end>
+                <benefit_groups><benefit_group><elected_plans>
+                  <elected_plan><carrier><id><id>99999</id></id></carrier></elected_plan>
+                </elected_plans></benefit_group></benefit_groups>
+              </plan_year>
+            </plan_years></employer_profile>
+          </organization>
+        XML
+
+        result = subject.call(**params)
+
+        expect(result).to be_success
+        Zip::File.open(result.value!) do |zip|
+          expect(zip.map(&:name)).to eq(["#{dropped_carrier.legal_name}.xml"])
+          xml = zip.first.get_input_stream.read
+          document = Nokogiri::XML(xml)
+          namespace = { 'cv' => 'http://openhbx.org/api/terms/1.0' }
+          carrier_ids = document.xpath('//cv:elected_plan/cv:carrier/cv:id/cv:id/text()', namespace).map(&:text)
+
+          expect(carrier_ids).to eq(['88888'])
+          expect(document.at_xpath('//cv:employer_event/cv:event_name', namespace).text).to eq("urn:openhbx:events:v1:employer##{selected_event}")
+        end
+      end
+    end
+  end
+
+  describe '#fetch_carrier_ids' do
+    let(:application_carrier_ids) do
+      products = initial_application.benefit_packages.flat_map(&:sponsored_benefits).flat_map { |sponsored_benefit| sponsored_benefit.products(initial_application.start_on) }
+      products.map { |product| product.issuer_profile.hbx_carrier_id }.uniq
+    end
+
+    it 'returns only the carriers offered on the selected application' do
+      result = subject.send(:fetch_carrier_ids, 'benefit_coverage_initial_application_eligible', initial_application)
+
+      expect(result).to be_success
+      expect(result.value!).to match_array(application_carrier_ids)
+    end
+
+    it 'fails a carrier drop when the application has no renewal or predecessor' do
+      result = subject.send(:fetch_carrier_ids, 'benefit_coverage_renewal_carrier_dropped', initial_application)
+
+      expect(result).to be_failure
+      expect(result.failure[:selected_event].first).to match(/No renewal or previous plan year/)
+    end
+
+    context 'with a renewal application' do
+      let(:renewal) { instance_double(BenefitSponsors::BenefitApplications::BenefitApplication, eligible_for_export?: true) }
+
+      before do
+        allow(initial_application).to receive(:successors).and_return([renewal])
+        allow(subject).to receive(:application_carrier_ids).with(initial_application).and_return([20_001, 20_004])
+      end
+
+      it 'returns the carriers on the selected application that are not on the renewal' do
+        allow(subject).to receive(:application_carrier_ids).with(renewal).and_return([20_001])
+
+        result = subject.send(:fetch_carrier_ids, 'benefit_coverage_renewal_carrier_dropped', initial_application)
+
+        expect(result.value!).to eq([20_004])
+      end
+
+      it 'ignores a renewal that has not gone out' do
+        allow(renewal).to receive(:eligible_for_export?).and_return(false)
+
+        result = subject.send(:fetch_carrier_ids, 'benefit_coverage_renewal_carrier_dropped', initial_application)
+
+        expect(result.failure[:selected_event].first).to match(/No renewal or previous plan year/)
+      end
+    end
+
+    context 'with a predecessor application' do
+      let(:predecessor) { instance_double(BenefitSponsors::BenefitApplications::BenefitApplication) }
+
+      before do
+        allow(initial_application).to receive(:predecessor).and_return(predecessor)
+        allow(subject).to receive(:application_carrier_ids).with(initial_application).and_return([20_001])
+      end
+
+      it 'returns only the carriers dropped since the predecessor for a carrier drop' do
+        allow(subject).to receive(:application_carrier_ids).with(predecessor).and_return([20_001, 20_004])
+
+        result = subject.send(:fetch_carrier_ids, 'benefit_coverage_renewal_carrier_dropped', initial_application)
+
+        expect(result.value!).to eq([20_004])
+      end
+
+      it 'fails a carrier drop when no carrier was dropped' do
+        allow(subject).to receive(:application_carrier_ids).with(predecessor).and_return([20_001])
+
+        result = subject.send(:fetch_carrier_ids, 'benefit_coverage_renewal_carrier_dropped', initial_application)
+
+        expect(result.failure[:selected_event].first).to match(/No carriers found/)
+      end
+    end
+  end
+
+  describe '#create_employer_event' do
+    it 'passes the carrier ids and plan year dates to the employer event' do
+      result = subject.send(:create_employer_event, 'benefit_coverage_initial_application_eligible', '<organization/>', benefit_sponsorship, [20_011], initial_application)
+
+      expect(result.value!.carrier_ids).to eq([20_011])
+      expect(result.value!.coverage_period).to eq(initial_application.start_on.to_date..initial_application.end_on.to_date)
+    end
+  end
+end
+
+RSpec.describe BenefitSponsors::Operations::BenefitApplications::DownloadV2Xml, 'renewal carrier dropped download', dbclean: :after_each do
+  include_context "setup benefit market with market catalogs and product packages"
+  include_context "setup initial benefit application"
+
+  let(:aasm_state) { :expired }
+  let(:renewal_effective_period) { renewal_effective_date..renewal_effective_date.next_year.prev_day }
+  let!(:renewal_application) do
+    create(
+      :benefit_sponsors_benefit_application,
+      :with_benefit_sponsor_catalog,
+      :with_benefit_package,
+      passed_benefit_sponsor_catalog: benefit_sponsorship.benefit_sponsor_catalog_for(renewal_effective_date),
+      benefit_sponsorship: benefit_sponsorship,
+      predecessor_id: initial_application.id,
+      aasm_state: :active,
+      open_enrollment_period: open_enrollment_period.min.next_year..open_enrollment_period.max.next_year,
+      recorded_rating_area: renewal_rating_area,
+      recorded_service_areas: benefit_sponsorship.service_areas_on(renewal_effective_date),
+      package_kind: :metal_level,
+      benefit_application_items: [build(:benefit_sponsors_benefit_application_item, effective_period: renewal_effective_period, state: :active)]
+    )
+  end
+  let(:renewal_carrier) { create(:benefit_sponsors_organizations_issuer_profile, assigned_site: site) }
+  let(:params) do
+    {
+      selected_event: BenefitSponsors::EmployerEvents::EventNames::RENEWAL_CARRIER_CHANGE_EVENT,
+      employer_application_id: selected_application.id.to_s,
+      employer_actions_id: '123456',
+      benefit_sponsorship: BenefitSponsors::BenefitSponsorships::BenefitSponsorship.find(benefit_sponsorship.id)
+    }
+  end
+
+  before do
+    [issuer_profile, renewal_carrier].each do |carrier|
+      carrier.organization.update_attributes!(_type: "BenefitSponsors::Organizations::ExemptOrganization")
+    end
+    issuer_profile.update_attributes!(hbx_carrier_id: 88_888, abbrev: "DROP")
+    renewal_carrier.update_attributes!(hbx_carrier_id: 99_999, abbrev: "STAY")
+    renewal_catalog = renewal_application.benefit_sponsor_catalog
+    renewal_catalog.class.collection.update_one({ _id: renewal_catalog.id }, { '$set' => { 'product_packages.$[].products.$[].issuer_profile_id' => renewal_carrier.id } })
+  end
+
+  shared_examples 'a dropped carrier download' do
+    it 'downloads only the dropped carrier file with the prior plan year' do
+      result = subject.call(**params)
+
+      expect(result).to be_success
+      Zip::File.open(result.value!) do |zip|
+        expect(zip.map(&:name)).to eq(["#{issuer_profile.legal_name}.xml"])
+        document = Nokogiri::XML(zip.first.get_input_stream.read)
+        namespace = { 'cv' => 'http://openhbx.org/api/terms/1.0' }
+        plan_year_starts = document.xpath('//cv:plan_year/cv:plan_year_start', namespace).map(&:text)
+        carrier_ids = document.xpath('//cv:elected_plan/cv:carrier/cv:id/cv:id', namespace).map(&:text).uniq
+
+        expect(plan_year_starts).to eq([initial_application.start_on.strftime("%Y%m%d")])
+        expect(carrier_ids).to eq(['88888'])
+        expect(document.at_xpath('//cv:coverage_period/cv:begin_datetime', namespace).text).to eq("#{selected_application.start_on.to_date}T00:00:00")
+      end
+    end
+  end
+
+  context 'when the renewal is selected' do
+    let(:selected_application) { renewal_application }
+
+    it_behaves_like 'a dropped carrier download'
+  end
+
+  context 'when the prior plan year is selected' do
+    let(:selected_application) { initial_application }
+
+    it_behaves_like 'a dropped carrier download'
   end
 end

@@ -44,6 +44,19 @@ RSpec.describe BenefitSponsors::Services::V2XmlUploader do
       end
     end
 
+    context "when the XML declaration is not at the start of the document" do
+      it "rejects the XML without publishing it" do
+        allow(File).to receive(:read).with(valid_xml_path).and_return("  \n#{File.read(valid_xml_path)}")
+        uploader = described_class.new(valid_xml_path, expected_fein)
+        expect(uploader).not_to receive(:notify)
+
+        result, errors = uploader.upload
+
+        expect(result).to be false
+        expect(errors).to include("The uploaded XML is malformed.")
+      end
+    end
+
     context "when the XML file path is missing" do
       it "raises an error" do
         expect { described_class.new('non_existent_path.xml', expected_fein) }.to raise_error(Errno::ENOENT)

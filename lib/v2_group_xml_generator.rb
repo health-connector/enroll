@@ -35,13 +35,6 @@ class V2GroupXmlGenerator
   end
 
   def generate_xmls
-    view_paths = ActionController::Base.view_paths
-    lookup_context = ActionView::LookupContext.new(view_paths)
-    view_context = ActionView::Base.with_empty_template_cache.new(lookup_context, {}, nil)
-    view_context.extend(EventsHelper)
-    view_context.extend(Config::AcaHelper)
-    view_context.extend(FloatHelper)
-
     organizations_hash = {} # key is carrier name, value is the return object of remove_other_carrier_nodes()
 
     #for each employer (fein)
@@ -63,27 +56,28 @@ class V2GroupXmlGenerator
         carrier_profiles = benefit_application_carriers(benefit_application).flatten.uniq
         next if carrier_profiles.length == 0
 
-        cv_xml = nil
-        carrier_profiles.each do |carrier|
-          cv_xml = view_context.render(
-            template: "events/v2/employers/updated",
-            formats: [:xml],
-            handlers: [:haml],
-            locals: {employer: employer_profile, manual_gen: true}
-          )
+        cv_xml = ApplicationController.render(
+          template: "events/v2/employers/updated",
+          formats: [:xml],
+          handlers: [:haml],
+          locals: {employer: employer_profile, manual_gen: true}
+        )
+        dropped_carriers = switched_carriers(employer_profile, benefit_application).uniq
 
+        # a dropped carrier only gets the carrier dropped event
+        (carrier_profiles - dropped_carriers).each do |carrier|
           organizations_hash[carrier.legal_name] ||= []
           organizations_hash[carrier.legal_name] << remove_other_carrier_nodes(cv_xml, carrier.legal_name, employer_profile, benefit_application)
         end
 
         # carrier switch scenario
-        switched_carriers(employer_profile, benefit_application).uniq.each do |switched_carrier|
+        dropped_carriers.each do |switched_carrier|
           organizations_hash[switched_carrier.legal_name] ||= []
           organizations_hash[switched_carrier.legal_name] << remove_other_carrier_nodes(
             cv_xml,
             switched_carrier.legal_name,
             employer_profile,
-            predecessor_application(benefit_application).effective_period.min.strftime("%Y%m%d"),
+            benefit_application,
             {event: "urn:openhbx:events:v1:employer#benefit_coverage_renewal_carrier_dropped"}
           )
         end
@@ -94,7 +88,7 @@ class V2GroupXmlGenerator
 
     # iterate the hash and generate group xml v2 for each carrier, including all employers for that carrier
     organizations_hash.each do |carrier, organizations|
-      xml = view_context.render(
+      xml = ApplicationController.render(
         template: "events/v2/employers/group_xml",
         formats: [:xml],
         handlers: [:haml],
@@ -197,8 +191,16 @@ class V2GroupXmlGenerator
     carrier_profiles
   end
 
-  #returns an array of carriers which were switched from and need to be informed
+  # Finds the carriers dropped at renewal. When the given plan year has a renewal that went out it is the
+  # plan year being left, otherwise it is the renewal and is compared with its previous plan year.
+  #
+  # @param employer_profile [BenefitSponsors::Organizations::AcaShopCcaEmployerProfile] employer being generated
+  # @param benefit_application [BenefitSponsors::BenefitApplications::BenefitApplication] plan year passed to the script
+  # @return [Array<BenefitSponsors::Organizations::IssuerProfile>] dropped carriers
   def switched_carriers(employer_profile, benefit_application)
+    renewal = benefit_application.successors.detect(&:eligible_for_export?)
+    return benefit_application_carriers(benefit_application).flatten.uniq - benefit_application_carriers(renewal).flatten.uniq if renewal
+
     previous_plan_year_value = predecessor_application(benefit_application)
     return [] if previous_plan_year_value.nil? #no previous plan year
     this_plan_year = find_benefit_application(employer_profile)
