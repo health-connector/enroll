@@ -311,10 +311,13 @@ end
 Given(/^the Plans exist$/) do
   open_enrollment_start_on = TimeKeeper.date_of_record.end_of_month + 1.day
   start_on = open_enrollment_start_on + 2.months
-  FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', is_standard_plan: true, metal_level: 'gold', active_year: start_on.year, deductible: 5000, csr_variant_id: "01", coverage_kind: 'health')
-  FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', is_standard_plan: true, metal_level: 'gold', active_year: start_on.year, deductible: 3000, csr_variant_id: "01", coverage_kind: 'health')
-  FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', is_standard_plan: true, metal_level: 'gold', active_year: start_on.year, deductible: 2000, csr_variant_id: "01", coverage_kind: 'health')
-  FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', is_standard_plan: true, metal_level: 'gold', active_year: start_on.year, deductible: 1000, csr_variant_id: "01", coverage_kind: 'health')
+  quote_years = SponsoredBenefits::BenefitApplications::BenefitApplication.calculate_start_on_dates.map(&:year)
+  ([start_on.year] + quote_years).uniq.each do |active_year|
+    FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', is_standard_plan: true, metal_level: 'gold', active_year: active_year, deductible: 5000, csr_variant_id: "01", coverage_kind: 'health')
+    FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', is_standard_plan: true, metal_level: 'gold', active_year: active_year, deductible: 3000, csr_variant_id: "01", coverage_kind: 'health')
+    FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', is_standard_plan: true, metal_level: 'gold', active_year: active_year, deductible: 2000, csr_variant_id: "01", coverage_kind: 'health')
+    FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', is_standard_plan: true, metal_level: 'gold', active_year: active_year, deductible: 1000, csr_variant_id: "01", coverage_kind: 'health')
+  end
   FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', is_standard_plan: true, dental_level: 'high', active_year: start_on.year, deductible: 4000, coverage_kind: 'dental')
   FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', is_standard_plan: true, dental_level: 'low', active_year: start_on.year, deductible: 4000, coverage_kind: 'dental')
   FactoryBot.create(:plan, :with_rating_factors, :with_premium_tables, market: 'shop', is_standard_plan: true, metal_level: 'gold', active_year: start_on.year - 1, deductible: 5000, csr_variant_id: "01", coverage_kind: 'health')

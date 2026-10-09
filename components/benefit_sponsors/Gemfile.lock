@@ -1,5 +1,5 @@
 GIT
-  remote: https://github.com/dchbx/resource_registry
+  remote: https://github.com/health-connector/resource_registry
   revision: b21d2fc17b2e951164cfc813786fd83a92addb95
   tag: v0.10.0
   specs:
