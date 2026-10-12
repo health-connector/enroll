@@ -44,4 +44,5 @@ Feature: Annual Deductible Display
     And Partick Doe selects plans to compare
     Then Patrick Doe should see medical and drug deductible information
     Then Partick Doe clicks on close button
+    And Patrick Doe sorts the plans and sees the deductible without leaked glossary markup
     And Employee logs out
