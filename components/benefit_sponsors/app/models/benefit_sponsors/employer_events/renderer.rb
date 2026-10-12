@@ -234,7 +234,7 @@ module BenefitSponsors
         event_header = build_event_header(carrier, employer_event, employer_profile)
         event_trailer = build_event_trailer
         out << event_header
-        out << doc.to_xml(save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION, indent: 2).gsub(/^/, '  ')
+        out << doc.to_xml(save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION)
         out << event_trailer
         true
       end
@@ -278,19 +278,21 @@ module BenefitSponsors
       # rubocop:enable Metrics/CyclomaticComplexity
 
       def build_event_header(carrier, employer_event, employer_profile)
-        <<-XMLHEADER
+        <<~XMLHEADER
           <employer_event>
-            <event_name>urn:openhbx:events:v1:employer##{update_event_name(carrier, employer_event)}</event_name>
-            <resource_instance_uri>
-              <id>urn:openhbx:resource:organization:id##{employer_profile&.organization&.hbx_id}</id>
-            </resource_instance_uri>
-            <body>
+          <event_name>urn:openhbx:events:v1:employer##{update_event_name(carrier, employer_event)}</event_name>
+          <resource_instance_uri>
+          <id>urn:openhbx:resource:organization:id##{employer_profile&.organization&.hbx_id}</id>
+          </resource_instance_uri>
+          <body>
         XMLHEADER
       end
 
+      # @return [String] closing tags for an employer event, preceded by a blank line after the employer XML
       def build_event_trailer
-        <<-XMLTRAILER
-            </body>
+        <<~XMLTRAILER
+
+          </body>
           </employer_event>
         XMLTRAILER
       end
