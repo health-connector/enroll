@@ -86,7 +86,7 @@ describe 'reports generation after plan loading', :dbclean => :after_each do
     it 'writes the expected headers on every sheet' do
       sheet_headers = [
         ["PlanYearId", "CarrierId", "CarrierName", "PlanTypeCode", "Tier", "Count"],
-        ["PlanYearId", "CarrierId", "CarrierName", "RatingArea", "Age(Range)", "IndividualRate", "EffectiveDate", "ExpirationDate"],
+        ["PlanYearId", "CarrierId", "CarrierName", "HIOS_ID", "RatingArea", "Age(Range)", "IndividualRate", "EffectiveDate", "ExpirationDate"],
         ["PlanYearId", "CarrierId", "CarrierName", "ServiceAreaCode", "PlanCount", "County_Count", "Zip_Count"],
         ["PlanYearId", "CarrierId", "CarrierName", "GroupSizeSum", "GroupSizeFactorSum"],
         ["PlanYearId", "CarrierId", "CarrierName", "GroupSizeSum", "ParticipationRateSum"],
