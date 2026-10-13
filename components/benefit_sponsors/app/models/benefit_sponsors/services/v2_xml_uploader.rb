@@ -6,6 +6,7 @@ module BenefitSponsors
   module Services
     class V2XmlUploader
       include Acapi::Notifiers
+      include L10nHelper
       attr_reader :errors
 
       XSD_PATH = "#{Rails.root}/components/benefit_sponsors/cv/vocabulary.xsd".freeze
@@ -17,7 +18,13 @@ module BenefitSponsors
       end
 
       def upload
-        doc = Nokogiri::XML(@xml_string)
+        doc = begin
+          Nokogiri::XML(@xml_string, &:strict)
+        rescue Nokogiri::XML::SyntaxError
+          @errors << l10n("exchange.employer_applications.upload_v2_xml.invalid_xml")
+          nil
+        end
+        return [false, @errors] if doc.nil?
 
         # Strip trailing spaces for all text nodes
         doc.traverse { |node| node.content = node.content.strip if node.text? }
