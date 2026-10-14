@@ -1,0 +1,34 @@
+<% tooltip_html = safe_join([l10n("insured.tufts_direct_2027_provider_banner"), l10n("insured.fallon_2027_provider_banner")].map { |message| content_tag(:p, message) }) %>
+<span class="carrier-2027-provider-info" tabindex="0" role="button" aria-label="2027 provider network changes"
+      data-toggle="tooltip" data-html="true" data-placement="bottom" data-container="body" data-trigger="manual"
+      data-template='<div class="tooltip carrier-2027-provider-tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>'
+      title="<%= ERB::Util.html_escape(tooltip_html.to_str) %>">
+  <i class="fa fa-info-circle" aria-hidden="true"></i>
+</span>
+
+<style type="text/css">
+  .carrier-2027-provider-info { cursor: pointer; margin-left: 8px; font-size: 20px; vertical-align: middle; }
+  .carrier-2027-provider-tooltip { opacity: 1 !important; }
+  .carrier-2027-provider-tooltip .tooltip-inner { max-width: 480px; text-align: left; padding: 10px 14px; }
+  .carrier-2027-provider-tooltip .tooltip-inner p { margin: 0 0 10px; }
+  .carrier-2027-provider-tooltip .tooltip-inner p:last-child { margin-bottom: 0; }
+  .carrier-2027-provider-tooltip .tooltip-inner a { text-decoration: underline; }
+</style>
+
+<script type="text/javascript">
+  $(function() {
+    $('.carrier-2027-provider-info').each(function() {
+      var $icon = $(this), hideTimer;
+      var show = function() { clearTimeout(hideTimer); $icon.tooltip('show'); };
+      var hideSoon = function() { hideTimer = setTimeout(function() { $icon.tooltip('hide'); }, 250); };
+
+      $icon.tooltip();
+      $icon.on('mouseenter focus', show).on('mouseleave blur', hideSoon);
+      $icon.on('inserted.bs.tooltip', function() {
+        var $tip = $('.carrier-2027-provider-tooltip');
+        $tip.find('a').attr({ target: '_blank', rel: 'noopener noreferrer' });
+        $tip.on('mouseenter', function() { clearTimeout(hideTimer); }).on('mouseleave', hideSoon);
+      });
+    });
+  });
+</script>
