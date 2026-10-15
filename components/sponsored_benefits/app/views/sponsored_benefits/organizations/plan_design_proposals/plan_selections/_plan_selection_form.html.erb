@@ -99,6 +99,11 @@
   </div>
 </div>
 
+<div class="panel-body">
+  <%= l10n("insured.provider_network_changes_2027_label") %>
+  <%= render partial: "shared/carrier_2027_provider_banners" %>
+</div>
+
 <% unless ::EnrollRegistry.feature_enabled?(:employer_broker_ui_enhancements) %>
   <div class="plan-comparison-container" id="pdp-pcc"></div>
 <% end %>
