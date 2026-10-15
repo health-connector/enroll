@@ -1,5 +1,5 @@
 <% tooltip_html = safe_join([l10n("insured.tufts_direct_2027_provider_banner"), l10n("insured.fallon_2027_provider_banner")].map { |message| content_tag(:p, message) }) %>
-<span class="carrier-2027-provider-info" tabindex="0" role="button" aria-label="2027 provider network changes"
+<span class="carrier-2027-provider-info" tabindex="0" role="button" aria-label="<%= l10n("insured.provider_network_changes_2027_label") %>"
       data-toggle="tooltip" data-html="true" data-placement="bottom" data-container="body" data-trigger="manual"
       data-template='<div class="tooltip carrier-2027-provider-tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>'
       title="<%= ERB::Util.html_escape(tooltip_html.to_str) %>">
@@ -23,11 +23,13 @@
       var hideSoon = function() { hideTimer = setTimeout(function() { $icon.tooltip('hide'); }, 250); };
 
       $icon.tooltip();
+      // this icon's own tooltip element; Bootstrap reuses it across show/hide, so bind its handlers once
+      var $tip = $icon.data('bs.tooltip').tip();
+
       $icon.on('mouseenter focus', show).on('mouseleave blur', hideSoon);
+      $tip.on('mouseenter', function() { clearTimeout(hideTimer); }).on('mouseleave', hideSoon);
       $icon.on('inserted.bs.tooltip', function() {
-        var $tip = $('.carrier-2027-provider-tooltip');
         $tip.find('a').attr({ target: '_blank', rel: 'noopener noreferrer' });
-        $tip.on('mouseenter', function() { clearTimeout(hideTimer); }).on('mouseleave', hideSoon);
       });
     });
   });
