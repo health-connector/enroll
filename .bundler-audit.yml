@@ -26,3 +26,7 @@ ignore:
   - CVE-2024-24816
   - CVE-2024-43407
   - CVE-2024-43411
+  # rack-proxy GHSA-42qh-8mx8-7wqm: rack-proxy is only used by shakapacker's local dev server proxy,
+  # which is not mounted outside development. No rack-proxy fix works with shakapacker 9.x.
+  # Further information available in the SECURITY.md file.
+  - GHSA-42qh-8mx8-7wqm
