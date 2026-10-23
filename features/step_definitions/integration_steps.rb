@@ -886,6 +886,21 @@ Then(/^.+ should see the list of plans$/) do
   screenshot("plan_shopping")
 end
 
+# Sorting re-draws the plan cards in JS with id="deductible_display_<product id>" inside a .run-glossary table.
+# glossary.js wraps the word "Deductible" by rewriting that raw HTML and must not match inside the id attribute.
+Then(/^(.*) sorts the plans and sees the deductible without leaked glossary markup$/) do |_named_person|
+  regression = "glossary.js rewrote id=\"deductible_display_<product id>\" and leaked markup into the plan card deductible. " \
+               "replaceGlossaryTerm in app/assets/javascripts/glossary.js and " \
+               "components/sponsored_benefits/app/assets/javascripts/sponsored_benefits/glossary.js must treat '_' as a word character."
+  find('[data-sort-by="plan-name"]').click
+  within('#filteredPlans') do
+    # waits for runGlossary to apply the tooltip before checking the deductible cells
+    expect(page).to have_css('.glossary[data-title^="Deductible"]')
+    expect(page).to have_css("[id^='deductible_display_']"), regression
+    expect(page).not_to have_content('_display_'), regression
+  end
+end
+
 Then(/^\w+ should see plans count listed$/) do
   find_all(EmployeeEnrollInAPlan.plan_count).present?
   find_all(EmployeeEnrollInAPlan.employer_name).present?
