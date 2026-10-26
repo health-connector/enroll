@@ -105,7 +105,7 @@ module BenefitSponsors
         # @return [Array<Integer>] hbx_carrier_ids of the products offered on the plan year
         def application_carrier_ids(application)
           products = application.benefit_packages.flat_map do |benefit_package|
-            benefit_package.sponsored_benefits.flat_map { |sponsored_benefit| sponsored_benefit.products(benefit_package.start_on) }
+            benefit_package.sponsored_benefits.flat_map { |sponsored_benefit| sponsored_benefit.elected_products(benefit_package.start_on) }
           end
           products.map { |product| product.issuer_profile.hbx_carrier_id }.uniq
         end
