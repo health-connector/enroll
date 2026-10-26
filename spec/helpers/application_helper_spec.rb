@@ -724,12 +724,14 @@ RSpec.describe ApplicationHelper, :type => :helper do
     context 'when benefit applications are present' do
       let(:benefit_application) { instance_double('BenefitApplication') }
       let(:date) { TimeKeeper.date_of_record }
+      # stored timestamps come back from Mongo in UTC
+      let(:created_at) { Time.use_zone(TimeKeeper.exchange_zone) { Time.zone.local(date.year, date.month, date.day, 12, 47, 49) }.utc }
       let(:item) do
         instance_double(
           'BenefitApplicationItem',
           sequence_id: 1,
-          created_at: Time.utc(date.year, date.month, date.day, 4, 47, 49),
-          action_on: Time.utc(date.year, date.month, date.day).to_date
+          created_at: created_at,
+          action_on: date
         )
       end
 
@@ -738,19 +740,29 @@ RSpec.describe ApplicationHelper, :type => :helper do
       end
 
       it 'returns true if the latest action is under 24 hours' do
-        month = date.next_day.day == 1 ? date.next_month.month : date.month
         benefit_applications = [benefit_application]
-        allow(DateTime).to receive(:now).and_return(Time.utc(date.year, month, date.next_day.day, 4, 47, 49))
+        allow(Time).to receive(:current).and_return(created_at + 24.hours)
         result = helper.is_latest_action_under_24_hours(benefit_applications)
         expect(result).to be(true)
       end
 
       it 'returns false if the latest action is over 24 hours' do
-        month = date.next_day.day == 1 ? date.next_month.month : date.month
         benefit_applications = [benefit_application]
-        allow(DateTime).to receive(:now).and_return(Time.utc(date.year, month, date.next_day.day, 4, 47, 50))
+        allow(Time).to receive(:current).and_return(created_at + 24.hours + 1.second)
         result = helper.is_latest_action_under_24_hours(benefit_applications)
         expect(result).to be(false)
+      end
+
+      context 'when the action was taken in the Eastern evening' do
+        # 10pm Eastern is already the next day in UTC
+        let(:created_at) { Time.use_zone(TimeKeeper.exchange_zone) { Time.zone.local(date.year, date.month, date.day, 22) }.utc }
+
+        it 'returns true if the latest action is under 24 hours' do
+          benefit_applications = [benefit_application]
+          allow(Time).to receive(:current).and_return(created_at + 1.hour)
+          result = helper.is_latest_action_under_24_hours(benefit_applications)
+          expect(result).to be(true)
+        end
       end
     end
 
@@ -777,20 +789,21 @@ RSpec.describe ApplicationHelper, :type => :helper do
 
   describe '#latest_ba_item_within_24_hours' do
     let(:benefit_application) { instance_double('BenefitApplication') }
+    let(:now) { Time.current }
     let(:item_within_24_hours) do
       instance_double(
         'BenefitApplicationItem',
         sequence_id: 1,
-        created_at: Time.now.utc,
-        action_on: Time.now.utc.to_date
+        created_at: now,
+        action_on: TimeKeeper.date_according_to_exchange_at(now)
       )
     end
     let(:item_outside_24_hours) do
       instance_double(
         'BenefitApplicationItem',
         sequence_id: 1,
-        created_at: Time.now.utc - 25.hours,
-        action_on: Time.now.utc.to_date
+        created_at: now - 25.hours,
+        action_on: TimeKeeper.date_according_to_exchange_at(now - 25.hours)
       )
     end
 
@@ -809,6 +822,22 @@ RSpec.describe ApplicationHelper, :type => :helper do
 
         result = helper.latest_ba_item_within_24_hours(benefit_applications)
         expect(result).to be_nil
+      end
+
+      context 'when the action was taken in the Eastern evening' do
+        let(:date) { TimeKeeper.date_of_record }
+        # 10pm Eastern is already the next day in UTC
+        let(:evening) { Time.use_zone(TimeKeeper.exchange_zone) { Time.zone.local(date.year, date.month, date.day, 22) }.utc }
+        let(:evening_item) { instance_double('BenefitApplicationItem', sequence_id: 1, created_at: evening, action_on: date) }
+
+        it 'returns the item within 24 hours' do
+          benefit_applications = [benefit_application]
+          allow(benefit_application).to receive(:latest_benefit_application_item).and_return(evening_item)
+          allow(Time).to receive(:current).and_return(evening + 1.hour)
+
+          result = helper.latest_ba_item_within_24_hours(benefit_applications)
+          expect(result).to eq(evening_item)
+        end
       end
     end
 
