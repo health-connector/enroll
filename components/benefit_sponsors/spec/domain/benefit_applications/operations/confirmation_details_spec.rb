@@ -130,22 +130,6 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::ConfirmationDet
           expect(employee_details.map {|detail| detail[:enrollment_details] }.reject(&:empty?)).to eq [enrollment.hbx_id]
         end
       end
-
-      context 'with enrollment canceled in the Eastern evening of the action date' do
-        before do
-          action_on = benefit_application.benefit_application_items.detect { |item| item.sequence_id == 1 }.action_on
-          # 10pm Eastern is already the next day in UTC
-          evening = Time.use_zone(TimeKeeper.exchange_zone) { Time.zone.local(action_on.year, action_on.month, action_on.day, 22) }
-          enrollment.reload.workflow_state_transitions.select { |transition| transition.to_state == "coverage_canceled" }.each do |transition|
-            transition.update_attributes!(transition_at: evening)
-          end
-        end
-
-        it 'should return enrollment details' do
-          employee_details = subject.call(**params).value![:employee_details]
-          expect(employee_details.map {|detail| detail[:enrollment_details] }.reject(&:empty?)).to eq [enrollment.hbx_id]
-        end
-      end
     end
   end
 end

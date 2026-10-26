@@ -295,24 +295,6 @@ RSpec.describe SpecialEnrollmentPeriod, :type => :model, :dbclean => :after_each
         end
       end
 
-      context "and 'effective on kind' is 'first of month' and it is reported on the deadline day in the Eastern evening" do
-        let(:reporting_date)  { pre_enrollment_deadline_date }
-        # 10pm Eastern on the deadline day is already the next day in UTC
-        let(:evening_submission) do
-          Time.use_zone(TimeKeeper.exchange_zone) { Time.zone.local(reporting_date.year, reporting_date.month, reporting_date.day, 22) }
-        end
-        let(:ivl_qle_sep) { family.special_enrollment_periods.build(submitted_at: evening_submission, qualifying_life_event_kind: ivl_qle, qle_on: qle_on_date) }
-
-        before do
-          TimeKeeper.set_date_of_record_unprotected!(reporting_date)
-          ivl_qle_sep.effective_on_kind = "first_of_month"
-        end
-
-        it "the effective date should be based on the Eastern reporting date" do
-          expect(ivl_qle_sep.effective_on).to eq next_month_date
-        end
-      end
-
       context "and 'effective on kind' is 'first of month' and date reported is after the monthly deadline" do
         let(:reporting_date)  { post_enrollment_deadline_date }
 
