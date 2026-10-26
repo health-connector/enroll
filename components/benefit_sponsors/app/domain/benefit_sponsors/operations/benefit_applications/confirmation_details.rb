@@ -125,8 +125,8 @@ module BenefitSponsors
 
           family.active_household.hbx_enrollments.show_enrollments.where(
             :sponsored_benefit_package_id.in => benefit_package_ids,
-            :'workflow_state_transitions.transition_at'.gte => @item.action_on.beginning_of_day,
-            :'workflow_state_transitions.transition_at'.lte => @item.action_on.end_of_day,
+            :'workflow_state_transitions.transition_at'.gte => TimeKeeper.start_of_exchange_day_from_utc(@item.action_on),
+            :'workflow_state_transitions.transition_at'.lt => TimeKeeper.end_of_exchange_day_from_utc(@item.action_on),
             :'workflow_state_transitions.from_state' => "coverage_reinstated"
           )
         end
@@ -137,8 +137,8 @@ module BenefitSponsors
 
           family.active_household.hbx_enrollments.show_enrollments.where(
             :sponsored_benefit_package_id.in => benefit_package_ids,
-            :'workflow_state_transitions.transition_at'.gte => @item.action_on.beginning_of_day,
-            :'workflow_state_transitions.transition_at'.lte => @item.action_on.end_of_day,
+            :'workflow_state_transitions.transition_at'.gte => TimeKeeper.start_of_exchange_day_from_utc(@item.action_on),
+            :'workflow_state_transitions.transition_at'.lt => TimeKeeper.end_of_exchange_day_from_utc(@item.action_on),
             :'workflow_state_transitions.to_state' => "coverage_canceled"
           )
         end
@@ -149,8 +149,8 @@ module BenefitSponsors
 
           family.active_household.hbx_enrollments.show_enrollments.where(
             :sponsored_benefit_package_id.in => benefit_package_ids,
-            :'workflow_state_transitions.transition_at'.gte => @item.action_on.beginning_of_day,
-            :'workflow_state_transitions.transition_at'.lte => @item.action_on.end_of_day,
+            :'workflow_state_transitions.transition_at'.gte => TimeKeeper.start_of_exchange_day_from_utc(@item.action_on),
+            :'workflow_state_transitions.transition_at'.lt => TimeKeeper.end_of_exchange_day_from_utc(@item.action_on),
             :'workflow_state_transitions.to_state'.in => ["coverage_terminated", "coverage_termination_pending"]
           )
         end
