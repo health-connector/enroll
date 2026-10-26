@@ -10,6 +10,12 @@ ConnectionSlug = Struct.new(:broker_npn) do
     self
   end
 
+  def confirm_select; end
+
+  def wait_for_confirms
+    true
+  end
+
   def close
   end
 
