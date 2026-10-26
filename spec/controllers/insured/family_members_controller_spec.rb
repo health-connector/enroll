@@ -129,7 +129,20 @@ RSpec.describe Insured::FamilyMembersController, dbclean: :after_each do
 
         it "should have today's date as submitted_at" do
           get :index, params: { sep_id: sep.id, qle_id: sep.qualifying_life_event_kind_id, family_id: test_family.id }
-          expect(assigns(:sep).submitted_at.to_date).to eq TimeKeeper.date_of_record
+          expect(TimeKeeper.date_according_to_exchange_at(assigns(:sep).submitted_at)).to eq TimeKeeper.date_of_record
+        end
+      end
+
+      context "when sep was submitted on the date of record in the Eastern evening" do
+        before do
+          today = TimeKeeper.date_of_record
+          # 10pm Eastern is already the next day in UTC
+          sep.update_attributes(submitted_at: Time.use_zone(TimeKeeper.exchange_zone) { Time.zone.local(today.year, today.month, today.day, 22) })
+        end
+
+        it "should not duplicate sep" do
+          get :index, params: { sep_id: sep.id, qle_id: sep.qualifying_life_event_kind_id, family_id: test_family.id }
+          expect(assigns(:sep)).to eq sep
         end
       end
     end

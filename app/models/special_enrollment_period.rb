@@ -196,7 +196,7 @@ private
     self.end_on   = qle_on + @qualifying_life_event_kind.post_event_sep_in_days.days
 
     # Use end_on date as boundary guard for lapsed SEPs
-    @reference_date = [submitted_at.to_date, end_on].min
+    @reference_date = [TimeKeeper.date_according_to_exchange_at(submitted_at), end_on].min
     @earliest_effective_date = self.is_shop? ? qle_on : [@reference_date, qle_on].max
     start_on..end_on
   end
