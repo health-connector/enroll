@@ -252,7 +252,7 @@ module SponsoredBenefits
       # same as SponsoredBenefits::BenefitGroup#update_dependent_composite_tiers does on save.
       def build_dependent_composite_tiers(benefit_group)
         family_tier = benefit_group.composite_tier_contributions.detect { |ctc| ctc.composite_rating_tier == 'family' }
-        return if family_tier.nil?
+        return if family_tier.blank?
 
         (::CompositeRatingTier::NAMES - ::CompositeRatingTier::VISIBLE_NAMES).each do |tier_name|
           benefit_group.composite_tier_contributions.build(
