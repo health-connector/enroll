@@ -5,7 +5,7 @@ PATH
       aws-sdk (~> 3.2)
       net-imap (>= 0.4.20)
       net-sftp (~> 4.0)
-      net-ssh (~> 7.3)
+      net-ssh (~> 7.3, >= 7.3.8)
       rack (>= 2.2.14)
       rails (~> 8.1, >= 8.1.2)
 
@@ -1765,7 +1765,8 @@ GEM
       net-ssh (>= 5.0.0, < 8.0.0)
     net-smtp (0.5.1)
       net-protocol
-    net-ssh (7.3.3)
+    net-ssh (7.3.8)
+      logger
     nio4r (2.7.5)
     nokogiri (1.19.3)
       mini_portile2 (~> 2.8.2)
