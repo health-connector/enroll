@@ -234,13 +234,31 @@ module SponsoredBenefits
 
       def copy_composite_tiers(source, target)
         source.composite_tier_contributions.each do |ctc|
+          next unless ::CompositeRatingTier::VISIBLE_NAMES.include?(ctc.composite_rating_tier)
+
           target.composite_tier_contributions.build(
             composite_rating_tier: ctc.composite_rating_tier,
             employer_contribution_percent: ctc.employer_contribution_percent,
             offered: ctc.offered
           )
         end
+        build_dependent_composite_tiers(target)
         target.estimate_composite_rates
+      end
+
+      # The form only posts the visible tiers. The remaining tiers follow the family tier,
+      # same as SponsoredBenefits::BenefitGroup#update_dependent_composite_tiers does on save.
+      def build_dependent_composite_tiers(benefit_group)
+        family_tier = benefit_group.composite_tier_contributions.detect { |ctc| ctc.composite_rating_tier == 'family' }
+        return unless family_tier
+
+        (::CompositeRatingTier::NAMES - ::CompositeRatingTier::VISIBLE_NAMES).each do |tier_name|
+          benefit_group.composite_tier_contributions.build(
+            composite_rating_tier: tier_name,
+            employer_contribution_percent: family_tier.employer_contribution_percent,
+            offered: family_tier.offered
+          )
+        end
       end
 
       def calculate_dental_cost_for_all_employees(benefit_group, plan)
