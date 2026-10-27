@@ -233,9 +233,11 @@ module SponsoredBenefits
       end
 
       def copy_composite_tiers(source, target)
-        source.composite_tier_contributions.each do |ctc|
-          next unless ::CompositeRatingTier::VISIBLE_NAMES.include?(ctc.composite_rating_tier)
+        visible_tiers = source.composite_tier_contributions.select do |ctc|
+          ::CompositeRatingTier::VISIBLE_NAMES.include?(ctc.composite_rating_tier)
+        end
 
+        visible_tiers.each do |ctc|
           target.composite_tier_contributions.build(
             composite_rating_tier: ctc.composite_rating_tier,
             employer_contribution_percent: ctc.employer_contribution_percent,
@@ -250,7 +252,7 @@ module SponsoredBenefits
       # same as SponsoredBenefits::BenefitGroup#update_dependent_composite_tiers does on save.
       def build_dependent_composite_tiers(benefit_group)
         family_tier = benefit_group.composite_tier_contributions.detect { |ctc| ctc.composite_rating_tier == 'family' }
-        return unless family_tier
+        return if family_tier.nil?
 
         (::CompositeRatingTier::NAMES - ::CompositeRatingTier::VISIBLE_NAMES).each do |tier_name|
           benefit_group.composite_tier_contributions.build(

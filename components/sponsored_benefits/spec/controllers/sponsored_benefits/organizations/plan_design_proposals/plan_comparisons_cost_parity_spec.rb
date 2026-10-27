@@ -77,9 +77,11 @@ module SponsoredBenefits
 
     def benefit_group_attributes(plan_option_kind, composite_tiers = composite_tier_contributions_attributes)
       attrs = { reference_plan_id: plan.id.to_s, plan_option_kind: plan_option_kind }
-      return attrs.merge(relationship_benefits_attributes: relationship_benefits_attributes) unless plan_option_kind == 'sole_source'
-
-      attrs.merge(composite_tier_contributions_attributes: composite_tiers)
+      if plan_option_kind == 'sole_source'
+        attrs.merge(composite_tier_contributions_attributes: composite_tiers)
+      else
+        attrs.merge(relationship_benefits_attributes: relationship_benefits_attributes)
+      end
     end
 
     # What ContributionsController#index does for the single plan view
