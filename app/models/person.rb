@@ -666,8 +666,8 @@ class Person
       matches.concat Person.active.where(encrypted_ssn: encrypt_ssn(ssn_query), dob: dob_query).to_a unless ssn_query.blank?
       #matches.concat Person.where(last_name: last_name, dob: dob_query).active.to_a unless (dob_query.blank? || last_name.blank?)
       if first_name.present? && last_name.present? && dob_query.present?
-        first_exp = /^#{first_name}$/i
-        last_exp = /^#{last_name}$/i
+        first_exp = /^#{::Regexp.escape(first_name.to_s)}$/i
+        last_exp = /^#{::Regexp.escape(last_name.to_s)}$/i
         matches.concat Person.active.where(dob: dob_query, last_name: last_exp, first_name: first_exp).to_a.select{|person| person.ssn.blank? || ssn_query.blank?}
       end
       matches.uniq

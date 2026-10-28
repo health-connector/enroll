@@ -332,6 +332,18 @@ RSpec.describe Operations::CensusMembers::Update, :dbclean => :after_each do
     end
   end
 
+  describe 'matching criteria' do
+    let(:person) { FactoryBot.create(:person, first_name: "Jo(hn", last_name: "Sm.th") }
+
+    it 'escapes regex metacharacters in current and previous names' do
+      person.first_name = "Ja(ck"
+      criteria = described_class.new.send(:matching_criteria, person)
+      expect(criteria['first_name']).to match("jo(hn")
+      expect(criteria['last_name']).to match("sm.th")
+      expect(criteria['last_name']).not_to match("Smith")
+    end
+  end
+
   describe 'when employee roster updates feature is turned off' do
     before do
       EnrollRegistry[:employee_roster_updates].feature.stub(:is_enabled).and_return(false)

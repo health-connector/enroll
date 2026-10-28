@@ -43,6 +43,18 @@ module Notifier
             "offered_product.enrollments"
           ])
       end
+
+      context 'when a loop iterator contains regex metacharacters' do
+        before do
+          allow(subject).to receive(:tokens).and_return(["?.street_1"])
+          allow(subject).to receive(:conditional_tokens).and_return(["employer_profile.addresses.each do | ? |", "?.lines.each do | line |"])
+        end
+
+        it "treats the iterator as literal text" do
+          subject.set_data_elements
+          expect(template.data_elements).to eq(["employer_profile.addresses", "?.lines"])
+        end
+      end
     end
 
     describe '#check_template_elements' do
