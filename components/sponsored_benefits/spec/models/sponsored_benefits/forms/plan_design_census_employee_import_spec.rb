@@ -84,6 +84,18 @@ RSpec.describe SponsoredBenefits::Forms::PlanDesignCensusEmployeeImport, type: :
     end
   end
 
+  context "finding an employee by name and dob" do
+    let!(:census_employee) { FactoryBot.create(:plan_design_census_employee, first_name: "Joe", last_name: "Kramer", dob: Date.new(1987, 12, 12), benefit_sponsorship: benefit_sponsorship) }
+
+    it "treats regex metacharacters in names as literal text" do
+      expect(subject.find_employee({first_name: "J.e", last_name: "Kr.mer", dob: Date.new(1987, 12, 12)})).to be_nil
+    end
+
+    it "does not raise on an unbalanced parenthesis in a name" do
+      expect { subject.find_employee({first_name: "Joe(", last_name: "Kramer", dob: Date.new(1987, 12, 12)}) }.not_to raise_error
+    end
+  end
+
   context "terminate employee" do
     let(:tempfile) { double("", path: 'spec/test_data/census_employee_import/DCHL Employee Census 3.xlsx') }
 

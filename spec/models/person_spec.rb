@@ -510,6 +510,11 @@ describe Person, :dbclean => :after_each do
       expect(Person.match_by_id_info(ssn: "577600345")).to eq []
     end
 
+    it 'treats regex metacharacters in names as literal text' do
+      expect(Person.match_by_id_info(last_name: "Kr.mer", dob: @p4.dob, first_name: "J.e")).to eq []
+      expect { Person.match_by_id_info(last_name: @p4.last_name, dob: @p4.dob, first_name: "Joe(") }.not_to raise_error
+    end
+
     it 'not match last_name and dob if ssn provided (match is already done if ssn ok)' do
       expect(Person.match_by_id_info(last_name: @p0.last_name, dob: @p0.dob, ssn: '999884321').size).to eq 0
     end

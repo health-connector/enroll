@@ -630,3 +630,31 @@ if ExchangeTestingConfigurationHelper.individual_market_is_enabled?
     end
   end
 end
+
+describe Subscribers::FamilyApplicationCompleted, '#search_person', dbclean: :after_each do
+  let(:db_person) { Person.create!(first_name: "Joe", last_name: "Kramer", dob: "1993-03-30") }
+  let(:verified_family_member) do
+    double(
+      person: double(name_last: name_last, name_first: name_first),
+      person_demographics: double(birth_date: db_person.dob, ssn: db_person.ssn)
+    )
+  end
+
+  context "when payload names contain regex metacharacters" do
+    let(:name_last) { "Kr.mer" }
+    let(:name_first) { "J.e" }
+
+    it 'treats them as literal text' do
+      expect(subject.search_person(verified_family_member)).to eq nil
+    end
+  end
+
+  context "when a payload name has an unbalanced parenthesis" do
+    let(:name_last) { "Kramer(" }
+    let(:name_first) { "Joe" }
+
+    it 'does not raise' do
+      expect { subject.search_person(verified_family_member) }.not_to raise_error
+    end
+  end
+end
