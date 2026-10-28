@@ -7,11 +7,11 @@ require 'csv'
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_market.rb"
 require "#{BenefitSponsors::Engine.root}/spec/shared_contexts/benefit_application.rb"
 
-describe 'reports:shop:employer_referral_source', :dbclean => :around_each do
+describe 'migrations:employer_referral_source_report', :dbclean => :around_each do
   include_context "setup benefit market with market catalogs and product packages"
   include_context "setup initial benefit application"
 
-  let(:task_name) { 'reports:shop:employer_referral_source' }
+  let(:task_name) { 'migrations:employer_referral_source_report' }
   let(:referral_source) { 'Radio' }
   let(:period_start) { effective_period.min }
   let(:period_end) { effective_period.max }
@@ -37,7 +37,7 @@ describe 'reports:shop:employer_referral_source', :dbclean => :around_each do
   end
 
   before do
-    load File.expand_path("#{Rails.root}/lib/tasks/hbx_reports/employer_referral_source_report.rake", __FILE__)
+    load File.expand_path("#{Rails.root}/lib/tasks/migrations/employer_referral_source_report.rake", __FILE__)
     Rake::Task.define_task(:environment)
     abc_profile.update_attributes!(referred_by: referral_source)
   end
