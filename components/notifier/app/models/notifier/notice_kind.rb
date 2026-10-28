@@ -64,7 +64,7 @@ module Notifier
           if loop_match.present?
             loop_token = conditional_token.match(/(.+)\.each/i)[1]
             loop_tokens << loop_token
-            iterator_subloop_tokens << loop_token if iterators.any?{|iterator| loop_token.match(/^#{iterator}\.(.*)$/i).present? }
+            iterator_subloop_tokens << loop_token if iterators.any?{|iterator| loop_token.match(/^#{::Regexp.escape(iterator)}\.(.*)$/i).present? }
             conditional_token_loops << conditional_token
             iterators << loop_match[1].strip
           else
@@ -73,7 +73,7 @@ module Notifier
         end
 
         filtered_conditional_tokens = conditional_tokens - conditional_token_loops
-        data_elements = (tokens + filtered_conditional_tokens + loop_tokens).reject{|token| loop_iterators.any?{|iterator| token.match(/^#{iterator}\.(.*)$/i).present? && token.match(/(.+)\.each/i).blank?} }
+        data_elements = (tokens + filtered_conditional_tokens + loop_tokens).reject{|token| loop_iterators.any?{|iterator| token.match(/^#{::Regexp.escape(iterator)}\.(.*)$/i).present? && token.match(/(.+)\.each/i).blank?} }
         template.data_elements = data_elements + iterator_subloop_tokens
       end
     end
