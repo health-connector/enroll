@@ -257,6 +257,9 @@ end
 
 And(/I click on log out link$/) do
   find('.interaction-click-control-logout').click
+  # The click can return before the sign out request is done. Wait for the signed out page,
+  # otherwise a following login_as gets used up by the pending sign out request.
+  expect(page).to have_no_css('.interaction-click-control-logout')
 end
 
 And(/^.+ click on sign in existing account$/) do
