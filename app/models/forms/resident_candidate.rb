@@ -36,8 +36,8 @@ module Forms
       else
         Person.where({
                        :dob => dob,
-                       :last_name => /^#{last_name}$/i,
-                       :first_name => /^#{first_name}$/i,
+                       :last_name => /^#{::Regexp.escape(last_name.to_s)}$/i,
+                       :first_name => /^#{::Regexp.escape(first_name.to_s)}$/i
                    }).first
       end
     end
@@ -45,8 +45,8 @@ module Forms
     def match_ssn_employer_person
       potential_person = Person.where({
                        :dob => dob,
-                       :last_name => /^#{last_name}$/i,
-                       :first_name => /^#{first_name}$/i,
+                       :last_name => /^#{::Regexp.escape(last_name.to_s)}$/i,
+                       :first_name => /^#{::Regexp.escape(first_name.to_s)}$/i
                    }).first
       return potential_person if potential_person.present? && potential_person.employer_staff_roles?
       nil

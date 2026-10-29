@@ -38,7 +38,8 @@ module Queries
     def build_scope
       enrollment_ids = {"households.hbx_enrollments._id" => {"$in" => @hbx_enrollment_ids}}
       if @search_string
-        employee_roles = Person.any_of({ :first_name => /.*#{@search_string}.*/ }, { :last_name => /.*#{@search_string}.*/ }).collect{|p| p.employee_roles.pluck(:_id)}.flatten
+        search_regex = /.*#{::Regexp.escape(@search_string.to_s)}.*/
+        employee_roles = Person.any_of({ :first_name => search_regex }, { :last_name => search_regex }).collect{|p| p.employee_roles.pluck(:_id)}.flatten
         enrollment_ids = {
           "$and" => [
             { 'households.hbx_enrollments.employee_role_id' => {"$in" => employee_roles} },

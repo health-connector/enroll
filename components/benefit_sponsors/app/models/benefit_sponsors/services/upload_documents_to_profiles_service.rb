@@ -12,7 +12,7 @@ module BenefitSponsors
         date_string = File.basename(file_path).split("_")[2]
         broker = org.broker_agency_profile.primary_broker_role
         docs = org.broker_agency_profile.documents.where("date" => statement_date)
-        matching_documents = docs.select {|d| d.title.match(::Regexp.new("^#{broker.npn}_\\d{1,}_#{date_string}_COMMISSION"))} if broker
+        matching_documents = docs.select {|d| d.title.match(::Regexp.new("^#{::Regexp.escape(broker.npn.to_s)}_\\d{1,}_#{::Regexp.escape(date_string.to_s)}_COMMISSION"))} if broker
         return true if (matching_documents && matching_documents.count > 0)
       end
 
