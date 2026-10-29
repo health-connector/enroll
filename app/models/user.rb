@@ -24,7 +24,7 @@ class User
   validate :validate_email_format
 
   scope :datatable_search, lambda { |query|
-    search_regex = ::Regexp.compile(/.*#{query}.*/i)
+    search_regex = /.*#{::Regexp.escape(query.to_s)}.*/i
     person_user_ids = Person.any_of({hbx_id: search_regex}, {first_name: search_regex}, {last_name: search_regex}).pluck(:user_id)
     User.any_of({oim_id: search_regex}, {email: search_regex}, {id: {"$in" => person_user_ids} })
   }
