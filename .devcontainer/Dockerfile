@@ -5,7 +5,7 @@ ARG RUBY_VARIANT=3.4-trixie
 
 FROM mcr.microsoft.com/devcontainers/ruby:${RUBY_VARIANT}
 
-ARG RVM_OVERRIDE=3.4.7
+ARG RVM_OVERRIDE=3.4.12
 ARG BUNDLER_VERSION_OVERRIDE=2.5.23
 
 # Add Yarn apt repository using keyrings (apt-key was removed on Debian trixie)

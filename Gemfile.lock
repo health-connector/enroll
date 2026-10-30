@@ -1847,8 +1847,8 @@ GEM
     benchmark-trend (0.4.0)
     bigdecimal (3.3.1)
     bindex (0.8.1)
-    bootsnap (1.24.5)
-      msgpack (~> 1.2)
+    bootsnap (1.26.1)
+      msgpack (~> 1.5)
     bootstrap-multiselect-rails (0.9.9)
       rails (>= 4.0.0)
     brakeman (7.1.1)
@@ -2674,7 +2674,7 @@ DEPENDENCIES
   yard-mongoid (~> 0.1.0)
 
 RUBY VERSION
-   ruby 3.4.7p58
+   ruby 3.4.12p148
 
 BUNDLED WITH
    2.5.23
