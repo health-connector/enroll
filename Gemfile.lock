@@ -2625,7 +2625,7 @@ DEPENDENCIES
   pry-byebug
   puma (~> 7.2.1)
   pundit (~> 2.0)
-  rack (>= 3.2.5)
+  rack (>= 3.2.8)
   rack-cors
   railroady (~> 1.5.3)
   rails (~> 8.1, >= 8.1.2)
