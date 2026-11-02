@@ -278,7 +278,7 @@ GEM
       securerandom (>= 0.3)
       tzinfo (~> 2.0, >= 2.0.5)
       uri (>= 0.13.1)
-    addressable (2.9.0)
+    addressable (2.9.2)
       public_suffix (>= 2.0.2, < 8.0)
     afm (0.2.2)
     amq-protocol (2.5.1)
@@ -2262,7 +2262,7 @@ GEM
     pundit (2.5.2)
       activesupport (>= 3.0.0)
     racc (1.8.1)
-    rack (3.2.6)
+    rack (3.2.8)
     rack-cors (2.0.2)
       rack (>= 2.0.0)
     rack-protection (4.2.1)
@@ -2622,7 +2622,7 @@ DEPENDENCIES
   pry-byebug
   puma (~> 7.2.1)
   pundit (~> 2.0)
-  rack (>= 3.2.5)
+  rack (>= 3.2.8)
   rack-cors
   railroady (~> 1.5.3)
   rails (~> 8.1, >= 8.1.2)
