@@ -4,7 +4,7 @@ Feature: Broker creates a quote for a prospect employer and compares plans
 
   Background: Set up employer, broker and their relationship
     Given a CCA site exists with a benefit market
-    Given SAFE benefit market catalog exists for enrollment_open initial employer with health benefits
+    Given benefit market catalog exists for enrollment_open initial employer with health benefits
     And all products has correct qhps
     Given Continuous plan shopping is turned off
     And the Plans exist
