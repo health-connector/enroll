@@ -668,7 +668,6 @@ end
 
 And(/^employer filled all the fields on benefit application form$/) do
   find(:xpath, "//p[@class='label'][contains(., 'SELECT START ON')]", :wait => 10).click
-  if TimeKeeper.date_of_record.day > 5 && TimeKeeper.date_of_record.day < 16
   # Prefer the start date the benefit market catalog was seeded for, so Nov/Dec runs don't pick a date in a year without a catalog
   seeded_start_on = current_effective_date.strftime("%m/%d/%Y")
   if page.has_css?('.selectric-scroll ul li', text: seeded_start_on, wait: 3)
