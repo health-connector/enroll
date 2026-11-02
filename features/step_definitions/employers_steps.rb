@@ -764,7 +764,9 @@ end
 
 Then(/^employer should see view employee cost details button disabled$/) do
   sleep(3)
-  expect(find("#estimatedEmployeeCostDetailsLink").disabled? || find("#estimatedEmployeeCostDetailsLink")[:class].include?('disabled')).to eql true
+  cost_details_disabled = find("#estimatedEmployeeCostDetailsLink").disabled? || find("#estimatedEmployeeCostDetailsLink")[:class].include?('disabled')
+  # Jan 1 plan years skip the minimum contribution check, so the page enables the button right away
+  expect(cost_details_disabled).to eql(page.evaluate_script('applicationStartOn') != '01-01')
 end
 
 Then(/^employer should see employer estimated montly cost$/) do
