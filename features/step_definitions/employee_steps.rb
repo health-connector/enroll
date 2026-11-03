@@ -190,6 +190,8 @@ end
 
 And(/census employee (.*?) has benefit group assignment of the off cycle benefit application$/) do |named_person|
   click_button 'Update Employee'
+  # Wait for the save to finish before reading the assignment from the database
+  expect(page).to have_content('Census Employee is successfully updated.')
   person = people[named_person]
   ce = CensusEmployee.where(:first_name => /#{person[:first_name]}/i, :last_name => /#{person[:last_name]}/i).first
   benefit_package_id = ce.benefit_sponsorship.off_cycle_benefit_application.benefit_packages[0].id #there's only one benefit package
