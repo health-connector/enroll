@@ -112,6 +112,17 @@ describe "match a person in db" do
       expect(subject.match_person).to eq db_person
     end
 
+    it 'treats regex metacharacters in names as literal text' do
+      subject.first_name = "J.e"
+      subject.last_name = "Kr.mer"
+      expect(subject.match_person).to be_nil
+    end
+
+    it 'does not raise on an unbalanced parenthesis in a name' do
+      subject.first_name = "Joe("
+      expect { subject.match_person }.not_to raise_error
+    end
+
     context "with a person who has no ssn but an employer staff role", dbclean: :after_each do
       let!(:site)                { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
       let!(:benefit_sponsor)     { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }

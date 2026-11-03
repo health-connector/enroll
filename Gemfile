@@ -3,7 +3,7 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby '3.4.7'
+ruby '3.4.12'
 
 gem "benefit_markets",    path: "components/benefit_markets"
 gem "benefit_sponsors",   path: "components/benefit_sponsors"
@@ -60,7 +60,7 @@ gem 'rails-i18n', '~> 8.1.0'
 gem "recaptcha", '~> 4.13', require: 'recaptcha/rails'
 gem 'redis', '>= 4.0'
 gem 'hiredis' # Optional but recommended for performance in Rails 8
-gem 'rack', '>= 3.2.5'
+gem 'rack', '>= 3.2.8'
 gem 'resque'
 gem 'sinatra', '>= 4.2.0' # update sub-dependency for resque
 gem 'roo', '~> 3.0'

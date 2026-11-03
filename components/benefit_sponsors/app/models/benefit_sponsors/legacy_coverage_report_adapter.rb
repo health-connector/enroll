@@ -34,10 +34,11 @@ module BenefitSponsors
     end
 
     def search_collection(str)
+      search_regex = /#{::Regexp.escape(str.to_s)}/i
       employee_role_ids = Person.where(
         :"employee_roles.benefit_sponsors_employer_profile_id" => sponsored_benefit.benefit_sponsorship.profile_id,
         :"$or" => [
-          {first_name: /#{str}/i}, {last_name: /#{str}/i}
+          {first_name: search_regex}, {last_name: search_regex}
         ]
       ).map(&:employee_roles).flatten.map(&:id)
 

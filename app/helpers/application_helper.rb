@@ -816,7 +816,7 @@ module ApplicationHelper
       item = benefit_application.latest_benefit_application_item
       next if item.sequence_id == 0
 
-      ((item.created_at.utc + 24.hours).to_i >= DateTime.now.utc.to_i) && item.action_on == item.created_at.to_date
+      ((item.created_at.utc + 24.hours).to_i >= Time.current.to_i) && item.action_on == TimeKeeper.date_according_to_exchange_at(item.created_at)
     end
   end
 
@@ -824,7 +824,7 @@ module ApplicationHelper
     items = benefit_applications.collect do |benefit_application|
       item = benefit_application.latest_benefit_application_item
       next if item.sequence_id == 0
-      next unless ((item.created_at.utc + 24.hours).to_i >= DateTime.now.utc.to_i) && item.action_on == item.created_at.to_date
+      next unless ((item.created_at.utc + 24.hours).to_i >= Time.current.to_i) && item.action_on == TimeKeeper.date_according_to_exchange_at(item.created_at)
 
       item
     end.compact

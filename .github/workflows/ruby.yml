@@ -10,7 +10,7 @@ concurrency:
 
 jobs:
   rspec:
-    runs-on: ubuntu-24.04 # ruby-builder has no 3.4.7 build for ubuntu-26.04; unpin with the ruby upgrade
+    runs-on: ubuntu-latest
     services:
       mongo:
         image: mongo:7.0
@@ -58,7 +58,7 @@ jobs:
           TB_RSPEC_FORMATTER: "progress"
 
   cucumber:
-    runs-on: ubuntu-24.04 # ruby-builder has no 3.4.7 build for ubuntu-26.04; unpin with the ruby upgrade
+    runs-on: ubuntu-latest
     services:
       mongo:
         image: mongo:7.0

@@ -8,7 +8,7 @@ services:
         BUNDLER_VERSION_OVERRIDE: '2.5.23'
         NODE_VERSION: '24'
         RUBY_VARIANT: '3.4-trixie'
-        RVM_OVERRIDE: '3.4.7'
+        RVM_OVERRIDE: '3.4.12'
 
     volumes:
       - /var/run/docker.sock:/var/run/docker-host.sock 

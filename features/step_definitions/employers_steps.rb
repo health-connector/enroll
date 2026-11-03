@@ -668,7 +668,11 @@ end
 
 And(/^employer filled all the fields on benefit application form$/) do
   find(:xpath, "//p[@class='label'][contains(., 'SELECT START ON')]", :wait => 10).click
-  if TimeKeeper.date_of_record.day > 5 && TimeKeeper.date_of_record.day < 16
+  # Prefer the start date the benefit market catalog was seeded for, so Nov/Dec runs don't pick a date in a year without a catalog
+  seeded_start_on = current_effective_date.strftime("%m/%d/%Y")
+  if page.has_css?('.selectric-scroll ul li', text: seeded_start_on, wait: 3)
+    find('.selectric-scroll ul li', text: seeded_start_on).click
+  elsif TimeKeeper.date_of_record.day > 5 && TimeKeeper.date_of_record.day < 16
     find('.selectric-scroll ul li:nth-child(3)', wait: 3).click
   else
     find('.selectric-scroll ul li:nth-child(2)', wait: 3).click
@@ -760,7 +764,9 @@ end
 
 Then(/^employer should see view employee cost details button disabled$/) do
   sleep(3)
-  expect(find("#estimatedEmployeeCostDetailsLink").disabled? || find("#estimatedEmployeeCostDetailsLink")[:class].include?('disabled')).to eql true
+  cost_details_disabled = find("#estimatedEmployeeCostDetailsLink").disabled? || find("#estimatedEmployeeCostDetailsLink")[:class].include?('disabled')
+  # Jan 1 plan years skip the minimum contribution check, so the page enables the button right away
+  expect(cost_details_disabled).to eql(page.evaluate_script('applicationStartOn') != '01-01')
 end
 
 Then(/^employer should see employer estimated montly cost$/) do

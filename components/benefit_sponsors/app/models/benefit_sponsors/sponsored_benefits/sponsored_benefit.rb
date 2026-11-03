@@ -65,6 +65,18 @@ module BenefitSponsors
         lookup_package_products(coverage_date)
       end
 
+      # Products written as the elected plans in the employer XML. Uses the products offered on the coverage date,
+      # or the package products for the plan option and service areas when none of them have a premium table for that date.
+      #
+      # @param coverage_date [Date] plan year start date
+      # @return [Array<BenefitMarkets::Products::Product>] elected products
+      def elected_products(coverage_date)
+        dated_products = products(coverage_date)
+        return dated_products if dated_products.present? || single_plan_type? || product_package.blank?
+
+        product_package.products_for_plan_option_choice(product_option_choice).by_service_areas(recorded_service_area_ids).to_a
+      end
+
       def lookup_package_products(coverage_date)
         return [reference_product] if product_package_kind == :single_product
 

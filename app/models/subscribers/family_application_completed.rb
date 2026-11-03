@@ -181,8 +181,8 @@ module Subscribers
       ssn = verified_family_member.person_demographics.ssn
       ssn = '' if ssn == "999999999"
       dob = verified_family_member.person_demographics.birth_date
-      last_name_regex = /^#{verified_family_member.person.name_last}$/i
-      first_name_regex = /^#{verified_family_member.person.name_first}$/i
+      last_name_regex = /^#{::Regexp.escape(verified_family_member.person.name_last.to_s)}$/i
+      first_name_regex = /^#{::Regexp.escape(verified_family_member.person.name_first.to_s)}$/i
 
       if !ssn.blank?
         Person.where({

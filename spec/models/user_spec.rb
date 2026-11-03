@@ -564,4 +564,17 @@ RSpec.describe User, :type => :model, dbclean: :after_each do
       end
     end
   end
+
+  describe ".datatable_search", dbclean: :after_each do
+    let!(:dotted_user) { FactoryBot.create(:user, oim_id: "search.user1", email: "search.user1@example.com") }
+    let!(:other_user) { FactoryBot.create(:user, oim_id: "searchXuser2", email: "searchxuser2@example.com") }
+
+    it "treats regex metacharacters in the query as literal text" do
+      expect(User.datatable_search("search.user").to_a).to eq [dotted_user]
+    end
+
+    it "does not raise on an unbalanced parenthesis in the query" do
+      expect { User.datatable_search("search(").to_a }.not_to raise_error
+    end
+  end
 end

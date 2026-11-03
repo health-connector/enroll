@@ -11,7 +11,7 @@ concurrency:
 
 jobs:
   bundler-audit:
-    runs-on: ubuntu-24.04 # ruby-builder has no 3.4.7 build for ubuntu-26.04; unpin with the ruby upgrade
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
@@ -43,7 +43,7 @@ jobs:
 
   bearer-full:
     if: github.event_name != 'pull_request'
-    runs-on: ubuntu-24.04 # ruby-builder has no 3.4.7 build for ubuntu-26.04; unpin with the ruby upgrade
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
