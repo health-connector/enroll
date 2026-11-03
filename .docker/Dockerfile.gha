@@ -2,7 +2,7 @@
 ### Base image ###
 ############################################
 
-ARG RUBY_VERSION=3.4.7
+ARG RUBY_VERSION=3.4.12
 ARG NODE_MAJOR=24
 
 # cross-compilation: expose buildkit platform args for FROM

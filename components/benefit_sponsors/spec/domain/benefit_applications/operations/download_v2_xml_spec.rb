@@ -217,6 +217,35 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::DownloadV2Xml, 
       expect(xml).to include("<end_datetime>#{initial_application.end_on.to_date}T00:00:00</end_datetime>")
     end
 
+    context 'when the plan year catalog has no premium tables for its start date' do
+      let(:params) do
+        {
+          selected_event: selected_event,
+          employer_application_id: employer_application_id,
+          employer_actions_id: employer_actions_id,
+          benefit_sponsorship: BenefitSponsors::BenefitSponsorships::BenefitSponsorship.find(benefit_sponsorship.id)
+        }
+      end
+
+      before do
+        catalog = initial_application.benefit_sponsor_catalog
+        catalog.class.collection.update_one({ _id: catalog.id }, { '$set' => { 'product_packages.$[].products.$[].premium_tables' => [] } })
+      end
+
+      it 'still writes the plan year with its elected plans for the carrier' do
+        result = subject.call(**params)
+
+        expect(result).to be_success
+        Zip::File.open(result.value!) do |zip|
+          document = Nokogiri::XML(zip.first.get_input_stream.read)
+          namespace = { 'cv' => 'http://openhbx.org/api/terms/1.0' }
+
+          expect(document.xpath('//cv:plan_year/cv:plan_year_start', namespace).map(&:text)).to eq([initial_application.start_on.strftime("%Y%m%d")])
+          expect(document.xpath('//cv:elected_plan/cv:carrier/cv:id/cv:id', namespace).map(&:text).uniq).to eq(['99999'])
+        end
+      end
+    end
+
     context 'when the selected event drops a carrier' do
       let(:selected_event) { BenefitSponsors::EmployerEvents::EventNames::RENEWAL_CARRIER_CHANGE_EVENT }
 

@@ -182,8 +182,8 @@ module Operations
       def matching_criteria(person)
         criteria =
           {
-            'first_name' => /^#{person.first_name}$/i,
-            'last_name' => /^#{person.last_name}$/i,
+            'first_name' => /^#{::Regexp.escape(person.first_name.to_s)}$/i,
+            'last_name' => /^#{::Regexp.escape(person.last_name.to_s)}$/i,
             'dob' => person.dob
           }
         criteria.each_key do |changed_attr|
@@ -191,7 +191,7 @@ module Operations
             next unless k == changed_attr
 
             criteria[changed_attr] = if ['first_name', 'last_name'].include?(k)
-                                       /^#{v[0]}$/i
+                                       /^#{::Regexp.escape(v[0].to_s)}$/i
                                      else
                                        v[0]
                                      end

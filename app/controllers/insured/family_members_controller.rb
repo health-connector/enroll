@@ -43,7 +43,7 @@ class Insured::FamilyMembersController < ApplicationController
 
     if params[:sep_id].present?
       @sep = @family.special_enrollment_periods.find(params[:sep_id])
-      @sep = duplicate_sep(@sep) if @sep.submitted_at.to_date != TimeKeeper.date_of_record
+      @sep = duplicate_sep(@sep) if TimeKeeper.date_according_to_exchange_at(@sep.submitted_at) != TimeKeeper.date_of_record
       @qle = QualifyingLifeEventKind.find(params[:qle_id])
       @change_plan = 'change_by_qle'
       @change_plan_date = @sep.qle_on

@@ -185,8 +185,8 @@ class V2GroupXmlGenerator
   def benefit_application_carriers(benefit_application)
     carrier_profiles = []
     benefit_application.benefit_packages.each do |benefit_package|
-      carrier_profiles << benefit_package.health_sponsored_benefit.products(benefit_package.effective_period.min).map(&:issuer_profile).uniq
-      carrier_profiles << benefit_package.dental_sponsored_benefit.products(benefit_package.effective_period.min).map(&:issuer_profile).uniq if benefit_package.dental_sponsored_benefit.present?
+      carrier_profiles << benefit_package.health_sponsored_benefit.elected_products(benefit_package.effective_period.min).map(&:issuer_profile).uniq
+      carrier_profiles << benefit_package.dental_sponsored_benefit.elected_products(benefit_package.effective_period.min).map(&:issuer_profile).uniq if benefit_package.dental_sponsored_benefit.present?
     end
     carrier_profiles
   end

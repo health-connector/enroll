@@ -112,6 +112,17 @@ RSpec.describe V2GroupXmlGenerator, dbclean: :after_each do
       expect(plan_year_starts(files[issuer_profile.legal_name])).to eq([initial_application.start_on.strftime("%Y%m%d")])
     end
 
+    it 'writes the dropped carrier when the prior plan year catalog has no premium tables for its start date' do
+      prior_catalog = initial_application.benefit_sponsor_catalog
+      prior_catalog.class.collection.update_one({ _id: prior_catalog.id }, { '$set' => { 'product_packages.$[].products.$[].premium_tables' => [] } })
+
+      files = generate_for(initial_application)
+
+      expect(files.keys).to eq([issuer_profile.legal_name])
+      expect(event_names(files[issuer_profile.legal_name])).to eq([dropped_event])
+      expect(plan_year_starts(files[issuer_profile.legal_name])).to eq([initial_application.start_on.strftime("%Y%m%d")])
+    end
+
     it 'writes the carrier dropped event for the dropped carrier when the renewal plan year is given' do
       files = generate_for(renewal_application)
 
