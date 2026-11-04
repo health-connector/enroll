@@ -7,7 +7,7 @@ PATH
       net-sftp (~> 4.0)
       net-ssh (~> 7.3, >= 7.3.8)
       rack (>= 2.2.14)
-      rails (~> 8.1, >= 8.1.2)
+      rails (~> 8.1, >= 8.1.4.1)
 
 GEM
   remote: https://rubygems.org/
