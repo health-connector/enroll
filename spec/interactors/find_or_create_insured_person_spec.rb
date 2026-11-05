@@ -86,4 +86,60 @@ describe FindOrCreateInsuredPerson, :dbclean => :after_each do
       expect(result.is_new).to be_falsey
     end
   end
+
+  context "given a name/DOB collision with an unrelated person who has no SSN on file" do
+    let(:encrypted_ssn) { Person.encrypt_ssn(ssn) }
+    # the real, SSN-verified match (e.g. an existing dependent/spouse record)
+    let(:ssn_matched_person) { double(ssn: ssn, encrypted_ssn: encrypted_ssn, save: true, user: nil) }
+    # an unrelated person who happens to share first/last name + DOB, with no SSN on file
+    # (e.g. an employer-staff-role contact entered without an SSN)
+    let(:name_matched_person) { double(ssn: nil, encrypted_ssn: nil, save: true, user: nil) }
+    let(:context_arguments) do
+      { :first_name => first_name,
+        :last_name => last_name,
+        :dob => dob,
+        :ssn => ssn }
+    end
+
+    before :each do
+      allow(Person).to receive(:match_by_id_info)
+        .with(ssn: ssn, dob: dob, first_name: first_name, last_name: last_name)
+        .and_return([ssn_matched_person, name_matched_person])
+      allow(Person).to receive(:encrypt_ssn).and_call_original
+      allow(Person).to receive(:encrypt_ssn).with(ssn).and_return(encrypted_ssn)
+    end
+
+    it "prefers the exact SSN match instead of bailing out on the ambiguity" do
+      expect(result.person).to eq ssn_matched_person
+    end
+
+    it "communicates that a new person was not created" do
+      expect(result.is_new).to be_falsey
+    end
+  end
+
+  context "given a genuine ambiguity (more than one match with the same SSN on file, or no SSN provided)" do
+    let(:person_a) { double(ssn: ssn, encrypted_ssn: Person.encrypt_ssn(ssn), save: true, user: nil) }
+    let(:person_b) { double(ssn: ssn, encrypted_ssn: Person.encrypt_ssn(ssn), save: true, user: nil) }
+    let(:context_arguments) do
+      { :first_name => first_name,
+        :last_name => last_name,
+        :dob => dob,
+        :ssn => ssn }
+    end
+
+    before :each do
+      allow(Person).to receive(:match_by_id_info)
+        .with(ssn: ssn, dob: dob, first_name: first_name, last_name: last_name)
+        .and_return([person_a, person_b])
+    end
+
+    it "still bails out, since there is no single person uniquely identified by SSN" do
+      expect(result.person).to eq nil
+    end
+
+    it "communicates that a new person was not created" do
+      expect(result.is_new).to be_falsey
+    end
+  end
 end
