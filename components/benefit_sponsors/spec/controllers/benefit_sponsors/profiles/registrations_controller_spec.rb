@@ -484,6 +484,32 @@ module BenefitSponsors
         # it_behaves_like "fail store profile for update if params invalid", "issuer"
         # it_behaves_like "fail store profile for update if params invalid", "contact_center"
         # it_behaves_like "fail store profile for update if params invalid", "fedhb"
+
+        context "when updating languages_spoken" do
+          before :each do
+            sanitize_attributes("broker_agency")
+            sign_in update_user
+            broker_agency.broker_agency_profile.update_attributes!(languages_spoken: ["en"])
+          end
+
+          it "persists an array value submitted via the multi-select field" do
+            params = broker_agency_params
+            params[:organization][:profile_attributes][:languages_spoken] = ["en", "es"]
+
+            put :update, params: { agency: params, id: params[:id] }
+
+            expect(broker_agency.reload.broker_agency_profile.languages_spoken).to match_array(["en", "es"])
+          end
+
+          it "does not wipe out an existing value when the field is resubmitted unchanged" do
+            params = broker_agency_params
+            params[:organization][:profile_attributes][:languages_spoken] = ["en"]
+
+            put :update, params: { agency: params, id: params[:id] }
+
+            expect(broker_agency.reload.broker_agency_profile.languages_spoken).to eq(["en"])
+          end
+        end
       end
     end
   end
