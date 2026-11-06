@@ -45,6 +45,16 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
     end
   end
 
+  describe '#log' do
+    it 'logs with the class tag and does not duplicate messages on stdout' do
+      allow(Rails.env).to receive(:test?).and_return(false)
+      expect(Rails.logger).to receive(:tagged).with(described_class.name).and_call_original
+      expect(Rails.logger).to receive(:info).with('Processed 5 records')
+
+      expect { runner.send(:log, 'Processed 5 records') }.not_to output.to_stdout
+    end
+  end
+
   # @!group Address anonymization -address anonymization tests
 
   describe '#anonymize_address_hash' do
@@ -1385,10 +1395,13 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
   describe '#redact_bs_document_identifiers' do
     let(:db_double)     { instance_double(Mongo::Database) }
     let(:bs_collection) { instance_double(Mongo::Collection, name: 'benefit_sponsors_documents_documents') }
-    let(:doc)    { { '_id' => BSON::ObjectId.new } }
+    let(:doc)    { { '_id' => BSON::ObjectId.new, 'identifier' => 'urn:real#abc' } }
     let(:filter) do
       {
-        'identifier' => { '$exists' => true, '$nin' => [nil, '', 'missing_uri'] },
+        '$or' => [
+          { 'identifier' => { '$exists' => true, '$nin' => [nil, '', 'missing_uri'] } },
+          { 'subject' => 'commission-statement' }
+        ],
         'documentable_type' => { '$ne' => 'BenefitSponsors::Organizations::IssuerProfile' }
       }
     end
@@ -1401,7 +1414,7 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
       allow(db_double).to receive(:collection_names).and_return(['benefit_sponsors_documents_documents'])
       allow(bs_collection).to receive(:count_documents).with(filter).and_return(1)
       allow(bs_collection).to receive(:find).with(filter).and_return(view)
-      allow(view).to receive(:projection).with('_id' => 1).and_return(view)
+      allow(view).to receive(:projection).with('identifier' => 1, 'title' => 1, 'subject' => 1).and_return(view)
       allow(view).to receive(:batch_size).with(batch_size).and_return(sized)
       allow(sized).to receive(:each_slice).with(batch_size).and_yield([doc])
     end
@@ -1415,7 +1428,7 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
       expect(runner.send(:redact_bs_document_identifiers)).to eq(0)
     end
 
-    it 'returns 0 when no documents have a real identifier' do
+    it 'returns 0 when no documents have a real identifier or commission statement' do
       allow(bs_collection).to receive(:count_documents).with(filter).and_return(0)
       expect(runner.send(:redact_bs_document_identifiers)).to eq(0)
     end
@@ -1434,16 +1447,16 @@ RSpec.describe DataAnonymizer::Runner, dbclean: :around_each do
         allow(live_runner).to receive(:db).and_return(db_double)
         allow(bs_collection).to receive(:count_documents).with(filter).and_return(1)
         allow(bs_collection).to receive(:find).with(filter).and_return(view)
-        allow(view).to receive(:projection).with('_id' => 1).and_return(view)
+        allow(view).to receive(:projection).with('identifier' => 1, 'title' => 1, 'subject' => 1).and_return(view)
         allow(view).to receive(:batch_size).with(batch_size).and_return(sized)
         allow(sized).to receive(:each_slice).with(batch_size).and_yield([doc])
       end
 
       it 'calls bulk_write_batch with an identifier update for each document' do
-        expect(live_runner).to receive(:bulk_write_batch).with(
-          bs_collection,
-          array_including(hash_including(:update_one))
-        )
+        expect(live_runner).to receive(:bulk_write_batch) do |collection, updates|
+          expect(collection).to eq(bs_collection)
+          expect(updates.first.dig(:update_one, :update, '$set', 'identifier')).to start_with('urn:openhbx:terms:v1:file_storage:s3:bucket:anonymized#')
+        end
         live_runner.send(:redact_bs_document_identifiers)
       end
     end
