@@ -285,6 +285,7 @@ module SponsoredBenefits
 
       def header_valid?(sheet_header_row)
         return false if sheet_header_row[TEMPLATE_DATE_CELL].blank?
+
         if sheet_header_row[TEMPLATE_DATE_CELL].is_a? Date
           template_date = sheet_header_row[TEMPLATE_DATE_CELL]
         else
