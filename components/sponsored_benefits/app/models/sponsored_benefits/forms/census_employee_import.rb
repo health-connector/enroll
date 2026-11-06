@@ -284,6 +284,7 @@ module SponsoredBenefits
       end
 
       def header_valid?(sheet_header_row)
+        return false if sheet_header_row[TEMPLATE_DATE_CELL].blank?
         if sheet_header_row[TEMPLATE_DATE_CELL].is_a? Date
           template_date = sheet_header_row[TEMPLATE_DATE_CELL]
         else
@@ -421,7 +422,7 @@ module SponsoredBenefits
       private
       def sanitize_value(value)
         value = value.to_s.split('.')[0] if value.is_a? Numeric
-        value.gsub(/[[:cntrl:]]|^[\p{Space}]+|[\p{Space}]+$/, '')
+        value.to_s.gsub(/[[:cntrl:]]|^[\p{Space}]+|[\p{Space}]+$/, '')
       end
 
       def prepend_zeros(number, n)
