@@ -172,5 +172,78 @@ module SponsoredBenefits
       end
 
     end
+
+    describe "primary county checks on prospect entry" do
+      let!(:county_zip) { create(:benefit_markets_locations_county_zip, zip: '01060', county_name: 'Hampshire') }
+      let(:office_location) { build(:sponsored_benefits_office_location, :primary) }
+      let(:organization) { build(:sponsored_benefits_plan_design_organization, sponsor_profile_id: nil, office_locations: [office_location]) }
+      let(:address) { office_location.address }
+
+      before { address.assign_attributes(zip: '01060', county: county) }
+
+      context "when the primary county matches the zip" do
+        let(:county) { 'Hampshire' }
+
+        it "is valid in the prospect_entry context" do
+          expect(organization.valid?(:prospect_entry)).to be_truthy
+        end
+      end
+
+      context "when the zip maps to one county and the county is the form placeholder" do
+        let(:county) { 'Please provide a zip code' }
+
+        it "sets the county from the zip and is valid" do
+          expect(organization.valid?(:prospect_entry)).to be_truthy
+          expect(address.county).to eq 'Hampshire'
+        end
+
+        it "leaves the county alone outside the prospect_entry context" do
+          expect(organization.valid?).to be_truthy
+          expect(address.county).to eq 'Please provide a zip code'
+        end
+      end
+
+      context "when the zip maps to one county and the county is blank" do
+        let(:county) { '' }
+
+        it "sets the county from the zip" do
+          expect(organization.valid?(:prospect_entry)).to be_truthy
+          expect(address.county).to eq 'Hampshire'
+        end
+      end
+
+      context "when the zip maps to more than one county" do
+        let!(:second_county_zip) { create(:benefit_markets_locations_county_zip, zip: '01060', county_name: 'Franklin') }
+
+        context "and a valid county was selected" do
+          let(:county) { 'Franklin' }
+
+          it "keeps the selected county" do
+            expect(organization.valid?(:prospect_entry)).to be_truthy
+            expect(address.county).to eq 'Franklin'
+          end
+        end
+
+        context "and the county is the form placeholder" do
+          let(:county) { 'Please provide a zip code' }
+
+          it "is invalid in the prospect_entry context" do
+            expect(organization.valid?(:prospect_entry)).to be_falsey
+            expect(organization.errors[:base]).to include('Please select a valid county for zip code 01060')
+          end
+        end
+      end
+
+      context "when the zip is outside the supported area" do
+        let(:county) { 'Zip code outside supported area' }
+
+        before { address.zip = '99999' }
+
+        it "is invalid in the prospect_entry context" do
+          expect(organization.valid?(:prospect_entry)).to be_falsey
+          expect(organization.errors[:base]).to include('Please select a valid county for zip code 99999')
+        end
+      end
+    end
   end
 end

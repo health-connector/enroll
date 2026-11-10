@@ -26,6 +26,7 @@ module SponsoredBenefits
                                                                     owner_profile_id: broker_agency_profile_id,
                                                                     legal_name: employer.name,
                                                                     sic_code: employer.sic_code ) }
+    let!(:county_zip) { create(:benefit_markets_locations_county_zip, zip: '01001', county_name: 'Hampden') }
     let(:user) { double(:user) }
     let(:datatable) { double(:datatable) }
     let(:sic_codes) { double(:sic_codes) }
@@ -246,6 +247,42 @@ module SponsoredBenefits
 
           expect(SponsoredBenefits::Organizations::PlanDesignOrganization.all.last.owner_profile_id).to eq(bap.id)
         end
+
+        context "when the county is the zip placeholder" do
+          let(:bap) { FactoryBot.create(:benefit_sponsors_organizations_broker_agency_profile) }
+          let(:placeholder_attributes) do
+            valid_attributes.deep_dup.tap do |attrs|
+              attrs["office_locations_attributes"]["0"]["address_attributes"]["county"] = "Please provide a zip code"
+            end
+          end
+
+          it "creates the prospect with the county for the zip" do
+            post :create, params: { organization: placeholder_attributes, broker_agency_id: bap.id, format: 'js' }
+            expect(Organizations::PlanDesignOrganization.last.office_locations.first.address.county).to eq 'Hampden'
+          end
+        end
+
+        context "when the county is the zip placeholder and the zip has more than one county" do
+          let(:bap) { FactoryBot.create(:benefit_sponsors_organizations_broker_agency_profile) }
+          let!(:second_county_zip) { create(:benefit_markets_locations_county_zip, zip: '01001', county_name: 'Hampshire') }
+          let(:placeholder_attributes) do
+            valid_attributes.deep_dup.tap do |attrs|
+              attrs["office_locations_attributes"]["0"]["address_attributes"]["county"] = "Please provide a zip code"
+            end
+          end
+
+          it "does not create the prospect" do
+            expect do
+              post :create, params: { organization: placeholder_attributes, broker_agency_id: bap.id, format: 'js' }
+            end.not_to(change { Organizations::PlanDesignOrganization.all.count })
+          end
+
+          it "renders the new view with the county error" do
+            post :create, params: { organization: placeholder_attributes, broker_agency_id: bap.id, format: 'js' }
+            expect(response).to render_template(:new)
+            expect(assigns(:organization).errors[:base]).to include('Please select a valid county for zip code 01001')
+          end
+        end
       end
 
     end
@@ -421,6 +458,29 @@ module SponsoredBenefits
             it "renders edit with flash error" do
               patch :update, params: { organization: invalid_attributes, id: prospect_plan_design_organization.id, format: 'js' }
               expect(subject).to redirect_to(edit_organizations_plan_design_organization_path(prospect_plan_design_organization))
+            end
+          end
+
+          context "with the zip placeholder as county" do
+            let(:placeholder_attributes) do
+              valid_attributes.deep_dup.tap do |attrs|
+                attrs["office_locations_attributes"]["0"]["address_attributes"]["county"] = "Please provide a zip code"
+              end
+            end
+
+            it "saves the county for the zip" do
+              patch :update, params: { organization: placeholder_attributes, id: prospect_plan_design_organization.id, format: 'js' }
+              expect(prospect_plan_design_organization.reload.office_locations.first.address.county).to eq("Hampden")
+            end
+
+            context "and the zip has more than one county" do
+              let!(:second_county_zip) { create(:benefit_markets_locations_county_zip, zip: '01001', county_name: 'Hampshire') }
+
+              it "does not save the placeholder county" do
+                patch :update, params: { organization: placeholder_attributes, id: prospect_plan_design_organization.id, format: 'js' }
+                expect(subject).to redirect_to(edit_organizations_plan_design_organization_path(prospect_plan_design_organization))
+                expect(prospect_plan_design_organization.reload.office_locations.first.address.county).not_to eq("Please provide a zip code")
+              end
             end
           end
         end
