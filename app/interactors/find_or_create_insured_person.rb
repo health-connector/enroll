@@ -11,6 +11,8 @@ class FindOrCreateInsuredPerson
       last_name: context.last_name,
       first_name: context.first_name
     )
+    people = narrow_to_exact_ssn_match(people) if people.count > 1
+
     person = nil
     is_new = nil
     case people.count
@@ -79,5 +81,22 @@ class FindOrCreateInsuredPerson
     end
     context.person = person
     context.is_new = is_new
+  end
+
+  private
+
+  # Person.match_by_id_info can return more than one match: an exact SSN+DOB
+  # match, plus any additional people found via the name+DOB fallback (which
+  # also matches unrelated people who simply share a name/DOB and have no SSN
+  # on file). When an SSN was provided and exactly one of the matches has that
+  # exact SSN on file, prefer that verified match instead of treating the
+  # coincidental name/DOB collision as an unresolvable ambiguity.
+  def narrow_to_exact_ssn_match(people)
+    return people if context.ssn.blank?
+
+    exact_ssn_matches = people.select { |person| person.encrypted_ssn == Person.encrypt_ssn(context.ssn) }
+    return people unless exact_ssn_matches.size == 1
+
+    exact_ssn_matches
   end
 end
