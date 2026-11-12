@@ -423,7 +423,7 @@ module BenefitSponsors
         :benefit_applications => {
           :"$elemMatch" => {
             :predecessor_id => benefit_application.id,
-            :aasm_state => { "$nin" => BenefitSponsors::BenefitApplications::BenefitApplication::CANCELED_STATES.map(&:to_s) }
+            :aasm_state => { "$nin" => BenefitSponsors::BenefitApplications::BenefitApplication::CANCELED_STATES }
           }
         }
       ).exists?
