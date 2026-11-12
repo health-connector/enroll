@@ -149,6 +149,29 @@ RSpec.describe TimeKeeper, type: :model do
       it "should send a syslog info message to the enterprise logger for each successful advance"
     end
 
+    context "and the day is advanced" do
+      before :each do
+        allow(TimeKeeper.instance).to receive(:push_date_of_record)
+        allow(TimeKeeper.instance).to receive(:push_date_change_event)
+        allow(TimeKeeper.instance).to receive(:notify_logger).and_call_original
+        TimeKeeper.set_date_of_record_unprotected!(base_date)
+      end
+
+      it "logs the advance with the host that ran it" do
+        TimeKeeper.set_date_of_record(next_day)
+
+        expect(TimeKeeper.instance).to have_received(:notify_logger).with("TimeKeeper advancing from #{base_date} to #{next_day} on #{Socket.gethostname}")
+        expect(TimeKeeper.instance).to have_received(:notify_logger).with("TimeKeeper marked #{next_day} advanced on #{Socket.gethostname}")
+      end
+
+      it "logs a repeated date change message as skipped" do
+        TimeKeeper.set_date_of_record(next_day)
+        TimeKeeper.set_date_of_record(next_day)
+
+        expect(TimeKeeper.instance).to have_received(:notify_logger).with("TimeKeeper advance for #{next_day} skipped on #{Socket.gethostname} - already advanced").once
+      end
+    end
+
     context "and no advance has been recorded (CCAOM-349)" do
       before :each do
         allow(TimeKeeper.instance).to receive(:push_date_of_record)
