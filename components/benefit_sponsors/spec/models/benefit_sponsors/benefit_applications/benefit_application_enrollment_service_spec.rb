@@ -50,6 +50,62 @@ module BenefitSponsors
           expect(renewal_application.benefit_packages.count).to eq 1
         end
       end
+
+      # Re-read every call, since the examples renew between reads.
+      def renewals
+        benefit_sponsorship.reload.benefit_application_successors_for(initial_application)
+      end
+
+      def renew(application = initial_application)
+        described_class.new(application).renew_application
+      end
+
+      # The nightly renewal runs again when the date change message is redelivered.
+      # A second run must not build a second renewal plan year.
+      context "when a renewal application already exists" do
+        before(:each) do
+          renew
+        end
+
+        it "does not build a second renewal application" do
+          result, _application, messages = renew
+
+          expect(result).to eq false
+          expect(messages).to have_key(:renewal_already_exists)
+          expect(renewals.count).to eq 1
+        end
+
+        it "does not create another renewal catalog" do
+          expect { renew }.not_to(change { BenefitMarkets::BenefitSponsorCatalog.count })
+        end
+
+        context "and that renewal was canceled" do
+          before(:each) do
+            renewals.first.update_attributes!(aasm_state: :canceled)
+          end
+
+          it "builds a new renewal application" do
+            result, = renew
+
+            expect(result).to eq true
+            expect(renewals.map { |application| application.aasm_state.to_s }).to contain_exactly("canceled", "draft")
+          end
+        end
+      end
+
+      # Two listeners run the same day at once. Each loaded the sponsorship before
+      # the other one saved its renewal, so the loaded copy can't be trusted.
+      context "when another process renews after this copy was loaded" do
+        it "does not build a second renewal application" do
+          stale_application = BenefitSponsorships::BenefitSponsorship.find(benefit_sponsorship.id).benefit_applications.find(initial_application.id)
+          renew
+
+          result, = renew(stale_application)
+
+          expect(result).to eq false
+          expect(renewals.count).to eq 1
+        end
+      end
     end
 
     describe '.revert_application' do
