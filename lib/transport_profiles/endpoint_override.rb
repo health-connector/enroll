@@ -15,9 +15,12 @@ module TransportProfiles
     def run
       self.class.abort_if_production!
       entries = load_payload
-      entries.map do |entry|
+      updated_records = entries.map do |entry|
         update_endpoint(entry)
       end
+      unconfigured_records = clear_unconfigured_endpoints(entries.map { |entry| entry['key'].to_s })
+      verify_endpoints!(updated_records + unconfigured_records)
+      updated_records
     end
 
     def self.abort_if_production!
@@ -74,11 +77,30 @@ module TransportProfiles
 
       record = find_record(key)
       apply_uri(record, entry['uri'])
+      if production_uri?(record.uri.to_s)
+        record.credentials.clear
+        persist_or_dry_run(record)
+        log_result(record, 'cleared_credentials_for_production_uri')
+        raise "endpoint #{record.key} still contains a production uri"
+      end
+
       replace_credentials(record, entry['credentials'])
-      persist_or_dry_run(record)
       verify_endpoint!(record)
-      log_result(record)
+      persist_or_dry_run(record)
+      log_result(record, 'updated')
       record
+    end
+
+    def clear_unconfigured_endpoints(configured_keys)
+      records = TransportProfiles::WellKnownEndpoint.all.to_a.reject do |record|
+        configured_keys.include?(record.key.to_s)
+      end
+      records.each do |record|
+        record.credentials.clear
+        persist_or_dry_run(record)
+        log_result(record, 'cleared_unconfigured_credentials')
+      end
+      records
     end
 
     def find_record(key)
@@ -112,11 +134,14 @@ module TransportProfiles
       credential = record.credentials.find { |existing| existing.credential_kind.to_s == kind }
       credential ||= record.credentials.build(credential_kind: kind)
 
-      credential.account_name = credential_data['account_name'] if credential_data.key?('account_name')
-      credential.access_key_id = credential_data['access_key_id'] if credential_data.key?('access_key_id')
-      credential.secret_access_key = credential_data['secret_access_key'] if credential_data.key?('secret_access_key')
-      credential.pass_phrase = credential_data['pass_phrase'] if credential_data.key?('pass_phrase')
-      credential.private_rsa_key = credential_data['private_rsa_key'] if credential_data.key?('private_rsa_key')
+      credential.account_name = credential_data['account_name']
+      credential.access_key_id = credential_data['access_key_id']
+      credential.encrypted_pass_phrase = nil
+      credential.encrypted_private_rsa_key = nil
+      credential.encrypted_secret_access_key = nil
+      credential.pass_phrase = credential_data['pass_phrase'] if credential_data['pass_phrase'].present?
+      credential.private_rsa_key = credential_data['private_rsa_key'] if credential_data['private_rsa_key'].present?
+      credential.secret_access_key = credential_data['secret_access_key'] if credential_data['secret_access_key'].present?
     end
 
     def persist_or_dry_run(record)
@@ -128,6 +153,12 @@ module TransportProfiles
 
       record.credentials.each do |credential|
         validate_credential(record.key, credential)
+      end
+    end
+
+    def verify_endpoints!(records)
+      records.each do |record|
+        verify_endpoint!(record)
       end
     end
 
@@ -148,9 +179,9 @@ module TransportProfiles
       end
     end
 
-    def log_result(record)
+    def log_result(record, action)
       Rails.logger.tagged(self.class.name) do
-        Rails.logger.info("updated transport endpoint key=#{record.key} scheme=#{uri_scheme(record.uri)} credential_kinds=#{record.credentials.map(&:credential_kind).compact.join(',')} dry_run=#{dry_run}")
+        Rails.logger.info("transport endpoint key=#{record.key} scheme=#{uri_scheme(record.uri)} action=#{action} dry_run=#{dry_run}")
       end
     end
 
