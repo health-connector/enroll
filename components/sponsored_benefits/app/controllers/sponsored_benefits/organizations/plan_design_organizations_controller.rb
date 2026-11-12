@@ -28,11 +28,12 @@ module SponsoredBenefits
         # Directly set the broker_agency_profile relationship
         plan_design_organization.broker_agency_profile = broker_agency_profile
 
-        if plan_design_organization.save
+        if plan_design_organization.save(context: :prospect_entry)
           flash[:success] = "Prospect Employer (#{organization_params[:legal_name]}) Added Successfully."
           redirect_to employers_organizations_broker_agency_profile_path(@broker_agency_profile)
         else
           init_organization(organization_params)
+          plan_design_organization.errors[:base].each { |message| @organization.errors.add(:base, message) }
           render :new
         end
       else
@@ -61,7 +62,7 @@ module SponsoredBenefits
       if pdo.is_prospect?
         pdo.assign_attributes(organization_params)
 
-        if pdo.save
+        if pdo.save(context: :prospect_entry)
           flash[:success] = "Prospect Employer (#{pdo.legal_name}) Updated Successfully."
           redirect_to employers_organizations_broker_agency_profile_path(pdo.broker_agency_profile)
         else

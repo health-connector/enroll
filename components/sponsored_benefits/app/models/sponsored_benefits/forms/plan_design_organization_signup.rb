@@ -66,7 +66,10 @@ module SponsoredBenefits
       def office_locations_attributes=(attrs)
         @office_locations = []
         attrs.each_pair do |k, att_set|
-          @office_locations << SponsoredBenefits::Organizations::OfficeLocation.new(att_set)
+          # _destroy is a nested-attributes flag, not an OfficeLocation field
+          next if att_set['_destroy'].to_s == 'true'
+
+          @office_locations << SponsoredBenefits::Organizations::OfficeLocation.new(att_set.except('_destroy'))
         end
         @office_locations
       end

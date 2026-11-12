@@ -44,6 +44,9 @@ module SponsoredBenefits
       validates_presence_of :sic_code, if: :sic_code_exists_for_employer?
       validates_uniqueness_of :owner_profile_id, :scope => :sponsor_profile_id, unless: Proc.new { |pdo| pdo.sponsor_profile_id.nil? }
       validates_uniqueness_of :sponsor_profile_id, :scope => :owner_profile_id, unless: Proc.new { |pdo| pdo.sponsor_profile_id.nil? }
+      # Only run when a broker creates or edits a prospect, so existing records stay saveable elsewhere
+      before_validation :normalize_primary_county, on: :prospect_entry
+      validate :primary_county_valid_for_zip, on: :prospect_entry
 
 
       index({"owner_profile_id" => 1})
@@ -97,6 +100,26 @@ module SponsoredBenefits
 
       def is_prospect?
         sponsor_profile_id.nil?
+      end
+
+      # A zip that maps to a single county has only one valid answer, so set it rather than trust the submitted value
+      def normalize_primary_county
+        primary_addresses.each do |address|
+          counties = ::BenefitMarkets::Locations::CountyZip.where(zip: address.zip).distinct(:county_name)
+          address.county = counties.first if counties.size == 1
+        end
+      end
+
+      def primary_county_valid_for_zip
+        primary_addresses.each do |address|
+          next if ::BenefitMarkets::Locations::CountyZip.where(zip: address.zip, county_name: address.county).exists?
+
+          errors.add(:base, "Please select a valid county for zip code #{address.zip}")
+        end
+      end
+
+      def primary_addresses
+        office_locations.map(&:address).compact.select { |address| address.kind == 'primary' }
       end
 
       def expire_proposals
