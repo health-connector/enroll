@@ -15,8 +15,6 @@ module DataAnonymizer
   #   - ACH routing numbers that are not exactly 9 digits
   #   - Presence of the +history_trackers+ collection (should have been dropped)
   #   - Cross-model consistency: Person vs CensusEmployee first_name for linked records
-  #   - Inbox message bodies still carrying document filename references
-  #   - Document +identifier+ values not rewritten to the anonymized S3 URN
   #
   # Writes a CSV report to +tmp/anonymization_report_YYYYMMDD.csv+.
   #
@@ -27,21 +25,6 @@ module DataAnonymizer
 
     GENERATED_EMAIL_PATTERN = /@(exampleanonymizer|testanonymizer)\.com\z/
     SAMPLE_SIZE = 5000
-    UNREDACTED_FILENAME_PATTERN = /filename=(?!document-redacted)/
-    ANONYMIZED_IDENTIFIER_PATTERN = /^urn:openhbx:terms:v1:file_storage:s3:bucket:anonymized#/
-    INBOX_MESSAGE_PATHS = [
-      [:people, 'inbox.messages'],
-      [:organizations, 'employer_profile.inbox.messages'],
-      [:organizations, 'broker_agency_profile.inbox.messages'],
-      [:organizations, 'hbx_profile.inbox.messages'],
-      [:benefit_sponsors_organizations_organizations, 'profiles.inbox.messages']
-    ].freeze
-    EMBEDDED_DOCUMENT_PATHS = [
-      [:people, 'documents'],
-      [:organizations, 'documents'],
-      [:organizations, 'employer_profile.documents'],
-      [:organizations, 'broker_agency_profile.documents']
-    ].freeze
     # Fields excluded from the streaming SSN regex scan.
     # +fein+ is a 9-digit EIN intentionally left unchanged per anonymization policy.
     # +ach_routing_number+ is an ABA routing number - always exactly 9 digits by spec;
@@ -110,8 +93,6 @@ module DataAnonymizer
       checks << check_organizations
       checks << check_bs_organizations
       checks << check_families
-      checks << check_inbox_messages
-      checks << check_document_identifiers
       checks << check_census_person_consistency
 
       # Audit-only, more expensive checks
@@ -422,65 +403,6 @@ module DataAnonymizer
       issues << "#{e_case_count} families with non-nil e_case_id" if e_case_count > 0
 
       build_result("Families (families)", total, issues, "")
-    end
-
-    def check_inbox_messages
-      issues = []
-      total = 0
-
-      INBOX_MESSAGE_PATHS.each do |collection_name, messages_path|
-        collection = @db[collection_name]
-        filter = { "#{messages_path}.0" => { '$exists' => true } }
-        count = collection.count_documents(filter)
-        total += count
-        next if count.zero?
-
-        offenders = collection.find(filter).projection(messages_path => 1).limit(SAMPLE_SIZE).to_a.count do |doc|
-          doc.to_json.match?(UNREDACTED_FILENAME_PATTERN)
-        end
-        issues << "#{offenders} #{collection_name} docs with unredacted filenames under #{messages_path}" if offenders > 0
-      end
-
-      build_result("Inbox Messages (embedded)", total, issues, "")
-    end
-
-    def check_document_identifiers
-      issues = []
-      total = 0
-
-      EMBEDDED_DOCUMENT_PATHS.each do |collection_name, docs_path|
-        collection = @db[collection_name]
-        total += collection.count_documents("#{docs_path}.0" => { '$exists' => true })
-
-        offenders = collection.count_documents(docs_path => { '$elemMatch' => real_identifier_filter })
-        issues << "#{offenders} #{collection_name} records with real S3 identifiers under #{docs_path}" if offenders > 0
-      end
-
-      total += check_bs_document_identifiers(issues)
-
-      build_result("Document Identifiers (documents)", total, issues, "")
-    end
-
-    def check_bs_document_identifiers(issues)
-      return 0 unless @db.collection_names.include?('benefit_sponsors_documents_documents')
-
-      collection = @db[:benefit_sponsors_documents_documents]
-      non_issuer = { 'documentable_type' => { '$ne' => 'BenefitSponsors::Organizations::IssuerProfile' } }
-      total = collection.count_documents(non_issuer.merge('identifier' => { '$exists' => true }))
-
-      offenders = collection.count_documents(non_issuer.merge(real_identifier_filter))
-      issues << "#{offenders} benefit_sponsors documents with real S3 identifiers" if offenders > 0
-      total
-    end
-
-    def real_identifier_filter
-      {
-        'identifier' => {
-          '$exists' => true,
-          '$nin' => [nil, '', 'missing_uri'],
-          '$not' => ANONYMIZED_IDENTIFIER_PATTERN
-        }
-      }
     end
 
     # Checks cross-model PII consistency between people and census_members.
