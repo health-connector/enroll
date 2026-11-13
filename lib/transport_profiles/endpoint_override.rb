@@ -170,13 +170,18 @@ module TransportProfiles
     def validate_credential(key, credential)
       return if credential.credential_kind.blank?
 
-      if credential.sftp?
-        raise "endpoint #{key} has blank sftp account" if credential.account_name.blank?
-        raise "endpoint #{key} has blank sftp password" if credential.pass_phrase.blank? && credential.private_rsa_key.blank?
-      elsif credential.s3?
-        raise "endpoint #{key} has blank s3 access key" if credential.access_key_id.blank?
-        raise "endpoint #{key} has blank s3 secret key" if credential.secret_access_key.blank?
-      end
+      validate_sftp_credential(key, credential) if credential.sftp?
+      validate_s3_credential(key, credential) if credential.s3?
+    end
+
+    def validate_sftp_credential(key, credential)
+      raise "endpoint #{key} has blank sftp account" if credential.account_name.blank?
+      raise "endpoint #{key} has blank sftp password" if credential.pass_phrase.blank? && credential.private_rsa_key.blank?
+    end
+
+    def validate_s3_credential(key, credential)
+      raise "endpoint #{key} has blank s3 access key" if credential.access_key_id.blank?
+      raise "endpoint #{key} has blank s3 secret key" if credential.secret_access_key.blank?
     end
 
     def log_result(record, action)
