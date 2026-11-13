@@ -3,7 +3,7 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby '3.4.12'
+ruby '3.4.7'
 
 gem "benefit_markets",    path: "components/benefit_markets"
 gem "benefit_sponsors",   path: "components/benefit_sponsors"
@@ -78,7 +78,6 @@ gem 'rubyXL'
 gem 'holidays', '~> 8.6'
 gem 'thor', '>= 1.4.0'
 gem "connection_pool", "< 3"
-gem 'ffaker'
 
 #arm64 mac support
 gem 'ffi', '1.17.3'
