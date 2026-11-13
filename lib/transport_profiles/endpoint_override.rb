@@ -14,12 +14,17 @@ module TransportProfiles
 
     def run
       self.class.abort_if_production!
+      records = TransportProfiles::WellKnownEndpoint.all.to_a
+      records = records.map(&:clone) if dry_run
+      clear_credentials_before_override(records)
       entries = load_payload
       updated_records = entries.map do |entry|
-        update_endpoint(entry)
+        update_endpoint(entry, records)
       end
-      unconfigured_records = clear_unconfigured_endpoints(entries.map { |entry| entry['key'].to_s })
-      verify_endpoints!(updated_records + unconfigured_records)
+      configured_keys = updated_records.map { |record| record.key.to_s }
+      verify_endpoints!(records, configured_keys)
+      persist_updated_records(updated_records)
+      verify_persisted_endpoints(records, configured_keys) unless dry_run
       updated_records
     end
 
@@ -34,97 +39,122 @@ module TransportProfiles
     def load_payload
       raise ArgumentError, "#{DEFAULT_FILE_ENV} is not set" if file_path.blank?
 
-      entries = JSON.parse(File.read(file_path))
-      case entries
-      when Hash
-        entries.map do |key, config|
-          normalized_config(config).merge('key' => key)
-        end
-      when Array
-        entries.map { |config| normalized_config(config) }
-      else
-        raise ArgumentError, 'endpoint override payload must be a hash or array'
-      end
+      parsed_payload = JSON.parse(File.read(file_path))
+      entries = case parsed_payload
+                when Hash
+                  parsed_payload.map do |key, config|
+                    normalized_config(config, key)
+                  end
+                when Array
+                  parsed_payload.map { |config| normalized_config(config) }
+                else
+                  raise ArgumentError, 'endpoint override payload must be a hash or array'
+                end
+      raise ArgumentError, 'endpoint override payload must not be empty' if entries.empty?
+
+      keys = entries.map { |entry| entry['key'] }
+      raise ArgumentError, 'endpoint override payload contains duplicate keys' unless keys.uniq == keys
+
+      entries
     rescue Errno::ENOENT
       raise ArgumentError, "override config not found at #{file_path}"
     rescue JSON::ParserError => e
       raise ArgumentError, "override config is not valid JSON: #{e.message}"
     end
 
-    def normalized_config(config)
-      hash = config.is_a?(Hash) ? config : {}
+    def normalized_config(config, default_key = nil)
+      raise ArgumentError, 'endpoint override entry must be an object' unless config.is_a?(Hash)
+
+      key = normalize_key(config, default_key)
+      uri = normalize_uri(config, key)
+      credentials = normalize_credentials(config['credentials'] || config[:credentials], key)
+      validate_credentials_match_uri(key, uri, credentials)
+
       {
-        'key' => hash['key'] || hash[:key],
-        'uri' => hash['uri'] || hash[:uri],
-        'credentials' => normalize_credentials(hash['credentials'] || hash[:credentials])
+        'key' => key,
+        'uri' => uri,
+        'credentials' => credentials
       }
     end
 
-    def normalize_credentials(raw_credentials)
-      Array(raw_credentials).filter_map do |value|
-        next if value.blank?
+    def normalize_key(config, default_key)
+      key = (config['key'] || config[:key] || default_key).to_s
+      raise ArgumentError, 'override entry missing key' if key.blank?
+      raise ArgumentError, "override key does not match map key #{default_key}" if default_key.present? && key != default_key.to_s
 
-        credential = value.is_a?(Hash) ? value : JSON.parse(value.to_s)
-        credential.transform_keys(&:to_s)
-      rescue JSON::ParserError
-        value
-      end
+      key
     end
 
-    def update_endpoint(entry)
-      key = entry.fetch('key', nil).to_s
-      raise ArgumentError, "override entry missing key" if key.blank?
+    def normalize_uri(config, key)
+      uri = config['uri'] || config[:uri]
+      raise ArgumentError, "endpoint #{key} is missing a uri" unless uri.is_a?(String) && uri.present?
+      raise ArgumentError, "endpoint #{key} still contains a production uri" if production_uri?(uri)
 
-      record = find_record(key)
-      apply_uri(record, entry['uri'])
-      if production_uri?(record.uri.to_s)
-        record.credentials.clear
-        persist_or_dry_run(record)
-        log_result(record, 'cleared_credentials_for_production_uri')
-        raise "endpoint #{record.key} still contains a production uri"
-      end
-
-      replace_credentials(record, entry['credentials'])
-      verify_endpoint!(record)
-      persist_or_dry_run(record)
-      log_result(record, 'updated')
-      record
+      uri
     end
 
-    def clear_unconfigured_endpoints(configured_keys)
-      records = TransportProfiles::WellKnownEndpoint.all.to_a.reject do |record|
-        configured_keys.include?(record.key.to_s)
-      end
-      records.each do |record|
-        record.credentials.clear
-        persist_or_dry_run(record)
-        log_result(record, 'cleared_unconfigured_credentials')
-      end
-      records
+    def validate_credentials_match_uri(key, uri, credentials)
+      expected_kind = credential_kind_for_uri(uri, key)
+      return if credentials.all? { |credential| credential['credential_kind'] == expected_kind }
+
+      raise ArgumentError, "endpoint #{key} credential kind does not match its uri scheme"
     end
 
-    def find_record(key)
-      endpoint = TransportProfiles::WellKnownEndpoint.where(key: key).to_a
+    def normalize_credentials(raw_credentials, key)
+      raise ArgumentError, "endpoint #{key} must have at least one credential" unless raw_credentials.is_a?(Array) && raw_credentials.any?
+
+      credentials = raw_credentials.map do |value|
+        credential = parse_credential(value, key)
+        kind = credential['credential_kind'].to_s
+        raise ArgumentError, "endpoint #{key} has an unsupported credential kind" unless %w[sftp s3].include?(kind)
+
+        credential.merge('credential_kind' => kind)
+      end
+
+      kinds = credentials.map { |credential| credential['credential_kind'] }
+      raise ArgumentError, "endpoint #{key} has duplicate credential kinds" unless kinds.uniq == kinds
+
+      credentials
+    end
+
+    def parse_credential(value, key)
+      credential = if value.is_a?(Hash)
+                     value
+                   elsif value.is_a?(String)
+                     JSON.parse(value)
+                   end
+      raise ArgumentError, "credential for endpoint #{key} must be an object" unless credential.is_a?(Hash)
+
+      credential.transform_keys(&:to_s)
+    rescue JSON::ParserError
+      raise ArgumentError, "credential for endpoint #{key} is not valid JSON"
+    end
+
+    def clear_credentials_before_override(records)
+      records.each { |record| record.credentials.clear }
+      return if dry_run || records.empty?
+
+      result = TransportProfiles::WellKnownEndpoint.collection.update_many(
+        { '_id' => { '$in' => records.map(&:id) } },
+        { '$set' => { 'credentials' => [] } }
+      )
+      raise 'failed to clear credentials from every transport endpoint' unless result.matched_count == records.size
+
+      action = dry_run ? 'would_clear_before_override' : 'cleared_before_override'
+      records.each { |record| log_result(record, action) }
+    end
+
+    def update_endpoint(entry, records)
+      key = entry['key']
+      endpoint = records.select { |record| record.key.to_s == key }
       raise "endpoint #{key} not found" if endpoint.empty?
       raise "endpoint #{key} is ambiguous" if endpoint.size > 1
 
-      endpoint.first
-    end
-
-    def apply_uri(record, uri)
-      record.uri = uri.to_s if uri.present?
-    end
-
-    def replace_credentials(record, desired_credentials)
-      desired_credentials = Array(desired_credentials)
-      keep_kinds = desired_credentials.map { |credential| credential['credential_kind'].to_s }.compact
-      record.credentials = record.credentials.select do |credential|
-        keep_kinds.include?(credential.credential_kind.to_s)
-      end
-
-      desired_credentials.each do |credential_data|
-        sync_credential(record, credential_data)
-      end
+      record = endpoint.first
+      record.uri = entry['uri']
+      record.credentials.clear
+      entry['credentials'].each { |credential_data| sync_credential(record, credential_data) }
+      record
     end
 
     def sync_credential(record, credential_data)
@@ -144,22 +174,42 @@ module TransportProfiles
       credential.secret_access_key = credential_data['secret_access_key'] if credential_data['secret_access_key'].present?
     end
 
-    def persist_or_dry_run(record)
-      record.save! unless dry_run
+    def persist_updated_records(records)
+      records.each do |record|
+        record.save! unless dry_run
+        log_result(record, 'updated')
+      end
     end
 
-    def verify_endpoint!(record)
+    def verify_endpoint!(record, configured:)
       raise "endpoint #{record.key} still contains a production uri" if production_uri?(record.uri.to_s)
+
+      expected_kind = credential_kind_for_uri(record.uri.to_s, record.key) if configured
+      raise "endpoint #{record.key} is missing its #{expected_kind} credential" if configured && record.credentials.none? { |credential| credential.credential_kind == expected_kind }
 
       record.credentials.each do |credential|
         validate_credential(record.key, credential)
       end
     end
 
-    def verify_endpoints!(records)
+    def verify_endpoints!(records, configured_keys)
       records.each do |record|
-        verify_endpoint!(record)
+        verify_endpoint!(record, configured: configured_keys.include?(record.key.to_s))
       end
+    end
+
+    def verify_persisted_endpoints(records, configured_keys)
+      records.each(&:reload)
+      verify_endpoints!(records, configured_keys)
+    end
+
+    def credential_kind_for_uri(uri, key)
+      scheme = URI.parse(uri).scheme
+      return scheme if %w[sftp s3].include?(scheme)
+
+      raise ArgumentError, "endpoint #{key} has an unsupported uri scheme"
+    rescue URI::InvalidURIError
+      raise ArgumentError, "endpoint #{key} has an invalid uri"
     end
 
     def production_uri?(uri)
