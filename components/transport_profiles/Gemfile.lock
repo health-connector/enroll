@@ -1789,10 +1789,11 @@ GEM
     mongo (2.26.0)
       base64
       bson (>= 4.14.1, < 6.0.0)
-    mongoid (9.0.9)
+    mongoid (9.0.13)
       activemodel (>= 5.1, < 8.2, != 7.0.0)
       concurrent-ruby (>= 1.0.5, < 2.0)
       mongo (>= 2.18.0, < 3.0.0)
+      ostruct
     net-imap (0.6.4)
       date
       net-protocol
@@ -1826,6 +1827,7 @@ GEM
       racc (~> 1.4)
     nokogiri (1.19.6-x86_64-linux-musl)
       racc (~> 1.4)
+    ostruct (0.6.3)
     pp (0.6.3)
       prettyprint
     prettyprint (0.2.0)
