@@ -144,5 +144,46 @@ module BenefitSponsors
         expect(plan_design_organization.fein).to eq('123456789')
       end
     end
+
+    context "on office location change" do
+      let(:site)             { create(:benefit_sponsors_site, :with_benefit_market, :as_hbx_profile, :cca) }
+      let(:organization)     { FactoryBot.create(:benefit_sponsors_organizations_general_organization, :with_aca_shop_cca_employer_profile, site: site) }
+      let(:employer_profile) { organization.employer_profile }
+      let(:primary_address)  { employer_profile.primary_office_location.address }
+
+      let!(:plan_design_organization) do
+        ::SponsoredBenefits::Organizations::PlanDesignOrganization.create!(
+          sponsor_profile_id: employer_profile.id,
+          owner_profile_id: BSON::ObjectId.new,
+          legal_name: organization.legal_name,
+          sic_code: "0345",
+          office_locations: employer_profile.office_locations.map { |location| location.attributes.deep_dup }
+        )
+      end
+
+      def plan_design_primary_address
+        plan_design_organization.reload.primary_office_location.address
+      end
+
+      it "copies the employer's new zip and county to the plan design organization" do
+        primary_address.assign_attributes(zip: '01060', county: 'Hampshire')
+        organization.save!
+
+        expect(plan_design_primary_address.zip).to eq('01060')
+        expect(plan_design_primary_address.county).to eq('Hampshire')
+      end
+
+      it "copies the employer's new street address and city to the plan design organization" do
+        primary_address.assign_attributes(address_1: '275 Grove St', city: 'Newton')
+        organization.save!
+
+        expect(plan_design_primary_address.address_1).to eq('275 Grove St')
+        expect(plan_design_primary_address.city).to eq('Newton')
+      end
+
+      it "leaves the plan design organization alone when the address is unchanged" do
+        expect { organization.update!(dba: 'New DBA') }.not_to(change { plan_design_organization.reload.updated_at })
+      end
+    end
   end
 end
