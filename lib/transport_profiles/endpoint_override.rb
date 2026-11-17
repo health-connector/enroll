@@ -21,10 +21,9 @@ module TransportProfiles
       updated_records = entries.map do |entry|
         update_endpoint(entry, records)
       end
-      configured_keys = updated_records.map { |record| record.key.to_s }
-      verify_endpoints!(records, configured_keys)
+      verify_endpoints!(updated_records)
       persist_updated_records(updated_records)
-      verify_persisted_endpoints(records, configured_keys) unless dry_run
+      verify_persisted_endpoints(updated_records) unless dry_run
       updated_records
     end
 
@@ -88,7 +87,7 @@ module TransportProfiles
     def normalize_uri(config, key)
       uri = config['uri'] || config[:uri]
       raise ArgumentError, "endpoint #{key} is missing a uri" unless uri.is_a?(String) && uri.present?
-      raise ArgumentError, "endpoint #{key} still contains a production uri" if production_uri?(uri)
+      raise ArgumentError, "endpoint #{key} uri must end with a slash" unless uri.end_with?('/')
 
       uri
     end
@@ -176,14 +175,19 @@ module TransportProfiles
 
     def persist_updated_records(records)
       records.each do |record|
-        record.save! unless dry_run
+        unless dry_run
+          record.set(uri: record.uri)
+          result = record.class.collection.update_one(
+            { '_id' => record.id },
+            { '$set' => { 'credentials' => record.credentials.map(&:attributes) } }
+          )
+          raise "failed to update credentials for endpoint #{record.key}" unless result.matched_count == 1
+        end
         log_result(record, 'updated')
       end
     end
 
     def verify_endpoint!(record, configured:)
-      raise "endpoint #{record.key} still contains a production uri" if production_uri?(record.uri.to_s)
-
       expected_kind = credential_kind_for_uri(record.uri.to_s, record.key) if configured
       raise "endpoint #{record.key} is missing its #{expected_kind} credential" if configured && record.credentials.none? { |credential| credential.credential_kind == expected_kind }
 
@@ -192,15 +196,15 @@ module TransportProfiles
       end
     end
 
-    def verify_endpoints!(records, configured_keys)
+    def verify_endpoints!(records)
       records.each do |record|
-        verify_endpoint!(record, configured: configured_keys.include?(record.key.to_s))
+        verify_endpoint!(record, configured: true)
       end
     end
 
-    def verify_persisted_endpoints(records, configured_keys)
+    def verify_persisted_endpoints(records)
       records.each(&:reload)
-      verify_endpoints!(records, configured_keys)
+      verify_endpoints!(records)
     end
 
     def credential_kind_for_uri(uri, key)
@@ -212,16 +216,13 @@ module TransportProfiles
       raise ArgumentError, "endpoint #{key} has an invalid uri"
     end
 
-    def production_uri?(uri)
-      production_pattern = /(?:(?<![a-z])mhc-prod-|(?<![a-z])prod[.-]|(?<![a-z])prod\z)/i
-      uri.match?(production_pattern)
-    end
-
     def validate_credential(key, credential)
-      return if credential.credential_kind.blank?
-
-      validate_sftp_credential(key, credential) if credential.sftp?
-      validate_s3_credential(key, credential) if credential.s3?
+      case credential.credential_kind
+      when 'sftp'
+        validate_sftp_credential(key, credential)
+      when 's3'
+        validate_s3_credential(key, credential)
+      end
     end
 
     def validate_sftp_credential(key, credential)

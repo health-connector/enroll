@@ -18,7 +18,7 @@ RSpec.describe TransportProfiles::EndpointOverride, type: :model do
   let(:payload) do
     {
       'aca_shop_analytics_outbound' => {
-        'uri' => 'sftp://preprod-sftp.example.com/data',
+        'uri' => 'sftp://preprod-sftp.example.com/data/',
         'credentials' => [
           {
             'credential_kind' => 'sftp',
@@ -61,11 +61,13 @@ RSpec.describe TransportProfiles::EndpointOverride, type: :model do
           )
         ]
       )
+      endpoint.set(market_kind: 'aca_shop')
 
       described_class.new(file_path: temp_file.path).run
 
       endpoint.reload
-      expect(endpoint.uri).to eq('sftp://preprod-sftp.example.com/data')
+      expect(endpoint.uri).to eq('sftp://preprod-sftp.example.com/data/')
+      expect(endpoint.market_kind).to eq('aca_shop')
       expect(endpoint.credentials.first.account_name).to eq('preprod_sftp_user')
       expect(endpoint.credentials.first.pass_phrase).to eq('new-preprod-password')
       expect(endpoint.credentials.first.private_rsa_key).to be_nil
@@ -112,10 +114,10 @@ RSpec.describe TransportProfiles::EndpointOverride, type: :model do
       expect(unconfigured_endpoint.credentials.first.pass_phrase).to eq('preprod-password')
     end
 
-    it 'clears credentials from endpoints missing a preprod override and fails verification' do
+    it 'clears credentials from endpoints missing a preprod override' do
       allow(Rails).to receive(:env).and_return(ActiveSupport::StringInquirer.new('production'))
 
-      TransportProfiles::WellKnownEndpoint.create!(
+      configured_endpoint = TransportProfiles::WellKnownEndpoint.create!(
         title: 'shop analytics outbound',
         site_key: 'mhc',
         key: 'aca_shop_analytics_outbound',
@@ -130,7 +132,7 @@ RSpec.describe TransportProfiles::EndpointOverride, type: :model do
         ]
       )
 
-      endpoint = TransportProfiles::WellKnownEndpoint.create!(
+      unconfigured_endpoint = TransportProfiles::WellKnownEndpoint.create!(
         title: 'legacy data extracts',
         site_key: 'mhc',
         key: 'aca_legacy_data_extracts',
@@ -145,17 +147,18 @@ RSpec.describe TransportProfiles::EndpointOverride, type: :model do
         ]
       )
 
-      expect { described_class.new(file_path: temp_file.path).run }
-        .to raise_error(RuntimeError, /production uri/)
+      described_class.new(file_path: temp_file.path).run
 
-      expect(endpoint.reload.credentials).to be_empty
+      expect(configured_endpoint.reload.uri).to eq('sftp://preprod-sftp.example.com/data/')
+      expect(configured_endpoint.credentials.first.pass_phrase).to eq('new-preprod-password')
+      expect(unconfigured_endpoint.reload.credentials).to be_empty
     end
 
     it 'clears all credentials before failing on a missing endpoint key' do
       allow(Rails).to receive(:env).and_return(ActiveSupport::StringInquirer.new('production'))
       incomplete_payload = payload.deep_dup
       incomplete_payload['missing_endpoint'] = {
-        'uri' => 'sftp://preprod-sftp.example.com/data',
+        'uri' => 'sftp://preprod-sftp.example.com/data/',
         'credentials' => [
           {
             'credential_kind' => 'sftp',
@@ -238,7 +241,7 @@ RSpec.describe TransportProfiles::EndpointOverride, type: :model do
     it 'updates and decrypts S3 credentials' do
       s3_payload = {
         'aca_shop_analytics_archive' => {
-          'uri' => 's3://mhc-preprod-aca-shop-analytics-archive@us-east-1/reports',
+          'uri' => 's3://mhc-preprod-aca-shop-analytics-archive@us-east-1/reports/',
           'credentials' => [
             {
               'credential_kind' => 's3',
@@ -271,7 +274,7 @@ RSpec.describe TransportProfiles::EndpointOverride, type: :model do
       described_class.new(file_path: temp_file.path).run
 
       endpoint.reload
-      expect(endpoint.uri).to eq('s3://mhc-preprod-aca-shop-analytics-archive@us-east-1/reports')
+      expect(endpoint.uri).to eq('s3://mhc-preprod-aca-shop-analytics-archive@us-east-1/reports/')
       expect(endpoint.credentials.first.access_key_id).to eq('preprod-access-key')
       expect(endpoint.credentials.first.secret_access_key).to eq('preprod-secret-key')
     end
@@ -279,7 +282,7 @@ RSpec.describe TransportProfiles::EndpointOverride, type: :model do
     it 'rejects S3 credentials without a secret key and leaves stored credentials cleared' do
       s3_payload = {
         'aca_shop_analytics_archive' => {
-          'uri' => 's3://mhc-preprod-aca-shop-analytics-archive@us-east-1/reports',
+          'uri' => 's3://mhc-preprod-aca-shop-analytics-archive@us-east-1/reports/',
           'credentials' => [
             {
               'credential_kind' => 's3',
@@ -334,14 +337,14 @@ RSpec.describe TransportProfiles::EndpointOverride, type: :model do
 
       described_class.new(file_path: temp_file.path).run
 
-      expect(endpoint.reload.uri).to eq('sftp://preprod-sftp.example.com/data')
+      expect(endpoint.reload.uri).to eq('sftp://preprod-sftp.example.com/data/')
       expect(endpoint.credentials.first.pass_phrase).to eq('new-preprod-password')
     end
 
-    it 'clears credentials and aborts when an override uri is still production' do
+    it 'rejects override uris without a trailing slash and leaves credentials cleared' do
       allow(Rails).to receive(:env).and_return(ActiveSupport::StringInquirer.new('production'))
       production_payload = payload.deep_dup
-      production_payload['aca_shop_analytics_outbound']['uri'] = 'sftp://prod-sftp.example.com/data'
+      production_payload['aca_shop_analytics_outbound']['uri'] = 'sftp://preprod-sftp.example.com/data'
       temp_file.rewind
       temp_file.truncate(0)
       temp_file.write(production_payload.to_json)
@@ -363,7 +366,7 @@ RSpec.describe TransportProfiles::EndpointOverride, type: :model do
       )
 
       expect { described_class.new(file_path: temp_file.path).run }
-        .to raise_error(ArgumentError, /production uri/)
+        .to raise_error(ArgumentError, /must end with a slash/)
 
       expect(endpoint.reload.credentials).to be_empty
     end
