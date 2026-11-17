@@ -41,7 +41,7 @@ gem 'kaminari-actionview'
 gem 'language_list', '~> 1.1.0'
 gem 'mail', '~> 2.9', '>= 2.9.1'
 gem 'mongo_session_store', '~> 3.1'
-gem 'mongoid', '~> 9'
+gem 'mongoid', '~> 9.0.13'
 gem 'mongoid-autoinc', git: 'https://github.com/suweller/mongoid-autoinc', ref: '73a3a95c6e36868cee8d28343ca218a8d60eca29'
 gem 'mongoid-history', '~> 0.8'
 # gem 'mongoid-versioning'
@@ -96,7 +96,7 @@ gem 'sassc',                    '~> 2.0'
 gem 'sass-rails', '~> 6.0'
 gem 'config',    '~> 5.6'
 gem 'rack-cors'
-gem 'puma', '~> 7.2.1'
+gem 'puma', '~> 7.2.2'
 gem "observer"
 gem "openssl"
 
