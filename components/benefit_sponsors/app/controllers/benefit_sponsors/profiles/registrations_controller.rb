@@ -122,6 +122,11 @@ module BenefitSponsors
             :person_id,
             :profile_id
           ],
+          contact_information: [
+            :work_area_code,
+            :work_number,
+            :work_email
+          ],
           organization: [
             :id,
             :entity_kind,

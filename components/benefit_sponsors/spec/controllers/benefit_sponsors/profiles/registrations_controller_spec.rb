@@ -510,6 +510,26 @@ module BenefitSponsors
             expect(broker_agency.reload.broker_agency_profile.languages_spoken).to eq(["en"])
           end
         end
+
+        context "when updating broker contact information" do
+          before :each do
+            sanitize_attributes("broker_agency")
+            sign_in update_user
+            person.emails.find_or_initialize_by(kind: "work").update_attributes(address: "old.work@example.com")
+          end
+
+          it "persists the submitted work email and phone" do
+            params = broker_agency_params.merge(
+              contact_information: { work_area_code: "617", work_number: "5551234", work_email: "new.work@example.com" }
+            )
+
+            put :update, params: { agency: params, id: params[:id] }
+
+            person.reload
+            expect(person.work_email.address).to eq("new.work@example.com")
+            expect(person.work_phone.full_phone_number).to eq("6175551234")
+          end
+        end
       end
     end
   end
