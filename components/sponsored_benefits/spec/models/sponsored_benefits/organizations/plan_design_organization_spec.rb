@@ -172,5 +172,34 @@ module SponsoredBenefits
       end
 
     end
+
+    describe "#office_addresses_match?" do
+      let(:organization) { build(:sponsored_benefits_plan_design_organization, office_locations: [build(:sponsored_benefits_office_location, :primary)]) }
+      let(:source_office_locations) { organization.office_locations.map { |location| Organizations::OfficeLocation.new(location.attributes.deep_dup) } }
+
+      it "is true when the addresses are the same" do
+        expect(organization.office_addresses_match?(source_office_locations)).to be_truthy
+      end
+
+      it "is false when the zip differs" do
+        source_office_locations.first.address.zip = '02466'
+        expect(organization.office_addresses_match?(source_office_locations)).to be_falsey
+      end
+
+      it "is false when the street address differs" do
+        source_office_locations.first.address.address_1 = '275 Grove St'
+        expect(organization.office_addresses_match?(source_office_locations)).to be_falsey
+      end
+
+      it "is false when the source has another office location" do
+        source_office_locations << build(:sponsored_benefits_office_location)
+        expect(organization.office_addresses_match?(source_office_locations)).to be_falsey
+      end
+
+      it "ignores phone changes" do
+        source_office_locations.first.phone.number = '7224523'
+        expect(organization.office_addresses_match?(source_office_locations)).to be_truthy
+      end
+    end
   end
 end

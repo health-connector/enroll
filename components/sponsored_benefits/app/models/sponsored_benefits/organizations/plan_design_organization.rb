@@ -154,6 +154,18 @@ module SponsoredBenefits
         Settings.aca.employer_has_sic_field
       end
 
+      # Address fields compared when deciding whether this broker-side copy of an employer's
+      # office locations has drifted from the employer's own record
+      SYNCED_ADDRESS_FIELDS = %w[kind address_1 address_2 address_3 city county state zip].freeze
+
+      def office_addresses_match?(source_office_locations)
+        office_address_signature(office_locations) == office_address_signature(source_office_locations)
+      end
+
+      def office_address_signature(locations)
+        locations.map { |location| [location.is_primary, location.address&.attributes&.slice(*SYNCED_ADDRESS_FIELDS)] }
+      end
+
       class << self
         #TODO Pass object instances, not IDs
         def find_by_owner_and_sponsor(owner_id, sponsor_id)
