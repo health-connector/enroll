@@ -73,6 +73,48 @@ RSpec.describe TransportProfiles::EndpointOverride, type: :model do
       expect(endpoint.credentials.first.private_rsa_key).to be_nil
     end
 
+    it 'is idempotent when run more than once' do
+      allow(Rails).to receive(:env).and_return(ActiveSupport::StringInquirer.new('production'))
+
+      endpoint = TransportProfiles::WellKnownEndpoint.create!(
+        title: 'shop analytics outbound',
+        site_key: 'mhc',
+        key: 'aca_shop_analytics_outbound',
+        market_kind: 'shop',
+        uri: 'sftp://prod-sftp.example.com/data',
+        credentials: [
+          TransportProfiles::Credential.new(
+            credential_kind: 'sftp',
+            account_name: 'prod_sftp_user',
+            pass_phrase: 'prod-password'
+          )
+        ]
+      )
+      override = described_class.new(file_path: temp_file.path)
+
+      override.run
+      first_uri = endpoint.reload.uri
+      first_credential = endpoint.credentials.first
+      first_credential_values = [
+        first_credential.credential_kind,
+        first_credential.account_name,
+        first_credential.pass_phrase,
+        first_credential.private_rsa_key
+      ]
+
+      override.run
+
+      endpoint.reload
+      credential = endpoint.credentials.first
+      expect(endpoint.uri).to eq(first_uri)
+      expect([
+        credential.credential_kind,
+        credential.account_name,
+        credential.pass_phrase,
+        credential.private_rsa_key
+      ]).to eq(first_credential_values)
+    end
+
     it 'does not write when dry_run is enabled' do
       allow(Rails).to receive(:env).and_return(ActiveSupport::StringInquirer.new('production'))
 
