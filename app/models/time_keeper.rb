@@ -56,7 +56,7 @@ class TimeKeeper
       instance.advance_date_of_record(new_date)
     elsif last_advanced != new_date
       if last_advanced > new_date
-        log("Attempt made to set date to past: #{new_date}", {:severity => :error})
+        instance.notify_logger("Attempt made to set date to past: #{new_date} on #{Socket.gethostname}", :error)
         raise StandardError, "system may not go backward in time"
       else
         instance.notify_logger("TimeKeeper advancing from #{last_advanced} to #{new_date} on #{Socket.gethostname}")

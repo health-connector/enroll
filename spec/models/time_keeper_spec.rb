@@ -100,7 +100,7 @@ RSpec.describe TimeKeeper, type: :model do
       end
 
       it "should send a syslog critical error to the enterprise logger" do
-        notification_stub.expect_event("acapi.error.application.enroll.logging", {:body => "Attempt made to set date to past: #{past_date}"})
+        notification_stub.expect_event("acapi.error.application.enroll.logging", {:body => "Attempt made to set date to past: #{past_date} on #{Socket.gethostname}"})
         expect { TimeKeeper.set_date_of_record(past_date) }.to raise_error(TkNotifyWrapper::ExpectedLogCallInvoked)
       end
     end
