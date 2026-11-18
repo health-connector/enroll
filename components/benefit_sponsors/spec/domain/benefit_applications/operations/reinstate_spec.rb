@@ -235,6 +235,36 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
           expect_any_instance_of(::BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService).to receive(:renew_application).and_return([true, nil, nil])
           subject.call(**params).value!
         end
+
+        context 'and a renewal application already exists' do
+          before do
+            allow_any_instance_of(BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService).to receive(:renew_application)
+              .and_return([false, nil, { renewal_already_exists: "a renewal application already exists" }])
+            allow(Rails.logger).to receive(:info)
+            allow(Rails.logger).to receive(:error)
+          end
+
+          it 'logs the skipped renewal as info, not as an error' do
+            subject.call(**params).value!
+
+            expect(Rails.logger).to have_received(:info).with(/Renewal skipped for benefit application .+: an existing renewal application was found/)
+            expect(Rails.logger).not_to have_received(:error).with(/Error while renewing/)
+          end
+        end
+
+        context 'and the renewal fails' do
+          before do
+            allow_any_instance_of(BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService).to receive(:renew_application)
+              .and_return([false, nil, { some_rule: "validation failed" }])
+            allow(Rails.logger).to receive(:error)
+          end
+
+          it 'still logs it as an error' do
+            subject.call(**params).value!
+
+            expect(Rails.logger).to have_received(:error).with(/Error while renewing benefit application/)
+          end
+        end
       end
 
       context 'with terminated enrollment' do

@@ -52,17 +52,20 @@ class TimeKeeper
     last_advanced = instance.last_advanced_on
 
     if last_advanced.blank?
-      log("date_of_record advance ledger missing - running events for #{new_date}", {:severity => :warn})
+      instance.notify_logger("date_of_record advance ledger missing - running events for #{new_date} on #{Socket.gethostname}", :warn)
       instance.advance_date_of_record(new_date)
     elsif last_advanced != new_date
       if last_advanced > new_date
-        log("Attempt made to set date to past: #{new_date}", {:severity => :error})
+        instance.notify_logger("Attempt made to set date to past: #{new_date} on #{Socket.gethostname}", :error)
         raise StandardError, "system may not go backward in time"
       else
+        instance.notify_logger("TimeKeeper advancing from #{last_advanced} to #{new_date} on #{Socket.gethostname}")
         ((last_advanced + 1.day)..new_date).each do |day|
           instance.advance_date_of_record(day)
         end
       end
+    else
+      instance.notify_logger("TimeKeeper advance for #{new_date} skipped on #{Socket.gethostname} - already advanced")
     end
     instance.date_of_record
   end
@@ -95,6 +98,7 @@ class TimeKeeper
     push_date_of_record
     push_date_change_event
     mark_advanced(new_date)
+    notify_logger("TimeKeeper marked #{new_date} advanced on #{Socket.gethostname}")
   end
 
   # Records which day the advance events last ran for. CACHE_KEY can't answer
@@ -132,7 +136,8 @@ class TimeKeeper
   end
 
   def push_date_of_record
-    notify_logger("TimeKeeper advance day started at #{Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%m-%d-%Y %H:%M:%S')}")
+    started_at = Time.now
+    notify_logger("TimeKeeper advance day started at #{started_at.in_time_zone('Eastern Time (US & Canada)').strftime('%m-%d-%Y %H:%M:%S')} for #{date_of_record} on #{Socket.gethostname}")
     BenefitSponsors::ScheduledEvents::AcaShopScheduledEvents.advance_day(self.date_of_record)
     BenefitSponsorship.advance_day(self.date_of_record)
     # EmployerProfile.advance_day(self.date_of_record)
@@ -140,20 +145,20 @@ class TimeKeeper
     HbxEnrollment.advance_day(self.date_of_record)
     CensusEmployee.advance_day(self.date_of_record)
     ConsumerRole.advance_day(self.date_of_record)
-    notify_logger("TimeKeeper advance day ended at #{Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%m-%d-%Y %H:%M:%S')}")
+    notify_logger("TimeKeeper advance day ended at #{Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%m-%d-%Y %H:%M:%S')} for #{date_of_record} on #{Socket.gethostname} - took #{(Time.now - started_at).round} seconds")
   end
 
   def push_date_change_event
     begin
       BenefitSponsors::BenefitApplications::BenefitApplication.date_change_event(self.date_of_record)
     rescue Exception => e
-      Rails.logger.error { "Couldn't trigger benefit application date change events due to #{e.inspect}" }
+      Rails.logger.tagged(self.class.name) { Rails.logger.error("Couldn't trigger benefit application date change events due to #{e.inspect}") }
     end
   end
 
-  def notify_logger(message)
-    Rails.logger.info(message)
-    log(message)
+  def notify_logger(message, severity = :info)
+    Rails.logger.tagged(self.class.name) { Rails.logger.public_send(severity, message) }
+    log(message, {:severity => severity})
   end
 
   def self.with_cache

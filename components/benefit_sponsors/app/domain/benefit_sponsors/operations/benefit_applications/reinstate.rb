@@ -166,7 +166,11 @@ module BenefitSponsors
           service = ::BenefitSponsors::BenefitApplications::BenefitApplicationEnrollmentService.new(@benefit_application)
           success, _application, message = service.renew_application
 
-          Rails.logger.error "Error while renewing benefit application #{@benefit_application.id}: #{message}" unless success
+          if message.is_a?(Hash) && message.key?(:renewal_already_exists)
+            Rails.logger.info "Renewal skipped for benefit application #{@benefit_application.id}: an existing renewal application was found"
+          elsif !success
+            Rails.logger.error "Error while renewing benefit application #{@benefit_application.id}: #{message}"
+          end
 
           Success()
         end
