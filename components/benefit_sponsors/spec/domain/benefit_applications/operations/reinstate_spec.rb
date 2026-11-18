@@ -247,7 +247,7 @@ RSpec.describe BenefitSponsors::Operations::BenefitApplications::Reinstate, dbcl
           it 'logs the skipped renewal as info, not as an error' do
             subject.call(**params).value!
 
-            expect(Rails.logger).to have_received(:info).with(/Renewal skipped for benefit application .+: a renewal application already exists/)
+            expect(Rails.logger).to have_received(:info).with(/Renewal skipped for benefit application .+: an existing renewal application was found/)
             expect(Rails.logger).not_to have_received(:error).with(/Error while renewing/)
           end
         end

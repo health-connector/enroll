@@ -93,8 +93,8 @@ module BenefitSponsors
         end
       end
 
-      # Two listeners run the same day at once. Each loaded the sponsorship before
-      # the other one saved its renewal, so the loaded copy can't be trusted.
+      # A rerun can work from a sponsorship it loaded before an earlier run saved
+      # its renewal. The check reads the database, so that saved renewal is still seen.
       context "when another process renews after this copy was loaded" do
         it "does not build a second renewal application" do
           stale_application = BenefitSponsorships::BenefitSponsorship.find(benefit_sponsorship.id).benefit_applications.find(initial_application.id)
