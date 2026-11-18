@@ -13,7 +13,9 @@ module BenefitSponsors
     end
 
     def renew_application
-      if business_policy_satisfied_for?(:renew_benefit_application)
+      if renewal_already_exists?
+        [false, benefit_application, { renewal_already_exists: "a renewal application already exists for benefit application #{benefit_application.id}" }]
+      elsif business_policy_satisfied_for?(:renew_benefit_application)
         renewal_application = benefit_application.renew
         renewal_application.save
         [true, renewal_application, business_policy.success_results]
@@ -410,6 +412,21 @@ module BenefitSponsors
         end
       end
       [result, errors]
+    end
+
+    # Read from the database rather than the loaded sponsorship, so a renewal
+    # another process created after this sponsorship was loaded is still seen.
+    # A canceled renewal does not count, so a canceled renewal can be renewed again.
+    def renewal_already_exists?
+      BenefitSponsors::BenefitSponsorships::BenefitSponsorship.where(
+        :_id => benefit_application.benefit_sponsorship.id,
+        :benefit_applications => {
+          :"$elemMatch" => {
+            :predecessor_id => benefit_application.id,
+            :aasm_state => { "$nin" => BenefitSponsors::BenefitApplications::BenefitApplication::CANCELED_STATES }
+          }
+        }
+      ).exists?
     end
 
     def business_policy_satisfied_for?(event_name)
