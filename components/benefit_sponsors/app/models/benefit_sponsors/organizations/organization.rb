@@ -343,10 +343,15 @@ module BenefitSponsors
 
       def update_plan_design_organization
         return if employer_profile.blank?
-        return unless fein_previously_changed? || legal_name_previously_changed?
+
+        identity_changed = fein_previously_changed? || legal_name_previously_changed?
+        employer_office_locations = employer_profile.office_locations
 
         ::SponsoredBenefits::Organizations::PlanDesignOrganization.where(:sponsor_profile_id => BSON::ObjectId.from_string(employer_profile.id)).each do |pdo|
-          pdo.update!(legal_name: legal_name, fein: fein)
+          sync_attributes = identity_changed ? { legal_name: legal_name, fein: fein } : {}
+          # Broker quotes are rated on the broker's copy of the address, so keep it in step with the employer's
+          sync_attributes[:office_locations] = employer_office_locations.map { |location| location.attributes.deep_dup } unless pdo.office_addresses_match?(employer_office_locations)
+          pdo.update!(sync_attributes) if sync_attributes.present?
         end
       end
 
