@@ -52,7 +52,7 @@ class TimeKeeper
     last_advanced = instance.last_advanced_on
 
     if last_advanced.blank?
-      log("date_of_record advance ledger missing - running events for #{new_date}", {:severity => :warn})
+      instance.notify_logger("date_of_record advance ledger missing - running events for #{new_date} on #{Socket.gethostname}", :warn)
       instance.advance_date_of_record(new_date)
     elsif last_advanced != new_date
       if last_advanced > new_date
@@ -145,7 +145,7 @@ class TimeKeeper
     HbxEnrollment.advance_day(self.date_of_record)
     CensusEmployee.advance_day(self.date_of_record)
     ConsumerRole.advance_day(self.date_of_record)
-    notify_logger("TimeKeeper advance day ended at #{Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%m-%d-%Y %H:%M:%S')} for #{date_of_record} on #{Socket.gethostname} - took #{((Time.now - started_at) / 60).round(1)} minutes")
+    notify_logger("TimeKeeper advance day ended at #{Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%m-%d-%Y %H:%M:%S')} for #{date_of_record} on #{Socket.gethostname} - took #{(Time.now - started_at).round} seconds")
   end
 
   def push_date_change_event
@@ -156,9 +156,9 @@ class TimeKeeper
     end
   end
 
-  def notify_logger(message)
-    Rails.logger.tagged(self.class.name) { Rails.logger.info(message) }
-    log(message)
+  def notify_logger(message, severity = :info)
+    Rails.logger.tagged(self.class.name) { Rails.logger.public_send(severity, message) }
+    log(message, {:severity => severity})
   end
 
   def self.with_cache
