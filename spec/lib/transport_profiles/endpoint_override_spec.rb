@@ -317,7 +317,7 @@ RSpec.describe TransportProfiles::EndpointOverride, type: :model do
       expect(endpoint.reload.credentials).to be_empty
     end
 
-    it 'allows a lower environment to use the configured preprod endpoint values' do
+    it 'refuses to run outside preprod without changing the endpoint' do
       ENV['ENV_NAME'] = 'pvt'
 
       endpoint = TransportProfiles::WellKnownEndpoint.create!(
@@ -335,10 +335,10 @@ RSpec.describe TransportProfiles::EndpointOverride, type: :model do
         ]
       )
 
-      described_class.new(file_path: temp_file.path).run
+      expect { described_class.new(file_path: temp_file.path).run }.to raise_error(SystemExit)
 
-      expect(endpoint.reload.uri).to eq('sftp://preprod-sftp.example.com/data/')
-      expect(endpoint.credentials.first.pass_phrase).to eq('new-preprod-password')
+      expect(endpoint.reload.uri).to eq('sftp://prod-sftp.example.com/data')
+      expect(endpoint.credentials.first.pass_phrase).to eq('prod-password')
     end
 
     it 'rejects override uris without a trailing slash and leaves credentials cleared' do

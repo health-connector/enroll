@@ -13,7 +13,7 @@ module TransportProfiles
     end
 
     def run
-      self.class.abort_if_production!
+      self.class.ensure_preprod_environment!
       records = TransportProfiles::WellKnownEndpoint.all.to_a
       records = records.map(&:clone) if dry_run
       clear_credentials_before_override(records)
@@ -27,8 +27,12 @@ module TransportProfiles
       updated_records
     end
 
-    def self.abort_if_production!
+    def self.ensure_preprod_environment!
       ::DataAnonymizer::Runner.abort_if_production!
+      env_name = ENV.fetch('ENV_NAME').strip
+      return if env_name.casecmp?('preprod')
+
+      abort("Refusing to override transport endpoints outside preprod (ENV_NAME=#{env_name.inspect}).")
     end
 
     private
