@@ -36,6 +36,14 @@ RSpec.describe SponsoredBenefits::Forms::PlanDesignCensusEmployeeImport, type: :
     expect(subject.header_valid?(sheet_header_row) && subject.column_header_valid?(column_header_row)).to be_truthy
   end
 
+  it "should not validate headers when the template date is blank" do
+    expect(subject.header_valid?(Array.new(14))).to be_falsey
+  end
+
+  it "should parse a date cell in a text column" do
+    expect(subject.parse_text(Date.new(2027, 1, 1))).to eq "2027-01-01"
+  end
+
   context "One employee with one dependent" do
     it "should added a employee with a dependent" do
       expect(subject.save).to be_truthy

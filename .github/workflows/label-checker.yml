@@ -17,5 +17,5 @@ jobs:
       - uses: docker://agilepathway/pull-request-label-checker:latest
         with:
           # At least one of the labels listed below must be present on the PR for the check to pass
-          any_of: breaking change,enhancement,bugfix,version bump,release,chore,documentation,dependencies
+          any_of: breaking change,enhancement,bugfix,version bump,release,chore,documentation,dependencies,security,cicd
           repo_token: ${{ secrets.GITHUB_TOKEN }}
