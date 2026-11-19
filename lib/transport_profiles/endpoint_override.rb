@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../data_anonymization/runner'
-
 module TransportProfiles
   class EndpointOverride
     DEFAULT_FILE_ENV = 'TRANSPORT_ENDPOINT_OVERRIDE_FILE'
@@ -28,11 +26,15 @@ module TransportProfiles
     end
 
     def self.ensure_preprod_environment!
-      ::DataAnonymizer::Runner.abort_if_production!
-      env_name = ENV.fetch('ENV_NAME').strip
-      return if env_name.casecmp?('preprod')
+      env_name = ENV.fetch('ENV_NAME', '').strip
+      db_name = Mongoid.default_client.database.name
+      reasons = []
+      reasons << "ENV_NAME=#{env_name.inspect} is not preprod" unless env_name.casecmp?('preprod')
+      reasons << 'ENROLL_REVIEW_ENVIRONMENT is not true' if Rails.env.production? && ENV['ENROLL_REVIEW_ENVIRONMENT'] != 'true'
+      reasons << "database #{db_name} looks like production" if db_name.match?(/_prod\z|production/i)
+      return if reasons.empty?
 
-      abort("Refusing to override transport endpoints outside preprod (ENV_NAME=#{env_name.inspect}).")
+      abort("Refusing to override transport endpoints: #{reasons.join(', ')}")
     end
 
     private
