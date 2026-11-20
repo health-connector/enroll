@@ -229,6 +229,144 @@ RSpec.describe TimeKeeper, type: :model do
         end
       end
     end
+
+    context "and the advance day is claimed per process" do
+      let(:other_owner) { "other-host pid=1 since 2026-01-01T00:00:00Z" }
+
+      def claim_key(day)
+        "#{TimeKeeper::ADVANCE_CLAIM_PREFIX}#{day.strftime('%Y-%m-%d')}"
+      end
+
+      def clear_claims
+        (base_date..(base_date + 3.days)).each { |day| Rails.cache.delete(claim_key(day)) }
+      end
+
+      before :each do
+        clear_claims
+        allow(TimeKeeper.instance).to receive(:push_date_of_record)
+        allow(TimeKeeper.instance).to receive(:push_date_change_event)
+        allow(TimeKeeper.instance).to receive(:notify_logger).and_call_original
+        TimeKeeper.set_date_of_record_unprotected!(base_date)
+      end
+
+      after :each do
+        clear_claims
+      end
+
+      context "when another process holds the claim" do
+        before :each do
+          Rails.cache.write(claim_key(next_day), other_owner)
+        end
+
+        it "returns false without running the day's events" do
+          expect(TimeKeeper.instance).not_to receive(:push_date_of_record)
+          expect(TimeKeeper.instance).not_to receive(:push_date_change_event)
+
+          expect(TimeKeeper.instance.advance_date_of_record(next_day)).to be false
+          expect(TimeKeeper.instance.last_advanced_on).to eq base_date
+        end
+
+        it "logs a warning naming the holder" do
+          TimeKeeper.instance.advance_date_of_record(next_day)
+
+          expect(TimeKeeper.instance).to have_received(:notify_logger)
+            .with("TimeKeeper advance for #{next_day} skipped on #{Socket.gethostname} - claimed by #{other_owner}", :warn)
+        end
+
+        it "leaves the other process's claim in place" do
+          TimeKeeper.instance.advance_date_of_record(next_day)
+
+          expect(Rails.cache.read(claim_key(next_day))).to eq other_owner
+        end
+      end
+
+      context "when the day was advanced after the caller read the marker" do
+        before :each do
+          TimeKeeper.instance.mark_advanced(next_day)
+        end
+
+        it "skips the day's events, releases the claim and returns true" do
+          expect(TimeKeeper.instance).not_to receive(:push_date_of_record)
+
+          expect(TimeKeeper.instance.advance_date_of_record(next_day)).to be true
+          expect(Rails.cache.read(claim_key(next_day))).to be_nil
+          expect(TimeKeeper.instance).to have_received(:notify_logger)
+            .with("TimeKeeper advance for #{next_day} skipped on #{Socket.gethostname} - already advanced")
+        end
+      end
+
+      context "when the day's events raise" do
+        before :each do
+          allow(TimeKeeper.instance).to receive(:push_date_of_record).and_raise(StandardError, "boom")
+        end
+
+        it "releases the claim and does not mark the day advanced" do
+          expect { TimeKeeper.instance.advance_date_of_record(next_day) }.to raise_error(StandardError, "boom")
+
+          expect(Rails.cache.read(claim_key(next_day))).to be_nil
+          expect(TimeKeeper.instance.last_advanced_on).to eq base_date
+        end
+      end
+
+      context "when the advance succeeds" do
+        it "marks the day advanced, releases the claim and returns true" do
+          expect(TimeKeeper.instance).to receive(:push_date_of_record).once
+
+          expect(TimeKeeper.instance.advance_date_of_record(next_day)).to be true
+          expect(TimeKeeper.instance.last_advanced_on).to eq next_day
+          expect(Rails.cache.read(claim_key(next_day))).to be_nil
+        end
+      end
+
+      context "when the claim changes hands while the day runs" do
+        before :each do
+          allow(TimeKeeper.instance).to receive(:push_date_of_record) do
+            Rails.cache.write(claim_key(next_day), other_owner)
+          end
+        end
+
+        it "does not delete the claim now owned by another process" do
+          TimeKeeper.instance.advance_date_of_record(next_day)
+
+          expect(Rails.cache.read(claim_key(next_day))).to eq other_owner
+        end
+      end
+
+      context "when catching up across several days" do
+        before :each do
+          Rails.cache.write(claim_key(base_date + 2.days), other_owner)
+        end
+
+        it "stops at the first claimed day and does not touch later days" do
+          expect(TimeKeeper.instance).to receive(:advance_date_of_record).twice.and_call_original
+          expect(TimeKeeper.instance).to receive(:push_date_of_record).once
+
+          TimeKeeper.set_date_of_record(base_date + 3.days)
+
+          expect(TimeKeeper.instance.last_advanced_on).to eq next_day
+          expect(Rails.cache.read(claim_key(base_date + 3.days))).to be_nil
+        end
+      end
+
+      context "when the claim store is unavailable" do
+        before :each do
+          allow(Rails.cache).to receive(:write).and_call_original
+          allow(Rails.cache).to receive(:write)
+            .with(claim_key(next_day), anything, hash_including(unless_exist: true)).and_return(false)
+          allow(Rails.cache).to receive(:read).and_call_original
+          allow(Rails.cache).to receive(:read).with(claim_key(next_day)).and_return(nil)
+        end
+
+        it "runs the day's events without a claim and logs a warning" do
+          expect(TimeKeeper.instance).to receive(:push_date_of_record).once
+
+          expect(TimeKeeper.instance.advance_date_of_record(next_day)).to be true
+          expect(TimeKeeper.instance.last_advanced_on).to eq next_day
+          expect(TimeKeeper.instance).to have_received(:notify_logger)
+            .with("TimeKeeper claim store unavailable for #{next_day} on #{Socket.gethostname} - advancing without a claim", :warn)
+        end
+      end
+    end
   end
 
   context "datetime_of_record", dbclean: :after_each do
