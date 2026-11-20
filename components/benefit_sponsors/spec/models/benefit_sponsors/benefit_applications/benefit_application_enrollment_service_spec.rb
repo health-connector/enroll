@@ -106,6 +106,56 @@ module BenefitSponsors
           expect(renewals.count).to eq 1
         end
       end
+
+      # A redelivered date change message ran the day on a second listener while the
+      # first was still renewing. The second one checked each application before the
+      # first had saved its renewal, so both renewed it.
+      context "when a second process renews while the first is still building the renewal" do
+        let(:claim_key) { "benefit_application/#{initial_application.id}/renewal_claim" }
+
+        it "lets only the first build a renewal application" do
+          second_application = BenefitSponsorships::BenefitSponsorship.find(benefit_sponsorship.id).benefit_applications.find(initial_application.id)
+          second_result = nil
+          allow(initial_application).to receive(:renew).and_wrap_original do |original|
+            second_result, = renew(second_application)
+            original.call
+          end
+
+          first_result, = renew
+
+          expect(first_result).to eq true
+          expect(second_result).to eq false
+          expect(renewals.count).to eq 1
+        end
+
+        it "releases the claim once the renewal is saved" do
+          renew
+          expect(Rails.cache.read(claim_key)).to be_nil
+        end
+
+        it "releases the claim when building the renewal fails" do
+          allow(initial_application).to receive(:renew).and_raise(StandardError, "boom")
+
+          expect { renew }.to raise_error(StandardError, "boom")
+          expect(Rails.cache.read(claim_key)).to be_nil
+        end
+      end
+
+      context "when the claim can't be written because the cache is unreachable" do
+        before(:each) do
+          allow(Rails.cache).to receive(:write).and_call_original
+          allow(Rails.cache).to receive(:write)
+            .with("benefit_application/#{initial_application.id}/renewal_claim", anything, hash_including(unless_exist: true))
+            .and_return(false)
+        end
+
+        it "still builds the renewal application" do
+          result, = renew
+
+          expect(result).to eq true
+          expect(renewals.count).to eq 1
+        end
+      end
     end
 
     describe '.revert_application' do
