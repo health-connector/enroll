@@ -7,6 +7,8 @@ class TimeKeeper
 
   CACHE_KEY = "timekeeper/date_of_record"
   ADVANCE_KEY = "timekeeper/last_advanced_on".freeze
+  ADVANCE_CLAIM_PREFIX = "timekeeper/advancing/".freeze
+  ADVANCE_CLAIM_TTL = 6.hours
 
   # time zone management
 
@@ -60,8 +62,10 @@ class TimeKeeper
         raise StandardError, "system may not go backward in time"
       else
         instance.notify_logger("TimeKeeper advancing from #{last_advanced} to #{new_date} on #{Socket.gethostname}")
+        # A process that loses the claim for a day stops here rather than moving
+        # on to later days, where it would otherwise race the claim holder again.
         ((last_advanced + 1.day)..new_date).each do |day|
-          instance.advance_date_of_record(day)
+          break unless instance.advance_date_of_record(day)
         end
       end
     else
@@ -93,12 +97,37 @@ class TimeKeeper
     end.to_datetime
   end
 
+  # Runs the day's events at most once across processes. Returns false when
+  # another process holds the claim for the day, true otherwise.
+  #
+  # A claim held by a process that crashed is not reclaimed. It stays until
+  # ADVANCE_CLAIM_TTL expires, and the skip log names the holder.
   def advance_date_of_record(new_date)
-    set_date_of_record(new_date)
-    push_date_of_record
-    push_date_change_event
-    mark_advanced(new_date)
-    notify_logger("TimeKeeper marked #{new_date} advanced on #{Socket.gethostname}")
+    owner = claim_advance(new_date)
+    unless owner
+      notify_logger("TimeKeeper advance for #{new_date} skipped on #{Socket.gethostname} - " \
+                    "claimed by #{Rails.cache.read(advance_claim_key(new_date)) || 'unknown'}", :warn)
+      return false
+    end
+
+    begin
+      # The marker is read again after claiming because another process may
+      # have finished this day between the caller's read and this claim.
+      done = last_advanced_on
+      if done.present? && done >= new_date
+        notify_logger("TimeKeeper advance for #{new_date} skipped on #{Socket.gethostname} - already advanced")
+        return true
+      end
+
+      set_date_of_record(new_date)
+      push_date_of_record
+      push_date_change_event
+      mark_advanced(new_date)
+      notify_logger("TimeKeeper marked #{new_date} advanced on #{Socket.gethostname}")
+      true
+    ensure
+      release_advance_claim(new_date, owner)
+    end
   end
 
   # Records which day the advance events last ran for. CACHE_KEY can't answer
@@ -169,5 +198,38 @@ class TimeKeeper
 
   def thread_local_date_of_record
     Thread.current[:time_keeper_local_cached_date]
+  end
+
+  private
+
+  def advance_claim_key(day)
+    "#{ADVANCE_CLAIM_PREFIX}#{day.strftime('%Y-%m-%d')}"
+  end
+
+  # Returns the owner string when the claim is taken, nil when another process
+  # holds it, and :unclaimed when the cache store cannot be reached.
+  #
+  # A failed write means either the key exists or the store errored. Reading
+  # the key tells them apart. When the store is unavailable the day proceeds
+  # without a claim: skipping would leave the date un-advanced for every
+  # process, which is worse than the race the claim guards against.
+  def claim_advance(day)
+    key = advance_claim_key(day)
+    owner = "#{Socket.gethostname} pid=#{Process.pid} since #{Time.now.utc.iso8601}"
+    return owner if Rails.cache.write(key, owner, unless_exist: true, expires_in: ADVANCE_CLAIM_TTL)
+    return nil if Rails.cache.read(key).present?
+
+    notify_logger("TimeKeeper claim store unavailable for #{day} on #{Socket.gethostname} - advancing without a claim", :warn)
+    :unclaimed
+  end
+
+  # Deletes the claim only when it still holds our owner string, so a claim
+  # taken by another process after ours expired is left alone. The read and the
+  # delete are separate calls and not atomic, but ADVANCE_CLAIM_TTL is far longer
+  # than an advance takes, so the claim cannot expire and change hands between them.
+  # A stored value never equals :unclaimed, so an unclaimed run deletes nothing.
+  def release_advance_claim(day, owner)
+    key = advance_claim_key(day)
+    Rails.cache.delete(key) if Rails.cache.read(key) == owner
   end
 end
