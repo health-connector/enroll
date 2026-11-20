@@ -423,7 +423,7 @@ module BenefitSponsors
     # renews the application. Taken before the database check, so a renewal saved by
     # the process that held the claim is seen. Released once the renewal is done.
     def claim_renewal
-      return true if Rails.cache.write(renewal_claim_key, Socket.gethostname, unless_exist: true, expires_in: 1.hour)
+      return true if Rails.cache.write(renewal_claim_key, Socket.gethostname, unless_exist: true, expires_in: 4.hours)
 
       # The write also fails when the cache can't be reached. Renew in that case
       # rather than skip.
