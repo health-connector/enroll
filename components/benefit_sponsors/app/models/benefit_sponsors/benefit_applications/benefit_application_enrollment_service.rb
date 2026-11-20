@@ -13,8 +13,9 @@ module BenefitSponsors
     end
 
     def renew_application
-      if renewal_already_exists?
-        [false, benefit_application, { renewal_already_exists: "a renewal application already exists for benefit application #{benefit_application.id}" }]
+      claimed = claim_renewal
+      if !claimed || renewal_already_exists?
+        [false, benefit_application, { renewal_already_exists: "a renewal application already exists or is being created for benefit application #{benefit_application.id}" }]
       elsif business_policy_satisfied_for?(:renew_benefit_application)
         renewal_application = benefit_application.renew
         renewal_application.save
@@ -22,6 +23,8 @@ module BenefitSponsors
       else
         [false, benefit_application, business_policy.fail_results]
       end
+    ensure
+      release_renewal_claim if claimed
     end
 
     def revert_application
@@ -412,6 +415,27 @@ module BenefitSponsors
         end
       end
       [result, errors]
+    end
+
+    # Two listeners can run the same day at once when the date change message is
+    # redelivered. The database check alone can't stop that: both can read before
+    # either saves. Only one process can write this key (Redis SET NX), so only one
+    # renews the application. Taken before the database check, so a renewal saved by
+    # the process that held the claim is seen. Released once the renewal is done.
+    def claim_renewal
+      return true if Rails.cache.write(renewal_claim_key, Socket.gethostname, unless_exist: true, expires_in: 4.hours)
+
+      # The write also fails when the cache can't be reached. Renew in that case
+      # rather than skip.
+      Rails.cache.read(renewal_claim_key).blank?
+    end
+
+    def release_renewal_claim
+      Rails.cache.delete(renewal_claim_key)
+    end
+
+    def renewal_claim_key
+      "benefit_application/#{benefit_application.id}/renewal_claim"
     end
 
     # Read from the database rather than the loaded sponsorship, so a renewal
