@@ -427,22 +427,7 @@ class BenefitGroupAssignment
   end
 
   def make_active
-    census_employee.benefit_group_assignments.where(:id.ne => id).inject([]) do |_dummy, benefit_group_assignment|
-      end_on = benefit_group_assignment.end_on || (start_on - 1.day)
-      if is_case_old?
-        benefit_group_assignment.plan_year.end_on unless benefit_group_assignment.plan_year.coverage_period_contains?(end_on)
-      else
-        benefit_group_assignment.benefit_application.end_on unless benefit_group_assignment.benefit_application.effective_period.cover?(end_on)
-      end
-    end
-    # TODO: Hack to get census employee spec to pass
-    #bga_to_activate = census_employee.benefit_group_assignments.select { |bga| HbxEnrollment::ENROLLED_STATUSES.include?(bga.hbx_enrollment&.aasm_state) }.last
-    #if bga_to_activate.present?
-    # bga_to_activate.update_attributes!(activated_at: TimeKeeper.datetime_of_record)
-    #else
-    # TODO: Not sure why this isn't working right
     update_attributes!(activated_at: TimeKeeper.datetime_of_record)
-    #end
   end
 
   def renew_employee_enrollments
