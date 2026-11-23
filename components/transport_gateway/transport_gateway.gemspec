@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'rails', '~> 8.1', '>= 8.1.4.1'
   s.add_dependency 'net-sftp', '~> 4.0'
-  s.add_dependency 'net-ssh', '~> 7.3', '>= 7.3.8'
+  s.add_dependency 'net-ssh', '~> 7.3', '>= 7.3.10'
   s.add_dependency 'aws-sdk', '~> 3.2'
   s.add_dependency 'rack', '>= 2.2.14'
   s.add_dependency 'net-imap',  '>= 0.4.20'
