@@ -427,7 +427,13 @@ module BenefitSponsors
 
       # The write also fails when the cache can't be reached. Renew in that case
       # rather than skip.
-      Rails.cache.read(renewal_claim_key).blank?
+      claimed_by = Rails.cache.read(renewal_claim_key)
+      return true if claimed_by.blank?
+
+      # The nightly renewal doesn't check the result, so log the skip. If the
+      # claim holder died before saving, this is the only trace of a missing renewal.
+      Rails.logger.warn "Renewal skipped for benefit application #{benefit_application.id}: claimed by #{claimed_by}"
+      false
     end
 
     def release_renewal_claim

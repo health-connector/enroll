@@ -139,6 +139,19 @@ module BenefitSponsors
           expect { renew }.to raise_error(StandardError, "boom")
           expect(Rails.cache.read(claim_key)).to be_nil
         end
+
+        it "logs the host holding the claim when it skips the application" do
+          Rails.cache.write(claim_key, "listener-host")
+          allow(Rails.logger).to receive(:warn)
+
+          result, = renew
+
+          expect(result).to eq false
+          expect(Rails.logger).to have_received(:warn)
+            .with("Renewal skipped for benefit application #{initial_application.id}: claimed by listener-host")
+        ensure
+          Rails.cache.delete(claim_key)
+        end
       end
 
       context "when the claim can't be written because the cache is unreachable" do
