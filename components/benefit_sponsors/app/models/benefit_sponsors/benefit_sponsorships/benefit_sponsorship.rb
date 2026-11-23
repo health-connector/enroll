@@ -278,22 +278,33 @@ module BenefitSponsors
     index({"benefit_applications._id" => 1})
     index({"benefit_applications.predecessor_id" => 1})
     index({"benefit_applications.benefit_packages._id" => 1})
-    index({"benefit_applications.aasm_state" => 1})
     index(
       {
         "benefit_applications.aasm_state" => 1,
-        "benefit_applications.benefit_application_items.effective_period.min" => 1,
-        "benefit_applications.benefit_application_items.effective_period.max" => 1
+        "benefit_applications.benefit_application_items.effective_period.min" => 1
       },
-      {name: "benefit_applications_effective_period"}
+      {name: "benefit_applications_effective_period_min"}
     )
     index(
       {
         "benefit_applications.aasm_state" => 1,
-        "benefit_applications.open_enrollment_period.min" => 1,
+        "benefit_applications.benefit_application_items.effective_period.max" => 1
+      },
+      {name: "benefit_applications_effective_period_max"}
+    )
+    index(
+      {
+        "benefit_applications.aasm_state" => 1,
+        "benefit_applications.open_enrollment_period.min" => 1
+      },
+      {name: "benefit_applications_open_enrollment_period_min"}
+    )
+    index(
+      {
+        "benefit_applications.aasm_state" => 1,
         "benefit_applications.open_enrollment_period.max" => 1
       },
-      {name: "benefit_applications_open_enrollment_period"}
+      {name: "benefit_applications_open_enrollment_period_max"}
     )
 
     add_observer ::BenefitSponsors::Observers::BenefitSponsorshipObserver.new, [:notifications_send]
