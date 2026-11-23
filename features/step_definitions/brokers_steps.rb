@@ -320,6 +320,20 @@ Then(/^.+ goes to the Consumer page$/) do
   expect(page).to have_content("My #{Settings.site.short_name}")
 end
 
+When(/^.+ returns to the families list with the browser back button$/) do
+  page.go_back
+  expect(page).to have_css('#Broker-Family-dataTable_wrapper', wait: 10)
+end
+
+# Turbolinks replays the cached page, including the script that sets up the
+# datatable, so a datatable left in the snapshot gets a second set of controls.
+Then(/^.+ should see the families datatable controls only once$/) do
+  expect(page).to have_css('#Broker-Family-dataTable_wrapper', count: 1)
+  expect(page).to have_css('#Broker-Family-dataTable_paginate', count: 1)
+  expect(page).to have_css('#Broker-Family-dataTable_length', count: 1)
+  expect(page).to have_css('.dt-buttons', count: 1)
+end
+
 # Then(/^.+ is on the consumer home page$/) do
 #   @browser.a(class: 'interaction-click-control-shop-for-plans').wait_until_present
 # end

@@ -121,6 +121,8 @@ Feature: Create Primary Broker and Broker Agency
     When Primary Broker clicks on the Families tab
     Then Broker Assisted is a family
     Then Primary Broker goes to the Consumer page
+    When Primary Broker returns to the families list with the browser back button
+    Then Primary Broker should see the families datatable controls only once
     # Then Primary Broker is on the consumer home page
     # Then Primary Broker shops for plans
     # Then Primary Broker sees covered family members
