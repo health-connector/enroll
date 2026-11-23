@@ -1466,7 +1466,9 @@ module BenefitSponsors
         it "should update benefit_group_assignment end_on if end_on > benefit_application end on" do
           expect(@bga.end_on).to eq nil
           benefit_package.terminate_benefit_group_assignments
-          expect(@bga.end_on).to eq benefit_package.end_on
+          # Only employees assigned to the package are loaded, as fresh copies, so
+          # read the saved assignment rather than this one.
+          expect(@bga.reload.end_on).to eq benefit_package.end_on
         end
       end
 
