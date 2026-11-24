@@ -2,7 +2,6 @@
 
 require_relative 'anonymized_data'
 require_relative 'canonical_payloads'
-require_relative '../timing_helper'
 require 'openssl'
 require 'securerandom'
 
@@ -19,7 +18,6 @@ module DataAnonymizer
   # rubocop:disable Metrics/ClassLength
   class Runner
     include CanonicalPayloads
-    include TimingHelper
 
     # Pattern matching email addresses produced by {AnonymizedData.email}.
     # Built from {AnonymizedData::ALLOWED_EMAIL_DOMAINS} so the two stay in
@@ -129,7 +127,7 @@ module DataAnonymizer
       log "=== Starting CCA Data Anonymization#{' (DRY RUN)' if @dry_run} ==="
       log "Database: #{db.name}"
       log "Time: #{Time.current}"
-      start_time = process_start_time
+      start_time = Time.current
 
       # Pre-run: generate HMAC prehashes for records that lack SSN so we can
       # verify name+dob were changed after anonymization. Kept in-memory and
@@ -147,7 +145,7 @@ module DataAnonymizer
       end
 
       stats = run_phases
-      log_stats(stats, process_end_time_formatted(start_time))
+      log_stats(stats, (Time.current - start_time).round(1))
 
       ensure_protected_users!
 
@@ -193,15 +191,16 @@ module DataAnonymizer
         census_members: anonymize_census_members,
         organizations: anonymize_organizations,
         bs_organizations: anonymize_bs_organizations,
-        families: anonymize_families,
-        inbox_messages: anonymize_inbox_messages,
-        document_identifiers: anonymize_document_identifiers
+        families: anonymize_families
       }
     end
 
-    # Logs per-phase record counts and total elapsed time.
-    def log_stats(stats, elapsed_str)
-      log "\n=== Anonymization Complete#{' (DRY RUN - no writes)' if @dry_run} (#{elapsed_str}) ==="
+    # Logs the per-phase record counts and total elapsed time.
+    # @param stats [Hash{Symbol => Integer}]
+    # @param elapsed [Float] total run time in seconds
+    # @return [void]
+    def log_stats(stats, elapsed)
+      log "\n=== Anonymization Complete#{' (DRY RUN - no writes)' if @dry_run} (#{elapsed}s) ==="
       stats.each { |k, v| log "  #{k}: #{v} records processed" }
     end
 
@@ -610,27 +609,13 @@ module DataAnonymizer
       user = User.where(oim_id: oim_id).first
       if user
         log "  Resetting password for existing protected user '#{oim_id}' (id=#{user.id})"
-        user.update!(
-          password: PROTECTED_USER_PASSWORD,
-          password_confirmation: PROTECTED_USER_PASSWORD
-        )
       else
         log "  Creating protected user '#{oim_id}'"
-        user = User.create!(
-          email: oim_id,
-          oim_id: oim_id,
-          roles: ['hbx_staff'],
-          password: PROTECTED_USER_PASSWORD,
-          password_confirmation: PROTECTED_USER_PASSWORD
-        )
+        user = User.new(email: oim_id, oim_id: oim_id, roles: ['hbx_staff'])
       end
-
-      # Clear session tokens via the DB driver to avoid Devise callbacks regenerating them.
-      db[:users].update_one(
-        { '_id' => user.id },
-        { '$set' => { 'current_login_token' => nil, 'authentication_token' => nil } }
-      )
-
+      user.password = PROTECTED_USER_PASSWORD
+      user.password_confirmation = PROTECTED_USER_PASSWORD
+      user.save!
       user
     end
 
@@ -1186,191 +1171,6 @@ module DataAnonymizer
         log "  Cleared e_case_id on #{total} families"
       end
       total
-    end
-
-    def anonymize_inbox_messages
-      log "\n--- Phase 7: Anonymizing Inbox Message Bodies ---"
-      total  = redact_inbox_messages_at_path(db[:people], 'inbox')
-      total += redact_inbox_messages_at_path(db[:organizations], 'employer_profile.inbox')
-      total += redact_inbox_messages_at_path(db[:organizations], 'broker_agency_profile.inbox')
-      total += redact_inbox_messages_at_path(db[:organizations], 'hbx_profile.inbox')
-      total += redact_bs_org_inbox_messages
-      log "  Phase 7 complete: #{total} documents processed" if total.positive?
-      total
-    end
-
-    def redact_inbox_messages_at_path(collection, inbox_path)
-      messages_path = "#{inbox_path}.messages"
-      filter        = { "#{messages_path}.0" => { '$exists' => true } }
-      total         = collection.count_documents(filter)
-      return 0 if total.zero?
-
-      log "  #{collection.name}: #{total} documents with inbox messages"
-      path_keys = inbox_path.split('.')
-      processed = 0
-
-      collection.find(filter).projection(inbox_path => 1).batch_size(batch_size).each_slice(batch_size) do |batch|
-        updates = batch.filter_map { |doc| inbox_message_update(doc, path_keys, messages_path) }
-
-        if @dry_run
-          log "  [DRY RUN] Would redact document names in #{batch.size} #{collection.name} inbox messages"
-        else
-          bulk_write_batch(collection, updates) unless updates.empty?
-        end
-        processed += batch.size
-      end
-      processed
-    end
-
-    def inbox_message_update(doc, path_keys, messages_path)
-      inbox    = path_keys.reduce(doc) { |d, k| d.is_a?(Hash) ? d[k] : nil }
-      messages = inbox.is_a?(Hash) ? inbox['messages'] : nil
-      return nil unless messages.is_a?(Array) && messages.present?
-
-      redacted = messages.map { |msg| redact_message_fields(msg) }
-      { update_one: { filter: { '_id' => doc['_id'] }, update: { '$set' => { messages_path => redacted } } } }
-    end
-
-    def redact_bs_org_inbox_messages
-      collection = db[:benefit_sponsors_organizations_organizations]
-      filter     = { 'profiles.inbox.messages.0' => { '$exists' => true } }
-      total      = collection.count_documents(filter)
-      return 0 if total.zero?
-
-      log "  #{collection.name}: #{total} documents with inbox messages"
-      processed = 0
-
-      collection.find(filter).projection('profiles' => 1).batch_size(batch_size).each_slice(batch_size) do |batch|
-        updates = batch.filter_map { |doc| bs_org_inbox_message_update(doc) }
-
-        if @dry_run
-          log "  [DRY RUN] Would redact document names in #{batch.size} BS org inbox messages"
-        else
-          bulk_write_batch(collection, updates) unless updates.empty?
-        end
-        processed += batch.size
-      end
-      processed
-    end
-
-    def bs_org_inbox_message_update(doc)
-      profiles = doc['profiles']
-      return nil unless profiles.is_a?(Array)
-
-      updated = profiles.map { |p| redact_profile_inbox(p) }
-      { update_one: { filter: { '_id' => doc['_id'] }, update: { '$set' => { 'profiles' => updated } } } }
-    end
-
-    def redact_profile_inbox(profile)
-      messages = profile.dig('inbox', 'messages')
-      return profile unless messages.is_a?(Array) && messages.present?
-
-      profile                      = profile.dup
-      profile['inbox']             = profile['inbox'].dup
-      profile['inbox']['messages'] = messages.map { |msg| redact_message_fields(msg) }
-      profile
-    end
-
-    def redact_message_fields(msg)
-      return msg unless msg.is_a?(Hash)
-
-      msg = msg.dup
-      msg['body'] = redact_document_filename(msg['body']) if msg['body'].present?
-      msg['from'] = AnonymizedData.company_name if msg['from'].present?
-      msg
-    end
-
-    def redact_document_filename(body)
-      return body if body.blank?
-
-      body = body.gsub(/filename=[^&"'\s]+/, 'filename=document-redacted')
-      body.gsub(%r{target=['"]_blank['"][^>]*>\s*[^<]+\s*</a>}i, "target='_blank'>[document-redacted]</a>")
-    end
-
-    def anonymize_document_identifiers
-      log "\n--- Phase 8: Anonymizing Document S3 References ---"
-      total  = redact_document_identifiers_at_path(db[:people], 'documents')
-      total += redact_document_identifiers_at_path(db[:organizations], 'documents')
-      total += redact_document_identifiers_at_path(db[:organizations], 'employer_profile.documents')
-      total += redact_document_identifiers_at_path(db[:organizations], 'broker_agency_profile.documents')
-      total += redact_bs_document_identifiers
-      log "  Phase 8 complete: #{total} documents processed" if total.positive?
-      total
-    end
-
-    def redact_document_identifiers_at_path(collection, docs_path)
-      filter = { "#{docs_path}.0" => { '$exists' => true } }
-      total  = collection.count_documents(filter)
-      return 0 if total.zero?
-
-      log "  #{collection.name}: #{total} records with embedded documents"
-      path_keys = docs_path.split('.')
-      processed = 0
-
-      collection.find(filter).projection(docs_path => 1).batch_size(batch_size).each_slice(batch_size) do |batch|
-        updates = batch.filter_map { |doc| document_identifier_update(doc, path_keys, docs_path) }
-
-        if @dry_run
-          log "  [DRY RUN] Would redact S3 identifiers in #{batch.size} #{collection.name} records"
-        else
-          bulk_write_batch(collection, updates) unless updates.empty?
-        end
-        processed += batch.size
-      end
-      processed
-    end
-
-    def document_identifier_update(doc, path_keys, docs_path)
-      documents = path_keys.reduce(doc) { |d, k| d.is_a?(Hash) ? d[k] : nil }
-      return nil unless documents.is_a?(Array) && documents.present?
-
-      redacted = documents.each_with_index.map { |d, idx| redact_document_identifier_field(d, idx) }
-      { update_one: { filter: { '_id' => doc['_id'] }, update: { '$set' => { docs_path => redacted } } } }
-    end
-
-    def redact_document_identifier_field(document, idx)
-      return document unless document.is_a?(Hash)
-      return document if document['identifier'].blank? && document['title'].blank? && document['subject'].blank?
-
-      document = document.dup
-      ext = File.extname(document['title'].to_s).presence || '.pdf'
-      document['title']      = "document_#{idx + 1}#{ext}" if document['title'].present?
-      document['subject']    = "document_#{idx + 1}#{ext}" if document['subject'].present?
-      document['identifier'] = anonymized_document_identifier if document['identifier'].present?
-      document
-    end
-
-    def redact_bs_document_identifiers
-      collection = db[:benefit_sponsors_documents_documents]
-      return 0 unless db.collection_names.include?(collection.name)
-
-      filter = {
-        'identifier' => { '$exists' => true, '$nin' => [nil, '', 'missing_uri'] },
-        'documentable_type' => { '$ne' => 'BenefitSponsors::Organizations::IssuerProfile' }
-      }
-      total = collection.count_documents(filter)
-      return 0 if total.zero?
-
-      log "  #{collection.name}: #{total} documents with S3 identifiers"
-      processed = 0
-
-      collection.find(filter).projection('_id' => 1).batch_size(batch_size).each_slice(batch_size) do |batch|
-        updates = batch.map do |doc|
-          { update_one: { filter: { '_id' => doc['_id'] }, update: { '$set' => { 'identifier' => anonymized_document_identifier } } } }
-        end
-
-        if @dry_run
-          log "  [DRY RUN] Would redact S3 identifiers in #{batch.size} BS documents"
-        else
-          bulk_write_batch(collection, updates) unless updates.empty?
-        end
-        processed += batch.size
-      end
-      processed
-    end
-
-    def anonymized_document_identifier
-      "urn:openhbx:terms:v1:file_storage:s3:bucket:anonymized##{SecureRandom.uuid}"
     end
 
     # Replaces address PII fields in an embedded address hash.
