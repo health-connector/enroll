@@ -527,7 +527,7 @@ module BenefitSponsors
 
       # TODO: Figure this out and depracate
       def deactivate_benefit_group_assignments
-        self.benefit_application.benefit_sponsorship.census_employees.each do |ce|
+        census_employees_assigned_to_package.each do |ce|
           benefit_group_assignments = ce.benefit_group_assignments.where(benefit_package_id: self.id)
           benefit_group_assignments.each do |benefit_group_assignment|
             unless is_renewing?
@@ -539,13 +539,25 @@ module BenefitSponsors
       end
 
       def terminate_benefit_group_assignments
-        self.benefit_application.benefit_sponsorship.census_employees.each do |ce|
+        census_employees_assigned_to_package.each do |ce|
           benefit_group_assignments = ce.benefit_group_assignments.where(benefit_package_id: self.id)
           benefit_group_assignments.each do |benefit_group_assignment|
             benefit_group_assignment.benefit_application.reload
             benefit_group_assignment.update(end_on: self.end_on)
           end
         end
+      end
+
+      def census_employees_assigned_to_package
+        census_employees = benefit_application.benefit_sponsorship.census_employees
+        in_memory_employees = census_employees.in_memory.select do |census_employee|
+          census_employee.benefit_group_assignments.any? { |assignment| assignment.benefit_package_id == id }
+        end
+        persisted_employees = census_employees.where(
+          "benefit_group_assignments.benefit_package_id" => id
+        ).to_a
+
+        (in_memory_employees + persisted_employees).uniq(&:id)
       end
 
       def deactivate

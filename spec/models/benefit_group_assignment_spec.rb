@@ -520,6 +520,15 @@ describe BenefitGroupAssignment, type: :model, dbclean: :around_each do
         census_employee.benefit_group_assignments.first.reload
         expect(census_employee.benefit_group_assignments.first.end_on).to eq(nil)
       end
+
+      it "does not load the employee's other assignments" do
+        assignment = census_employee.benefit_group_assignments.first
+        assignments = census_employee.benefit_group_assignments
+
+        expect(assignments).not_to receive(:where)
+
+        assignment.make_active
+      end
     end
   end
 

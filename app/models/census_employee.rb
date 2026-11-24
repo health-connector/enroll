@@ -87,6 +87,7 @@ class CensusEmployee < CensusMember
 
   index({encrypted_ssn: 1, dob: 1, aasm_state: 1})
   index({employee_role_id: 1}, {sparse: true})
+  index({hired_on: 1})
   index({employer_profile_id: 1, encrypted_ssn: 1, aasm_state: 1})
   index({employer_profile_id: 1, last_name: 1, first_name: 1, hired_on: -1 })
   index({employer_profile_id: 1, hired_on: 1, last_name: 1, first_name: 1 })
