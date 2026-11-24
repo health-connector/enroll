@@ -422,7 +422,7 @@ GEM
       monetize (~> 1.9)
       money (~> 6.13)
       railties (>= 3.0)
-    mongo (2.26.0)
+    mongo (2.26.2)
       base64
       bson (>= 4.14.1, < 6.0.0)
     mongoid (9.0.13)

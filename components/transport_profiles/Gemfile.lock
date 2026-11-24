@@ -15,7 +15,7 @@ PATH
       aws-sdk (~> 3.2)
       net-imap (>= 0.4.20)
       net-sftp (~> 4.0)
-      net-ssh (~> 7.3, >= 7.3.8)
+      net-ssh (~> 7.3, >= 7.3.10)
       rack (>= 2.2.14)
       rails (~> 8.1, >= 8.1.4.1)
 
@@ -1786,7 +1786,7 @@ GEM
     minitest (6.0.6)
       drb (~> 2.0)
       prism (~> 1.5)
-    mongo (2.26.0)
+    mongo (2.26.2)
       base64
       bson (>= 4.14.1, < 6.0.0)
     mongoid (9.0.13)
@@ -1805,7 +1805,7 @@ GEM
       net-ssh (>= 5.0.0, < 8.0.0)
     net-smtp (0.5.1)
       net-protocol
-    net-ssh (7.3.8)
+    net-ssh (7.3.10)
       logger
     nio4r (2.7.5)
     nokogiri (1.19.6)
