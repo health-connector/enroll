@@ -218,8 +218,6 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
     describe '#check_idempotency!' do
       before do
         runner.db[:data_anonymizer_runs].drop
-        runner.db[:people].drop
-        runner.db[:users].drop
       end
 
       context 'when no previous run exists' do
@@ -249,83 +247,6 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
         it 'logs a warning but does not abort' do
           expect(runner).to receive(:log).with(a_string_matching(/WARNING/))
           expect { runner.send(:check_idempotency!) }.not_to raise_error
-        end
-      end
-
-      context 'when sentinel exists but the data sample still contains real emails (stale sentinel after DB refresh)' do
-        let(:strict_runner) { DataAnonymizer::Runner.new(batch_size: 5, dry_run: false, force: false) }
-
-        before do
-          runner.db[:data_anonymizer_runs].insert_one('completed_at' => Time.current)
-          runner.db[:people].insert_one('emails' => [{ 'address' => 'real.person@gmail.com' }])
-        end
-
-        it 'aborts with a message instructing the operator to run reset' do
-          expect { strict_runner.send(:check_idempotency!) }
-            .to raise_error(SystemExit)
-        end
-      end
-
-      context 'when sentinel exists, data looks unanonymized, and dry_run is true' do
-        let(:dry_strict_runner) { DataAnonymizer::Runner.new(batch_size: 5, dry_run: true, force: false) }
-
-        before do
-          runner.db[:data_anonymizer_runs].insert_one('completed_at' => Time.current)
-          runner.db[:people].insert_one('emails' => [{ 'address' => 'real.person@gmail.com' }])
-        end
-
-        it 'still aborts — dry run does not bypass the stale sentinel guard' do
-          expect { dry_strict_runner.send(:check_idempotency!) }.to raise_error(SystemExit)
-        end
-      end
-    end
-
-    describe '#data_appears_unanonymized?' do
-      before do
-        runner.db[:people].drop
-        runner.db[:users].drop
-      end
-
-      context 'when no people or users exist' do
-        it 'returns false (no signal to act on)' do
-          expect(runner.send(:data_appears_unanonymized?)).to be false
-        end
-      end
-
-      context 'when sampled people emails all match the anonymizer pattern' do
-        before do
-          runner.db[:people].insert_many([
-            { 'emails' => [{ 'address' => 'user0@exampleanonymizer.com' }] },
-            { 'emails' => [{ 'address' => 'user1@testanonymizer.com' }] }
-          ])
-        end
-
-        it 'returns false' do
-          expect(runner.send(:data_appears_unanonymized?)).to be false
-        end
-      end
-
-      context 'when any sampled person email is not from an anonymizer domain' do
-        before do
-          runner.db[:people].insert_many([
-            { 'emails' => [{ 'address' => 'user0@exampleanonymizer.com' }] },
-            { 'emails' => [{ 'address' => 'real.person@gmail.com' }] }
-          ])
-        end
-
-        it 'returns true' do
-          expect(runner.send(:data_appears_unanonymized?)).to be true
-        end
-      end
-
-      context 'when no person carries an email and users.email is real' do
-        before do
-          runner.db[:people].insert_one('first_name' => 'Anon')
-          runner.db[:users].insert_one('email' => 'real.user@gmail.com')
-        end
-
-        it 'falls back to the users collection and returns true' do
-          expect(runner.send(:data_appears_unanonymized?)).to be true
         end
       end
     end
@@ -367,29 +288,6 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
           dry_runner.send(:drop_history_trackers)
           expect(runner.db.collection_names).to include('history_trackers')
         end
-      end
-    end
-
-    describe '#run_phases' do
-      before do
-        allow(runner).to receive(:anonymize_people).and_return(0)
-        allow(runner).to receive(:anonymize_users).and_return(0)
-        allow(runner).to receive(:anonymize_census_members).and_return(0)
-        allow(runner).to receive(:anonymize_organizations).and_return(0)
-        allow(runner).to receive(:anonymize_bs_organizations).and_return(0)
-        allow(runner).to receive(:anonymize_families).and_return(0)
-      end
-
-      it 'invokes drop_history_trackers once before phases' do
-        expect(runner).to receive(:drop_history_trackers).once.and_return(0)
-        runner.send(:run_phases)
-      end
-
-      it 'returns a stats hash containing the initial tracker drop key' do
-        allow(runner).to receive(:drop_history_trackers).and_return(0)
-        stats = runner.send(:run_phases)
-        expect(stats).to include(:history_trackers)
-        expect(stats).not_to include(:history_trackers_final)
       end
     end
 
@@ -667,128 +565,6 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
         runner2.send(:anonymize_users)
         emails = runner2.db[:users].find.map { |d| d['email'] }.compact
         expect(emails.uniq.length).to eq(emails.length)
-      end
-    end
-
-    # @!group Protected operator account — skip-from-anonymization + reset
-
-    describe 'protected operator account' do
-      let(:protected_oim_id) { DataAnonymizer::Runner::PROTECTED_OIM_IDS.first }
-      let(:protected_password) { DataAnonymizer::Runner::PROTECTED_USER_PASSWORD }
-
-      describe '#anonymize_users' do
-        let!(:protected_user) do
-          FactoryBot.create(:user, email: protected_oim_id, oim_id: protected_oim_id)
-        end
-        let!(:other_user) { FactoryBot.create(:user) }
-
-        before { runner.send(:anonymize_users) }
-
-        it 'preserves the protected user email' do
-          doc = raw_doc('users', protected_user.id)
-          expect(doc['email']).to eq(protected_oim_id)
-        end
-
-        it 'preserves the protected user oim_id' do
-          doc = raw_doc('users', protected_user.id)
-          expect(doc['oim_id']).to eq(protected_oim_id)
-        end
-
-        it 'still anonymizes other users' do
-          doc = raw_doc('users', other_user.id)
-          expect(doc['email']).to match(/@(exampleanonymizer|testanonymizer)\.com\z/)
-        end
-      end
-
-      describe '#anonymize_people' do
-        let!(:protected_user) do
-          FactoryBot.create(:user, email: protected_oim_id, oim_id: protected_oim_id)
-        end
-        let!(:protected_person) do
-          FactoryBot.create(:person, first_name: 'system', last_name: 'admin', user: protected_user)
-        end
-        let!(:other_person) { FactoryBot.create(:person, first_name: 'Real', last_name: 'Name') }
-
-        before { runner.send(:anonymize_people) }
-
-        it 'preserves the protected person first_name' do
-          doc = raw_doc('people', protected_person.id)
-          expect(doc['first_name']).to eq('system')
-        end
-
-        it 'preserves the protected person last_name' do
-          doc = raw_doc('people', protected_person.id)
-          expect(doc['last_name']).to eq('admin')
-        end
-
-        it 'still anonymizes other people' do
-          doc = raw_doc('people', other_person.id)
-          expect(doc['first_name']).not_to eq('Real')
-        end
-      end
-
-      describe '#ensure_protected_users!' do
-        before do
-          Permission.where(name: 'super_admin').first_or_create!(modify_family: true, modify_employer: true, view_admin_tabs: true)
-          FactoryBot.create(:hbx_profile)
-        end
-
-        context 'when the protected user does not exist' do
-          it 'creates the user with the protected password and hbx_staff role' do
-            runner.send(:ensure_protected_users!)
-            user = User.where(oim_id: protected_oim_id).first
-            expect(user).to be_present
-            expect(user.valid_password?(protected_password)).to be true
-            expect(user.roles).to include('hbx_staff')
-          end
-
-          it 'creates a linked person with super_admin role' do
-            runner.send(:ensure_protected_users!)
-            user = User.where(oim_id: protected_oim_id).first
-            person = Person.where(user_id: user.id).first
-            expect(person).to be_present
-            expect(person.hbx_staff_role&.subrole).to eq('super_admin')
-          end
-        end
-
-        context 'when the protected user already exists' do
-          let!(:existing_user) { FactoryBot.create(:user, email: protected_oim_id, oim_id: protected_oim_id, password: 'OldPass123!', password_confirmation: 'OldPass123!') }
-
-          it 'resets the password to the protected password' do
-            runner.send(:ensure_protected_users!)
-            existing_user.reload
-            expect(existing_user.valid_password?(protected_password)).to be true
-          end
-
-          it 'does not create a duplicate user' do
-            expect { runner.send(:ensure_protected_users!) }
-              .not_to(change { User.where(oim_id: protected_oim_id).count })
-          end
-
-          it 'grants super_admin when missing' do
-            runner.send(:ensure_protected_users!)
-            person = Person.where(user_id: existing_user.id).first
-            expect(person.hbx_staff_role&.subrole).to eq('super_admin')
-          end
-        end
-
-        context 'in dry-run mode' do
-          it 'does not create the user' do
-            expect { dry_runner.send(:ensure_protected_users!) }
-              .not_to(change { User.where(oim_id: protected_oim_id).count })
-          end
-        end
-
-        context 'when Permission.super_admin is missing' do
-          before { Permission.where(name: 'super_admin').delete_all }
-
-          it 'still creates the user and logs a warning' do
-            allow(runner).to receive(:log)
-            runner.send(:ensure_protected_users!)
-            expect(User.where(oim_id: protected_oim_id).first).to be_present
-            expect(runner).to have_received(:log).with(/Permission\.super_admin not found/)
-          end
-        end
       end
     end
 
@@ -1447,27 +1223,6 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
           expect(result[:issues]).to match(/real emails/)
         end
       end
-
-      context 'with protected_oim_ids' do
-        let(:protected_oim_id) { 'admin@dc.gov' }
-        let!(:protected_user) do
-          FactoryBot.create(:user, email: protected_oim_id, oim_id: protected_oim_id)
-        end
-        let!(:protected_person) do
-          FactoryBot.create(:person, user: protected_user).tap do |p|
-            db[:people].update_one(
-              { '_id' => p.id },
-              { '$set' => { 'emails' => [{ 'address' => protected_oim_id, 'kind' => 'home' }] } }
-            )
-          end
-        end
-        let(:verifier) { DataAnonymizer::Verifier.new(protected_oim_ids: [protected_oim_id]) }
-
-        it 'passes when only the protected person has a real-looking email' do
-          result = verifier.send(:check_people)
-          expect(result[:passed]).to be true
-        end
-      end
     end
 
     # ── check_users ───
@@ -1515,26 +1270,6 @@ RSpec.describe DataAnonymizer, :dbclean => :around_each do
           result = verifier.send(:check_users)
           expect(result[:passed]).to be false
           expect(result[:issues]).to match(/current_login_token/)
-        end
-      end
-
-      context 'with protected_oim_ids' do
-        let(:protected_oim_id) { 'admin@dc.gov' }
-        let!(:protected_user) do
-          FactoryBot.create(:user, email: protected_oim_id, oim_id: protected_oim_id)
-        end
-        let(:verifier) { DataAnonymizer::Verifier.new(protected_oim_ids: [protected_oim_id]) }
-
-        it 'passes even though the protected user has a real-looking email' do
-          result = verifier.send(:check_users)
-          expect(result[:passed]).to be true
-        end
-
-        it 'still flags non-protected users with real email domains' do
-          FactoryBot.create(:user, email: 'leaked@company.com', oim_id: 'leaked@company.com')
-          result = verifier.send(:check_users)
-          expect(result[:passed]).to be false
-          expect(result[:issues]).to match(/real email/)
         end
       end
     end

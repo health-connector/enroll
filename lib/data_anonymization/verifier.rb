@@ -18,7 +18,7 @@ module DataAnonymizer
   #
   # Writes a CSV report to +tmp/anonymization_report_YYYYMMDD.csv+.
   #
-  # @note +dba+, +fein+, and +npn+ are not checked - they are intentionally unchanged.
+  # @note +dba+, +fein+, and +npn+ are not checked — they are intentionally unchanged.
   # rubocop:disable Metrics/ClassLength
   class Verifier
     include CanonicalPayloads
@@ -27,24 +27,11 @@ module DataAnonymizer
     SAMPLE_SIZE = 5000
     # Fields excluded from the streaming SSN regex scan.
     # +fein+ is a 9-digit EIN intentionally left unchanged per anonymization policy.
-    # +ach_routing_number+ is an ABA routing number - always exactly 9 digits by spec;
+    # +ach_routing_number+ is an ABA routing number — always exactly 9 digits by spec;
     # it is validated separately by +check_organizations+ / +check_bs_organizations+.
-    # +npn+ / +corporate_npn+ are public broker National Producer Numbers (up to 10
-    # digits) intentionally preserved by the runner.
-    # +content+ is free-text on Comment / Announcement and may incidentally contain
-    # 9-digit tokens (check numbers, group ids) that are not SSNs.
-    # +dba+ is the organization's "doing business as" name; some organizations use a
-    # numeric identifier (e.g. a group ID) as their DBA and it is intentionally preserved
-    # per anonymization policy alongside +fein+ and +npn+.
-    # +versions+ is the inline mongoid-history snapshot array embedded in each document.
-    # It holds pre-anonymization field snapshots (e.g. phone +full_phone_number+,
-    # +ach_account_number+) that are not touched by the runner; 9-digit tokens in those
-    # snapshots are not SSNs. The separate +history_trackers+ collection is dropped by
-    # the runner; this covers the remaining per-document version trail.
-    SKIP_FIELDS = %w[_id encrypted_ssn fein ach_routing_number ach_routing_number_confirmation npn corporate_npn content dba versions].freeze
+    SKIP_FIELDS = %w[_id encrypted_ssn fein ach_routing_number ach_routing_number_confirmation].freeze
 
-    # rubocop:disable Metrics/ParameterLists
-    def initialize(mode: :smoke, prehash_map: nil, hmac_key: nil, run_id: nil, sample_size: SAMPLE_SIZE, protected_oim_ids: [])
+    def initialize(mode: :smoke, prehash_map: nil, hmac_key: nil, run_id: nil, sample_size: SAMPLE_SIZE)
       @mode = mode
       @prehash_map = prehash_map
       @hmac_key = hmac_key
@@ -52,11 +39,7 @@ module DataAnonymizer
       @sample_size = sample_size
       @client = Mongoid.default_client
       @db = @client.database
-      @protected_oim_ids = Array(protected_oim_ids).compact.uniq
-      @protected_user_ids = compute_protected_user_ids
-      @protected_person_ids = compute_protected_person_ids
     end
-    # rubocop:enable Metrics/ParameterLists
 
     def run
       log "=== CCA Anonymization Verification Report ==="
@@ -125,32 +108,6 @@ module DataAnonymizer
       map
     end
 
-    # Set of +users._id+ values whose +oim_id+ is in +@protected_oim_ids+.
-    # These accounts are preserved by the runner so the operator can sign in
-    # to the post-anonymization dump; they are excluded from email-pattern
-    # sampling in {#check_users}.
-    # @return [Set<BSON::ObjectId>]
-    def compute_protected_user_ids
-      return Set.new if @protected_oim_ids.empty?
-
-      @db[:users]
-        .find('oim_id' => { '$in' => @protected_oim_ids })
-        .projection('_id' => 1)
-        .each_with_object(Set.new) { |doc, set| set.add(doc['_id']) }
-    end
-
-    # Set of +people._id+ values linked to {#compute_protected_user_ids}.
-    # Excluded from email-pattern sampling in {#check_people}.
-    # @return [Set<BSON::ObjectId>]
-    def compute_protected_person_ids
-      return Set.new if @protected_user_ids.empty?
-
-      @db[:people]
-        .find('user_id' => { '$in' => @protected_user_ids.to_a })
-        .projection('_id' => 1)
-        .each_with_object(Set.new) { |doc, set| set.add(doc['_id']) }
-    end
-
     # Streaming regex scan across all collections for SSN-like 9-digit patterns.
     # Samples up to +@sample_size+ documents per collection (audit mode only).
     # Recurses into nested hashes and arrays so embedded sub-documents are covered.
@@ -206,16 +163,7 @@ module DataAnonymizer
     # with a post-run HMAC built from the same canonicalization rules. Any
     # record whose HMAC is unchanged is treated as a failure.
     def check_name_dob_prehash
-      # No credentials supplied - treat as skipped (PASS) so that verify-only
-      # invocations without RUN_ID/HMAC_KEY don't block the overall sentinel.
-      # A hard FAIL only applies when credentials were supplied but verification fails.
-      unless @prehash_map && @hmac_key
-        log "WARNING: Canonical prehash check SKIPPED - RUN_ID/HMAC_KEY not provided. " \
-            "Name and DOB mutation is NOT verified by this run. " \
-            "To enable this check, pass the RUN_ID and HMAC_KEY printed at anonymization time: " \
-            "bundle exec rake data:anonymize:verify RUN_ID=<value> HMAC_KEY=<value>"
-        return build_result("Canonical prehash", 0, [], "SKIPPED - RUN_ID/HMAC_KEY not provided; name+DOB mutation NOT verified")
-      end
+      return build_result("Canonical prehash", 0, ["prehash_map or hmac_key not provided - check skipped"], "not provided") unless @prehash_map && @hmac_key
 
       issues = []
       samples = []
@@ -293,7 +241,13 @@ module DataAnonymizer
       total = collection.count_documents({})
       issues = []
 
-      real_email_count = count_real_person_emails(collection)
+      real_email_count = 0
+      collection.find.limit(SAMPLE_SIZE).each do |doc|
+        (doc['emails'] || []).each do |em|
+          addr = em['address']
+          real_email_count += 1 if addr.present? && !addr.match?(GENERATED_EMAIL_PATTERN)
+        end
+      end
       issues << "#{real_email_count} real emails in sample of #{SAMPLE_SIZE}" if real_email_count > 0
 
       plain_ssn_count = collection.count_documents('ssn' => { '$exists' => true })
@@ -311,7 +265,7 @@ module DataAnonymizer
     def check_history_trackers
       if @db.collection_names.include?('history_trackers')
         count = @db[:history_trackers].count_documents({})
-        issues = ["history_trackers collection still exists with #{count} documents - contains raw PII change history"]
+        issues = ["history_trackers collection still exists with #{count} documents — contains raw PII change history"]
         build_result("History Trackers (history_trackers)", count, issues, "")
       else
         build_result("History Trackers (history_trackers)", 0, [], "dropped")
@@ -325,8 +279,6 @@ module DataAnonymizer
 
       real_email_count = 0
       collection.find.limit(SAMPLE_SIZE).each do |doc|
-        next if @protected_user_ids.include?(doc['_id'])
-
         addr = doc['email']
         real_email_count += 1 if addr.present? && !addr.match?(GENERATED_EMAIL_PATTERN)
       end
@@ -409,7 +361,7 @@ module DataAnonymizer
     #
     # Samples up to SAMPLE_SIZE census_members that carry an +employee_role_id+
     # and verifies that +first_name+ matches the linked Person's +first_name+.
-    # A mismatch indicates the Phase 1 -> Phase 3 person-sync failed for some
+    # A mismatch indicates the Phase 1 → Phase 3 person-sync failed for some
     # documents.
     #
     # Uses a single +$in+ query to load all matched Person documents rather than
@@ -417,7 +369,7 @@ module DataAnonymizer
     #
     # When no linked census members are found (e.g. on a staging environment
     # populated only with BenefitSponsors records), a warning is logged but the
-    # check is not marked as FAIL - the absence of links is valid in that context.
+    # check is not marked as FAIL — the absence of links is valid in that context.
     def check_census_person_consistency
       issues = []
       mismatches = 0
@@ -430,8 +382,8 @@ module DataAnonymizer
       role_ids = census_sample.map { |ce| ce['employee_role_id'] }.compact.uniq
 
       if role_ids.empty?
-        log "  WARN: check_census_person_consistency - no census members with employee_role_id found in sample; skipping consistency check"
-        return build_result("Cross-model: Census <-> Person (sample 0)", 0, [], "skipped - no linked records")
+        log "  WARN: check_census_person_consistency — no census members with employee_role_id found in sample; skipping consistency check"
+        return build_result("Cross-model: Census ↔ Person (sample 0)", 0, [], "skipped — no linked records")
       end
 
       person_map = {}
@@ -453,7 +405,7 @@ module DataAnonymizer
 
       issues << "#{mismatches}/#{checked} linked census members have first_name mismatch with Person" if mismatches > 0
 
-      build_result("Cross-model: Census <-> Person (sample #{checked})", checked, issues, "")
+      build_result("Cross-model: Census ↔ Person (sample #{checked})", checked, issues, "")
     end
 
     def check_bs_organizations
@@ -476,19 +428,6 @@ module DataAnonymizer
       sample_names = sample.map { |d| d['legal_name'] }.join(", ")
 
       build_result("BS Organizations (benefit_sponsors_organizations_organizations)", total, issues, sample_names)
-    end
-
-    def count_real_person_emails(collection)
-      count = 0
-      collection.find.limit(SAMPLE_SIZE).each do |doc|
-        next if @protected_person_ids.include?(doc['_id'])
-
-        (doc['emails'] || []).each do |em|
-          addr = em['address']
-          count += 1 if addr.present? && !addr.match?(GENERATED_EMAIL_PATTERN)
-        end
-      end
-      count
     end
 
     def build_result(collection_name, total, issues, samples)
