@@ -119,7 +119,6 @@ Then(/^I select the all security question and give the answer$/) do
 end
 
 When(/^user fills out the security questions modal$/) do
-  security_questions = SecurityQuestion.all.to_a.map(&:id)
   (0..2).each do |num|
     within all('div.selectric-wrapper.selectric-security-question-select', visible: false)[num] do
       sleep 1
