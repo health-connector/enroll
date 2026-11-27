@@ -95,7 +95,10 @@ Then(/^.+ should see waiver summary page$/) do
 end
 
 When(/^.+ clicks continue on waiver summary page/) do
+  previous_url = page.current_url
   page.find('.interaction-click-control-continue').click
+  # Wait for the next page to load, so later steps don't read the waiver summary being left.
+  expect(page).to have_no_current_path(previous_url, url: true)
 end
 
 Then(%r{^the waiver receipt should show the waived date formatted as MM/DD/YYYY$}) do
