@@ -81,6 +81,12 @@ Capybara.register_driver :selenium_chrome_custom do |app|
   options.add_argument("--no-sandbox")
   options.add_argument("--window-size=1920,1080")
 
+  # CI pins Chrome and ChromeDriver via these variables; locally they are unset
+  # and Selenium locates the browser and driver itself.
+  options.binary = ENV['CHROME_BIN'] if ENV['CHROME_BIN'].present?
+  service_options = {}
+  service_options[:path] = ENV['CHROMEDRIVER_PATH'] if ENV['CHROMEDRIVER_PATH'].present?
+
   if RUBY_PLATFORM =~ /darwin/
     options.add_argument("--enable-features=NetworkService,NetworkServiceInProcess")
   end
@@ -93,6 +99,7 @@ Capybara.register_driver :selenium_chrome_custom do |app|
     app,
     browser: :chrome,
     options: options,
+    service: Selenium::WebDriver::Service.chrome(**service_options),
     http_client: client
   )
 end
