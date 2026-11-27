@@ -417,6 +417,9 @@ end
 
 When(/^the broker visits the prospect employer new page for (.*)$/) do |broker_agency_name|
   profile = broker_agency_profile(broker_agency_name)
+  # The login step returns right after clicking Sign in; wait for the post-login page
+  # so its redirect can't replace this visit.
+  expect(page).to have_content("Signed in successfully")
   # Use the engine path directly to avoid missing route helper in Cucumber world
   visit "/sponsored_benefits/organizations/plan_design_organizations/new?broker_agency_id=#{profile.id}"
 end
