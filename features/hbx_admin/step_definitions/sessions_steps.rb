@@ -39,6 +39,9 @@ Given(/^admin logs in on browser (.*)?/) do |session_id|
     session.fill_in SignIn.password, :with => person[:password]
     session.fill_in SignIn.username, :with => person[:email] unless session.find(:xpath, '//*[@id="user_login"]').value == person[:email]
     session.find(".interaction-click-control-sign-in", wait: 5).click
+    # Wait for the sign-in to finish so the logins on browser 1 and 2 happen in order;
+    # otherwise browser 1 can save its login token last and never get signed out.
+    expect(session).to have_no_css(".interaction-click-control-sign-in")
   end
 end
 
