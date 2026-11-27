@@ -255,8 +255,13 @@ Then(/^Employer clicks delete in actions$/) do
 end
 
 Then(/^Employer should see disabled delete button in actions$/) do
-  find(:xpath, '//*[@id="effective_datatable_wrapper"]/div/div/div[3]/div/table/tbody/tr[1]/td[6]').click
-  find(:xpath, '//*[@id="effective_datatable_wrapper"]/div/div/div[3]/div/table/tbody/tr[1]/td[6]/div/ul/li[2]/a')['disabled'] == "disabled"
+  actions_cell = '//*[@id="effective_datatable_wrapper"]/div/div/div[3]/div/table/tbody/tr[1]/td[6]'
+  # The datatable redraws shortly after the documents tab loads, replacing the row and closing
+  # the actions menu; reopen the menu and read the link in one retry block so a redraw just retries.
+  page.document.synchronize do
+    find(:xpath, actions_cell).click
+    find(:xpath, "#{actions_cell}/div/ul/li[2]/a")['disabled'] == "disabled"
+  end
 end
 
 Then(/^Employer should not see submitted document$/) do
