@@ -77,6 +77,21 @@ jobs:
           [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 ]
     steps:
       - uses: actions/checkout@v4
+      # Chrome 158 breaks Capybara's session reset between scenarios ("* is not a
+      # valid URL"), so pin a matching Chrome and ChromeDriver instead of using
+      # whatever the ubuntu-latest image ships. features/support/env.rb picks
+      # them up from CHROME_BIN and CHROMEDRIVER_PATH. Bump deliberately after
+      # testing.
+      - name: Install pinned Chrome and ChromeDriver
+        id: setup-chrome
+        uses: browser-actions/setup-chrome@v2
+        with:
+          chrome-version: 157.0.8103.50
+          install-chromedriver: true
+      - name: Show browser versions
+        run: |
+          "${{ steps.setup-chrome.outputs.chrome-path }}" --version
+          "${{ steps.setup-chrome.outputs.chromedriver-path }}" --version
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
@@ -100,4 +115,6 @@ jobs:
       - name: Run tests
         env:
           CUCUMBER_SPLIT_CONFIGURATION_PATH: 'ci/cucumber-split-config.json'
+          CHROME_BIN: ${{ steps.setup-chrome.outputs.chrome-path }}
+          CHROMEDRIVER_PATH: ${{ steps.setup-chrome.outputs.chromedriver-path }}
         run: cucumber_booster --job ${{ matrix.group }}/${{ strategy.job-total }}
