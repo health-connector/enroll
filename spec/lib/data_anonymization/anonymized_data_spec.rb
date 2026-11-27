@@ -147,10 +147,11 @@ RSpec.describe DataAnonymizer::AnonymizedData, dbclean: :around_each do
   # @!group DOB Shift — DOB shifting tests
 
   describe '.dob_shift_days' do
-    it 'returns an integer within ±30' do
+    it 'returns a nonzero integer within 30 days in either direction' do
       100.times do
         shift = described_module.dob_shift_days
         expect(shift).to be_a(Integer).and be_between(-30, 30)
+        expect(shift).not_to eq(0)
       end
     end
   end
@@ -172,10 +173,10 @@ RSpec.describe DataAnonymizer::AnonymizedData, dbclean: :around_each do
       expect(result).to eq(Date.new(1920, 1, 1))
     end
 
-    it 'never produces a date on or after today' do
-      recent = Date.today - 5
+    it 'never produces a date on or after the date of record' do
+      recent = TimeKeeper.date_of_record - 5
       result = described_module.shift_dob(recent, shift_days: 30)
-      expect(result).to be < Date.today
+      expect(result).to be < TimeKeeper.date_of_record
     end
 
     it 'uses a random shift when shift_days is not given' do
