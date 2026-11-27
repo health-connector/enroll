@@ -50,7 +50,10 @@ When(/^user clicks submit button$/) do
 end
 
 And(/^employer clicks OK in warning modal$/) do
-  find(:button, "OK", wait: 2).click
+  ok_button = find(:button, "OK", wait: 2)
+  # Click through JS: while the warning modal is still animating in, a native click can land
+  # on the overlay behind it, which cancels the modal instead of confirming it.
+  page.execute_script("arguments[0].click();", ok_button)
 end
 
 And(/^employer clicks Add Plan Year link$/) do

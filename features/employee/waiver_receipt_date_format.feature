@@ -19,5 +19,6 @@ Feature: Waiver receipt date format
     When Employee selects waiver on the plan shopping page
     When Employee submits waiver reason
     Then Employee should see waiver summary page
+    And the waiver receipt should show the waived date formatted as MM/DD/YYYY
     When Employee clicks continue on waiver summary page
-    Then the waiver receipt should show the waived date formatted as MM/DD/YYYY
+    Then Employee should able to see Waiver tile

@@ -746,7 +746,10 @@ end
 
 And(/^.+ sees the (.*) page and clicks Continue$/) do |which_page|
   expect(page).to have_content(which_page)
+  previous_url = page.current_url
   find("#btn-continue").click
+  # Wait for the next page to load, so later steps don't read or click the page being left.
+  expect(page).to have_no_current_path(previous_url, url: true)
   wait_for_ajax
 end
 

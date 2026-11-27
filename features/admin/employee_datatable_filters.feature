@@ -50,7 +50,9 @@ Feature: Admin using Employee Datatable Filters
     And Employee clicks continue on the group selection page
     And Employee selects waiver on the plan shopping page
     And Employee submits waiver reason
-    And Employee clicks continue on waiver summary page
+    Then Employee should see waiver summary page
+    When Employee clicks continue on waiver summary page
+    Then Employee should able to see Waiver tile
     And Employee logs out
     Given that a user with a HBX staff role with HBX staff subrole exists and is logged in
     And the user is on the Employees Index of the Admin Dashboard
