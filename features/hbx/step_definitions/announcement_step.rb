@@ -21,6 +21,8 @@ When(/Hbx admin enter announcement info for (.*?)$/) do |role|
   find('#announcement_audiences_employer').click if role == "employee"
   expect(page).to have_content "Announcements"
   find('.interaction-click-control-create-announcement').click
+  # Wait for the create to finish; otherwise its redirect can land after the next step's click.
+  expect(page).to have_content('Create Announcement Successful.')
 end
 
 When(/^Hbx admin enter announcement info with future date for (.*?)$/) do |role|
@@ -32,6 +34,8 @@ When(/^Hbx admin enter announcement info with future date for (.*?)$/) do |role|
   find('#announcement_audiences_employer').click if role == "employee"
   expect(page).to have_content "Announcements"
   find('.interaction-click-control-create-announcement').click
+  # Wait for the create to finish; otherwise its redirect can land after the next step's click.
+  expect(page).to have_content('Create Announcement Successful.')
 end
 
 Then(/Hbx admin should see the current announcement/) do
