@@ -408,7 +408,11 @@ When(/^the broker selects a Reference Health Plan$/) do
 end
 
 And(/^the broker clicks on view employee cost details button$/) do
+  previous_url = page.current_url
   find(BrokerQuotingTool.employee_cost_details_button).click
+  # The button saves the quote over ajax and then navigates; wait for the new page so the
+  # next step doesn't read the page being left.
+  expect(page).to have_no_current_path(previous_url, url: true)
 end
 
 Then(/^.+ should see Benefit Package Set Up page$/) do
