@@ -2270,8 +2270,8 @@ GEM
       base64 (>= 0.1.0)
       logger (>= 1.6.0)
       rack (>= 3.0.0, < 4)
-    rack-proxy (0.7.7)
-      rack
+    rack-proxy (2.0.2)
+      rack (>= 2.0, < 4)
     rack-session (2.1.2)
       base64 (>= 0.1.0)
       rack (>= 3.0.0)
@@ -2428,7 +2428,7 @@ GEM
     serverengine (2.1.1)
       sigdump (~> 0.2.2)
     set (1.1.0)
-    shakapacker (9.6.1)
+    shakapacker (10.3.2)
       activesupport (>= 5.2)
       package_json
       rack-proxy (>= 0.6.1)
@@ -2652,7 +2652,7 @@ DEPENDENCIES
   sassc (~> 2.0)
   sdoc (~> 1.0)
   selenium-webdriver (~> 4.11)
-  shakapacker (~> 9.5)
+  shakapacker (~> 10.3, >= 10.3.2)
   shoulda-matchers (>= 4.0.0)
   simplecov (~> 0.22.0)
   sinatra (>= 4.2.2)

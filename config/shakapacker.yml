@@ -43,11 +43,9 @@ development:
     compress: true
     allowed_hosts: 'auto'
     pretty: true
-    headers:
-      'Access-Control-Allow-Origin': '*'
-    static:
-      watch:
-        ignored: '**/node_modules/**'
+    # Packs load same-origin through the Rails proxy, so the dev server needs no CORS
+    # header and must not serve public/ (Rails already does).
+    static: false
 
 test:
   <<: *default
