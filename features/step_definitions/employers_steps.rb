@@ -1149,6 +1149,8 @@ end
 
 And(/^employer clicks Create Plan Year$/) do
   click_button 'Create Plan Year'
+  # Wait for the plan year to save and the benefits page to load, so the next step doesn't click the form being left.
+  expect(page).to have_content("Benefit Package successfully created.")
 end
 
 
