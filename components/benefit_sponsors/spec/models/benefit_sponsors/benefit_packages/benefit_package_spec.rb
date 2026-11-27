@@ -939,6 +939,28 @@ module BenefitSponsors
           benefit_package.terminate_benefit_group_assignments
           expect(benefit_package.end_on).to eq @bga.end_on
         end
+
+        it "queries only employees assigned to the benefit package" do
+          assigned_employee = initial_application.benefit_sponsorship.census_employees.first
+          unassigned_employee = create(
+            :census_employee,
+            benefit_sponsorship: initial_application.benefit_sponsorship,
+            employer_profile: initial_application.benefit_sponsorship.profile
+          )
+          other_package = initial_application.benefit_packages.build(
+            title: "Other package",
+            probation_period_kind: :first_of_month
+          )
+          other_package.save!
+          unassigned_employee.benefit_group_assignments.each do |assignment|
+            assignment.update!(benefit_package_id: other_package.id)
+          end
+
+          employees = benefit_package.census_employees_assigned_to_package.to_a
+
+          expect(employees).to include(assigned_employee)
+          expect(employees).not_to include(unassigned_employee)
+        end
       end
     end
 
@@ -1444,7 +1466,9 @@ module BenefitSponsors
         it "should update benefit_group_assignment end_on if end_on > benefit_application end on" do
           expect(@bga.end_on).to eq nil
           benefit_package.terminate_benefit_group_assignments
-          expect(@bga.end_on).to eq benefit_package.end_on
+          # Only employees assigned to the package are loaded, as fresh copies, so
+          # read the saved assignment rather than this one.
+          expect(@bga.reload.end_on).to eq benefit_package.end_on
         end
       end
 

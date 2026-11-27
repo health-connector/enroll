@@ -3,7 +3,7 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby '3.4.12'
+ruby '3.4.13'
 
 gem "benefit_markets",    path: "components/benefit_markets"
 gem "benefit_sponsors",   path: "components/benefit_sponsors"
@@ -62,7 +62,7 @@ gem 'redis', '>= 4.0'
 gem 'hiredis' # Optional but recommended for performance in Rails 8
 gem 'rack', '>= 3.2.8'
 gem 'resque'
-gem 'sinatra', '>= 4.2.0' # update sub-dependency for resque
+gem 'sinatra', '>= 4.2.2' # update sub-dependency for resque
 gem 'roo', '~> 3.0'
 gem 'ruby-saml', '~> 1.18.0'
 gem 'slim-rails'
@@ -95,7 +95,7 @@ gem 'sassc',                    '~> 2.0'
 gem 'sass-rails', '~> 6.0'
 gem 'config',    '~> 5.6'
 gem 'rack-cors'
-gem 'puma', '~> 7.2.2'
+gem 'puma', '~> 7.2.3'
 gem "observer"
 gem "openssl"
 

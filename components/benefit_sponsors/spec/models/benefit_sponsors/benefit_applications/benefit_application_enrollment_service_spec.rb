@@ -50,6 +50,125 @@ module BenefitSponsors
           expect(renewal_application.benefit_packages.count).to eq 1
         end
       end
+
+      # Re-read every call, since the examples renew between reads.
+      def renewals
+        benefit_sponsorship.reload.benefit_application_successors_for(initial_application)
+      end
+
+      def renew(application = initial_application)
+        described_class.new(application).renew_application
+      end
+
+      # The nightly renewal runs again when the date change message is redelivered.
+      # A second run must not build a second renewal plan year.
+      context "when a renewal application already exists" do
+        before(:each) do
+          renew
+        end
+
+        it "does not build a second renewal application" do
+          result, _application, messages = renew
+
+          expect(result).to eq false
+          expect(messages).to have_key(:renewal_already_exists)
+          expect(renewals.count).to eq 1
+        end
+
+        it "does not create another renewal catalog" do
+          expect { renew }.not_to(change { BenefitMarkets::BenefitSponsorCatalog.count })
+        end
+
+        context "and that renewal was canceled" do
+          before(:each) do
+            renewals.first.update_attributes!(aasm_state: :canceled)
+          end
+
+          it "builds a new renewal application" do
+            result, = renew
+
+            expect(result).to eq true
+            expect(renewals.map { |application| application.aasm_state.to_s }).to contain_exactly("canceled", "draft")
+          end
+        end
+      end
+
+      # A rerun can work from a sponsorship it loaded before an earlier run saved
+      # its renewal. The check reads the database, so that saved renewal is still seen.
+      context "when another process renews after this copy was loaded" do
+        it "does not build a second renewal application" do
+          stale_application = BenefitSponsorships::BenefitSponsorship.find(benefit_sponsorship.id).benefit_applications.find(initial_application.id)
+          renew
+
+          result, = renew(stale_application)
+
+          expect(result).to eq false
+          expect(renewals.count).to eq 1
+        end
+      end
+
+      # A redelivered date change message ran the day on a second listener while the
+      # first was still renewing. The second one checked each application before the
+      # first had saved its renewal, so both renewed it.
+      context "when a second process renews while the first is still building the renewal" do
+        let(:claim_key) { "benefit_application/#{initial_application.id}/renewal_claim" }
+
+        it "lets only the first build a renewal application" do
+          second_application = BenefitSponsorships::BenefitSponsorship.find(benefit_sponsorship.id).benefit_applications.find(initial_application.id)
+          second_result = nil
+          allow(initial_application).to receive(:renew).and_wrap_original do |original|
+            second_result, = renew(second_application)
+            original.call
+          end
+
+          first_result, = renew
+
+          expect(first_result).to eq true
+          expect(second_result).to eq false
+          expect(renewals.count).to eq 1
+        end
+
+        it "releases the claim once the renewal is saved" do
+          renew
+          expect(Rails.cache.read(claim_key)).to be_nil
+        end
+
+        it "releases the claim when building the renewal fails" do
+          allow(initial_application).to receive(:renew).and_raise(StandardError, "boom")
+
+          expect { renew }.to raise_error(StandardError, "boom")
+          expect(Rails.cache.read(claim_key)).to be_nil
+        end
+
+        it "logs the host holding the claim when it skips the application" do
+          Rails.cache.write(claim_key, "listener-host")
+          allow(Rails.logger).to receive(:warn)
+
+          result, = renew
+
+          expect(result).to eq false
+          expect(Rails.logger).to have_received(:warn)
+            .with("Renewal skipped for benefit application #{initial_application.id}: claimed by listener-host")
+        ensure
+          Rails.cache.delete(claim_key)
+        end
+      end
+
+      context "when the claim can't be written because the cache is unreachable" do
+        before(:each) do
+          allow(Rails.cache).to receive(:write).and_call_original
+          allow(Rails.cache).to receive(:write)
+            .with("benefit_application/#{initial_application.id}/renewal_claim", anything, hash_including(unless_exist: true))
+            .and_return(false)
+        end
+
+        it "still builds the renewal application" do
+          result, = renew
+
+          expect(result).to eq true
+          expect(renewals.count).to eq 1
+        end
+      end
     end
 
     describe '.revert_application' do
