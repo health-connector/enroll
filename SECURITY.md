@@ -2,93 +2,6 @@
 
 ## Vulnerability Mitigations
 
-### CVE-2024-21510 - Sinatra
-
-**Vulnerability:** Sinatra vulnerable to Reliance on Untrusted Inputs in a Security Decision
-
-**Mitigation:** This vulnerability affects Sinatra when used for parsing HTTP requests. In our application, Sinatra is not directly used for this purpose. It is a dependency of Resque, which we use for background job processing. The vulnerable component of Sinatra is not exercised in our usage context, therefore the risk is minimal.
-
-**Actions Taken:**
-1. We have documented this issue and our mitigation strategy.
-2. We are monitoring for updates to Resque that might include a patched version of Sinatra.
-3. We have verified that our usage of Resque does not expose Sinatra to untrusted input in our application setup.
-4. We have configured bundler-audit to ignore this specific vulnerability in our CI/CD pipeline.
-
-**Ongoing Measures:**
-1. Regular review of dependencies and their security advisories.
-2. Periodic assessment of our usage of Resque to ensure it remains unexposed to the vulnerable Sinatra components.
-
-### Advisory GHSA-vfm5-rmrh-j26v - Action Dispatch 2024-12-10
-
-**Vulnerability:**
-
-Source: https://github.com/rails/rails/security/advisories/GHSA-vfm5-rmrh-j26v
-
-NVD: https://nvd.nist.gov/vuln/detail/CVE-2024-54133
-
-There is a possible Cross Site Scripting (XSS) vulnerability in the content_security_policy helper in Action Pack.
-
-Applications which set Content-Security-Policy (CSP) headers dynamically from untrusted user input may be vulnerable to carefully crafted inputs being able to inject new directives into the CSP. This could lead to a bypass of the CSP and its protection against XSS and other attacks.
-
-**Mitigation:**
-
-No mitigation required as we are not vulnerable.
-
-We do not dynamically set our CSP values using user input.
-
-This specific security advisory has been added to the bundler audit ignore file.
-
-### Advisory GHSA-vvfq-8hwr-qm4m - Nokogiri 2025-02-18
-
-#### Vulnerability
-
-Source: https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-vvfq-8hwr-qm4m
-
-This advisory addresses two separate vulnerabilities:
-1. CVE-2025-24928
-2. CVE-2024-56171
-
-These vulnerabilities are present in the underlying `libxml2` implementation packaged with Nokogiri versions `< 1.18.3`.
-
-#### CVE-2025-24928
-
-NVD: https://nvd.nist.gov/vuln/detail/CVE-2025-24928
-
-Source: https://gitlab.gnome.org/GNOME/libxml2/-/issues/847
-
-**Description:**
-
-```
-libxml2 before 2.12.10 and 2.13.x before 2.13.6 has a stack-based buffer overflow in xmlSnprintfElements in valid.c. To exploit this, DTD validation must occur for an untrusted document or untrusted DTD. NOTE: this is similar to CVE-2017-9047.
-```
-
-Notes from the libxml2 bugtracker state:
-
-```
-This issue only affects DTD validation of untrusted XML documents or validation against untrusted DTDs. It can be triggered by passing the XML_PARSE_DTDVALID parser option or by calling one of the DTD validation functions like xmlValidateDocument or xmlValidateDtd.
-```
-
-**Mitigation:**
-
-There are few endpoints in Enroll which accept XML data.  Of those, none perform DTD validation.  As explotation requires the execution of DTD validation against a crafted XML document, Enroll is not considered vulnerable.
-
-#### CVE-2024-56171
-
-NVD: https://nvd.nist.gov/vuln/detail/CVE-2024-56171
-
-Source: https://gitlab.gnome.org/GNOME/libxml2/-/issues/828
-
-**Description:**
-
-```
-libxml2 before 2.12.10 and 2.13.x before 2.13.6 has a use-after-free in xmlSchemaIDCFillNodeTables and xmlSchemaBubbleIDCNodeTables in xmlschemas.c. To exploit this, a crafted XML document must be validated against an XML schema with certain identity constraints, or a crafted XML schema must be used.
-```
-
-Notes from the libxml2 bugtracker state:
-
-```
-This issue affects validation against untrusted XML Schemas (.xsd) and, potentially, validation of untrusted documents against trusted Schemas if they make use of xsd:keyref in combination with recursively defined types that have additional identity constraints. It's hard for me to judge whether this is common in practice.
-
 ### CodeQL: DOM-based XSS via jQuery `.html()` — May 2026
 
 **Vulnerability:**
@@ -107,7 +20,7 @@ All findings were remediated without functional impact. In each affected locatio
 
 **Actions Taken:**
 
-1. Replaced `.html(...)` with `.text(...)` in all four files listed above.
+1. Replaced `.html(...)` with `.text(...)` in the three files listed above.
 2. Hardened the `data-target` selector in `app/assets/javascripts/employee_dependent.js`: switched from `.attr("data-target")` to `.data("target")` and added a strict CSS ID format check (`/^#[A-Za-z][A-Za-z0-9_:\-\.]*$/`) before passing the value to `$(selector).remove()`.
 3. Remaining CodeQL findings in admin- and broker-only views were assessed as low-risk false positives due to constrained numeric slider sources and restricted access surfaces. These are not suppressed but are documented here as accepted risk.
 
@@ -117,144 +30,6 @@ All findings were remediated without functional impact. In each affected locatio
 2. Require explicit justification when `.html()` is introduced with dynamic values.
 3. Periodically audit admin/broker-only endpoints for XSS — restricted access does not eliminate risk.
 4. Keep legacy/unmounted components out of active asset/runtime paths.
-```
-
-**Mitigation:**
-
-There are few endpoints in Enroll which accept XML data.  Of those, none perform validation using an XML schema which contains usage of the xsd:keyref construct.  As explotation requires these conditions, Enroll is not considered vulnerable.
-
-#### Actions Taken
-
-Given that Enroll is not considered vulnerable against either underlying CVE, this specific security advisory has been added to the bundler audit ignore file.
-
-#### CVE-2025-61770
-
-Issue: https://nvd.nist.gov/vuln/detail/CVE-2024-56171
-
-Source: https://github.com/rack/rack/security/advisories/GHSA-p543-xpfm-54cp
-
-**Description:**
-
-```
-Rack::Multipart::Parser buffers the entire multipart preamble (bytes before the first boundary) in memory without any size limit. A client can send a large preamble followed by a valid boundary, causing significant memory use and potential process termination due to out-of-memory (OOM) conditions.
-```
-
-Notes from the Rack bugtracker state:
-
-```
-Remote attackers can trigger large transient memory spikes by including a long preamble in multipart/form-data requests. The impact scales with allowed request sizes and concurrency, potentially causing worker crashes or severe slowdown due to garbage collection.
-```
-
-**Mitigation:**
-
-Use a patched version of Rack that enforces a preamble size limit (e.g., 16 KiB) or discards preamble data entirely per [RFC 2046 § 5.1.1](https://www.rfc-editor.org/rfc/rfc2046.html#section-5.1.1).
-
-#### CVE-2025-61771
-
-Issue: https://nvd.nist.gov/vuln/detail/CVE-2025-61771
-
-Source: https://github.com/rack/rack/security/advisories/GHSA-w9pc-fmgc-vxvw
-
-**Description:**
-
-```
-Rack::Multipart::Parser stores non-file form fields (parts without a filename) entirely in memory as Ruby String objects. A single large text field in a multipart/form-data request (hundreds of megabytes or more) can consume equivalent process memory, potentially leading to out-of-memory (OOM) conditions and denial of service (DoS).
-```
-
-Notes from the Rack bugtracker state:
-
-```
-Attackers can send large non-file fields to trigger excessive memory usage. Impact scales with request size and concurrency, potentially leading to worker crashes or severe garbage-collection overhead.
-All Rack applications processing multipart form submissions are affected.
-```
-
-**Mitigation:**
-
-Use a patched version of Rack that enforces a reasonable size cap for non-file fields (e.g., 2 MiB).
-
-#### CVE-2025-61772
-
-Issue: https://nvd.nist.gov/vuln/detail/CVE-2025-61772
-
-Source: https://github.com/rack/rack/security/advisories/GHSA-wpv5-97wm-hp9c
-
-**Description:**
-
-```
-Rack::Multipart::Parser can accumulate unbounded data when a multipart part’s header block never terminates with the required blank line (CRLFCRLF). The parser keeps appending incoming bytes to memory without a size cap, allowing a remote attacker to exhaust memory and cause a denial of service (DoS).
-```
-
-Notes from the Rack bugtracker state:
-
-```
-Attackers can send incomplete multipart headers to trigger high memory use, leading to process termination (OOM) or severe slowdown. The effect scales with request size limits and concurrency. All applications handling multipart uploads may be affected.
-```
-
-**Mitigation:**
-
-Upgrade to a patched Rack version that caps per-part header size (e.g., 64 KiB).
-
-#### CVE-2025-61780
-
-Issue: https://nvd.nist.gov/vuln/detail/CVE-2025-61780
-
-Source: https://github.com/rack/rack/security/advisories/GHSA-p543-xpfm-54cp
-
-**Description:**
-
-```
-Rack::Multipart::Parser buffers the entire multipart preamble (bytes before the first boundary) in memory without any size limit. A client can send a large preamble followed by a valid boundary, causing significant memory use and potential process termination due to out-of-memory (OOM) conditions.
-```
-
-Notes from the Rack bugtracker state:
-
-```
-Remote attackers can trigger large transient memory spikes by including a long preamble in multipart/form-data requests. The impact scales with allowed request sizes and concurrency, potentially causing worker crashes or severe slowdown due to garbage collection.
-```
-
-**Mitigation:**
-
-Use a patched version of Rack that enforces a preamble size limit (e.g., 16 KiB) or discards preamble data entirely per [RFC 2046 § 5.1.1](https://www.rfc-editor.org/rfc/rfc2046.html#section-5.1.1).
-
-#### CVE-2025-61919
-
-Issue: https://nvd.nist.gov/vuln/detail/CVE-2025-61919
-
-Source: https://github.com/rack/rack/security/advisories/GHSA-6xw4-3v39-52mm
-
-**Description:**
-
-```
-Rack::Request#POST reads the entire request body into memory for Content-Type: application/x-www-form-urlencoded, calling rack.input.read(nil) without enforcing a length or cap. Large request bodies can therefore be buffered completely into process memory before parsing, leading to denial of service (DoS) through memory exhaustion.
-```
-
-Notes from the Rack bugtracker state:
-
-```
-Attackers can send large application/x-www-form-urlencoded bodies to consume process memory, causing slowdowns or termination by the operating system (OOM). The effect scales linearly with request size and concurrency. Even with parsing limits configured, the issue occurs before those limits are enforced.
-```
-
-**Mitigation:**
-
-Update to a patched version of Rack that enforces form parameter limits using query_parser.bytesize_limit, preventing unbounded reads of application/x-www-form-urlencoded bodies.
-
-#### CVE-2025-61921
-
-Issue: https://nvd.nist.gov/vuln/detail/CVE-2025-61921
-
-Source: https://github.com/rack/rack/security/advisories/GHSA-6xw4-3v39-52mm
-
-**Description:**
-
-```
-There is a denial of service vulnerability in the If-Match and If-None-Match header parsing component of Sinatra, if the etag method is used when constructing the response and you are using Ruby < 3.2.
-```
-
-Notes from the sinatra bugtracker state:
-
-```
-Carefully crafted input can cause If-Match and If-None-Match header parsing in Sinatra to take an unexpected amount of time, possibly resulting in a denial of service attack vector. This header is typically involved in generating the ETag header value. Any applications that use the etag method when generating a response are impacted if they are using Ruby below version 3.2.
-```
 
 ### CodeQL: rb/clear-text-storage-of-sensitive-data — script/policies_for_simulated_renewals.rb
 
@@ -280,11 +55,9 @@ This finding is considered a false positive in the context of the application's 
 **Ongoing Measures:**
 
 1. Monitor for changes to CodeQL rule definitions that may require re-assessment.
-2. Document renewal workflow dependencies to ensure lower-environment-only execution remains enforced. Storing it as `SIM_RENEWALS_ENCRYPTION_KEY` in lower environments
-3. Adding encryption/decryption logic in the affected scripts
-4. Updating DevOps processes for secure key management
+2. Document renewal workflow dependencies to ensure lower-environment-only execution remains enforced.
 
-Given the limited scope, short-lived nature of the data, and existing file permission controls, the simpler approach is appropriate and sufficient for the risk level presented.
+Encrypting the output files (with a key such as `SIM_RENEWALS_ENCRYPTION_KEY` managed in lower environments) was considered and not adopted. Given the limited scope, short-lived nature of the data, and existing file permission controls, the simpler approach is appropriate and sufficient for the risk level presented.
 
 **Status:** False positive - Risk adequately mitigated through file permissions and operational controls.
 
@@ -378,3 +151,36 @@ Given no non-breaking patch exists and the exposure is limited to a trusted, Pun
 **Ongoing Measures:**
 1. Remove the ignore entry and bump rack-proxy when the shakapacker upgrade lands.
 2. Revisit sooner if `dev_server` is added to a non-development environment in `config/shakapacker.yml`, or if another gem starts depending on `rack-proxy`.
+
+### Bearer: sensitive data in report CSV files (CWE-313) — November 2026
+
+**Vulnerability:**
+
+Bearer's `ruby_lang_file_generation` rule flags 16 CSV writes in manually run report tasks and scripts that write personal data (names, emails, HBX IDs) to files in clear text. Two of them, `ivl_non_dc_address.rake` and `lawful_alien_docs.rake`, also write SSN and date of birth.
+
+- `script/ea_access_list.rb` (5 rows)
+- `lib/tasks/EE_autorenew_data_clean_up.rake`
+- `lib/tasks/outstanding_dc_residency_report.rake`
+- `lib/tasks/hbx_reports/census_ee_enrollments_with_invalid_hbx_members.rake`
+- `lib/tasks/hbx_reports/employee_termination_submitted_on_report.rake`
+- `lib/tasks/hbx_reports/ivl_non_dc_address.rake`
+- `lib/tasks/hbx_reports/ivl_termination_submitted_on_report.rake`
+- `lib/tasks/hbx_reports/lawful_alien_docs.rake` (2 rows)
+- `lib/tasks/hbx_reports/test_employer_group_enrollment_data.rake`
+- `lib/tasks/hbx_reports/users_account_with_no_email.rake`
+- `lib/tasks/hbx_reports/waiver_not_cancelling_passive_renewal_enrollment.rake`
+
+**Mitigation:**
+
+These are accepted risks, not false positives: each task exists to produce a report containing this data, and the output files are handled by the operators who run them. Bearer's detections are accurate.
+
+**Actions Taken:**
+
+1. Kept the existing `bearer.ignore` entries for these rows and added the 16 that were missing. Bearer fingerprints are positional (`<hash>_<index>`, numbered in line order per rule and file), each row can have several, and Bearer reports the lowest one not ignored. The earlier entries lacked each row's first fingerprint, so all 16 rows stayed open in code scanning despite the earlier triage.
+2. The new entries are marked `false_positive: false` (accepted risk). Older entries for the same rows keep `false_positive: true` from the earlier triage.
+3. All rows except `script/ea_access_list.rb:21` were previously accepted through `bearer.ignore` (June 2025 and August 2026). Line 21, the "No person record" row, is accepted here for the first time on the same rationale.
+
+**Ongoing Measures:**
+
+1. Every fingerprint index in these 11 files is now ignored. A new finding added above an existing row takes an ignored fingerprint and is not reported, and an already-accepted row resurfaces under a new index instead. Treat a resurfaced finding in these files as a sign of new code and review the file's history before ignoring anything else.
+2. Re-check these entries after a Bearer upgrade or any edit to these files, since either can renumber the fingerprints.

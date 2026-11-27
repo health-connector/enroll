@@ -1,4 +1,34 @@
 {
+  "27e76a470102223564a43c8c405e219d_0": {
+    "author": "Vineel",
+    "comment": "Bearer CWE-313 (sensitive data in generated file): accepted risk, the code is expected to generate a CSV access report with the given data with sensitive information. First triage of the \"No person record\" row (script/ea_access_list.rb:21); no earlier entry covered it.",
+    "false_positive": false,
+    "ignored_at": "2026-11-27T19:28:01Z"
+  },
+  "27e76a470102223564a43c8c405e219d_1": {
+    "author": "Vineel",
+    "comment": "Bearer CWE-313 (sensitive data in generated file): accepted risk, the code is expected to generate a CSV access report with the given data with sensitive information. Adds this line's base fingerprint, which the earlier triage did not include, so Bearer kept reporting the line.",
+    "false_positive": false,
+    "ignored_at": "2026-11-27T19:28:01Z"
+  },
+  "27e76a470102223564a43c8c405e219d_3": {
+    "author": "Vineel",
+    "comment": "Bearer CWE-313 (sensitive data in generated file): accepted risk, the code is expected to generate a CSV access report with the given data with sensitive information. Adds this line's base fingerprint, which the earlier triage did not include, so Bearer kept reporting the line.",
+    "false_positive": false,
+    "ignored_at": "2026-11-27T19:28:01Z"
+  },
+  "27e76a470102223564a43c8c405e219d_5": {
+    "author": "Vineel",
+    "comment": "Bearer CWE-313 (sensitive data in generated file): accepted risk, the code is expected to generate a CSV access report with the given data with sensitive information. Adds this line's base fingerprint, which the earlier triage did not include, so Bearer kept reporting the line.",
+    "false_positive": false,
+    "ignored_at": "2026-11-27T19:28:01Z"
+  },
+  "27e76a470102223564a43c8c405e219d_7": {
+    "author": "Vineel",
+    "comment": "Bearer CWE-313 (sensitive data in generated file): accepted risk, the code is expected to generate a CSV access report with the given data with sensitive information. Adds this line's base fingerprint, which the earlier triage did not include, so Bearer kept reporting the line.",
+    "false_positive": false,
+    "ignored_at": "2026-11-27T19:28:01Z"
+  },
   "27e76a470102223564a43c8c405e219d_2": {
     "author": "Nikhil",
     "comment": "This is flagged as 'Leakage of sensitive data in dynamic file generation [CWE-313]' but the code is expected to generate a CSV access report with the given data with sensitive information.",
@@ -23,6 +53,12 @@
     "false_positive": true,
     "ignored_at": "2026-08-06T00:00:17Z"
   },
+  "04e71e6830591e727d5e530cfb65053e_0": {
+    "author": "Vineel",
+    "comment": "Bearer CWE-313 (sensitive data in generated file): accepted risk, the code is expected to generate CSV files with the given data with sensitive information. Adds this line's base fingerprint, which the earlier triage did not include, so Bearer kept reporting the line.",
+    "false_positive": false,
+    "ignored_at": "2026-11-27T19:28:01Z"
+  },
   "04e71e6830591e727d5e530cfb65053e_1": {
     "author": "Hanna",
     "comment": "This is flagges as 'Leakage of sensitive data in dynamic file generation [CWE-313]' but the code is expected to generate CSV files with the given data with sensitive information.",
@@ -41,23 +77,29 @@
     "false_positive": true,
     "ignored_at": "2025-06-24T19:53:00Z"
   },
+  "08ddd91659718c61a94e1e86860b8ce9_0": {
+    "author": "Vineel",
+    "comment": "Bearer CWE-313 (sensitive data in generated file): accepted risk, the code is expected to generate CSV files with the given data with sensitive information. Adds this line's base fingerprint, which the earlier triage did not include, so Bearer kept reporting the line.",
+    "false_positive": false,
+    "ignored_at": "2026-11-27T19:28:01Z"
+  },
   "08ddd91659718c61a94e1e86860b8ce9_1": {
     "author": "Hanna",
     "comment": "This is flagged as 'Leakage of sensitive data in dynamic file generation [CWE-313]' but the code is expected to generate CSV files with the given data with sensitive information.",
     "false_positive": true,
     "ignored_at": "2025-06-24T16:20:06Z"
   },
-  "09d1f2784824ed137c7c0e9630818ed5_0": {
-    "author": "Nikhil",
-    "comment": "Known non-prod developer credential used only by the anonymizer task in lower environments. The task aborts immediately in production. This value is intentionally hardcoded for operator convenience and is not a secret.",
-    "false_positive": true,
-    "ignored_at": "2026-06-08T14:09:04Z"
-  },
   "cea0ec34f10f290e74bade0cfa10b007_0": {
     "author": "Nikhil",
     "comment": "Known non-prod developer credential used only by the anonymizer task in lower environments. The task aborts immediately in production. This value is intentionally hardcoded for operator convenience and is not a secret.",
     "false_positive": true,
     "ignored_at": "2026-06-08T14:09:04Z"
+  },
+  "0eeaa85053556b1553e85573ebcdb09e_0": {
+    "author": "Vineel",
+    "comment": "Bearer CWE-313 (sensitive data in generated file): accepted risk, the code is expected to generate CSV files with the given data with sensitive information. Adds this line's base fingerprint, which the earlier triage did not include, so Bearer kept reporting the line.",
+    "false_positive": false,
+    "ignored_at": "2026-11-27T19:28:01Z"
   },
   "0eeaa85053556b1553e85573ebcdb09e_1": {
     "author": "Hanna",
@@ -70,6 +112,18 @@
     "comment": "This is flagged as 'Leakage of sensitive data in dynamic file generation [CWE-313]' but the code is expected to generate CSV files with the given data with sensitive information.",
     "false_positive": true,
     "ignored_at": "2025-06-24T16:45:23Z"
+  },
+  "0f54a55f0ba92e81160b67b9b8900320_0": {
+    "author": "Vineel",
+    "comment": "Bearer CWE-313 (sensitive data in generated file): accepted risk, the code is expected to generate CSV files with the given data with sensitive information. Adds this line's base fingerprint, which the earlier triage did not include, so Bearer kept reporting the line.",
+    "false_positive": false,
+    "ignored_at": "2026-11-27T19:28:01Z"
+  },
+  "0f54a55f0ba92e81160b67b9b8900320_3": {
+    "author": "Vineel",
+    "comment": "Bearer CWE-313 (sensitive data in generated file): accepted risk, the code is expected to generate CSV files with the given data with sensitive information. Adds this line's base fingerprint, which the earlier triage did not include, so Bearer kept reporting the line.",
+    "false_positive": false,
+    "ignored_at": "2026-11-27T19:28:01Z"
   },
   "0f54a55f0ba92e81160b67b9b8900320_1": {
     "author": "Hanna",
@@ -95,6 +149,12 @@
     "false_positive": true,
     "ignored_at": "2025-06-24T16:45:08Z"
   },
+  "3f00ceb8778528fdcf6672f5daac458a_0": {
+    "author": "Vineel",
+    "comment": "Bearer CWE-313 (sensitive data in generated file): accepted risk, the code is expected to generate CSV files with the given data with sensitive information. Adds this line's base fingerprint, which the earlier triage did not include, so Bearer kept reporting the line.",
+    "false_positive": false,
+    "ignored_at": "2026-11-27T19:28:01Z"
+  },
   "3f00ceb8778528fdcf6672f5daac458a_1": {
     "author": "Hanna",
     "comment": " This is flagges as 'Leakage of sensitive data in dynamic file generation [CWE-313]' but the code is expected to generate CSV files with the given data with sensitive information.",
@@ -119,17 +179,35 @@
     "false_positive": true,
     "ignored_at": "2025-06-24T19:56:37Z"
   },
+  "5f566bcc34af3eac186a8c19ef03dc51_0": {
+    "author": "Vineel",
+    "comment": "Bearer CWE-313 (sensitive data in generated file): accepted risk, the code is expected to generate CSV files with the given data with sensitive information. Adds this line's base fingerprint, which the earlier triage did not include, so Bearer kept reporting the line.",
+    "false_positive": false,
+    "ignored_at": "2026-11-27T19:28:01Z"
+  },
   "5f566bcc34af3eac186a8c19ef03dc51_1": {
     "author": "Hanna",
     "comment": "This is flagges as 'Leakage of sensitive data in dynamic file generation [CWE-313]' but the code is expected to generate CSV files with the given data with sensitive information.",
     "false_positive": true,
     "ignored_at": "2025-06-24T16:31:50Z"
   },
+  "7ad2a9d64a516a2cc185de198bd0672e_0": {
+    "author": "Vineel",
+    "comment": "Bearer CWE-313 (sensitive data in generated file): accepted risk, the code is expected to generate CSV files with the given data with sensitive information. Adds this line's base fingerprint, which the earlier triage did not include, so Bearer kept reporting the line.",
+    "false_positive": false,
+    "ignored_at": "2026-11-27T19:28:01Z"
+  },
   "7ad2a9d64a516a2cc185de198bd0672e_1": {
     "author": "Hanna",
     "comment": "This is flagges as 'Leakage of sensitive data in dynamic file generation [CWE-313]' but the code is expected to generate CSV files with the given data with sensitive information.",
     "false_positive": true,
     "ignored_at": "2025-06-24T16:31:10Z"
+  },
+  "9e42fed1f95e343e3929466a68ed31a9_0": {
+    "author": "Vineel",
+    "comment": "Bearer CWE-313 (sensitive data in generated file): accepted risk, the code is expected to generate CSV files with the given data with sensitive information. Adds this line's base fingerprint, which the earlier triage did not include, so Bearer kept reporting the line.",
+    "false_positive": false,
+    "ignored_at": "2026-11-27T19:28:01Z"
   },
   "9e42fed1f95e343e3929466a68ed31a9_1": {
     "author": "Hanna",
@@ -155,11 +233,23 @@
     "false_positive": true,
     "ignored_at": "2025-06-24T16:33:18Z"
   },
+  "df352fc34e516725803b4c4d0fcf954e_0": {
+    "author": "Vineel",
+    "comment": "Bearer CWE-313 (sensitive data in generated file): accepted risk, the code is expected to generate CSV files with the given data with sensitive information. Adds this line's base fingerprint, which the earlier triage did not include, so Bearer kept reporting the line.",
+    "false_positive": false,
+    "ignored_at": "2026-11-27T19:28:01Z"
+  },
   "df352fc34e516725803b4c4d0fcf954e_1": {
     "author": "Hanna",
     "comment": "This is flagges as 'Leakage of sensitive data in dynamic file generation [CWE-313]' but the code is expected to generate CSV files with the given data with sensitive information.",
     "false_positive": true,
     "ignored_at": "2025-06-24T16:30:54Z"
+  },
+  "e15a71769ab3600fb6b4b7d9747ce588_0": {
+    "author": "Vineel",
+    "comment": "Bearer CWE-313 (sensitive data in generated file): accepted risk, the code is expected to generate CSV files with the given data with sensitive information. Adds this line's base fingerprint, which the earlier triage did not include, so Bearer kept reporting the line.",
+    "false_positive": false,
+    "ignored_at": "2026-11-27T19:28:01Z"
   },
   "e15a71769ab3600fb6b4b7d9747ce588_1": {
     "author": "Hanna",
