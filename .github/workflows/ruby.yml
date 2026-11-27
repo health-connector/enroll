@@ -112,6 +112,14 @@ jobs:
         run: yarn install
       - name: Install Test boosters gem
         run: gem install treye-semaphore_test_boosters --version '2.5.2'
+      # Compile the test packs before the tests start. Otherwise shakapacker compiles
+      # them inside the job's first page request, which can outlast Selenium's 120s
+      # read timeout and fail that scenario with Net::ReadTimeout.
+      - name: Compile test packs
+        env:
+          RAILS_ENV: test
+          NODE_ENV: test
+        run: bin/shakapacker
       - name: Run tests
         env:
           CUCUMBER_SPLIT_CONFIGURATION_PATH: 'ci/cucumber-split-config.json'
