@@ -767,7 +767,11 @@ $(document).on('click', ".delete_confirm", function(){
 
   $.ajax({
     type: 'get',
-    datatype : 'js',
+    // Ask for the JS response (it sets the flash) but read it as text so jQuery doesn't
+    // run the redirect it contains; that redirect raced the reload below and could drop
+    // the flash message.
+    headers: { Accept: 'text/javascript' },
+    dataType: 'text',
     url: link_to_delete,
     data: {termination_date: termination_date},
     success: function(response){
@@ -787,7 +791,11 @@ $(document).on('click', ".rehire-confirm", function(){
   var rehire_link = $(this).data('link');
   $.ajax({
     type: 'get',
-    datatype : 'js',
+    // Ask for the JS response (it sets the flash) but read it as text so jQuery doesn't
+    // run the redirect it contains; that redirect raced the reload below and could drop
+    // the flash message.
+    headers: { Accept: 'text/javascript' },
+    dataType: 'text',
     url: rehire_link,
     data: {rehiring_date: rehiring_date},
     success: function(response){
