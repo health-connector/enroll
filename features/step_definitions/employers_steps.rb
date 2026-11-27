@@ -892,6 +892,8 @@ end
 
 And(/^employer clicks on update employee$/) do
   find('.interaction-click-control-update-employee').click
+  # Wait for the update to save and the page to reload, so the next step doesn't read the form being left.
+  expect(page).to have_content("Census Employee is successfully updated.")
 end
 
 And(/^employer clicks on non-linked employee with address$/) do
